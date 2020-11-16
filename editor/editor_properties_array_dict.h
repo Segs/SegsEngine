@@ -28,9 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_PROPERTIES_ARRAY_DICT_H
-#define EDITOR_PROPERTIES_ARRAY_DICT_H
+#pragma once
 
+#include "core/dictionary.h"
 #include "editor/editor_inspector.h"
 #include "editor/editor_spin_slider.h"
 #include "scene/gui/button.h"
@@ -108,7 +108,7 @@ class EditorPropertyArray : public EditorProperty {
     void _remove_pressed(int p_index);
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {}
     void _notification(int p_what);
 
 public:
@@ -143,12 +143,10 @@ class EditorPropertyDictionary : public EditorProperty {
     void _object_id_selected(StringView p_property, ObjectID p_id);
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {}
     void _notification(int p_what);
 
 public:
     void update_property() override;
     EditorPropertyDictionary();
 };
-
-#endif // EDITOR_PROPERTIES_ARRAY_DICT_H

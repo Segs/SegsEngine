@@ -32,6 +32,7 @@
 
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
+#include "core/io/resource_format_loader.h"
 #include "core/script_language.h"
 #include "core/self_list.h"
 #include "core/list.h"
@@ -70,7 +71,7 @@ TScriptInstance *cast_script_instance(ScriptInstance *p_inst) {
 
 class GODOT_EXPORT CSharpScript : public Script {
 
-    GDCLASS(CSharpScript, Script);
+    GDCLASS(CSharpScript, Script)
 public:
     struct SignalParameter {
         StringName name;
@@ -331,7 +332,7 @@ struct CSharpScriptBinding {
 };
 
 class ManagedCallableMiddleman : public Object {
-    GDCLASS(ManagedCallableMiddleman, Object);
+    GDCLASS(ManagedCallableMiddleman, Object)
 };
 
 class GODOT_EXPORT CSharpLanguage : public ScriptLanguage {
@@ -456,7 +457,9 @@ public:
     bool validate(StringView p_script, int &r_line_error, int &r_col_error, String &r_test_error,
             StringView p_path = {}, Vector<String> *r_functions = nullptr,
             Vector<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
+#ifdef TOOLS_ENABLED
     String validate_path(StringView p_path) const override;
+#endif
     Script *create_script() const override;
     bool has_named_classes() const override;
     bool supports_builtin_mode() const override;

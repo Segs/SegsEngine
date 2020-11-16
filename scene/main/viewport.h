@@ -535,7 +535,7 @@ public:
     void gui_reset_canvas_sort_index();
     int gui_get_canvas_sort_index();
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     void set_usage(Usage p_usage);
     Usage get_usage() const;

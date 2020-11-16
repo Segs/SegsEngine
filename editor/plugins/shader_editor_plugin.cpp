@@ -125,33 +125,33 @@ void ShaderTextEditor::_load_theme_settings() {
     Color keyword_color = EDITOR_GET_T<Color>("text_editor/highlighting/keyword_color");
     Color comment_color = EDITOR_GET_T<Color>("text_editor/highlighting/comment_color");
 
-    get_text_edit()->add_color_override("background_color", background_color);
-    get_text_edit()->add_color_override("completion_background_color", completion_background_color);
-    get_text_edit()->add_color_override("completion_selected_color", completion_selected_color);
-    get_text_edit()->add_color_override("completion_existing_color", completion_existing_color);
-    get_text_edit()->add_color_override("completion_scroll_color", completion_scroll_color);
-    get_text_edit()->add_color_override("completion_font_color", completion_font_color);
-    get_text_edit()->add_color_override("font_color", text_color);
-    get_text_edit()->add_color_override("line_number_color", line_number_color);
-    get_text_edit()->add_color_override("caret_color", caret_color);
-    get_text_edit()->add_color_override("caret_background_color", caret_background_color);
-    get_text_edit()->add_color_override("font_color_selected", text_selected_color);
-    get_text_edit()->add_color_override("selection_color", selection_color);
-    get_text_edit()->add_color_override("brace_mismatch_color", brace_mismatch_color);
-    get_text_edit()->add_color_override("current_line_color", current_line_color);
-    get_text_edit()->add_color_override("line_length_guideline_color", line_length_guideline_color);
-    get_text_edit()->add_color_override("word_highlighted_color", word_highlighted_color);
-    get_text_edit()->add_color_override("number_color", number_color);
-    get_text_edit()->add_color_override("function_color", function_color);
-    get_text_edit()->add_color_override("member_variable_color", member_variable_color);
-    get_text_edit()->add_color_override("mark_color", mark_color);
-    get_text_edit()->add_color_override("bookmark_color", bookmark_color);
-    get_text_edit()->add_color_override("breakpoint_color", breakpoint_color);
-    get_text_edit()->add_color_override("executing_line_color", executing_line_color);
-    get_text_edit()->add_color_override("code_folding_color", code_folding_color);
-    get_text_edit()->add_color_override("search_result_color", search_result_color);
-    get_text_edit()->add_color_override("search_result_border_color", search_result_border_color);
-    get_text_edit()->add_color_override("symbol_color", symbol_color);
+    get_text_edit()->add_theme_color_override("background_color", background_color);
+    get_text_edit()->add_theme_color_override("completion_background_color", completion_background_color);
+    get_text_edit()->add_theme_color_override("completion_selected_color", completion_selected_color);
+    get_text_edit()->add_theme_color_override("completion_existing_color", completion_existing_color);
+    get_text_edit()->add_theme_color_override("completion_scroll_color", completion_scroll_color);
+    get_text_edit()->add_theme_color_override("completion_font_color", completion_font_color);
+    get_text_edit()->add_theme_color_override("font_color", text_color);
+    get_text_edit()->add_theme_color_override("line_number_color", line_number_color);
+    get_text_edit()->add_theme_color_override("caret_color", caret_color);
+    get_text_edit()->add_theme_color_override("caret_background_color", caret_background_color);
+    get_text_edit()->add_theme_color_override("font_color_selected", text_selected_color);
+    get_text_edit()->add_theme_color_override("selection_color", selection_color);
+    get_text_edit()->add_theme_color_override("brace_mismatch_color", brace_mismatch_color);
+    get_text_edit()->add_theme_color_override("current_line_color", current_line_color);
+    get_text_edit()->add_theme_color_override("line_length_guideline_color", line_length_guideline_color);
+    get_text_edit()->add_theme_color_override("word_highlighted_color", word_highlighted_color);
+    get_text_edit()->add_theme_color_override("number_color", number_color);
+    get_text_edit()->add_theme_color_override("function_color", function_color);
+    get_text_edit()->add_theme_color_override("member_variable_color", member_variable_color);
+    get_text_edit()->add_theme_color_override("mark_color", mark_color);
+    get_text_edit()->add_theme_color_override("bookmark_color", bookmark_color);
+    get_text_edit()->add_theme_color_override("breakpoint_color", breakpoint_color);
+    get_text_edit()->add_theme_color_override("executing_line_color", executing_line_color);
+    get_text_edit()->add_theme_color_override("code_folding_color", code_folding_color);
+    get_text_edit()->add_theme_color_override("search_result_color", search_result_color);
+    get_text_edit()->add_theme_color_override("search_result_border_color", search_result_border_color);
+    get_text_edit()->add_theme_color_override("symbol_color", symbol_color);
 
     Vector<StringView> keywords;
     ShaderLanguage::get_keyword_list(&keywords);
@@ -284,8 +284,9 @@ void ShaderEditor::_menu_option(int p_option) {
         } break;
         case EDIT_INDENT_LEFT: {
 
-            if (not shader)
+            if (not shader) {
                 return;
+            }
 
             TextEdit *tx = shader_editor->get_text_edit();
             tx->indent_left();
@@ -293,8 +294,9 @@ void ShaderEditor::_menu_option(int p_option) {
         } break;
         case EDIT_INDENT_RIGHT: {
 
-            if (not shader)
+            if (not shader) {
                 return;
+            }
 
             TextEdit *tx = shader_editor->get_text_edit();
             tx->indent_right();
@@ -308,8 +310,9 @@ void ShaderEditor::_menu_option(int p_option) {
         } break;
         case EDIT_TOGGLE_COMMENT: {
 
-            if (not shader)
+            if (not shader) {
                 return;
+            }
 
             shader_editor->toggle_inline_comment("//");
 
@@ -359,7 +362,8 @@ void ShaderEditor::_menu_option(int p_option) {
         } break;
     }
     if (p_option != SEARCH_FIND && p_option != SEARCH_REPLACE && p_option != SEARCH_GOTO_LINE) {
-        shader_editor->get_text_edit()->call_deferred("grab_focus");
+        auto te=shader_editor->get_text_edit();
+        te->call_deferred([te] { te->grab_focus(); });
     }
 }
 
@@ -376,6 +380,7 @@ void ShaderEditor::_params_changed() {
 }
 
 void ShaderEditor::_editor_settings_changed() {
+    shader_editor->update_editor_settings();
 
     TextEdit *text_editor = shader_editor->get_text_edit();
 
@@ -408,16 +413,6 @@ void ShaderEditor::_editor_settings_changed() {
 }
 
 void ShaderEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_reload_shader_from_disk", &ShaderEditor::_reload_shader_from_disk);
-    MethodBinder::bind_method("_editor_settings_changed", &ShaderEditor::_editor_settings_changed);
-    MethodBinder::bind_method("_text_edit_gui_input", &ShaderEditor::_text_edit_gui_input);
-
-    MethodBinder::bind_method("_update_bookmark_list", &ShaderEditor::_update_bookmark_list);
-    MethodBinder::bind_method("_bookmark_item_pressed", &ShaderEditor::_bookmark_item_pressed);
-
-    MethodBinder::bind_method("_menu_option", &ShaderEditor::_menu_option);
-    MethodBinder::bind_method("_params_changed", &ShaderEditor::_params_changed);
     MethodBinder::bind_method("apply_shaders", &ShaderEditor::apply_shaders);
     MethodBinder::bind_method("save_external_data", &ShaderEditor::save_external_data);
 }
@@ -456,7 +451,8 @@ void ShaderEditor::_check_for_external_edit() {
         if (use_autoreload) {
             _reload_shader_from_disk();
         } else {
-            disk_changed->call_deferred("popup_centered");
+            auto dc=disk_changed;
+            dc->call_deferred([dc] { dc->popup_centered(); });
         }
     }
 }
@@ -473,11 +469,13 @@ void ShaderEditor::_reload_shader_from_disk() {
 
 void ShaderEditor::edit(const Ref<Shader> &p_shader) {
 
-    if (not p_shader || !p_shader->is_text_shader())
+    if (not p_shader || !p_shader->is_text_shader()) {
         return;
+    }
 
-    if (shader == p_shader)
+    if (shader == p_shader) {
         return;
+    }
 
     shader = p_shader;
 
@@ -679,12 +677,12 @@ ShaderEditor::ShaderEditor(EditorNode *p_node) {
     search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/find_next"), SEARCH_FIND_NEXT);
     search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/find_previous"), SEARCH_FIND_PREV);
     search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/replace"), SEARCH_REPLACE);
-    search_menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
+    search_menu->get_popup()->connect("id_pressed",callable_mp(this, &ShaderEditor::_menu_option));
 
     MenuButton *goto_menu = memnew(MenuButton);
     goto_menu->set_text(TTR("Go To"));
     goto_menu->set_switch_on_hover(true);
-    goto_menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
+    goto_menu->get_popup()->connect("id_pressed",callable_mp(this, &ShaderEditor::_menu_option));
 
     goto_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/goto_line"), SEARCH_GOTO_LINE);
     goto_menu->get_popup()->add_separator();
@@ -694,14 +692,14 @@ ShaderEditor::ShaderEditor(EditorNode *p_node) {
     goto_menu->get_popup()->add_child(bookmarks_menu);
     goto_menu->get_popup()->add_submenu_item(TTR("Bookmarks"), StringName("Bookmarks"));
     _update_bookmark_list();
-    bookmarks_menu->connect("about_to_show",callable_mp(this, &ClassName::_update_bookmark_list));
-    bookmarks_menu->connect("index_pressed",callable_mp(this, &ClassName::_bookmark_item_pressed));
+    bookmarks_menu->connect("about_to_show",callable_mp(this, &ShaderEditor::_update_bookmark_list));
+    bookmarks_menu->connect("index_pressed",callable_mp(this, &ShaderEditor::_bookmark_item_pressed));
 
     help_menu = memnew(MenuButton);
     help_menu->set_text(TTR("Help"));
     help_menu->set_switch_on_hover(true);
-    help_menu->get_popup()->add_icon_item(p_node->get_gui_base()->get_icon("Instance", "EditorIcons"), TTR("Online Docs"), HELP_DOCS);
-    help_menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
+    help_menu->get_popup()->add_icon_item(p_node->get_gui_base()->get_theme_icon("Instance", "EditorIcons"), TTR("Online Docs"), HELP_DOCS);
+    help_menu->get_popup()->connect("id_pressed",callable_mp(this, &ShaderEditor::_menu_option));
 
     add_child(main_container);
     main_container->add_child(hbc);
@@ -709,7 +707,7 @@ ShaderEditor::ShaderEditor(EditorNode *p_node) {
     hbc->add_child(edit_menu);
     hbc->add_child(goto_menu);
     hbc->add_child(help_menu);
-    hbc->add_style_override("panel", p_node->get_gui_base()->get_stylebox("ScriptEditorPanel", "EditorStyles"));
+    hbc->add_theme_style_override("panel", p_node->get_gui_base()->get_theme_stylebox("ScriptEditorPanel", "EditorStyles"));
     main_container->add_child(shader_editor);
 
     goto_line_dialog = memnew(GotoLineDialog);
@@ -724,11 +722,11 @@ ShaderEditor::ShaderEditor(EditorNode *p_node) {
     dl->set_text(TTR("This shader has been modified on on disk.\nWhat action should be taken?"));
     vbc->add_child(dl);
 
-    disk_changed->connect("confirmed",callable_mp(this, &ClassName::_reload_shader_from_disk));
+    disk_changed->connect("confirmed",callable_mp(this, &ShaderEditor::_reload_shader_from_disk));
     disk_changed->get_ok()->set_text(TTR("Reload"));
 
     disk_changed->add_button(TTR("Resave"), !OS::get_singleton()->get_swap_ok_cancel(), "resave");
-    disk_changed->connect("custom_action",callable_mp(this, &ClassName::save_external_data));
+    disk_changed->connect("custom_action",callable_mp(this, &ShaderEditor::save_external_data));
 
     add_child(disk_changed);
 
@@ -756,8 +754,9 @@ void ShaderEditorPlugin::make_visible(bool p_visible) {
     } else {
 
         button->hide();
-        if (shader_editor->is_visible_in_tree())
+        if (shader_editor->is_visible_in_tree()) {
             editor->hide_bottom_panel();
+        }
         shader_editor->apply_shaders();
     }
 }

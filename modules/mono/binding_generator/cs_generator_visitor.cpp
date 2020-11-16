@@ -25,8 +25,14 @@ void buildCallArgumentList(const TS_Function *finfo, const eastl::vector_map<Str
         if(iter!=mapped_args.end()) {
             arg_parts.emplace_back(iter->second);
         }
-        else
-            arg_parts.emplace_back("Object.GetPtr(this)");
+        else {
+            bool is_in_singleton = false;
+            const TS_TypeLike *enc=finfo->enclosing_type;
+            if(enc->kind()==TS_TypeLike::CLASS) {
+                is_in_singleton = ((const TS_Type*)enc)->source_type->is_singleton;
+            }
+            arg_parts.emplace_back(is_in_singleton ? "ptr":"Object.GetPtr(this)");
+        }
     }
 
     for(int i=0; i<argc; ++i) {
@@ -552,13 +558,16 @@ void CsGeneratorVisitor::visitClassInternal(TS_Type *tp) {
 
     _generate_docs_for(tp,ctx);
     ctx.out.append_indented("public ");
-    if(tp->source_type->is_instantiable)
-        ctx.out.append("partial class ");
-    else
-        ctx.out.append("abstract partial class ");
+    if(tp->source_type->is_singleton) {
+        ctx.out.append("static ");
+    }
+    else if(!tp->source_type->is_instantiable) {
+        ctx.out.append("abstract ");
+    }
 
+        ctx.out.append("partial class ");
     ctx.out.append(tp->cs_name());
-    if(tp->base_type) {
+    if(!tp->source_type->is_singleton && tp->base_type) {
         ctx.out.append(" : ");
         ctx.out.append(tp->base_type->cs_name());
     }
@@ -598,8 +607,6 @@ void CsGeneratorVisitor::visitClassInternal(TS_Type *tp) {
     if(top_level_class) {
         ctx.append_line("#pragma warning restore CS1591");
         ctx.append_line("#pragma warning restore CS1573");
-    }
-    if(top_level_class) {
         m_gen_stack.pop_back();
         m_ctx.set_generator(!m_gen_stack.empty() ? m_gen_stack.back() : nullptr);
     }

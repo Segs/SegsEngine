@@ -39,9 +39,11 @@ public:
     };
     void set_editor_interface(EditorServiceInterface *i) { m_editor_interface = i; }
 
-    virtual StringName get_importer_name() const = 0;
-    virtual StringName get_visible_name() const = 0;
+    virtual const char * get_importer_name() const = 0;
+    virtual const char * get_visible_name() const = 0;
     virtual void get_recognized_extensions(Vector<String> &p_extensions) const = 0;
+    virtual bool can_import(StringView /*p_path*/) const { return true; }
+
     virtual StringName get_save_extension() const = 0;
     virtual StringName get_resource_type() const = 0;
     virtual float get_priority() const = 0;

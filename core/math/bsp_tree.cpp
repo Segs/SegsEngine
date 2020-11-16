@@ -30,6 +30,8 @@
 
 #include "bsp_tree.h"
 
+#include <utility>
+
 #include "core/pool_vector.h"
 #include "core/variant.h"
 #include "core/error_macros.h"
@@ -561,11 +563,6 @@ BSP_Tree::BSP_Tree(Span<const Face3> p_faces, real_t p_error_radius) {
     error_radius = p_error_radius;
 }
 
-BSP_Tree::BSP_Tree(const Vector<Node> &p_nodes, const Vector<Plane> &p_planes, const AABB &p_aabb, real_t p_error_radius) :
-        nodes(p_nodes),
-        planes(p_planes),
-        aabb(p_aabb),
-        error_radius(p_error_radius) {
-}
+
 
 BSP_Tree::~BSP_Tree() = default;

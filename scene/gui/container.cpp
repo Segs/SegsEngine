@@ -95,7 +95,7 @@ void Container::_sort_children() {
         return;
 
     notification(NOTIFICATION_SORT_CHILDREN);
-    emit_signal(SceneStringNames::get_singleton()->sort_children);
+    emit_signal(SceneStringNames::sort_children);
     pending_sort = false;
 }
 
@@ -143,8 +143,9 @@ void Container::queue_sort() {
     if (!is_inside_tree())
         return;
 
-    if (pending_sort)
+    if (pending_sort) {
         return;
+    }
 
     MessageQueue::get_singleton()->push_call(get_instance_id(), [this]() { _sort_children(); });
     pending_sort = true;
@@ -175,7 +176,7 @@ void Container::_notification(int p_what) {
     }
 }
 
-StringName Container::get_configuration_warning() const {
+String Container::get_configuration_warning() const {
 
     String warning(Control::get_configuration_warning());
 
@@ -186,7 +187,7 @@ StringName Container::get_configuration_warning() const {
         warning += TTR("Container by itself serves no purpose unless a script configures its children placement behavior.\nIf "
                        "you don't intend to add a script, use a plain Control node instead.");
     }
-    return StringName(warning);
+    return warning;
 }
 
 void Container::_bind_methods() {

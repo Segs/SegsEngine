@@ -251,7 +251,7 @@ public:
     void apply_impulse(const Vector3 &p_pos, const Vector3 &p_impulse);
     void apply_torque_impulse(const Vector3 &p_impulse);
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     RigidBody();
     ~RigidBody() override;

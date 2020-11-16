@@ -30,6 +30,7 @@
 
 #include "packed_data_container.h"
 
+#include "core/dictionary.h"
 #include "core/map.h"
 #include "core/core_string_names.h"
 #include "core/io/marshalls.h"
@@ -52,7 +53,7 @@ Variant PackedDataContainer::getvar(const Variant &p_key, bool *r_valid) const {
 int PackedDataContainer::size() const {
 
     return _size(0);
-};
+}
 
 Variant PackedDataContainer::_iter_init_ofs(const Array &p_iter, uint32_t p_offset) {
 
@@ -139,7 +140,7 @@ uint32_t PackedDataContainer::_type_at_ofs(uint32_t p_ofs) const {
     uint32_t type = decode_uint32(r);
 
     return type;
-};
+}
 
 int PackedDataContainer::_size(uint32_t p_ofs) const {
 
@@ -160,7 +161,7 @@ int PackedDataContainer::_size(uint32_t p_ofs) const {
     }
 
     return -1;
-};
+}
 
 Variant PackedDataContainer::_key_at_ofs(uint32_t p_ofs, const Variant &p_key, bool &err) const {
 
@@ -403,7 +404,7 @@ Variant PackedDataContainerRef::_iter_get(const Variant &p_iter) {
 bool PackedDataContainerRef::_is_dictionary() const {
 
     return from->_type_at_ofs(offset) == PackedDataContainer::TYPE_DICT;
-};
+}
 
 void PackedDataContainerRef::_bind_methods() {
 
@@ -426,4 +427,4 @@ Variant PackedDataContainerRef::getvar(const Variant &p_key, bool *r_valid) cons
 int PackedDataContainerRef::size() const {
 
     return from->_size(offset);
-};
+}

@@ -244,8 +244,12 @@ static void editor_register_and_generate_icons(
         while (embedded_icons.hasNext()) {
             const QString resourcepath = embedded_icons.next();
             const QString base_name = embedded_icons.fileInfo().baseName();
+            float icon_scale = EDSCALE;;
+            if (base_name=="DefaultProjectIcon") {
+                icon_scale = 1.0f;
+            }
             auto is_exception = exceptions.contains(qPrintable(base_name));
-            Ref<ImageTexture> icon = editor_generate_icon(resourcepath, !is_exception);
+            Ref<ImageTexture> icon = editor_generate_icon(resourcepath, !is_exception,icon_scale);
             p_theme->set_icon(StringName(StringUtils::to_utf8(base_name)), "EditorIcons", icon);
         }
     }

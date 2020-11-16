@@ -33,7 +33,6 @@
 #include "core/reference.h"
 #include "core/io/compression.h"
 #include "core/method_enum_caster.h"
-#include "core/method_arg_casters.h"
 #include "core/string.h"
 #include "core/math/rect2.h"
 #include "core/math/vector3.h"
@@ -216,7 +215,7 @@ public:
     int execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking=true, Array p_output = Array(), bool p_read_stderr = false);
 
     Error kill(int p_pid);
-    Error shell_open(String p_uri);
+    Error shell_open(const String& p_uri);
 
     int get_process_id() const;
 
@@ -594,7 +593,7 @@ public:
 
 class GODOT_EXPORT _Mutex : public RefCounted {
 
-    GDCLASS(_Mutex, RefCounted);
+    GDCLASS(_Mutex, RefCounted)
     Mutex *mutex;
 
     static void _bind_methods();
@@ -610,7 +609,7 @@ public:
 
 class GODOT_EXPORT _Semaphore : public RefCounted {
 
-    GDCLASS(_Semaphore, RefCounted);
+    GDCLASS(_Semaphore, RefCounted)
     Semaphore *semaphore;
 
     static void _bind_methods();
@@ -625,7 +624,7 @@ public:
 
 class GODOT_EXPORT _Thread : public RefCounted {
 
-    GDCLASS(_Thread, RefCounted);
+    GDCLASS(_Thread, RefCounted)
 
 protected:
     Variant ret;
@@ -658,7 +657,7 @@ public:
 
 class GODOT_EXPORT _ClassDB : public Object {
 
-    GDCLASS(_ClassDB, Object);
+    GDCLASS(_ClassDB, Object)
 
 protected:
     static void _bind_methods();
@@ -696,7 +695,7 @@ public:
 };
 
 class GODOT_EXPORT _Engine : public Object {
-    GDCLASS(_Engine, Object);
+    GDCLASS(_Engine, Object)
 
 protected:
     static void _bind_methods();
@@ -747,7 +746,7 @@ public:
 class _JSON;
 
 class GODOT_EXPORT JSONParseResult : public RefCounted {
-    GDCLASS(JSONParseResult, RefCounted);
+    GDCLASS(JSONParseResult, RefCounted)
 
     friend class _JSON;
 

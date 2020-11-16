@@ -29,6 +29,9 @@
 /*************************************************************************/
 
 #include "polygon_path_finder.h"
+
+
+#include "core/dictionary.h"
 #include "core/math/geometry.h"
 #include "core/pool_vector.h"
 #include "core/method_bind.h"

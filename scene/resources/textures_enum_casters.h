@@ -6,7 +6,7 @@
 
 VARIANT_ENUM_CAST(Texture::Flags);
 VARIANT_ENUM_CAST(ImageTexture::Storage);
-VARIANT_ENUM_CAST(CubeMap::Flags)
-VARIANT_ENUM_CAST(CubeMap::Side)
-VARIANT_ENUM_CAST(CubeMap::Storage)
-VARIANT_ENUM_CAST(TextureLayered::Flags)
+VARIANT_ENUM_CAST(CubeMap::Flags);
+VARIANT_ENUM_CAST(CubeMap::Side);
+VARIANT_ENUM_CAST(CubeMap::Storage);
+VARIANT_ENUM_CAST(TextureLayered::Flags);

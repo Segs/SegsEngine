@@ -34,7 +34,7 @@
 #include "editor/pane_drag.h"
 #include "grid_map.h"
 
-class SpatialEditorPlugin;
+class Node3DEditorPlugin;
 class SpinBox;
 class MenuButton;
 class HSlider;
@@ -191,7 +191,7 @@ class GridMapEditor : public VBoxContainer {
 
     };
 
-    SpatialEditorPlugin *spatial_editor;
+    Node3DEditorPlugin *spatial_editor;
 
     struct AreaDisplay {
 

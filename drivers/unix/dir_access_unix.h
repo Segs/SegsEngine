@@ -52,6 +52,7 @@ class DirAccessUnix : public DirAccess {
 
 protected:
     virtual String fix_unicode_name(const char *p_name) const { return p_name; }
+    bool is_hidden(StringView p_name);
 
 public:
     Error list_dir_begin() override; ///< This starts dir listing

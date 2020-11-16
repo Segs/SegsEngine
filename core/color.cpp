@@ -37,21 +37,18 @@
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
 
-namespace  {
+namespace {
 
-static constexpr char vals[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' };
-void _to_hex(float p_val,char *tgt) {
-
+static constexpr char vals[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+void _to_hex(float p_val, char *tgt) {
     int v = int(p_val * 255);
     v = CLAMP(v, 0, 255);
     tgt[1] = vals[(v & 0xF)];
-    tgt[0] = vals[((v>>4) & 0xF)];
+    tgt[0] = vals[((v >> 4) & 0xF)];
 }
 } // end of anonymous namespace
 
-
 uint32_t Color::to_argb32() const {
-
     uint32_t c = (uint8_t)Math::round(a * 255);
     c <<= 8;
     c |= (uint8_t)Math::round(r * 255);
@@ -64,7 +61,6 @@ uint32_t Color::to_argb32() const {
 }
 
 uint32_t Color::to_abgr32() const {
-
     uint32_t c = (uint8_t)Math::round(a * 255);
     c <<= 8;
     c |= (uint8_t)Math::round(b * 255);
@@ -77,7 +73,6 @@ uint32_t Color::to_abgr32() const {
 }
 
 uint32_t Color::to_rgba32() const {
-
     uint32_t c = (uint8_t)Math::round(r * 255);
     c <<= 8;
     c |= (uint8_t)Math::round(g * 255);
@@ -90,7 +85,6 @@ uint32_t Color::to_rgba32() const {
 }
 
 uint64_t Color::to_abgr64() const {
-
     uint64_t c = (uint16_t)Math::round(a * 65535);
     c <<= 16;
     c |= (uint16_t)Math::round(b * 65535);
@@ -103,7 +97,6 @@ uint64_t Color::to_abgr64() const {
 }
 
 uint64_t Color::to_argb64() const {
-
     uint64_t c = (uint16_t)Math::round(a * 65535);
     c <<= 16;
     c |= (uint16_t)Math::round(r * 65535);
@@ -116,7 +109,6 @@ uint64_t Color::to_argb64() const {
 }
 
 uint64_t Color::to_rgba64() const {
-
     uint64_t c = (uint16_t)Math::round(r * 65535);
     c <<= 16;
     c |= (uint16_t)Math::round(g * 65535);
@@ -129,7 +121,6 @@ uint64_t Color::to_rgba64() const {
 }
 
 float Color::get_h() const {
-
     float min = MIN(r, g);
     min = MIN(min, b);
     float max = M_MAX(r, g);
@@ -137,26 +128,28 @@ float Color::get_h() const {
 
     float delta = max - min;
 
-    if (delta == 0.0f)
+    if (delta == 0.0f) {
         return 0;
+    }
 
     float h;
-    if (r == max)
+    if (r == max) {
         h = (g - b) / delta; // between yellow & magenta
-    else if (g == max)
+    } else if (g == max) {
         h = 2 + (b - r) / delta; // between cyan & yellow
-    else
+    } else {
         h = 4 + (r - g) / delta; // between magenta & cyan
+    }
 
     h /= 6.0f;
-    if (h < 0)
+    if (h < 0) {
         h += 1.0f;
+    }
 
     return h;
 }
 
 float Color::get_s() const {
-
     float min = MIN(r, g);
     min = MIN(min, b);
     float max = M_MAX(r, g);
@@ -168,14 +161,12 @@ float Color::get_s() const {
 }
 
 float Color::get_v() const {
-
     float max = M_MAX(r, g);
     max = M_MAX(max, b);
     return max;
 }
 
 void Color::set_hsv(float p_h, float p_s, float p_v, float p_alpha) {
-
     int i;
     float f, p, q, t;
     a = p_alpha;
@@ -229,16 +220,13 @@ void Color::set_hsv(float p_h, float p_s, float p_v, float p_alpha) {
     }
 }
 
-
 void Color::contrast() {
-
     r = Math::fmod(r + 0.5f, 1.0f);
     g = Math::fmod(g + 0.5f, 1.0f);
     b = Math::fmod(b + 0.5f, 1.0f);
 }
 
 Color Color::hex(uint32_t p_hex) {
-
     float a = (p_hex & 0xFF) / 255.0f;
     p_hex >>= 8;
     float b = (p_hex & 0xFF) / 255.0f;
@@ -251,7 +239,6 @@ Color Color::hex(uint32_t p_hex) {
 }
 
 Color Color::hex64(uint64_t p_hex) {
-
     float a = (p_hex & 0xFFFF) / 65535.0f;
     p_hex >>= 16;
     float b = (p_hex & 0xFFFF) / 65535.0f;
@@ -264,7 +251,6 @@ Color Color::hex64(uint64_t p_hex) {
 }
 
 Color Color::from_rgbe9995(uint32_t p_rgbe) {
-
     float r = p_rgbe & 0x1ff;
     float g = (p_rgbe >> 9) & 0x1ff;
     float b = (p_rgbe >> 18) & 0x1ff;
@@ -279,16 +265,14 @@ Color Color::from_rgbe9995(uint32_t p_rgbe) {
 }
 
 static float _parse_col(StringView p_str, int p_ofs) {
-
     int ig = 0;
 
     for (int i = 0; i < 2; i++) {
-
         char c = p_str[i + p_ofs];
         int v = 0;
 
         if (isdigit(c)) {
-            v = c-'0';
+            v = c - '0';
         } else if (c >= 'a' && c <= 'f') {
             v = c - 'a';
             v += 10;
@@ -299,27 +283,26 @@ static float _parse_col(StringView p_str, int p_ofs) {
             return -1;
         }
 
-        if (i == 0)
+        if (i == 0) {
             ig += v * 16;
-        else
+        } else {
             ig += v;
+        }
     }
 
     return ig;
 }
 
 Color Color::contrasted() const {
-
     Color c = *this;
     c.contrast();
     return c;
 }
 
 [[nodiscard]] uint32_t Color::to_rgbe9995() const {
-
     const float pow2to9 = 512.0f;
     const float B = 15.0f;
-    //const float Emax = 31.0f;
+    // const float Emax = 31.0f;
     const float N = 9.0f;
 
     float sharedexp = 65408.0f; //(( pow2to9  - 1.0f)/ pow2to9)*powf( 2.0f, 31.0f - 15.0f);
@@ -346,16 +329,19 @@ Color Color::contrasted() const {
     float sGreen = Math::floor((cGreen / std::pow(2.0f, exps - B - N)) + 0.5f);
     float sBlue = Math::floor((cBlue / std::pow(2.0f, exps - B - N)) + 0.5f);
 
-    return (uint32_t(Math::fast_ftoi(sRed)) & 0x1FF) | ((uint32_t(Math::fast_ftoi(sGreen)) & 0x1FF) << 9) | ((uint32_t(Math::fast_ftoi(sBlue)) & 0x1FF) << 18) | ((uint32_t(Math::fast_ftoi(exps)) & 0x1F) << 27);
+    return (uint32_t(Math::fast_ftoi(sRed)) & 0x1FF) | ((uint32_t(Math::fast_ftoi(sGreen)) & 0x1FF) << 9) |
+           ((uint32_t(Math::fast_ftoi(sBlue)) & 0x1FF) << 18) | ((uint32_t(Math::fast_ftoi(exps)) & 0x1F) << 27);
 }
 
 Color Color::html(StringView p_color) {
     const String errcode("Invalid color code: ");
     String exp_color;
-    if (p_color.length() == 0)
+    if (p_color.length() == 0) {
         return Color();
-    if (p_color[0] == '#')
+    }
+    if (p_color[0] == '#') {
         p_color = p_color.substr(1);
+    }
     if (p_color.length() == 3 || p_color.length() == 4) {
         for (char i : p_color) {
             exp_color += i;
@@ -374,7 +360,6 @@ Color Color::html(StringView p_color) {
         ERR_FAIL_V_MSG(Color(), errcode + p_color + ".");
     }
 
-
     int r = _parse_col(p_color, 0);
     ERR_FAIL_COND_V_MSG(r < 0, Color(), errcode + p_color + ".");
     int g = _parse_col(p_color, 2);
@@ -389,13 +374,14 @@ Color Color::html(StringView p_color) {
     return Color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 }
 bool Color::html_is_valid(StringView p_color) {
-
     StringView color(p_color);
 
-    if (color.length() == 0)
+    if (color.empty()) {
         return false;
-    if (color[0] == '#')
+    }
+    if (color[0] == '#') {
         color = color.substr(1);
+    }
 
     bool alpha;
 
@@ -407,7 +393,6 @@ bool Color::html_is_valid(StringView p_color) {
         return false;
     }
 
-
     int r = _parse_col(color, 0);
     if (r < 0) {
         return false;
@@ -417,8 +402,9 @@ bool Color::html_is_valid(StringView p_color) {
         return false;
     }
     int b = _parse_col(color, 4);
-    if(b<0)
-    return false;
+    if (b < 0) {
+        return false;
+    }
     if (alpha) {
         int a = _parse_col(color, 6);
         if (a < 0) {
@@ -431,35 +417,35 @@ bool Color::html_is_valid(StringView p_color) {
 Color Color::named(StringView p_name) {
     String name(p_name);
     // Normalize name
-    name = StringUtils::replace(name," ", "");
-    name = StringUtils::replace(name,"-", "");
-    name = StringUtils::replace(name,"_", "");
-    name = StringUtils::replace(name,"'", "");
-    name = StringUtils::replace(name,".", "");
+    name = StringUtils::replace(name, " ", "");
+    name = StringUtils::replace(name, "-", "");
+    name = StringUtils::replace(name, "_", "");
+    name = StringUtils::replace(name, "'", "");
+    name = StringUtils::replace(name, ".", "");
     name = StringUtils::to_lower(name);
 
     const Map<const char *, Color>::iterator color = _named_colors.find(name.data());
-    ERR_FAIL_COND_V_MSG(color==_named_colors.end(), Color(), "Invalid color name: " + String(p_name) + ".");
+    ERR_FAIL_COND_V_MSG(color == _named_colors.end(), Color(), "Invalid color name: " + String(p_name) + ".");
     return color->second;
 }
 
 String Color::to_html(bool p_alpha) const {
-
     String txt;
     txt.resize(p_alpha ? 8 : 6);
-    _to_hex(r,txt.data());
-    _to_hex(g,txt.data()+2);
-    _to_hex(b,txt.data()+4);
-    if(p_alpha)
-        _to_hex(a,txt.data()+6);
+    _to_hex(r, txt.data());
+    _to_hex(g, txt.data() + 2);
+    _to_hex(b, txt.data() + 4);
+    if (p_alpha) {
+        _to_hex(a, txt.data() + 6);
+    }
     return txt;
 }
 
 Color Color::from_hsv(float p_h, float p_s, float p_v, float p_a) {
-
     p_h = Math::fmod(p_h * 360.0f, 360.0f);
-    if (p_h < 0.0f)
+    if (p_h < 0.0f) {
         p_h += 360.0f;
+    }
 
     const float h_ = p_h / 60.0f;
     const float c = p_v * p_s;
@@ -509,30 +495,18 @@ Color Color::from_hsv(float p_h, float p_s, float p_v, float p_a) {
 }
 
 Color::operator String() const {
-
     return rtos(r) + ", " + rtos(g) + ", " + rtos(b) + ", " + rtos(a);
 }
 
 Color Color::operator+(const Color &p_color) const {
-
-    return Color(
-            r + p_color.r,
-            g + p_color.g,
-            b + p_color.b,
-            a + p_color.a);
+    return Color(r + p_color.r, g + p_color.g, b + p_color.b, a + p_color.a);
 }
 
 Color Color::operator-(const Color &p_color) const {
-
-    return Color(
-            r - p_color.r,
-            g - p_color.g,
-            b - p_color.b,
-            a - p_color.a);
+    return Color(r - p_color.r, g - p_color.g, b - p_color.b, a - p_color.a);
 }
 
 void Color::operator-=(const Color &p_color) {
-
     r = r - p_color.r;
     g = g - p_color.g;
     b = b - p_color.b;
@@ -540,25 +514,14 @@ void Color::operator-=(const Color &p_color) {
 }
 
 Color Color::operator*(const Color &p_color) const {
-
-    return Color(
-            r * p_color.r,
-            g * p_color.g,
-            b * p_color.b,
-            a * p_color.a);
+    return Color(r * p_color.r, g * p_color.g, b * p_color.b, a * p_color.a);
 }
 
 Color Color::operator*(const real_t &rvalue) const {
-
-    return Color(
-            r * rvalue,
-            g * rvalue,
-            b * rvalue,
-            a * rvalue);
+    return Color(r * rvalue, g * rvalue, b * rvalue, a * rvalue);
 }
 
 void Color::operator*=(const Color &p_color) {
-
     r = r * p_color.r;
     g = g * p_color.g;
     b = b * p_color.b;
@@ -566,7 +529,6 @@ void Color::operator*=(const Color &p_color) {
 }
 
 void Color::operator*=(const real_t &rvalue) {
-
     r = r * rvalue;
     g = g * rvalue;
     b = b * rvalue;
@@ -574,25 +536,14 @@ void Color::operator*=(const real_t &rvalue) {
 }
 
 Color Color::operator/(const Color &p_color) const {
-
-    return Color(
-            r / p_color.r,
-            g / p_color.g,
-            b / p_color.b,
-            a / p_color.a);
+    return Color(r / p_color.r, g / p_color.g, b / p_color.b, a / p_color.a);
 }
 
 Color Color::operator/(const real_t &rvalue) const {
-
-    return Color(
-            r / rvalue,
-            g / rvalue,
-            b / rvalue,
-            a / rvalue);
+    return Color(r / rvalue, g / rvalue, b / rvalue, a / rvalue);
 }
 
 void Color::operator/=(const Color &p_color) {
-
     r = r / p_color.r;
     g = g / p_color.g;
     b = b / p_color.b;
@@ -600,7 +551,6 @@ void Color::operator/=(const Color &p_color) {
 }
 
 void Color::operator/=(const real_t &rvalue) {
-
     if (rvalue == 0.0f) {
         r = 1.0f;
         g = 1.0f;
@@ -612,13 +562,8 @@ void Color::operator/=(const real_t &rvalue) {
         b = b / rvalue;
         a = a / rvalue;
     }
-};
+}
 
 Color Color::operator-() const {
-
-    return Color(
-            1.0f - r,
-            1.0f - g,
-            1.0f - b,
-            1.0f - a);
+    return Color(1.0f - r, 1.0f - g, 1.0f - b, 1.0f - a);
 }

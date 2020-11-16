@@ -79,10 +79,7 @@ Variant CollisionShape2DEditor::get_handle_value(int idx) const {
 
         } break;
 
-        case CONCAVE_POLYGON_SHAPE: {
-            // Cannot be edited directly, use CollisionPolygon2D instead.
-        } break;
-
+        case CONCAVE_POLYGON_SHAPE:
         case CONVEX_POLYGON_SHAPE: {
             // Cannot be edited directly, use CollisionPolygon2D instead.
         } break;
@@ -159,10 +156,7 @@ void CollisionShape2DEditor::set_handle(int idx, Point2 &p_point) {
 
         } break;
 
-        case CONCAVE_POLYGON_SHAPE: {
-
-        } break;
-
+        case CONCAVE_POLYGON_SHAPE:
         case CONVEX_POLYGON_SHAPE: {
 
         } break;
@@ -452,7 +446,7 @@ void CollisionShape2DEditor::forward_canvas_draw_over_viewport(Control *p_overla
 
     Transform2D gt = canvas_item_editor->get_canvas_transform() * node->get_global_transform();
 
-    Ref<Texture> h = get_icon("EditorHandle", "EditorIcons");
+    Ref<Texture> h = get_theme_icon("EditorHandle", "EditorIcons");
     Vector2 size = h->get_size() * 0.5;
 
     handles.clear();
@@ -578,9 +572,6 @@ void CollisionShape2DEditor::edit(Node *p_node) {
 }
 
 void CollisionShape2DEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_get_current_shape_type", &CollisionShape2DEditor::_get_current_shape_type);
-    MethodBinder::bind_method("_node_removed", &CollisionShape2DEditor::_node_removed);
 }
 
 CollisionShape2DEditor::CollisionShape2DEditor(EditorNode *p_editor) {

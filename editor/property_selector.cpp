@@ -95,6 +95,9 @@ void PropertySelector::_update_search() {
 
     TreeItem *root = search_options->create_item();
 
+    // Allow using spaces in place of underscores in the search string (makes the search more fault-tolerant).
+    const String search_text = search_box->get_text().replaced(" ", "_");
+
     if (properties) {
 
         Vector<PropertyInfo> props;
@@ -126,34 +129,34 @@ void PropertySelector::_update_search() {
 
         bool found = false;
 
-        Ref<Texture> type_icons[(int)VariantType::VARIANT_MAX] = {
-            Control::get_icon("Variant", "EditorIcons"),
-            Control::get_icon("bool", "EditorIcons"),
-            Control::get_icon("int", "EditorIcons"),
-            Control::get_icon("float", "EditorIcons"),
-            Control::get_icon("String", "EditorIcons"),
-            Control::get_icon("Vector2", "EditorIcons"),
-            Control::get_icon("Rect2", "EditorIcons"),
-            Control::get_icon("Vector3", "EditorIcons"),
-            Control::get_icon("Transform2D", "EditorIcons"),
-            Control::get_icon("Plane", "EditorIcons"),
-            Control::get_icon("Quat", "EditorIcons"),
-            Control::get_icon("AABB", "EditorIcons"),
-            Control::get_icon("Basis", "EditorIcons"),
-            Control::get_icon("Transform", "EditorIcons"),
-            Control::get_icon("Color", "EditorIcons"),
-            Control::get_icon("Path", "EditorIcons"),
-            Control::get_icon("RID", "EditorIcons"),
-            Control::get_icon("Object", "EditorIcons"),
-            Control::get_icon("Dictionary", "EditorIcons"),
-            Control::get_icon("Array", "EditorIcons"),
-            Control::get_icon("PoolByteArray", "EditorIcons"),
-            Control::get_icon("PoolIntArray", "EditorIcons"),
-            Control::get_icon("PoolRealArray", "EditorIcons"),
-            Control::get_icon("PoolStringArray", "EditorIcons"),
-            Control::get_icon("PoolVector2Array", "EditorIcons"),
-            Control::get_icon("PoolVector3Array", "EditorIcons"),
-            Control::get_icon("PoolColorArray", "EditorIcons")
+        const Ref<Texture> type_icons[(int)VariantType::VARIANT_MAX] = {
+            Control::get_theme_icon("Variant", "EditorIcons"),
+            Control::get_theme_icon("bool", "EditorIcons"),
+            Control::get_theme_icon("int", "EditorIcons"),
+            Control::get_theme_icon("float", "EditorIcons"),
+            Control::get_theme_icon("String", "EditorIcons"),
+            Control::get_theme_icon("Vector2", "EditorIcons"),
+            Control::get_theme_icon("Rect2", "EditorIcons"),
+            Control::get_theme_icon("Vector3", "EditorIcons"),
+            Control::get_theme_icon("Transform2D", "EditorIcons"),
+            Control::get_theme_icon("Plane", "EditorIcons"),
+            Control::get_theme_icon("Quat", "EditorIcons"),
+            Control::get_theme_icon("AABB", "EditorIcons"),
+            Control::get_theme_icon("Basis", "EditorIcons"),
+            Control::get_theme_icon("Transform", "EditorIcons"),
+            Control::get_theme_icon("Color", "EditorIcons"),
+            Control::get_theme_icon("Path", "EditorIcons"),
+            Control::get_theme_icon("RID", "EditorIcons"),
+            Control::get_theme_icon("Object", "EditorIcons"),
+            Control::get_theme_icon("Dictionary", "EditorIcons"),
+            Control::get_theme_icon("Array", "EditorIcons"),
+            Control::get_theme_icon("PoolByteArray", "EditorIcons"),
+            Control::get_theme_icon("PoolIntArray", "EditorIcons"),
+            Control::get_theme_icon("PoolRealArray", "EditorIcons"),
+            Control::get_theme_icon("PoolStringArray", "EditorIcons"),
+            Control::get_theme_icon("PoolVector2Array", "EditorIcons"),
+            Control::get_theme_icon("PoolVector3Array", "EditorIcons"),
+            Control::get_theme_icon("PoolColorArray", "EditorIcons")
         };
 
         for (const PropertyInfo &E : props) {
@@ -167,7 +170,7 @@ void PropertySelector::_update_search() {
 
                 Ref<Texture> icon;
                 if (E.name == "Script Variables") {
-                    icon = get_icon("Script", "EditorIcons");
+                    icon = get_theme_icon("Script", "EditorIcons");
                 } else {
                     icon = EditorNode::get_singleton()->get_class_icon(E.name);
                 }
@@ -178,7 +181,7 @@ void PropertySelector::_update_search() {
             if (!(E.usage & PROPERTY_USAGE_EDITOR) && !(E.usage & PROPERTY_USAGE_SCRIPT_VARIABLE))
                 continue;
 
-            if (!search_box->get_text_ui().isEmpty() && not StringUtils::contains(E.name,search_box->get_text()))
+            if (!search_text.empty() && not StringUtils::contains(E.name,search_text))
                 continue;
 
             if (!type_filter.empty() && !type_filter.contains(E.type))
@@ -189,7 +192,7 @@ void PropertySelector::_update_search() {
             item->set_metadata(0, E.name);
             item->set_icon(0, type_icons[(int)E.type]);
 
-            if (!found && !search_box->get_text_ui().isEmpty() && StringUtils::contains(E.name,search_box->get_text())) {
+            if (!found && !search_text.empty() && StringUtils::contains(E.name,search_text)) {
                 item->select(0);
                 found = true;
             }
@@ -242,7 +245,7 @@ void PropertySelector::_update_search() {
                 script_methods = false;
                 String rep = StringUtils::replace(E.name,"*", "");
                 if (E.name == "*Script Methods") {
-                    icon = get_icon("Script", "EditorIcons");
+                    icon = get_theme_icon("Script", "EditorIcons");
                     script_methods = true;
                 } else {
                     icon = EditorNode::get_singleton()->get_class_icon(StringName(rep));
@@ -256,13 +259,14 @@ void PropertySelector::_update_search() {
             if (!script_methods && StringUtils::begins_with(name,"_") && !(E.flags & METHOD_FLAG_VIRTUAL))
                 continue;
 
-            if (virtuals_only && !(E.flags & METHOD_FLAG_VIRTUAL))
+            if (virtuals_only && !(E.flags & METHOD_FLAG_VIRTUAL)) {
                 continue;
-
-            if (!virtuals_only && E.flags & METHOD_FLAG_VIRTUAL)
+            }
+            if (!virtuals_only && E.flags & METHOD_FLAG_VIRTUAL) {
                 continue;
+            }
 
-            if (!search_box->get_text_ui().isEmpty() && not StringUtils::contains(name,search_box->get_text()))
+            if (!search_text.empty() && not StringUtils::contains(name,search_text))
                 continue;
 
             TreeItem *item = search_options->create_item(category ? category : root);
@@ -273,27 +277,31 @@ void PropertySelector::_update_search() {
             if (StringUtils::contains(mi.name,":")) {
                 desc = String(StringUtils::get_slice(mi.name,":", 1)) + " ";
                 mi.name = StringName(StringUtils::get_slice(mi.name,":", 0));
-            } else if (mi.return_val.type != VariantType::NIL)
+            } else if (mi.return_val.type != VariantType::NIL) {
                 desc = Variant::get_type_name(mi.return_val.type);
-            else
+            }
+            else {
                 desc = "void ";
+            }
 
-            desc += String(" ") + mi.name + " ( ";
+            desc += String(String::CtorSprintf()," %s(",mi.name.asCString());
 
             for (size_t i = 0; i < mi.arguments.size(); i++) {
 
                 if (i > 0)
                     desc += ", ";
 
-                if (mi.arguments[i].type == VariantType::NIL)
-                    desc += "var ";
-                else if (StringUtils::contains(mi.arguments[i].name,":")) {
-                    desc += String(StringUtils::get_slice(mi.arguments[i].name,":", 1)) + " ";
-                    mi.arguments[i].name = StringName(StringUtils::get_slice(mi.arguments[i].name,":", 0));
-                } else
-                    desc += String(Variant::get_type_name(mi.arguments[i].type)) + " ";
-
                 desc += mi.arguments[i].name;
+
+                if (mi.arguments[i].type == VariantType::NIL)
+                    desc += ": Variant";
+                else if (StringUtils::contains(mi.arguments[i].name,":")) {
+                    desc += ": "+StringUtils::get_slice(mi.arguments[i].name,":", 1);
+                    mi.arguments[i].name = StringName(StringUtils::get_slice(mi.arguments[i].name,":", 0));
+                } else {
+                    desc += ": "+String(Variant::get_type_name(mi.arguments[i].type));
+                }
+
             }
 
             desc += " )";
@@ -308,7 +316,7 @@ void PropertySelector::_update_search() {
             item->set_metadata(0, name);
             item->set_selectable(0, true);
 
-            if (!found && !search_box->get_text_ui().isEmpty() && StringUtils::contains(name,search_box->get_text())) {
+            if (!found && !search_text.empty() && StringUtils::contains(name,search_text)) {
                 item->select(0);
                 found = true;
             }
@@ -545,11 +553,6 @@ void PropertySelector::set_type_filter(const Vector<VariantType> &p_type_filter)
 }
 
 void PropertySelector::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_text_changed"), &PropertySelector::_text_changed);
-    MethodBinder::bind_method(D_METHOD("_confirmed"), &PropertySelector::_confirmed);
-    MethodBinder::bind_method(D_METHOD("_sbox_input"), &PropertySelector::_sbox_input);
-    MethodBinder::bind_method(D_METHOD("_item_selected"), &PropertySelector::_item_selected);
 
     ADD_SIGNAL(MethodInfo("selected", PropertyInfo(VariantType::STRING, "name")));
 }

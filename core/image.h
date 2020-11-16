@@ -34,7 +34,6 @@
 #include "core/image_data.h"
 #include "core/resource.h"
 #include "core/math/rect2.h"
-#include "core/method_arg_casters.h"
 #include "core/forward_decls.h"
 #include "core/plugin_interfaces/load_params.h"
 
@@ -303,7 +302,10 @@ public:
     Image(const char **p_xpm);
     Image(ImageData &&from) {
         format = from.format;
-        data = from.data;
+        width = from.width;
+        height = from.height;
+        mipmaps = from.mipmaps;
+        data = eastl::move(from.data);
     }
     ~Image() override;
 };

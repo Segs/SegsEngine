@@ -43,6 +43,8 @@
 #include "core/print_string.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
+#include "core/string_utils.h"
+#include "core/string_utils.inl"
 #include "plugins/plugin_registry_interface.h"
 
 #include "../csharp_script.h"
@@ -56,6 +58,7 @@
 #include "EASTL/vector_set.h"
 #ifdef TOOLS_ENABLED
 #include "main/main.h"
+#endif
 
 #include <mono/metadata/environment.h>
 #include <mono/metadata/exception.h>
@@ -63,7 +66,6 @@
 #include <mono/metadata/mono-debug.h>
 #include <mono/metadata/mono-gc.h>
 #include <mono/metadata/profiler.h>
-#endif
 
 #include <QObject>
 #include <QFileInfo>
@@ -468,7 +470,7 @@ public:
             auto target_iter=target_modules.find(truth_entry.first);
             if(target_iter!=target_modules.end()) {
                 if(target_iter->second->version>truth_entry.second->version) {
-                    ERR_PRINTF("Module %s in target directory (%.*s) is newer.", truth_entry.first.c_str(), target_base_directory.size(),
+                    ERR_PRINTF("Module %s in target directory (%.*s) is newer.", truth_entry.first.c_str(), (int)target_base_directory.size(),
                             target_base_directory.data());
                     continue;
                 }
@@ -723,7 +725,7 @@ void GDMono::_check_known_glue_api_hashes() {
 
 void GDMono::_init_exception_policy() {
     PropertyInfo exc_policy_prop = PropertyInfo(VariantType::INT, "mono/unhandled_exception_policy", PropertyHint::Enum,
-            vformat("Terminate Application:%s,Log Error:%s", (int)POLICY_TERMINATE_APP, (int)POLICY_LOG_ERROR));
+            FormatVE("Terminate Application:%d,Log Error:%d", (int)POLICY_TERMINATE_APP, (int)POLICY_LOG_ERROR));
     unhandled_exception_policy = T_GLOBAL_DEF<UnhandledExceptionPolicy>(exc_policy_prop.name, POLICY_TERMINATE_APP);
     ProjectSettings::get_singleton()->set_custom_property_info(exc_policy_prop.name, exc_policy_prop);
 
@@ -1022,7 +1024,7 @@ String GDMono::update_api_assemblies_from_prebuilt(StringView p_config, const bo
 }
 #endif
 
-bool load_glue_assembly(PluginInfo *plug, GDMono::LoadedApiAssembly &r_loaded_api_assembly, bool p_refonly) {
+bool load_glue_assembly(GDMono *self,PluginInfo *plug, GDMono::LoadedApiAssembly &r_loaded_api_assembly, bool p_refonly) {
     if (r_loaded_api_assembly.assembly)
         return true;
     if(!plug)
@@ -1032,7 +1034,7 @@ bool load_glue_assembly(PluginInfo *plug, GDMono::LoadedApiAssembly &r_loaded_ap
     bool success = FileAccess::exists(plug->assembly_path) &&
                    impl_load_assembly_from(plug->name+"Assembly", plug->assembly_path, &r_loaded_api_assembly.assembly, p_refonly);
 #else
-    bool success = load_assembly(plug->name, &r_loaded_api_assembly.assembly, p_refonly);
+    bool success = self->load_assembly(plug->name, &r_loaded_api_assembly.assembly, p_refonly);
 #endif
     if (success) {
         ApiAssemblyInfo::Version api_assembly_ver = ApiAssemblyInfo::Version::get_from_loaded_assembly(r_loaded_api_assembly.assembly, (plug->name+"MetaData").c_str(),"Constants");
@@ -1046,14 +1048,14 @@ bool load_glue_assembly(PluginInfo *plug, GDMono::LoadedApiAssembly &r_loaded_ap
 
     return success;
 }
-
+#ifdef TOOLS_ENABLED
 String GDMono::select_assembly_dir(StringView p_config) {
     // If running the project manager, load it from the prebuilt API directory
     return !Main::is_project_manager() ?
                    PathUtils::plus_file(GodotSharpDirs::get_res_assemblies_base_dir(),p_config) :
                    PathUtils::plus_file(GodotSharpDirs::get_data_editor_prebuilt_api_dir(),p_config);
 }
-
+#endif
 bool GDMono::_load_core_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, StringView p_config, bool p_refonly) {
     PluginInfo *ifo;
     if (r_loaded_api_assembly.assembly)
@@ -1072,8 +1074,10 @@ bool GDMono::_load_core_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, S
     if(!ifo)
         return false;
     PluginInfo modified =*ifo;
+#ifdef TOOLS_ENABLED
     modified.assembly_path = assembly_path;
-    return load_glue_assembly(&modified,r_loaded_api_assembly,p_refonly);
+#endif
+    return load_glue_assembly(this,&modified,r_loaded_api_assembly,p_refonly);
 }
 
 #ifdef TOOLS_ENABLED
@@ -1089,7 +1093,7 @@ bool GDMono::_load_editor_api_assembly(LoadedApiAssembly &r_loaded_api_assembly,
         return false;
     PluginInfo modified = *ifo;
     modified.assembly_path = assembly_path;
-    return load_glue_assembly(&modified, r_loaded_api_assembly, p_refonly);
+    return load_glue_assembly(this,&modified, r_loaded_api_assembly, p_refonly);
 }
 #endif
 

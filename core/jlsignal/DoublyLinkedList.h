@@ -1,22 +1,36 @@
 #pragma once
 
 #include "core/jlsignal/Utils.h"
-#include "core/jlsignal/ScopedAllocator.h"
+#include "core/jlsignal/ObjectPool.h"
+
+#include "core/deque.h"
+#include "core/os/mutex.h"
+
+#include "EASTL/bitset.h"
+
+#include <thread> // for thread id and this_thread::get_id
 
 namespace jl {
-// must be declared for 2 use cases present in jlsignals:
-// SignalBase* + next+prev
-// Connection + next+prev
-template<size_t>
-void *allocateSized();
 
-template<size_t>
-void freeSized(void *);
+template<size_t _Stride,size_t _Capacity=1024, size_t Watermark=1024>
+struct BlockAllocator {
+    // right now there is no memory pooling here, since thread-safe pool is non-trivial, and didn't seem to pri
+    static void *Alloc() {
+        return malloc(_Stride);
+    }
+    static void Free(void *obj) {
+        free(obj);
+    }
+};
 
 class DoublyLinkedListBase {
 protected:
-    unsigned m_nObjectCount;
+    unsigned m_nObjectCount = 0;
     //ScopedAllocator* AllocatorStore::s_pNodeAllocator;
+    unsigned size() const
+    {
+        return m_nObjectCount;
+    }
 };
 
 /**
@@ -27,8 +41,8 @@ protected:
 template<typename _T>
 class DoublyLinkedList : public DoublyLinkedListBase
 {
-    void *allocate() { return allocateSized<sizeof(Node)>(); }
-    void dealloc(void *v) { freeSized<sizeof(Node)>(v); }
+    void *allocate() { return BlockAllocator<sizeof(Node)>::Alloc(); }
+    void dealloc(void *v) { BlockAllocator<sizeof(Node)>::Free(v); }
 public:
     //////////////////
     // Data structures
@@ -154,12 +168,7 @@ private:
 
 public:
 
-    DoublyLinkedList()
-    {
-        m_pHead = nullptr;
-        m_pTail = nullptr;
-        m_nObjectCount = 0;
-    }
+    constexpr DoublyLinkedList() = default;
 
     ~DoublyLinkedList()
     {
@@ -228,10 +237,6 @@ public:
 
         return false;
     }
-    unsigned size() const
-    {
-        return m_nObjectCount;
-    }
 
     void clear()
     {
@@ -288,8 +293,8 @@ private:
         return true;
     }
 
-    Node* m_pHead;
-    Node* m_pTail;
+    Node* m_pHead = nullptr;
+    Node* m_pTail = nullptr;
 };
 
 } // namespace jl

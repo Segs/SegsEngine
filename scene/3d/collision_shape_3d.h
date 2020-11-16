@@ -38,7 +38,7 @@ class GODOT_EXPORT CollisionShape3D : public Node3D {
 
     GDCLASS(CollisionShape3D,Node3D)
 
-    OBJ_CATEGORY("3D Physics Nodes");
+    OBJ_CATEGORY("3D Physics Nodes")
 
     Ref<Shape> shape;
     CollisionObject3D *parent;
@@ -70,7 +70,7 @@ public:
     void set_disabled(bool p_disabled);
     bool is_disabled() const;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     CollisionShape3D();
     ~CollisionShape3D() override;

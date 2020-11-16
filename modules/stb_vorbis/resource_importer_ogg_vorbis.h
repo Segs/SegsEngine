@@ -37,9 +37,11 @@ class ResourceImporterOGGVorbis : public ResourceImporter {
     GDCLASS(ResourceImporterOGGVorbis,ResourceImporter)
 
 public:
-    StringName get_importer_name() const override;
-    StringName get_visible_name() const override;
+    const char *get_importer_name() const override;
+    const char *get_visible_name() const override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
+    bool can_import(StringView) const override { return true; }
+
     StringName get_save_extension() const override;
     StringName get_resource_type() const override;
 

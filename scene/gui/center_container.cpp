@@ -43,7 +43,7 @@ Size2 CenterContainer::get_minimum_size() const {
         Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
         if (!c->is_visible())
             continue;
@@ -81,7 +81,7 @@ void CenterContainer::_notification(int p_what) {
             Control *c = object_cast<Control>(get_child(i));
             if (!c)
                 continue;
-            if (c->is_set_as_toplevel())
+            if (c->is_set_as_top_level())
                 continue;
 
             Size2 minsize = c->get_combined_minimum_size();

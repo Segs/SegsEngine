@@ -213,6 +213,6 @@ public:
     void set_modulate(const Color &p_color);
     Color get_modulate() const;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
     AnimatedSprite2D();
 };

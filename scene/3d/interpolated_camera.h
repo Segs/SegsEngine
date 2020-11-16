@@ -60,7 +60,7 @@ public:
     void set_interpolation_enabled(bool p_enable);
     bool is_interpolation_enabled() const;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     InterpolatedCamera();
 };

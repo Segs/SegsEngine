@@ -80,8 +80,6 @@ void register_gdnavigation_types() {
 
 void unregister_gdnavigation_types() {
 #ifndef _3D_DISABLED
-    if (_nav_mesh_generator) {
-        memdelete(_nav_mesh_generator);
-    }
+    memdelete(_nav_mesh_generator);
 #endif
 }

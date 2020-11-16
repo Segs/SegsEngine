@@ -30,11 +30,12 @@
 
 #include "animation_tree_player.h"
 #include "animation_player.h"
-#include "core/pool_vector.h"
 
-#include "scene/scene_string_names.h"
+#include "core/dictionary.h"
 #include "core/method_bind.h"
+#include "core/pool_vector.h"
 #include "core/translation_helpers.h"
+#include "scene/scene_string_names.h"
 
 IMPL_GDCLASS(AnimationTreePlayer)
 VARIANT_ENUM_CAST(AnimationTreePlayer::NodeType);
@@ -74,8 +75,8 @@ struct AnimationTreeNode : public AnimationTreeNodeBase {
     Ref<Animation> animation;
 
     struct TrackRef {
+        AnimationTreePlayer::Track* track;
         int local_track;
-        AnimationTreePlayer::Track *track;
         float weight;
     };
 
@@ -278,7 +279,7 @@ bool AnimationTreePlayer::_set(const StringName &p_name, const Variant &p_value)
         return true;
     }
 
-    if (p_name == SceneStringNames::get_singleton()->playback_active) {
+    if (p_name == SceneStringNames::playback_active) {
         set_active(p_value.as<bool>());
         return true;
     }
@@ -1915,9 +1916,9 @@ Error AnimationTreePlayer::node_rename(const StringName &p_node, const StringNam
     return OK;
 }
 
-StringName AnimationTreePlayer::get_configuration_warning() const {
+String AnimationTreePlayer::get_configuration_warning() const {
 
-    return TTR("This node has been deprecated. Use AnimationTree instead.");
+    return TTRS("This node has been deprecated. Use AnimationTree instead.");
 }
 
 void AnimationTreePlayer::_bind_methods() {
@@ -2024,19 +2025,19 @@ void AnimationTreePlayer::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "base_path"), "set_base_path", "get_base_path");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "active"), "set_active", "is_active");
 
-    BIND_ENUM_CONSTANT(NODE_OUTPUT)
-    BIND_ENUM_CONSTANT(NODE_ANIMATION)
-    BIND_ENUM_CONSTANT(NODE_ONESHOT)
-    BIND_ENUM_CONSTANT(NODE_MIX)
-    BIND_ENUM_CONSTANT(NODE_BLEND2)
-    BIND_ENUM_CONSTANT(NODE_BLEND3)
-    BIND_ENUM_CONSTANT(NODE_BLEND4)
-    BIND_ENUM_CONSTANT(NODE_TIMESCALE)
-    BIND_ENUM_CONSTANT(NODE_TIMESEEK)
-    BIND_ENUM_CONSTANT(NODE_TRANSITION)
+    BIND_ENUM_CONSTANT(NODE_OUTPUT);
+    BIND_ENUM_CONSTANT(NODE_ANIMATION);
+    BIND_ENUM_CONSTANT(NODE_ONESHOT);
+    BIND_ENUM_CONSTANT(NODE_MIX);
+    BIND_ENUM_CONSTANT(NODE_BLEND2);
+    BIND_ENUM_CONSTANT(NODE_BLEND3);
+    BIND_ENUM_CONSTANT(NODE_BLEND4);
+    BIND_ENUM_CONSTANT(NODE_TIMESCALE);
+    BIND_ENUM_CONSTANT(NODE_TIMESEEK);
+    BIND_ENUM_CONSTANT(NODE_TRANSITION);
 
-    BIND_ENUM_CONSTANT(ANIMATION_PROCESS_PHYSICS)
-    BIND_ENUM_CONSTANT(ANIMATION_PROCESS_IDLE)
+    BIND_ENUM_CONSTANT(ANIMATION_PROCESS_PHYSICS);
+    BIND_ENUM_CONSTANT(ANIMATION_PROCESS_IDLE);
 }
 
 AnimationTreePlayer::AnimationTreePlayer() {

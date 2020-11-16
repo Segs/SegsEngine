@@ -527,10 +527,7 @@ void NavMap::sync() {
 
                 // This is a free edge
                 uint32_t id(free_edges.size());
-                free_edges.push_back(gd::FreeEdge());
-                free_edges[id].is_free = true;
-                free_edges[id].poly = connection_element.second.A;
-                free_edges[id].edge_id = connection_element.second.A_edge;
+                free_edges.emplace_back(gd::FreeEdge { true,connection_element.second.A, (uint32_t)connection_element.second.A_edge });
                 uint32_t point_0(free_edges[id].edge_id);
                 uint32_t point_1((free_edges[id].edge_id + 1) % free_edges[id].poly->points.size());
                 Vector3 pos_0 = free_edges[id].poly->points[point_0].pos;

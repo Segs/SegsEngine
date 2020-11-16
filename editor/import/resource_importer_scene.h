@@ -78,7 +78,7 @@ public:
 class ResourceImporterScene : public ResourceImporter {
     GDCLASS(ResourceImporterScene,ResourceImporter)
 
-    HashSet<EditorSceneImporterInterface *> importers;
+    HashSet<EditorSceneImporterInterface *> scene_importers;
 
     static ResourceImporterScene *singleton;
 
@@ -106,20 +106,23 @@ class ResourceImporterScene : public ResourceImporter {
     };
 
     void _replace_owner(Node *p_node, Node *p_scene, Node *p_new_owner);
+    Node* _fix_node(Node* p_node, Node* p_root, Map<Ref<Mesh>, List<Ref<Shape>>>& collision_map, LightBakeMode p_light_bake_mode);
 
 public:
     static ResourceImporterScene *get_singleton() { return singleton; }
 
-    const HashSet<EditorSceneImporterInterface *> &get_importers() const { return importers; }
+//    const HashSet<EditorSceneImporterInterface *> &get_importers() const { return importers; }
 
-    void add_importer(EditorSceneImporterInterface *p_importer) { importers.insert(p_importer); }
-    void remove_importer(EditorSceneImporterInterface *p_importer) { importers.erase(p_importer); }
+    void add_importer(EditorSceneImporterInterface *p_importer) { scene_importers.insert(p_importer); }
+    void remove_importer(EditorSceneImporterInterface *p_importer) { scene_importers.erase(p_importer); }
 
-    StringName get_importer_name() const override;
-    StringName get_visible_name() const override;
+    const char *get_importer_name() const override;
+    const char *get_visible_name() const override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
+    bool can_import(StringView) const override;
     StringName get_save_extension() const override;
     StringName get_resource_type() const override;
+
 
     int get_preset_count() const override;
     StringName get_preset_name(int p_idx) const override;
@@ -132,7 +135,6 @@ public:
 
     void _make_external_resources(Node *p_node, StringView p_base_path, bool p_make_animations, bool p_animations_as_text, bool p_keep_animations, bool p_make_materials, bool p_materials_as_text, bool p_keep_materials, bool p_make_meshes, bool p_meshes_as_text, Map<Ref<Animation>, Ref<Animation> > &p_animations, Map<Ref<Material>, Ref<Material> > &p_materials, Map<Ref<ArrayMesh>, Ref<ArrayMesh> > &p_meshes);
 
-    Node *_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>, List<Ref<Shape>>> &collision_map, LightBakeMode p_light_bake_mode);
 
     void _create_clips(Node *scene, const Array &p_clips, bool p_bake_all);
     void _filter_anim_tracks(const Ref<Animation>& anim, Set<String> &keep);

@@ -40,8 +40,9 @@ class ResourceImporterBitMap : public QObject, public ResourceImporterInterface 
     Q_OBJECT
 
 public:
-    StringName get_importer_name() const override;
-    StringName get_visible_name() const override;
+    const char *get_importer_name() const override;
+    const char *get_visible_name() const override;
+    bool can_import(StringView) const override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
     StringName get_save_extension() const override;
     StringName get_resource_type() const override;
@@ -68,7 +69,6 @@ public:
     bool are_import_settings_valid(StringView /*p_path*/) const override { return true; }
     String get_import_settings_string() const override { return String(); }
 
-public:
     ResourceImporterBitMap();
     ~ResourceImporterBitMap() override;
 };

@@ -892,7 +892,7 @@ void Translation::get_message_list(List<StringName> *r_messages) const {
 int Translation::get_message_count() const {
 
     return translation_map.size();
-};
+}
 
 void Translation::_bind_methods() {
 
@@ -970,11 +970,11 @@ void TranslationServer::set_locale(StringView p_locale) {
 
     if (!is_locale_valid(univ_locale)) {
         StringView trimmed_locale = TranslationServer::get_language_code(univ_locale);
-        print_verbose(FormatVE("Unsupported locale '%.*s', falling back to '%.*s'.", p_locale.size(), p_locale,
-                trimmed_locale.size(), trimmed_locale));
+        print_verbose(FormatVE("Unsupported locale '%.*s', falling back to '%.*s'.", (int)p_locale.size(), p_locale.data(),
+                (int)trimmed_locale.size(), trimmed_locale.data()));
 
         if (!is_locale_valid(trimmed_locale)) {
-            ERR_PRINT(vformat("Unsupported locale '%s', falling back to 'en'.", trimmed_locale));
+            ERR_PRINT(String(String::CtorSprintf(),"Unsupported locale '%.*s', falling back to 'en'.", (int)trimmed_locale.length(),trimmed_locale.data()));
             locale = "en";
         } else {
             locale = trimmed_locale;
@@ -1056,16 +1056,16 @@ void TranslationServer::remove_translation(const Ref<Translation> &p_translation
 void TranslationServer::clear() {
 
     translations.clear();
-};
+}
 
-StringName TranslationServer::translate(const StringName &p_message) const {
+StringName TranslationServer::translate(StringView p_message) const {
 
     // Match given message against the translation catalog for the project locale.
-
+    StringName default_return(p_message);
     if (!enabled)
-        return p_message;
+        return default_return;
 
-    ERR_FAIL_COND_V_MSG(locale.length() < 2, p_message, "Could not translate message as configured locale '" + locale + "' is invalid.");
+    ERR_FAIL_COND_V_MSG(locale.length() < 2, default_return, "Could not translate message as configured locale '" + locale + "' is invalid.");
 
     // Locale can be of the form 'll_CC', i.e. language code and regional code,
     // e.g. 'en_US', 'en_GB', etc. It might also be simply 'll', e.g. 'en'.
@@ -1082,7 +1082,7 @@ StringName TranslationServer::translate(const StringName &p_message) const {
     bool near_match = false;
 
     for (const Ref<Translation> &t : translations) {
-        ERR_FAIL_COND_V(not t, p_message);
+        ERR_FAIL_COND_V(not t, default_return);
 
         const String &l(t->get_locale());
 
@@ -1095,7 +1095,7 @@ StringName TranslationServer::translate(const StringName &p_message) const {
                 continue; // Language code does not match.
             }
         }
-        StringName r = t->get_message(p_message);
+        StringName r = t->get_message(default_return);
 
         if (!r)
             continue;
@@ -1114,7 +1114,7 @@ StringName TranslationServer::translate(const StringName &p_message) const {
         near_match = false;
 
         for (const Ref<Translation> &t : translations) {
-            ERR_FAIL_COND_V(not t, p_message);
+            ERR_FAIL_COND_V(not t, default_return);
             String l = t->get_locale();
 
             bool exact_match = (l == fallback);
@@ -1127,7 +1127,7 @@ StringName TranslationServer::translate(const StringName &p_message) const {
                 }
             }
 
-            StringName r = t->get_message(p_message);
+            StringName r = t->get_message(default_return);
             if (!r) {
                 continue;
             }
@@ -1142,7 +1142,7 @@ StringName TranslationServer::translate(const StringName &p_message) const {
     }
 
     if (!res)
-        return p_message;
+        return default_return;
 
     return res;
 }

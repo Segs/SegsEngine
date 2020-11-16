@@ -91,8 +91,9 @@ void Shader::get_param_list(Vector<PropertyInfo> *p_params) const {
         if (p_params) {
 
             //small little hack
-            if (pi.type == VariantType::_RID)
+            if (pi.type == VariantType::_RID) {
                 pi.type = VariantType::OBJECT;
+            }
             p_params->push_back(pi);
         }
     }
@@ -196,8 +197,9 @@ Shader::~Shader() {
 
 RES ResourceFormatLoaderShader::load(StringView p_path, StringView p_original_path, Error *r_error) {
 
-    if (r_error)
+    if (r_error) {
         *r_error = ERR_FILE_CANT_OPEN;
+    }
 
     Ref<Shader> shader(make_ref_counted<Shader>());
 
@@ -205,8 +207,9 @@ RES ResourceFormatLoaderShader::load(StringView p_path, StringView p_original_pa
 
     shader->set_code(str);
 
-    if (r_error)
+    if (r_error) {
         *r_error = OK;
+    }
 
     return shader;
 }
@@ -224,8 +227,9 @@ bool ResourceFormatLoaderShader::handles_type(StringView p_type) const {
 String ResourceFormatLoaderShader::get_resource_type(StringView p_path) const {
 
     String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
-    if (el == "shader")
+    if (el == "shader") {
         return "Shader";
+    }
     return String();
 }
 

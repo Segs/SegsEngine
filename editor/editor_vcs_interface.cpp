@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "editor_vcs_interface.h"
+#include "core/dictionary.h"
 #include "core/method_bind.h"
 #include "core/class_db.h"
 

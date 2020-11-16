@@ -42,8 +42,9 @@ float AudioStreamPreview::get_length() const {
 }
 float AudioStreamPreview::get_max(float p_time, float p_time_next) const {
 
-    if (length == 0.0f)
+    if (length == 0.0f) {
         return 0;
+    }
 
     int max = preview.size() / 2;
     int time_from = p_time / length * max;
@@ -69,8 +70,9 @@ float AudioStreamPreview::get_max(float p_time, float p_time_next) const {
 }
 float AudioStreamPreview::get_min(float p_time, float p_time_next) const {
 
-    if (length == 0.0f)
+    if (length == 0.0f) {
         return 0;
+    }
 
     int max = preview.size() / 2;
     int time_from = p_time / length * max;
@@ -158,7 +160,7 @@ void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
         }
 
         frames_todo -= to_read;
-        singleton->call_deferred("_update_emit", Variant::from(preview->id));
+        singleton->call_deferred([id=preview->id]() { singleton->_update_emit(id); });
     }
 
     preview->playback->stop();
@@ -198,14 +200,14 @@ Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<
     preview->preview->preview = maxmin;
     preview->preview->length = len_s;
 
-    if (preview->playback)
+    if (preview->playback) {
         preview->thread = Thread::create(_preview_thread, preview);
+    }
 
     return preview->preview;
 }
 
 void AudioStreamPreviewGenerator::_bind_methods() {
-    MethodBinder::bind_method("_update_emit", &AudioStreamPreviewGenerator::_update_emit);
     MethodBinder::bind_method(D_METHOD("generate_preview", {"stream"}), &AudioStreamPreviewGenerator::generate_preview);
 
     ADD_SIGNAL(MethodInfo("preview_updated", PropertyInfo(VariantType::INT, "obj_id")));
@@ -214,8 +216,9 @@ void AudioStreamPreviewGenerator::_bind_methods() {
 AudioStreamPreviewGenerator *AudioStreamPreviewGenerator::singleton = nullptr;
 
 void AudioStreamPreviewGenerator::_notification(int p_what) {
-    if (p_what != NOTIFICATION_PROCESS)
+    if (p_what != NOTIFICATION_PROCESS) {
         return;
+    }
 
     Vector<ObjectID> to_erase;
     for (eastl::pair<const ObjectID,Preview> &E : previews) {

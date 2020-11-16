@@ -84,6 +84,14 @@ bool NodePath::is_absolute() const {
 
     return data->absolute;
 }
+
+bool NodePath::is_locator() const
+{
+    if(!data)
+        return false;
+    return !data->path.empty() && StringView(data->path.front()).starts_with('|');
+}
+
 int NodePath::get_name_count() const {
 
     if (!data)
@@ -193,7 +201,8 @@ String NodePath::asString() const {
     if (data->absolute)
         ret = "/";
     ret += String::joined(data->path,"/");
-    ret += String::joined(data->subpath,":");
+    if(!data->subpath.empty())
+        ret += ":"+String::joined(data->subpath,":");
 
     return ret;
 }
@@ -300,7 +309,7 @@ NodePath NodePath::get_as_property_path() const {
     }
 }
 
-NodePath::NodePath(const Vector<StringName> &p_path, bool p_absolute) {
+NodePath::NodePath(Span<const StringName> p_path, bool p_absolute) {
 
     data = nullptr;
 
@@ -310,7 +319,7 @@ NodePath::NodePath(const Vector<StringName> &p_path, bool p_absolute) {
     data = memnew(NodePathData);
     data->refcount.init();
     data->absolute = p_absolute;
-    data->path = p_path;
+    data->path.assign(p_path.begin(),p_path.end());
     data->has_slashes = true;
 }
 
@@ -370,6 +379,9 @@ void NodePath::simplify() {
 
 NodePath NodePath::simplified() const {
 
+    if(is_empty())
+        return *this;
+
     NodePath np = *this;
     np.simplify();
     return np;
@@ -379,8 +391,9 @@ NodePath::NodePath(StringView p_path) {
 
     data = nullptr;
 
-    if (p_path.length() == 0)
+    if (p_path.empty()) {
         return;
+    }
 
     String path(p_path);
     Vector<StringName> subpath;
@@ -422,15 +435,17 @@ NodePath::NodePath(StringView p_path) {
             has_slashes = true;
         } else {
 
-            if (last_is_slash)
+            if (last_is_slash) {
                 slices++;
+            }
 
             last_is_slash = false;
         }
     }
 
-    if (slices == 0 && !absolute && subpath.empty())
+    if (slices == 0 && !absolute && subpath.empty()) {
         return;
+    }
 
     data = memnew(NodePathData);
     data->refcount.init();

@@ -276,7 +276,7 @@ DirAccess *DirAccess::create(AccessType p_access) {
     }
 
     return da;
-};
+}
 
 String DirAccess::get_full_path(StringView p_path, AccessType p_access) {
 

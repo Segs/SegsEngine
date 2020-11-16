@@ -28,14 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SCENE_TREE_EDITOR_H
-#define SCENE_TREE_EDITOR_H
+#pragma once
 
 #include "core/undo_redo.h"
 #include "core/ustring.h"
-
-#include "editor_settings.h"
-#include "scene/gui/button.h"
 #include "scene/gui/dialogs.h"
 #include "scene/gui/tree.h"
 
@@ -44,10 +40,9 @@ class EditorSelection;
 class SceneTreeEditor : public Control {
 
     GDCLASS(SceneTreeEditor,Control)
-
-    EditorSelection *editor_selection;
-
-    enum {
+    friend struct SceneTreeEditorImpl;
+public:
+    enum ButtonId {
         BUTTON_SUBSCENE = 0,
         BUTTON_VISIBILITY = 1,
         BUTTON_SCRIPT = 2,
@@ -58,7 +53,9 @@ class SceneTreeEditor : public Control {
         BUTTON_GROUPS = 7,
         BUTTON_PIN = 8,
     };
+private:
 
+    EditorSelection* editor_selection;
     Tree *tree;
     Node *selected;
     ObjectID instance_node;
@@ -93,7 +90,6 @@ class SceneTreeEditor : public Control {
     Vector<StringName> valid_types;
 
     void _renamed();
-    void _compute_hash(Node *p_node, uint64_t &hash);
 
     bool _add_nodes(Node *p_node, TreeItem *p_parent);
     void _test_update_tree();
@@ -116,17 +112,14 @@ protected:
     static void _bind_methods();
 
     void _cell_button_pressed(Object *p_item, int p_column, int p_id);
-    void _toggle_visible(Node *p_node);
     void _cell_multi_selected(Object *p_object, int p_cell, bool p_selected);
     void _update_selection(TreeItem *item);
     void _node_script_changed(Node *p_node);
     void _node_visibility_changed(Node *p_node);
-    void _update_visibility_color(Node *p_node, TreeItem *p_item);
 
     void _node_replace_owner(Node *p_base, Node *p_node, Node *p_root);
 
     void _selection_changed();
-    Node *get_scene_node();
 
     Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
     bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
@@ -139,17 +132,19 @@ protected:
     bool _is_script_type(const StringName &p_type) const;
 
 public:
+    bool can_open_instances() const { return can_open_instance; }
+
     void set_filter(const UIString &p_filter);
     UIString get_filter() const;
 
-    void set_undo_redo(UndoRedo *p_undo_redo) { undo_redo = p_undo_redo; };
+    void set_undo_redo(UndoRedo *p_undo_redo) { undo_redo = p_undo_redo; }
     void set_display_foreign_nodes(bool p_display);
-    bool get_display_foreign_nodes() const;
+    bool get_display_foreign_nodes() const { return display_foreign; }
 
     void set_marked(const HashSet<Node *> &p_marked, bool p_selectable = false, bool p_children_selectable = true);
     void set_marked(Node *p_marked, bool p_selectable = false, bool p_children_selectable = true);
     void set_selected(Node *p_node, bool p_emit_selected = true);
-    Node *get_selected();
+    Node *get_selected() const { return selected; }
     void set_can_rename(bool p_can_rename) { can_rename = p_can_rename; }
     void set_editor_selection(EditorSelection *p_selection);
 
@@ -161,7 +156,7 @@ public:
     void set_connect_to_script_mode(bool p_enable);
     void set_connecting_signal(bool p_enable);
 
-    Tree *get_scene_tree() { return tree; }
+    Tree *get_scene_tree() const { return tree; }
 
     SceneTreeEditor(bool p_label = true, bool p_can_rename = false, bool p_can_open_instance = false);
     ~SceneTreeEditor() override;
@@ -190,5 +185,3 @@ public:
     SceneTreeDialog();
     ~SceneTreeDialog() override;
 };
-
-#endif

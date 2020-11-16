@@ -120,7 +120,7 @@ public:
     void set_draw_pass_mesh(int p_pass, const Ref<Mesh> &p_mesh);
     Ref<Mesh> get_draw_pass_mesh(int p_pass) const;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     void restart();
 

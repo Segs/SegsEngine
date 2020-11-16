@@ -48,10 +48,10 @@ class GODOT_EXPORT SkinReference : public RefCounted {
     friend class Skeleton;
 
     Vector<uint32_t> skin_bone_indices;
-    Skeleton *skeleton_node;
+    Skeleton *skeleton_node = nullptr;
     RID skeleton;
     Ref<Skin> skin;
-    uint32_t *skin_bone_indices_ptrs;
+    uint32_t *skin_bone_indices_ptrs = nullptr;
     uint64_t skeleton_version = 0;
     uint32_t bind_count = 0;
     void _skin_changed();
@@ -60,6 +60,7 @@ protected:
     static void _bind_methods();
 
 public:
+    Skeleton *get_skeleton_node() const { return skeleton_node; }
     RID get_skeleton() const;
     Ref<Skin> get_skin() const;
     ~SkinReference();

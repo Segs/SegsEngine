@@ -63,11 +63,9 @@ public:
         bool eq=true;
         bool line_only;
     };
-
+    friend void start_stop_idle_detection(TextEdit *,bool);
 private:
-    struct PrivateData;
-    PrivateData *m_priv=nullptr;
-
+    void *m_priv=nullptr;
 
     int max_chars=0;
     bool readonly;
@@ -114,7 +112,6 @@ private:
 
     bool smooth_scroll_enabled;
     bool scrolling;
-    bool dragging_selection;
     bool dragging_minimap;
     bool can_drag_minimap;
     bool minimap_clicked;
@@ -127,7 +124,6 @@ private:
     uint64_t last_dblclk;
 
     Timer *idle_detect;
-    Timer *click_select_held;
     HScrollBar *h_scroll;
     VScrollBar *v_scroll;
     bool updating_scrolls;
@@ -182,9 +178,6 @@ public:
     void _update_scrollbars();
     void _v_scroll_input();
     void _click_selection_held();
-
-    void _update_selection_mode_pointer();
-    void _update_selection_mode_word();
 
     void _update_minimap_click();
     void _update_minimap_drag();

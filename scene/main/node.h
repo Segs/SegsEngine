@@ -55,6 +55,7 @@ class GODOT_EXPORT Node : public Object {
     OBJ_CATEGORY("Nodes")
 
 public:
+    //jl::Signal<> tree_entered;
     enum PauseMode : int8_t {
 
         PAUSE_MODE_INHERIT,
@@ -73,8 +74,13 @@ public:
 #endif
     };
 
-    struct Comparator {
+    struct GroupInfo {
 
+        StringName name;
+        bool persistent;
+    };
+
+    struct Comparator {
         bool operator()(const Node *p_a, const Node *p_b) const { return p_b->is_greater_than(p_a); }
     };
 
@@ -89,28 +95,24 @@ public:
     static int orphan_node_count;
 
 private:
-    struct GroupData {
-        SceneTreeGroup *group;
-        bool persistent = false;
-    };
+    struct PrivData;
 
+    SceneTree *tree;
+    Viewport *viewport;
+    PrivData *priv_data;
+    Ref<MultiplayerAPI> multiplayer;
 
     int blocked; // safeguard that throws an error when attempting to modify the tree in a harmful way while being traversed.
     int process_priority;
-    SceneTree *tree;
-    Viewport *viewport;
     bool inside_tree;
     bool parent_owned;
-    struct PrivData;
-    PrivData *priv_data;
 
     enum NameCasing : int8_t {
         NAME_CASING_PASCAL_CASE,
         NAME_CASING_CAMEL_CASE,
         NAME_CASING_SNAKE_CASE
     };
-
-    Ref<MultiplayerAPI> multiplayer;
+    static const char *invalid_character;
 
 public:
     void _print_tree_pretty(const UIString &prefix, const bool last);
@@ -151,7 +153,6 @@ private:
 #ifdef TOOLS_ENABLED
     friend class SceneTreeEditor;
 #endif
-    static const char *invalid_character;
     static bool _validate_node_name(String &p_name);
 
 protected:
@@ -228,12 +229,10 @@ public:
     bool has_node(const NodePath &p_path) const;
     Node *get_node(const NodePath &p_path) const;
     Node *get_node_or_null(const NodePath &p_path) const;
-    Node *find_node(StringView p_mask, bool p_recursive = true, bool p_owned = true) const;
     bool has_node_and_resource(const NodePath &p_path) const;
     Node *get_node_and_resource(const NodePath &p_path, Ref<Resource> &r_res, Vector<StringName> &r_leftover_subpath, bool p_last_is_property = true) const;
 
     Node *get_parent() const;
-    Node *find_parent(StringView p_mask) const;
 
     _FORCE_INLINE_ SceneTree *get_tree() const {
         ERR_FAIL_COND_V(!tree, nullptr);
@@ -252,12 +251,6 @@ public:
     void add_to_group(const StringName &p_identifier, bool p_persistent = false);
     void remove_from_group(const StringName &p_identifier);
     bool is_in_group(const StringName &p_identifier) const;
-
-    struct GroupInfo {
-
-        StringName name;
-        bool persistent;
-    };
 
     void get_groups(Vector<GroupInfo> *p_groups) const;
     int get_persistent_group_count() const;
@@ -377,7 +370,7 @@ public:
 
     _FORCE_INLINE_ Viewport *get_viewport() const { return viewport; }
 
-    virtual StringName get_configuration_warning() const;
+    virtual String get_configuration_warning() const;
 
     void update_configuration_warning();
 

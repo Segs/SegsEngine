@@ -53,8 +53,9 @@ String SLNTransformer::generate() {
     new_contents += "Global\n";
     for (const GlobalSection& glob : global_sections) {
         new_contents = new_contents + glob.header;
-        for(const auto &entry : glob.entries)
+        for(const auto &entry : glob.entries) {
             new_contents = new_contents + "    " + entry;
+        }
 
         new_contents += "\nEndGlobalSection\n";
     }

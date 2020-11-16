@@ -87,7 +87,7 @@ public:
     String get_selected_path() const;
     const String &get_current_path() const;
 
-    void inspect_object(Object *p_obj, StringView p_for_property = StringView());
+    void inspect_object(Object *p_obj, StringView p_for_property = StringView(), bool p_inspector_only = false);
 
     EditorSelection *get_selection();
     //EditorImportExport *get_import_export();

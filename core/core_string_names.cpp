@@ -70,7 +70,6 @@ CoreStringNames::CoreStringNames() :
         b8("b8"),
         a8("a8"),
         call("call"),
-        call_deferred("call_deferred"),
         emit("emit"),
         notification("notification")
 {

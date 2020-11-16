@@ -43,19 +43,23 @@ IP_Address::operator Variant() const {
 
 IP_Address::operator String() const {
 
-    if (wildcard)
+    if (wildcard) {
         return String("*");
+    }
 
-    if (!valid)
+    if (!valid) {
         return "";
+    }
 
-    if (is_ipv4())
+    if (is_ipv4()) {
         // IPv4 address mapped to IPv6
         return to_string(field8[12]) + "." + to_string(field8[13]) + "." + to_string(field8[14]) + "." + to_string(field8[15]);
+    }
     String ret;
     for (int i = 0; i < 8; i++) {
-        if (i > 0)
+        if (i > 0) {
             ret = ret + ":";
+        }
         uint16_t num = (field8[i * 2] << 8) + field8[i * 2 + 1];
         ret = ret + StringUtils::num_int64(num, 16);
     }
@@ -92,7 +96,7 @@ static void _parse_hex(StringView p_string, int p_start, uint8_t *p_dst) {
 
     p_dst[0] = ret >> 8;
     p_dst[1] = ret & 0xff;
-};
+}
 
 void IP_Address::_parse_ipv6(StringView p_string) {
 
@@ -154,7 +158,7 @@ void IP_Address::_parse_ipv6(StringView p_string) {
             _parse_hex(p_string, parts[i], (uint8_t *)&(field16[idx++]));
         }
     }
-};
+}
 
 void IP_Address::_parse_ipv4(StringView p_string, int p_start, uint8_t *p_ret) {
 
@@ -170,14 +174,14 @@ void IP_Address::_parse_ipv4(StringView p_string, int p_start, uint8_t *p_ret) {
     for (int i = 0; i < 4; i++) {
         p_ret[i] = StringUtils::to_int(StringUtils::get_slice(ip,'.', i));
     }
-};
+}
 
 void IP_Address::clear() {
 
     memset(&field8[0], 0, sizeof(field8));
     valid = false;
     wildcard = false;
-};
+}
 
 bool IP_Address::is_ipv4() const {
     return (field32[0] == 0 && field32[1] == 0 && field16[4] == 0 && field16[5] == 0xffff);
@@ -203,8 +207,9 @@ const uint8_t *IP_Address::get_ipv6() const {
 void IP_Address::set_ipv6(const uint8_t *p_buf) {
     clear();
     valid = true;
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < 16; i++) {
         field8[i] = p_buf[i];
+    }
 }
 
 IP_Address::IP_Address(StringView _string) {
@@ -237,7 +242,7 @@ _FORCE_INLINE_ static void _32_to_buf(uint8_t *p_dst, uint32_t p_n) {
     p_dst[1] = (p_n >> 16) & 0xff;
     p_dst[2] = (p_n >> 8) & 0xff;
     p_dst[3] = (p_n >> 0) & 0xff;
-};
+}
 
 IP_Address::IP_Address(uint32_t p_a, uint32_t p_b, uint32_t p_c, uint32_t p_d, bool is_v6) {
 

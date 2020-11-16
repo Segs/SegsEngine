@@ -55,8 +55,8 @@
 IMPL_GDCLASS(CanvasItemMaterial)
 IMPL_GDCLASS(CanvasItem)
 
-VARIANT_ENUM_CAST(CanvasItemMaterial::BlendMode)
-VARIANT_ENUM_CAST(CanvasItemMaterial::LightMode)
+VARIANT_ENUM_CAST(CanvasItemMaterial::BlendMode);
+VARIANT_ENUM_CAST(CanvasItemMaterial::LightMode);
 VARIANT_ENUM_CAST(CanvasItem::BlendMode);
 
 static Vector<CanvasItemMaterial *> s_dirty_materials;
@@ -379,6 +379,9 @@ bool CanvasItem::_edit_is_selected_on_click(const Point2 &p_point, float p_toler
 Transform2D CanvasItem::_edit_get_transform() const {
     return Transform2D(_edit_get_rotation(), _edit_get_position() + _edit_get_pivot());
 }
+Dictionary CanvasItem::_edit_get_state() const {
+    return Dictionary();
+}
 #endif
 bool CanvasItem::is_visible_in_tree() const {
 
@@ -406,7 +409,7 @@ void CanvasItem::_propagate_visibility_changed(bool p_visible) {
     if (p_visible)
         update(); //todo optimize
     else
-        emit_signal(SceneStringNames::get_singleton()->hide);
+        emit_signal(SceneStringNames::hide);
     _block();
 
     for (int i = 0; i < get_child_count(); i++) {
@@ -472,9 +475,9 @@ void CanvasItem::_update_callback() {
         drawing = true;
         current_item_drawn = this;
         notification(NOTIFICATION_DRAW);
-        emit_signal(SceneStringNames::get_singleton()->draw);
+        emit_signal(SceneStringNames::draw);
         if (get_script_instance()) {
-            get_script_instance()->call(SceneStringNames::get_singleton()->_draw);
+            get_script_instance()->call(SceneStringNames::_draw);
         }
         current_item_drawn = nullptr;
         drawing = false;
@@ -632,7 +635,7 @@ void CanvasItem::_notification(int p_what) {
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
 
-            emit_signal(SceneStringNames::get_singleton()->visibility_changed);
+            emit_signal(SceneStringNames::visibility_changed);
         } break;
     }
 }
@@ -674,7 +677,7 @@ Color CanvasItem::get_modulate() const {
     return modulate;
 }
 
-void CanvasItem::set_as_toplevel(bool p_toplevel) {
+void CanvasItem::set_as_top_level(bool p_toplevel) {
 
     if (toplevel == p_toplevel)
         return;
@@ -689,7 +692,7 @@ void CanvasItem::set_as_toplevel(bool p_toplevel) {
     _enter_canvas();
 }
 
-bool CanvasItem::is_set_as_toplevel() const {
+bool CanvasItem::is_set_as_top_level() const {
 
     return toplevel;
 }
@@ -733,7 +736,7 @@ void CanvasItem::item_rect_changed(bool p_size_changed) {
 
     if (p_size_changed)
         update();
-    emit_signal(SceneStringNames::get_singleton()->item_rect_changed);
+    emit_signal(SceneStringNames::item_rect_changed);
 }
 
 void CanvasItem::draw_line(const Point2 &p_from, const Point2 &p_to, const Color &p_color, float p_width, bool p_antialiased) {
@@ -1184,7 +1187,6 @@ auto fac=ADD_TYPE(CanvasItem,Node)
 void CanvasItem::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_toplevel_raise_self"), &CanvasItem::_toplevel_raise_self);
-    MethodBinder::bind_method(D_METHOD("_update_callback"), &CanvasItem::_update_callback);
 #ifdef TOOLS_ENABLED
     MethodBinder::bind_method(D_METHOD("_edit_set_state", {"state"}), &CanvasItem::_edit_set_state,METHOD_FLAG_EDITOR_ONLY);
     MethodBinder::bind_method(D_METHOD("_edit_get_state"), &CanvasItem::_edit_get_state,METHOD_FLAG_EDITOR_ONLY);
@@ -1214,8 +1216,8 @@ void CanvasItem::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("update"), &CanvasItem::update);
 
-    MethodBinder::bind_method(D_METHOD("set_as_toplevel", {"enable"}), &CanvasItem::set_as_toplevel);
-    MethodBinder::bind_method(D_METHOD("is_set_as_toplevel"), &CanvasItem::is_set_as_toplevel);
+    MethodBinder::bind_method(D_METHOD("set_as_top_level", {"enable"}), &CanvasItem::set_as_top_level);
+    MethodBinder::bind_method(D_METHOD("is_set_as_top_level"), &CanvasItem::is_set_as_top_level);
 
     MethodBinder::bind_method(D_METHOD("set_light_mask", {"light_mask"}), &CanvasItem::set_light_mask);
     MethodBinder::bind_method(D_METHOD("get_light_mask"), &CanvasItem::get_light_mask);
@@ -1290,6 +1292,7 @@ void CanvasItem::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "vis_modulate"), "set_modulate", "get_modulate");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "vis_self_modulate"), "set_self_modulate", "get_self_modulate");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vis_show_behind_parent"), "set_draw_behind_parent", "is_draw_behind_parent_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vis_toplevel"), "set_as_top_level", "is_set_as_top_level");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vis_show_on_top", PropertyHint::None, "", 0), "_set_on_top", "_is_on_top"); //compatibility
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "vis_light_mask", PropertyHint::Layers2DRenderer), "set_light_mask", "get_light_mask");
 
@@ -1297,7 +1300,6 @@ void CanvasItem::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mat_material", PropertyHint::ResourceType, "ShaderMaterial,CanvasItemMaterial"), "set_material", "get_material");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "mat_use_parent_material"), "set_use_parent_material", "get_use_parent_material");
     //exporting these things doesn't really make much sense i think
-    // ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "toplevel", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_as_toplevel", "is_set_as_toplevel");
     // ADD_PROPERTY(PropertyInfo(VariantType::BOOL,"transform/notify"),"set_transform_notify","is_transform_notify_enabled");
 
     ADD_SIGNAL(MethodInfo("draw"));

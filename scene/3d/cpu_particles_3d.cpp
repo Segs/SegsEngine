@@ -43,10 +43,10 @@
 #include "core/translation_helpers.h"
 
 IMPL_GDCLASS(CPUParticles3D)
-VARIANT_ENUM_CAST(CPUParticles3D::DrawOrder)
-VARIANT_ENUM_CAST(CPUParticles3D::Parameter)
-VARIANT_ENUM_CAST(CPUParticles3D::Flags)
-VARIANT_ENUM_CAST(CPUParticles3D::EmissionShape)
+VARIANT_ENUM_CAST(CPUParticles3D::DrawOrder);
+VARIANT_ENUM_CAST(CPUParticles3D::Parameter);
+VARIANT_ENUM_CAST(CPUParticles3D::Flags);
+VARIANT_ENUM_CAST(CPUParticles3D::EmissionShape);
 
 AABB CPUParticles3D::get_aabb() const {
     return AABB();
@@ -211,9 +211,9 @@ bool CPUParticles3D::get_fractional_delta() const {
     return fractional_delta;
 }
 
-StringName CPUParticles3D::get_configuration_warning() const {
+String CPUParticles3D::get_configuration_warning() const {
 
-    String warnings;
+    String warnings = BaseClassName::get_configuration_warning();
 
     bool mesh_found = false;
     bool anim_material_found = false;
@@ -233,20 +233,20 @@ StringName CPUParticles3D::get_configuration_warning() const {
 
     if (!mesh_found) {
         if (!warnings.empty()) {
-            warnings += '\n';
+            warnings += "\n\n";
         }
-        warnings += "- " + TTR("Nothing is visible because no mesh has been assigned.");
+        warnings += String("- ") + TTR("Nothing is visible because no mesh has been assigned.");
     }
 
     if (!anim_material_found && (get_param(PARAM_ANIM_SPEED) != 0.0 || get_param(PARAM_ANIM_OFFSET) != 0.0 ||
                                         get_param_curve(PARAM_ANIM_SPEED) || get_param_curve(PARAM_ANIM_OFFSET))) {
         if (!warnings.empty()) {
-            warnings += '\n';
+            warnings += "\n\n";
         }
-        warnings += "- " + TTR("CPUParticles3D animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
+        warnings += String("- ") + TTR("CPUParticles3D animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
     }
 
-    return StringName(warnings);
+    return warnings;
 }
 
 void CPUParticles3D::restart() {
@@ -1274,9 +1274,9 @@ void CPUParticles3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_order", PropertyHint::Enum, "Index,Lifetime,View Depth"), "set_draw_order", "get_draw_order");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh"), "set_mesh", "get_mesh");
 
-    BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX)
-    BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME)
-    BIND_ENUM_CONSTANT(DRAW_ORDER_VIEW_DEPTH)
+    BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX);
+    BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME);
+    BIND_ENUM_CONSTANT(DRAW_ORDER_VIEW_DEPTH);
 
     ////////////////////////////////
 
@@ -1333,7 +1333,7 @@ void CPUParticles3D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_update_render_thread"), &CPUParticles3D::_update_render_thread);
 
     ADD_GROUP("Emission Shape", "emission_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_shape", PropertyHint::Enum, "Point,Sphere,Box,Points,Directed Points"), "set_emission_shape", "get_emission_shape");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_shape", PropertyHint::Enum, "Point,Sphere,Box,Points,Directed Points", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_emission_shape", "get_emission_shape");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "emission_sphere_radius", PropertyHint::Range, "0.01,128,0.01"), "set_emission_sphere_radius", "get_emission_sphere_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "emission_box_extents"), "set_emission_box_extents", "get_emission_box_extents");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "emission_points"), "set_emission_points", "get_emission_points");
@@ -1400,31 +1400,31 @@ void CPUParticles3D::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anim_offset_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANIM_OFFSET);
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "anim_offset_curve", PropertyHint::ResourceType, "Curve"), "set_param_curve", "get_param_curve", PARAM_ANIM_OFFSET);
 
-    BIND_ENUM_CONSTANT(PARAM_INITIAL_LINEAR_VELOCITY)
-    BIND_ENUM_CONSTANT(PARAM_ANGULAR_VELOCITY)
-    BIND_ENUM_CONSTANT(PARAM_ORBIT_VELOCITY)
-    BIND_ENUM_CONSTANT(PARAM_LINEAR_ACCEL)
-    BIND_ENUM_CONSTANT(PARAM_RADIAL_ACCEL)
-    BIND_ENUM_CONSTANT(PARAM_TANGENTIAL_ACCEL)
-    BIND_ENUM_CONSTANT(PARAM_DAMPING)
-    BIND_ENUM_CONSTANT(PARAM_ANGLE)
-    BIND_ENUM_CONSTANT(PARAM_SCALE)
-    BIND_ENUM_CONSTANT(PARAM_HUE_VARIATION)
-    BIND_ENUM_CONSTANT(PARAM_ANIM_SPEED)
-    BIND_ENUM_CONSTANT(PARAM_ANIM_OFFSET)
-    BIND_ENUM_CONSTANT(PARAM_MAX)
+    BIND_ENUM_CONSTANT(PARAM_INITIAL_LINEAR_VELOCITY);
+    BIND_ENUM_CONSTANT(PARAM_ANGULAR_VELOCITY);
+    BIND_ENUM_CONSTANT(PARAM_ORBIT_VELOCITY);
+    BIND_ENUM_CONSTANT(PARAM_LINEAR_ACCEL);
+    BIND_ENUM_CONSTANT(PARAM_RADIAL_ACCEL);
+    BIND_ENUM_CONSTANT(PARAM_TANGENTIAL_ACCEL);
+    BIND_ENUM_CONSTANT(PARAM_DAMPING);
+    BIND_ENUM_CONSTANT(PARAM_ANGLE);
+    BIND_ENUM_CONSTANT(PARAM_SCALE);
+    BIND_ENUM_CONSTANT(PARAM_HUE_VARIATION);
+    BIND_ENUM_CONSTANT(PARAM_ANIM_SPEED);
+    BIND_ENUM_CONSTANT(PARAM_ANIM_OFFSET);
+    BIND_ENUM_CONSTANT(PARAM_MAX);
 
-    BIND_ENUM_CONSTANT(FLAG_ALIGN_Y_TO_VELOCITY)
-    BIND_ENUM_CONSTANT(FLAG_ROTATE_Y)
-    BIND_ENUM_CONSTANT(FLAG_DISABLE_Z)
-    BIND_ENUM_CONSTANT(FLAG_MAX)
+    BIND_ENUM_CONSTANT(FLAG_ALIGN_Y_TO_VELOCITY);
+    BIND_ENUM_CONSTANT(FLAG_ROTATE_Y);
+    BIND_ENUM_CONSTANT(FLAG_DISABLE_Z);
+    BIND_ENUM_CONSTANT(FLAG_MAX);
 
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_POINT)
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_SPHERE)
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_BOX)
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_POINTS)
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_DIRECTED_POINTS)
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_MAX)
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_POINT);
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_SPHERE);
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_BOX);
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_POINTS);
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_DIRECTED_POINTS);
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_MAX);
 }
 
 CPUParticles3D::CPUParticles3D() {

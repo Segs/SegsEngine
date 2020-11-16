@@ -156,7 +156,7 @@ bool _handle_response(HTTPRequestData &impl,HTTPRequest *tgt,bool *ret_value) {
     using namespace StringUtils;
 
     if (!impl.client->has_response()) {
-        tgt->call_deferred("_request_done", HTTPRequest::RESULT_NO_RESPONSE, 0, PoolStringArray(), PoolByteArray());
+        tgt->call_deferred([tgt]() { tgt->_request_done(HTTPRequest::RESULT_NO_RESPONSE, 0, PoolStringArray(), PoolByteArray()); });
         *ret_value = true;
         return true;
     }
@@ -175,8 +175,7 @@ bool _handle_response(HTTPRequestData &impl,HTTPRequest *tgt,bool *ret_value) {
         // Handle redirect
 
         if (impl.max_redirects >= 0 && impl.redirections >= impl.max_redirects) {
-
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_REDIRECT_LIMIT_REACHED, impl.response_code, impl.response_headers, PoolByteArray());
+            tgt->call_deferred([tgt, rc=impl.response_code, rh=impl.response_headers]() { tgt->_request_done(HTTPRequest::RESULT_REDIRECT_LIMIT_REACHED, rc, rh, {}); });
             *ret_value = true;
             return true;
         }
@@ -222,7 +221,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
 
     switch (impl.client->get_status()) {
         case HTTPClient::STATUS_DISCONNECTED: {
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray());
+            tgt->call_deferred([tgt]() { tgt->_request_done(HTTPRequest::RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray()); });
             return true; // End it, since it's doing something
         }
         case HTTPClient::STATUS_RESOLVING: {
@@ -231,7 +230,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
             return false;
         }
         case HTTPClient::STATUS_CANT_RESOLVE: {
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_RESOLVE, 0, PoolStringArray(), PoolByteArray());
+            tgt->call_deferred([tgt]() { tgt->_request_done(HTTPRequest::RESULT_CANT_RESOLVE, 0, PoolStringArray(), PoolByteArray()); });
             return true;
 
         }
@@ -242,7 +241,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
         } // Connecting to IP
         case HTTPClient::STATUS_CANT_CONNECT: {
 
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray());
+            tgt->call_deferred([tgt]() { tgt->_request_done(HTTPRequest::RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray()); });
             return true;
 
         }
@@ -259,16 +258,15 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
                     if (_handle_response(impl,tgt,&ret_value))
                         return ret_value;
 
-                    tgt->call_deferred("_request_done", HTTPRequest::RESULT_SUCCESS, impl.response_code, impl.response_headers, PoolByteArray());
+                    tgt->call_deferred([tgt, rc=impl.response_code, rh=impl.response_headers]() { tgt->_request_done(HTTPRequest::RESULT_SUCCESS, rc, rh, PoolByteArray()); });
                     return true;
                 }
                 if (impl.body_len < 0) {
                     // Chunked transfer is done
-                    tgt->call_deferred("_request_done", HTTPRequest::RESULT_SUCCESS,impl.response_code, impl.response_headers, impl.body);
+                    tgt->call_deferred([tgt, rc = impl.response_code, rh = impl.response_headers,bd=impl.body]() { tgt->_request_done(HTTPRequest::RESULT_SUCCESS, rc, rh, bd); });
                     return true;
                 }
-
-                tgt->call_deferred("_request_done", HTTPRequest::RESULT_CHUNKED_BODY_SIZE_MISMATCH,impl.response_code, impl.response_headers, PoolByteArray());
+                tgt->call_deferred([tgt, rc = impl.response_code, rh = impl.response_headers]() { tgt->_request_done(HTTPRequest::RESULT_CHUNKED_BODY_SIZE_MISMATCH, rc, rh, {}); });
                 return true;
                 // Request migh have been done
             } else {
@@ -276,7 +274,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
 
                 Error err = impl.client->request(impl.method, (impl.request_string), impl.headers, impl.request_data);
                 if (err != OK) {
-                    tgt->call_deferred("_request_done", HTTPRequest::RESULT_CONNECTION_ERROR, 0, PoolStringArray(), PoolByteArray());
+                    tgt->call_deferred([tgt]() { tgt->_request_done(HTTPRequest::RESULT_CONNECTION_ERROR, 0, {}, {}); });
                     return true;
                 }
 
@@ -301,7 +299,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
 
                 if (!impl.client->is_response_chunked() && impl.client->get_response_body_length() == 0) {
 
-                    tgt->call_deferred("_request_done", HTTPRequest::RESULT_SUCCESS, impl.response_code, impl.response_headers, PoolByteArray());
+                    tgt->call_deferred([tgt, rc = impl.response_code, rh = impl.response_headers]() { tgt->_request_done(HTTPRequest::RESULT_SUCCESS, rc, rh, {}); });
                     return true;
                 }
 
@@ -310,7 +308,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
                 impl.body_len = impl.client->get_response_body_length();
 
                 if (impl.body_size_limit >= 0 && impl.body_len > impl.body_size_limit) {
-                    tgt->call_deferred("_request_done", HTTPRequest::RESULT_BODY_SIZE_LIMIT_EXCEEDED, impl.response_code, impl.response_headers, PoolByteArray());
+                    tgt->call_deferred([tgt, rc = impl.response_code, rh = impl.response_headers]() { tgt->_request_done(HTTPRequest::RESULT_BODY_SIZE_LIMIT_EXCEEDED, rc, rh, {}); });
                     return true;
                 }
 
@@ -318,7 +316,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
                     impl.file = FileAccess::open(impl.download_to_file, FileAccess::WRITE);
                     if (!impl.file) {
 
-                        tgt->call_deferred("_request_done", HTTPRequest::RESULT_DOWNLOAD_FILE_CANT_OPEN, impl.response_code, impl.response_headers, PoolByteArray());
+                        tgt->call_deferred([tgt, rc = impl.response_code, rh = impl.response_headers]() { tgt->_request_done(HTTPRequest::RESULT_DOWNLOAD_FILE_CANT_OPEN, rc, rh, {}); });
                         return true;
                     }
                 }
@@ -333,7 +331,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
                 PoolByteArray::Read r = chunk.read();
                 impl.file->store_buffer(r.ptr(), chunk.size());
                 if (impl.file->get_error() != OK) {
-                    tgt->call_deferred("_request_done", HTTPRequest::RESULT_DOWNLOAD_FILE_WRITE_ERROR, impl.response_code, impl.response_headers, PoolByteArray());
+                    tgt->call_deferred([tgt, rc = impl.response_code, rh = impl.response_headers]() { tgt->_request_done(HTTPRequest::RESULT_DOWNLOAD_FILE_WRITE_ERROR, rc, rh, {}); });
                     return true;
                 }
             } else {
@@ -341,30 +339,30 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
             }
 
             if (impl.body_size_limit >= 0 && impl.downloaded > impl.body_size_limit) {
-                tgt->call_deferred("_request_done", HTTPRequest::RESULT_BODY_SIZE_LIMIT_EXCEEDED, impl.response_code, impl.response_headers, PoolByteArray());
+                tgt->call_deferred([tgt, rc = impl.response_code, rh = impl.response_headers]() { tgt->_request_done(HTTPRequest::RESULT_BODY_SIZE_LIMIT_EXCEEDED, rc, rh, {}); });
                 return true;
             }
 
             if (impl.body_len >= 0) {
 
                 if (impl.downloaded == impl.body_len) {
-                    tgt->call_deferred("_request_done", HTTPRequest::RESULT_SUCCESS, impl.response_code, impl.response_headers,impl.body);
+                    tgt->call_deferred([tgt, rc = impl.response_code, rh = impl.response_headers,bd=impl.body]() { tgt->_request_done(HTTPRequest::RESULT_SUCCESS, rc, rh, bd); });
                     return true;
                 }
             } else if (impl.client->get_status() == HTTPClient::STATUS_DISCONNECTED) {
                 // We read till EOF, with no errors. Request is done.
-                tgt->call_deferred("_request_done", HTTPRequest::RESULT_SUCCESS, impl.response_code, impl.response_headers, impl.body);
+                tgt->call_deferred([tgt, rc = impl.response_code, rh = impl.response_headers, bd = impl.body]() { tgt->_request_done(HTTPRequest::RESULT_SUCCESS, rc, rh, bd); });
             }
 
             return false;
 
         } // Request resulted in body: break which must be read
         case HTTPClient::STATUS_CONNECTION_ERROR: {
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CONNECTION_ERROR, 0, PoolStringArray(), PoolByteArray());
+            tgt->call_deferred([tgt]() { tgt->_request_done(HTTPRequest::RESULT_CONNECTION_ERROR, 0, {}, {}); });
             return true;
         }
         case HTTPClient::STATUS_SSL_HANDSHAKE_ERROR: {
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_SSL_HANDSHAKE_ERROR, 0, PoolStringArray(), PoolByteArray());
+            tgt->call_deferred([tgt]() { tgt->_request_done(HTTPRequest::RESULT_SSL_HANDSHAKE_ERROR, 0, {}, {}); });
             return true;
         }
     }
@@ -380,7 +378,7 @@ static void _thread_func(void *p_userdata) {
     Error err = _request(*hrdat);
 
     if (err != OK) {
-        hr->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray());
+        hr->call_deferred([hr]() { hr->_request_done(HTTPRequest::RESULT_CANT_CONNECT, 0, {}, {}); });
     } else {
         while (!hrdat->thread_request_quit) {
 
@@ -432,7 +430,7 @@ Error HTTPRequest::request(StringView p_url, const Vector<String> &p_custom_head
         IMPLD()->client->set_blocking_mode(false);
         err = _request(*IMPLD());
         if (err != OK) {
-            call_deferred("_request_done", RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray());
+            call_deferred([this]() { _request_done(RESULT_CANT_CONNECT, 0, {}, {}); });
             return ERR_CANT_CONNECT;
         }
 
@@ -460,10 +458,8 @@ void HTTPRequest::cancel_request() {
         IMPLD()->thread = nullptr;
     }
 
-    if (IMPLD()->file) {
-        memdelete(IMPLD()->file);
-        IMPLD()->file = nullptr;
-    }
+    memdelete(IMPLD()->file);
+    IMPLD()->file = nullptr;
     IMPLD()->client->close();
     IMPLD()->body.resize(0);
     IMPLD()->got_response = false;
@@ -581,7 +577,8 @@ int HTTPRequest::get_timeout() {
 void HTTPRequest::_timeout() {
 
     cancel_request();
-    call_deferred("_request_done", RESULT_TIMEOUT, 0, PoolStringArray(), PoolByteArray());
+    call_deferred([this]() { _request_done(RESULT_TIMEOUT, 0, {}, {}); });
+
 }
 
 void HTTPRequest::_bind_methods() {
@@ -606,16 +603,11 @@ void HTTPRequest::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_downloaded_bytes"), &HTTPRequest::get_downloaded_bytes);
     MethodBinder::bind_method(D_METHOD("get_body_size"), &HTTPRequest::get_body_size);
 
-    MethodBinder::bind_method(D_METHOD("_redirect_request"), &HTTPRequest::_redirect_request);
-    MethodBinder::bind_method(D_METHOD("_request_done"), &HTTPRequest::_request_done);
-
     MethodBinder::bind_method(D_METHOD("set_timeout", {"timeout"}), &HTTPRequest::set_timeout);
     MethodBinder::bind_method(D_METHOD("get_timeout"), &HTTPRequest::get_timeout);
 
     MethodBinder::bind_method(D_METHOD("set_download_chunk_size"), &HTTPRequest::set_download_chunk_size);
     MethodBinder::bind_method(D_METHOD("get_download_chunk_size"), &HTTPRequest::get_download_chunk_size);
-
-    MethodBinder::bind_method(D_METHOD("_timeout"), &HTTPRequest::_timeout);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "download_file", PropertyHint::File), "set_download_file", "get_download_file");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "download_chunk_size", PropertyHint::Range, "256,16777216"), "set_download_chunk_size", "get_download_chunk_size");
@@ -626,20 +618,20 @@ void HTTPRequest::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("request_completed", PropertyInfo(VariantType::INT, "result"), PropertyInfo(VariantType::INT, "response_code"), PropertyInfo(VariantType::POOL_STRING_ARRAY, "headers"), PropertyInfo(VariantType::POOL_BYTE_ARRAY, "body")));
 
-    BIND_ENUM_CONSTANT(RESULT_SUCCESS)
+    BIND_ENUM_CONSTANT(RESULT_SUCCESS);
     //BIND_ENUM_CONSTANT( RESULT_NO_BODY )
-    BIND_ENUM_CONSTANT(RESULT_CHUNKED_BODY_SIZE_MISMATCH)
-    BIND_ENUM_CONSTANT(RESULT_CANT_CONNECT)
-    BIND_ENUM_CONSTANT(RESULT_CANT_RESOLVE)
-    BIND_ENUM_CONSTANT(RESULT_CONNECTION_ERROR)
-    BIND_ENUM_CONSTANT(RESULT_SSL_HANDSHAKE_ERROR)
-    BIND_ENUM_CONSTANT(RESULT_NO_RESPONSE)
-    BIND_ENUM_CONSTANT(RESULT_BODY_SIZE_LIMIT_EXCEEDED)
-    BIND_ENUM_CONSTANT(RESULT_REQUEST_FAILED)
-    BIND_ENUM_CONSTANT(RESULT_DOWNLOAD_FILE_CANT_OPEN)
-    BIND_ENUM_CONSTANT(RESULT_DOWNLOAD_FILE_WRITE_ERROR)
-    BIND_ENUM_CONSTANT(RESULT_REDIRECT_LIMIT_REACHED)
-    BIND_ENUM_CONSTANT(RESULT_TIMEOUT)
+    BIND_ENUM_CONSTANT(RESULT_CHUNKED_BODY_SIZE_MISMATCH);
+    BIND_ENUM_CONSTANT(RESULT_CANT_CONNECT);
+    BIND_ENUM_CONSTANT(RESULT_CANT_RESOLVE);
+    BIND_ENUM_CONSTANT(RESULT_CONNECTION_ERROR);
+    BIND_ENUM_CONSTANT(RESULT_SSL_HANDSHAKE_ERROR);
+    BIND_ENUM_CONSTANT(RESULT_NO_RESPONSE);
+    BIND_ENUM_CONSTANT(RESULT_BODY_SIZE_LIMIT_EXCEEDED);
+    BIND_ENUM_CONSTANT(RESULT_REQUEST_FAILED);
+    BIND_ENUM_CONSTANT(RESULT_DOWNLOAD_FILE_CANT_OPEN);
+    BIND_ENUM_CONSTANT(RESULT_DOWNLOAD_FILE_WRITE_ERROR);
+    BIND_ENUM_CONSTANT(RESULT_REDIRECT_LIMIT_REACHED);
+    BIND_ENUM_CONSTANT(RESULT_TIMEOUT);
 }
 
 HTTPRequest::HTTPRequest() {
@@ -655,8 +647,7 @@ HTTPRequest::HTTPRequest() {
 
 HTTPRequest::~HTTPRequest() {
     if(IMPLD()) {
-        if (IMPLD()->file)
-            memdelete(IMPLD()->file);
+        memdelete(IMPLD()->file);
         memdelete(IMPLD());
     }
 }

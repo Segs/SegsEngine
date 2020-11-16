@@ -482,7 +482,7 @@ static inline void _build_faces(uint8_t ***p_cell_status, int x, int y, int z, i
 
 #define vert(m_idx) Vector3(((m_idx)&4) >> 2, ((m_idx)&2) >> 1, (m_idx)&1)
 
-    static const uint8_t indices[6][4] = {
+    static constexpr uint8_t indices[6][4] = {
         { 7, 6, 4, 5 },
         { 7, 3, 2, 6 },
         { 7, 5, 1, 3 },
@@ -777,17 +777,20 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
 
         for (int j = 0; j < p_planes.size(); j++) {
 
-            if (j == i)
+            if (j == i) {
                 continue;
+            }
 
             Vector<Vector3> new_vertices;
             Plane clip = p_planes[j];
 
-            if (clip.normal.dot(p.normal) > 0.95f)
+            if (clip.normal.dot(p.normal) > 0.95f) {
                 continue;
+            }
 
-            if (vertices.size() < 3)
+            if (vertices.size() < 3) {
                 break;
+            }
 
             for (size_t k = 0; k < vertices.size(); k++) {
 
@@ -811,8 +814,9 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
                     Vector3 rel = edge1_A - edge0_A;
 
                     real_t den = clip.normal.dot(rel);
-                    if (Math::is_zero_approx(den))
+                    if (Math::is_zero_approx(den)) {
                         continue; // Point too short.
+                    }
 
                     real_t dist = -(clip.normal.dot(edge0_A) - clip.d) / den;
                     Vector3 inters = edge0_A + rel * dist;
@@ -823,8 +827,9 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
             vertices = new_vertices;
         }
 
-        if (vertices.size() < 3)
+        if (vertices.size() < 3) {
             continue;
+        }
 
         // Result is a clockwise face.
 
@@ -1030,8 +1035,9 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_resu
         int w = 1 << i;
         int max_h = 0;
         int max_w = 0;
-        if (w < widest)
+        if (w < widest) {
             continue;
+        }
 
         Vector<int> hmax;
         hmax.resize(w,0);
@@ -1181,12 +1187,12 @@ Vector<Vector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p_polyp
         case END_SQUARE: et = etOpenSquare; break;
         case END_ROUND: et = etOpenRound; break;
     }
-    ClipperOffset co(2.0, 0.25 * SCALE_FACTOR); // Defaults from ClipperOffset.
+    ClipperOffset co(2.0f, 0.25f * SCALE_FACTOR); // Defaults from ClipperOffset.
     Path path;
-
+    path.reserve(p_polypath.size());
     // Need to scale points (Clipper's requirement for robust computation)
-    for (int i = 0; i != p_polypath.size(); ++i) {
-        path << IntPoint(p_polypath[i].x * SCALE_FACTOR, p_polypath[i].y * SCALE_FACTOR);
+    for (size_t i = 0,fin=p_polypath.size(); i != fin; ++i) {
+        path.emplace_back(p_polypath[i].x * SCALE_FACTOR, p_polypath[i].y * SCALE_FACTOR);
     }
     co.AddPath(path, jt, et);
 
@@ -1210,9 +1216,9 @@ Vector<Vector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p_polyp
     }
     return polypaths;
 }
-Vector<Vector3> Geometry::compute_convex_mesh_points(Span<const Plane> p_planes) {
+FixedVector<Vector3,8,false> Geometry::compute_convex_mesh_points(Span<const Plane,6> p_planes) {
 
-    Vector<Vector3> points;
+    FixedVector<Vector3,8,false> points;
 
     // Iterate through every unique combination of any three planes.
     for (int i = p_planes.size() - 1; i >= 0; i--) {

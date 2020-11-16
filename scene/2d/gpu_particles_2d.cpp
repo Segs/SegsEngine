@@ -43,7 +43,7 @@
 #endif
 
 IMPL_GDCLASS(GPUParticles2D)
-VARIANT_ENUM_CAST(GPUParticles2D::DrawOrder)
+VARIANT_ENUM_CAST(GPUParticles2D::DrawOrder);
 
 void GPUParticles2D::set_emitting(bool p_emitting) {
 
@@ -178,30 +178,16 @@ float GPUParticles2D::get_pre_process_time() const {
 
     return pre_process_time;
 }
-float GPUParticles2D::get_explosiveness_ratio() const {
 
-    return explosiveness_ratio;
-}
-float GPUParticles2D::get_randomness_ratio() const {
 
-    return randomness_ratio;
-}
 Rect2 GPUParticles2D::get_visibility_rect() const {
 
     return visibility_rect;
 }
-bool GPUParticles2D::get_use_local_coordinates() const {
 
-    return local_coords;
-}
 Ref<Material> GPUParticles2D::get_process_material() const {
 
     return process_material;
-}
-
-float GPUParticles2D::get_speed_scale() const {
-
-    return speed_scale;
 }
 
 void GPUParticles2D::set_draw_order(DrawOrder p_order) {
@@ -233,31 +219,33 @@ bool GPUParticles2D::get_fractional_delta() const {
     return fractional_delta;
 }
 
-StringName GPUParticles2D::get_configuration_warning() const {
+String GPUParticles2D::get_configuration_warning() const {
 
-    String warnings;
+    String warning = BaseClassName::get_configuration_warning();
 
-    if (not process_material) {
-        if (!warnings.empty())
-            warnings += '\n';
-        warnings += "- " + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
+    if (!process_material) {
+        if (!warning.empty())
+            warning += "\n\n";
+        warning += String("- ") + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
     } else {
 
         CanvasItemMaterial *mat = object_cast<CanvasItemMaterial>(get_material().get());
 
-        if (not get_material() || (mat && !mat->get_particles_animation())) {
+        if (!get_material() || (mat && !mat->get_particles_animation())) {
             const ParticlesMaterial *process = object_cast<ParticlesMaterial>(process_material.get());
             if (process &&
-                    (process->get_param(ParticlesMaterial::PARAM_ANIM_SPEED) != 0.0f || process->get_param(ParticlesMaterial::PARAM_ANIM_OFFSET) != 0.0f ||
-                            process->get_param_texture(ParticlesMaterial::PARAM_ANIM_SPEED) || process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET))) {
-                if (!warnings.empty())
-                    warnings += '\n';
-                warnings += "- " + TTR("GPUParticles2D animation requires the usage of a CanvasItemMaterial with \"Particles Animation\" enabled.");
+                    ((float)process->get_param(ParticlesMaterial::PARAM_ANIM_SPEED) != 0.0 ||
+                     (float)process->get_param(ParticlesMaterial::PARAM_ANIM_OFFSET) != 0.0 ||
+                            process->get_param_texture(ParticlesMaterial::PARAM_ANIM_SPEED) ||
+                            process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET))) {
+                if (warning != String())
+                    warning += "\n\n";
+                warning += String("- ") + TTR("Particles2D animation requires the usage of a CanvasItemMaterial with \"Particles Animation\" enabled.");
             }
         }
     }
 
-    return StringName(warnings);
+    return warning;
 }
 
 Rect2 GPUParticles2D::capture_rect() const {
@@ -405,8 +393,8 @@ void GPUParticles2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal_map", PropertyHint::ResourceType, "Texture"), "set_normal_map", "get_normal_map");
 
-    BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX)
-    BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME)
+    BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX);
+    BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME);
 }
 
 GPUParticles2D::GPUParticles2D() {

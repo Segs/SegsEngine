@@ -65,8 +65,92 @@ class TestMainLoop : public MainLoop {
 
     float ofs;
     bool quit;
-
 protected:
+    RID test_material;
+    RID _make_test_cube(RenderingServer *rs) {
+        Vector<Vector3> vertices;
+        Vector<Vector3> normals;
+        Vector<float> tangents;
+        Vector<Vector2> uvs;
+
+    #define ADD_VTX(m_idx)                                                                                                 \
+        vertices.push_back(face_points[m_idx]);                                                                            \
+        normals.push_back(normal_points[m_idx]);                                                                           \
+        tangents.push_back(normal_points[m_idx][1]);                                                                       \
+        tangents.push_back(normal_points[m_idx][2]);                                                                       \
+        tangents.push_back(normal_points[m_idx][0]);                                                                       \
+        tangents.push_back(1.0);                                                                                           \
+        uvs.push_back(Vector2(uv_points[m_idx * 2 + 0], uv_points[m_idx * 2 + 1]));
+
+        for (int i = 0; i < 6; i++) {
+            Vector3 face_points[4];
+            Vector3 normal_points[4];
+            float uv_points[8] = { 0, 0, 0, 1, 1, 1, 1, 0 };
+
+            for (int j = 0; j < 4; j++) {
+                float v[3];
+                v[0] = 1.0;
+                v[1] = 1 - 2 * ((j >> 1) & 1);
+                v[2] = v[1] * (1 - 2 * (j & 1));
+
+                for (int k = 0; k < 3; k++) {
+                    if (i < 3) {
+                        face_points[j][(i + k) % 3] = v[k];
+                    } else {
+                        face_points[3 - j][(i + k) % 3] = -v[k];
+                    }
+                }
+                normal_points[j] = Vector3();
+                normal_points[j][i % 3] = (i >= 3 ? -1 : 1);
+            }
+
+            // tri 1
+            ADD_VTX(0)
+            ADD_VTX(1)
+            ADD_VTX(2)
+            // tri 2
+            ADD_VTX(2)
+            ADD_VTX(3)
+            ADD_VTX(0)
+        }
+
+        RID test_cube = rs->mesh_create();
+
+        Vector<int> indices(vertices.size());
+
+        SurfaceArrays d(eastl::move(vertices));
+        d.m_normals = eastl::move(normals);
+        d.m_tangents = eastl::move(tangents);
+        d.m_uv_1 = eastl::move(uvs);
+
+        for (int i = 0; i < indices.size(); i++) {
+            indices[i] = i;
+        }
+        d.m_indices = eastl::move(indices);
+
+        rs->mesh_add_surface_from_arrays(test_cube, RS::PRIMITIVE_TRIANGLES, d);
+
+        /*
+        test_material = fixed_material_create();
+        //material_set_flag(material, MATERIAL_FLAG_BILLBOARD_TOGGLE,true);
+        fixed_material_set_texture( test_material, FIXED_MATERIAL_PARAM_DIFFUSE, get_test_texture() );
+        fixed_material_set_param( test_material, FIXED_MATERIAL_PARAM_SPECULAR_EXP, 70 );
+        fixed_material_set_param( test_material, FIXED_MATERIAL_PARAM_EMISSION, Color(0.2,0.2,0.2) );
+
+        fixed_material_set_param( test_material, FIXED_MATERIAL_PARAM_DIFFUSE, Color(1, 1, 1) );
+        fixed_material_set_param( test_material, FIXED_MATERIAL_PARAM_SPECULAR, Color(1,1,1) );
+    */
+        rs->mesh_surface_set_material(test_cube, 0, test_material);
+
+        return test_cube;
+    }
+
+    RID get_test_cube(RenderingServer *rs) {
+        if (!test_cube.is_valid()) {
+            test_cube = _make_test_cube(rs);
+        }
+        return test_cube;
+    }
 public:
     void input_event(const Ref<InputEvent> &p_event) override {
 
@@ -78,7 +162,7 @@ public:
 
         print_line("INITIALIZING TEST RENDER");
         RenderingServer *vs = RenderingServer::get_singleton();
-        test_cube = vs->get_test_cube();
+        test_cube = get_test_cube(vs);
         scenario = vs->scenario_create();
 
         FixedVector<Vector3,8> vts;

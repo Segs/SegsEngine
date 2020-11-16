@@ -250,7 +250,7 @@ bool SpriteFrames::get_animation_loop(const StringName &p_anim) const {
 void SpriteFrames::_set_frames(const Array &p_frames) {
 
     clear_all();
-    HashMap<StringName, Anim>::iterator E = animations.find(SceneStringNames::get_singleton()->_default);
+    HashMap<StringName, Anim>::iterator E = animations.find(SceneStringNames::_default);
     ERR_FAIL_COND(E==animations.end());
 
     E->second.frames.resize(p_frames.size());
@@ -343,7 +343,7 @@ void SpriteFrames::_bind_methods() {
 
 SpriteFrames::SpriteFrames() {
 
-    add_animation(SceneStringNames::get_singleton()->_default);
+    add_animation(SceneStringNames::_default);
 }
 
 void AnimatedSprite2D::_validate_property(PropertyInfo &property) const {
@@ -420,7 +420,7 @@ void AnimatedSprite2D::_notification(int p_what) {
                             else
                                 frame = 0;
 
-                            emit_signal(SceneStringNames::get_singleton()->animation_finished);
+                            emit_signal(SceneStringNames::animation_finished);
                         } else {
                             if (backwards)
                                 frame = 0;
@@ -429,7 +429,7 @@ void AnimatedSprite2D::_notification(int p_what) {
 
                             if (!is_over) {
                                 is_over = true;
-                                emit_signal(SceneStringNames::get_singleton()->animation_finished);
+                                emit_signal(SceneStringNames::animation_finished);
                             }
                         }
                     } else {
@@ -441,7 +441,7 @@ void AnimatedSprite2D::_notification(int p_what) {
 
                     update();
                     Object_change_notify(this,"frame");
-                    emit_signal(SceneStringNames::get_singleton()->frame_changed);
+                    emit_signal(SceneStringNames::frame_changed);
                 }
 
                 float to_process = MIN(timeout, remaining);
@@ -536,7 +536,7 @@ void AnimatedSprite2D::set_frame(int p_frame) {
     _reset_timeout();
     update();
     Object_change_notify(this,"frame");
-    emit_signal(SceneStringNames::get_singleton()->frame_changed);
+    emit_signal(SceneStringNames::frame_changed);
 }
 int AnimatedSprite2D::get_frame() const {
 
@@ -669,7 +669,7 @@ void AnimatedSprite2D::_reset_timeout() {
 
 void AnimatedSprite2D::set_animation(const StringName &p_animation) {
 
-    ERR_FAIL_COND_MSG(frames == nullptr, vformat(("There is no animation with name '%s'."), p_animation));
+    ERR_FAIL_COND_MSG(frames == nullptr, FormatVE("There is no animation with name '%s'.", p_animation.asCString()));
     ERR_FAIL_COND_MSG(not frames->animation_name_map().contains(p_animation), FormatVE("There is no animation with name '%s'.",p_animation.asCString()));
 
     if (animation == p_animation)
@@ -686,13 +686,17 @@ StringName AnimatedSprite2D::get_animation() const {
     return animation;
 }
 
-StringName AnimatedSprite2D::get_configuration_warning() const {
+String AnimatedSprite2D::get_configuration_warning() const {
 
-    if (not frames) {
-        return TTR("A SpriteFrames resource must be created or set in the \"Frames\" property in order for AnimatedSprite to display frames.");
+    String warning = BaseClassName::get_configuration_warning();
+    if (!frames) {
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("A SpriteFrames resource must be created or set in the \"Frames\" property in order for AnimatedSprite to display frames.");
     }
 
-    return StringName();
+    return warning;
 }
 
 void AnimatedSprite2D::_bind_methods() {

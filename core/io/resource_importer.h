@@ -85,15 +85,18 @@ public:
         importers.push_back(p_importer);
     }
     void add_importer(const Ref<ResourceImporter> &p_importer) {
-        owned_importers.push_back(p_importer);
+        owned_importers.emplace_back(p_importer);
     }
     void remove_importer(const Ref<ResourceImporter> &p_importer) { owned_importers.erase_first(p_importer); }
     void remove_importer(ResourceImporterInterface *p_importer) { importers.erase_first(p_importer); }
+    
+
+    bool any_can_import(StringView filepath) const;
 
     ResourceImporterInterface * get_importer_by_name(StringView p_name) const;
     ResourceImporterInterface * get_importer_by_extension(StringView p_extension) const;
 
-    void get_importers_for_extension(StringView p_extension, Vector<ResourceImporterInterface *> *r_importers);
+    void get_importers_for_extension(StringView p_extension, Vector<ResourceImporterInterface *> *r_importers) const;
 
     bool are_import_settings_valid(StringView p_path) const;
     String get_import_settings_hash() const;

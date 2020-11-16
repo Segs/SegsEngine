@@ -33,7 +33,7 @@
 #include "core/crypto/crypto.h"
 #include "core/io/ip_address.h"
 
-GDCINULL(WebSocketServer);
+GDCINULL(WebSocketServer)
 IMPL_GDCLASS(WebSocketServer)
 
 WebSocketServer::WebSocketServer() {

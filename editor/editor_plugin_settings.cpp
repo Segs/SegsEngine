@@ -152,7 +152,7 @@ void EditorPluginSettings::update_plugins() {
         bool is_active = EditorNode::get_singleton()->is_addon_plugin_enabled(d2);
         item->set_checked(3, is_active);
         item->set_editable(3, true);
-        item->add_button(4, get_icon("Edit", "EditorIcons"), BUTTON_PLUGIN_EDIT, false, TTR("Edit Plugin"));
+        item->add_button(4, get_theme_icon("Edit", "EditorIcons"), BUTTON_PLUGIN_EDIT, false, TTR("Edit Plugin"));
     }
 
     updating = false;
@@ -200,9 +200,6 @@ void EditorPluginSettings::_cell_button_pressed(Object *p_item, int p_column, in
 void EditorPluginSettings::_bind_methods() {
 
     MethodBinder::bind_method("update_plugins", &EditorPluginSettings::update_plugins);
-    MethodBinder::bind_method("_create_clicked", &EditorPluginSettings::_create_clicked);
-    MethodBinder::bind_method("_plugin_activity_changed", &EditorPluginSettings::_plugin_activity_changed);
-    MethodBinder::bind_method("_cell_button_pressed", &EditorPluginSettings::_cell_button_pressed);
 }
 
 EditorPluginSettings::EditorPluginSettings() {

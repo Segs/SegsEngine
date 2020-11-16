@@ -472,11 +472,11 @@
 				Returns [code]true[/code] if local transform notifications are communicated to children.
 			</description>
 		</method>
-		<method name="is_set_as_toplevel" qualifiers="const">
+		<method name="is_set_as_top_level" qualifiers="const">
 			<return type="bool">
 			</return>
 			<description>
-				Returns [code]true[/code] if the node is set as top-level. See [method set_as_toplevel].
+				Returns [code]true[/code] if the node is set as top-level. See [method set_as_top_level].
 			</description>
 		</method>
 		<method name="is_transform_notification_enabled" qualifiers="const">
@@ -511,7 +511,7 @@
 				Transformations issued by [code]event[/code]'s inputs are applied in local space instead of global space.
 			</description>
 		</method>
-		<method name="set_as_toplevel">
+		<method name="set_as_top_level">
 			<return type="void">
 			</return>
 			<argument index="0" name="enable" type="bool">

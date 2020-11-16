@@ -43,7 +43,7 @@
 
 class WSLServer : public WebSocketServer {
 
-    GDCIIMPL(WSLServer, WebSocketServer);
+    GDCIIMPL(WSLServer, WebSocketServer)
 
 private:
     class PendingPeer : public RefCounted {

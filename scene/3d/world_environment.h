@@ -48,7 +48,7 @@ public:
 	void set_environment(const Ref<Environment> &p_environment);
 	Ref<Environment> get_environment() const;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
 	WorldEnvironment();
 };

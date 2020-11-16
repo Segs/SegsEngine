@@ -1,6 +1,5 @@
 #include "reflection_generator.h"
 
-
 #include "reflection_data.h"
 #include "core/variant.h"
 #include "core/engine.h"
@@ -15,6 +14,7 @@
 #include "core/class_db.h"
 
 #include "EASTL/sort.h"
+
 #include <QString>
 #include <QtCore/QXmlStreamReader>
 #include <QDebug>
@@ -268,21 +268,7 @@ enum GroupPropStatus {
     CONTINUE_GROUP,
     FINISHED_GROUP,
 };
-//static int new_group_prop_status(int curr_idx,int prev_idx) {
-//    if (prev_idx == -1 && curr_idx == -1)
-//        return NO_GROUP;
 
-//    if(prev_idx==-1 && curr_idx!=-1)
-//        return STARTED_GROUP;
-
-//    if(curr_idx>=prev_idx) {
-//        return CONTINUE_GROUP;
-//    }
-//    if(curr_idx==-1 && prev_idx!=-1)
-//        return FINISHED_GROUP;
-//    // else (curr_idx<prev_idx)
-//    return STARTED_GROUP;
-//}
 static void add_opaque_types(ReflectionData &rd,ReflectionSource src) {
     if(src!=ReflectionSource::Core)
         return;
@@ -483,7 +469,6 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
                 if(property.usage & PROPERTY_USAGE_GROUP) {
                     current_group = property.name;
 
-                    StringView new_prefix = property.hint_string;
                     if(!indexed_property.cname.empty()) {
                         current_group_prefix.clear();
                         current_array_prefix.clear();
@@ -577,8 +562,6 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
                     //      automatic group, defined by common_name/field_name
 
                     // a new field or indexed field.
-//                    Vector<StringView> parts;
-//                    String::split_ref(parts,property.name,"/");
 
                     StringView field_name = StringView(property.name).substr(current_group_prefix.size());
                     if(auto_group) {
@@ -654,13 +637,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
 
             if (method_info.name.empty())
                 continue;
-            if(method_info.name=="get_contact_collider_id") {
-                printf("1");
-            }
             auto cname = method_info.name;
-
-            //if(mapper->shouldSkipMethod(qPrintable(itype.cname),cname))
-            //    continue;
 
             MethodInterface imethod { method_info.name.asCString() , {cname.asCString()} };
 
@@ -799,9 +776,10 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
         // Populate signals
         static const HashMap<StringName, MethodInfo> dummy_signals;
         const HashMap<StringName, MethodInfo> * signal_map = ClassDB::get_signal_list(type_cname);
-        if(!signal_map)
+        if(!signal_map) {
             signal_map = &dummy_signals;
-        const StringName *k = nullptr;
+        }
+
         for(auto &e : *signal_map) {
             SignalInterface isignal;
 
@@ -827,7 +805,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
 
         // Populate enums and constants
 
-        List<String> constants;
+        Vector<String> constants;
         ClassDB::get_integer_constant_list(type_cname, &constants, true);
 
         const HashMap<StringName, ClassDB::EnumDescriptor>& enum_map = class_iter->second.enum_map;
@@ -846,7 +824,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
                 String constant_name(constant_cname.asCString());
                 auto value = class_iter->second.constant_map.find(constant_cname);
                 ERR_FAIL_COND_V(value == class_iter->second.constant_map.end(), false);
-                constants.remove(constant_cname.asCString());
+                constants.erase_first_unsorted(constant_cname.asCString());
 
                 ConstantInterface iconstant(constant_name, value->second);
 

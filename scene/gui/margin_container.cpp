@@ -36,10 +36,10 @@ IMPL_GDCLASS(MarginContainer)
 
 Size2 MarginContainer::get_minimum_size() const {
 
-	int margin_left = get_constant("margin_left");
-	int margin_top = get_constant("margin_top");
-	int margin_right = get_constant("margin_right");
-	int margin_bottom = get_constant("margin_bottom");
+	int margin_left = get_theme_constant("margin_left");
+	int margin_top = get_theme_constant("margin_top");
+	int margin_right = get_theme_constant("margin_right");
+	int margin_bottom = get_theme_constant("margin_bottom");
 
 	Size2 max;
 
@@ -48,7 +48,7 @@ Size2 MarginContainer::get_minimum_size() const {
 		Control *c = object_cast<Control>(get_child(i));
 		if (!c)
 			continue;
-		if (c->is_set_as_toplevel())
+		if (c->is_set_as_top_level())
 			continue;
 		if (!c->is_visible())
 			continue;
@@ -71,10 +71,10 @@ void MarginContainer::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_SORT_CHILDREN: {
 
-			int margin_left = get_constant("margin_left");
-			int margin_top = get_constant("margin_top");
-			int margin_right = get_constant("margin_right");
-			int margin_bottom = get_constant("margin_bottom");
+			int margin_left = get_theme_constant("margin_left");
+			int margin_top = get_theme_constant("margin_top");
+			int margin_right = get_theme_constant("margin_right");
+			int margin_bottom = get_theme_constant("margin_bottom");
 
 			Size2 s = get_size();
 
@@ -83,7 +83,7 @@ void MarginContainer::_notification(int p_what) {
 				Control *c = object_cast<Control>(get_child(i));
 				if (!c)
 					continue;
-				if (c->is_set_as_toplevel())
+				if (c->is_set_as_top_level())
 					continue;
 
 				int w = s.width - margin_left - margin_right;

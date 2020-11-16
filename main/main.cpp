@@ -40,6 +40,7 @@
 #include "core/io/image_loader.h"
 #include "core/io/ip.h"
 #include "core/io/resource_loader.h"
+#include "core/string_utils.inl"
 #include "core/message_queue.h"
 #include "core/os/dir_access.h"
 #include "core/os/os.h"
@@ -317,8 +318,10 @@ void Main::print_help(const String &p_binary) {
     OS::get_singleton()->print("\n");
 
     OS::get_singleton()->print("Standalone tools:\n");
+#if defined(DEBUG_ENABLED)
     OS::get_singleton()->print("  --gen-reflection <path>          Generate reflection data.\n");
-    
+#endif
+
     OS::get_singleton()->print("  -s, --script <script>            Run a script.\n");
     OS::get_singleton()->print("  --check-only                     Only parse for errors and quit (use with --script).\n");
 #ifdef TOOLS_ENABLED
@@ -751,8 +754,6 @@ Error Main::setup(bool p_second_phase) {
 
                 if (*N == "safe")
                     rtm = OS::RENDER_THREAD_SAFE;
-                else if (*N == "unsafe")
-                    rtm = OS::RENDER_THREAD_UNSAFE;
                 else if (*N == "separate")
                     rtm = OS::RENDER_SEPARATE_THREAD;
 
@@ -956,7 +957,7 @@ Error Main::setup(bool p_second_phase) {
         editor = false;
 #else
         const String error_msg = "Error: Couldn't load project data at path \"" + project_path + "\". Is the .pck file missing?\nIf you've renamed the executable, the associated .pck file should also be renamed to match the executable's name (without the extension).\n";
-        OS::get_singleton()->print("%s", error_msg.ascii().get_data());
+        OS::get_singleton()->print(error_msg.c_str());
         OS::get_singleton()->alert(error_msg);
 
         goto error;
@@ -1002,6 +1003,7 @@ Error Main::setup(bool p_second_phase) {
             memdelete(sdr);
         } else {
             script_debugger = sdr;
+            sdr->set_allow_focus_steal_pid(allow_focus_steal_pid);
         }
     } else if (debug_mode == "local") {
 
@@ -1181,7 +1183,7 @@ Error Main::setup(bool p_second_phase) {
         rtm = T_GLOBAL_DEF("rendering/threads/thread_model", OS::RENDER_THREAD_SAFE);
     }
 
-    if (rtm >= 0 && rtm < 3) {
+    if (rtm >= OS::RENDER_THREAD_SAFE && rtm < OS::RENDER_THREAD_MAX) {
         if (editor) {
             rtm = OS::RENDER_THREAD_SAFE;
         }
@@ -1220,24 +1222,8 @@ Error Main::setup(bool p_second_phase) {
         audio_driver_idx = 0;
     }
 
-    {
-        String orientation = T_GLOBAL_DEF<String>("display/window/handheld/orientation", "landscape");
-
-        if (orientation == "portrait")
-            os->set_screen_orientation(OS::SCREEN_PORTRAIT);
-        else if (orientation == "reverse_landscape")
-            os->set_screen_orientation(OS::SCREEN_REVERSE_LANDSCAPE);
-        else if (orientation == "reverse_portrait")
-            os->set_screen_orientation(OS::SCREEN_REVERSE_PORTRAIT);
-        else if (orientation == "sensor_landscape")
-            os->set_screen_orientation(OS::SCREEN_SENSOR_LANDSCAPE);
-        else if (orientation == "sensor_portrait")
-            os->set_screen_orientation(OS::SCREEN_SENSOR_PORTRAIT);
-        else if (orientation == "sensor")
-            os->set_screen_orientation(OS::SCREEN_SENSOR);
-        else
-            os->set_screen_orientation(OS::SCREEN_LANDSCAPE);
-    }
+    //String orientation = T_GLOBAL_DEF<String>("display/window/handheld/orientation", "landscape");
+    os->set_screen_orientation(OS::SCREEN_LANDSCAPE);
 
     Engine::get_singleton()->set_iterations_per_second(T_GLOBAL_DEF<int>("physics/common/physics_fps", 60));
     project_settings->set_custom_property_info("physics/common/physics_fps", PropertyInfo(VariantType::INT, "physics/common/physics_fps", PropertyHint::Range, "1,120,1,or_greater"));
@@ -1259,8 +1245,6 @@ Error Main::setup(bool p_second_phase) {
     os->set_low_processor_usage_mode(T_GLOBAL_DEF("application/run/low_processor_mode", false));
     os->set_low_processor_usage_mode_sleep_usec(T_GLOBAL_DEF<int>("application/run/low_processor_mode_sleep_usec", 6900)); // Roughly 144 FPS
     project_settings->set_custom_property_info("application/run/low_processor_mode_sleep_usec", PropertyInfo(VariantType::INT, "application/run/low_processor_mode_sleep_usec", PropertyHint::Range, "0,33200,1,or_greater")); // No negative numbers
-
-    GLOBAL_DEF("display/window/ios/hide_home_indicator", true);
 
     Engine::get_singleton()->set_frame_delay(frame_delay);
 
@@ -1284,22 +1268,14 @@ error:
     if (show_help)
         print_help(execpath);
 
-    if (performance)
-        memdelete(performance);
-    if (input_map)
-        memdelete(input_map);
-    if (translation_server)
-        memdelete(translation_server);
-    if (globals)
-        memdelete(globals);
-    if (engine)
-        memdelete(engine);
-    if (script_debugger)
-        memdelete(script_debugger);
-    if (packed_data)
-        memdelete(packed_data);
-    if (file_access_network_client)
-        memdelete(file_access_network_client);
+    memdelete(performance);
+    memdelete(input_map);
+    memdelete(translation_server);
+    memdelete(globals);
+    memdelete(engine);
+    memdelete(script_debugger);
+    memdelete(packed_data);
+    memdelete(file_access_network_client);
 
 
     unregister_core_driver_types();
@@ -1307,8 +1283,7 @@ error:
 
     os->_cmdline.clear();
 
-    if (message_queue)
-        memdelete(message_queue);
+    memdelete(message_queue);
     os->finalize_core();
     locale.clear();
 
@@ -1367,11 +1342,6 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
     if (init_always_on_top) {
         OS::get_singleton()->set_window_always_on_top(true);
     }
-
-    if (allow_focus_steal_pid) {
-        OS::get_singleton()->enable_for_stealing_focus(allow_focus_steal_pid);
-    }
-
 
     MAIN_PRINT("Main: Load Remaps");
 
@@ -1515,6 +1485,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
             print_error("Failed to save reflection data json file.");
         }
 #endif
+        cleanup();
         exit(0);
     }
 #endif
@@ -1741,8 +1712,7 @@ bool Main::start() {
             Object *obj = ClassDB::instance(instance_type);
             MainLoop *script_loop = object_cast<MainLoop>(obj);
             if (!script_loop) {
-                if (obj)
-                    memdelete(obj);
+                memdelete(obj);
                 ERR_FAIL_V_MSG(false, "Can't load the script '" + script + "' as it doesn't inherit from SceneTree or MainLoop.");
             }
 
@@ -2333,7 +2303,8 @@ void Main::cleanup() {
 
     unregister_driver_types();
     unregister_module_types();
-    unload_plugins();
+    // cleanup plugin registry
+    remove_all_resolvers();
 
     unregister_scene_types();
     unregister_server_types();
@@ -2351,20 +2322,14 @@ void Main::cleanup() {
     finalize_physics();
     finalize_navigation_server();
 
-    if (packed_data)
-        memdelete(packed_data);
-    if (file_access_network_client)
-        memdelete(file_access_network_client);
-    if (performance)
-        memdelete(performance);
-    if (input_map)
-        memdelete(input_map);
-    if (translation_server)
-        memdelete(translation_server);
-    if (globals)
-        memdelete(globals);
-    if (engine)
-        memdelete(engine);
+    memdelete(packed_data);
+    memdelete(file_access_network_client);
+    memdelete(performance);
+    memdelete(input_map);
+    memdelete(translation_server);
+    memdelete(globals);
+    memdelete(engine);
+
     if (OS::get_singleton()->is_restart_on_exit_set()) {
         //attempt to restart with arguments
         String exec = OS::get_singleton()->get_executable_path();

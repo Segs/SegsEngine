@@ -88,9 +88,10 @@ public:
     virtual RES get_edited_resource() const = 0;
     virtual Vector<String> get_functions() = 0;
     virtual void set_edited_resource(const RES &p_res) = 0;
+    virtual void enable_editor() = 0;
     virtual void reload_text() = 0;
     virtual String get_name() = 0;
-    virtual Ref<Texture> get_icon() = 0;
+    virtual Ref<Texture> get_theme_icon() = 0;
     virtual bool is_unsaved() = 0;
     virtual Variant get_edit_state() = 0;
     virtual void set_edit_state(const Variant &p_state) = 0;
@@ -161,7 +162,7 @@ class GODOT_EXPORT ScriptEditor : public PanelContainer {
         DEBUG_SHOW_KEEP_OPEN,
         DEBUG_WITH_EXTERNAL_EDITOR,
         SEARCH_IN_FILES,
-		REPLACE_IN_FILES,
+        REPLACE_IN_FILES,
         SEARCH_HELP,
         SEARCH_WEBSITE,
         HELP_SEARCH_FIND,
@@ -337,8 +338,8 @@ class GODOT_EXPORT ScriptEditor : public PanelContainer {
 
     void _save_layout();
     void _editor_settings_changed();
-	void _filesystem_changed();
-	void _file_removed(StringView p_file);
+    void _filesystem_changed();
+    void _file_removed(StringView p_file);
     void _autosave_scripts();
     void _update_autosave_timer();
 

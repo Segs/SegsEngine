@@ -30,7 +30,7 @@
 
 #include "os.h"
 
-#include "core/image.h"
+//#include "core/image.h"
 #include "core/method_enum_caster.h"
 #include "core/object_db.h"
 #include "core/os/dir_access.h"
@@ -98,7 +98,7 @@ uint64_t OS::get_splash_tick_msec() const {
 uint64_t OS::get_unix_time() const {
 
     return 0;
-};
+}
 uint64_t OS::get_system_time_secs() const {
     return 0;
 }
@@ -108,12 +108,10 @@ uint64_t OS::get_system_time_msecs() const {
 void OS::debug_break(){
 
     // something
-};
+}
 
 void OS::_set_logger(CompositeLogger *p_logger) {
-    if (_logger) {
-        memdelete(_logger);
-    }
+    memdelete(_logger);
     _logger = p_logger;
 }
 
@@ -135,14 +133,9 @@ void OS::print(StringView p_msg) {
     _logger->logv(p_msg, false);
 }
 
-//void OS::print(const String &p_msg)
-//{
-//    _logger->logv(p_msg.constData(), false);
-//};
-
 void OS::printerr(StringView p_format) {
     _logger->logv(p_format, true);
-};
+}
 
 void OS::set_keep_screen_on(bool p_enabled) {
     _keep_screen_on = p_enabled;
@@ -200,7 +193,7 @@ Error OS::execute_utf8(StringView p_path, const Vector<String> &p_arguments, boo
 int OS::get_process_id() const {
 
     return -1;
-};
+}
 
 void OS::vibrate_handheld(int p_duration_ms) {
 
@@ -229,7 +222,7 @@ static void _OS_printres(Object *p_obj) {
     if (!res)
         return;
 
-    String str = FormatVE("%uz%s:%s - %s",res->get_instance_id(),res->get_class(),res->get_name().c_str(),res->get_path().c_str());
+    String str = FormatVE("%zu%s:%s - %s",(uint64_t)res->get_instance_id(),res->get_class(),res->get_name().c_str(),res->get_path().c_str());
     if (_OSPRF)
         _OSPRF->store_line(str);
     else
@@ -369,7 +362,7 @@ String OS::get_cache_path() const {
 String OS::get_user_data_dir() const {
 
     return ".";
-};
+}
 
 // Absolute path to res://
 String OS::get_resource_dir() const {
@@ -396,10 +389,11 @@ String OS::get_system_dir(SystemDir p_dir) {
 Error OS::shell_open(StringView p_uri) {
     //TODO: use qt desktop services here
     return ERR_UNAVAILABLE;
-};
+}
 
 // implement these with the canvas?
-Error OS::dialog_show(UIString p_title, UIString p_description, const Vector<UIString> p_buttons, Object *p_obj, const StringName & p_callback) {
+/*Error OS::dialog_show(UIString p_title, UIString p_description, const Vector<UIString> &p_buttons, const
+                      Callable &p_callback) {
     using namespace StringUtils;
     while (true) {
 
@@ -415,8 +409,8 @@ Error OS::dialog_show(UIString p_title, UIString p_description, const Vector<UIS
         int n = to_int(res);
         if (n < 0 || n >= p_buttons.size())
             continue;
-        if (p_obj && !p_callback.empty())
-            p_obj->call_deferred(p_callback, n);
+        if (p_callback.is_valid())
+            p_callback->ccall_deferred(p_callback, n);
         break;
     }
     return OK;
@@ -437,7 +431,7 @@ Error OS::dialog_input_text(const UIString &p_title, const UIString &p_descripti
     p_obj->call_deferred(p_callback, success, Variant(res));
 
     return OK;
-};
+};*/
 
 uint64_t OS::get_static_memory_usage() const {
 
@@ -513,7 +507,7 @@ void OS::set_cmdline(StringView p_execpath, Vector<String> &&p_args) {
 
     _execpath = p_execpath;
     _cmdline = eastl::move(p_args);
-};
+}
 
 void OS::release_rendering_thread() {
 }
@@ -538,24 +532,24 @@ int OS::get_processor_count() const {
 Error OS::native_video_play(StringView p_path, float p_volume, StringView p_audio_track, StringView p_subtitle_track) {
 
     return FAILED;
-};
+}
 
 bool OS::native_video_is_playing() const {
 
     return false;
-};
+}
 
 void OS::native_video_pause(){
 
-};
+}
 
 void OS::native_video_unpause(){
 
-};
+}
 
 void OS::native_video_stop(){
 
-};
+}
 
 void OS::set_mouse_mode(MouseMode p_mode) {
 }
@@ -743,6 +737,8 @@ void OS::close_midi_inputs() {
 }
 
 void OS::add_frame_delay(bool p_can_draw) {
+    SCOPE_AUTONAMED;
+
     const uint32_t frame_delay = Engine::get_singleton()->get_frame_delay();
     if (frame_delay) {
         // Add fixed frame delay to decrease CPU/GPU usage. This doesn't take

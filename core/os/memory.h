@@ -31,13 +31,14 @@
 #pragma once
 
 #include "core/godot_export.h"
+#include "core/external_profiler.h"
+
 #include <stdint.h>
 #include <cstddef>
 
 class GODOT_EXPORT Memory {
 
     static uint64_t alloc_count;
-
 public:
     Memory() = delete;
 
@@ -65,22 +66,24 @@ public:
     constexpr wrap_allocator& operator=(const wrap_allocator& x) noexcept = default;
 
     void* allocate(size_t n, int /*flags*/ = 0) {
-        return Memory::alloc_static(n, false);
+        void *res=Memory::alloc_static(n, false);
+        //TRACE_ALLOC_N(res,n,"wrap_alloc");
+        return res;
     }
     void* allocate(size_t n, size_t /*alignment*/, size_t /*offset*/, int /*flags*/ = 0) {
-        return Memory::alloc_static(n, true);
+        void *res=Memory::alloc_static(n, false);
+        //TRACE_ALLOC_N(res,n,"wrap_alloc");
+        return res;
     }
     void  deallocate(void* p, size_t /*n*/) {
+        //TRACE_FREE_N(p,"wrap_alloc");
         return Memory::free_static(p, false);
-
     }
-    static void *alloc(size_t p_memory) { return Memory::alloc_static(p_memory, false); }
-    static void free(void *p_ptr) { Memory::free_static(p_ptr, false); }
+
     constexpr inline bool operator==(const wrap_allocator&)
     {
         return true; // All allocators are considered equal, as they merely use global new/delete.
     }
-
 
     constexpr inline bool operator!=(const wrap_allocator&)
     {
@@ -131,15 +134,15 @@ inline void *operator new(size_t /*p_size*/, void *p_pointer, size_t /*check*/, 
 #define memnew_allocator(m_class, m_allocator) _post_initialize(new (m_allocator::alloc) m_class)
 #define memnew_placement(m_placement, m_class) _post_initialize(new (m_placement, sizeof(m_class), "") m_class)
 
-inline bool predelete_handler(void *) {
-    return true;
+inline void predelete_handler(void *) {
 }
 
 template <class T>
 void memdelete(T *p_class) {
 
-    if (!predelete_handler(p_class))
-        return; // doesn't want to be deleted
+    if(!p_class) // follow standard delete x; logic.
+        return;
+    predelete_handler(p_class);
     if constexpr(!__has_trivial_destructor(T))
         p_class->~T();
 
@@ -149,8 +152,8 @@ void memdelete(T *p_class) {
 template <class T, class A>
 void memdelete_allocator(T *p_class) {
 
-    if (!predelete_handler(p_class))
-        return; // doesn't want to be deleted
+    predelete_handler(p_class);
+
     if constexpr(!__has_trivial_destructor(T))
         p_class->~T();
 

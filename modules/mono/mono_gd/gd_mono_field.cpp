@@ -31,6 +31,8 @@
 #include "gd_mono_field.h"
 
 #include <mono/metadata/attrdefs.h>
+
+#include "core/dictionary.h"
 #include "core/pool_vector.h"
 #include "core/rid.h"
 
@@ -40,7 +42,7 @@
 #include "gd_mono_utils.h"
 
 void GDMonoField::set_value(MonoObject *p_object, MonoObject *p_value) {
-	mono_field_set_value(p_object, mono_field, p_value);
+    mono_field_set_value(p_object, mono_field, p_value);
 }
 void GDMonoField::set_value_raw(MonoObject *p_object, void *p_ptr) {
     mono_field_set_value(p_object, mono_field, &p_ptr);
@@ -315,11 +317,11 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                 mono_field_set_value(p_object, mono_field, managed);
                 break;
             }
-			if (CACHED_CLASS(StringName) == type_class) {
-				MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<StringName>());
-				mono_field_set_value(p_object, mono_field, managed);
-				break;
-			}
+            if (CACHED_CLASS(StringName) == type_class) {
+                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<StringName>());
+                mono_field_set_value(p_object, mono_field, managed);
+                break;
+            }
             if (CACHED_CLASS(NodePath) == type_class) {
                 MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<NodePath>());
                 mono_field_set_value(p_object, mono_field, managed);

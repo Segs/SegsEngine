@@ -31,14 +31,14 @@
 #include "ip.h"
 
 #include "core/hash_map.h"
-#include "core/method_arg_casters.h"
+#include "core/dictionary.h"
 #include "core/method_bind.h"
 #include "core/method_enum_caster.h"
 #include "core/os/mutex.h"
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
 
-IMPL_GDCLASS(IP);
+IMPL_GDCLASS(IP)
 
 VARIANT_ENUM_CAST(IP::ResolverStatus);
 VARIANT_ENUM_CAST(IP::Type);
@@ -270,18 +270,18 @@ void IP::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_local_interfaces"), &IP::_get_local_interfaces);
     MethodBinder::bind_method(D_METHOD("clear_cache", {"hostname"}), &IP::clear_cache, {DEFVAL("")});
 
-    BIND_ENUM_CONSTANT(RESOLVER_STATUS_NONE)
-    BIND_ENUM_CONSTANT(RESOLVER_STATUS_WAITING)
-    BIND_ENUM_CONSTANT(RESOLVER_STATUS_DONE)
-    BIND_ENUM_CONSTANT(RESOLVER_STATUS_ERROR)
+    BIND_ENUM_CONSTANT(RESOLVER_STATUS_NONE);
+    BIND_ENUM_CONSTANT(RESOLVER_STATUS_WAITING);
+    BIND_ENUM_CONSTANT(RESOLVER_STATUS_DONE);
+    BIND_ENUM_CONSTANT(RESOLVER_STATUS_ERROR);
 
     BIND_CONSTANT(RESOLVER_MAX_QUERIES)
     BIND_CONSTANT(RESOLVER_INVALID_ID)
 
-    BIND_ENUM_CONSTANT(TYPE_NONE)
-    BIND_ENUM_CONSTANT(TYPE_IPV4)
-    BIND_ENUM_CONSTANT(TYPE_IPV6)
-    BIND_ENUM_CONSTANT(TYPE_ANY)
+    BIND_ENUM_CONSTANT(TYPE_NONE);
+    BIND_ENUM_CONSTANT(TYPE_IPV4);
+    BIND_ENUM_CONSTANT(TYPE_IPV6);
+    BIND_ENUM_CONSTANT(TYPE_ANY);
 }
 
 IP *IP::singleton = nullptr;

@@ -24,10 +24,7 @@ list(APPEND main_sources ${source_files}
 foreach(tgt ${global_targets})
 
     target_sources(${tgt}_engine PRIVATE ${main_sources})
-    target_link_libraries(${tgt}_engine PRIVATE ${tgt}_tests ${tgt}_drivers Qt5::Core editor_interface)
-    if(OPTION_TOOLS)
-        target_link_libraries(${tgt}_engine PRIVATE edit_tools)
-    endif()
+    target_link_libraries(${tgt}_engine PRIVATE ${tgt}_tests ${tgt}_drivers Qt5::Core ${tgt}_interface)
 endforeach()
 
 INSTALL (

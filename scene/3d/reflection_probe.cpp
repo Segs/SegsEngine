@@ -258,8 +258,8 @@ void ReflectionProbe::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "interior_ambient_energy", PropertyHint::Range, "0,16,0.01"), "set_interior_ambient_energy", "get_interior_ambient_energy");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "interior_ambient_contrib", PropertyHint::Range, "0,1,0.01"), "set_interior_ambient_probe_contribution", "get_interior_ambient_probe_contribution");
 
-    BIND_ENUM_CONSTANT(UPDATE_ONCE)
-    BIND_ENUM_CONSTANT(UPDATE_ALWAYS)
+    BIND_ENUM_CONSTANT(UPDATE_ONCE);
+    BIND_ENUM_CONSTANT(UPDATE_ALWAYS);
 }
 
 ReflectionProbe::ReflectionProbe() {

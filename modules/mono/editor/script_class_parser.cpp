@@ -202,9 +202,9 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
                         tk_string += res;
 
                     } else {
-						if (code[idx] == '\n') {
+                        if (code[idx] == '\n') {
                             line++;
-						}
+                        }
                         tk_string += code[idx];
                     }
                     idx++;
@@ -219,9 +219,9 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
                     idx++;
                     break;
                 }
-
-                if ((code[idx] >= 33 && code[idx] <= 47) || (code[idx] >= 58 && code[idx] <= 63) || (code[idx] >= 91 && code[idx] <= 94) || code[idx] == 96 || (code[idx] >= 123 && code[idx] <= 127)) {
-                    value = String({code[idx]});
+                uint8_t c(code[idx]);
+                if ((c >= 33 && c <= 47) || (c >= 58 && c <= 63) || (c >= 91 && c <= 94) || c == 96 || (c >= 123 && c <= 127)) {
+                    value = String(1,char(c));
                     idx++;
                     return TK_SYMBOL;
                 }
@@ -234,15 +234,16 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
                     value = number;
                     return TK_NUMBER;
 
-                } else if ((code[idx] == '@' && code[idx + 1] != '"') || code[idx] == '_' || (code[idx] >= 'A' && code[idx] <= 'Z') || (code[idx] >= 'a' && code[idx] <= 'z') || code[idx] > 127) {
+                } else if ((c == '@' && code[idx + 1] != '"') || c == '_' || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c > 127) {
                     String id;
 
                     id += code[idx];
                     idx++;
 
-                    while (code[idx] == '_' || (code[idx] >= 'A' && code[idx] <= 'Z') || (code[idx] >= 'a' && code[idx] <= 'z') || (code[idx] >= '0' && code[idx] <= '9') || code[idx] > 127) {
+                    while (c == '_' || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c > 127) {
                         id += code[idx];
                         idx++;
+                        c = idx<code.size()? code[idx] : 0;
                     }
 
                     value = id;
@@ -296,17 +297,17 @@ Error ScriptClassParser::_skip_generic_type_params() {
 
                     tk = get_token();
 
-					if (tk != TK_PERIOD) {
+                    if (tk != TK_PERIOD) {
                         break;
-					}
+                    }
                 }
             }
 
             if (tk == TK_OP_LESS) {
                 Error err = _skip_generic_type_params();
-				if (err) {
+                if (err) {
                     return err;
-				}
+                }
                 tk = get_token();
             }
 

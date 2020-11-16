@@ -294,12 +294,7 @@ static String bbcode_to_xml(StringView p_bbcode, const TS_TypeLike* p_itype, boo
             else if (link_tag == "member"_sv) {
                 if (!target_itype) { // || !target_itype->source_type->is_object_type
                     if (verbose) {
-                        if (target_itype) {
-                            qDebug("Cannot resolve member reference for non-Godot.Object type in documentation: %.*s", (int)link_target.size(), link_target.data());
-                        }
-                        else {
-                            qDebug("Cannot resolve type from member reference in documentation: %.*s", (int)link_target.size(), link_target.data());
-                        }
+                        qDebug("Cannot resolve type from member reference in documentation: %.*s", (int)link_target.size(), link_target.data());
                     }
 
                     // TODO Map what we can

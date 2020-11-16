@@ -64,14 +64,14 @@ void EditorLog::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
         //button->set_icon(get_icon("Console","EditorIcons"));
-        log->add_font_override("normal_font", get_font("output_source", "EditorFonts"));
-        log->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4));
+        log->add_font_override("normal_font", get_theme_font("output_source", "EditorFonts"));
+        log->add_theme_color_override("selection_color", get_theme_color("accent_color", "Editor") * Color(1, 1, 1, 0.4));
     } else if (p_what == NOTIFICATION_THEME_CHANGED) {
-        Ref<DynamicFont> df_output_code = dynamic_ref_cast<DynamicFont>(get_font("output_source", "EditorFonts"));
+        Ref<DynamicFont> df_output_code = dynamic_ref_cast<DynamicFont>(get_theme_font("output_source", "EditorFonts"));
         if (df_output_code) {
             if (log != nullptr) {
-                log->add_font_override("normal_font", get_font("output_source", "EditorFonts"));
-                log->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4));
+                log->add_font_override("normal_font", get_theme_font("output_source", "EditorFonts"));
+                log->add_theme_color_override("selection_color", get_theme_color("accent_color", "Editor") * Color(1, 1, 1, 0.4));
             }
         }
     }
@@ -84,8 +84,15 @@ void EditorLog::_clear_request() {
 }
 
 void EditorLog::_copy_request() {
+    String text = log->get_selected_text();
 
-    log->selection_copy();
+    if (text == "") {
+        text = log->get_text();
+    }
+
+    if (text != "") {
+        OS::get_singleton()->set_clipboard(text);
+    }
 }
 
 void EditorLog::clear() {
@@ -103,22 +110,22 @@ void EditorLog::add_message_utf8(StringView p_msg, MessageType p_type) {
         case MSG_TYPE_STD: {
         } break;
         case MSG_TYPE_ERROR: {
-            log->push_color(get_color("error_color", "Editor"));
-            Ref<Texture> icon = get_icon("Error", "EditorIcons");
+            log->push_color(get_theme_color("error_color", "Editor"));
+            Ref<Texture> icon = get_theme_icon("Error", "EditorIcons");
             log->add_image(icon);
             log->add_text(" ");
             tool_button->set_button_icon(icon);
         } break;
         case MSG_TYPE_WARNING: {
-            log->push_color(get_color("warning_color", "Editor"));
-            Ref<Texture> icon = get_icon("Warning", "EditorIcons");
+            log->push_color(get_theme_color("warning_color", "Editor"));
+            Ref<Texture> icon = get_theme_icon("Warning", "EditorIcons");
             log->add_image(icon);
             log->add_text(" ");
             tool_button->set_button_icon(icon);
         } break;
         case MSG_TYPE_EDITOR: {
             // Distinguish editor messages from messages printed by the project
-            log->push_color(get_color("font_color", "Editor") * Color(1, 1, 1, 0.6f));
+            log->push_color(get_theme_color("font_color", "Editor") * Color(1, 1, 1, 0.6f));
         } break;
     }
 
@@ -136,22 +143,22 @@ void EditorLog::add_message(const UIString &p_msg, MessageType p_type) {
         case MSG_TYPE_STD: {
         } break;
         case MSG_TYPE_ERROR: {
-            log->push_color(get_color("error_color", "Editor"));
-            Ref<Texture> icon = get_icon("Error", "EditorIcons");
+            log->push_color(get_theme_color("error_color", "Editor"));
+            Ref<Texture> icon = get_theme_icon("Error", "EditorIcons");
             log->add_image(icon);
             log->add_text(" ");
             tool_button->set_button_icon(icon);
         } break;
         case MSG_TYPE_WARNING: {
-            log->push_color(get_color("warning_color", "Editor"));
-            Ref<Texture> icon = get_icon("Warning", "EditorIcons");
+            log->push_color(get_theme_color("warning_color", "Editor"));
+            Ref<Texture> icon = get_theme_icon("Warning", "EditorIcons");
             log->add_image(icon);
             log->add_text(" ");
             tool_button->set_button_icon(icon);
         } break;
         case MSG_TYPE_EDITOR: {
             // Distinguish editor messages from messages printed by the project
-            log->push_color(get_color("font_color", "Editor") * Color(1, 1, 1, 0.6f));
+            log->push_color(get_theme_color("font_color", "Editor") * Color(1, 1, 1, 0.6f));
         } break;
     }
 
@@ -218,7 +225,7 @@ EditorLog::EditorLog() {
 
     current = Thread::get_caller_id();
 
-    add_constant_override("separation", get_constant("separation", "VBoxContainer"));
+    add_constant_override("separation", get_theme_constant("separation", "VBoxContainer"));
 
     EditorNode::get_undo_redo()->set_commit_notify_callback(_undo_redo_cbk, this);
 }
@@ -228,5 +235,4 @@ void EditorLog::deinit() {
     remove_error_handler(&eh);
 }
 
-EditorLog::~EditorLog() {
-}
+EditorLog::~EditorLog() = default;

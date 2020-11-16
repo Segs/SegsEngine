@@ -37,7 +37,7 @@
 IMPL_GDCLASS(AnimationNodeStateMachineTransition)
 IMPL_GDCLASS(AnimationNodeStateMachinePlayback)
 IMPL_GDCLASS(AnimationNodeStateMachine)
-VARIANT_ENUM_CAST(AnimationNodeStateMachineTransition::SwitchMode)
+VARIANT_ENUM_CAST(AnimationNodeStateMachineTransition::SwitchMode);
 
 /////////////////////////////////////////////////
 
@@ -134,9 +134,9 @@ void AnimationNodeStateMachineTransition::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "priority", PropertyHint::Range, "0,32,1"), "set_priority", "get_priority");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");
 
-    BIND_ENUM_CONSTANT(SWITCH_MODE_IMMEDIATE)
-    BIND_ENUM_CONSTANT(SWITCH_MODE_SYNC)
-    BIND_ENUM_CONSTANT(SWITCH_MODE_AT_END)
+    BIND_ENUM_CONSTANT(SWITCH_MODE_IMMEDIATE);
+    BIND_ENUM_CONSTANT(SWITCH_MODE_SYNC);
+    BIND_ENUM_CONSTANT(SWITCH_MODE_AT_END);
 
     ADD_SIGNAL(MethodInfo("advance_condition_changed"));
 }
@@ -1001,7 +1001,6 @@ void AnimationNodeStateMachine::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_graph_offset", {"offset"}), &AnimationNodeStateMachine::set_graph_offset);
     MethodBinder::bind_method(D_METHOD("get_graph_offset"), &AnimationNodeStateMachine::get_graph_offset);
 
-    MethodBinder::bind_method(D_METHOD("_tree_changed"), &AnimationNodeStateMachine::_tree_changed);
 }
 
 AnimationNodeStateMachine::AnimationNodeStateMachine() {

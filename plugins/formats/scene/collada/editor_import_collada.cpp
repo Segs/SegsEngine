@@ -32,8 +32,10 @@
 
 #include "core/os/os.h"
 #include "core/string.h"
+#include "core/string_utils.h"
+#include "core/ustring.h"
 #include "collada.h"
-#include "editor/editor_node.h"
+//#include "editor/editor_node.h"
 #include "scene/3d/camera_3d.h"
 #include "scene/3d/light_3d.h"
 #include "scene/3d/mesh_instance_3d.h"
@@ -1761,8 +1763,9 @@ void EditorSceneImporterCollada::get_extensions(Vector<String> &r_extensions) co
 
     r_extensions.push_back("dae");
 }
-Node *EditorSceneImporterCollada::import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
 
+Node *EditorSceneImporterCollada::import_scene(
+        StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
     ColladaImport state;
     uint32_t flags = Collada::IMPORT_FLAG_SCENE;
     if (p_flags & IMPORT_ANIMATION)
@@ -1771,12 +1774,13 @@ Node *EditorSceneImporterCollada::import_scene(StringView p_path, uint32_t p_fla
     state.use_mesh_builtin_materials = !(p_flags & IMPORT_MATERIALS_IN_INSTANCES);
     state.bake_fps = p_bake_fps;
 
-    Error err = state.load(p_path, flags, p_flags & EditorSceneImporter::IMPORT_GENERATE_TANGENT_ARRAYS, p_flags & EditorSceneImporter::IMPORT_USE_COMPRESSION);
+    Error err = state.load(p_path, flags,
+                    p_flags & IMPORT_GENERATE_TANGENT_ARRAYS,
+                    p_flags & IMPORT_USE_COMPRESSION);
 
     ERR_FAIL_COND_V_MSG(err != OK, nullptr, "Cannot load scene from file '" + p_path + "'.");
 
     if (!state.missing_textures.empty()) {
-
         /*
         for(int i=0;i<state.missing_textures.size();i++) {
             EditorNode::add_io_error("Texture Not Found: "+state.missing_textures[i]);
@@ -1784,17 +1788,17 @@ Node *EditorSceneImporterCollada::import_scene(StringView p_path, uint32_t p_fla
         */
 
         if (r_missing_deps) {
-
             for (int i = 0; i < state.missing_textures.size(); i++) {
-                //EditorNode::add_io_error("Texture Not Found: "+state.missing_textures[i]);
+                // EditorNode::add_io_error("Texture Not Found: "+state.missing_textures[i]);
                 r_missing_deps->push_back(state.missing_textures[i]);
             }
         }
     }
 
     if (p_flags & IMPORT_ANIMATION) {
-
-        state.create_animations(p_flags & IMPORT_ANIMATION_FORCE_ALL_TRACKS_IN_ALL_CLIPS, p_flags & EditorSceneImporter::IMPORT_ANIMATION_KEEP_VALUE_TRACKS);
+        state.create_animations(
+                    p_flags & IMPORT_ANIMATION_FORCE_ALL_TRACKS_IN_ALL_CLIPS,
+                    p_flags & IMPORT_ANIMATION_KEEP_VALUE_TRACKS);
         AnimationPlayer *ap = memnew(AnimationPlayer);
         for (size_t i = 0; i < state.animations.size(); i++) {
             String name;
@@ -1804,8 +1808,8 @@ Node *EditorSceneImporterCollada::import_scene(StringView p_path, uint32_t p_fla
                 name = state.animations[i]->get_name();
 
             if (p_flags & IMPORT_ANIMATION_DETECT_LOOP) {
-
-                if (StringUtils::begins_with(name,"loop") || StringUtils::ends_with(name,"loop") || StringUtils::begins_with(name,"cycle") || StringUtils::ends_with(name,"cycle")) {
+                if (StringUtils::begins_with(name, "loop") || StringUtils::ends_with(name, "loop") ||
+                        StringUtils::begins_with(name, "cycle") || StringUtils::ends_with(name, "cycle")) {
                     state.animations[i]->set_loop(true);
                 }
             }
@@ -1825,12 +1829,12 @@ Ref<Animation> EditorSceneImporterCollada::import_animation(StringView p_path, u
 
     state.use_mesh_builtin_materials = false;
 
-    Error err = state.load(p_path, Collada::IMPORT_FLAG_ANIMATION, p_flags & EditorSceneImporter::IMPORT_GENERATE_TANGENT_ARRAYS);
+    Error err = state.load(p_path, Collada::IMPORT_FLAG_ANIMATION, p_flags & IMPORT_GENERATE_TANGENT_ARRAYS);
     ERR_FAIL_COND_V_MSG(err != OK, Ref<Animation>(), "Cannot load animation from file '" + p_path + "'.");
 
-    state.create_animations(p_flags & EditorSceneImporter::IMPORT_ANIMATION_FORCE_ALL_TRACKS_IN_ALL_CLIPS, p_flags & EditorSceneImporter::IMPORT_ANIMATION_KEEP_VALUE_TRACKS);
-    if (state.scene)
-        memdelete(state.scene);
+    state.create_animations(p_flags & IMPORT_ANIMATION_FORCE_ALL_TRACKS_IN_ALL_CLIPS, p_flags & IMPORT_ANIMATION_KEEP_VALUE_TRACKS);
+    memdelete(state.scene);
+    state.scene = nullptr;
 
     if (state.animations.empty())
         return Ref<Animation>();

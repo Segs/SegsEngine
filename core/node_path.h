@@ -52,6 +52,7 @@ public:
     String asString() const;
 
     bool is_absolute() const;
+    bool is_locator() const;
     int get_name_count() const;
     StringName get_name(int p_idx) const;
     int get_subname_count() const;
@@ -68,8 +69,9 @@ public:
     NodePath get_parent() const;
 
     _FORCE_INLINE_ uint32_t hash() const {
-        if (!data)
+        if (!data) {
             return 0;
+        }
         if (!hash_cache_valid) {
             _update_hash_cache();
         }
@@ -86,11 +88,22 @@ public:
     bool operator==(const NodePath &p_path) const;
     bool operator!=(const NodePath &p_path) const;
     NodePath &operator=(const NodePath &p_path);
-
+    NodePath& operator=(NodePath&& p_path) noexcept {
+        if(this==&p_path)
+            return *this;
+        unref();
+        data = p_path.data;
+        hash_cache_valid = p_path.hash_cache_valid;
+        hash_cache = p_path.hash_cache;
+        p_path.data = nullptr;
+        p_path.hash_cache_valid = false;
+        p_path.hash_cache = 0;
+        return *this;
+    }
     void simplify();
     NodePath simplified() const;
 
-    NodePath(const Vector<StringName> &p_path, bool p_absolute);
+    NodePath(Span<const StringName> p_path, bool p_absolute);
     NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p_subpath, bool p_absolute);
     NodePath(Vector<StringName> &&p_path, Vector<StringName> &&p_subpath, bool p_absolute);
     NodePath(const NodePath &p_path);

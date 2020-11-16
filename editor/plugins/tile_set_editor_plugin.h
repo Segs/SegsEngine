@@ -213,8 +213,8 @@ private:
     void _update_toggle_shape_button();
     void _select_next_tile();
     void _select_previous_tile();
-    Array _get_tiles_in_current_texture(bool sorted = false);
-    bool _sort_tiles(const Variant& p_a, const Variant& p_b);
+    Vector<int> _get_tiles_in_current_texture(bool sorted = false);
+    bool _sort_tiles(int p_a, int p_b);
     void _select_next_subtile();
     void _select_previous_subtile();
     void _select_next_shape();

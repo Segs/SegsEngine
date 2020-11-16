@@ -48,7 +48,7 @@ Vector3 Vector3::rotated(const Vector3 &p_axis, real_t p_phi) const {
 
 void Vector3::set_axis(int p_axis, real_t p_value) {
     ERR_FAIL_INDEX(p_axis, 3);
-    coord[p_axis] = p_value;
+    operator[](p_axis) = p_value;
 }
 real_t Vector3::get_axis(int p_axis) const {
 

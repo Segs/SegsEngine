@@ -112,7 +112,7 @@ void PackedData::remove_pack_source(PackSourceInterface *p_source)
         sources.erase_first(p_source);
     }
 
-};
+}
 
 PackedData *PackedData::singleton = nullptr;
 

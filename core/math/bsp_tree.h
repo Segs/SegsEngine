@@ -91,7 +91,12 @@ public:
     BSP_Tree();
     BSP_Tree(const Variant &p_variant);
     BSP_Tree(Span<const Face3> p_faces, real_t p_error_radius = 0);
-    BSP_Tree(const Vector<Node> &p_nodes, const Vector<Plane> &p_planes, const AABB &p_aabb, real_t p_error_radius = 0);
+    BSP_Tree(Vector<Node> p_nodes, Vector<Plane> p_planes, const AABB &p_aabb, real_t p_error_radius = 0) :
+        nodes(eastl::move(p_nodes)),
+        planes(eastl::move(p_planes)),
+        aabb(p_aabb),
+        error_radius(p_error_radius) {
+    }
     ~BSP_Tree();
 };
 

@@ -113,8 +113,9 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
         const Vector<Pair<int, String> > &b = buckets[i];
         HashMap<uint32_t, int> &t = table[i];
 
-        if (b.empty())
+        if (b.empty()) {
             continue;
+        }
 
         int d = 1;
         int item = 0;

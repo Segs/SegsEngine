@@ -46,7 +46,7 @@
 static uint64_t mem_usage=0;
 static uint64_t max_usage=0;
 #endif
-
+#define CS_DEPTH 3
 void *operator new(size_t p_size, const char *p_description) {
 
     return Memory::alloc_static(p_size, false);
@@ -76,6 +76,7 @@ void operator delete(void *p_mem, void *p_pointer, size_t check, const char *p_d
 
 uint64_t Memory::alloc_count = 0;
 
+
 void *Memory::alloc_static(size_t p_bytes, bool p_pad_align) {
 #ifdef DEBUG_ENABLED
     bool prepad = true;
@@ -89,7 +90,7 @@ void *Memory::alloc_static(size_t p_bytes, bool p_pad_align) {
 
     atomic_increment(&alloc_count);
 
-    TRACE_ALLOC(mem, p_bytes + (prepad ? PAD_ALIGN : 0));
+    TRACE_ALLOC_S(mem, p_bytes + (prepad ? PAD_ALIGN : 0),CS_DEPTH);
     if (prepad) {
         uint64_t *s = (uint64_t *)mem;
         *s = p_bytes;
@@ -139,12 +140,14 @@ void *Memory::realloc_static(void *p_memory, size_t p_bytes, bool p_pad_align) {
             return nullptr;
         } else {
             *s = p_bytes;
+            void *prev_mem=mem;
             mem = (uint8_t *)realloc(mem, p_bytes + PAD_ALIGN);
-            TRACE_ALLOC(mem, p_bytes + PAD_ALIGN);
-
+            TRACE_ALLOC_S(mem, p_bytes + PAD_ALIGN,CS_DEPTH); //
             assert(mem);
-            if(unlikely(!mem))
+            if(unlikely(!mem)) {
+                free_static(prev_mem);
                 return nullptr;
+            }
 
             s = (uint64_t *)mem;
 
@@ -155,11 +158,15 @@ void *Memory::realloc_static(void *p_memory, size_t p_bytes, bool p_pad_align) {
     } else {
 
         TRACE_FREE(mem);
+        void *prev_mem=mem;
+
         mem = (uint8_t *)realloc(mem, p_bytes);
-        TRACE_ALLOC(mem, p_bytes);
+        TRACE_ALLOC_S(mem, p_bytes,CS_DEPTH);
         assert(mem != nullptr || p_bytes == 0);
-        if(unlikely(mem == nullptr && p_bytes > 0))
+        if(unlikely(mem == nullptr && p_bytes > 0)) {
+            free_static(prev_mem);
             return nullptr;
+        }
 
         return mem;
     }
@@ -188,12 +195,8 @@ void Memory::free_static(void *p_ptr, bool p_pad_align) {
         uint64_t *s = (uint64_t *)mem;
         atomic_sub(&mem_usage, *s);
 #endif
-
-        free(mem);
-    } else {
-
-        free(mem);
     }
+    free(mem);
     TRACE_FREE(mem);
 }
 

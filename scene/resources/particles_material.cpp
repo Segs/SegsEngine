@@ -166,9 +166,9 @@ HashMap<ParticlesMaterial::MaterialKey, ParticlesMaterial::ShaderData> Particles
 
 
 IMPL_GDCLASS(ParticlesMaterial)
-VARIANT_ENUM_CAST(ParticlesMaterial::Parameter)
-VARIANT_ENUM_CAST(ParticlesMaterial::Flags)
-VARIANT_ENUM_CAST(ParticlesMaterial::EmissionShape)
+VARIANT_ENUM_CAST(ParticlesMaterial::Parameter);
+VARIANT_ENUM_CAST(ParticlesMaterial::Flags);
+VARIANT_ENUM_CAST(ParticlesMaterial::EmissionShape);
 
 void ParticlesMaterial::init_shaders() {
     ERR_FAIL_COND_MSG(material_mutex!=nullptr,"Cannot reinitialize shaders without calling finish_shaders beforehand");
@@ -508,17 +508,19 @@ void ParticlesMaterial::_update_shader() {
         code += "		float tex_anim_offset = 0.0;\n";
 
     code += "		vec3 force = gravity;\n";
-    code += "		vec3 pos = TRANSFORM[3].xyz;\n";
+    code += "		vec3 pos = TRANSFORM[3].xyz;";
     if (flags[FLAG_DISABLE_Z]) {
-        code += "		pos.z = 0.0;\n";
+        code += "		pos.z = 0.0;";
     }
-    code += "		// apply linear acceleration\n";
-    code += "		force += length(VELOCITY) > 0.0 ? normalize(VELOCITY) * (linear_accel + tex_linear_accel) * mix(1.0, rand_from_seed(alt_seed), linear_accel_random) : vec3(0.0);\n";
-    code += "		// apply radial acceleration\n";
-    code += "		vec3 org = EMISSION_TRANSFORM[3].xyz;\n";
-    code += "		vec3 diff = pos - org;\n";
-    code += "		force += length(diff) > 0.0 ? normalize(diff) * (radial_accel + tex_radial_accel) * mix(1.0, rand_from_seed(alt_seed), radial_accel_random) : vec3(0.0);\n";
-    code += "		// apply tangential acceleration;\n";
+    code += R"(
+        // apply linear acceleration
+        force += length(VELOCITY) > 0.0 ? normalize(VELOCITY) * (linear_accel + tex_linear_accel) * mix(1.0, rand_from_seed(alt_seed), linear_accel_random) : vec3(0.0);
+        // apply radial acceleration
+        vec3 org = EMISSION_TRANSFORM[3].xyz;
+        vec3 diff = pos - org;
+        force += length(diff) > 0.0 ? normalize(diff) * (radial_accel + tex_radial_accel) * mix(1.0, rand_from_seed(alt_seed), radial_accel_random) : vec3(0.0);
+        // apply tangential acceleration;
+    )";
     if (flags[FLAG_DISABLE_Z]) {
         code += "		force += length(diff.yx) > 0.0 ? vec3(normalize(diff.yx * vec2(-1.0, 1.0)), 0.0) * ((tangent_accel + tex_tangent_accel) * mix(1.0, rand_from_seed(alt_seed), tangent_accel_random)) : vec3(0.0);\n";
 
@@ -530,14 +532,15 @@ void ParticlesMaterial::_update_shader() {
     code += "		VELOCITY += force * DELTA;\n";
     code += "		// orbit velocity\n";
     if (flags[FLAG_DISABLE_Z]) {
-
-        code += "		float orbit_amount = (orbit_velocity + tex_orbit_velocity) * mix(1.0, rand_from_seed(alt_seed), orbit_velocity_random);\n";
-        code += "		if (orbit_amount != 0.0) {\n";
-        code += "		     float ang = orbit_amount * DELTA * pi * 2.0;\n";
-        code += "		     mat2 rot = mat2(vec2(cos(ang), -sin(ang)), vec2(sin(ang), cos(ang)));\n";
-        code += "		     TRANSFORM[3].xy -= diff.xy;\n";
-        code += "		     TRANSFORM[3].xy += rot * diff.xy;\n";
-        code += "		}\n";
+        code += R"(
+        float orbit_amount = (orbit_velocity + tex_orbit_velocity) * mix(1.0, rand_from_seed(alt_seed), orbit_velocity_random);
+        if (orbit_amount != 0.0) {
+             float ang = orbit_amount * DELTA * pi * 2.0;
+             mat2 rot = mat2(vec2(cos(ang), -sin(ang)), vec2(sin(ang), cos(ang)));
+             TRANSFORM[3].xy -= diff.xy;\n";
+             TRANSFORM[3].xy += rot * diff.xy;\n";
+        }
+        )";
     }
 
     if (tex_parameters[PARAM_INITIAL_LINEAR_VELOCITY]) {
@@ -756,43 +759,43 @@ void ParticlesMaterial::set_param(Parameter p_param, float p_value) {
     ERR_FAIL_INDEX(p_param, PARAM_MAX);
 
     parameters[p_param] = p_value;
-
+    auto rs(RenderingServer::get_singleton());
     switch (p_param) {
         case PARAM_INITIAL_LINEAR_VELOCITY: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->initial_linear_velocity, p_value);
+            rs->material_set_param(_get_material(), shader_names->initial_linear_velocity, p_value);
         } break;
         case PARAM_ANGULAR_VELOCITY: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->angular_velocity, p_value);
+            rs->material_set_param(_get_material(), shader_names->angular_velocity, p_value);
         } break;
         case PARAM_ORBIT_VELOCITY: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->orbit_velocity, p_value);
+            rs->material_set_param(_get_material(), shader_names->orbit_velocity, p_value);
         } break;
         case PARAM_LINEAR_ACCEL: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->linear_accel, p_value);
+            rs->material_set_param(_get_material(), shader_names->linear_accel, p_value);
         } break;
         case PARAM_RADIAL_ACCEL: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->radial_accel, p_value);
+            rs->material_set_param(_get_material(), shader_names->radial_accel, p_value);
         } break;
         case PARAM_TANGENTIAL_ACCEL: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->tangent_accel, p_value);
+            rs->material_set_param(_get_material(), shader_names->tangent_accel, p_value);
         } break;
         case PARAM_DAMPING: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->damping, p_value);
+            rs->material_set_param(_get_material(), shader_names->damping, p_value);
         } break;
         case PARAM_ANGLE: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->initial_angle, p_value);
+            rs->material_set_param(_get_material(), shader_names->initial_angle, p_value);
         } break;
         case PARAM_SCALE: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->scale, p_value);
+            rs->material_set_param(_get_material(), shader_names->scale, p_value);
         } break;
         case PARAM_HUE_VARIATION: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->hue_variation, p_value);
+            rs->material_set_param(_get_material(), shader_names->hue_variation, p_value);
         } break;
         case PARAM_ANIM_SPEED: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->anim_speed, p_value);
+            rs->material_set_param(_get_material(), shader_names->anim_speed, p_value);
         } break;
         case PARAM_ANIM_OFFSET: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->anim_offset, p_value);
+            rs->material_set_param(_get_material(), shader_names->anim_offset, p_value);
         } break;
         case PARAM_MAX: break; // Can't happen, but silences warning
     }
@@ -809,43 +812,43 @@ void ParticlesMaterial::set_param_randomness(Parameter p_param, float p_value) {
     ERR_FAIL_INDEX(p_param, PARAM_MAX);
 
     randomness[p_param] = p_value;
-
+    auto rs(RenderingServer::get_singleton());
     switch (p_param) {
         case PARAM_INITIAL_LINEAR_VELOCITY: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->initial_linear_velocity_random, p_value);
+            rs->material_set_param(_get_material(), shader_names->initial_linear_velocity_random, p_value);
         } break;
         case PARAM_ANGULAR_VELOCITY: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->angular_velocity_random, p_value);
+            rs->material_set_param(_get_material(), shader_names->angular_velocity_random, p_value);
         } break;
         case PARAM_ORBIT_VELOCITY: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->orbit_velocity_random, p_value);
+            rs->material_set_param(_get_material(), shader_names->orbit_velocity_random, p_value);
         } break;
         case PARAM_LINEAR_ACCEL: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->linear_accel_random, p_value);
+            rs->material_set_param(_get_material(), shader_names->linear_accel_random, p_value);
         } break;
         case PARAM_RADIAL_ACCEL: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->radial_accel_random, p_value);
+            rs->material_set_param(_get_material(), shader_names->radial_accel_random, p_value);
         } break;
         case PARAM_TANGENTIAL_ACCEL: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->tangent_accel_random, p_value);
+            rs->material_set_param(_get_material(), shader_names->tangent_accel_random, p_value);
         } break;
         case PARAM_DAMPING: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->damping_random, p_value);
+            rs->material_set_param(_get_material(), shader_names->damping_random, p_value);
         } break;
         case PARAM_ANGLE: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->initial_angle_random, p_value);
+            rs->material_set_param(_get_material(), shader_names->initial_angle_random, p_value);
         } break;
         case PARAM_SCALE: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->scale_random, p_value);
+            rs->material_set_param(_get_material(), shader_names->scale_random, p_value);
         } break;
         case PARAM_HUE_VARIATION: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->hue_variation_random, p_value);
+            rs->material_set_param(_get_material(), shader_names->hue_variation_random, p_value);
         } break;
         case PARAM_ANIM_SPEED: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->anim_speed_random, p_value);
+            rs->material_set_param(_get_material(), shader_names->anim_speed_random, p_value);
         } break;
         case PARAM_ANIM_OFFSET: {
-            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->anim_offset_random, p_value);
+            rs->material_set_param(_get_material(), shader_names->anim_offset_random, p_value);
         } break;
         case PARAM_MAX: break; // Can't happen, but silences warning
     }
@@ -1285,30 +1288,30 @@ void ParticlesMaterial::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "anim_offset_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANIM_OFFSET);
 
     REGISTER_ENUM(Parameter,uint8_t)
-    BIND_ENUM_CONSTANT(PARAM_INITIAL_LINEAR_VELOCITY)
-    BIND_ENUM_CONSTANT(PARAM_ANGULAR_VELOCITY)
-    BIND_ENUM_CONSTANT(PARAM_ORBIT_VELOCITY)
-    BIND_ENUM_CONSTANT(PARAM_LINEAR_ACCEL)
-    BIND_ENUM_CONSTANT(PARAM_RADIAL_ACCEL)
-    BIND_ENUM_CONSTANT(PARAM_TANGENTIAL_ACCEL)
-    BIND_ENUM_CONSTANT(PARAM_DAMPING)
-    BIND_ENUM_CONSTANT(PARAM_ANGLE)
-    BIND_ENUM_CONSTANT(PARAM_SCALE)
-    BIND_ENUM_CONSTANT(PARAM_HUE_VARIATION)
-    BIND_ENUM_CONSTANT(PARAM_ANIM_SPEED)
-    BIND_ENUM_CONSTANT(PARAM_ANIM_OFFSET)
-    BIND_ENUM_CONSTANT(PARAM_MAX)
+    BIND_ENUM_CONSTANT(PARAM_INITIAL_LINEAR_VELOCITY);
+    BIND_ENUM_CONSTANT(PARAM_ANGULAR_VELOCITY);
+    BIND_ENUM_CONSTANT(PARAM_ORBIT_VELOCITY);
+    BIND_ENUM_CONSTANT(PARAM_LINEAR_ACCEL);
+    BIND_ENUM_CONSTANT(PARAM_RADIAL_ACCEL);
+    BIND_ENUM_CONSTANT(PARAM_TANGENTIAL_ACCEL);
+    BIND_ENUM_CONSTANT(PARAM_DAMPING);
+    BIND_ENUM_CONSTANT(PARAM_ANGLE);
+    BIND_ENUM_CONSTANT(PARAM_SCALE);
+    BIND_ENUM_CONSTANT(PARAM_HUE_VARIATION);
+    BIND_ENUM_CONSTANT(PARAM_ANIM_SPEED);
+    BIND_ENUM_CONSTANT(PARAM_ANIM_OFFSET);
+    BIND_ENUM_CONSTANT(PARAM_MAX);
 
-    BIND_ENUM_CONSTANT(FLAG_ALIGN_Y_TO_VELOCITY)
-    BIND_ENUM_CONSTANT(FLAG_ROTATE_Y)
-    BIND_ENUM_CONSTANT(FLAG_DISABLE_Z)
-    BIND_ENUM_CONSTANT(FLAG_MAX)
+    BIND_ENUM_CONSTANT(FLAG_ALIGN_Y_TO_VELOCITY);
+    BIND_ENUM_CONSTANT(FLAG_ROTATE_Y);
+    BIND_ENUM_CONSTANT(FLAG_DISABLE_Z);
+    BIND_ENUM_CONSTANT(FLAG_MAX);
 
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_POINT)
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_SPHERE)
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_BOX)
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_POINTS)
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_DIRECTED_POINTS)
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_POINT);
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_SPHERE);
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_BOX);
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_POINTS);
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_DIRECTED_POINTS);
     BIND_ENUM_CONSTANT(EMISSION_SHAPE_MAX);
 }
 

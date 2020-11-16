@@ -446,7 +446,7 @@ bool SceneTreeTimer::is_pause_mode_process() {
 
 void SceneTreeTimer::release_connections() {
 
-    List<Connection> connections;
+    Vector<Connection> connections;
     get_all_signal_connections(&connections);
 
     for (Connection const &connection : connections) {
@@ -578,9 +578,10 @@ void SceneTree::_update_group_order(SceneTreeGroup &g, bool p_use_priority) {
 
 void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_group, const StringName &p_function, VARIANT_ARG_DECLARE) {
 
-    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    auto E = group_map.find(p_group);
     if (E==group_map.end())
         return;
+
     SceneTreeGroup &g = E->second;
     if (g.nodes.empty())
         return;
@@ -611,7 +612,7 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
 
     _update_group_order(g);
 
-    Vector<Node *> nodes_copy = g.nodes;
+    FixedVector<Node *,32,true> nodes_copy(g.nodes.begin(),g.nodes.end());
     Node **nodes = nodes_copy.data();
     int node_count = nodes_copy.size();
 
@@ -834,6 +835,8 @@ void SceneTree::init() {
 
 bool SceneTree::iteration(float p_time) {
 
+    SCOPE_AUTONAMED;
+
     root_lock++;
 
     current_frame++;
@@ -845,8 +848,8 @@ bool SceneTree::iteration(float p_time) {
 
     emit_signal("physics_frame");
 
-    _notify_group_pause("physics_process_internal", Node::NOTIFICATION_INTERNAL_PHYSICS_PROCESS);
-    _notify_group_pause("physics_process", Node::NOTIFICATION_PHYSICS_PROCESS);
+    _notify_group_pause(SceneStringNames::physics_process_internal, Node::NOTIFICATION_INTERNAL_PHYSICS_PROCESS);
+    _notify_group_pause(SceneStringNames::physics_process, Node::NOTIFICATION_PHYSICS_PROCESS);
     _flush_ugc();
     MessageQueue::get_singleton()->flush(); //small little hack
     flush_transform_notifications();
@@ -1061,7 +1064,7 @@ void SceneTree::_notification(int p_notification) {
         default:
             break;
     }
-};
+}
 
 void SceneTree::set_auto_accept_quit(bool p_enable) {
 
@@ -1331,9 +1334,9 @@ void SceneTree::_notify_group_pause(const StringName &p_group, int p_notificatio
 
     _update_group_order(g, p_notification == Node::NOTIFICATION_PROCESS || p_notification == Node::NOTIFICATION_INTERNAL_PROCESS || p_notification == Node::NOTIFICATION_PHYSICS_PROCESS || p_notification == Node::NOTIFICATION_INTERNAL_PHYSICS_PROCESS);
 
-    //copy, so copy on write happens in case something is removed from process while being called
-    //performance is not lost because only if something is added/removed the vector is copied.
-    Vector<Node *> nodes_copy = g.nodes;
+    //copy, in case something is removed from process while being called
+    // performance hit should be small for small groups.
+    FixedVector<Node *,32,true> nodes_copy(g.nodes.begin(),g.nodes.end());
 
     call_lock++;
 
@@ -1470,9 +1473,7 @@ void SceneTree::_flush_delete_queue() {
 
     for(ObjectID id : delete_queue) {
         Object *obj = gObjectDB().get_instance(id);
-        if (obj) {
-            memdelete(obj);
-        }
+        memdelete(obj);
     }
     delete_queue.clear();
 }
@@ -1641,10 +1642,8 @@ Node *SceneTree::get_current_scene() const {
 
 void SceneTree::_change_scene(Node *p_to) {
 
-    if (current_scene) {
-        memdelete(current_scene);
-        current_scene = nullptr;
-    }
+    memdelete(current_scene);
+    current_scene = nullptr;
     // If we're quitting, abort.
     if (unlikely(_quit)) {
         if (p_to) { // Prevent memory leak.
@@ -1921,20 +1920,20 @@ void SceneTree::_bind_methods() {
     ADD_SIGNAL(MethodInfo("connection_failed"));
     ADD_SIGNAL(MethodInfo("server_disconnected"));
 
-    BIND_ENUM_CONSTANT(GROUP_CALL_DEFAULT)
-    BIND_ENUM_CONSTANT(GROUP_CALL_REVERSE)
-    BIND_ENUM_CONSTANT(GROUP_CALL_REALTIME)
-    BIND_ENUM_CONSTANT(GROUP_CALL_UNIQUE)
+    BIND_ENUM_CONSTANT(GROUP_CALL_DEFAULT);
+    BIND_ENUM_CONSTANT(GROUP_CALL_REVERSE);
+    BIND_ENUM_CONSTANT(GROUP_CALL_REALTIME);
+    BIND_ENUM_CONSTANT(GROUP_CALL_UNIQUE);
 
-    BIND_ENUM_CONSTANT(STRETCH_MODE_DISABLED)
-    BIND_ENUM_CONSTANT(STRETCH_MODE_2D)
-    BIND_ENUM_CONSTANT(STRETCH_MODE_VIEWPORT)
+    BIND_ENUM_CONSTANT(STRETCH_MODE_DISABLED);
+    BIND_ENUM_CONSTANT(STRETCH_MODE_2D);
+    BIND_ENUM_CONSTANT(STRETCH_MODE_VIEWPORT);
 
-    BIND_ENUM_CONSTANT(STRETCH_ASPECT_IGNORE)
-    BIND_ENUM_CONSTANT(STRETCH_ASPECT_KEEP)
-    BIND_ENUM_CONSTANT(STRETCH_ASPECT_KEEP_WIDTH)
-    BIND_ENUM_CONSTANT(STRETCH_ASPECT_KEEP_HEIGHT)
-    BIND_ENUM_CONSTANT(STRETCH_ASPECT_EXPAND)
+    BIND_ENUM_CONSTANT(STRETCH_ASPECT_IGNORE);
+    BIND_ENUM_CONSTANT(STRETCH_ASPECT_KEEP);
+    BIND_ENUM_CONSTANT(STRETCH_ASPECT_KEEP_WIDTH);
+    BIND_ENUM_CONSTANT(STRETCH_ASPECT_KEEP_HEIGHT);
+    BIND_ENUM_CONSTANT(STRETCH_ASPECT_EXPAND);
 }
 
 SceneTree *SceneTree::singleton = nullptr;

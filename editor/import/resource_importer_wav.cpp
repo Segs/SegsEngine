@@ -41,14 +41,134 @@ IMPL_GDCLASS(ResourceImporterWAV)
 const float TRIM_DB_LIMIT = -50;
 const int TRIM_FADE_OUT_FRAMES = 500;
 
-StringName ResourceImporterWAV::get_importer_name() const {
+void WAV_compress_ima_adpcm(Span<const float> p_data, Vector<uint8_t>& dst_data)
+{
+    /*p_sample_data->data = (void*)malloc(len);
+    xm_s8 *dataptr=(xm_s8*)p_sample_data->data;*/
 
-    return StringName("wav");
+    static const int16_t _ima_adpcm_step_table[89] = {
+        7, 8, 9, 10, 11, 12, 13, 14, 16, 17,
+        19, 21, 23, 25, 28, 31, 34, 37, 41, 45,
+        50, 55, 60, 66, 73, 80, 88, 97, 107, 118,
+        130, 143, 157, 173, 190, 209, 230, 253, 279, 307,
+        337, 371, 408, 449, 494, 544, 598, 658, 724, 796,
+        876, 963, 1060, 1166, 1282, 1411, 1552, 1707, 1878, 2066,
+        2272, 2499, 2749, 3024, 3327, 3660, 4026, 4428, 4871, 5358,
+        5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487, 12635, 13899,
+        15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767
+    };
+
+    static const int8_t _ima_adpcm_index_table[16] = {
+        -1, -1, -1, -1, 2, 4, 6, 8,
+        -1, -1, -1, -1, 2, 4, 6, 8
+    };
+
+    int datalen = p_data.size();
+    int datamax = datalen;
+    if (datalen & 1)
+        datalen++;
+
+    dst_data.resize(datalen / 2 + 4);
+
+    int step_idx = 0, prev = 0;
+    uint8_t* out = dst_data.data();
+    //int16_t xm_prev=0;
+    const float* in = p_data.data();
+
+    /* initial value is zero */
+    *out++ = 0;
+    *out++ = 0;
+    /* Table index initial value */
+    *out++ = 0;
+    /* unused */
+    *out++ = 0;
+
+    for (int i = 0; i < datalen; i++)
+    {
+        uint8_t nibble;
+        int16_t xm_sample;
+
+        if (i >= datamax)
+            xm_sample = 0;
+        else
+        {
+            xm_sample = CLAMP(in[i] * 32767.0, -32768, 32767);
+            /*
+            if (xm_sample==32767 || xm_sample==-32768)
+                printf("clippy!\n",xm_sample);
+            */
+        }
+
+        //xm_sample=xm_sample+xm_prev;
+        //xm_prev=xm_sample;
+
+        int diff = (int)xm_sample - prev;
+
+        nibble = 0;
+        int step = _ima_adpcm_step_table[step_idx];
+        int vpdiff = step >> 3;
+        if (diff < 0)
+        {
+            nibble = 8;
+            diff = -diff;
+        }
+        int mask = 4;
+        while (mask)
+        {
+            if (diff >= step)
+            {
+                nibble |= mask;
+                diff -= step;
+                vpdiff += step;
+            }
+
+            step >>= 1;
+            mask >>= 1;
+        }
+
+        if (nibble & 8)
+            prev -= vpdiff;
+        else
+            prev += vpdiff;
+
+        if (prev > 32767)
+        {
+            //printf("%i,xms %i, prev %i,diff %i, vpdiff %i, clip up %i\n",i,xm_sample,prev,diff,vpdiff,prev);
+            prev = 32767;
+        }
+        else if (prev < -32768)
+        {
+            //printf("%i,xms %i, prev %i,diff %i, vpdiff %i, clip down %i\n",i,xm_sample,prev,diff,vpdiff,prev);
+            prev = -32768;
+        }
+
+        step_idx += _ima_adpcm_index_table[nibble];
+        if (step_idx < 0)
+            step_idx = 0;
+        else if (step_idx > 88)
+            step_idx = 88;
+
+        if (i & 1)
+        {
+            *out |= nibble << 4;
+            out++;
+        }
+        else
+        {
+            *out = nibble;
+        }
+        /*dataptr[i]=prev>>8;*/
+    }
 }
 
-StringName ResourceImporterWAV::get_visible_name() const {
+const char *ResourceImporterWAV::get_importer_name() const {
 
-    return StringName("Microsoft WAV");
+    return "wav";
+}
+
+const char *ResourceImporterWAV::get_visible_name() const {
+
+    return "Microsoft WAV";
 }
 void ResourceImporterWAV::get_recognized_extensions(Vector<String> &p_extensions) const {
 
@@ -71,6 +191,7 @@ bool ResourceImporterWAV::get_option_visibility(const StringName &p_option, cons
 
     return true;
 }
+
 
 int ResourceImporterWAV::get_preset_count() const {
     return 0;
@@ -98,7 +219,7 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
     /* STEP 1, READ WAVE FILE */
 
     Error err;
-    FileAccess *file = FileAccess::open(p_source_file, FileAccess::READ, &err);
+    FileAccessRef<true> file(FileAccess::open(p_source_file, FileAccess::READ, &err));
 
     ERR_FAIL_COND_V_MSG(err != OK, ERR_CANT_OPEN, String("Cannot open file '") + p_source_file + "'.");
 
@@ -108,9 +229,6 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
     file->get_buffer((uint8_t *)&riff, 4); //RIFF
 
     if (riff[0] != 'R' || riff[1] != 'I' || riff[2] != 'F' || riff[3] != 'F') {
-
-        file->close();
-        memdelete(file);
         ERR_FAIL_V(ERR_FILE_UNRECOGNIZED);
     }
 
@@ -124,9 +242,6 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
     file->get_buffer((uint8_t *)&wave, 4); //RIFF
 
     if (wave[0] != 'W' || wave[1] != 'A' || wave[2] != 'V' || wave[3] != 'E') {
-
-        file->close();
-        memdelete(file);
         ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Not a WAV file (no WAVE RIFF header).");
     }
 
@@ -167,15 +282,11 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
             //Consider revision for engine version 3.0
             compression_code = file->get_16();
             if (compression_code != 1 && compression_code != 3) {
-                file->close();
-                memdelete(file);
                 ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Format not supported for WAVE file (not PCM). Save WAVE files as uncompressed PCM instead.");
             }
 
             format_channels = file->get_16();
             if (format_channels != 1 && format_channels != 2) {
-                file->close();
-                memdelete(file);
                 ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Format not supported for WAVE file (not stereo or mono).");
             }
 
@@ -186,8 +297,6 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
             format_bits = file->get_16(); // bits per sample
 
             if (format_bits % 8 || format_bits == 0) {
-                file->close();
-                memdelete(file);
                 ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Invalid amount of bits in the sample (should be one of 8, 16, 24 or 32).");
             }
 
@@ -206,11 +315,8 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
 
             frames = chunksize;
 
-            if (format_channels == 0) {
-                file->close();
-                memdelete(file);
-                ERR_FAIL_COND_V(format_channels == 0, ERR_INVALID_DATA);
-            }
+            ERR_FAIL_COND_V(format_channels == 0, ERR_INVALID_DATA);
+
             frames /= format_channels;
             frames /= format_bits >> 3;
 
@@ -256,8 +362,6 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
             }
 
             if (file->eof_reached()) {
-                file->close();
-                memdelete(file);
                 ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Premature end of file.");
             }
         }
@@ -295,9 +399,6 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
         }
         file->seek(file_pos + chunksize);
     }
-
-    file->close();
-    memdelete(file);
 
     // STEP 2, APPLY CONVERSIONS
 
@@ -476,7 +577,7 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
 
         dst_format = AudioStreamSample::FORMAT_IMA_ADPCM;
         if (format_channels == 1) {
-            _compress_ima_adpcm(data, dst_data);
+            WAV_compress_ima_adpcm(data, dst_data);
         } else {
 
             //byte interleave
@@ -495,8 +596,8 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
             Vector<uint8_t> bleft;
             Vector<uint8_t> bright;
 
-            _compress_ima_adpcm(left, bleft);
-            _compress_ima_adpcm(right, bright);
+            WAV_compress_ima_adpcm(left, bleft);
+            WAV_compress_ima_adpcm(right, bright);
 
             int dl = bleft.size();
             dst_data.resize(dl * 2);

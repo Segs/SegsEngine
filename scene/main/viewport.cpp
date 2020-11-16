@@ -298,6 +298,7 @@ void Viewport::_own_world_changed() {
     _update_listener();
 }
 void Viewport::_notification(int p_what) {
+    auto rs(RenderingServer::get_singleton());
 
     switch (p_what) {
 
@@ -305,14 +306,14 @@ void Viewport::_notification(int p_what) {
 
             if (get_parent()) {
                 parent = get_parent()->get_viewport();
-                RenderingServer::get_singleton()->viewport_set_parent_viewport(viewport, parent->get_viewport_rid());
+                rs->viewport_set_parent_viewport(viewport, parent->get_viewport_rid());
             } else {
                 parent = nullptr;
             }
 
             current_canvas = find_world_2d()->get_canvas();
-            RenderingServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
-            RenderingServer::get_singleton()->viewport_attach_canvas(viewport, current_canvas);
+            rs->viewport_set_scenario(viewport, find_world()->get_scenario());
+            rs->viewport_attach_canvas(viewport, current_canvas);
 
             _update_listener();
             _update_listener_2d();
@@ -323,21 +324,21 @@ void Viewport::_notification(int p_what) {
             if (get_tree()->is_debugging_collisions_hint()) {
                 //2D
                 PhysicsServer2D::get_singleton()->space_set_debug_contacts(find_world_2d()->get_space(), get_tree()->get_collision_debug_contact_count());
-                contact_2d_debug = RenderingServer::get_singleton()->canvas_item_create();
-                RenderingServer::get_singleton()->canvas_item_set_parent(contact_2d_debug, find_world_2d()->get_canvas());
+                contact_2d_debug = rs->canvas_item_create();
+                rs->canvas_item_set_parent(contact_2d_debug, find_world_2d()->get_canvas());
                 //3D
                 PhysicsServer3D::get_singleton()->space_set_debug_contacts(find_world()->get_space(), get_tree()->get_collision_debug_contact_count());
-                contact_3d_debug_multimesh = RenderingServer::get_singleton()->multimesh_create();
-                RenderingServer::get_singleton()->multimesh_allocate(contact_3d_debug_multimesh, get_tree()->get_collision_debug_contact_count(), RS::MULTIMESH_TRANSFORM_3D, RS::MULTIMESH_COLOR_8BIT);
-                RenderingServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, 0);
-                RenderingServer::get_singleton()->multimesh_set_mesh(contact_3d_debug_multimesh, get_tree()->get_debug_contact_mesh()->get_rid());
-                contact_3d_debug_instance = RenderingServer::get_singleton()->instance_create();
-                RenderingServer::get_singleton()->instance_set_base(contact_3d_debug_instance, contact_3d_debug_multimesh);
-                RenderingServer::get_singleton()->instance_set_scenario(contact_3d_debug_instance, find_world()->get_scenario());
-                //RenderingServer::get_singleton()->instance_geometry_set_flag(contact_3d_debug_instance, RS::INSTANCE_FLAG_VISIBLE_IN_ALL_ROOMS, true);
+                contact_3d_debug_multimesh = rs->multimesh_create();
+                rs->multimesh_allocate(contact_3d_debug_multimesh, get_tree()->get_collision_debug_contact_count(), RS::MULTIMESH_TRANSFORM_3D, RS::MULTIMESH_COLOR_8BIT);
+                rs->multimesh_set_visible_instances(contact_3d_debug_multimesh, 0);
+                rs->multimesh_set_mesh(contact_3d_debug_multimesh, get_tree()->get_debug_contact_mesh()->get_rid());
+                contact_3d_debug_instance = rs->instance_create();
+                rs->instance_set_base(contact_3d_debug_instance, contact_3d_debug_multimesh);
+                rs->instance_set_scenario(contact_3d_debug_instance, find_world()->get_scenario());
+                //rs->instance_geometry_set_flag(contact_3d_debug_instance, RS::INSTANCE_FLAG_VISIBLE_IN_ALL_ROOMS, true);
             }
 
-            RenderingServer::get_singleton()->viewport_set_active(viewport, true);
+            rs->viewport_set_active(viewport, true);
         } break;
         case NOTIFICATION_READY: {
 #ifndef _3D_DISABLED
@@ -380,24 +381,24 @@ void Viewport::_notification(int p_what) {
             if (world_2d)
                 world_2d->_remove_viewport(this);
 
-            RenderingServer::get_singleton()->viewport_set_scenario(viewport, RID());
+            rs->viewport_set_scenario(viewport, RID());
             //			SpatialSoundServer::get_singleton()->listener_set_space(internal_listener, RID());
-            RenderingServer::get_singleton()->viewport_remove_canvas(viewport, current_canvas);
+            rs->viewport_remove_canvas(viewport, current_canvas);
             if (contact_2d_debug.is_valid()) {
-                RenderingServer::get_singleton()->free_rid(contact_2d_debug);
+                rs->free_rid(contact_2d_debug);
                 contact_2d_debug = RID();
             }
 
             if (contact_3d_debug_multimesh.is_valid()) {
-                RenderingServer::get_singleton()->free_rid(contact_3d_debug_multimesh);
-                RenderingServer::get_singleton()->free_rid(contact_3d_debug_instance);
+                rs->free_rid(contact_3d_debug_multimesh);
+                rs->free_rid(contact_3d_debug_instance);
                 contact_3d_debug_instance = RID();
                 contact_3d_debug_multimesh = RID();
             }
 
             remove_from_group("_viewports");
 
-            RenderingServer::get_singleton()->viewport_set_active(viewport, false);
+            rs->viewport_set_active(viewport, false);
 
         } break;
         case NOTIFICATION_INTERNAL_PROCESS: {
@@ -414,8 +415,8 @@ void Viewport::_notification(int p_what) {
 
             if (get_tree()->is_debugging_collisions_hint() && contact_2d_debug.is_valid()) {
 
-                RenderingServer::get_singleton()->canvas_item_clear(contact_2d_debug);
-                RenderingServer::get_singleton()->canvas_item_set_draw_index(contact_2d_debug, 0xFFFFF); //very high index
+                rs->canvas_item_clear(contact_2d_debug);
+                rs->canvas_item_set_draw_index(contact_2d_debug, 0xFFFFF); //very high index
 
                 const Vector<Vector2> &points = PhysicsServer2D::get_singleton()->space_get_contacts(find_world_2d()->get_space());
                 int point_count = PhysicsServer2D::get_singleton()->space_get_contact_count(find_world_2d()->get_space());
@@ -423,7 +424,7 @@ void Viewport::_notification(int p_what) {
 
                 for (int i = 0; i < point_count; i++) {
 
-                    RenderingServer::get_singleton()->canvas_item_add_rect(contact_2d_debug, Rect2(points[i] - Vector2(2, 2), Vector2(5, 5)), ccol);
+                    rs->canvas_item_add_rect(contact_2d_debug, Rect2(points[i] - Vector2(2, 2), Vector2(5, 5)), ccol);
                 }
             }
 
@@ -432,7 +433,7 @@ void Viewport::_notification(int p_what) {
                 const Vector<Vector3> & points = PhysicsServer3D::get_singleton()->space_get_contacts(find_world()->get_space());
                 int point_count = PhysicsServer3D::get_singleton()->space_get_contact_count(find_world()->get_space());
 
-                RenderingServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, point_count);
+                rs->multimesh_set_visible_instances(contact_3d_debug_multimesh, point_count);
             }
 
             if (physics_object_picking && (to_screen_rect == Rect2() || Input::get_singleton()->get_mouse_mode() != Input::MOUSE_MODE_CAPTURED)) {
@@ -1571,7 +1572,7 @@ String Viewport::_gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Cont
 
         if (p_control->data.mouse_filter == Control::MOUSE_FILTER_STOP)
             break;
-        if (p_control->is_set_as_toplevel())
+        if (p_control->is_set_as_top_level())
             break;
 
         p_control = p_control->get_parent_control();
@@ -1612,7 +1613,7 @@ void Viewport::_gui_show_tooltip() {
         gui.tooltip_label = memnew(TooltipLabel);
         gui.tooltip_popup->add_child(gui.tooltip_label);
 
-        Ref<StyleBox> ttp = gui.tooltip_label->get_stylebox("panel", "TooltipPanel");
+        Ref<StyleBox> ttp = gui.tooltip_label->get_theme_stylebox("panel", "TooltipPanel");
 
         gui.tooltip_label->set_anchor_and_margin(Margin::Left, Control::ANCHOR_BEGIN, ttp->get_margin(Margin::Left));
         gui.tooltip_label->set_anchor_and_margin(Margin::Top, Control::ANCHOR_BEGIN, ttp->get_margin(Margin::Top));
@@ -1623,7 +1624,7 @@ void Viewport::_gui_show_tooltip() {
 
     rp->add_child(gui.tooltip_popup);
     gui.tooltip_popup->force_parent_owned();
-    gui.tooltip_popup->set_as_toplevel(true);
+    gui.tooltip_popup->set_as_top_level(true);
     if (gui.tooltip) // Avoids crash when rapidly switching controls.
         gui.tooltip_popup->set_scale(gui.tooltip->get_global_transform().get_scale());
 
@@ -1669,7 +1670,7 @@ void Viewport::_gui_call_input(Control *p_control, const Ref<InputEvent> &p_inpu
         if (control) {
 
             if (control->data.mouse_filter != Control::MOUSE_FILTER_IGNORE) {
-                control->emit_signal(SceneStringNames::get_singleton()->gui_input, ev); //signal should be first, so it's possible to override an event (and then accept it)
+                control->emit_signal(SceneStringNames::gui_input, ev); //signal should be first, so it's possible to override an event (and then accept it)
             }
             if (gui.key_event_accepted)
                 break;
@@ -1682,15 +1683,15 @@ void Viewport::_gui_call_input(Control *p_control, const Ref<InputEvent> &p_inpu
                 Variant event = ev;
                 const Variant *args[1] = { &event };
                 if (control->get_script_instance()) {
-                    control->get_script_instance()->call(SceneStringNames::get_singleton()->_gui_input, args, 1, error);
+                    control->get_script_instance()->call(SceneStringNames::_gui_input, args, 1, error);
                 }
-                MethodBind *method = ClassDB::get_method(control->get_class_name(), SceneStringNames::get_singleton()->_gui_input);
+                MethodBind *method = ClassDB::get_method(control->get_class_name(), SceneStringNames::_gui_input);
                 if (method) {
                     method->call(control, args, 1, error);
                 }
             }
 
-            if (!control->is_inside_tree() || control->is_set_as_toplevel())
+            if (!control->is_inside_tree() || control->is_set_as_top_level())
                 break;
             if (gui.key_event_accepted)
                 break;
@@ -1698,7 +1699,7 @@ void Viewport::_gui_call_input(Control *p_control, const Ref<InputEvent> &p_inpu
                 break;
         }
 
-        if (ci->is_set_as_toplevel())
+        if (ci->is_set_as_top_level())
             break;
 
         ev = ev->xformed_by(ci->get_transform()); //transform event upwards
@@ -1723,13 +1724,13 @@ void Viewport::_gui_call_notification(Control *p_control, int p_what) {
             if (!control->is_inside_tree())
                 break;
 
-            if (!control->is_inside_tree() || control->is_set_as_toplevel())
+            if (!control->is_inside_tree() || control->is_set_as_top_level())
                 break;
             if (control->data.mouse_filter == Control::MOUSE_FILTER_STOP)
                 break;
         }
 
-        if (ci->is_set_as_toplevel())
+        if (ci->is_set_as_top_level())
             break;
 
         ci = ci->get_parent_item();
@@ -1809,7 +1810,7 @@ Control *Viewport::_gui_find_control_at_pos(CanvasItem *p_node, const Point2 &p_
                 continue;
 
             CanvasItem *ci = object_cast<CanvasItem>(p_node->get_child(i));
-            if (!ci || ci->is_set_as_toplevel())
+            if (!ci || ci->is_set_as_top_level())
                 continue;
 
             Control *ret = _gui_find_control_at_pos(ci, p_global, matrix, r_inv_xform);
@@ -1854,7 +1855,7 @@ bool Viewport::_gui_drop(Control *p_at_control, Point2 p_at_pos, bool p_just_che
 
             p_at_pos = ci->get_transform().xform(p_at_pos);
 
-            if (ci->is_set_as_toplevel())
+            if (ci->is_set_as_top_level())
                 break;
 
             ci = ci->get_parent_item();
@@ -1988,7 +1989,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                             break;
                     }
 
-                    if (ci->is_set_as_toplevel())
+                    if (ci->is_set_as_top_level())
                         break;
 
                     ci = ci->get_parent_item();
@@ -2011,10 +2012,9 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                 gui.drag_data = Variant();
                 gui.dragging = false;
 
-                if (gui.drag_preview) {
-                    memdelete(gui.drag_preview);
-                    gui.drag_preview = nullptr;
-                }
+                memdelete(gui.drag_preview);
+                gui.drag_preview = nullptr;
+
                 _propagate_viewport_notification(this, NOTIFICATION_DRAG_END);
                 //change mouse accordingly
             }
@@ -2033,7 +2033,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                     _gui_drop(gui.mouse_over, pos, false);
                 }
 
-                if (gui.drag_preview && mb->get_button_index() == BUTTON_LEFT) {
+                if (mb->get_button_index() == BUTTON_LEFT) {
                     memdelete(gui.drag_preview);
                     gui.drag_preview = nullptr;
                 }
@@ -2123,7 +2123,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                                 break;
                         }
 
-                        if (ci->is_set_as_toplevel())
+                        if (ci->is_set_as_top_level())
                             break;
 
                         ci = ci->get_parent_item();
@@ -2273,7 +2273,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                     break;
                 if (c->data.mouse_filter == Control::MOUSE_FILTER_STOP)
                     break;
-                if (c->is_set_as_toplevel())
+                if (c->is_set_as_top_level())
                     break;
                 c = c->get_parent_control();
             }
@@ -2421,9 +2421,9 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
             gui.key_event_accepted = false;
             if (gui.key_focus->can_process()) {
-                gui.key_focus->call_va(SceneStringNames::get_singleton()->_gui_input, p_event);
+                gui.key_focus->call_va(SceneStringNames::_gui_input, p_event);
                 if (gui.key_focus) { //maybe lost it
-                    gui.key_focus->emit_signal(SceneStringNames::get_singleton()->gui_input, p_event);
+                    gui.key_focus->emit_signal(SceneStringNames::gui_input, p_event);
                 }
             }
 
@@ -2580,10 +2580,9 @@ void Viewport::_gui_set_drag_preview(Control *p_base, Control *p_control) {
     ERR_FAIL_COND(p_control->is_inside_tree());
     ERR_FAIL_COND(p_control->get_parent() != nullptr);
 
-    if (gui.drag_preview) {
-        memdelete(gui.drag_preview);
-    }
-    p_control->set_as_toplevel(true);
+    memdelete(gui.drag_preview);
+
+    p_control->set_as_top_level(true);
     p_control->set_position(gui.last_mouse_pos);
     p_base->get_root_parent_control()->add_child(p_control); //add as child of viewport
     p_control->raise();
@@ -2713,7 +2712,7 @@ void Viewport::_drop_mouse_focus() {
             mb->set_global_position(c->get_local_mouse_position());
             mb->set_button_index(i + 1);
             mb->set_pressed(false);
-            c->call_va(SceneStringNames::get_singleton()->_gui_input, mb);
+            c->call_va(SceneStringNames::_gui_input, mb);
         }
     }
 }
@@ -2765,7 +2764,7 @@ Control *Viewport::_gui_get_focus_owner() {
 void Viewport::_gui_grab_click_focus(Control *p_control) {
 
     gui.mouse_click_grabber = p_control;
-    call_deferred("_post_gui_grab_click_focus");
+    call_deferred([this]() { _post_gui_grab_click_focus(); });
 }
 
 void Viewport::_post_gui_grab_click_focus() {
@@ -2777,46 +2776,43 @@ void Viewport::_post_gui_grab_click_focus() {
     }
     gui.mouse_click_grabber = nullptr;
 
-    if (gui.mouse_focus) {
+    if (!gui.mouse_focus || gui.mouse_focus == focus_grabber)
+      return;
 
-        if (gui.mouse_focus == focus_grabber)
-            return;
+    int mask = gui.mouse_focus_mask;
+    Point2 click = gui.mouse_focus->get_global_transform_with_canvas().affine_inverse().xform(gui.last_mouse_pos);
 
-        int mask = gui.mouse_focus_mask;
-        Point2 click = gui.mouse_focus->get_global_transform_with_canvas().affine_inverse().xform(gui.last_mouse_pos);
+    for (int i = 0; i < 3; i++) {
 
-        for (int i = 0; i < 3; i++) {
+        if (mask & (1 << i)) {
 
-            if (mask & (1 << i)) {
+            Ref<InputEventMouseButton> mb(make_ref_counted<InputEventMouseButton>());
 
-                Ref<InputEventMouseButton> mb(make_ref_counted<InputEventMouseButton>());
+            //send unclic
 
-                //send unclic
-
-                mb->set_position(click);
-                mb->set_button_index(i + 1);
-                mb->set_pressed(false);
-                gui.mouse_focus->call_va(SceneStringNames::get_singleton()->_gui_input, mb);
-            }
+            mb->set_position(click);
+            mb->set_button_index(i + 1);
+            mb->set_pressed(false);
+            gui.mouse_focus->call_va(SceneStringNames::_gui_input, mb);
         }
+    }
 
-        gui.mouse_focus = focus_grabber;
-        gui.focus_inv_xform = gui.mouse_focus->get_global_transform_with_canvas().affine_inverse();
-        click = gui.mouse_focus->get_global_transform_with_canvas().affine_inverse().xform(gui.last_mouse_pos);
+    gui.mouse_focus = focus_grabber;
+    gui.focus_inv_xform = gui.mouse_focus->get_global_transform_with_canvas().affine_inverse();
+    click = gui.mouse_focus->get_global_transform_with_canvas().affine_inverse().xform(gui.last_mouse_pos);
 
-        for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++) {
 
-            if (mask & (1 << i)) {
+        if (mask & (1 << i)) {
 
-                Ref<InputEventMouseButton> mb(make_ref_counted<InputEventMouseButton>());
+            Ref<InputEventMouseButton> mb(make_ref_counted<InputEventMouseButton>());
 
-                //send clic
+            //send click.
 
-                mb->set_position(click);
-                mb->set_button_index(i + 1);
-                mb->set_pressed(true);
-                gui.mouse_focus->call_deferred(SceneStringNames::get_singleton()->_gui_input, mb);
-            }
+            mb->set_position(click);
+            mb->set_button_index(i + 1);
+            mb->set_pressed(true);
+            gui.mouse_focus->call_deferred(SceneStringNames::_gui_input, mb);
         }
     }
 }
@@ -2992,17 +2988,20 @@ Control *Viewport::get_modal_stack_top() const {
     return !gui.modal_stack.empty() ? gui.modal_stack.back() : nullptr;
 }
 
-StringName Viewport::get_configuration_warning() const {
-
-    /*if (get_parent() && !object_cast<Control>(get_parent()) && !render_target) {
+String Viewport::get_configuration_warning() const {
+    /*if (get_parent() && !Object::cast_to<Control>(get_parent()) && !render_target) {
 
         return TTR("This viewport is not set as render target. If you intend for it to display its contents directly to the screen, make it a child of a Control so it can obtain a size. Otherwise, make it a RenderTarget and assign its internal texture to some node for display.");
     }*/
-    if (size.x == 0 || size.y == 0) {
-        return TTR("Viewport size must be greater than 0 to render anything.");
-    }
 
-    return StringName();
+    String warning = Node::get_configuration_warning();
+
+    if (size.x == 0 || size.y == 0) {
+        if (!warning.empty())
+            warning += "\n\n";
+        warning += TTR("Viewport size must be greater than 0 to render anything.");
+    }
+    return warning;
 }
 
 void Viewport::gui_reset_canvas_sort_index() {
@@ -3221,7 +3220,6 @@ void Viewport::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_gui_show_tooltip"), &Viewport::_gui_show_tooltip);
     MethodBinder::bind_method(D_METHOD("_gui_remove_focus"), &Viewport::_gui_remove_focus);
-    MethodBinder::bind_method(D_METHOD("_post_gui_grab_click_focus"), &Viewport::_post_gui_grab_click_focus);
 
     MethodBinder::bind_method(D_METHOD("set_shadow_atlas_size", {"size"}), &Viewport::set_shadow_atlas_size);
     MethodBinder::bind_method(D_METHOD("get_shadow_atlas_size"), &Viewport::get_shadow_atlas_size);
@@ -3239,8 +3237,6 @@ void Viewport::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_handling_input_locally"), &Viewport::is_handling_input_locally);
 
     MethodBinder::bind_method(D_METHOD("_subwindow_visibility_changed"), &Viewport::_subwindow_visibility_changed);
-
-    MethodBinder::bind_method(D_METHOD("_own_world_changed"), &Viewport::_own_world_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "arvr"), "set_use_arvr", "use_arvr");
 

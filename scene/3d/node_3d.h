@@ -65,7 +65,7 @@ class GODOT_EXPORT Node3D : public Node {
 
     GDCLASS(Node3D,Node)
 
-    OBJ_CATEGORY("3D");
+    OBJ_CATEGORY("3D")
 
     enum TransformDirty {
         DIRTY_NONE = 0,
@@ -158,8 +158,8 @@ public:
     virtual Transform get_local_gizmo_transform() const;
 #endif
 
-    void set_as_toplevel(bool p_enabled);
-    bool is_set_as_toplevel() const;
+    void set_as_top_level(bool p_enabled);
+    bool is_set_as_top_level() const;
 
     void set_disable_scale(bool p_enabled);
     bool is_scale_disabled() const;

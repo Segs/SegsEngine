@@ -34,7 +34,7 @@
 #include "core/project_settings.h"
 #include "core/method_bind.h"
 
-IMPL_GDCLASS(StreamPeerTCP);
+IMPL_GDCLASS(StreamPeerTCP)
 
 VARIANT_ENUM_CAST(StreamPeerTCP::Status);
 
@@ -357,10 +357,10 @@ void StreamPeerTCP::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("disconnect_from_host"), &StreamPeerTCP::disconnect_from_host);
     MethodBinder::bind_method(D_METHOD("set_no_delay", {"enabled"}), &StreamPeerTCP::set_no_delay);
 
-    BIND_ENUM_CONSTANT(STATUS_NONE)
-    BIND_ENUM_CONSTANT(STATUS_CONNECTING)
-    BIND_ENUM_CONSTANT(STATUS_CONNECTED)
-    BIND_ENUM_CONSTANT(STATUS_ERROR)
+    BIND_ENUM_CONSTANT(STATUS_NONE);
+    BIND_ENUM_CONSTANT(STATUS_CONNECTING);
+    BIND_ENUM_CONSTANT(STATUS_CONNECTED);
+    BIND_ENUM_CONSTANT(STATUS_ERROR);
 }
 
 StreamPeerTCP::StreamPeerTCP() :

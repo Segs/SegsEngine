@@ -1,3 +1,7 @@
+if (NOT ("editor" IN_LIST global_targets))
+    return()
+endif()
+
 set(src
     EditorSceneImporterInterface.h
     EditorSceneImporterInterface.cpp

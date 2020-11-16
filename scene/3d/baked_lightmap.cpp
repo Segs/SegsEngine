@@ -35,6 +35,7 @@
 #include "core/io/config_file.h"
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
@@ -325,10 +326,6 @@ void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, Vector<BakedLightma
 
 void BakedLightmap::set_hdr(bool p_enable) {
     hdr = p_enable;
-}
-
-bool BakedLightmap::is_hdr() const {
-    return hdr;
 }
 
 bool BakedLightmap::_bake_time(void *ud, float p_secs, float p_progress) {
@@ -777,10 +774,6 @@ void BakedLightmap::set_bake_quality(BakeQuality p_quality) {
     bake_quality = p_quality;
 }
 
-BakedLightmap::BakeQuality BakedLightmap::get_bake_quality() const {
-    return bake_quality;
-}
-
 void BakedLightmap::set_bake_mode(BakeMode p_mode) {
     bake_mode = p_mode;
 }
@@ -791,10 +784,6 @@ BakedLightmap::BakeMode BakedLightmap::get_bake_mode() const {
 
 void BakedLightmap::set_image_path(StringView p_path) {
     image_path = p_path;
-}
-
-const String &BakedLightmap::get_image_path() const {
-    return image_path;
 }
 
 AABB BakedLightmap::get_aabb() const {
@@ -857,17 +846,17 @@ void BakedLightmap::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "image_path", PropertyHint::Dir), "set_image_path", "get_image_path");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "light_data", PropertyHint::ResourceType, "BakedLightmapData"), "set_light_data", "get_light_data");
 
-    BIND_ENUM_CONSTANT(BAKE_QUALITY_LOW)
-    BIND_ENUM_CONSTANT(BAKE_QUALITY_MEDIUM)
-    BIND_ENUM_CONSTANT(BAKE_QUALITY_HIGH)
-    BIND_ENUM_CONSTANT(BAKE_MODE_CONE_TRACE)
-    BIND_ENUM_CONSTANT(BAKE_MODE_RAY_TRACE)
+    BIND_ENUM_CONSTANT(BAKE_QUALITY_LOW);
+    BIND_ENUM_CONSTANT(BAKE_QUALITY_MEDIUM);
+    BIND_ENUM_CONSTANT(BAKE_QUALITY_HIGH);
+    BIND_ENUM_CONSTANT(BAKE_MODE_CONE_TRACE);
+    BIND_ENUM_CONSTANT(BAKE_MODE_RAY_TRACE);
 
-    BIND_ENUM_CONSTANT(BAKE_ERROR_OK)
-    BIND_ENUM_CONSTANT(BAKE_ERROR_NO_SAVE_PATH)
-    BIND_ENUM_CONSTANT(BAKE_ERROR_NO_MESHES)
-    BIND_ENUM_CONSTANT(BAKE_ERROR_CANT_CREATE_IMAGE)
-    BIND_ENUM_CONSTANT(BAKE_ERROR_USER_ABORTED)
+    BIND_ENUM_CONSTANT(BAKE_ERROR_OK);
+    BIND_ENUM_CONSTANT(BAKE_ERROR_NO_SAVE_PATH);
+    BIND_ENUM_CONSTANT(BAKE_ERROR_NO_MESHES);
+    BIND_ENUM_CONSTANT(BAKE_ERROR_CANT_CREATE_IMAGE);
+    BIND_ENUM_CONSTANT(BAKE_ERROR_USER_ABORTED);
 }
 
 BakedLightmap::BakedLightmap() {

@@ -42,7 +42,6 @@
 #include "core/print_string.h"
 #include "core/ustring.h"
 #include "core/variant.h"
-#include "core/vmap.h"
 #include "scene/main/node.h"
 #include "scene/resources/texture.h"
 #include "servers/rendering/shader_language.h"
@@ -239,9 +238,9 @@ class GetClassAndNamespace {
                         idx++;
                         break;
                     }
-
-                    if ((code[idx] >= 33 && code[idx] <= 47) || (code[idx] >= 58 && code[idx] <= 64) || (code[idx] >= 91 && code[idx] <= 96) || (code[idx] >= 123 && code[idx] <= 127)) {
-                        value = {code[idx]};
+                    uint8_t c(code[idx]);
+                    if ((c >= 33 && c <= 47) || (c >= 58 && c <= 64) || (c >= 91 && c <= 96) || (c >= 123 && c <= 127)) {
+                        value = {char(c)};
                         idx++;
                         return TK_SYMBOL;
                     }
@@ -255,11 +254,11 @@ class GetClassAndNamespace {
                         value = number;
                         return TK_NUMBER;
 
-                    } else if ((code[idx] >= 'A' && code[idx] <= 'Z') || (code[idx] >= 'a' && code[idx] <= 'z') || code[idx] > 127) {
+                    } else if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c > 127) {
 
                         String id;
 
-                        while ((code[idx] >= 'A' && code[idx] <= 'Z') || (code[idx] >= 'a' && code[idx] <= 'z') || code[idx] > 127) {
+                        while ((code[idx] >= 'A' && code[idx] <= 'Z') || (code[idx] >= 'a' && code[idx] <= 'z') || uint8_t(code[idx]) > 127) {
 
                             id += code[idx];
                             idx++;
@@ -523,7 +522,7 @@ MainLoop *test() {
 
         for (size_t i=0,fin=tl.size(); i<fin; ++i) {
 
-            Vector<uint8_t> m5b = StringUtils::md5_buffer(tl[i].asCString());
+            auto m5b = StringUtils::md5_buffer(tl[i].asCString());
             hashes.push_back(hashes.size());
         }
 

@@ -41,7 +41,7 @@
 #include "servers/rendering_server.h"
 
 IMPL_GDCLASS(GPUParticles3D)
-VARIANT_ENUM_CAST(GPUParticles3D::DrawOrder)
+VARIANT_ENUM_CAST(GPUParticles3D::DrawOrder);
 
 AABB GPUParticles3D::get_aabb() const {
 
@@ -246,9 +246,9 @@ bool GPUParticles3D::get_fractional_delta() const {
     return fractional_delta;
 }
 
-StringName GPUParticles3D::get_configuration_warning() const {
+String GPUParticles3D::get_configuration_warning() const {
 
-    String warnings;
+    String warnings = BaseClassName::get_configuration_warning();
 
     bool meshes_found = false;
     bool anim_material_found = false;
@@ -272,14 +272,14 @@ StringName GPUParticles3D::get_configuration_warning() const {
 
     if (!meshes_found) {
         if (!warnings.empty())
-            warnings += '\n';
-        warnings += "- " + TTR("Nothing is visible because meshes have not been assigned to draw passes.");
+            warnings += "\n\n";
+        warnings += String("- ") + TTRS("Nothing is visible because meshes have not been assigned to draw passes.");
     }
 
     if (not process_material) {
         if (!warnings.empty())
             warnings += '\n';
-        warnings += "- " + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
+        warnings += String("- ") + TTRS("A material to process the particles is not assigned, so no behavior is imprinted.");
     } else {
         const ParticlesMaterial *process = object_cast<ParticlesMaterial>(process_material.get());
         if (!anim_material_found && process &&
@@ -287,11 +287,11 @@ StringName GPUParticles3D::get_configuration_warning() const {
                         process->get_param_texture(ParticlesMaterial::PARAM_ANIM_SPEED) || process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET))) {
             if (!warnings.empty())
                 warnings += '\n';
-            warnings += "- " + TTR("Particles animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
+            warnings += String("- ") + TTRS("Particles animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
         }
     }
 
-    return StringName(warnings);
+    return warnings;
 }
 
 void GPUParticles3D::restart() {
@@ -415,9 +415,9 @@ void GPUParticles3D::_bind_methods() {
         ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("draw_pass/" + itos(i + 1) + "/mesh"), PropertyHint::ResourceType, "Mesh"), "set_draw_pass_mesh", "get_draw_pass_mesh", i);
     }
 
-    BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX)
-    BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME)
-    BIND_ENUM_CONSTANT(DRAW_ORDER_VIEW_DEPTH)
+    BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX);
+    BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME);
+    BIND_ENUM_CONSTANT(DRAW_ORDER_VIEW_DEPTH);
 
     BIND_CONSTANT(MAX_DRAW_PASSES);
 }

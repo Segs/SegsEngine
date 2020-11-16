@@ -38,7 +38,9 @@
 #include "core/rid.h"
 #include "core/string.h"
 #include "core/variant.h"
+#include "core/os/thread.h"
 #include "servers/rendering_server_enums.h"
+
 
 //SEGS: In the future this is meant to replace passing Surface data in Array
 class GODOT_EXPORT SurfaceArrays {
@@ -128,21 +130,21 @@ public:
     bool empty() const { return m_position_data.empty(); }
     bool check_sanity() const {
         auto expected= m_position_data.size();
-        if(m_normals.size()!=expected && !m_normals.empty())
+        if(!m_normals.empty() && m_normals.size() != expected)
             return false;
-        if (m_tangents.size() != expected && !m_tangents.empty())
+        if (!m_tangents.empty() && m_tangents.size() != expected)
             return false;
-        if (m_colors.size() != expected && !m_colors.empty())
+        if (!m_colors.empty() && m_colors.size() != expected)
             return false;
-        if (m_uv_1.size() != expected && !m_uv_1.empty())
+        if (!m_uv_1.empty() && m_uv_1.size() != expected)
             return false;
-        if (m_uv_2.size() != expected && !m_uv_2.empty())
+        if (!m_uv_2.empty() && m_uv_2.size() != expected)
             return false;
-        if (m_weights.size() != expected && !m_weights.empty())
+        if (!m_weights.empty() && m_weights.size() != expected)
             return false;
-        if (m_bones.size() != expected && !m_bones.empty())
+        if (!m_bones.empty() && m_bones.size() != expected)
             return false;
-        if (m_indices.size() != expected && !m_indices.empty())
+        if (!m_indices.empty() && m_indices.size() != expected)
             return false;
         return true;
     }
@@ -206,34 +208,31 @@ class GODOT_EXPORT RenderingServer : public Object {
 
     GDCLASS(RenderingServer,Object)
 
-    static RenderingServer *singleton;
-
-    int mm_policy;
 
     void _camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far);
     void _canvas_item_add_style_box(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector<float> &p_margins, const Color &p_modulate = Color(1, 1, 1));
-    SurfaceArrays _get_array_from_surface(uint32_t p_format, Span<const uint8_t> p_vertex_data, uint32_t p_vertex_len,
-            Span<const uint8_t> p_index_data, int p_index_len) const;
 
 protected:
-    RID _make_test_cube();
-    void _free_internal_rids();
-    RID test_texture;
-    RID white_texture;
-    RID test_material;
 
     Error _surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, Vector<uint8_t> &r_vertex_array, int p_vertex_array_len, Vector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, Vector<AABB> &r_bone_aabb);
 
-    static RenderingServer *(*create_func)();
     static void _bind_methods();
 public: // scripting glue helpers
+
+    static Thread::ID server_thread;
+    static RenderingServer* submission_thread_singleton; // gpu operation submission object
+    static RenderingServer* queueing_thread_singleton; // other threads enqueue operations through this object.
+
+
     Array _mesh_surface_get_arrays(RID p_mesh, int p_surface) const;
     void _mesh_add_surface_from_arrays(RID p_mesh, RS::PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_compress_format = RS::ARRAY_COMPRESS_DEFAULT);
     Array _mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const;
 
-public:
-    static RenderingServer *get_singleton();
-    static RenderingServer *create();
+
+    static RenderingServer *get_singleton()
+    {
+        return (Thread::get_caller_id()==server_thread) ? submission_thread_singleton : queueing_thread_singleton;
+    }
 
     virtual RID texture_create() = 0;
     RID texture_create_from_image(const Ref<Image> &p_image, uint32_t p_flags = RS::TEXTURE_FLAGS_DEFAULT); // helper
@@ -801,7 +800,7 @@ public:
 
     virtual void free_rid(RID p_rid) = 0; ///< free RIDs associated with the visual server
 
-    virtual void request_frame_drawn_callback(Object *p_where, const StringName &p_method, const Variant &p_userdata) = 0;
+    virtual void request_frame_drawn_callback(Callable &&) = 0;
 
     /* EVENT QUEUING */
 
@@ -816,15 +815,6 @@ public:
     virtual int get_render_info(RS::RenderInfo p_info) = 0;
     virtual const char *get_video_adapter_name() const = 0;
     virtual const char *get_video_adapter_vendor() const = 0;
-
-    /* Materials for 2D on 3D */
-
-    /* TESTING */
-
-    virtual RID get_test_cube() = 0;
-
-    virtual RID get_test_texture();
-    virtual RID get_white_texture();
 
     virtual RID make_sphere_mesh(int p_lats, int p_lons, float p_radius);
 
@@ -841,8 +831,6 @@ public:
     virtual void set_debug_generate_wireframes(bool p_generate) = 0;
 
     virtual void call_set_use_vsync(bool p_enable) = 0;
-
-    //virtual bool is_low_end() const = 0;
 
     RenderingServer();
     ~RenderingServer() override;

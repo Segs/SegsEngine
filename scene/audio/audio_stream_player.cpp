@@ -36,7 +36,7 @@
 #include "core/engine.h"
 
 IMPL_GDCLASS(AudioStreamPlayer)
-VARIANT_ENUM_CAST(AudioStreamPlayer::MixTarget)
+VARIANT_ENUM_CAST(AudioStreamPlayer::MixTarget);
 
 void AudioStreamPlayer::_mix_to_bus(const AudioFrame *p_frames, int p_amount) {
 
@@ -427,9 +427,9 @@ void AudioStreamPlayer::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("finished"));
 
-    BIND_ENUM_CONSTANT(MIX_TARGET_STEREO)
-    BIND_ENUM_CONSTANT(MIX_TARGET_SURROUND)
-    BIND_ENUM_CONSTANT(MIX_TARGET_CENTER)
+    BIND_ENUM_CONSTANT(MIX_TARGET_STEREO);
+    BIND_ENUM_CONSTANT(MIX_TARGET_SURROUND);
+    BIND_ENUM_CONSTANT(MIX_TARGET_CENTER);
 }
 
 AudioStreamPlayer::AudioStreamPlayer() {

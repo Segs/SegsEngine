@@ -40,7 +40,7 @@ class StreamPeerTCP;
 
 class GODOT_EXPORT HTTPClient : public RefCounted {
 
-    GDCLASS(HTTPClient, RefCounted);
+    GDCLASS(HTTPClient, RefCounted)
 
 public:
     enum ResponseCode {

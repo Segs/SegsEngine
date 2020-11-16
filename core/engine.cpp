@@ -52,8 +52,9 @@ int Engine::get_iterations_per_second() const {
 }
 
 void Engine::set_physics_jitter_fix(float p_threshold) {
-    if (p_threshold < 0)
+    if (p_threshold < 0) {
         p_threshold = 0;
+    }
     physics_jitter_fix = p_threshold;
 }
 
@@ -95,7 +96,6 @@ float Engine::get_time_scale() const {
 }
 
 Dictionary Engine::get_version_info() const {
-
     Dictionary dict;
     dict["major"] = VERSION_MAJOR;
     dict["minor"] = VERSION_MINOR;
@@ -109,8 +109,9 @@ Dictionary Engine::get_version_info() const {
     dict["hash"] = hash.length() == 0 ? Variant("unknown") : Variant(hash);
 
     String stringver = dict["major"].as<String>() + "." + dict["minor"].as<String>();
-    if (dict["patch"].as<int>() != 0)
+    if (dict["patch"].as<int>() != 0) {
         stringver += "." + dict["patch"].as<String>();
+    }
     stringver += "-" + dict["status"].as<String>() + " (" + dict["build"].as<String>() + ")";
     dict["string"] = Variant(stringver);
 
@@ -200,11 +201,11 @@ Object *Engine::get_named_singleton(const StringName &p_name) const {
     auto E = singleton_ptrs.find(p_name);
     ERR_FAIL_COND_V_MSG(E==singleton_ptrs.end(), nullptr, "Failed to retrieve non-existent singleton '" + String(p_name) + "'.");
     return E->second;
-};
+}
 
 bool Engine::has_singleton(const StringName &p_name) const {
     return singleton_ptrs.contains(p_name);
-};
+}
 Engine *Engine::singleton = nullptr;
 
 Engine *Engine::get_singleton() {
@@ -224,7 +225,7 @@ class CoreInterfaceImpl final : public CoreInterface
 public:
     FileAccess * wrapMemoryAsFileAccess(const uint8_t *data,int sz) final
     {
-        FileAccessMemory * result = new FileAccessMemory;
+        auto result = new FileAccessMemory;
         if(OK!=result->open_custom(data,sz))
         {
             delete result;

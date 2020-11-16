@@ -36,6 +36,21 @@
 #include "core/string_utils.h"
 #include "core/vector.h"
 
+float CameraMatrix::determinant() const {
+	return matrix[0][3] * matrix[1][2] * matrix[2][1] * matrix[3][0] - matrix[0][2] * matrix[1][3] * matrix[2][1] * matrix[3][0] -
+		   matrix[0][3] * matrix[1][1] * matrix[2][2] * matrix[3][0] + matrix[0][1] * matrix[1][3] * matrix[2][2] * matrix[3][0] +
+		   matrix[0][2] * matrix[1][1] * matrix[2][3] * matrix[3][0] - matrix[0][1] * matrix[1][2] * matrix[2][3] * matrix[3][0] -
+		   matrix[0][3] * matrix[1][2] * matrix[2][0] * matrix[3][1] + matrix[0][2] * matrix[1][3] * matrix[2][0] * matrix[3][1] +
+		   matrix[0][3] * matrix[1][0] * matrix[2][2] * matrix[3][1] - matrix[0][0] * matrix[1][3] * matrix[2][2] * matrix[3][1] -
+		   matrix[0][2] * matrix[1][0] * matrix[2][3] * matrix[3][1] + matrix[0][0] * matrix[1][2] * matrix[2][3] * matrix[3][1] +
+		   matrix[0][3] * matrix[1][1] * matrix[2][0] * matrix[3][2] - matrix[0][1] * matrix[1][3] * matrix[2][0] * matrix[3][2] -
+		   matrix[0][3] * matrix[1][0] * matrix[2][1] * matrix[3][2] + matrix[0][0] * matrix[1][3] * matrix[2][1] * matrix[3][2] +
+		   matrix[0][1] * matrix[1][0] * matrix[2][3] * matrix[3][2] - matrix[0][0] * matrix[1][1] * matrix[2][3] * matrix[3][2] -
+		   matrix[0][2] * matrix[1][1] * matrix[2][0] * matrix[3][3] + matrix[0][1] * matrix[1][2] * matrix[2][0] * matrix[3][3] +
+		   matrix[0][2] * matrix[1][0] * matrix[2][1] * matrix[3][3] - matrix[0][0] * matrix[1][2] * matrix[2][1] * matrix[3][3] -
+		   matrix[0][1] * matrix[1][0] * matrix[2][2] * matrix[3][3] + matrix[0][0] * matrix[1][1] * matrix[2][2] * matrix[3][3];
+}
+
 void CameraMatrix::set_identity() {
 
     for (int i = 0; i < 4; i++) {
@@ -154,7 +169,7 @@ void CameraMatrix::set_for_hmd(int p_eye, real_t p_aspect, real_t p_intraocular_
         default: { // mono, does not apply here!
         } break;
     }
-};
+}
 
 void CameraMatrix::set_orthogonal(real_t p_left, real_t p_right, real_t p_bottom, real_t p_top, real_t p_znear, real_t p_zfar) {
 
@@ -293,7 +308,7 @@ void CameraMatrix::get_far_plane_size(real_t &r_width, real_t &r_height) const {
 bool CameraMatrix::get_endpoints(const Transform &p_transform, Vector3 *p_8points) const {
 
     Frustum planes = get_projection_planes(Transform());
-    const Planes intersections[8][3] = {
+    constexpr Planes intersections[8][3] = {
         { PLANE_FAR, PLANE_LEFT, PLANE_TOP },
         { PLANE_FAR, PLANE_LEFT, PLANE_BOTTOM },
         { PLANE_FAR, PLANE_RIGHT, PLANE_TOP },
@@ -457,20 +472,26 @@ void CameraMatrix::invert() {
 
         /** Divide column by minus pivot value **/
         for (i = 0; i < 4; i++) {
-            if (i != k) matrix[i][k] /= (-pvt_val);
+			if (i != k) {
+				matrix[i][k] /= (-pvt_val);
+			}
         }
 
         /** Reduce the matrix **/
         for (i = 0; i < 4; i++) {
             hold = matrix[i][k];
             for (j = 0; j < 4; j++) {
-                if (i != k && j != k) matrix[i][j] += hold * matrix[k][j];
+				if (i != k && j != k) {
+					matrix[i][j] += hold * matrix[k][j];
+				}
             }
         }
 
         /** Divide row by pivot **/
         for (j = 0; j < 4; j++) {
-            if (j != k) matrix[k][j] /= pvt_val;
+			if (j != k) {
+				matrix[k][j] /= pvt_val;
+			}
         }
 
         /** Replace pivot by reciprocal (at last we can touch it). **/
@@ -490,12 +511,13 @@ void CameraMatrix::invert() {
         }
 
         j = pvt_i[k]; /* Columns to swap correspond to pivot ROW */
-        if (j != k) /* If columns are different */
+		if (j != k) { /* If columns are different */
             for (i = 0; i < 4; i++) {
                 hold = matrix[i][k];
                 matrix[i][k] = -matrix[i][j];
                 matrix[i][j] = hold;
-            }
+			}
+        }
     }
 }
 
@@ -517,8 +539,9 @@ CameraMatrix CameraMatrix::operator*(const CameraMatrix &p_matrix) const {
     for (int j = 0; j < 4; j++) {
         for (int i = 0; i < 4; i++) {
             real_t ab = 0;
-            for (int k = 0; k < 4; k++)
+			for (int k = 0; k < 4; k++) {
                 ab += matrix[k][i] * p_matrix.matrix[j][k];
+			}
             new_matrix.matrix[j][i] = ab;
         }
     }
@@ -595,9 +618,11 @@ void CameraMatrix::set_light_atlas_rect(const Rect2 &p_rect) {
 CameraMatrix::operator String() const {
 
     String str;
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 4; j++)
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
             str += String((j > 0) ? ", " : "\n") + rtos(matrix[i][j]);
+		}
+	}
 
     return str;
 }

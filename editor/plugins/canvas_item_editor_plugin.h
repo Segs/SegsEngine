@@ -716,7 +716,7 @@ class CanvasItemEditorViewport : public Control {
     void _perform_drop_data();
     void _show_resource_type_selector();
 
-    static void _bind_methods();
+    static void _bind_methods() {};
 
 protected:
     void _notification(int p_what);

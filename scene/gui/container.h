@@ -56,7 +56,7 @@ public:
 
     void fit_child_in_rect(Control *p_child, const Rect2 &p_rect);
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     Container();
 };

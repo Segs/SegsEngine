@@ -40,6 +40,7 @@
 #include "core/script_language.h"
 #include "core/callable_method_pointer.h"
 
+#define STACK_DEPTH 3
 MessageQueue *MessageQueue::singleton = nullptr;
 
 
@@ -57,13 +58,14 @@ Error MessageQueue::push_call(ObjectID p_id, eastl::function<void()> p_method) {
 
     if ((buffer_end + room_needed) >= buffer_size) {
         String type;
-        if (gObjectDB().get_instance(p_id))
+        if (gObjectDB().get_instance(p_id)) {
             type = gObjectDB().get_instance(p_id)->get_class();
+        }
         print_line(String("Failed ::function call: ") + type + ": target ID: " + ::to_string(static_cast<uint64_t>(p_id)));
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }
-
+    TracyAllocNS(&buffer[buffer_end],room_needed,STACK_DEPTH,"MessageQueueAlloc");
     Message *msg = memnew_placement(&buffer[buffer_end], Message);
     msg->args = 0;
     msg->callable = Callable(memnew_args(FunctorCallable,p_id,p_method));
@@ -84,8 +86,9 @@ Error MessageQueue::push_call(ObjectID p_id, const StringName &p_method, VARIANT
     int argc = 0;
 
     for (const Variant *arg_ptr : argptr) {
-        if (arg_ptr->get_type() == VariantType::NIL)
+        if (arg_ptr->get_type() == VariantType::NIL) {
             break;
+        }
         argc++;
     }
 
@@ -100,12 +103,14 @@ Error MessageQueue::push_set(ObjectID p_id, const StringName &p_prop, const Vari
 
     if ((buffer_end + room_needed) >= buffer_size) {
         String type;
-        if (gObjectDB().get_instance(p_id))
+        if (gObjectDB().get_instance(p_id)) {
             type = gObjectDB().get_instance(p_id)->get_class();
+        }
         print_line("Failed set: " + type + ":" + p_prop + " target ID: " + ::to_string(static_cast<uint64_t>(p_id)));
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }
+    TracyAllocNS(&buffer[buffer_end],room_needed,STACK_DEPTH,"MessageQueueAlloc");
 
     Message *msg = memnew_placement(&buffer[buffer_end], Message);
     msg->args = 1;
@@ -134,6 +139,7 @@ Error MessageQueue::push_notification(ObjectID p_id, int p_notification) {
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }
+    TracyAllocNS(&buffer[buffer_end],room_needed,STACK_DEPTH,"MessageQueueAlloc");
 
     Message *msg = memnew_placement(&buffer[buffer_end], Message);
 
@@ -162,13 +168,15 @@ Error MessageQueue::push_set(Object *p_object, const StringName &p_prop, const V
 Error MessageQueue::push_callable(const Callable& p_callable, const Variant** p_args, int p_argcount, bool p_show_error) {
     _THREAD_SAFE_METHOD_
 
-        int room_needed = sizeof(Message) + sizeof(Variant) * p_argcount;
+    int room_needed = sizeof(Message) + sizeof(Variant) * p_argcount;
 
     if ((buffer_end + room_needed) >= buffer_size) {
         print_line("Failed method: " + (String)p_callable);
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }
+
+    TracyAllocNS(&buffer[buffer_end],room_needed,STACK_DEPTH,"MessageQueueAlloc");
 
     Message* msg = memnew_placement(&buffer[buffer_end], Message);
     msg->args = p_argcount;
@@ -306,6 +314,7 @@ void MessageQueue::flush()
     while (read_pos < buffer_end)
     {
         //lock on each iteration, so a call can re-add itself to the message queue
+        TRACE_FREE_N(&buffer[read_pos],"MessageQueueAlloc");
 
         Message *message = (Message*)&buffer[read_pos];
 
@@ -402,6 +411,7 @@ MessageQueue::~MessageQueue() {
                 args[i].~Variant();
         }
         message->~Message();
+        TRACE_FREE_N(message,"MessageQueueAlloc");
 
         read_pos += sizeof(Message);
         if ((message->type & FLAG_MASK) != TYPE_NOTIFICATION)

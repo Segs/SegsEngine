@@ -37,12 +37,12 @@
 #include "core/string_utils.h"
 #include "core/translation.h"
 
-StringName ResourceImporterCSVTranslation::get_importer_name() const {
+const char *ResourceImporterCSVTranslation::get_importer_name() const {
 
     return "csv_translation";
 }
 
-StringName ResourceImporterCSVTranslation::get_visible_name() const {
+const char *ResourceImporterCSVTranslation::get_visible_name() const {
 
     return "CSV Translation";
 }
@@ -73,7 +73,7 @@ StringName ResourceImporterCSVTranslation::get_preset_name(int p_idx) const {
     return "";
 }
 
-void ResourceImporterCSVTranslation::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
+void ResourceImporterCSVTranslation::get_import_options(Vector<ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "compress"), true));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "delimiter", PropertyHint::Enum, "Comma,Semicolon,Tab"), 0));

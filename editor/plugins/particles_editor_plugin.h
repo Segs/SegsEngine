@@ -63,7 +63,7 @@ protected:
     virtual void _generate_emission_points() = 0;
     void _node_selected(const NodePath &p_path);
 
-    static void _bind_methods();
+    static void _bind_methods() { }
 
 public:
     ParticlesEditorBase();
@@ -98,7 +98,7 @@ class ParticlesEditor : public ParticlesEditorBase {
 protected:
     void _notification(int p_notification);
     void _node_removed(Node *p_node);
-    static void _bind_methods();
+    static void _bind_methods() { }
 
 public:
     void edit(GPUParticles3D *p_particles);

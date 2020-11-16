@@ -39,6 +39,7 @@ class TextEditor : public ScriptEditorBase {
 
 private:
     CodeTextEditor *code_editor;
+    bool editor_enabled;
 
     Ref<TextFile> text_file;
 
@@ -96,9 +97,7 @@ private:
     };
 
 protected:
-    static void _bind_methods();
-
-    void _notification(int p_what);
+    static void _bind_methods() {}
 
     void _edit_option(int p_op);
     void _make_context_menu(bool p_selection, bool p_can_fold, bool p_is_folded, Vector2 p_position);
@@ -120,9 +119,10 @@ public:
     void set_syntax_highlighter(SyntaxHighlighter *p_highlighter) override;
 
     String get_name() override;
-    Ref<Texture> get_icon() override;
+    Ref<Texture> get_theme_icon() override;
     RES get_edited_resource() const override;
     void set_edited_resource(const RES &p_res) override;
+    void enable_editor() override;
     void set_edited_file(const Ref<TextFile> &p_file);
     void reload_text() override;
     void apply_code() override;

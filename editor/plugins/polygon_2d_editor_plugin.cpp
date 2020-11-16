@@ -86,28 +86,28 @@ void Polygon2DEditor::_notification(int p_what) {
         case NOTIFICATION_ENTER_TREE:
         case NOTIFICATION_THEME_CHANGED: {
 
-            uv_edit_draw->add_style_override("panel", get_stylebox("bg", "Tree"));
-            bone_scroll->add_style_override("bg", get_stylebox("bg", "Tree"));
+            uv_edit_draw->add_theme_style_override("panel", get_theme_stylebox("bg", "Tree"));
+            bone_scroll->add_theme_style_override("bg", get_theme_stylebox("bg", "Tree"));
         } break;
         case NOTIFICATION_READY: {
 
-            button_uv->set_button_icon(get_icon("Uv", "EditorIcons"));
+            button_uv->set_button_icon(get_theme_icon("Uv", "EditorIcons"));
 
-            uv_button[UV_MODE_CREATE]->set_button_icon(get_icon("Edit", "EditorIcons"));
-            uv_button[UV_MODE_CREATE_INTERNAL]->set_button_icon(get_icon("EditInternal", "EditorIcons"));
-            uv_button[UV_MODE_REMOVE_INTERNAL]->set_button_icon(get_icon("RemoveInternal", "EditorIcons"));
-            uv_button[UV_MODE_EDIT_POINT]->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
-            uv_button[UV_MODE_MOVE]->set_button_icon(get_icon("ToolMove", "EditorIcons"));
-            uv_button[UV_MODE_ROTATE]->set_button_icon(get_icon("ToolRotate", "EditorIcons"));
-            uv_button[UV_MODE_SCALE]->set_button_icon(get_icon("ToolScale", "EditorIcons"));
-            uv_button[UV_MODE_ADD_POLYGON]->set_button_icon(get_icon("Edit", "EditorIcons"));
-            uv_button[UV_MODE_REMOVE_POLYGON]->set_button_icon(get_icon("Close", "EditorIcons"));
-            uv_button[UV_MODE_PAINT_WEIGHT]->set_button_icon(get_icon("PaintVertex", "EditorIcons"));
-            uv_button[UV_MODE_CLEAR_WEIGHT]->set_button_icon(get_icon("UnpaintVertex", "EditorIcons"));
+            uv_button[UV_MODE_CREATE]->set_button_icon(get_theme_icon("Edit", "EditorIcons"));
+            uv_button[UV_MODE_CREATE_INTERNAL]->set_button_icon(get_theme_icon("EditInternal", "EditorIcons"));
+            uv_button[UV_MODE_REMOVE_INTERNAL]->set_button_icon(get_theme_icon("RemoveInternal", "EditorIcons"));
+            uv_button[UV_MODE_EDIT_POINT]->set_button_icon(get_theme_icon("ToolSelect", "EditorIcons"));
+            uv_button[UV_MODE_MOVE]->set_button_icon(get_theme_icon("ToolMove", "EditorIcons"));
+            uv_button[UV_MODE_ROTATE]->set_button_icon(get_theme_icon("ToolRotate", "EditorIcons"));
+            uv_button[UV_MODE_SCALE]->set_button_icon(get_theme_icon("ToolScale", "EditorIcons"));
+            uv_button[UV_MODE_ADD_POLYGON]->set_button_icon(get_theme_icon("Edit", "EditorIcons"));
+            uv_button[UV_MODE_REMOVE_POLYGON]->set_button_icon(get_theme_icon("Close", "EditorIcons"));
+            uv_button[UV_MODE_PAINT_WEIGHT]->set_button_icon(get_theme_icon("PaintVertex", "EditorIcons"));
+            uv_button[UV_MODE_CLEAR_WEIGHT]->set_button_icon(get_theme_icon("UnpaintVertex", "EditorIcons"));
 
-            b_snap_grid->set_button_icon(get_icon("Grid", "EditorIcons"));
-            b_snap_enable->set_button_icon(get_icon("SnapGrid", "EditorIcons"));
-            uv_icon_zoom->set_texture(get_icon("Zoom", "EditorIcons"));
+            b_snap_grid->set_button_icon(get_theme_icon("Grid", "EditorIcons"));
+            b_snap_enable->set_button_icon(get_theme_icon("SnapGrid", "EditorIcons"));
+            uv_icon_zoom->set_texture(get_theme_icon("Zoom", "EditorIcons"));
 
             uv_vscroll->set_anchors_and_margins_preset(PRESET_RIGHT_WIDE);
             uv_hscroll->set_anchors_and_margins_preset(PRESET_BOTTOM_WIDE);
@@ -165,14 +165,19 @@ void Polygon2DEditor::_sync_bones() {
     }
 
     Array new_bones = node->call_va("_get_bones").as<Array>();
-
-    undo_redo->create_action(TTR("Sync Bones"));
-    undo_redo->add_do_method(node, "_set_bones", new_bones);
-    undo_redo->add_undo_method(node, "_set_bones", prev_bones);
-    undo_redo->add_do_method(this, "_update_bone_list");
-    undo_redo->add_undo_method(this, "_update_bone_list");
-    undo_redo->add_do_method(uv_edit_draw, "update");
-    undo_redo->add_undo_method(uv_edit_draw, "update");
+    undo_redo->create_action_pair(TTR("Sync Bones"),
+        this->get_instance_id(),
+        [this,new_bones]() { // do actions
+            node->_set_bones(new_bones);
+            _update_bone_list();
+            uv_edit_draw->update();
+        },
+        [this,prev_bones]() { // undo actions
+            node->_set_bones(prev_bones);
+            _update_bone_list();
+            uv_edit_draw->update();
+        }
+    );
     undo_redo->commit_action();
 }
 
@@ -1065,7 +1070,7 @@ void Polygon2DEditor::_uv_draw() {
     }
 
     // All UV points are sharp, so use the sharp handle icon
-    Ref<Texture> handle = get_icon("EditorPathSharpHandle", "EditorIcons");
+    Ref<Texture> handle = get_theme_icon("EditorPathSharpHandle", "EditorIcons");
 
     Color poly_line_color = Color(0.9f, 0.5, 0.5);
     if (!polygons.empty() || !polygon_create.empty()) {
@@ -1246,23 +1251,7 @@ void Polygon2DEditor::_uv_draw() {
 }
 
 void Polygon2DEditor::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_uv_mode"), &Polygon2DEditor::_uv_mode);
-    MethodBinder::bind_method(D_METHOD("_uv_draw"), &Polygon2DEditor::_uv_draw);
-    MethodBinder::bind_method(D_METHOD("_uv_input"), &Polygon2DEditor::_uv_input);
-    MethodBinder::bind_method(D_METHOD("_uv_scroll_changed"), &Polygon2DEditor::_uv_scroll_changed);
-    MethodBinder::bind_method(D_METHOD("_set_use_snap"), &Polygon2DEditor::_set_use_snap);
-    MethodBinder::bind_method(D_METHOD("_set_show_grid"), &Polygon2DEditor::_set_show_grid);
-    MethodBinder::bind_method(D_METHOD("_set_snap_off_x"), &Polygon2DEditor::_set_snap_off_x);
-    MethodBinder::bind_method(D_METHOD("_set_snap_off_y"), &Polygon2DEditor::_set_snap_off_y);
-    MethodBinder::bind_method(D_METHOD("_set_snap_step_x"), &Polygon2DEditor::_set_snap_step_x);
-    MethodBinder::bind_method(D_METHOD("_set_snap_step_y"), &Polygon2DEditor::_set_snap_step_y);
-    MethodBinder::bind_method(D_METHOD("_uv_edit_mode_select"), &Polygon2DEditor::_uv_edit_mode_select);
-    MethodBinder::bind_method(D_METHOD("_uv_edit_popup_hide"), &Polygon2DEditor::_uv_edit_popup_hide);
-    MethodBinder::bind_method(D_METHOD("_sync_bones"), &Polygon2DEditor::_sync_bones);
-    MethodBinder::bind_method(D_METHOD("_update_bone_list"), &Polygon2DEditor::_update_bone_list);
     MethodBinder::bind_method(D_METHOD("_update_polygon_editing_state"), &Polygon2DEditor::_update_polygon_editing_state);
-    MethodBinder::bind_method(D_METHOD("_bone_paint_selected"), &Polygon2DEditor::_bone_paint_selected);
 }
 
 Vector2 Polygon2DEditor::snap_point(Vector2 p_target) const {

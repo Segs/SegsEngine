@@ -30,7 +30,6 @@
 
 #include "audio_effect_distortion.h"
 #include "core/method_bind.h"
-#include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 #include "core/math/math_funcs.h"
 #include "servers/audio_server.h"
@@ -38,7 +37,7 @@
 IMPL_GDCLASS(AudioEffectDistortionInstance)
 IMPL_GDCLASS(AudioEffectDistortion)
 
-VARIANT_ENUM_CAST(AudioEffectDistortion::Mode)
+VARIANT_ENUM_CAST(AudioEffectDistortion::Mode);
 
 void AudioEffectDistortionInstance::process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) {
 
@@ -184,11 +183,11 @@ void AudioEffectDistortion::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "drive", PropertyHint::Range, "0,1,0.01"), "set_drive", "get_drive");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "post_gain", PropertyHint::Range, "-80,24,0.01"), "set_post_gain", "get_post_gain");
 
-    BIND_ENUM_CONSTANT(MODE_CLIP)
-    BIND_ENUM_CONSTANT(MODE_ATAN)
-    BIND_ENUM_CONSTANT(MODE_LOFI)
-    BIND_ENUM_CONSTANT(MODE_OVERDRIVE)
-    BIND_ENUM_CONSTANT(MODE_WAVESHAPE)
+    BIND_ENUM_CONSTANT(MODE_CLIP);
+    BIND_ENUM_CONSTANT(MODE_ATAN);
+    BIND_ENUM_CONSTANT(MODE_LOFI);
+    BIND_ENUM_CONSTANT(MODE_OVERDRIVE);
+    BIND_ENUM_CONSTANT(MODE_WAVESHAPE);
 }
 
 AudioEffectDistortion::AudioEffectDistortion() {

@@ -38,40 +38,42 @@ class CollisionObject2D;
 
 class GODOT_EXPORT CollisionShape2D : public Node2D {
 
-	GDCLASS(CollisionShape2D,Node2D)
-	Ref<Shape2D> shape;
-	Rect2 rect;
-	uint32_t owner_id;
-	CollisionObject2D *parent;
-	void _shape_changed();
-	bool disabled;
-	bool one_way_collision;
-	float one_way_collision_margin;
+    GDCLASS(CollisionShape2D,Node2D)
+    Ref<Shape2D> shape;
+    Rect2 rect;
+    uint32_t owner_id;
+    CollisionObject2D *parent;
+    void _shape_changed();
+    bool disabled;
+    bool one_way_collision;
+    float one_way_collision_margin;
 
-	void _update_in_shape_owner(bool p_xform_only = false);
+    void _update_in_shape_owner(bool p_xform_only = false);
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
+#ifdef TOOLS_ENABLED
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
+#endif
 
-	void set_shape(const Ref<Shape2D> &p_shape);
-	Ref<Shape2D> get_shape() const;
+    void set_shape(const Ref<Shape2D> &p_shape);
+    Ref<Shape2D> get_shape() const;
 
-	void set_disabled(bool p_disabled);
-	bool is_disabled() const;
+    void set_disabled(bool p_disabled);
+    bool is_disabled() const;
 
-	void set_one_way_collision(bool p_enable);
-	bool is_one_way_collision_enabled() const;
+    void set_one_way_collision(bool p_enable);
+    bool is_one_way_collision_enabled() const;
 
-	void set_one_way_collision_margin(float p_margin);
-	float get_one_way_collision_margin() const;
+    void set_one_way_collision_margin(float p_margin);
+    float get_one_way_collision_margin() const;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
-	CollisionShape2D();
+    CollisionShape2D();
 };
 
 #endif // COLLISION_SHAPE_2D_H

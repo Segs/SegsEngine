@@ -36,181 +36,113 @@
 
 class SceneStringNames {
 
-	friend void register_scene_types();
-	friend void unregister_scene_types();
+    friend void register_scene_types();
+    friend void unregister_scene_types();
 
-	static SceneStringNames *singleton;
-
-	static void create() { singleton = memnew(SceneStringNames); }
-	static void free() {
-		memdelete(singleton);
-		singleton = nullptr;
-	}
-
-	SceneStringNames();
-
+    static void create();
+    static void free();
 public:
-	_FORCE_INLINE_ static SceneStringNames *get_singleton() { return singleton; }
+    static StringName _estimate_cost;
+    static StringName _compute_cost;
+    static StringName line_separation;
+    static StringName tree_exited;
+    static StringName resized;
+    static StringName dot;
+    static StringName doubledot;
+    static StringName draw;
+    static StringName hide;
+    static StringName visibility_changed;
+    static StringName input_event;
+    static StringName _input_event;
+    static StringName gui_input;
+    static StringName _gui_input;
+    static StringName item_rect_changed;
+    static StringName shader;
+    static StringName shader_unshaded;
+    static StringName shading_mode;
+    static StringName tree_entered;
+    static StringName tree_exiting;
+    static StringName ready;
+    static StringName size_flags_changed;
+    static StringName minimum_size_changed;
+    static StringName sleeping_state_changed;
+    static StringName mouse_entered;
+    static StringName mouse_exited;
+    static StringName focus_entered;
+    static StringName focus_exited;
+    static StringName sort_children;
+    static StringName finished;
+    static StringName animation_finished;
+    static StringName animation_changed;
+    static StringName animation_started;
+    static StringName body_shape_entered;
+    static StringName body_entered;
+    static StringName body_shape_exited;
+    static StringName body_exited;
+    static StringName area_shape_entered;
+    static StringName area_shape_exited;
+    static StringName _physics_process;
+    static StringName _process;
+    static StringName _enter_tree;
+    static StringName _exit_tree;
+    static StringName _draw;
+    static StringName _input;
+    static StringName _ready;
+    static StringName _unhandled_input;
+    static StringName _unhandled_key_input;
+    static StringName _pressed;
+    static StringName _toggled;
+    static StringName _update_scroll;
+    static StringName _clips_input;
+    static StringName _proxgroup_remove;
+    static StringName grouped;
+    static StringName ungrouped;
+    static StringName has_point;
+    static StringName get_drag_data;
+    static StringName can_drop_data;
+    static StringName drop_data;
+    static StringName screen_entered;
+    static StringName screen_exited;
+    static StringName viewport_entered;
+    static StringName viewport_exited;
+    static StringName camera_entered;
+    static StringName camera_exited;
+    static StringName changed;
+    static StringName offset;
+    static StringName unit_offset;
+    static StringName rotation_mode;
+    static StringName rotate;
+    static StringName v_offset;
+    static StringName h_offset;
+    static StringName transform_pos;
+    static StringName transform_rot;
+    static StringName transform_scale;
+    static StringName _update_remote;
+    static StringName _update_pairs;
+    static StringName area_entered;
+    static StringName area_exited;
+    static StringName _get_minimum_size;
+    static StringName _im_update;
+    static StringName _queue_update;
+    static StringName baked_light_changed;
+    static StringName _baked_light_changed;
+    static StringName _mouse_enter;
+    static StringName _mouse_exit;
+    static StringName frame_changed;
+    static StringName playback_speed;
+    static StringName playback_active;
+    static StringName autoplay;
+    static StringName blend_times;
+    static StringName speed;
+    static StringName _default;
+    static StringName node_configuration_warning_changed;
+    static StringName output;
+    static StringName parameters_base_path;
+    static StringName tracks_changed;
 
-	StringName _estimate_cost;
-	StringName _compute_cost;
+    static StringName physics_process_internal;
+    static StringName physics_process;
 
-	StringName resized;
-	StringName dot;
-	StringName doubledot;
-	StringName draw;
-	StringName hide;
-	StringName visibility_changed;
-	StringName input_event;
-	StringName _input_event;
-	StringName gui_input;
-	StringName _gui_input;
-	StringName item_rect_changed;
-	StringName shader;
-	StringName shader_unshaded;
-	StringName shading_mode;
-	StringName tree_entered;
-	StringName tree_exiting;
-	StringName tree_exited;
-	StringName ready;
-	StringName size_flags_changed;
-	StringName minimum_size_changed;
-	StringName sleeping_state_changed;
-	StringName idle;
-	StringName iteration;
-	StringName update;
-	StringName updated;
+    static NodePath path_pp;
 
-	StringName line_separation;
-
-	StringName mouse_entered;
-	StringName mouse_exited;
-	StringName focus_entered;
-	StringName focus_exited;
-
-	StringName sort_children;
-
-	StringName finished;
-	StringName emission_finished;
-	StringName animation_finished;
-	StringName animation_changed;
-	StringName animation_started;
-
-	StringName body_shape_entered;
-	StringName body_entered;
-	StringName body_shape_exited;
-	StringName body_exited;
-
-	StringName area_shape_entered;
-	StringName area_shape_exited;
-
-	StringName _body_inout;
-	StringName _area_inout;
-
-	StringName _get_gizmo_geometry;
-	StringName _can_gizmo_scale;
-
-	StringName _physics_process;
-	StringName _process;
-	StringName _enter_world;
-	StringName _exit_world;
-	StringName _enter_tree;
-	StringName _exit_tree;
-	StringName _draw;
-	StringName _input;
-	StringName _ready;
-	StringName _unhandled_input;
-	StringName _unhandled_key_input;
-
-	StringName _pressed;
-	StringName _toggled;
-
-	StringName _update_scroll;
-	StringName _update_xform;
-
-	StringName _clips_input;
-
-	StringName _proxgroup_add;
-	StringName _proxgroup_remove;
-
-	StringName grouped;
-	StringName ungrouped;
-
-	StringName has_point;
-	StringName get_drag_data;
-	StringName can_drop_data;
-	StringName drop_data;
-
-	StringName screen_entered;
-	StringName screen_exited;
-	StringName viewport_entered;
-	StringName viewport_exited;
-	StringName camera_entered;
-	StringName camera_exited;
-
-	StringName _body_enter_tree;
-	StringName _body_exit_tree;
-
-	StringName _area_enter_tree;
-	StringName _area_exit_tree;
-
-	StringName changed;
-	StringName _shader_changed;
-
-	StringName _spatial_editor_group;
-	StringName _request_gizmo;
-
-	StringName offset;
-	StringName unit_offset;
-	StringName rotation_mode;
-	StringName rotate;
-	StringName v_offset;
-	StringName h_offset;
-
-	StringName transform_pos;
-	StringName transform_rot;
-	StringName transform_scale;
-
-	StringName _update_remote;
-	StringName _update_pairs;
-
-	StringName area_entered;
-	StringName area_exited;
-
-	StringName _get_minimum_size;
-
-	StringName _im_update;
-	StringName _queue_update;
-
-	StringName baked_light_changed;
-	StringName _baked_light_changed;
-
-	StringName _mouse_enter;
-	StringName _mouse_exit;
-
-	StringName frame_changed;
-
-	StringName playback_speed;
-	StringName playback_active;
-	StringName autoplay;
-	StringName blend_times;
-	StringName speed;
-
-	NodePath path_pp;
-
-	StringName _default;
-
-	StringName node_configuration_warning_changed;
-
-	StringName output;
-
-	StringName parameters_base_path;
-
-	StringName tracks_changed;
-
-	enum {
-		MAX_MATERIALS = 32
-	};
-	StringName mesh_materials[MAX_MATERIALS];
-	StringName _mesh_changed;
 };

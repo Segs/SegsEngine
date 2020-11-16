@@ -103,7 +103,7 @@ struct AudioFrame {
         r = ::undenormalise(r);
     }
 
-    [[nodiscard]] _FORCE_INLINE_ AudioFrame linear_interpolate(const AudioFrame &p_b, float p_t) const {
+    [[nodiscard]] _FORCE_INLINE_ AudioFrame lerp(const AudioFrame &p_b, float p_t) const {
 
         AudioFrame res = *this;
 

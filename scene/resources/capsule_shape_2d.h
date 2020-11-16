@@ -46,7 +46,9 @@ protected:
     static void _bind_methods();
 
 public:
+#ifdef TOOLS_ENABLED
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
+#endif
 
     void set_height(real_t p_height);
     real_t get_height() const;

@@ -26,7 +26,7 @@
 	#include "Atomics.h"
 
 	#define WIN32_LEAN_AND_MEAN
-	#include <windows.h>
+	#include <Windows.h>
 	
 	#define THREADFUNC_DECL DWORD WINAPI
 	#define THREAD_LOCAL __declspec( thread )

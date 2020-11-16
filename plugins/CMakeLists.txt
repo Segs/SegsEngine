@@ -13,6 +13,7 @@ foreach(tgt ${global_targets})
     target_link_libraries(${tgt}_plug_registry PRIVATE ${tgt}_core)
     add_plugins_to_target(${tgt}_plug_registry ${tgt})
     set_common_target_properties(${tgt}_plug_registry)
+    target_link_libraries(${tgt}_engine PRIVATE ${tgt}_plug_registry)
 endforeach()
 
 

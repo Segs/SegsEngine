@@ -82,6 +82,7 @@ public:
         TK_INTERPOLATION_FLAT,
         TK_INTERPOLATION_SMOOTH,
         TK_CONST,
+        TK_STRUCT,
         TK_PRECISION_LOW,
         TK_PRECISION_MID,
         TK_PRECISION_HIGH,
@@ -142,6 +143,8 @@ public:
         TK_SEMICOLON,
         TK_PERIOD,
         TK_UNIFORM,
+        TK_INSTANCE,
+        TK_GLOBAL,
         TK_VARYING,
         TK_ARG_IN,
         TK_ARG_OUT,
@@ -150,11 +153,26 @@ public:
         TK_HINT_WHITE_TEXTURE,
         TK_HINT_BLACK_TEXTURE,
         TK_HINT_NORMAL_TEXTURE,
+        TK_HINT_ROUGHNESS_NORMAL_TEXTURE,
+        TK_HINT_ROUGHNESS_R,
+        TK_HINT_ROUGHNESS_G,
+        TK_HINT_ROUGHNESS_B,
+        TK_HINT_ROUGHNESS_A,
+        TK_HINT_ROUGHNESS_GRAY,
         TK_HINT_ANISO_TEXTURE,
         TK_HINT_ALBEDO_TEXTURE,
         TK_HINT_BLACK_ALBEDO_TEXTURE,
         TK_HINT_COLOR,
         TK_HINT_RANGE,
+        TK_HINT_INSTANCE_INDEX,
+        TK_FILTER_NEAREST,
+        TK_FILTER_LINEAR,
+        TK_FILTER_NEAREST_MIPMAP,
+        TK_FILTER_LINEAR_MIPMAP,
+        TK_FILTER_NEAREST_MIPMAP_ANISO,
+        TK_FILTER_LINEAR_MIPMAP_ANISO,
+        TK_REPEAT_ENABLE,
+        TK_REPEAT_DISABLE,
         TK_SHADER_TYPE,
         TK_CURSOR,
         TK_ERROR,
@@ -200,7 +218,9 @@ public:
         TYPE_ISAMPLER3D,
         TYPE_USAMPLER3D,
         TYPE_SAMPLERCUBE,
-        TYPE_SAMPLEREXT,
+        TYPE_SAMPLEREXT, //TYPE_SAMPLERCUBEARRAY,
+        TYPE_STRUCT,
+        TYPE_MAX
     };
 
     enum DataPrecision {
@@ -256,6 +276,7 @@ public:
         OP_POST_DECREMENT,
         OP_CALL,
         OP_CONSTRUCT,
+        OP_STRUCT,
         OP_INDEX,
         OP_MAX
     };
@@ -298,6 +319,8 @@ public:
             TYPE_MEMBER,
             TYPE_ARRAY,
             TYPE_ARRAY_DECLARATION,
+            TYPE_ARRAY_CONSTRUCT,
+            TYPE_STRUCT,
         };
 
         Node *next = nullptr;
@@ -409,6 +432,7 @@ public:
     struct BlockNode : public Node {
         enum BlockType {
             BLOCK_TYPE_STANDART,
+            BLOCK_TYPE_FOR,
             BLOCK_TYPE_SWITCH,
             BLOCK_TYPE_CASE,
             BLOCK_TYPE_DEFAULT,
@@ -416,6 +440,7 @@ public:
 
         struct Variable {
             DataType type;
+            StringName struct_name;
             DataPrecision precision;
             int line; //for completion
             int array_size;
@@ -508,6 +533,12 @@ public:
                 HINT_ALBEDO,
                 HINT_BLACK_ALBEDO,
                 HINT_NORMAL,
+                HINT_ROUGHNESS_NORMAL,
+                HINT_ROUGHNESS_R,
+                HINT_ROUGHNESS_G,
+                HINT_ROUGHNESS_B,
+                HINT_ROUGHNESS_A,
+                HINT_ROUGHNESS_GRAY,
                 HINT_BLACK,
                 HINT_WHITE,
                 HINT_ANISO,

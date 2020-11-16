@@ -10,19 +10,19 @@ namespace jl
 
 // Forward declarations
 class SignalBase;
-//provides access to default allocator
-ScopedAllocator *defaultAllocator();
 // Derive from this class to receive signals
 class GODOT_EXPORT SignalObserver
 {
     // Public interface
 public:
-    virtual ~SignalObserver();
+    virtual ~SignalObserver() {
+        DisconnectAllSignals();
+    }
 
     void DisconnectAllSignals();
     void DisconnectSignal(SignalBase *pSignal);
 
-    SignalObserver() { /*SetConnectionAllocator( defaultAllocator() )*/; }
+    SignalObserver() {}
 private:
     friend class SignalBase;
 
@@ -54,7 +54,6 @@ public:
 private:
     SignalList m_oSignals;
 };
-
 class GODOT_EXPORT SignalBase
 {
 public:
@@ -76,9 +75,25 @@ private:
     friend class SignalObserver;
     virtual void OnObserverDisconnect(SignalObserver *pObserver) = 0;
 
-    // Global allocator
+};
+template<bool is_lockable>
+class GODOT_EXPORT LockableSignal : public SignalBase {
+
+};
+template<>
+class GODOT_EXPORT LockableSignal<true> : public SignalBase {
+    bool locked;
 public:
-    static void SetCommonConnectionAllocator(ScopedAllocator *pAllocator);
+    bool is_locked() const { return locked; }
+    void lock() { locked = true; }
+    void unlock() { locked = false; }
+};
+template<>
+class GODOT_EXPORT LockableSignal<false> : public SignalBase {
+public:
+    constexpr bool is_locked() const { return false; }
+    constexpr void lock() { }
+    constexpr void unlock() { }
 };
 
 } // namespace jl

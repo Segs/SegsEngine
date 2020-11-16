@@ -38,6 +38,7 @@
 #include "core/reference.h"
 #include "core/class_db.h"
 #include "core/print_string.h"
+#include "core/rid.h"
 #ifdef TOOLS_ENABLED
 #include "editor/script_editor_debugger.h"
 #endif
@@ -57,9 +58,9 @@ namespace GDMonoUtils {
 
 MonoObject *unmanaged_get_managed(Object *unmanaged) {
 
-	if (!unmanaged) {
+    if (!unmanaged) {
         return nullptr;
-	}
+    }
 
     if (unmanaged->get_script_instance()) {
         CSharpInstance *cs_instance = CAST_CSHARP_INSTANCE(unmanaged->get_script_instance());
@@ -89,13 +90,13 @@ MonoObject *unmanaged_get_managed(Object *unmanaged) {
         }
     }
 
-	MonoGCHandleData &gchandle = script_binding.gchandle;
+    MonoGCHandleData &gchandle = script_binding.gchandle;
 
-	MonoObject *target = gchandle.get_target();
+    MonoObject *target = gchandle.get_target();
 
-	if (target) {
+    if (target) {
         return target;
-	}
+    }
 
     CSharpLanguage::get_singleton()->release_script_gchandle(gchandle);
 
@@ -109,7 +110,7 @@ MonoObject *unmanaged_get_managed(Object *unmanaged) {
     MonoObject *mono_object = GDMonoUtils::create_managed_for_godot_object(script_binding.wrapper_class, script_binding.type_name, unmanaged);
     ERR_FAIL_NULL_V(mono_object, nullptr);
 
-	gchandle = MonoGCHandleData::new_strong_handle(mono_object);
+    gchandle = MonoGCHandleData::new_strong_handle(mono_object);
 
     // Tie managed to unmanaged
     RefCounted *ref = object_cast<RefCounted>(unmanaged);
@@ -163,19 +164,19 @@ bool is_thread_attached() {
 }
 
 uint32_t new_strong_gchandle(MonoObject *p_object) {
-	return mono_gchandle_new(p_object, /* pinned: */ false);
+    return mono_gchandle_new(p_object, /* pinned: */ false);
 }
 
 uint32_t new_strong_gchandle_pinned(MonoObject *p_object) {
-	return mono_gchandle_new(p_object, /* pinned: */ true);
+    return mono_gchandle_new(p_object, /* pinned: */ true);
 }
 
 uint32_t new_weak_gchandle(MonoObject *p_object) {
-	return mono_gchandle_new_weakref(p_object, /* track_resurrection: */ false);
+    return mono_gchandle_new_weakref(p_object, /* track_resurrection: */ false);
 }
 
 void free_gchandle(uint32_t p_gchandle) {
-	mono_gchandle_free(p_gchandle);
+    mono_gchandle_free(p_gchandle);
 }
 
 GODOT_EXPORT void runtime_object_init(MonoObject *p_this_obj, GDMonoClass *p_class, MonoException **r_exc) {
@@ -185,10 +186,10 @@ GODOT_EXPORT void runtime_object_init(MonoObject *p_this_obj, GDMonoClass *p_cla
 }
 
 bool mono_delegate_equal(MonoDelegate *p_a, MonoDelegate *p_b) {
-	MonoException *exc = nullptr;
-	MonoBoolean res = CACHED_METHOD_THUNK(Delegate, Equals).invoke((MonoObject *)p_a, (MonoObject *)p_b, &exc);
-	UNHANDLED_EXCEPTION(exc);
-	return (bool)res;
+    MonoException *exc = nullptr;
+    MonoBoolean res = CACHED_METHOD_THUNK(Delegate, Equals).invoke((MonoObject *)p_a, (MonoObject *)p_b, &exc);
+    UNHANDLED_EXCEPTION(exc);
+    return (bool)res;
 }
 
 GDMonoClass *get_object_class(MonoObject *p_object) {
@@ -222,13 +223,13 @@ GDMonoClass *get_class_native_base(GDMonoClass *p_class) {
 
     do {
         const GDMonoAssembly *assembly = klass->get_assembly();
-		if (assembly == GDMono::get_singleton()->get_core_api_assembly()) {
+        if (assembly == GDMono::get_singleton()->get_core_api_assembly()) {
             return klass;
-		}
+        }
 #ifdef TOOLS_ENABLED
-		if (assembly == GDMono::get_singleton()->get_editor_api_assembly()) {
+        if (assembly == GDMono::get_singleton()->get_editor_api_assembly()) {
             return klass;
-		}
+        }
 #endif
     } while ((klass = klass->get_parent_class()) != nullptr);
 
@@ -407,9 +408,9 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
     }
 
     static thread_local bool _recursion_flag_ = false;
-	if (_recursion_flag_) {
+    if (_recursion_flag_) {
         return;
-	}
+    }
     _recursion_flag_ = true;
     SCOPE_EXIT { _recursion_flag_ = false; };
 
@@ -491,36 +492,36 @@ void set_pending_exception(MonoException *p_exc) {
 thread_local int current_invoke_count = 0;
 
 MonoObject *runtime_invoke(MonoMethod *p_method, void *p_obj, void **p_params, MonoException **r_exc) {
-	GD_MONO_BEGIN_RUNTIME_INVOKE;
+    GD_MONO_BEGIN_RUNTIME_INVOKE;
     MonoObject *ret = mono_runtime_invoke(p_method, p_obj, p_params, (MonoObject **)r_exc);
-	GD_MONO_END_RUNTIME_INVOKE;
+    GD_MONO_END_RUNTIME_INVOKE;
     return ret;
 }
 
 MonoObject *runtime_invoke_array(MonoMethod *p_method, void *p_obj, MonoArray *p_params, MonoException **r_exc) {
-	GD_MONO_BEGIN_RUNTIME_INVOKE;
+    GD_MONO_BEGIN_RUNTIME_INVOKE;
     MonoObject *ret = mono_runtime_invoke_array(p_method, p_obj, p_params, (MonoObject **)r_exc);
-	GD_MONO_END_RUNTIME_INVOKE;
+    GD_MONO_END_RUNTIME_INVOKE;
     return ret;
 }
 
 MonoString *object_to_string(MonoObject *p_obj, MonoException **r_exc) {
-	GD_MONO_BEGIN_RUNTIME_INVOKE;
+    GD_MONO_BEGIN_RUNTIME_INVOKE;
     MonoString *ret = mono_object_to_string(p_obj, (MonoObject **)r_exc);
-	GD_MONO_END_RUNTIME_INVOKE;
+    GD_MONO_END_RUNTIME_INVOKE;
     return ret;
 }
 
 void property_set_value(MonoProperty *p_prop, void *p_obj, void **p_params, MonoException **r_exc) {
-	GD_MONO_BEGIN_RUNTIME_INVOKE;
+    GD_MONO_BEGIN_RUNTIME_INVOKE;
     mono_property_set_value(p_prop, p_obj, p_params, (MonoObject **)r_exc);
-	GD_MONO_END_RUNTIME_INVOKE;
+    GD_MONO_END_RUNTIME_INVOKE;
 }
 
 MonoObject *property_get_value(MonoProperty *p_prop, void *p_obj, void **p_params, MonoException **r_exc) {
-	GD_MONO_BEGIN_RUNTIME_INVOKE;
+    GD_MONO_BEGIN_RUNTIME_INVOKE;
     MonoObject *ret = mono_property_get_value(p_prop, p_obj, p_params, (MonoObject **)r_exc);
-	GD_MONO_END_RUNTIME_INVOKE;
+    GD_MONO_END_RUNTIME_INVOKE;
     return ret;
 }
 
@@ -562,8 +563,8 @@ namespace Marshal {
 #ifdef TOOLS_ENABLED
 #define NO_GLUE_RET(m_ret)                                                   \
     {                                                                        \
-		if (!GDMonoCache::cached_data.godot_api_cache_updated) \
-			return m_ret;                                      \
+        if (!GDMonoCache::cached_data.godot_api_cache_updated) \
+            return m_ret;                                      \
     }
 #else
 #define NO_GLUE_RET(m_ret) \

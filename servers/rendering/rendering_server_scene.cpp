@@ -786,7 +786,7 @@ void VisualServerScene::instance_set_surface_material(RID p_instance, int p_surf
     if (instance->materials[p_surface].is_valid()) {
         VSG::storage->material_remove_instance_owner(instance->materials[p_surface], instance);
     }
-    instance->materials.write()[p_surface] = p_material;
+    instance->materials[p_surface] = p_material;
     instance->base_changed(false, true);
 
     if (instance->materials[p_surface].is_valid()) {
@@ -1988,7 +1988,7 @@ void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVREyes 
 
     // And render our scene...
     _render_scene(cam_transform, camera_matrix, false, camera->env, p_scenario, p_shadow_atlas, RID(), -1);
-};
+}
 
 void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_force_environment, uint32_t p_visible_layers, RID p_scenario, RID p_shadow_atlas, RID p_reflection_probe) {
     SCOPE_AUTONAMED
@@ -2100,7 +2100,7 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
             InstanceGeometryData *geom = get_instance_geometry(ins->self);
             GeometryComponent & gcomp = get_component<GeometryComponent>(ins->self);
             if (ins->redraw_if_visible) {
-                VisualServerRaster::redraw_request();
+                RenderingServerRaster::redraw_request();
             }
 
             if (ins->base_type == RS::INSTANCE_PARTICLES) {
@@ -2111,7 +2111,7 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
                 } else {
                     VSG::storage->particles_request_process(ins->base);
                     //particles visible? request redraw
-                    VisualServerRaster::redraw_request();
+                    RenderingServerRaster::redraw_request();
                 }
             }
 
@@ -2119,7 +2119,7 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
                 int l = 0;
                 //only called when lights AABB enter/exit this geometry
                 ins->light_instances.resize(geom->lighting.size());
-                auto l_wr(ins->light_instances.write());
+                auto &l_wr(ins->light_instances);
                 for (Instance * E : geom->lighting) {
 
                     InstanceLightData *light = static_cast<InstanceLightData *>(E->base_data);
@@ -2134,7 +2134,7 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
                 int l = 0;
                 //only called when reflection probe AABB enter/exit this geometry
                 ins->reflection_probe_instances.resize(geom->reflection_probes.size());
-                auto wr(ins->reflection_probe_instances.write());
+                auto &wr(ins->reflection_probe_instances);
                 for (Instance * E : geom->reflection_probes) {
 
                     InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(E->base_data);
@@ -2149,7 +2149,7 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
                 int l = 0;
                 //only called when reflection probe AABB enter/exit this geometry
                 ins->gi_probe_instances.resize(geom->gi_probes.size());
-                auto wr(ins->gi_probe_instances.write());
+                auto &wr(ins->gi_probe_instances);
 
                 for (Instance * E : geom->gi_probes) {
 
@@ -2360,7 +2360,7 @@ bool VisualServerScene::_render_reflection_probe_step(Instance *p_instance, int 
     Scenario *scenario = p_instance->scenario;
     ERR_FAIL_COND_V(!scenario, true);
 
-    VisualServerRaster::redraw_request(); //update, so it updates in editor
+    RenderingServerRaster::redraw_request(); //update, so it updates in editor
 
     if (p_step == 0) {
 

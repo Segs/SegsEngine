@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/callable.h"
 #include "core/engine.h"
 #include "core/io/logger.h"
 #include "core/math/rect2.h"
@@ -89,9 +90,10 @@ public:
 
     enum RenderThreadMode {
 
-        RENDER_THREAD_UNSAFE,
-        RENDER_THREAD_SAFE,
-        RENDER_SEPARATE_THREAD
+        //RENDER_THREAD_UNSAFE,
+        RENDER_THREAD_SAFE=1,
+        RENDER_SEPARATE_THREAD,
+        RENDER_THREAD_MAX
     };
     struct VideoMode {
 
@@ -447,11 +449,6 @@ public:
 
         SCREEN_LANDSCAPE,
         SCREEN_PORTRAIT,
-        SCREEN_REVERSE_LANDSCAPE,
-        SCREEN_REVERSE_PORTRAIT,
-        SCREEN_SENSOR_LANDSCAPE,
-        SCREEN_SENSOR_PORTRAIT,
-        SCREEN_SENSOR,
     };
 
     virtual void set_screen_orientation(ScreenOrientation p_orientation);
@@ -484,8 +481,8 @@ public:
 
     virtual bool can_use_threads() const;
 
-    virtual Error dialog_show(UIString p_title, UIString p_description, const Vector<UIString> p_buttons, Object *p_obj, const StringName &p_callback);
-    virtual Error dialog_input_text(const UIString &p_title, const UIString &p_description, const UIString &p_partial, Object *p_obj, const StringName &p_callback);
+    //virtual Error dialog_show(UIString p_title, UIString p_description, const Vector<UIString> &p_buttons, const Callable &p_callback);
+    //virtual Error dialog_input_text(const UIString &p_title, const UIString &p_description, const UIString &p_partial, Object *p_obj, const StringName &p_callback);
 
     enum LatinKeyboardVariant {
         LATIN_KEYBOARD_QWERTY,

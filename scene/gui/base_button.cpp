@@ -31,6 +31,7 @@
 #include "base_button.h"
 
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/os/keyboard.h"
 #include "core/script_language.h"
 #include "scene/gui/control_enum_casters.h"
@@ -40,8 +41,8 @@
 IMPL_GDCLASS(BaseButton)
 IMPL_GDCLASS(ButtonGroup)
 
-VARIANT_ENUM_CAST(BaseButton::DrawMode)
-VARIANT_ENUM_CAST(BaseButton::ActionMode)
+VARIANT_ENUM_CAST(BaseButton::DrawMode);
+VARIANT_ENUM_CAST(BaseButton::ActionMode);
 
 
 void BaseButton::_unpress_group() {
@@ -139,7 +140,7 @@ void BaseButton::_notification(int p_what) {
 void BaseButton::_pressed() {
 
     if (get_script_instance()) {
-        get_script_instance()->call(SceneStringNames::get_singleton()->_pressed);
+        get_script_instance()->call(SceneStringNames::_pressed);
     }
     pressed();
     emit_signal("pressed");
@@ -148,9 +149,10 @@ void BaseButton::_pressed() {
 void BaseButton::_toggled(bool p_pressed) {
 
     if (get_script_instance()) {
-        get_script_instance()->call(SceneStringNames::get_singleton()->_toggled, p_pressed);
+        get_script_instance()->call(SceneStringNames::_toggled, p_pressed);
     }
     toggled(p_pressed);
+    sig_toggled(p_pressed);
     emit_signal("toggled", p_pressed);
 }
 
@@ -454,14 +456,14 @@ void BaseButton::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shortcut", PropertyHint::ResourceType, "ShortCut"), "set_shortcut", "get_shortcut");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "group", PropertyHint::ResourceType, "ButtonGroup"), "set_button_group", "get_button_group");
 
-    BIND_ENUM_CONSTANT(DRAW_NORMAL)
-    BIND_ENUM_CONSTANT(DRAW_PRESSED)
-    BIND_ENUM_CONSTANT(DRAW_HOVER)
-    BIND_ENUM_CONSTANT(DRAW_DISABLED)
-    BIND_ENUM_CONSTANT(DRAW_HOVER_PRESSED)
+    BIND_ENUM_CONSTANT(DRAW_NORMAL);
+    BIND_ENUM_CONSTANT(DRAW_PRESSED);
+    BIND_ENUM_CONSTANT(DRAW_HOVER);
+    BIND_ENUM_CONSTANT(DRAW_DISABLED);
+    BIND_ENUM_CONSTANT(DRAW_HOVER_PRESSED);
 
-    BIND_ENUM_CONSTANT(ACTION_MODE_BUTTON_PRESS)
-    BIND_ENUM_CONSTANT(ACTION_MODE_BUTTON_RELEASE)
+    BIND_ENUM_CONSTANT(ACTION_MODE_BUTTON_PRESS);
+    BIND_ENUM_CONSTANT(ACTION_MODE_BUTTON_RELEASE);
 }
 
 BaseButton::BaseButton() {

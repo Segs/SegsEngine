@@ -71,7 +71,7 @@ public:
 
 	void force_update_cache();
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
 	RemoteTransform2D();
 };

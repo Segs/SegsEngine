@@ -3,7 +3,7 @@ set(exporter_sources)
 set(editor_sources_gen)
 set(editor_3rdparty)
 
-if(NOT OPTION_TOOLS)
+if (NOT ("editor" IN_LIST global_targets))
     return()
 endif()
 
@@ -64,8 +64,6 @@ file(GLOB source_files "*.cpp")
 file(GLOB header_files "*.h")
 
 list(APPEND editor_sources ${source_files} editor.qrc ${header_files})
-list(APPEND editor_3rdparty ${PROJECT_SOURCE_DIR}/thirdparty/misc/clipper.cpp)
-#list(APPEND editor_sources register_exporters.gen.cpp)
 
 target_sources(edit_tools PRIVATE ${editor_sources} ${exporter_sources}
     ${editor_sources_gen}
@@ -79,12 +77,9 @@ set_target_properties(edit_tools PROPERTIES AUTORCC_OPTIONS "--compress;7;--verb
 set_target_properties(edit_tools PROPERTIES AUTORCC ON)
 #target_link_libraries(edit_tools PUBLIC drivers scene)
 
-target_link_libraries(edit_tools PUBLIC Qt5::Core)
+target_link_libraries(edit_tools PRIVATE editor_core editor_modules)
+target_link_libraries(editor_engine PRIVATE edit_tools)
 
-foreach(tgt ${global_targets})
-    target_link_libraries(edit_tools PRIVATE ${tgt}_core ${tgt}_modules)
-    target_link_libraries(edit_tools PRIVATE ${tgt}_plug_registry)
-endforeach()
 if(USE_UNITY_BUILDS)
     set_target_properties(edit_tools PROPERTIES UNITY_BUILD ON)
     set_target_properties(edit_tools PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE}) # NOTE: this has been reduce to allow VS2017 to preperly create obj file.
@@ -94,6 +89,8 @@ if(USE_UNITY_BUILDS)
         target_compile_options(edit_tools PRIVATE -Wa,-mbig-obj)
     endif()
 endif()
+
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${editor_sources})
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${editor_3rdparty})
 source_group(Generated FILES ${editor_sources_gen})

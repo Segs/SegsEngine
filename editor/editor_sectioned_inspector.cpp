@@ -33,6 +33,8 @@
 #include "core/callable_method_pointer.h"
 #include "core/object_db.h"
 #include "core/object_tooling.h"
+#include "core/ustring.h"
+
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(SectionedInspector)
@@ -141,9 +143,6 @@ IMPL_GDCLASS(SectionedInspectorFilter)
 
 void SectionedInspector::_bind_methods() {
 
-    MethodBinder::bind_method("_section_selected", &SectionedInspector::_section_selected);
-    MethodBinder::bind_method("_search_changed", &SectionedInspector::_search_changed);
-
     MethodBinder::bind_method("update_category_list", &SectionedInspector::update_category_list);
 }
 
@@ -241,28 +240,27 @@ void SectionedInspector::update_category_list() {
     if (search_box)
         filter = search_box->get_text();
 
+    UIString filter_ui(from_utf8(filter));
     for (const PropertyInfo &pi : pinfo) {
 
-        if (pi.usage & PROPERTY_USAGE_CATEGORY)
-            continue;
-        else if (!(pi.usage & PROPERTY_USAGE_EDITOR))
+        if (pi.usage & PROPERTY_USAGE_CATEGORY || !(pi.usage & PROPERTY_USAGE_EDITOR))
             continue;
 
-        if (StringUtils::contains(pi.name, ':') || pi.name == "script" || pi.name == "resource_name" ||
+        if (contains(pi.name, ':') || pi.name == "script" || pi.name == "resource_name" ||
                 pi.name == "resource_path" || pi.name == "resource_local_to_scene" ||
-                StringUtils::begins_with(pi.name, "_global_script"))
+                begins_with(pi.name, "_global_script"))
             continue;
 
-        if (!filter.empty() && !is_subsequence_of(filter, capitalize(pi.name), CaseInsensitive) &&
-                !is_subsequence_of(filter, capitalize(String(pi.name).replaced("/", " ")), CaseInsensitive))
+        if (!filter.empty() && !from_utf8(pi.name).contains(filter_ui,Qt::CaseInsensitive) &&
+                !from_utf8(capitalize(pi.name).replaced("/", " ")).contains(filter_ui,Qt::CaseInsensitive))
             continue;
 
-        auto sp = StringUtils::find(pi.name,"/");
+        auto sp = find(pi.name,"/");
         String p_name(pi.name);
         if (sp == String::npos)
             p_name = "global/" + p_name;
 
-        Vector<StringView> sectionarr = StringUtils::split(p_name,'/');
+        Vector<StringView> sectionarr = split(p_name,'/');
         String metasection;
 
 
@@ -271,7 +269,7 @@ void SectionedInspector::update_category_list() {
         for (int i = 0; i < sc; i++) {
 
             TreeItem *parent = section_map[metasection];
-            parent->set_custom_bg_color(0, get_color("prop_subsection", "Editor"));
+            parent->set_custom_bg_color(0, get_theme_color("prop_subsection", "Editor"));
 
             if (i > 0) {
                 metasection += String("/") + sectionarr[i];
@@ -282,7 +280,7 @@ void SectionedInspector::update_category_list() {
             if (!section_map.contains(metasection)) {
                 TreeItem *ms = sections->create_item(parent);
                 section_map[metasection] = ms;
-                ms->set_text_utf8(0, StringUtils::capitalize(sectionarr[i]));
+                ms->set_text_utf8(0, capitalize(sectionarr[i]));
                 ms->set_metadata(0, metasection);
                 ms->set_selectable(0, false);
             }

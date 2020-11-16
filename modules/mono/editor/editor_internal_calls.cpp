@@ -98,7 +98,7 @@ MonoString *godot_icall_GodotSharpDirs_MonoSolutionsDir() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_mono_solutions_dir());
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
@@ -106,7 +106,7 @@ MonoString *godot_icall_GodotSharpDirs_BuildLogsDirs() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_build_logs_dir());
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
@@ -114,7 +114,7 @@ MonoString *godot_icall_GodotSharpDirs_ProjectSlnPath() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_project_sln_path());
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
@@ -122,7 +122,7 @@ MonoString *godot_icall_GodotSharpDirs_ProjectCsProjPath() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_project_csproj_path());
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
@@ -130,7 +130,7 @@ MonoString *godot_icall_GodotSharpDirs_DataEditorToolsDir() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_data_editor_tools_dir());
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
@@ -138,7 +138,7 @@ MonoString *godot_icall_GodotSharpDirs_DataEditorPrebuiltApiDir() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_data_editor_prebuilt_api_dir());
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
@@ -243,13 +243,14 @@ uint32_t godot_icall_ExportPlugin_GetExportedAssemblyDependencies(MonoObject *p_
 
     return GodotSharpExport::get_exported_assembly_dependencies(initial_dependencies, build_config, custom_bcl_dir, assembly_dependencies);
 }
+#ifdef TOOLS_ENABLED
 
 MonoString *godot_icall_Internal_UpdateApiAssembliesFromPrebuilt(MonoString *p_config) {
     String config = GDMonoMarshal::mono_string_to_godot(p_config);
     String error_str = GDMono::get_singleton()->update_api_assemblies_from_prebuilt(config);
     return GDMonoMarshal::mono_string_from_godot(error_str);
 }
-
+#endif
 MonoString *godot_icall_Internal_FullTemplatesDir() {
     String full_templates_dir = PathUtils::plus_file(EditorSettings::get_singleton()->get_templates_dir(),VERSION_FULL_CONFIG);
     return GDMonoMarshal::mono_string_from_godot(full_templates_dir);
@@ -304,7 +305,8 @@ MonoBoolean godot_icall_Internal_IsAssembliesReloadingNeeded() {
 
 void godot_icall_Internal_ReloadAssemblies(MonoBoolean p_soft_reload) {
 #ifdef GD_MONO_HOT_RELOAD
-    _GodotSharp::get_singleton()->call_deferred("_reload_assemblies", (bool)p_soft_reload);
+    _GodotSharp::get_singleton()->call_deferred([p_soft_reload] {
+        _GodotSharp::get_singleton()->_reload_assemblies((bool)p_soft_reload);});
 #endif
 }
 
@@ -318,7 +320,7 @@ MonoBoolean godot_icall_Internal_ScriptEditorEdit(MonoObject *p_resource, int32_
 }
 
 void godot_icall_Internal_EditorNodeShowScriptScreen() {
-    EditorNode::get_singleton()->call_va("_editor_select", EditorNode::EDITOR_SCRIPT);
+    EditorNode::get_singleton()->_editor_select(EditorNode::EDITOR_SCRIPT);
 }
 
 MonoObject *godot_icall_Internal_GetScriptsMetadataOrNothing(MonoReflectionType *p_dict_reftype) {
@@ -444,7 +446,9 @@ void register_editor_internal_calls() {
     mono_add_internal_call("GodotTools.Export.ExportPlugin::internal_GetExportedAssemblyDependencies", (void *)godot_icall_ExportPlugin_GetExportedAssemblyDependencies);
 
     // Internals
+#ifdef TOOLS_ENABLED
     mono_add_internal_call("GodotTools.Internals.Internal::internal_UpdateApiAssembliesFromPrebuilt", (void *)godot_icall_Internal_UpdateApiAssembliesFromPrebuilt);
+#endif
     mono_add_internal_call("GodotTools.Internals.Internal::internal_FullTemplatesDir", (void *)godot_icall_Internal_FullTemplatesDir);
     mono_add_internal_call("GodotTools.Internals.Internal::internal_SimplifyGodotPath", (void *)godot_icall_Internal_SimplifyGodotPath);
     mono_add_internal_call("GodotTools.Internals.Internal::internal_IsOsxAppBundleInstalled", (void *)godot_icall_Internal_IsOsxAppBundleInstalled);

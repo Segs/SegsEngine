@@ -38,7 +38,7 @@
 #include "core/resource/resource_manager.h"
 
 #include "editor/editor_node.h"
-#include "editor/plugins/spatial_editor_plugin.h"
+#include "editor/plugins/node_3d_editor_plugin.h"
 #include "editor/scene_tree_dock.h"
 #include "scene/3d/cpu_particles_3d.h"
 #include "scene/main/scene_tree.h"
@@ -213,11 +213,7 @@ void ParticlesEditorBase::_node_selected(const NodePath &p_path) {
     emission_dialog->popup_centered(Size2(300, 130));
 }
 
-void ParticlesEditorBase::_bind_methods() {
 
-    MethodBinder::bind_method("_node_selected", &ParticlesEditorBase::_node_selected);
-    MethodBinder::bind_method("_generate_emission_points", &ParticlesEditorBase::_generate_emission_points);
-}
 
 ParticlesEditorBase::ParticlesEditorBase() {
 
@@ -259,7 +255,7 @@ void ParticlesEditor::_node_removed(Node *p_node) {
 void ParticlesEditor::_notification(int p_notification) {
 
     if (p_notification == NOTIFICATION_ENTER_TREE) {
-        options->set_button_icon(options->get_popup()->get_icon("GPUParticles3D", "EditorIcons"));
+        options->set_button_icon(options->get_popup()->get_theme_icon("GPUParticles3D", "EditorIcons"));
         get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
     }
 }
@@ -434,18 +430,13 @@ void ParticlesEditor::_generate_emission_points() {
     }
 }
 
-void ParticlesEditor::_bind_methods() {
 
-    MethodBinder::bind_method("_menu_option", &ParticlesEditor::_menu_option);
-    MethodBinder::bind_method("_generate_aabb", &ParticlesEditor::_generate_aabb);
-    MethodBinder::bind_method("_node_removed", &ParticlesEditor::_node_removed);
-}
 
 ParticlesEditor::ParticlesEditor() {
 
     node = nullptr;
     particles_editor_hb = memnew(HBoxContainer);
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(particles_editor_hb);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(particles_editor_hb);
     options = memnew(MenuButton);
     options->set_switch_on_hover(true);
     particles_editor_hb->add_child(options);

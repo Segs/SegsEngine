@@ -36,7 +36,7 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(AnimationNodeBlendSpace2D)
-VARIANT_ENUM_CAST(AnimationNodeBlendSpace2D::BlendMode)
+VARIANT_ENUM_CAST(AnimationNodeBlendSpace2D::BlendMode);
 
 void AnimationNodeBlendSpace2D::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     r_list->emplace_back(VariantType::VECTOR2, blend_position);
@@ -320,7 +320,7 @@ void AnimationNodeBlendSpace2D::_queue_auto_triangles() {
     }
 
     trianges_dirty = true;
-    call_deferred("_update_triangles");
+    call_deferred([this] {_update_triangles();});
 }
 
 void AnimationNodeBlendSpace2D::_update_triangles() {
@@ -648,7 +648,6 @@ void AnimationNodeBlendSpace2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_blend_mode", {"mode"}), &AnimationNodeBlendSpace2D::set_blend_mode);
     MethodBinder::bind_method(D_METHOD("get_blend_mode"), &AnimationNodeBlendSpace2D::get_blend_mode);
 
-    MethodBinder::bind_method(D_METHOD("_tree_changed"), &AnimationNodeBlendSpace2D::_tree_changed);
     MethodBinder::bind_method(D_METHOD("_update_triangles"), &AnimationNodeBlendSpace2D::_update_triangles);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "auto_triangles", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_auto_triangles", "get_auto_triangles");
@@ -669,9 +668,9 @@ void AnimationNodeBlendSpace2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "blend_mode", PropertyHint::Enum, "Interpolated,Discrete,Carry", PROPERTY_USAGE_NOEDITOR), "set_blend_mode", "get_blend_mode");
 
     ADD_SIGNAL(MethodInfo("triangles_updated"));
-    BIND_ENUM_CONSTANT(BLEND_MODE_INTERPOLATED)
-    BIND_ENUM_CONSTANT(BLEND_MODE_DISCRETE)
-    BIND_ENUM_CONSTANT(BLEND_MODE_DISCRETE_CARRY)
+    BIND_ENUM_CONSTANT(BLEND_MODE_INTERPOLATED);
+    BIND_ENUM_CONSTANT(BLEND_MODE_DISCRETE);
+    BIND_ENUM_CONSTANT(BLEND_MODE_DISCRETE_CARRY);
 }
 
 AnimationNodeBlendSpace2D::AnimationNodeBlendSpace2D() {

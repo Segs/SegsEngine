@@ -58,20 +58,20 @@ void ProjectExportDialog::_notification(int p_what) {
 
     switch (p_what) {
         case NOTIFICATION_READY: {
-            duplicate_preset->set_button_icon(get_icon("Duplicate", "EditorIcons"));
-            delete_preset->set_button_icon(get_icon("Remove", "EditorIcons"));
+            duplicate_preset->set_button_icon(get_theme_icon("Duplicate", "EditorIcons"));
+            delete_preset->set_button_icon(get_theme_icon("Remove", "EditorIcons"));
             connect("confirmed",callable_mp(this, &ClassName::_export_pck_zip));
-            custom_feature_display->get_parent_control()->add_style_override("panel", get_stylebox("bg", "Tree"));
+            custom_feature_display->get_parent_control()->add_theme_style_override("panel", get_theme_stylebox("bg", "Tree"));
         } break;
         case NOTIFICATION_POPUP_HIDE: {
             EditorSettings::get_singleton()->set_project_metadata("dialog_bounds", "export", get_rect());
         } break;
         case NOTIFICATION_THEME_CHANGED: {
-            duplicate_preset->set_button_icon(get_icon("Duplicate", "EditorIcons"));
-            delete_preset->set_button_icon(get_icon("Remove", "EditorIcons"));
+            duplicate_preset->set_button_icon(get_theme_icon("Duplicate", "EditorIcons"));
+            delete_preset->set_button_icon(get_theme_icon("Remove", "EditorIcons"));
             Control *panel = custom_feature_display->get_parent_control();
             if (panel)
-                panel->add_style_override("panel", get_stylebox("bg", "Tree"));
+                panel->add_theme_style_override("panel", get_theme_stylebox("bg", "Tree"));
         } break;
     }
 }
@@ -260,8 +260,8 @@ void ProjectExportDialog::_edit_preset(int p_index) {
             patch->set_checked(0, true);
         patch->set_tooltip(0, StringName(patchlist[i]));
         patch->set_metadata(0, i);
-        patch->add_button(0, get_icon("Remove", "EditorIcons"), 0);
-        patch->add_button(0, get_icon("folder", "FileDialog"), 1);
+        patch->add_button(0, get_theme_icon("Remove", "EditorIcons"), 0);
+        patch->add_button(0, get_theme_icon("folder", "FileDialog"), 1);
     }
 
     TreeItem *patch_add = patches->create_item(patch_root);
@@ -272,7 +272,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
     else
         patch_add->set_text(0, TTR("Add previous patches..."));
 
-    patch_add->add_button(0, get_icon("folder", "FileDialog"), 1);
+    patch_add->add_button(0, get_theme_icon("folder", "FileDialog"), 1);
 
     _fill_resource_tree();
 
@@ -829,7 +829,7 @@ void ProjectExportDialog::_fill_resource_tree() {
 
 bool ProjectExportDialog::_fill_tree(EditorFileSystemDirectory *p_dir, TreeItem *p_item, Ref<EditorExportPreset> &current, bool p_only_scenes) {
 
-    p_item->set_icon(0, get_icon("folder", "FileDialog"));
+    p_item->set_icon(0, get_theme_icon("folder", "FileDialog"));
     p_item->set_text_utf8(0, p_dir->get_name() + "/");
 
     bool used = false;
@@ -992,7 +992,7 @@ void ProjectExportDialog::_export_project_to_path(StringView p_path) {
                     platform->get_name().c_str()));
         }
 
-        ERR_PRINT(vformat(("Failed to export the project for platform '%s'."), platform->get_name()));
+        ERR_PRINT(FormatVE("Failed to export the project for platform '%s'.", platform->get_name().c_str()));
         error_dialog->show();
         error_dialog->popup_centered_minsize(Size2(300, 80));
     }
@@ -1043,43 +1043,12 @@ void ProjectExportDialog::_export_all(bool p_debug) {
 
 void ProjectExportDialog::_bind_methods() {
 
-    MethodBinder::bind_method("_add_preset", &ProjectExportDialog::_add_preset);
-    MethodBinder::bind_method("_edit_preset", &ProjectExportDialog::_edit_preset);
-    MethodBinder::bind_method("_update_parameters", &ProjectExportDialog::_update_parameters);
-    MethodBinder::bind_method("_runnable_pressed", &ProjectExportDialog::_runnable_pressed);
-    MethodBinder::bind_method("_name_changed", &ProjectExportDialog::_name_changed);
-    MethodBinder::bind_method("_duplicate_preset", &ProjectExportDialog::_duplicate_preset);
-    MethodBinder::bind_method("_delete_preset", &ProjectExportDialog::_delete_preset);
-    MethodBinder::bind_method("_delete_preset_confirm", &ProjectExportDialog::_delete_preset_confirm);
     MethodBinder::bind_method("get_drag_data_fw", &ProjectExportDialog::get_drag_data_fw);
     MethodBinder::bind_method("can_drop_data_fw", &ProjectExportDialog::can_drop_data_fw);
     MethodBinder::bind_method("drop_data_fw", &ProjectExportDialog::drop_data_fw);
-    MethodBinder::bind_method("_export_type_changed", &ProjectExportDialog::_export_type_changed);
-    MethodBinder::bind_method("_filter_changed", &ProjectExportDialog::_filter_changed);
-    MethodBinder::bind_method("_tree_changed", &ProjectExportDialog::_tree_changed);
-    MethodBinder::bind_method("_patch_button_pressed", &ProjectExportDialog::_patch_button_pressed);
-    MethodBinder::bind_method("_patch_selected", &ProjectExportDialog::_patch_selected);
-    MethodBinder::bind_method("_patch_deleted", &ProjectExportDialog::_patch_deleted);
-    MethodBinder::bind_method("_patch_edited", &ProjectExportDialog::_patch_edited);
-    MethodBinder::bind_method("_export_pck_zip", &ProjectExportDialog::_export_pck_zip);
-    MethodBinder::bind_method("_export_pck_zip_selected", &ProjectExportDialog::_export_pck_zip_selected);
-    MethodBinder::bind_method("_open_export_template_manager", &ProjectExportDialog::_open_export_template_manager);
-    MethodBinder::bind_method("_validate_export_path", &ProjectExportDialog::_validate_export_path);
-    MethodBinder::bind_method("_export_path_changed", &ProjectExportDialog::_export_path_changed);
-    MethodBinder::bind_method("_script_export_mode_changed", &ProjectExportDialog::_script_export_mode_changed);
-    MethodBinder::bind_method("_script_encryption_key_changed", &ProjectExportDialog::_script_encryption_key_changed);
-    MethodBinder::bind_method("_export_project", &ProjectExportDialog::_export_project);
-    MethodBinder::bind_method("_export_project_to_path", &ProjectExportDialog::_export_project_to_path);
-    MethodBinder::bind_method("_export_all", &ProjectExportDialog::_export_all);
-    MethodBinder::bind_method("_export_all_dialog", &ProjectExportDialog::_export_all_dialog);
-    MethodBinder::bind_method("_export_all_dialog_action", &ProjectExportDialog::_export_all_dialog_action);
-    MethodBinder::bind_method("_custom_features_changed", &ProjectExportDialog::_custom_features_changed);
-    MethodBinder::bind_method("_tab_changed", &ProjectExportDialog::_tab_changed);
     MethodBinder::bind_method("set_export_path", &ProjectExportDialog::set_export_path);
     MethodBinder::bind_method("get_export_path", &ProjectExportDialog::get_export_path);
     MethodBinder::bind_method("get_current_preset", &ProjectExportDialog::get_current_preset);
-    MethodBinder::bind_method("_force_update_current_preset_parameters", &ProjectExportDialog::_force_update_current_preset_parameters);
-
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "export_path"), "set_export_path", "get_export_path");
 }
@@ -1261,7 +1230,7 @@ ProjectExportDialog::ProjectExportDialog() {
     script_key->connect("text_changed",callable_mp(this, &ClassName::_script_encryption_key_changed));
     script_key_error = memnew(Label);
     script_key_error->set_text("- " + TTR("Invalid Encryption Key (must be 64 characters long)"));
-    script_key_error->add_color_override("font_color", EditorNode::get_singleton()->get_gui_base()->get_color("error_color", "Editor"));
+    script_key_error->add_theme_color_override("font_color", EditorNode::get_singleton()->get_gui_base()->get_theme_color("error_color", "Editor"));
     script_vb->add_margin_child(TTR("Script Encryption Key (256-bits as hex):"), script_key);
     script_vb->add_child(script_key_error);
     sections->add_child(script_vb);
@@ -1320,7 +1289,7 @@ ProjectExportDialog::ProjectExportDialog() {
     export_error = memnew(Label);
     main_vb->add_child(export_error);
     export_error->hide();
-    export_error->add_color_override("font_color", EditorNode::get_singleton()->get_gui_base()->get_color("error_color", "Editor"));
+    export_error->add_theme_color_override("font_color", EditorNode::get_singleton()->get_gui_base()->get_theme_color("error_color", "Editor"));
 
     export_templates_error = memnew(HBoxContainer);
     main_vb->add_child(export_templates_error);
@@ -1328,7 +1297,7 @@ ProjectExportDialog::ProjectExportDialog() {
 
     Label *export_error2 = memnew(Label);
     export_templates_error->add_child(export_error2);
-    export_error2->add_color_override("font_color", EditorNode::get_singleton()->get_gui_base()->get_color("error_color", "Editor"));
+    export_error2->add_theme_color_override("font_color", EditorNode::get_singleton()->get_gui_base()->get_theme_color("error_color", "Editor"));
     export_error2->set_text(" - " + TTR("Export templates for this platform are missing:") + " ");
 
     error_dialog = memnew(AcceptDialog);

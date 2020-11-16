@@ -64,7 +64,7 @@ void ProximityGroup3D::clear_groups() {
     if (E!=groups.end()) {
         clear_groups(); // call until we go through the whole list
     }
-};
+}
 
 void ProximityGroup3D::update_groups() {
 
@@ -80,7 +80,7 @@ void ProximityGroup3D::update_groups() {
     add_groups(cell, group_name, 0);
 
     clear_groups();
-};
+}
 
 void ProximityGroup3D::add_groups(int *p_cell, StringName p_base, int p_depth) {
 
@@ -106,7 +106,7 @@ void ProximityGroup3D::add_groups(int *p_cell, StringName p_base, int p_depth) {
             add_groups(p_cell, gname, p_depth + 1);
         }
     }
-};
+}
 
 void ProximityGroup3D::_new_group(const StringName& p_name) {
 
@@ -116,7 +116,7 @@ void ProximityGroup3D::_new_group(const StringName& p_name) {
     }
 
     groups[p_name] = group_version;
-};
+}
 
 void ProximityGroup3D::_notification(int p_what) {
 
@@ -130,7 +130,7 @@ void ProximityGroup3D::_notification(int p_what) {
             update_groups();
             break;
     }
-};
+}
 
 void ProximityGroup3D::broadcast(StringView p_name, const Variant& p_params) {
 
@@ -141,7 +141,7 @@ void ProximityGroup3D::broadcast(StringView p_name, const Variant& p_params) {
         get_tree()->call_group_flags(SceneTree::GROUP_CALL_DEFAULT, E->first, "_proximity_group_broadcast", p_name, p_params);
         ++E;
     }
-};
+}
 
 void ProximityGroup3D::_proximity_group_broadcast(const StringName& p_name, const Variant& p_params) {
 
@@ -151,38 +151,38 @@ void ProximityGroup3D::_proximity_group_broadcast(const StringName& p_name, cons
     } else {
 
         emit_signal("broadcast", p_name, p_params);
-    };
-};
+    }
+}
 
 void ProximityGroup3D::set_group_name(const StringName &p_group_name) {
 
     group_name = p_group_name;
-};
+}
 
 StringName ProximityGroup3D::get_group_name() const {
 
     return group_name;
-};
+}
 
 void ProximityGroup3D::set_dispatch_mode(DispatchMode p_mode) {
 
     dispatch_mode = p_mode;
-};
+}
 
 ProximityGroup3D::DispatchMode ProximityGroup3D::get_dispatch_mode() const {
 
     return dispatch_mode;
-};
+}
 
 void ProximityGroup3D::set_grid_radius(const Vector3 &p_radius) {
 
     grid_radius = p_radius;
-};
+}
 
 Vector3 ProximityGroup3D::get_grid_radius() const {
 
     return grid_radius;
-};
+}
 
 void ProximityGroup3D::_bind_methods() {
 
@@ -201,9 +201,9 @@ void ProximityGroup3D::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("broadcast", PropertyInfo(VariantType::STRING, "group_name"), PropertyInfo(VariantType::ARRAY, "parameters")));
 
-    BIND_ENUM_CONSTANT(MODE_PROXY)
-    BIND_ENUM_CONSTANT(MODE_SIGNAL)
-};
+    BIND_ENUM_CONSTANT(MODE_PROXY);
+    BIND_ENUM_CONSTANT(MODE_SIGNAL);
+}
 
 ProximityGroup3D::ProximityGroup3D() {
 
@@ -213,8 +213,8 @@ ProximityGroup3D::ProximityGroup3D() {
     cell_size = 1.0;
     grid_radius = Vector3(1, 1, 1);
     set_notify_transform(true);
-};
+}
 
 ProximityGroup3D::~ProximityGroup3D(){
 
-};
+}

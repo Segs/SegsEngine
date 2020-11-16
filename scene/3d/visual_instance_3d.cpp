@@ -32,10 +32,8 @@
 
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
-#include "scene/scene_string_names.h"
 #include "servers/rendering_server.h"
 #include "scene/resources/world_3d.h"
-#include "skeleton_3d.h"
 
 IMPL_GDCLASS(VisualInstance3D)
 IMPL_GDCLASS(GeometryInstance)
@@ -93,25 +91,10 @@ void VisualInstance3D::_notification(int p_what) {
     }
 }
 
-RID VisualInstance3D::get_instance() const {
-
-    return instance;
-}
-
-RID VisualInstance3D::_get_visual_instance_rid() const {
-
-    return instance;
-}
-
 void VisualInstance3D::set_layer_mask(uint32_t p_mask) {
 
     layers = p_mask;
     RenderingServer::get_singleton()->instance_set_layer_mask(instance, p_mask);
-}
-
-uint32_t VisualInstance3D::get_layer_mask() const {
-
-    return layers;
 }
 
 void VisualInstance3D::set_layer_mask_bit(int p_layer, bool p_enable) {
@@ -130,7 +113,7 @@ bool VisualInstance3D::get_layer_mask_bit(int p_layer) const {
 
 void VisualInstance3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_get_visual_instance_rid"), &VisualInstance3D::_get_visual_instance_rid);
+    MethodBinder::bind_method(D_METHOD("_get_visual_instance_rid"), &VisualInstance3D::get_instance);
     MethodBinder::bind_method(D_METHOD("set_base", {"base"}), &VisualInstance3D::set_base);
     MethodBinder::bind_method(D_METHOD("get_base"), &VisualInstance3D::get_base);
     MethodBinder::bind_method(D_METHOD("get_instance"), &VisualInstance3D::get_instance);
@@ -148,11 +131,6 @@ void VisualInstance3D::set_base(const RID &p_base) {
 
     RenderingServer::get_singleton()->instance_set_base(instance, p_base);
     base = p_base;
-}
-
-RID VisualInstance3D::get_base() const {
-
-    return base;
 }
 
 VisualInstance3D::VisualInstance3D() {
@@ -183,11 +161,6 @@ void GeometryInstance::set_lod_min_distance(float p_dist) {
 
     lod_min_distance = p_dist;
     RenderingServer::get_singleton()->instance_geometry_set_draw_range(get_instance(), lod_min_distance, lod_max_distance, lod_min_hysteresis, lod_max_hysteresis);
-}
-
-float GeometryInstance::get_lod_min_distance() const {
-
-    return lod_min_distance;
 }
 
 void GeometryInstance::set_lod_max_distance(float p_dist) {
@@ -316,14 +289,14 @@ void GeometryInstance::_bind_methods() {
 
     //ADD_SIGNAL( MethodInfo("visibility_changed"));
 
-    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_OFF)
-    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_ON)
-    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_DOUBLE_SIDED)
-    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_SHADOWS_ONLY)
+    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_OFF);
+    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_ON);
+    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_DOUBLE_SIDED);
+    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_SHADOWS_ONLY);
 
-    BIND_ENUM_CONSTANT(FLAG_USE_BAKED_LIGHT)
-    BIND_ENUM_CONSTANT(FLAG_DRAW_NEXT_FRAME_IF_VISIBLE)
-    BIND_ENUM_CONSTANT(FLAG_MAX)
+    BIND_ENUM_CONSTANT(FLAG_USE_BAKED_LIGHT);
+    BIND_ENUM_CONSTANT(FLAG_DRAW_NEXT_FRAME_IF_VISIBLE);
+    BIND_ENUM_CONSTANT(FLAG_MAX);
 }
 
 GeometryInstance::GeometryInstance() {
@@ -332,8 +305,8 @@ GeometryInstance::GeometryInstance() {
     lod_min_hysteresis = 0;
     lod_max_hysteresis = 0;
 
-    for (int i = 0; i < FLAG_MAX; i++) {
-        flags[i] = false;
+    for (bool & flag : flags) {
+        flag = false;
     }
 
     shadow_casting_setting = SHADOW_CASTING_SETTING_ON;

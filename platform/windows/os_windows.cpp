@@ -1425,10 +1425,7 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
     set_vsync_via_compositor(video_mode.vsync_via_compositor);
 #endif
 
-    rendering_server = memnew(VisualServerRaster);
-    if (get_render_thread_mode() != RENDER_THREAD_UNSAFE) {
-        rendering_server = memnew(VisualServerWrapMT(rendering_server, get_render_thread_mode() == RENDER_SEPARATE_THREAD));
-    }
+    rendering_server = memnew(RenderingServerWrapMT(get_render_thread_mode() == RENDER_SEPARATE_THREAD));
 
     rendering_server->init();
 
@@ -1703,8 +1700,6 @@ int OS_Windows::get_mouse_button_state() const {
 }
 
 void OS_Windows::set_window_title(StringView p_title) {
-
-    auto st= StringUtils::from_utf8(p_title);
     SetWindowTextW(hWnd, qUtf16Printable(StringUtils::from_utf8(p_title)));
 }
 

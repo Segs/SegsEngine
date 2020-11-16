@@ -49,14 +49,14 @@ constexpr const char *compression_formats[] = {
 };
 }
 
-StringName LayeredTextureImpl::get_importer_name() const {
+const char *LayeredTextureImpl::get_importer_name() const {
 
-    return is_3d ? StringName("texture_3d") : StringName("texture_array");
+    return is_3d ? "texture_3d" : "texture_array";
 }
 
-StringName LayeredTextureImpl::get_visible_name() const {
+const char *LayeredTextureImpl::get_visible_name() const {
 
-    return is_3d ? StringName("Texture3D") : StringName("TextureArray");
+    return is_3d ? "Texture3D" : "TextureArray";
 }
 void LayeredTextureImpl::get_recognized_extensions(Vector<String> &p_extensions) const {
 
@@ -320,10 +320,11 @@ Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path
             r_platform_variants->push_back("pvrtc");
             formats_imported.push_back("pvrtc");
         }
-
+#ifdef TOOLS_ENABLED
         if (!ok_on_pc) {
             EditorNode::add_io_error("Warning, no suitable PC VRAM compression enabled in Project Settings. This texture will not display correctly on PC.");
         }
+#endif
     } else {
         //import normally
         _save_tex(slices, p_save_path + "." + extension, compress_mode, ImageCompressMode::COMPRESS_S3TC /*this is ignored */, mipmaps, tex_flags);

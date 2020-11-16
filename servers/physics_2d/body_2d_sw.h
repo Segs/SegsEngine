@@ -64,49 +64,44 @@ class Body2DSW : public CollisionObject2DSW {
         RID collider;
         Vector2 collider_velocity_at_pos;
     };
-    struct ForceIntegrationCallback {
-
-        ObjectID id;
-        StringName method;
-        Variant callback_udata;
-    };
+    using ForceIntegrationCallback = Callable;
 
 
-    PhysicsServer2D::BodyMode mode;
+    PhysicsServer2D::BodyMode mode = PhysicsServer2D::BODY_MODE_RIGID;
 
     Vector2 biased_linear_velocity;
-    real_t biased_angular_velocity;
+    real_t biased_angular_velocity = 0;
 
     Vector2 linear_velocity;
-    real_t angular_velocity;
+    real_t angular_velocity = 0;
 
-    real_t linear_damp;
-    real_t angular_damp;
-    real_t gravity_scale;
+    real_t linear_damp = -1;
+    real_t angular_damp = -1;
+    real_t gravity_scale = 1.0f;
 
-    real_t mass;
-    real_t inertia;
-    real_t bounce;
-    real_t friction;
+    real_t mass=1;
+    real_t inertia=0;
+    real_t bounce=0;
+    real_t friction=1;
 
-    real_t _inv_mass;
-    real_t _inv_inertia;
+    real_t _inv_mass=1;
+    real_t _inv_inertia=0;
 
     Vector2 gravity;
-    real_t area_linear_damp;
-    real_t area_angular_damp;
+    real_t area_linear_damp=0;
+    real_t area_angular_damp=0;
 
-    real_t still_time;
+    real_t still_time = 0;
 
     Vector2 applied_force;
-    real_t applied_torque;
+    real_t applied_torque = 0;
 
     //IntrusiveListNode<Body2DSW> active_list;
     IntrusiveListNode<Body2DSW> inertia_update_list;
     IntrusiveListNode<Body2DSW> direct_state_query_list;
 
     VSet<RID> exceptions;
-    PhysicsServer2D::CCDMode continuous_cd_mode;
+    PhysicsServer2D::CCDMode continuous_cd_mode = PhysicsServer2D::CCD_MODE_DISABLED;
     uint8_t user_inertia : 1;
     uint8_t omit_force_integration : 1;
     uint8_t active : 1;
@@ -122,13 +117,13 @@ class Body2DSW : public CollisionObject2DSW {
     eastl::vector_set<AreaCMP,eastl::less<AreaCMP>,wrap_allocator> areas;
 
     Vector<Contact> contacts; //no contacts by default
-    int contact_count;
+    int contact_count = 0;
 
-    ForceIntegrationCallback *fi_callback;
+    ForceIntegrationCallback fi_callback;
 
-    uint64_t island_step;
-    Body2DSW *island_next;
-    Body2DSW *island_list_next;
+    uint64_t island_step=0;
+    Body2DSW *island_next=nullptr;
+    Body2DSW *island_list_next=nullptr;
 
 
     void _update_inertia();
@@ -140,7 +135,7 @@ class Body2DSW : public CollisionObject2DSW {
     friend class Physics2DDirectBodyStateSW; // i give up, too many functions to expose
 
 public:
-    void set_force_integration_callback(ObjectID p_id, const StringName &p_method, const Variant &p_udata = Variant());
+    void set_force_integration_callback(Callable &&cb);
 
     _FORCE_INLINE_ void add_area(Area2DSW *p_area) {
         auto index = areas.find(AreaCMP(p_area));

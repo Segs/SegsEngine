@@ -37,7 +37,7 @@
 #include "editor/editor_node.h"
 #include "scene/resources/curve.h"
 #include "scene/3d/path_3d.h"
-#include "spatial_editor_plugin.h"
+#include "node_3d_editor_plugin.h"
 
 IMPL_GDCLASS(PathSpatialGizmo)
 IMPL_GDCLASS(PathSpatialGizmoPlugin)
@@ -108,8 +108,8 @@ void PathSpatialGizmo::set_handle(int p_idx, Camera3D *p_camera, const Point2 &p
 
         if (p.intersects_ray(ray_from, ray_dir, &inters)) {
 
-            if (SpatialEditor::get_singleton()->is_snap_enabled()) {
-                float snap = SpatialEditor::get_singleton()->get_translate_snap();
+            if (Node3DEditor::get_singleton()->is_snap_enabled()) {
+                float snap = Node3DEditor::get_singleton()->get_translate_snap();
                 inters.snap(Vector3(snap, snap, snap));
             }
 
@@ -141,8 +141,8 @@ void PathSpatialGizmo::set_handle(int p_idx, Camera3D *p_camera, const Point2 &p
         }
 
         Vector3 local = gi.xform(inters) - base;
-        if (SpatialEditor::get_singleton()->is_snap_enabled()) {
-            float snap = SpatialEditor::get_singleton()->get_translate_snap();
+        if (Node3DEditor::get_singleton()->is_snap_enabled()) {
+            float snap = Node3DEditor::get_singleton()->get_translate_snap();
             local.snap(Vector3(snap, snap, snap));
         }
 
@@ -164,7 +164,7 @@ void PathSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool p
     if (not c)
         return;
 
-    UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
+    UndoRedo *ur = Node3DEditor::get_singleton()->get_undo_redo();
 
     if (p_idx < c->get_point_count()) {
 
@@ -225,9 +225,9 @@ void PathSpatialGizmo::redraw() {
 
     clear();
 
-    Ref<SpatialMaterial> path_material(gizmo_plugin->get_material("path_material", Ref<EditorSpatialGizmo>(this)));
+    Ref<SpatialMaterial> path_material(gizmo_plugin->get_material("path_material", Ref<EditorNode3DGizmo>(this)));
     Ref<SpatialMaterial> path_thin_material(
-            gizmo_plugin->get_material("path_thin_material", Ref<EditorSpatialGizmo>(this)));
+            gizmo_plugin->get_material("path_thin_material", Ref<EditorNode3DGizmo>(this)));
     Ref<SpatialMaterial> handles_material(gizmo_plugin->get_material("handles"));
 
     Ref<Curve3D> c = path->get_curve();
@@ -559,13 +559,6 @@ void PathEditorPlugin::_notification(int p_what) {
     }
 }
 
-void PathEditorPlugin::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_mode_changed"), &PathEditorPlugin::_mode_changed);
-    MethodBinder::bind_method(D_METHOD("_close_curve"), &PathEditorPlugin::_close_curve);
-    MethodBinder::bind_method(D_METHOD("_handle_option_pressed"), &PathEditorPlugin::_handle_option_pressed);
-}
-
 PathEditorPlugin *PathEditorPlugin::singleton = nullptr;
 
 PathEditorPlugin::PathEditorPlugin(EditorNode *p_node) {
@@ -577,47 +570,47 @@ PathEditorPlugin::PathEditorPlugin(EditorNode *p_node) {
     mirror_handle_length = true;
 
     Ref<PathSpatialGizmoPlugin> gizmo_plugin(make_ref_counted<PathSpatialGizmoPlugin>());
-    SpatialEditor::get_singleton()->add_gizmo_plugin(gizmo_plugin);
+    Node3DEditor::get_singleton()->add_gizmo_plugin(gizmo_plugin);
 
     sep = memnew(VSeparator);
     sep->hide();
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(sep);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(sep);
     curve_edit = memnew(ToolButton);
-    curve_edit->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveEdit", "EditorIcons"));
+    curve_edit->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("CurveEdit", "EditorIcons"));
     curve_edit->set_toggle_mode(true);
     curve_edit->hide();
     curve_edit->set_focus_mode(Control::FOCUS_NONE);
     curve_edit->set_tooltip(TTR("Select Points") + "\n" + TTR("Shift+Drag: Select Control Points") + "\n" +
                             String(keycode_get_string(KEY_MASK_CMD)) + TTR("Click: Add Point") + "\n" +
                             TTR("Right Click: Delete Point"));
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(curve_edit);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(curve_edit);
     curve_create = memnew(ToolButton);
-    curve_create->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveCreate", "EditorIcons"));
+    curve_create->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("CurveCreate", "EditorIcons"));
     curve_create->set_toggle_mode(true);
     curve_create->hide();
     curve_create->set_focus_mode(Control::FOCUS_NONE);
     curve_create->set_tooltip(TTR("Add Point (in empty space)") + "\n" + TTR("Split Segment (in curve)"));
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(curve_create);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(curve_create);
     curve_del = memnew(ToolButton);
-    curve_del->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveDelete", "EditorIcons"));
+    curve_del->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("CurveDelete", "EditorIcons"));
     curve_del->set_toggle_mode(true);
     curve_del->hide();
     curve_del->set_focus_mode(Control::FOCUS_NONE);
     curve_del->set_tooltip(TTR("Delete Point"));
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(curve_del);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(curve_del);
     curve_close = memnew(ToolButton);
-    curve_close->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveClose", "EditorIcons"));
+    curve_close->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("CurveClose", "EditorIcons"));
     curve_close->hide();
     curve_close->set_focus_mode(Control::FOCUS_NONE);
     curve_close->set_tooltip(TTR("Close Curve"));
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(curve_close);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(curve_close);
 
     PopupMenu *menu;
 
     handle_menu = memnew(MenuButton);
     handle_menu->set_text(TTR("Options"));
     handle_menu->hide();
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(handle_menu);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(handle_menu);
 
     menu = handle_menu->get_popup();
     menu->add_check_item(TTR("Mirror Handle Angles"));
@@ -640,7 +633,7 @@ PathEditorPlugin::PathEditorPlugin(EditorNode *p_node) {
 
 PathEditorPlugin::~PathEditorPlugin() = default;
 
-Ref<EditorSpatialGizmo> PathSpatialGizmoPlugin::create_gizmo(Node3D *p_spatial) {
+Ref<EditorNode3DGizmo> PathSpatialGizmoPlugin::create_gizmo(Node3D *p_spatial) {
     Ref<PathSpatialGizmo> ref;
 
     Path3D *path = object_cast<Path3D>(p_spatial);

@@ -37,7 +37,7 @@
 #include "core/crypto/crypto.h"
 #include "core/crypto/hashing_context.h"
 #include "core/engine.h"
-#include "core/func_ref.h"
+//#include "core/func_ref.h"
 #include "core/image.h"
 #include "core/input/input_map.h"
 #include "core/io/config_file.h"
@@ -167,7 +167,7 @@ void register_core_types() {
     ClassDB::register_class<InputEventPanGesture>();
     ClassDB::register_class<InputEventMIDI>();
 
-    ClassDB::register_class<FuncRef>();
+    //ClassDB::register_class<FuncRef>();
     ClassDB::register_virtual_class<StreamPeer>();
     ClassDB::register_class<StreamPeerBuffer>();
     ClassDB::register_class<StreamPeerTCP>();
@@ -317,8 +317,7 @@ void unregister_core_types() {
     gResourceManager().remove_resource_format_loader(resource_format_loader_crypto);
     resource_format_loader_crypto.unref();
 
-    if (ip)
-        memdelete(ip);
+    memdelete(ip);
 
     gResourceManager().finalize();
     ClassDB::cleanup_defaults();
@@ -332,10 +331,8 @@ void unregister_core_types() {
     CoreStringNames::free();
     StringName::cleanup(OS::get_singleton()->is_stdout_verbose());
 
-    if (_global_mutex) {
-        memdelete(_global_mutex);
-        _global_mutex = nullptr; //still needed at a few places
-    }
+    memdelete(_global_mutex);
+    _global_mutex = nullptr; //still needed at a few places
 
     MemoryPool::cleanup();
 }

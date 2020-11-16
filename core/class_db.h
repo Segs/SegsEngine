@@ -176,8 +176,8 @@ public:
     static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const MethodDefinition &method_name, std::initializer_list<Variant> def_vals);
     static void _set_class_header(const StringName &p_class, StringView header_file);
 #else
-    static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const char *method_name, std::initializer_list<Variant> p_defs);
-    static void _set_class_header(const StringName &, const char *) {}
+//    static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const char *method_name, std::initializer_list<Variant> p_defs);
+//    static void _set_class_header(const StringName &, const char *) {}
 #endif
 
     static APIType current_api;
@@ -260,6 +260,7 @@ public:
         T::register_custom_data_to_otdb();
     }
     static bool bind_helper(MethodBind *bind,const char * instance_type,const StringName &p_name);
+    static bool can_bind(const StringName &classname, const StringName &p_name);
 
     static void get_class_list(Vector<StringName> *p_classes);
     static void get_inheriters_from_class(const StringName &p_class, Vector<StringName> *p_classes);
@@ -305,12 +306,12 @@ public:
 
     static void register_enum_type(const StringName &p_class,const StringName &p_enum,const StringName &p_underlying_type);
     static void bind_integer_constant(const StringName &p_class, const StringName &p_enum, const StringName &p_name, int p_constant);
-    static void get_integer_constant_list(const StringName &p_class, List<String> *p_constants, bool p_no_inheritance = false);
+    static void get_integer_constant_list(const StringName &p_class, Vector<String> *p_constants, bool p_no_inheritance = false);
     static int get_integer_constant(const StringName &p_class, const StringName &p_name, bool *p_success = nullptr);
 
     static StringName get_integer_constant_enum(const StringName &p_class, const StringName &p_name, bool p_no_inheritance = false);
-    static void get_enum_list(const StringName &p_class, List<StringName> *p_enums, bool p_no_inheritance = false);
-    static void get_enum_constants(const StringName &p_class, const StringName &p_enum, List<StringName> *p_constants, bool p_no_inheritance = false);
+//    static void get_enum_list(const StringName &p_class, Vector<StringName> *p_enums, bool p_no_inheritance = false);
+//    static void get_enum_constants(const StringName &p_class, const StringName &p_enum, List<StringName> *p_constants, bool p_no_inheritance = false);
 
     static Variant class_get_default_property_value(const StringName &p_class, const StringName &p_property, bool *r_valid = nullptr);
 
@@ -346,7 +347,7 @@ public:
     static_assert(eastl::is_same_v<eastl::underlying_type_t<name>,type>);
 
 #define BIND_ENUM_CONSTANT(m_constant) \
-    ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(m_constant, #m_constant), #m_constant, m_constant);
+    ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(m_constant, #m_constant), #m_constant, m_constant)
 #define BIND_NS_ENUM_CONSTANT(m_namespace,m_constant) \
     ClassDB::bind_integer_constant(#m_namespace, __constant_get_enum_name(m_namespace::m_constant, #m_constant), #m_constant, int(m_namespace::m_constant))
 #define BIND_NS_ENUM_CLASS_CONSTANT(m_namespace,m_eclass,m_constant) \
@@ -360,11 +361,17 @@ public:
 #define BIND_CONSTANT(m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, m_constant);
 
+#define BIND_NS_CONSTANT(ns,m_constant) \
+    ClassDB::bind_integer_constant(#ns, StringName(), #m_constant, int(ns::m_constant));
+
 #define BIND_ENUM_CONSTANT(m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, m_constant);
 
 #define BIND_NS_ENUM_CONSTANT(m_namespace,m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, int(m_namespace::m_constant));
+
+#define BIND_NS_ENUM_CLASS_CONSTANT(m_namespace,m_eclass,m_constant) \
+    ClassDB::bind_integer_constant(#m_namespace, StringName(), #m_constant, int(m_namespace::m_eclass::m_constant))
 
 #define REGISTER_ENUM(name,type) \
     ClassDB::register_enum_type(get_class_static_name(),#name, #type);
@@ -376,7 +383,6 @@ public:
 #endif
 
 #ifdef TOOLS_ENABLED
-
 #define BIND_VMETHOD(m_method) \
     ClassDB::add_virtual_method(get_class_static_name(), m_method)
 

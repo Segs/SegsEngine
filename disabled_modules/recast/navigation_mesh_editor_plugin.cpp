@@ -63,7 +63,7 @@ void NavigationMeshEditor::_bake_pressed() {
     button_bake->set_pressed(false);
 
     ERR_FAIL_COND(!node);
-    const StringName conf_warning = node->get_configuration_warning();
+    const String conf_warning = node->get_configuration_warning();
     if (!conf_warning.empty()) {
         err_dialog->set_text(conf_warning);
         err_dialog->popup_centered_minsize();

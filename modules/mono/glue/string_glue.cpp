@@ -34,9 +34,9 @@
 #include "core/variant.h"
 
 MonoArray *godot_icall_String_md5_buffer(MonoString *p_str) {
-    Vector<uint8_t> ret = StringUtils::md5_buffer(GDMonoMarshal::mono_string_to_godot(p_str));
-	// TODO Check possible Array/Vector<uint8_t> problem? Was passing Variant(ret).as<Array>() here
-	return GDMonoMarshal::container_to_mono_array(ret);
+    FixedVector<uint8_t,16,false> ret = StringUtils::md5_buffer(GDMonoMarshal::mono_string_to_godot(p_str));
+    // TODO Check possible Array/Vector<uint8_t> problem? Was passing Variant(ret).as<Array>() here
+    return GDMonoMarshal::container_to_mono_array(Span<const uint8_t>(eastl::span<const uint8_t,16>(ret)));
 }
 
 MonoString *godot_icall_String_md5_text(MonoString *p_str) {
@@ -45,8 +45,8 @@ MonoString *godot_icall_String_md5_text(MonoString *p_str) {
 }
 
 int godot_icall_String_rfind(MonoString *p_str, MonoString *p_what, int p_from) {
-	String what = GDMonoMarshal::mono_string_to_godot(p_what);
-	return GDMonoMarshal::mono_string_to_godot(p_str).rfind(what, p_from);
+    String what = GDMonoMarshal::mono_string_to_godot(p_what);
+    return GDMonoMarshal::mono_string_to_godot(p_str).rfind(what, p_from);
 }
 
 int godot_icall_String_rfindn(MonoString *p_str, MonoString *p_what, int p_from) {
@@ -62,14 +62,14 @@ MonoArray *godot_icall_String_sha256_buffer(MonoString *p_str) {
 
 MonoString *godot_icall_String_sha256_text(MonoString *p_str) {
     String ret = StringUtils::sha256_text(GDMonoMarshal::mono_string_to_godot(p_str));
-	return GDMonoMarshal::mono_string_from_godot(ret);
+    return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
 void godot_register_string_icalls() {
-	mono_add_internal_call("Godot.StringExtensions::godot_icall_String_md5_buffer", (void *)godot_icall_String_md5_buffer);
-	mono_add_internal_call("Godot.StringExtensions::godot_icall_String_md5_text", (void *)godot_icall_String_md5_text);
-	mono_add_internal_call("Godot.StringExtensions::godot_icall_String_rfind", (void *)godot_icall_String_rfind);
-	mono_add_internal_call("Godot.StringExtensions::godot_icall_String_rfindn", (void *)godot_icall_String_rfindn);
-	mono_add_internal_call("Godot.StringExtensions::godot_icall_String_sha256_buffer", (void *)godot_icall_String_sha256_buffer);
-	mono_add_internal_call("Godot.StringExtensions::godot_icall_String_sha256_text", (void *)godot_icall_String_sha256_text);
+    mono_add_internal_call("Godot.StringExtensions::godot_icall_String_md5_buffer", (void *)godot_icall_String_md5_buffer);
+    mono_add_internal_call("Godot.StringExtensions::godot_icall_String_md5_text", (void *)godot_icall_String_md5_text);
+    mono_add_internal_call("Godot.StringExtensions::godot_icall_String_rfind", (void *)godot_icall_String_rfind);
+    mono_add_internal_call("Godot.StringExtensions::godot_icall_String_rfindn", (void *)godot_icall_String_rfindn);
+    mono_add_internal_call("Godot.StringExtensions::godot_icall_String_sha256_buffer", (void *)godot_icall_String_sha256_buffer);
+    mono_add_internal_call("Godot.StringExtensions::godot_icall_String_sha256_text", (void *)godot_icall_String_sha256_text);
 }

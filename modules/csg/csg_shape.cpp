@@ -49,9 +49,9 @@ IMPL_GDCLASS(CSGCylinder)
 IMPL_GDCLASS(CSGTorus)
 IMPL_GDCLASS(CSGPolygon)
 
-VARIANT_ENUM_CAST(CSGShape::Operation)
-VARIANT_ENUM_CAST(CSGPolygon::Mode)
-VARIANT_ENUM_CAST(CSGPolygon::PathRotation)
+VARIANT_ENUM_CAST(CSGShape::Operation);
+VARIANT_ENUM_CAST(CSGPolygon::Mode);
+VARIANT_ENUM_CAST(CSGPolygon::PathRotation);
 
 //TODO: original code was casting Vector3 to string and hashing a string.. yuck
 template<>
@@ -171,7 +171,7 @@ void CSGShape::_make_dirty() {
     if (parent) {
         parent->_make_dirty();
     } else if (!dirty) {
-        call_deferred("_update_shape");
+        call_deferred([this]() { _update_shape(); });
     }
 
     dirty = true;
@@ -180,9 +180,7 @@ void CSGShape::_make_dirty() {
 CSGBrush *CSGShape::_get_brush() {
 
     if (dirty) {
-        if (brush) {
-            memdelete(brush);
-        }
+        memdelete(brush);
         brush = nullptr;
 
         CSGBrush *n = _build_brush();
@@ -529,6 +527,12 @@ void CSGShape::_notification(int p_what) {
         _make_dirty();
     }
 
+    if (p_what == NOTIFICATION_TRANSFORM_CHANGED) {
+        if (use_collision && is_root_shape() && root_collision_instance.is_valid()) {
+            PhysicsServer3D::get_singleton()->body_set_state(root_collision_instance, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
+        }
+    }
+
     if (p_what == NOTIFICATION_LOCAL_TRANSFORM_CHANGED) {
 
         if (parent) {
@@ -640,9 +644,9 @@ void CSGShape::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PropertyHint::Layers3DPhysics), "set_collision_layer", "get_collision_layer");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
 
-    BIND_ENUM_CONSTANT(OPERATION_UNION)
-    BIND_ENUM_CONSTANT(OPERATION_INTERSECTION)
-    BIND_ENUM_CONSTANT(OPERATION_SUBTRACTION)
+    BIND_ENUM_CONSTANT(OPERATION_UNION);
+    BIND_ENUM_CONSTANT(OPERATION_INTERSECTION);
+    BIND_ENUM_CONSTANT(OPERATION_SUBTRACTION);
 }
 
 CSGShape::CSGShape() {
@@ -659,16 +663,14 @@ CSGShape::CSGShape() {
 }
 
 CSGShape::~CSGShape() {
-    if (brush) {
-        memdelete(brush);
-        brush = nullptr;
-    }
+    memdelete(brush);
+    brush = nullptr;
 }
 //////////////////////////////////
 
 CSGBrush *CSGCombiner::_build_brush() {
 
-    return nullptr; //does not build anything
+    return memnew(CSGBrush); //does not build anything
 }
 
 CSGCombiner::CSGCombiner() = default;
@@ -879,8 +881,6 @@ void CSGMesh::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_mesh", {"mesh"}), &CSGMesh::set_mesh);
     MethodBinder::bind_method(D_METHOD("get_mesh"), &CSGMesh::get_mesh);
-
-    MethodBinder::bind_method(D_METHOD("_mesh_changed"), &CSGMesh::_mesh_changed);
 
     MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGMesh::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &CSGMesh::get_material);
@@ -2305,9 +2305,6 @@ void CSGPolygon::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_is_editable_3d_polygon"), &CSGPolygon::_is_editable_3d_polygon);
     MethodBinder::bind_method(D_METHOD("_has_editable_3d_polygon_no_depth"), &CSGPolygon::_has_editable_3d_polygon_no_depth);
 
-    MethodBinder::bind_method(D_METHOD("_path_exited"), &CSGPolygon::_path_exited);
-    MethodBinder::bind_method(D_METHOD("_path_changed"), &CSGPolygon::_path_changed);
-
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Depth,Spin,Path"), "set_mode", "get_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "depth", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_depth", "get_depth");
@@ -2322,13 +2319,13 @@ void CSGPolygon::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smooth_faces"), "set_smooth_faces", "get_smooth_faces");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PropertyHint::ResourceType, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
 
-    BIND_ENUM_CONSTANT(MODE_DEPTH)
-    BIND_ENUM_CONSTANT(MODE_SPIN)
-    BIND_ENUM_CONSTANT(MODE_PATH)
+    BIND_ENUM_CONSTANT(MODE_DEPTH);
+    BIND_ENUM_CONSTANT(MODE_SPIN);
+    BIND_ENUM_CONSTANT(MODE_PATH);
 
-    BIND_ENUM_CONSTANT(PATH_ROTATION_POLYGON)
-    BIND_ENUM_CONSTANT(PATH_ROTATION_PATH)
-    BIND_ENUM_CONSTANT(PATH_ROTATION_PATH_FOLLOW)
+    BIND_ENUM_CONSTANT(PATH_ROTATION_POLYGON);
+    BIND_ENUM_CONSTANT(PATH_ROTATION_PATH);
+    BIND_ENUM_CONSTANT(PATH_ROTATION_PATH_FOLLOW);
 }
 
 void CSGPolygon::set_polygon(const Vector<Vector2> &p_polygon) {

@@ -36,6 +36,7 @@
 
 IMPL_GDCLASS(LineShape2D)
 
+#ifdef TOOLS_ENABLED
 bool LineShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     Vector2 point = get_d() * get_normal();
@@ -46,9 +47,9 @@ bool LineShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tole
         if (p_point.distance_to(closest) < p_tolerance)
             return true;
     }
-
     return false;
 }
+#endif
 
 void LineShape2D::_update_shape() {
 

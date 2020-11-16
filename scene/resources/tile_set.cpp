@@ -29,10 +29,12 @@
 /*************************************************************************/
 
 #include "tile_set.h"
+
 #include "core/array.h"
 #include "core/engine.h"
 #include "core/math/geometry.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/script_language.h"
 
 IMPL_GDCLASS(TileSet)
@@ -1236,23 +1238,23 @@ void TileSet::_bind_methods() {
     BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_forward_subtile_selection", PropertyInfo(VariantType::INT, "autotile_id"), PropertyInfo(VariantType::INT, "bitmask"), PropertyInfo(VariantType::OBJECT, "tilemap", PropertyHint::None, "TileMap"), PropertyInfo(VariantType::VECTOR2, "tile_location")));
     BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_forward_atlas_subtile_selection", PropertyInfo(VariantType::INT, "atlastile_id"), PropertyInfo(VariantType::OBJECT, "tilemap", PropertyHint::None, "TileMap"), PropertyInfo(VariantType::VECTOR2, "tile_location")));
 
-    BIND_ENUM_CONSTANT(BITMASK_2X2)
-    BIND_ENUM_CONSTANT(BITMASK_3X3_MINIMAL)
-    BIND_ENUM_CONSTANT(BITMASK_3X3)
+    BIND_ENUM_CONSTANT(BITMASK_2X2);
+    BIND_ENUM_CONSTANT(BITMASK_3X3_MINIMAL);
+    BIND_ENUM_CONSTANT(BITMASK_3X3);
 
-    BIND_ENUM_CONSTANT(BIND_TOPLEFT)
-    BIND_ENUM_CONSTANT(BIND_TOP)
-    BIND_ENUM_CONSTANT(BIND_TOPRIGHT)
-    BIND_ENUM_CONSTANT(BIND_LEFT)
-    BIND_ENUM_CONSTANT(BIND_CENTER)
-    BIND_ENUM_CONSTANT(BIND_RIGHT)
-    BIND_ENUM_CONSTANT(BIND_BOTTOMLEFT)
-    BIND_ENUM_CONSTANT(BIND_BOTTOM)
-    BIND_ENUM_CONSTANT(BIND_BOTTOMRIGHT)
+    BIND_ENUM_CONSTANT(BIND_TOPLEFT);
+    BIND_ENUM_CONSTANT(BIND_TOP);
+    BIND_ENUM_CONSTANT(BIND_TOPRIGHT);
+    BIND_ENUM_CONSTANT(BIND_LEFT);
+    BIND_ENUM_CONSTANT(BIND_CENTER);
+    BIND_ENUM_CONSTANT(BIND_RIGHT);
+    BIND_ENUM_CONSTANT(BIND_BOTTOMLEFT);
+    BIND_ENUM_CONSTANT(BIND_BOTTOM);
+    BIND_ENUM_CONSTANT(BIND_BOTTOMRIGHT);
 
-    BIND_ENUM_CONSTANT(SINGLE_TILE)
-    BIND_ENUM_CONSTANT(AUTO_TILE)
-    BIND_ENUM_CONSTANT(ATLAS_TILE)
+    BIND_ENUM_CONSTANT(SINGLE_TILE);
+    BIND_ENUM_CONSTANT(AUTO_TILE);
+    BIND_ENUM_CONSTANT(ATLAS_TILE);
 }
 
 TileSet::TileSet() {

@@ -353,25 +353,25 @@ bool CollisionObject2D::is_pickable() const {
 void CollisionObject2D::_input_event(Node *p_viewport, const Ref<InputEvent> &p_input_event, int p_shape) {
 
     if (get_script_instance()) {
-        get_script_instance()->call(SceneStringNames::get_singleton()->_input_event, Variant(p_viewport), p_input_event, p_shape);
+        get_script_instance()->call(SceneStringNames::_input_event, Variant(p_viewport), p_input_event, p_shape);
     }
-    emit_signal(SceneStringNames::get_singleton()->input_event, Variant(p_viewport), p_input_event, p_shape);
+    emit_signal(SceneStringNames::input_event, Variant(p_viewport), p_input_event, p_shape);
 }
 
 void CollisionObject2D::_mouse_enter() {
 
     if (get_script_instance()) {
-        get_script_instance()->call(SceneStringNames::get_singleton()->_mouse_enter);
+        get_script_instance()->call(SceneStringNames::_mouse_enter);
     }
-    emit_signal(SceneStringNames::get_singleton()->mouse_entered);
+    emit_signal(SceneStringNames::mouse_entered);
 }
 
 void CollisionObject2D::_mouse_exit() {
 
     if (get_script_instance()) {
-        get_script_instance()->call(SceneStringNames::get_singleton()->_mouse_exit);
+        get_script_instance()->call(SceneStringNames::_mouse_exit);
     }
-    emit_signal(SceneStringNames::get_singleton()->mouse_exited);
+    emit_signal(SceneStringNames::mouse_exited);
 }
 
 void CollisionObject2D::set_only_update_transform_changes(bool p_enable) {
@@ -388,7 +388,7 @@ void CollisionObject2D::_update_pickable() {
         PhysicsServer2D::get_singleton()->body_set_pickable(rid, is_pickable);
 }
 
-StringName CollisionObject2D::get_configuration_warning() const {
+String CollisionObject2D::get_configuration_warning() const {
 
     String warning(Node2D::get_configuration_warning());
 
@@ -399,7 +399,7 @@ StringName CollisionObject2D::get_configuration_warning() const {
         warning += TTR("This node has no shape, so it can't collide or interact with other objects.\nConsider adding a CollisionShape2D or CollisionPolygon2D as a child to define its shape.");
     }
 
-    return StringName(warning);
+    return warning;
 }
 
 void CollisionObject2D::_bind_methods() {

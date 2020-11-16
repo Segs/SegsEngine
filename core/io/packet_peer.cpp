@@ -37,8 +37,8 @@
 /* helpers / binders */
 
 
-IMPL_GDCLASS(PacketPeer);
-IMPL_GDCLASS(PacketPeerStream);
+IMPL_GDCLASS(PacketPeer)
+IMPL_GDCLASS(PacketPeerStream)
 
 void PacketPeer::set_allow_object_decoding(bool p_enable) {
 
@@ -168,13 +168,13 @@ void PacketPeer::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "encode_buffer_max_size"), "set_encode_buffer_max_size", "get_encode_buffer_max_size");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_object_decoding"), "set_allow_object_decoding", "is_object_decoding_allowed");
-};
+}
 
 /***************/
 
 void PacketPeerStream::_set_stream_peer(const REF& p_peer) {
 
-    ERR_FAIL_COND_MSG(not p_peer, "It's not a reference to a valid Resource object."); 
+    ERR_FAIL_COND_MSG(not p_peer, "It's not a reference to a valid Resource object.");
     set_stream_peer(dynamic_ref_cast<StreamPeer>(p_peer));
 }
 
@@ -302,9 +302,9 @@ Ref<StreamPeer> PacketPeerStream::get_stream_peer() const {
 }
 
 void PacketPeerStream::set_input_buffer_max_size(int p_max_size) {
-    ERR_FAIL_COND_MSG(p_max_size < 0, "Max size of input buffer size cannot be smaller than 0."); 
+    ERR_FAIL_COND_MSG(p_max_size < 0, "Max size of input buffer size cannot be smaller than 0.");
     //warning may lose packets
-    ERR_FAIL_COND_MSG(ring_buffer.data_left(), "Buffer in use, resizing would cause loss of data."); 
+    ERR_FAIL_COND_MSG(ring_buffer.data_left(), "Buffer in use, resizing would cause loss of data.");
     ring_buffer.resize(nearest_shift(next_power_of_2(p_max_size + 4)) - 1);
     input_buffer.resize(next_power_of_2(p_max_size + 4));
 }

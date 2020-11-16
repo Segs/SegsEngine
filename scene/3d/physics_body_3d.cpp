@@ -40,11 +40,12 @@
 #include "core/object_tooling.h"
 #include "core/script_language.h"
 #include "core/rid.h"
+#include "core/translation_helpers.h"
 #include "scene/scene_string_names.h"
 #include "core/project_settings.h"
 
 #ifdef TOOLS_ENABLED
-#include "editor/plugins/spatial_editor_plugin.h"
+#include "editor/plugins/node_3d_editor_plugin.h"
 #endif
 
 IMPL_GDCLASS(PhysicsBody3D)
@@ -292,11 +293,11 @@ void RigidBody::_body_enter_tree(ObjectID p_id) {
 
     contact_monitor->locked = true;
 
-    emit_signal(SceneStringNames::get_singleton()->body_entered, Variant(node));
+    emit_signal(SceneStringNames::body_entered, Variant(node));
 
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
-        emit_signal(SceneStringNames::get_singleton()->body_shape_entered, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
+        emit_signal(SceneStringNames::body_shape_entered, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
     }
 
     contact_monitor->locked = false;
@@ -315,11 +316,11 @@ void RigidBody::_body_exit_tree(ObjectID p_id) {
 
     contact_monitor->locked = true;
 
-    emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
+    emit_signal(SceneStringNames::body_exited, Variant(node));
 
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
-        emit_signal(SceneStringNames::get_singleton()->body_shape_exited, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
+        emit_signal(SceneStringNames::body_shape_exited, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
     }
 
     contact_monitor->locked = false;
@@ -345,11 +346,12 @@ void RigidBody::_body_inout(int p_status, ObjectID p_instance, int p_body_shape,
             //E->second.rc=0;
             E->second.in_tree = node && node->is_inside_tree();
             if (node) {
-                node->connect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &RigidBody::_body_enter_tree), make_binds(objid));
-                node->connect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree), make_binds(objid));
+                //node->tree_entered.ConnectL(&observer(),[this,objid]() { _body_enter_tree(objid); });
+                node->connect(SceneStringNames::tree_entered, callable_mp(this, &RigidBody::_body_enter_tree), make_binds(objid));
+                node->connect(SceneStringNames::tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree), make_binds(objid));
 
                 if (E->second.in_tree) {
-                    emit_signal(SceneStringNames::get_singleton()->body_entered, Variant(node));
+                    emit_signal(SceneStringNames::body_entered, Variant(node));
                 }
             }
         }
@@ -358,7 +360,7 @@ void RigidBody::_body_inout(int p_status, ObjectID p_instance, int p_body_shape,
             E->second.shapes.insert(ShapePair(p_body_shape, p_local_shape));
 
         if (E->second.in_tree) {
-            emit_signal(SceneStringNames::get_singleton()->body_shape_entered, Variant::from(objid), Variant(node), p_body_shape, p_local_shape);
+            emit_signal(SceneStringNames::body_shape_entered, Variant::from(objid), Variant(node), p_body_shape, p_local_shape);
         }
 
     } else {
@@ -373,16 +375,16 @@ void RigidBody::_body_inout(int p_status, ObjectID p_instance, int p_body_shape,
         if (E->second.shapes.empty()) {
 
             if (node) {
-                node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &RigidBody::_body_enter_tree));
-                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree));
+                node->disconnect(SceneStringNames::tree_entered, callable_mp(this, &RigidBody::_body_enter_tree));
+                node->disconnect(SceneStringNames::tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree));
                 if (in_tree)
-                    emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
+                    emit_signal(SceneStringNames::body_exited, Variant(node));
             }
 
             contact_monitor->body_map.erase(E);
         }
         if (node && in_tree) {
-            emit_signal(SceneStringNames::get_singleton()->body_shape_exited, Variant::from(objid), Variant(obj), p_body_shape, p_local_shape);
+            emit_signal(SceneStringNames::body_shape_exited, Variant::from(objid), Variant(obj), p_body_shape, p_local_shape);
         }
     }
 }
@@ -409,7 +411,7 @@ void RigidBody::_direct_state_changed(Object *p_state) {
     inverse_inertia_tensor = state->get_inverse_inertia_tensor();
     if (sleeping != state->is_sleeping()) {
         sleeping = state->is_sleeping();
-        emit_signal(SceneStringNames::get_singleton()->sleeping_state_changed);
+        emit_signal(SceneStringNames::sleeping_state_changed);
     }
     if (get_script_instance())
         get_script_instance()->call("_integrate_forces", Variant(state));
@@ -773,8 +775,8 @@ void RigidBody::set_contact_monitor(bool p_enabled) {
             Node *node = object_cast<Node>(obj);
 
             if (node) {
-                node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &RigidBody::_body_enter_tree));
-                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree));
+                node->disconnect(SceneStringNames::tree_entered, callable_mp(this, &RigidBody::_body_enter_tree));
+                node->disconnect(SceneStringNames::tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree));
             }
         }
 
@@ -819,7 +821,7 @@ Array RigidBody::get_colliding_bodies() const {
     return ret;
 }
 
-StringName RigidBody::get_configuration_warning() const {
+String RigidBody::get_configuration_warning() const {
 
     Transform t = get_transform();
 
@@ -832,7 +834,7 @@ StringName RigidBody::get_configuration_warning() const {
         warning += TTR("Size changes to RigidBody (in character or rigid modes) will be overridden by the physics engine when running.\nChange the size in children collision shapes instead.");
     }
 
-    return StringName(warning);
+    return warning;
 }
 
 void RigidBody::_bind_methods() {
@@ -896,7 +898,6 @@ void RigidBody::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_direct_state_changed"), &RigidBody::_direct_state_changed);
     MethodBinder::bind_method(D_METHOD("_body_enter_tree"), &RigidBody::_body_enter_tree);
-    MethodBinder::bind_method(D_METHOD("_body_exit_tree"), &RigidBody::_body_exit_tree);
 
     MethodBinder::bind_method(D_METHOD("set_axis_lock", {"axis", "lock"}), &RigidBody::set_axis_lock);
     MethodBinder::bind_method(D_METHOD("get_axis_lock", {"axis"}), &RigidBody::get_axis_lock);
@@ -937,10 +938,10 @@ void RigidBody::_bind_methods() {
     ADD_SIGNAL(MethodInfo("body_exited", PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node")));
     ADD_SIGNAL(MethodInfo("sleeping_state_changed"));
 
-    BIND_ENUM_CONSTANT(MODE_RIGID)
-    BIND_ENUM_CONSTANT(MODE_STATIC)
-    BIND_ENUM_CONSTANT(MODE_CHARACTER)
-    BIND_ENUM_CONSTANT(MODE_KINEMATIC)
+    BIND_ENUM_CONSTANT(MODE_RIGID);
+    BIND_ENUM_CONSTANT(MODE_STATIC);
+    BIND_ENUM_CONSTANT(MODE_CHARACTER);
+    BIND_ENUM_CONSTANT(MODE_KINEMATIC);
 }
 
 RigidBody::RigidBody() :
@@ -964,13 +965,11 @@ RigidBody::RigidBody() :
     contact_monitor = nullptr;
     can_sleep = true;
 
-    PhysicsServer3D::get_singleton()->body_set_force_integration_callback(get_rid(), this, "_direct_state_changed");
+    PhysicsServer3D::get_singleton()->body_set_force_integration_callback(get_rid(), callable_mp(this, &RigidBody::_direct_state_changed));
 }
 
 RigidBody::~RigidBody() {
-
-    if (contact_monitor)
-        memdelete(contact_monitor);
+    memdelete(contact_monitor);
 }
 
 void RigidBody::_reload_physics_characteristics() {
@@ -2172,12 +2171,12 @@ void PhysicalBone3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bounce", PropertyHint::Range, "0,1,0.01"), "set_bounce", "get_bounce");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "gravity_scale", PropertyHint::Range, "-10,10,0.01"), "set_gravity_scale", "get_gravity_scale");
 
-    BIND_ENUM_CONSTANT(JOINT_TYPE_NONE)
-    BIND_ENUM_CONSTANT(JOINT_TYPE_PIN)
-    BIND_ENUM_CONSTANT(JOINT_TYPE_CONE)
-    BIND_ENUM_CONSTANT(JOINT_TYPE_HINGE)
-    BIND_ENUM_CONSTANT(JOINT_TYPE_SLIDER)
-    BIND_ENUM_CONSTANT(JOINT_TYPE_6DOF)
+    BIND_ENUM_CONSTANT(JOINT_TYPE_NONE);
+    BIND_ENUM_CONSTANT(JOINT_TYPE_PIN);
+    BIND_ENUM_CONSTANT(JOINT_TYPE_CONE);
+    BIND_ENUM_CONSTANT(JOINT_TYPE_HINGE);
+    BIND_ENUM_CONSTANT(JOINT_TYPE_SLIDER);
+    BIND_ENUM_CONSTANT(JOINT_TYPE_6DOF);
 }
 
 Skeleton *PhysicalBone3D::find_skeleton_parent(Node *p_parent) {
@@ -2305,7 +2304,7 @@ void PhysicalBone3D::_on_bone_parent_changed() {
 void PhysicalBone3D::_set_gizmo_move_joint(bool p_move_joint) {
 #ifdef TOOLS_ENABLED
     gizmo_move_joint = p_move_joint;
-    SpatialEditor::get_singleton()->update_transform_gizmo();
+    Node3DEditor::get_singleton()->update_transform_gizmo();
 #endif
 }
 
@@ -2332,9 +2331,9 @@ void PhysicalBone3D::set_joint_type(JointType p_joint_type) {
     if (p_joint_type == get_joint_type())
         return;
 
-    if (joint_data)
-        memdelete(joint_data);
+    memdelete(joint_data);
     joint_data = nullptr;
+
     switch (p_joint_type) {
         case JOINT_TYPE_PIN:
             joint_data = memnew(PinJointData);
@@ -2411,7 +2410,7 @@ void PhysicalBone3D::set_static_body(bool p_static) {
 
     static_body = p_static;
 
-    set_as_toplevel(!static_body);
+    set_as_top_level(!static_body);
 
     _reset_physics_simulation_state();
 }
@@ -2533,8 +2532,7 @@ PhysicalBone3D::PhysicalBone3D() :
 }
 
 PhysicalBone3D::~PhysicalBone3D() {
-    if (joint_data)
-        memdelete(joint_data);
+    memdelete(joint_data);
 }
 
 void PhysicalBone3D::update_bone_id() {
@@ -2630,7 +2628,7 @@ void PhysicalBone3D::_start_physics_simulation() {
     PhysicsServer3D::get_singleton()->body_set_mode(get_rid(), PhysicsServer3D::BODY_MODE_RIGID);
     PhysicsServer3D::get_singleton()->body_set_collision_layer(get_rid(), get_collision_layer());
     PhysicsServer3D::get_singleton()->body_set_collision_mask(get_rid(), get_collision_mask());
-    PhysicsServer3D::get_singleton()->body_set_force_integration_callback(get_rid(), this, "_direct_state_changed");
+    PhysicsServer3D::get_singleton()->body_set_force_integration_callback(get_rid(), callable_mp(this, &PhysicalBone3D::_direct_state_changed));
     _internal_simulate_physics = true;
 }
 
@@ -2641,7 +2639,7 @@ void PhysicalBone3D::_stop_physics_simulation() {
     PhysicsServer3D::get_singleton()->body_set_mode(get_rid(), PhysicsServer3D::BODY_MODE_STATIC);
     PhysicsServer3D::get_singleton()->body_set_collision_layer(get_rid(), 0);
     PhysicsServer3D::get_singleton()->body_set_collision_mask(get_rid(), 0);
-    PhysicsServer3D::get_singleton()->body_set_force_integration_callback(get_rid(), nullptr, "");
+    PhysicsServer3D::get_singleton()->body_set_force_integration_callback(get_rid(), {});
     parent_skeleton->set_bone_global_pose_override(bone_id, Transform(), 0.0, false);
     _internal_simulate_physics = false;
 }

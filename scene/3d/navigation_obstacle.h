@@ -36,7 +36,7 @@
 class Navigation3D;
 
 class GODOT_EXPORT NavigationObstacle : public Node {
-    GDCLASS(NavigationObstacle, Node);
+    GDCLASS(NavigationObstacle, Node)
 
     Navigation3D *navigation;
 
@@ -62,7 +62,7 @@ public:
         return agent;
     }
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
 private:
     void update_agent_shape();

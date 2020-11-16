@@ -30,6 +30,8 @@
 
 #include "navigation_agent.h"
 
+
+#include "core/callable_method_pointer.h"
 #include "core/engine.h"
 #include "core/method_bind_interface.h"
 #include "core/method_bind.h"
@@ -107,7 +109,7 @@ void NavigationAgent::_notification(int p_what) {
 
             agent_parent = object_cast<Node3D>(get_parent());
 
-            NavigationServer::get_singleton()->agent_set_callback(agent, this, "_avoidance_done");
+            NavigationServer::get_singleton()->agent_set_callback(agent, callable_mp(this, &NavigationAgent::_avoidance_done));
 
             // Search the navigation node and set it
             {
@@ -300,12 +302,12 @@ void NavigationAgent::_avoidance_done(Vector3 p_new_velocity) {
     emit_signal("velocity_computed", p_new_velocity);
 }
 
-StringName NavigationAgent::get_configuration_warning() const {
+String NavigationAgent::get_configuration_warning() const {
     if (!object_cast<Node3D>(get_parent())) {
-        return TTR("The NavigationAgent can be used only under a spatial node.");
+        return String(TTR("The NavigationAgent can be used only under a spatial node."));
     }
 
-    return StringName();
+    return String();
 }
 
 void NavigationAgent::update_navigation() {

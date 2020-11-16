@@ -31,6 +31,8 @@
 #include "style_box.h"
 #include "scene/2d/canvas_item.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
+#include "core/string_name.h"
 
 #include <climits>
 
@@ -41,8 +43,7 @@ IMPL_GDCLASS(StyleBoxFlat)
 IMPL_GDCLASS(StyleBoxLine)
 RES_BASE_EXTENSION_IMPL(StyleBox,"stylebox")
 
-VARIANT_ENUM_CAST(StyleBoxTexture::AxisStretchMode)
-
+VARIANT_ENUM_CAST(StyleBoxTexture::AxisStretchMode);
 
 bool StyleBox::test_mask(const Point2 &p_point, const Rect2 &p_rect) const {
 
@@ -264,6 +265,7 @@ void StyleBoxTexture::set_region_rect(const Rect2 &p_region_rect) {
 
     region_rect = p_region_rect;
     emit_changed();
+    Object_change_notify(this,"region");
 }
 
 Rect2 StyleBoxTexture::get_region_rect() const {
@@ -360,9 +362,9 @@ void StyleBoxTexture::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "modulate_color"), "set_modulate", "get_modulate");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "draw_center"), "set_draw_center", "is_draw_center_enabled");
 
-    BIND_ENUM_CONSTANT(AXIS_STRETCH_MODE_STRETCH)
-    BIND_ENUM_CONSTANT(AXIS_STRETCH_MODE_TILE)
-    BIND_ENUM_CONSTANT(AXIS_STRETCH_MODE_TILE_FIT)
+    BIND_ENUM_CONSTANT(AXIS_STRETCH_MODE_STRETCH);
+    BIND_ENUM_CONSTANT(AXIS_STRETCH_MODE_TILE);
+    BIND_ENUM_CONSTANT(AXIS_STRETCH_MODE_TILE_FIT);
 }
 
 StyleBoxTexture::StyleBoxTexture() {
@@ -675,12 +677,10 @@ inline void draw_ring(Vector<Vector2> &verts, Vector<int> &indices, PoolVector<C
 
 inline void adapt_values(int p_index_a, int p_index_b, int *adapted_values, const int *p_values, const real_t p_width, const int p_max_a, const int p_max_b) {
     if (p_values[p_index_a] + p_values[p_index_b] > p_width) {
-        float factor;
-        int newValue;
 
-        factor = (float)p_width / (float)(p_values[p_index_a] + p_values[p_index_b]);
+        float factor = (float)p_width / (float)(p_values[p_index_a] + p_values[p_index_b]);
+        int newValue = (int)(p_values[p_index_a] * factor);
 
-        newValue = (int)(p_values[p_index_a] * factor);
         if (newValue < adapted_values[p_index_a]) {
             adapted_values[p_index_a] = newValue;
         }
@@ -944,7 +944,8 @@ void StyleBoxFlat::_bind_methods() {
 
     ADD_GROUP("Shadow", "shadow_");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "shadow_color"), "set_shadow_color", "get_shadow_color");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "shadow_size"), "set_shadow_size", "get_shadow_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "shadow_size", PropertyHint::Range, "0,100,1,or_greater"), "set_shadow_size", "get_shadow_size");
+
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "shadow_offset"), "set_shadow_offset", "get_shadow_offset");
 
     ADD_GROUP("Anti Aliasing", "anti_aliasing_");

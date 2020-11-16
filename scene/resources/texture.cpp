@@ -45,6 +45,7 @@
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/os/os.h"
+#include "core/string_formatter.h"
 #include "core/plugin_interfaces/ImageLoaderInterface.h"
 #include "core/resource/resource_manager.h"
 #include "scene/resources/bit_map.h"
@@ -86,7 +87,7 @@ namespace  {
 
             Ref<Image> img(texture->get_data());
             FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-            ERR_FAIL_COND_V_MSG(err, err, vformat(("Can't save using saver wrapper at path: '%s'."), p_path));
+            ERR_FAIL_COND_V_MSG(err, err, FormatVE("Can't save using saver wrapper at path: '%.*s'.", (int)p_path.size(),p_path.data()));
             Vector<uint8_t> buffer;
             err = m_saver->save_image(*img,buffer,{});
 
@@ -174,14 +175,14 @@ void Texture::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "flg_flags", PropertyHint::Flags, "Mipmaps,Repeat,Filter,Anisotropic Linear,Convert to Linear,Mirrored Repeat,Video Surface"), "set_flags", "get_flags");
     ADD_GROUP("", "");
 
-    BIND_ENUM_CONSTANT(FLAGS_DEFAULT)
-    BIND_ENUM_CONSTANT(FLAG_MIPMAPS)
-    BIND_ENUM_CONSTANT(FLAG_REPEAT)
-    BIND_ENUM_CONSTANT(FLAG_FILTER)
-    BIND_ENUM_CONSTANT(FLAG_ANISOTROPIC_FILTER)
-    BIND_ENUM_CONSTANT(FLAG_CONVERT_TO_LINEAR)
-    BIND_ENUM_CONSTANT(FLAG_MIRRORED_REPEAT)
-    BIND_ENUM_CONSTANT(FLAG_VIDEO_SURFACE)
+    BIND_ENUM_CONSTANT(FLAGS_DEFAULT);
+    BIND_ENUM_CONSTANT(FLAG_MIPMAPS);
+    BIND_ENUM_CONSTANT(FLAG_REPEAT);
+    BIND_ENUM_CONSTANT(FLAG_FILTER);
+    BIND_ENUM_CONSTANT(FLAG_ANISOTROPIC_FILTER);
+    BIND_ENUM_CONSTANT(FLAG_CONVERT_TO_LINEAR);
+    BIND_ENUM_CONSTANT(FLAG_MIRRORED_REPEAT);
+    BIND_ENUM_CONSTANT(FLAG_VIDEO_SURFACE);
 }
 
 Texture::Texture() {
@@ -474,7 +475,7 @@ void ImageTexture::_set_data(Dictionary p_data) {
     set_lossy_storage_quality(p_data["lossy_quality"].as<float>());
 
     set_size_override(p_data["size"].as<Vector2>());
-};
+}
 
 void ImageTexture::_bind_methods() {
 
@@ -488,14 +489,13 @@ void ImageTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_lossy_storage_quality"), &ImageTexture::get_lossy_storage_quality);
 
     MethodBinder::bind_method(D_METHOD("set_size_override", {"size"}), &ImageTexture::set_size_override);
-    MethodBinder::bind_method(D_METHOD("_reload_hook", {"rid"}), &ImageTexture::_reload_hook);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "storage", PropertyHint::Enum, "Uncompressed,Compress Lossy,Compress Lossless"), "set_storage", "get_storage");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "lossy_quality", PropertyHint::Range, "0.0,1.0,0.01"), "set_lossy_storage_quality", "get_lossy_storage_quality");
 
-    BIND_ENUM_CONSTANT(STORAGE_RAW)
-    BIND_ENUM_CONSTANT(STORAGE_COMPRESS_LOSSY)
-    BIND_ENUM_CONSTANT(STORAGE_COMPRESS_LOSSLESS)
+    BIND_ENUM_CONSTANT(STORAGE_RAW);
+    BIND_ENUM_CONSTANT(STORAGE_COMPRESS_LOSSY);
+    BIND_ENUM_CONSTANT(STORAGE_COMPRESS_LOSSLESS);
 }
 
 ImageTexture::ImageTexture() {
@@ -1403,7 +1403,7 @@ void LargeTexture::set_piece_offset(int p_idx, const Point2 &p_offset) {
 
     ERR_FAIL_INDEX(p_idx, pieces.size());
     pieces[p_idx].offset = p_offset;
-};
+}
 
 void LargeTexture::set_piece_texture(int p_idx, const Ref<Texture> &p_texture) {
 
@@ -1411,7 +1411,7 @@ void LargeTexture::set_piece_texture(int p_idx, const Ref<Texture> &p_texture) {
     ERR_FAIL_COND(not p_texture);
     ERR_FAIL_INDEX(p_idx, pieces.size());
     pieces[p_idx].texture = p_texture;
-};
+}
 
 void LargeTexture::set_size(const Size2 &p_size) {
 
@@ -1690,12 +1690,12 @@ bool CubeMap::_get(const StringName &p_name, Variant &r_ret) const {
 
 void CubeMap::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/left", PropertyHint::ResourceType, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/right", PropertyHint::ResourceType, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/bottom", PropertyHint::ResourceType, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/top", PropertyHint::ResourceType, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/front", PropertyHint::ResourceType, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/back", PropertyHint::ResourceType, "Image"));
+    p_list->emplace_back(PropertyInfo(VariantType::OBJECT, "side/left", PropertyHint::ResourceType, "Image"));
+    p_list->emplace_back(PropertyInfo(VariantType::OBJECT, "side/right", PropertyHint::ResourceType, "Image"));
+    p_list->emplace_back(PropertyInfo(VariantType::OBJECT, "side/bottom", PropertyHint::ResourceType, "Image"));
+    p_list->emplace_back(PropertyInfo(VariantType::OBJECT, "side/top", PropertyHint::ResourceType, "Image"));
+    p_list->emplace_back(PropertyInfo(VariantType::OBJECT, "side/front", PropertyHint::ResourceType, "Image"));
+    p_list->emplace_back(PropertyInfo(VariantType::OBJECT, "side/back", PropertyHint::ResourceType, "Image"));
 }
 
 void CubeMap::_bind_methods() {
@@ -1715,21 +1715,21 @@ void CubeMap::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "storage_mode", PropertyHint::Enum, "Raw,Lossy Compressed,Lossless Compressed"), "set_storage", "get_storage");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "lossy_storage_quality"), "set_lossy_storage_quality", "get_lossy_storage_quality");
 
-    BIND_ENUM_CONSTANT(STORAGE_RAW)
-    BIND_ENUM_CONSTANT(STORAGE_COMPRESS_LOSSY)
-    BIND_ENUM_CONSTANT(STORAGE_COMPRESS_LOSSLESS)
+    BIND_ENUM_CONSTANT(STORAGE_RAW);
+    BIND_ENUM_CONSTANT(STORAGE_COMPRESS_LOSSY);
+    BIND_ENUM_CONSTANT(STORAGE_COMPRESS_LOSSLESS);
 
-    BIND_ENUM_CONSTANT(SIDE_LEFT)
-    BIND_ENUM_CONSTANT(SIDE_RIGHT)
-    BIND_ENUM_CONSTANT(SIDE_BOTTOM)
-    BIND_ENUM_CONSTANT(SIDE_TOP)
-    BIND_ENUM_CONSTANT(SIDE_FRONT)
-    BIND_ENUM_CONSTANT(SIDE_BACK)
+    BIND_ENUM_CONSTANT(SIDE_LEFT);
+    BIND_ENUM_CONSTANT(SIDE_RIGHT);
+    BIND_ENUM_CONSTANT(SIDE_BOTTOM);
+    BIND_ENUM_CONSTANT(SIDE_TOP);
+    BIND_ENUM_CONSTANT(SIDE_FRONT);
+    BIND_ENUM_CONSTANT(SIDE_BACK);
 
-    BIND_ENUM_CONSTANT(FLAG_MIPMAPS)
-    BIND_ENUM_CONSTANT(FLAG_REPEAT)
-    BIND_ENUM_CONSTANT(FLAG_FILTER)
-    BIND_ENUM_CONSTANT(FLAGS_DEFAULT)
+    BIND_ENUM_CONSTANT(FLAG_MIPMAPS);
+    BIND_ENUM_CONSTANT(FLAG_REPEAT);
+    BIND_ENUM_CONSTANT(FLAG_FILTER);
+    BIND_ENUM_CONSTANT(FLAGS_DEFAULT);
 }
 
 CubeMap::CubeMap() {
@@ -1783,8 +1783,6 @@ void GradientTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_gradient"), &GradientTexture::get_gradient);
 
     MethodBinder::bind_method(D_METHOD("set_width", {"width"}), &GradientTexture::set_width);
-
-    MethodBinder::bind_method(D_METHOD("_update"), &GradientTexture::_update);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "gradient", PropertyHint::ResourceType, "Gradient"), "set_gradient", "get_gradient");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PropertyHint::Range, "1,2048,1,or_greater"), "set_width", "get_width");
@@ -2166,8 +2164,6 @@ void AnimatedTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_frame_delay", {"frame", "delay"}), &AnimatedTexture::set_frame_delay);
     MethodBinder::bind_method(D_METHOD("get_frame_delay", {"frame"}), &AnimatedTexture::get_frame_delay);
 
-    MethodBinder::bind_method(D_METHOD("_update_proxy"), &AnimatedTexture::_update_proxy);
-
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "frames", PropertyHint::Range, "1," + itos(MAX_FRAMES), PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_frames", "get_frames");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_frame", PropertyHint::None, "", 0), "set_current_frame", "get_current_frame");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "pause"), "set_pause", "get_pause");
@@ -2202,9 +2198,7 @@ AnimatedTexture::AnimatedTexture() {
 
 AnimatedTexture::~AnimatedTexture() {
     RenderingServer::get_singleton()->free_rid(proxy);
-    if (rw_lock) {
-        memdelete(rw_lock);
-    }
+    memdelete(rw_lock);
 }
 ///////////////////////////////
 
@@ -2340,10 +2334,10 @@ void TextureLayered::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "flags", PropertyHint::Flags, "Mipmaps,Repeat,Filter"), "set_flags", "get_flags");
     ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "_set_data", "_get_data");
 
-    BIND_ENUM_CONSTANT(FLAG_MIPMAPS)
-    BIND_ENUM_CONSTANT(FLAG_REPEAT)
-    BIND_ENUM_CONSTANT(FLAG_FILTER)
-    BIND_ENUM_CONSTANT(FLAGS_DEFAULT)
+    BIND_ENUM_CONSTANT(FLAG_MIPMAPS);
+    BIND_ENUM_CONSTANT(FLAG_REPEAT);
+    BIND_ENUM_CONSTANT(FLAG_FILTER);
+    BIND_ENUM_CONSTANT(FLAGS_DEFAULT);
 }
 
 TextureLayered::TextureLayered(bool p_3d) {

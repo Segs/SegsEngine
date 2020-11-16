@@ -129,9 +129,9 @@ void HashingContext::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("start", {"type"}), &HashingContext::start);
     MethodBinder::bind_method(D_METHOD("update", {"chunk"}), &HashingContext::update);
     MethodBinder::bind_method(D_METHOD("finish"), &HashingContext::finish);
-    BIND_ENUM_CONSTANT(HASH_MD5)
-    BIND_ENUM_CONSTANT(HASH_SHA1)
-    BIND_ENUM_CONSTANT(HASH_SHA256)
+    BIND_ENUM_CONSTANT(HASH_MD5);
+    BIND_ENUM_CONSTANT(HASH_SHA1);
+    BIND_ENUM_CONSTANT(HASH_SHA256);
 }
 
 HashingContext::HashingContext() {
@@ -139,6 +139,7 @@ HashingContext::HashingContext() {
 }
 
 HashingContext::~HashingContext() {
-    if (ctx != nullptr)
+    if (ctx != nullptr) {
         _delete_ctx();
+}
 }

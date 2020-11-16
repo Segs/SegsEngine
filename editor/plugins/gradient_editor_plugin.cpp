@@ -31,7 +31,7 @@
 #include "gradient_editor_plugin.h"
 
 #include "canvas_item_editor_plugin.h"
-#include "spatial_editor_plugin.h"
+#include "node_3d_editor_plugin.h"
 #include "editor/editor_scale.h"
 #include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
@@ -46,8 +46,9 @@ Size2 GradientEditor::get_minimum_size() const {
 }
 void GradientEditor::_gradient_changed() {
 
-    if (editing)
+	if (editing) {
         return;
+	}
 
     editing = true;
     const Vector<Gradient::Point> &points = gradient->get_points();
@@ -68,11 +69,7 @@ void GradientEditor::_ramp_changed() {
     editing = false;
 }
 
-void GradientEditor::_bind_methods() {
 
-    MethodBinder::bind_method("_gradient_changed", &GradientEditor::_gradient_changed);
-    MethodBinder::bind_method("_ramp_changed", &GradientEditor::_ramp_changed);
-}
 
 void GradientEditor::set_gradient(const Ref<Gradient> &p_gradient) {
     gradient = p_gradient;

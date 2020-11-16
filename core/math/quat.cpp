@@ -32,10 +32,9 @@
 
 #include "core/math/basis.h"
 #include "core/print_string.h"
-#include "core/string_formatter.h"
 #include "core/string.h"
+#include "core/string_formatter.h"
 #include "core/string_utils.h"
-
 
 // set_euler_xyz expects a vector containing the Euler angles in the format
 // (ax,ay,az), where ax is the angle of rotation around x axis,
@@ -47,8 +46,8 @@ void Quat::set_euler_xyz(const Vector3 &p_euler) {
     real_t half_a3 = p_euler.z * 0.5f;
 
     // R = X(a1).Y(a2).Z(a3) convention for Euler angles.
-    // Conversion to quaternion as listed in https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19770024290.pdf (page A-2)
-    // a3 is the angle of the first rotation, following the notation in this reference.
+    // Conversion to quaternion as listed in https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19770024290.pdf (page
+    // A-2) a3 is the angle of the first rotation, following the notation in this reference.
 
     real_t cos_a1 = Math::cos(half_a1);
     real_t sin_a1 = Math::sin(half_a1);
@@ -57,10 +56,8 @@ void Quat::set_euler_xyz(const Vector3 &p_euler) {
     real_t cos_a3 = Math::cos(half_a3);
     real_t sin_a3 = Math::sin(half_a3);
 
-    set(sin_a1 * cos_a2 * cos_a3 + sin_a2 * sin_a3 * cos_a1,
-            -sin_a1 * sin_a3 * cos_a2 + sin_a2 * cos_a1 * cos_a3,
-            sin_a1 * sin_a2 * cos_a3 + sin_a3 * cos_a1 * cos_a2,
-            -sin_a1 * sin_a2 * sin_a3 + cos_a1 * cos_a2 * cos_a3);
+    set(sin_a1 * cos_a2 * cos_a3 + sin_a2 * sin_a3 * cos_a1, -sin_a1 * sin_a3 * cos_a2 + sin_a2 * cos_a1 * cos_a3,
+            sin_a1 * sin_a2 * cos_a3 + sin_a3 * cos_a1 * cos_a2, -sin_a1 * sin_a2 * sin_a3 + cos_a1 * cos_a2 * cos_a3);
 }
 
 // get_euler_xyz returns a vector containing the Euler angles in the format
@@ -82,8 +79,8 @@ void Quat::set_euler_yxz(const Vector3 &p_euler) {
     real_t half_a3 = p_euler.z * 0.5f;
 
     // R = Y(a1).X(a2).Z(a3) convention for Euler angles.
-    // Conversion to quaternion as listed in https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19770024290.pdf (page A-6)
-    // a3 is the angle of the first rotation, following the notation in this reference.
+    // Conversion to quaternion as listed in https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19770024290.pdf (page
+    // A-6) a3 is the angle of the first rotation, following the notation in this reference.
 
     real_t cos_a1 = Math::cos(half_a1);
     real_t sin_a1 = Math::sin(half_a1);
@@ -92,10 +89,8 @@ void Quat::set_euler_yxz(const Vector3 &p_euler) {
     real_t cos_a3 = Math::cos(half_a3);
     real_t sin_a3 = Math::sin(half_a3);
 
-    set(sin_a1 * cos_a2 * sin_a3 + cos_a1 * sin_a2 * cos_a3,
-            sin_a1 * cos_a2 * cos_a3 - cos_a1 * sin_a2 * sin_a3,
-            -sin_a1 * sin_a2 * cos_a3 + cos_a1 * cos_a2 * sin_a3,
-            sin_a1 * sin_a2 * sin_a3 + cos_a1 * cos_a2 * cos_a3);
+    set(sin_a1 * cos_a2 * sin_a3 + cos_a1 * sin_a2 * cos_a3, sin_a1 * cos_a2 * cos_a3 - cos_a1 * sin_a2 * sin_a3,
+            -sin_a1 * sin_a2 * cos_a3 + cos_a1 * cos_a2 * sin_a3, sin_a1 * sin_a2 * sin_a3 + cos_a1 * cos_a2 * cos_a3);
 }
 
 // get_euler_yxz returns a vector containing the Euler angles in the format
@@ -111,22 +106,17 @@ Vector3 Quat::get_euler_yxz() const {
 }
 
 void Quat::operator*=(const Quat &q) {
-
-    set(w * q.x + x * q.w + y * q.z - z * q.y,
-            w * q.y + y * q.w + z * q.x - x * q.z,
-            w * q.z + z * q.w + x * q.y - y * q.x,
-            w * q.w - x * q.x - y * q.y - z * q.z);
+    set(w * q.x + x * q.w + y * q.z - z * q.y, w * q.y + y * q.w + z * q.x - x * q.z,
+            w * q.z + z * q.w + x * q.y - y * q.x, w * q.w - x * q.x - y * q.y - z * q.z);
 }
 
 Quat Quat::operator*(const Quat &q) const {
-
     Quat r = *this;
     r *= q;
     return r;
 }
 
 real_t Quat::length() const {
-
     return Math::sqrt(length_squared());
 }
 
@@ -139,7 +129,7 @@ Quat Quat::normalized() const {
 }
 
 bool Quat::is_normalized() const {
-    return Math::is_equal_approx(length_squared(), 1.0, UNIT_EPSILON); //use less epsilon
+    return Math::is_equal_approx(length_squared(), 1.0, UNIT_EPSILON); // use less epsilon
 }
 
 Quat Quat::inverse() const {
@@ -189,10 +179,7 @@ Quat Quat::slerp(const Quat &q, const real_t &t) const {
         scale1 = t;
     }
     // calculate final values
-    return Quat(
-            scale0 * x + scale1 * to1.x,
-            scale0 * y + scale1 * to1.y,
-            scale0 * z + scale1 * to1.z,
+    return Quat(scale0 * x + scale1 * to1.x, scale0 * y + scale1 * to1.y, scale0 * z + scale1 * to1.z,
             scale0 * w + scale1 * to1.w);
 }
 
@@ -205,17 +192,15 @@ Quat Quat::slerpni(const Quat &q, const real_t &t) const {
 
     real_t dot = from.dot(q);
 
-    if (Math::absf(dot) > 0.9999f) return from;
+    if (Math::absf(dot) > 0.9999f) {
+        return from;
+    }
 
-    real_t theta = Math::acos(dot),
-           sinT = 1.0f / Math::sin(theta),
-           newFactor = Math::sin(t * theta) * sinT,
+    real_t theta = Math::acos(dot), sinT = 1.0f / Math::sin(theta), newFactor = Math::sin(t * theta) * sinT,
            invFactor = Math::sin((1.0f - t) * theta) * sinT;
 
-    return Quat(invFactor * from.x + newFactor * q.x,
-            invFactor * from.y + newFactor * q.y,
-            invFactor * from.z + newFactor * q.z,
-            invFactor * from.w + newFactor * q.w);
+    return Quat(invFactor * from.x + newFactor * q.x, invFactor * from.y + newFactor * q.y,
+            invFactor * from.z + newFactor * q.z, invFactor * from.w + newFactor * q.w);
 }
 
 Quat Quat::cubic_slerp(const Quat &q, const Quat &prep, const Quat &postq, const real_t &t) const {
@@ -223,7 +208,7 @@ Quat Quat::cubic_slerp(const Quat &q, const Quat &prep, const Quat &postq, const
     ERR_FAIL_COND_V_MSG(!is_normalized(), Quat(), "The start quaternion must be normalized.");
     ERR_FAIL_COND_V_MSG(!q.is_normalized(), Quat(), "The end quaternion must be normalized.");
 #endif
-    //the only way to do slerp :|
+    // the only way to do slerp :|
     real_t t2 = (1.0f - t) * t * 2;
     Quat sp = this->slerp(q, t);
     Quat sq = prep.slerpni(postq, t);
@@ -231,8 +216,7 @@ Quat Quat::cubic_slerp(const Quat &q, const Quat &prep, const Quat &postq, const
 }
 
 Quat::operator String() const {
-
-    return FormatVE("%f, %f, %f, %f",x,y,z,w);
+    return FormatVE("%f, %f, %f, %f", x, y, z, w);
 }
 
 void Quat::set_axis_angle(const Vector3 &axis, const real_t &angle) {
@@ -246,7 +230,6 @@ void Quat::set_axis_angle(const Vector3 &axis, const real_t &angle) {
         real_t sin_angle = Math::sin(angle * 0.5f);
         real_t cos_angle = Math::cos(angle * 0.5f);
         real_t s = sin_angle / d;
-        set(axis.x * s, axis.y * s, axis.z * s,
-                cos_angle);
+        set(axis.x * s, axis.y * s, axis.z * s, cos_angle);
     }
 }

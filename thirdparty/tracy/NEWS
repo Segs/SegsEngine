@@ -6,14 +6,167 @@ Note: Release numbers are nothing more than numbers. There are some
 "missing" versions due to trace file changes during development. This is not
 a mistake.
 
-v0.7 (xxxx-xx-xx)
+v0.7.3 (2020-10-06)
+-------------------
+
+- Properly support DPI scaling on Linux (requires GLFW 3.3).
+- Added early checks for output file validity in the capture utility.
+- Improvements to presence broadcast handling.
+- Custom zone colors can be optionally ignored.
+- Added support for tracking multiple memory pools.
+- Memory free failure dialog can now show call stack pointing to the failure
+  location.
+- Added support for Wayland on Linux.
+- If during the first 5 seconds of the trace there are no frames being
+  reported, the profiler will switch to following last 5 seconds of the
+  trace, instead of displaying three last frames.
+
+
+v0.7.2 (2020-09-14)
+-------------------
+
+- Note: the bitbucket repository is obsolete and will soon stop receiving
+  updates. Migrate to https://github.com/wolfpld/tracy, if you haven't
+  already.
+- The "waiting for connection" dialog no longer has "cancel" button. To
+  abort connection attempt just use the "close window" button.
+- Added update notification.
+- The most recent traced events can be now viewed regardless of timeline
+  zoom level.
+- Fixed going-to-line in source view (again).
+- Crash handling on client is now not performed, if there is no active
+  connection.
+- Added ability to listen only on IPv4 interfaces.
+
+
+v0.7.1 (2020-08-24)
+-------------------
+
+- Dropped support for pre-v0.6 traces.
+- Fixed regression on non-AVX2 CPUs.
+- Fixed incorrect calculation of some ghost zones.
+- Added list of cached source files.
+- Added import of plot data.
+- Secure versions of alloc/free macros.
+- Automated tracing of vertical synchronization on Windows.
+- Fixed attachment of postponed frame images.
+- Source location data can be now copied to clipboard from zone info window.
+- Zones in find zones menu can be now grouped by zone name.
+- Vulkan and D3D12 GPU contexts can be now calibrated.
+- Added CSV export utility.
+- "Go to frame" popup no longer has a dedicated button. To show it, click on
+  the frame counter.
+- Added macro for checking if profiler is connected.
+- Implemented optional data removal from traces in the update utility.
+- Allow manual management of profiler lifetime.
+- Adjusted priority of ETW threads to time critical.
+- Annotations can be now freely adjusted on the timeline.
+- Limiting time range for find zone functionality has been significantly
+  improved.
+- Added time range limits for statistics and symbol view.
+- Implemented call stack sampling on Linux (including Android).
+- Exact time from start of profiling session can be now viewed by hovering
+  the mouse over the time scale.
+- Code transfer can be now compiled-out.
+- Added support for zone markup in unloadable modules.
+- Added image name filter to sampling statistics results window.
+
+
+v0.7 (2020-06-11)
 -----------------
+This is the last release which will be able to load pre-v0.6 traces. Use the
+update utility to convert your old traces now!
+
+- chrome:tracing importer now imports zone metadata from "args" key.
+- Added display of statistical mode to find zone menu.
+- Automatic stack sampling is now available on windows.
+- Properly handle tracing on long-running systems.
+- Message list entries can now show associated frame image.
+- Call stack window will now display module names.
+- Symbol location in call stack window may now also display symbol address.
+- Statistics menu can now be used to display call stack sampling data or
+  list available symbols.
+- All call paths leading to the sampled instruction in a call stack can be
+  now displayed.
+- Frame image compression ratio (lossless in-memory compression, not taking
+  into account DXT compression) is displayed in playback window.
+- Allow reconnection straight from the discard data dialog.
+- Added ability to set custom names for locks.
+- Improved handling of network ports.
+- Added time percentage display to instrumentation statistics.
+- Display of ghost zones (generated from automated call stack sampling).
+- Notify when empty labels display is enabled.
+- Small fragments of executable code will be now sent from client to server.
+- Added notification about query backlog.
+- Fixed performance problem with query backlog.
+- Display number of in-flight queries, in addition to query backlog.
+- Improved failure reports.
+- The capture utility will connect to localhost by default.
+- Added optional support for QPC timer on windows.
+- Complete rewrite of source file viewer. It is now 100% reliable when going
+  to a source location.
+- Symbol source view was added.
+  - Extension of source file viewer.
+  - Can display source file, assembly view, or both at the same time.
+  - May include display of statistical profiling data.
+  - Ability to switch between source files which were used to build the
+    symbol.
+  - Ability to switch between inlined functions which are incorporated into
+    the symbol.
+  - Graphical representation of control flow in program.
+  - Display of micro-architectural data for each assembly instruction.
+  - Tracking register dependencies between assembly instructions.
+  - Disassembly may be saved to a file, in order to be processed by external
+    tools.
+- If the default listening port is occupied, profiler will now try listening
+  on other ports.
+- Added possibility to perform source file names substitution.
+- Profiler windows can be now docked.
+- CPU usage tooltip now displays a list of running threads.
+- Added possibility to filter discovered clients list.
+- Source files are now cached during capture.
+- Profiler will now display a popup when application crashes.
+- Added ability to send simple integral values as extra payload for zones.
+- Per-frame zone times on the frames plot can now display self time.
+- Ability to bind only on localhost interface.
+- OpenCL profiling.
+- Direct3D 12 profiling.
+
+
+v0.6.3 (2020-02-13)
+-------------------
+
+- Fixed performance issues with loading saved traces on Ryzen CPUs.
+- Profiler window contents are now properly updated during window resize.
+- Improved tid to pid mapping on windows.
+- Zero length and unfinished zones are no longer taken into account for
+  statistics.
+- Build files for shared library are now available (experimental).
+- GPU zones now also have "active" parameter.
+- Further reduction of memory usage and on-disk trace size.
+- Replaced ska::flat_hash_map with robin-hood-hashing.
+- Speed-up rendering of long lists of items.
+- Exact event time is displayed in some places in the UI.
+- Memory allocation lists can now be sorted.
+- Added display of trace file compression ratio.
+- Optional Zstd compression of trace files.
+- Frame images are now internally compressed using Zstd (instead of LZ4).
+- Fix display of continuous frame set tooltips.
+
+
+v0.6.2 (2019-12-30)
+-------------------
 
 - Improved call stack decoding on OSX.
 - Collection of CPU topology data.
 - C API now supports allocated source locations.
 - Added chrome:tracing importer.
 - Allow merging of ZoneText() strings.
+- Time distribution can now show both exclusive and inclusive times.
+- Display proper value of selection time in find zone menu.
+- Implemented limiting find zone search to a specified time range.
+- Highlight hovered zone from find zone menu zone list on the histogram.
+- Allow copying user data directory location to the clipboard.
 
 v0.6.1 (2019-11-28)
 -------------------

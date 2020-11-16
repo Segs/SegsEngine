@@ -120,29 +120,41 @@ void CollisionShape3D::resource_changed(const RES& res) {
     update_gizmo();
 }
 
-StringName CollisionShape3D::get_configuration_warning() const {
+String CollisionShape3D::get_configuration_warning() const {
+
+    String warning = BaseClassName::get_configuration_warning();
 
     if (!object_cast<CollisionObject3D>(get_parent())) {
-        return TTR("CollisionShape3D only serves to provide a collision shape to a CollisionObject3D derived node. Please only use it as a child of Area, StaticBody3D, RigidBody, KinematicBody3D, etc. to give them a shape.");
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("CollisionShape only serves to provide a collision shape to a CollisionObject derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
     }
 
-    if (not shape) {
-        return TTR("A shape must be provided for CollisionShape3D to function. Please create a shape resource for it.");
-    }
-
-    if (shape->is_class("PlaneShape")) {
-        return TTR("Plane shapes don't work well and will be removed in future versions. Please don't use them.");
-    }
-
-    if (object_cast<RigidBody>(get_parent())) {
-        if (object_cast<ConcavePolygonShape3D>(shape.get())) {
-            if (object_cast<RigidBody>(get_parent())->get_mode() != RigidBody::MODE_STATIC) {
-                return TTR("ConcavePolygonShape3D doesn't support RigidBody in another mode than static.");
+    if (!shape) {
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("A shape must be provided for CollisionShape to function. Please create a shape resource for it.");
+    } else {
+        if (shape->is_class("PlaneShape")) {
+            if (!warning.empty()) {
+                warning += "\n\n";
             }
+            warning += TTR("Plane shapes don't work well and will be removed in future versions. Please don't use them.");
+        }
+
+        if (object_cast<RigidBody>(get_parent()) &&
+                dynamic_ref_cast<ConcavePolygonShape3D>(shape) &&
+                object_cast<RigidBody>(get_parent())->get_mode() != RigidBody::MODE_STATIC) {
+            if (!warning.empty()) {
+                warning += "\n\n";
+            }
+            warning += TTR("ConcavePolygonShape doesn't support RigidBody in another mode than static.");
         }
     }
 
-    return StringName();
+    return warning;
 }
 
 void CollisionShape3D::_bind_methods() {
@@ -247,6 +259,6 @@ void CollisionShape3D::_shape_changed() {
 
     if (is_inside_tree() && get_tree()->is_debugging_collisions_hint() && !debug_shape_dirty) {
         debug_shape_dirty = true;
-        call_deferred("_update_debug_shape");
+        call_deferred([this] { _update_debug_shape(); });
     }
 }

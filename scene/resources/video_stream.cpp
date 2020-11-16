@@ -35,4 +35,4 @@
 
 IMPL_GDCLASS(VideoStreamPlayback)
 IMPL_GDCLASS(VideoStream)
-;
+

@@ -63,9 +63,7 @@ JoypadLinux::Joypad::Joypad() {
 JoypadLinux::Joypad::~Joypad() {
 
     for (int i = 0; i < MAX_ABS; i++) {
-        if (abs_info[i]) {
-            memdelete(abs_info[i]);
-        }
+        memdelete(abs_info[i]);
     }
 }
 
@@ -260,7 +258,7 @@ static const char *_hex_str(uint8_t p_byte) {
     ret[2] = 0;
 
     return ret;
-};
+}
 
 
 void JoypadLinux::setup_joypad_properties(int p_id) {

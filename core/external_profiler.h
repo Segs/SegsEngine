@@ -1,5 +1,3 @@
-#define RMT_USE_OPENGL 1
-
 #ifdef TRACY_ENABLE
 #include "thirdparty/tracy/Tracy.hpp"
 
@@ -11,10 +9,16 @@
 //#define TRACE_MEMORY
 #ifdef TRACE_MEMORY
 #define TRACE_ALLOC(p,sz) TracyAlloc(p,sz)
+#define TRACE_ALLOC_S(p,sz,depth) TracyAllocS(p,sz,depth)
 #define TRACE_FREE(p) TracyFree(p)
+#define TRACE_ALLOC_N(p,sz,n) TracyAllocN(p,sz,n)
+#define TRACE_FREE_N(p,n) TracyFreeN(p,n)
 #else
 #define TRACE_ALLOC(p,sz)
 #define TRACE_FREE(p)
+#define TRACE_ALLOC_S(p,sz,depth)
+#define TRACE_ALLOC_N(p,sz,n)
+#define TRACE_FREE_N(p,n)
 #endif
 #else
 #define SCOPE_PROFILE(name)
@@ -24,6 +28,9 @@
 #define PROFILER_STARTFRAME(name)
 #define PROFILER_ENDFRAME(name)
 #define TRACE_ALLOC(p,sz)
+#define TRACE_ALLOC_S(p,sz,depth)
 #define TRACE_FREE(p)
+#define TRACE_ALLOC_N(p,sz,n)
+#define TRACE_FREE_N(p,n)
 
 #endif

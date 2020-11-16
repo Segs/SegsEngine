@@ -32,8 +32,10 @@
 
 #include "label.h"
 #include "margin_container.h"
-#include "core/method_bind.h"
+
 #include "core/input/input_event.h"
+#include "core/method_bind.h"
+#include "core/object_tooling.h"
 
 
 IMPL_GDCLASS(SplitContainer)
@@ -49,7 +51,7 @@ Control *SplitContainer::_getch(int p_idx) const {
         Control *c = object_cast<Control>(get_child(i));
         if (!c || !c->is_visible_in_tree())
             continue;
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
 
         if (idx == p_idx)
@@ -82,8 +84,8 @@ void SplitContainer::_resort() {
     bool second_expanded = (vertical ? second->get_v_size_flags() : second->get_h_size_flags()) & SIZE_EXPAND;
 
     // Determine the separation between items
-    Ref<Texture> g = get_icon("grabber");
-    int sep = get_constant("separation");
+    Ref<Texture> g = get_theme_icon("grabber");
+    int sep = get_theme_constant("separation");
     sep = (dragger_visibility != DRAGGER_HIDDEN_COLLAPSED) ? M_MAX(sep, vertical ? g->get_height() : g->get_width()) : 0;
 
     // Compute the minimum size
@@ -131,8 +133,8 @@ Size2 SplitContainer::get_minimum_size() const {
     /* Calculate MINIMUM SIZE */
 
     Size2i minimum;
-    Ref<Texture> g = get_icon("grabber");
-    int sep = get_constant("separation");
+    Ref<Texture> g = get_theme_icon("grabber");
+    int sep = get_theme_constant("separation");
     sep = (dragger_visibility != DRAGGER_HIDDEN_COLLAPSED) ? M_MAX(sep, vertical ? g->get_height() : g->get_width()) : 0;
 
     for (int i = 0; i < 2; i++) {
@@ -175,7 +177,7 @@ void SplitContainer::_notification(int p_what) {
         case NOTIFICATION_MOUSE_EXIT: {
 
             mouse_inside = false;
-            if (get_constant("autohide"))
+            if (get_theme_constant("autohide"))
                 update();
         } break;
         case NOTIFICATION_DRAW: {
@@ -183,14 +185,14 @@ void SplitContainer::_notification(int p_what) {
             if (!_getch(0) || !_getch(1))
                 return;
 
-            if (collapsed || (!dragging && !mouse_inside && get_constant("autohide")))
+            if (collapsed || (!dragging && !mouse_inside && get_theme_constant("autohide")))
                 return;
 
             if (dragger_visibility != DRAGGER_VISIBLE)
                 return;
 
-            int sep = dragger_visibility != DRAGGER_HIDDEN_COLLAPSED ? get_constant("separation") : 0;
-            Ref<Texture> tex = get_icon("grabber");
+            int sep = dragger_visibility != DRAGGER_HIDDEN_COLLAPSED ? get_theme_constant("separation") : 0;
+            Ref<Texture> tex = get_theme_icon("grabber");
             Size2 size = get_size();
 
             if (vertical)
@@ -218,7 +220,7 @@ void SplitContainer::_gui_input(const Ref<InputEvent> &p_event) {
 
             if (mb->is_pressed()) {
 
-                int sep = get_constant("separation");
+                int sep = get_theme_constant("separation");
 
                 if (vertical) {
 
@@ -250,14 +252,14 @@ void SplitContainer::_gui_input(const Ref<InputEvent> &p_event) {
 
         bool mouse_inside_state = false;
         if (vertical)
-            mouse_inside_state = mm->get_position().y > middle_sep && mm->get_position().y < middle_sep + get_constant("separation");
+            mouse_inside_state = mm->get_position().y > middle_sep && mm->get_position().y < middle_sep + get_theme_constant("separation");
         else
-            mouse_inside_state = mm->get_position().x > middle_sep && mm->get_position().x < middle_sep + get_constant("separation");
+            mouse_inside_state = mm->get_position().x > middle_sep && mm->get_position().x < middle_sep + get_theme_constant("separation");
 
         if (mouse_inside != mouse_inside_state) {
 
             mouse_inside = mouse_inside_state;
-            if (get_constant("autohide"))
+            if (get_theme_constant("autohide"))
                 update();
         }
 
@@ -278,7 +280,7 @@ Control::CursorShape SplitContainer::get_cursor_shape(const Point2 &p_pos) const
 
     if (!collapsed && _getch(0) && _getch(1) && dragger_visibility == DRAGGER_VISIBLE) {
 
-        int sep = get_constant("separation");
+        int sep = get_theme_constant("separation");
 
         if (vertical) {
 
@@ -361,9 +363,9 @@ void SplitContainer::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collapsed"), "set_collapsed", "is_collapsed");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "dragger_visibility", PropertyHint::Enum, "Visible,Hidden,Hidden & Collapsed"), "set_dragger_visibility", "get_dragger_visibility");
 
-    BIND_ENUM_CONSTANT(DRAGGER_VISIBLE)
-    BIND_ENUM_CONSTANT(DRAGGER_HIDDEN)
-    BIND_ENUM_CONSTANT(DRAGGER_HIDDEN_COLLAPSED)
+    BIND_ENUM_CONSTANT(DRAGGER_VISIBLE);
+    BIND_ENUM_CONSTANT(DRAGGER_HIDDEN);
+    BIND_ENUM_CONSTANT(DRAGGER_HIDDEN_COLLAPSED);
 }
 
 SplitContainer::SplitContainer(bool p_vertical) {

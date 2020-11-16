@@ -46,7 +46,7 @@ struct rcPolyMesh;
 struct rcPolyMeshDetail;
 
 class GODOT_EXPORT NavigationMeshGenerator : public Object {
-    GDCLASS(NavigationMeshGenerator, Object);
+    GDCLASS(NavigationMeshGenerator, Object)
 
     static NavigationMeshGenerator *singleton;
 

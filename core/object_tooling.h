@@ -3,6 +3,9 @@
 #include "core/string_name.h"
 #include "core/forward_decls.h"
 
+#ifndef TOOLS_ENABLED
+#include "core/variant.h"
+#endif
 class Object;
 class IObjectTooling;
 class Variant;
@@ -26,16 +29,16 @@ class RefPtr;
     GODOT_EXPORT void Object_add_tooling_methods();
 #else
     inline constexpr void Object_change_notify(Object * /*self*/,StringView /*p_what*/ = {}) {}
-    inline constexpr IObjectTooling * GODOT_EXPORT create_tooling_for(Object * /*self*/) { return nullptr; }
-    inline constexpr void GODOT_EXPORT relase_tooling(IObjectTooling *) {}
+    inline constexpr IObjectTooling * create_tooling_for(Object * /*self*/) { return nullptr; }
+    inline constexpr void relase_tooling(IObjectTooling *) {}
     inline constexpr void Object_add_change_receptor(Object * /*self*/,Object * /*p_receptor*/) {}
-    inline constexpr void Object_remove_change_receptor(Object *self,Object *p_receptor) {}
-    inline constexpr void Object_set_edited(Object *self,bool p_edited,bool increment_version=true) {}
-    inline constexpr bool Object_set_fallback(Object *self,const StringName &p_name,const Variant &p_value) {return false;}
-    inline Variant Object_get_fallback(const Object *self, const StringName &p_name, bool &r_valid) { r_valid=false; return {};}
-    inline constexpr void Object_add_tool_properties(List<PropertyInfo> *) {}
-    inline constexpr bool Object_script_signal_validate(const RefPtr & self) { return false; }
-    inline constexpr bool Object_allow_disconnect(ObjectNS::ConnectFlags f) { return true; }
+    inline constexpr void Object_remove_change_receptor(Object * /*self*/,Object * /*p_receptor*/) {}
+    inline constexpr void Object_set_edited(Object * /*self*/,bool /*p_edited*/,bool /*increment_version*/=true) {}
+    inline constexpr bool Object_set_fallback(Object * /*self*/,const StringName &/*p_name*/, const Variant & /*p_value*/) {return false;}
+    inline Variant Object_get_fallback(const Object * /*self*/, const StringName &/*p_name*/, bool & r_valid) { r_valid=false; return {};}
+    inline constexpr void Object_add_tool_properties(Vector<PropertyInfo> *) {}
+    inline constexpr bool Object_script_signal_validate(const RefPtr & /*self*/) { return false; }
+    inline constexpr bool Object_allow_disconnect(uint32_t /*f*/) { return true; }
     inline constexpr void Object_add_tooling_methods() {}
 #endif
 

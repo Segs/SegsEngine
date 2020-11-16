@@ -216,8 +216,8 @@ void Timer::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "paused", PropertyHint::None, "", 0), "set_paused", "is_paused");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "time_left", PropertyHint::None, "", 0), "", "get_time_left");
 
-    BIND_ENUM_CONSTANT(TIMER_PROCESS_PHYSICS)
-    BIND_ENUM_CONSTANT(TIMER_PROCESS_IDLE)
+    BIND_ENUM_CONSTANT(TIMER_PROCESS_PHYSICS);
+    BIND_ENUM_CONSTANT(TIMER_PROCESS_IDLE);
 }
 
 Timer::Timer() {

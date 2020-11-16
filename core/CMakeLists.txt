@@ -111,6 +111,28 @@ set(core_sources
     math/triangle_mesh.cpp
     math/triangle_mesh.h
 
+    # cannot be put in common_core since it accesses projectsettings which accesses variant
+    os/dir_access.cpp
+    os/dir_access.h
+    os/file_access.cpp
+    os/file_access.h
+    # cannot be put in common_core since it accesses variant
+    io/json.cpp
+    io/json.h
+    # cannot be put in common_core since it accesses variant
+    os/os.cpp
+    os/os.h
+    # cannot be put in common_core since it accesses input events
+    os/keyboard.cpp
+    os/keyboard.h
+    os/midi_driver.cpp
+    os/midi_driver.h
+    # cannot be put in common_core since it accesses variant
+    object_db.cpp
+    object_db.h
+
+    object.cpp
+    object.h
     os/alloc_wrapper.h
     os/input.cpp
     os/input.h
@@ -123,7 +145,6 @@ set(core_sources
     plugin_interfaces/ResourceImporterInterface.h
     plugin_interfaces/ResourceLoaderInterface.h
     plugin_interfaces/load_params.h
-    reflection_support/reflection_generator.cpp
     resource/manifest.cpp
     resource/manifest.h
     resource/resource_manager.h
@@ -145,8 +166,8 @@ set(core_sources
     cowdata_impl.h
     engine.cpp
     engine.h
-    func_ref.cpp
-    func_ref.h
+#    func_ref.cpp
+#    func_ref.h
     global_constants.cpp
     global_constants.h
     hashfuncs.h
@@ -155,7 +176,6 @@ set(core_sources
     image_enum_casters.h
     message_queue.cpp
     message_queue.h
-    method_arg_casters.h
     method_bind.cpp
     method_bind.h
     method_bind_interface.h
@@ -164,6 +184,8 @@ set(core_sources
     method_ptrcall.h
     object_tooling.h
     object_tooling.cpp
+    pool_vector.cpp
+    pool_vector.h
 
     packed_data_container.cpp
     packed_data_container.h
@@ -191,6 +213,12 @@ set(core_sources
     type_info.h
     undo_redo.cpp
     undo_redo.h
+
+    array.cpp
+    array.h
+    dictionary.cpp
+    dictionary.h
+
     variant.cpp
     variant.h
     variant_call.cpp
@@ -198,7 +226,11 @@ set(core_sources
     variant_parser.cpp
     variant_parser.h
 )
-
+set(editor_core_sources
+    reflection_support/reflection_generator.cpp
+    reflection_support/reflection_data.cpp
+    reflection_support/reflection_data.h
+)
 configure_file(configuration.h.cmake configuration.h)
 #those files are common to all modes editor/projectmanager/client/server/etc.
 set(generic_core_sources
@@ -206,8 +238,6 @@ set(generic_core_sources
     io/compression.h
     io/ip_address.cpp
     io/ip_address.h
-    io/json.cpp
-    io/json.h
     io/zip_io.cpp
     io/zip_io.h
 
@@ -254,18 +284,21 @@ set(generic_core_sources
     math/vector3i.cpp
     math/vector3i.h
 
-    os/dir_access.cpp
-    os/dir_access.h
-    os/file_access.cpp
-    os/file_access.h
-    os/keyboard.cpp
-    os/keyboard.h
+    jlsignal/DoublyLinkedList.h
+    jlsignal/FastFunc.h
+    jlsignal/ObjectPool.cpp
+    jlsignal/ObjectPool.h
+    jlsignal/ObjectPoolScopedAllocator.h
+    jlsignal/ScopedAllocator.h
+    jlsignal/SignalBase.cpp
+    jlsignal/SignalBase.h
+    jlsignal/SignalDefinitions.h
+    jlsignal/Signal.h
+    #jlsignal/StaticSignalConnectionAllocators.h
+    jlsignal/Utils.h
+
     os/memory.cpp
     os/memory.h
-    os/midi_driver.cpp
-    os/midi_driver.h
-    os/os.cpp
-    os/os.h
     os/mutex.cpp
     os/mutex.h
     os/rw_lock.cpp
@@ -281,11 +314,6 @@ set(generic_core_sources
     os/threaded_array_processor.h
 
     service_interfaces/CoreInterface.h
-
-    array.cpp
-    array.h
-    dictionary.cpp
-    dictionary.h
 
     color.cpp
     color.h
@@ -312,11 +340,6 @@ set(generic_core_sources
     timing_assert.h
     typedefs.h
 
-    object_db.cpp
-    object_db.h
-    object.cpp
-    object.h
-
     property_info.cpp
     property_info.h
     typesystem_decls.h
@@ -328,8 +351,6 @@ set(generic_core_sources
     #ordered_hash_map.h
     oa_hash_map.h
     pair.h
-    pool_vector.cpp
-    pool_vector.h
     ring_buffer.h
     string.cpp
     string.h
@@ -341,7 +362,6 @@ set(generic_core_sources
     string_utils.inl
     vector.cpp
     vector.h
-    vmap.h
     vset.h
 
     container_tools.h
@@ -353,8 +373,6 @@ set(generic_core_sources
 
     doc_support/doc_data.cpp
     doc_support/doc_data.h
-    reflection_support/reflection_data.cpp
-    reflection_support/reflection_data.h
 )
 set(tool_core_sources
     math/math_fieldwise.cpp
@@ -412,18 +430,16 @@ target_link_libraries(se_core PRIVATE EASTL minizip thirdparty_misc )
 target_include_directories(se_core PUBLIC ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 set_common_target_properties(se_core)
 # TODO: this should use interface library common to all targets!
-target_link_libraries(se_core PUBLIC editor_interface)
+target_link_libraries(se_core PUBLIC common_interface)
 
 #add_subdirectory(helper)
 # Build it all as a library
 # Make binders
 
 foreach(tgt ${global_targets})
-    OPTION(OPTION_${tgt}_USE_PTRCALL "Use ptrcall in GDNative" OFF)
-
     add_library(${tgt}_core STATIC
         ${CMAKE_CURRENT_BINARY_DIR}/script_encryption_key.gen.cpp
-        ${core_sources} ${tool_core_sources}
+        ${core_sources} ${tool_core_sources} ${${tgt}_core_sources}
         service_interfaces/CoreInterface.h
     )
     if(USE_PRECOMPILED_HEADERS)
@@ -431,9 +447,10 @@ foreach(tgt ${global_targets})
             target_precompile_headers(${tgt}_core REUSE_FROM se_core)
         endforeach()
     endif()
+    get_target_property(ccc common_interface INTERFACE_COMPILE_DEFINITIONS)
 
     target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces )
-    target_link_libraries(${tgt}_core PUBLIC se_core EASTL_Import zlib_interface concurrent_queue)
+    target_link_libraries(${tgt}_core PUBLIC se_core EASTL_Import zlib_interface concurrent_queue ${tgt}_interface)
 
     target_link_libraries(${tgt}_engine PRIVATE EASTL minizip)
     target_link_libraries(${tgt}_engine INTERFACE EASTL_Import minizip_interface)
@@ -466,4 +483,3 @@ file(
 )
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${tree_source_list})
-

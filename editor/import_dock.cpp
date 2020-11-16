@@ -127,20 +127,18 @@ void ImportDock::set_edit_path(StringView p_path) {
 
     Vector<ResourceImporterInterface *> importers;
     ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_path), &importers);
-    List<Pair<StringName, StringName> > importer_names;
 
-    for (size_t i=0,fin=importers.size(); i<fin; ++i) {
-        importer_names.push_back(Pair<StringName, StringName>(importers[i]->get_visible_name(), importers[i]->get_importer_name()));
-    }
-
-    importer_names.sort(PairSort<StringName, StringName>());
+    eastl::sort(importers.begin(),importers.end(),[](const ResourceImporterInterface *a,const ResourceImporterInterface *b)->bool {
+       return strcmp(a->get_visible_name(),b->get_visible_name()) < 0;
+    });
 
     import_as->clear();
 
-    for (const Pair<StringName, StringName> &E : importer_names) {
-        import_as->add_item(E.first);
-        import_as->set_item_metadata(import_as->get_item_count() - 1, E.second);
-        if (E.second == params->importer->get_importer_name()) {
+    for (const ResourceImporterInterface *E : importers) {
+        import_as->add_item(StringName(E->get_visible_name()));
+        const char *importer_name=E->get_importer_name();
+        import_as->set_item_metadata(import_as->get_item_count() - 1, importer_name);
+        if (StringView(importer_name) == params->importer->get_importer_name()) {
             import_as->select(import_as->get_item_count() - 1);
         }
     }
@@ -252,20 +250,20 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
 
     Vector<ResourceImporterInterface * > importers;
     ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_paths[0]), &importers);
-    List<Pair<StringName, StringName> > importer_names;
 
-    for (int i=0,fin=importers.size(); i<fin; ++i) {
-        importer_names.push_back(Pair<StringName, StringName>(importers[i]->get_visible_name(), importers[i]->get_importer_name()));
-    }
 
-    importer_names.sort(PairSort<StringName, StringName>());
+    eastl::sort(importers.begin(),importers.end(),[](const ResourceImporterInterface *a,const ResourceImporterInterface *b)->bool {
+       return strcmp(a->get_visible_name(),b->get_visible_name()) < 0;
+    });
+
 
     import_as->clear();
 
-    for (const Pair<StringName, StringName> &E : importer_names) {
-        import_as->add_item(E.first);
-        import_as->set_item_metadata(import_as->get_item_count() - 1, E.second);
-        if (E.second == params->importer->get_importer_name()) {
+    for (const ResourceImporterInterface *E : importers) {
+        import_as->add_item(StringName(E->get_visible_name()));
+        const char *imp_name = E->get_importer_name();
+        import_as->set_item_metadata(import_as->get_item_count() - 1, imp_name);
+        if (imp_name == params->importer->get_importer_name()) {
             import_as->select(import_as->get_item_count() - 1);
         }
     }
@@ -292,11 +290,11 @@ void ImportDock::_update_preset_menu() {
     }
 
     preset->get_popup()->add_separator();
-    preset->get_popup()->add_item(FormatSN(TTR("Set as Default for '%s'").asCString(), params->importer->get_visible_name().asCString()), ITEM_SET_AS_DEFAULT);
+    preset->get_popup()->add_item(FormatSN(TTR("Set as Default for '%s'").asCString(), params->importer->get_visible_name()), ITEM_SET_AS_DEFAULT);
     if (ProjectSettings::get_singleton()->has_setting(StringName(String("importer_defaults/") + params->importer->get_importer_name()))) {
         preset->get_popup()->add_item(TTR("Load Default"), ITEM_LOAD_DEFAULT);
         preset->get_popup()->add_separator();
-        preset->get_popup()->add_item(FormatSN(TTR("Clear Default for '%s'").asCString(), params->importer->get_visible_name().asCString()), ITEM_CLEAR_DEFAULT);
+        preset->get_popup()->add_item(FormatSN(TTR("Clear Default for '%s'").asCString(), params->importer->get_visible_name()), ITEM_CLEAR_DEFAULT);
     }
 }
 void ImportDock::_importer_selected(int i_idx) {
@@ -456,7 +454,7 @@ void ImportDock::_reimport() {
         Error err = config->load(params->paths[i] + ".import");
         ERR_CONTINUE(err != OK);
 
-        StringName importer_name = params->importer->get_importer_name();
+        StringName importer_name(params->importer->get_importer_name());
 
         if (params->checking && config->get_value("remap", "importer") == params->importer->get_importer_name()) {
             //update only what is edited (checkboxes) if the importer is the same
@@ -500,13 +498,13 @@ void ImportDock::_notification(int p_what) {
 
         case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
 
-            imported->add_style_override("normal", get_stylebox("normal", "LineEdit"));
+            imported->add_theme_style_override("normal", get_theme_stylebox("normal", "LineEdit"));
         } break;
 
         case NOTIFICATION_ENTER_TREE: {
 
             import_opts->edit(params);
-            label_warning->add_color_override("font_color", get_color("warning_color", "Editor"));
+            label_warning->add_theme_color_override("font_color", get_theme_color("warning_color", "Editor"));
         } break;
     }
 }
@@ -518,15 +516,7 @@ void ImportDock::_property_toggled(const StringName &p_prop, bool p_checked) {
         params->checked.erase(p_prop);
     }
 }
-void ImportDock::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_reimport"), &ImportDock::_reimport);
-    MethodBinder::bind_method(D_METHOD("_preset_selected"), &ImportDock::_preset_selected);
-    MethodBinder::bind_method(D_METHOD("_importer_selected"), &ImportDock::_importer_selected);
-    MethodBinder::bind_method(D_METHOD("_property_toggled"), &ImportDock::_property_toggled);
-    MethodBinder::bind_method(D_METHOD("_reimport_and_restart"), &ImportDock::_reimport_and_restart);
-    MethodBinder::bind_method(D_METHOD("_reimport_attempt"), &ImportDock::_reimport_attempt);
-}
 
 void ImportDock::initialize_import_options() const {
 
@@ -539,7 +529,7 @@ ImportDock::ImportDock() {
 
     set_name("Import");
     imported = memnew(Label);
-    imported->add_style_override("normal", EditorNode::get_singleton()->get_gui_base()->get_stylebox("normal", "LineEdit"));
+    imported->add_theme_style_override("normal", EditorNode::get_singleton()->get_gui_base()->get_theme_stylebox("normal", "LineEdit"));
     imported->set_clip_text(true);
     add_child(imported);
     HBoxContainer *hb = memnew(HBoxContainer);

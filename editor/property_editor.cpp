@@ -118,7 +118,7 @@ void CustomPropertyEditor::_notification(int p_what) {
     if (p_what == NOTIFICATION_DRAW) {
 
         RID ci = get_canvas_item();
-        get_stylebox("panel", "PopupMenu")->draw(ci, Rect2(Point2(), get_size()));
+        get_theme_stylebox("panel", "PopupMenu")->draw(ci, Rect2(Point2(), get_size()));
     }
     if (p_what == MainLoop::NOTIFICATION_WM_QUIT_REQUEST) {
         hide();
@@ -587,8 +587,8 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
                 text_edit->set_text(val_variant.as<String>());
                 text_edit->deselect();
 
-                int button_margin = get_constant("button_margin", "Dialogs");
-                int margin = get_constant("margin", "Dialogs");
+                int button_margin = get_theme_constant("button_margin", "Dialogs");
+                int margin = get_theme_constant("margin", "Dialogs");
 
                 action_buttons[0]->set_anchor(Margin::Left, ANCHOR_END);
                 action_buttons[0]->set_anchor(Margin::Top, ANCHOR_END);
@@ -914,7 +914,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
                 break;
 
             if (p_name == StringView("script") && hint_text == "Script" && object_cast<Node>(owner)) {
-                menu->add_icon_item(get_icon("Script", "EditorIcons"), TTR("New Script"), OBJ_MENU_NEW_SCRIPT);
+                menu->add_icon_item(get_theme_icon("Script", "EditorIcons"), TTR("New Script"), OBJ_MENU_NEW_SCRIPT);
                 menu->add_separator();
             } else if (!hint_text.empty()) {
                 int idx = 0;
@@ -964,7 +964,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
                         int id = TYPE_BASE_ID + idx;
 
                         if (not icon && has_icon(t, "EditorIcons")) {
-                            icon = get_icon(t, "EditorIcons");
+                            icon = get_theme_icon(t, "EditorIcons");
                         }
                         StringName newstr(FormatSN(TTR("New %s").asCString(), t.asCString()));
                         if (icon) {
@@ -983,13 +983,13 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
                     menu->add_separator();
             }
 
-            menu->add_icon_item(get_icon("Load", "EditorIcons"), TTR("Load"), OBJ_MENU_LOAD);
+            menu->add_icon_item(get_theme_icon("Load", "EditorIcons"), TTR("Load"), OBJ_MENU_LOAD);
 
             if (RES(val_variant)) {
 
-                menu->add_icon_item(get_icon("Edit", "EditorIcons"), TTR("Edit"), OBJ_MENU_EDIT);
-                menu->add_icon_item(get_icon("Clear", "EditorIcons"), TTR("Clear"), OBJ_MENU_CLEAR);
-                menu->add_icon_item(get_icon("Duplicate", "EditorIcons"), TTR("Make Unique"), OBJ_MENU_MAKE_UNIQUE);
+                menu->add_icon_item(get_theme_icon("Edit", "EditorIcons"), TTR("Edit"), OBJ_MENU_EDIT);
+                menu->add_icon_item(get_theme_icon("Clear", "EditorIcons"), TTR("Clear"), OBJ_MENU_CLEAR);
+                menu->add_icon_item(get_theme_icon("Duplicate", "EditorIcons"), TTR("Make Unique"), OBJ_MENU_MAKE_UNIQUE);
                 RES r(val_variant);
                 if (r && PathUtils::is_resource_file(r->get_path())) {
                     menu->add_separator();
@@ -1035,10 +1035,10 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
                     Ref<Texture> icon;
                     if (has_icon(what, "EditorIcons")) {
 
-                        icon = get_icon(what, "EditorIcons");
+                        icon = get_theme_icon(what, "EditorIcons");
                     } else {
 
-                        icon = get_icon(what, "Resource");
+                        icon = get_theme_icon(what, "Resource");
                     }
 
                     menu->add_icon_item(icon, FormatSN(TTR("Convert To %s").asCString(), what.asCString()), CONVERT_BASE_ID + i);
@@ -1231,7 +1231,7 @@ void CustomPropertyEditor::_node_path_selected(NodePath p_path) {
         if (!node) {
             val_variant = p_path;
             emit_signal("variant_changed");
-            call_deferred("hide"); //to not mess with dialogs
+            call_deferred([this] { hide(); }); //to not mess with dialogs
             return;
         }
 
@@ -1243,7 +1243,7 @@ void CustomPropertyEditor::_node_path_selected(NodePath p_path) {
 
     val_variant = p_path;
     emit_signal("variant_changed");
-    call_deferred("hide"); //to not mess with dialogs
+    call_deferred([this] { hide(); }); //to not mess with dialogs
 }
 
 void CustomPropertyEditor::_action_pressed(int p_which) {
@@ -1501,7 +1501,7 @@ void CustomPropertyEditor::_draw_easing() {
     Size2 s = easing_draw->get_size();
     Rect2 r(Point2(), s);
     r = r.grow(3);
-    get_stylebox("normal", "LineEdit")->draw(ci, r);
+    get_theme_stylebox("normal", "LineEdit")->draw(ci, r);
 
     int points = 48;
 
@@ -1509,8 +1509,8 @@ void CustomPropertyEditor::_draw_easing() {
     float exp = val_variant.as<float>();
     bool flip = hint_text == "attenuation";
 
-    Ref<Font> f = get_font("font", "Label");
-    Color color = get_color("font_color", "Label");
+    Ref<Font> f = get_theme_font("font", "Label");
+    Color color = get_theme_color("font_color", "Label");
 
     for (int i = 1; i <= points; i++) {
 
@@ -1798,7 +1798,7 @@ void CustomPropertyEditor::_focus_exit() {
 
 void CustomPropertyEditor::config_action_buttons(Span<const StringName> p_strings) {
 
-    Ref<StyleBox> sb = get_stylebox("panel");
+    Ref<StyleBox> sb = get_theme_stylebox("panel");
     int margin_top = sb->get_margin(Margin::Top);
     int margin_left = sb->get_margin(Margin::Left);
     int margin_bottom = sb->get_margin(Margin::Bottom);
@@ -1896,22 +1896,6 @@ void CustomPropertyEditor::config_value_editors_utf8(int p_amount, int p_columns
 }
 void CustomPropertyEditor::_bind_methods() {
 
-    MethodBinder::bind_method("_focus_enter", &CustomPropertyEditor::_focus_enter);
-    MethodBinder::bind_method("_focus_exit", &CustomPropertyEditor::_focus_exit);
-    MethodBinder::bind_method("_modified", &CustomPropertyEditor::_modified);
-    MethodBinder::bind_method("_range_modified", &CustomPropertyEditor::_range_modified);
-    MethodBinder::bind_method("_action_pressed", &CustomPropertyEditor::_action_pressed);
-    MethodBinder::bind_method("_file_selected", &CustomPropertyEditor::_file_selected);
-    MethodBinder::bind_method("_type_create_selected", &CustomPropertyEditor::_type_create_selected);
-    MethodBinder::bind_method("_node_path_selected", &CustomPropertyEditor::_node_path_selected);
-    MethodBinder::bind_method("_color_changed", &CustomPropertyEditor::_color_changed);
-    MethodBinder::bind_method("_draw_easing", &CustomPropertyEditor::_draw_easing);
-    MethodBinder::bind_method("_drag_easing", &CustomPropertyEditor::_drag_easing);
-    MethodBinder::bind_method("_text_edit_changed", &CustomPropertyEditor::_text_edit_changed);
-    MethodBinder::bind_method("_menu_option", &CustomPropertyEditor::_menu_option);
-    MethodBinder::bind_method("_create_dialog_callback", &CustomPropertyEditor::_create_dialog_callback);
-    MethodBinder::bind_method("_create_selected_property", &CustomPropertyEditor::_create_selected_property);
-
     ADD_SIGNAL(MethodInfo("variant_changed"));
     ADD_SIGNAL(MethodInfo("variant_field_changed", PropertyInfo(VariantType::STRING, "field")));
     ADD_SIGNAL(MethodInfo("resource_edit_request"));
@@ -1985,7 +1969,7 @@ CustomPropertyEditor::CustomPropertyEditor() {
 
     color_picker = nullptr;
 
-    set_as_toplevel(true);
+    set_as_top_level(true);
     file = memnew(EditorFileDialog);
     add_child(file);
     file->hide();

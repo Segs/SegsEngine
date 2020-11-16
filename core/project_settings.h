@@ -81,7 +81,7 @@ protected:
     HashMap<StringName, PropertyInfo> custom_prop_info;
     bool disable_feature_overrides;
     bool using_datapack;
-    List<String> input_presets;
+    Vector<String> input_presets;
 
     Set<String> custom_features;
     HashMap<StringName, StringName> feature_overrides;
@@ -145,7 +145,7 @@ public:
 
     Vector<String> get_optimizer_presets() const;
 
-    const List<String> &get_input_presets() const { return input_presets; }
+    const Vector<String> &get_input_presets() const { return input_presets; }
 
     void set_disable_feature_overrides(bool p_disable);
 

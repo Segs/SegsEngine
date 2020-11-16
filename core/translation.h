@@ -100,7 +100,7 @@ public:
     void add_translation(const Ref<Translation> &p_translation);
     void remove_translation(const Ref<Translation> &p_translation);
 
-    StringName translate(const StringName &p_message) const;
+    StringName translate(StringView p_message) const;
 
     static Vector<String> get_all_locales();
     static Vector<String> get_all_locale_names();

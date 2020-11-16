@@ -90,28 +90,28 @@ IMPL_GDCLASS(VisualShaderNodeFresnel)
 IMPL_GDCLASS(VisualShaderNodeIs)
 IMPL_GDCLASS(VisualShaderNodeCompare)
 
-VARIANT_ENUM_CAST(VisualShaderNodeTexture::TextureType)
-VARIANT_ENUM_CAST(VisualShaderNodeTexture::Source)
-VARIANT_ENUM_CAST(VisualShaderNodeCubeMap::Source)
-VARIANT_ENUM_CAST(VisualShaderNodeCubeMap::TextureType)
-VARIANT_ENUM_CAST(VisualShaderNodeScalarOp::Operator)
-VARIANT_ENUM_CAST(VisualShaderNodeVectorOp::Operator)
-VARIANT_ENUM_CAST(VisualShaderNodeColorOp::Operator)
-VARIANT_ENUM_CAST(VisualShaderNodeTransformMult::Operator)
-VARIANT_ENUM_CAST(VisualShaderNodeTransformVecMult::Operator)
-VARIANT_ENUM_CAST(VisualShaderNodeScalarFunc::Function)
-VARIANT_ENUM_CAST(VisualShaderNodeVectorFunc::Function)
-VARIANT_ENUM_CAST(VisualShaderNodeColorFunc::Function)
-VARIANT_ENUM_CAST(VisualShaderNodeTransformFunc::Function)
-VARIANT_ENUM_CAST(VisualShaderNodeScalarDerivativeFunc::Function)
-VARIANT_ENUM_CAST(VisualShaderNodeVectorDerivativeFunc::Function)
-VARIANT_ENUM_CAST(VisualShaderNodeTextureUniform::TextureType)
-VARIANT_ENUM_CAST(VisualShaderNodeTextureUniform::ColorDefault)
-VARIANT_ENUM_CAST(VisualShaderNodeIs::Function)
-VARIANT_ENUM_CAST(VisualShaderNodeCompare::ComparisonType)
-VARIANT_ENUM_CAST(VisualShaderNodeCompare::Function)
-VARIANT_ENUM_CAST(VisualShaderNodeCompare::Condition)
-VARIANT_ENUM_CAST(VisualShaderNodeScalarUniform::Hint)
+VARIANT_ENUM_CAST(VisualShaderNodeTexture::TextureType);
+VARIANT_ENUM_CAST(VisualShaderNodeTexture::Source);
+VARIANT_ENUM_CAST(VisualShaderNodeCubeMap::Source);
+VARIANT_ENUM_CAST(VisualShaderNodeCubeMap::TextureType);
+VARIANT_ENUM_CAST(VisualShaderNodeScalarOp::Operator);
+VARIANT_ENUM_CAST(VisualShaderNodeVectorOp::Operator);
+VARIANT_ENUM_CAST(VisualShaderNodeColorOp::Operator);
+VARIANT_ENUM_CAST(VisualShaderNodeTransformMult::Operator);
+VARIANT_ENUM_CAST(VisualShaderNodeTransformVecMult::Operator);
+VARIANT_ENUM_CAST(VisualShaderNodeScalarFunc::Function);
+VARIANT_ENUM_CAST(VisualShaderNodeVectorFunc::Function);
+VARIANT_ENUM_CAST(VisualShaderNodeColorFunc::Function);
+VARIANT_ENUM_CAST(VisualShaderNodeTransformFunc::Function);
+VARIANT_ENUM_CAST(VisualShaderNodeScalarDerivativeFunc::Function);
+VARIANT_ENUM_CAST(VisualShaderNodeVectorDerivativeFunc::Function);
+VARIANT_ENUM_CAST(VisualShaderNodeTextureUniform::TextureType);
+VARIANT_ENUM_CAST(VisualShaderNodeTextureUniform::ColorDefault);
+VARIANT_ENUM_CAST(VisualShaderNodeIs::Function);
+VARIANT_ENUM_CAST(VisualShaderNodeCompare::ComparisonType);
+VARIANT_ENUM_CAST(VisualShaderNodeCompare::Function);
+VARIANT_ENUM_CAST(VisualShaderNodeCompare::Condition);
+VARIANT_ENUM_CAST(VisualShaderNodeScalarUniform::Hint);
 ////////////// Scalar
 
 StringView VisualShaderNodeScalarConstant::get_caption() const {
@@ -794,15 +794,15 @@ void VisualShaderNodeTexture::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "texture_type", PropertyHint::Enum, "Data,Color,Normalmap"), "set_texture_type", "get_texture_type");
 
-    BIND_ENUM_CONSTANT(SOURCE_TEXTURE)
-    BIND_ENUM_CONSTANT(SOURCE_SCREEN)
-    BIND_ENUM_CONSTANT(SOURCE_2D_TEXTURE)
-    BIND_ENUM_CONSTANT(SOURCE_2D_NORMAL)
-    BIND_ENUM_CONSTANT(SOURCE_DEPTH)
-    BIND_ENUM_CONSTANT(SOURCE_PORT)
-    BIND_ENUM_CONSTANT(TYPE_DATA)
-    BIND_ENUM_CONSTANT(TYPE_COLOR)
-    BIND_ENUM_CONSTANT(TYPE_NORMALMAP)
+    BIND_ENUM_CONSTANT(SOURCE_TEXTURE);
+    BIND_ENUM_CONSTANT(SOURCE_SCREEN);
+    BIND_ENUM_CONSTANT(SOURCE_2D_TEXTURE);
+    BIND_ENUM_CONSTANT(SOURCE_2D_NORMAL);
+    BIND_ENUM_CONSTANT(SOURCE_DEPTH);
+    BIND_ENUM_CONSTANT(SOURCE_PORT);
+    BIND_ENUM_CONSTANT(TYPE_DATA);
+    BIND_ENUM_CONSTANT(TYPE_COLOR);
+    BIND_ENUM_CONSTANT(TYPE_NORMALMAP);
 }
 
 VisualShaderNodeTexture::VisualShaderNodeTexture() {
@@ -975,9 +975,9 @@ void VisualShaderNodeCubeMap::_bind_methods() {
     BIND_ENUM_CONSTANT(SOURCE_TEXTURE);
     BIND_ENUM_CONSTANT(SOURCE_PORT);
 
-    BIND_ENUM_CONSTANT(TYPE_DATA)
-    BIND_ENUM_CONSTANT(TYPE_COLOR)
-    BIND_ENUM_CONSTANT(TYPE_NORMALMAP)
+    BIND_ENUM_CONSTANT(TYPE_DATA);
+    BIND_ENUM_CONSTANT(TYPE_COLOR);
+    BIND_ENUM_CONSTANT(TYPE_NORMALMAP);
 }
 
 VisualShaderNodeCubeMap::VisualShaderNodeCubeMap() {
@@ -1056,16 +1056,16 @@ void VisualShaderNodeScalarOp::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "operator", PropertyHint::Enum, "Add,Sub,Multiply,Divide,Remainder,Power,Max,Min,Atan2,Step"), "set_operator", "get_operator");
 
-    BIND_ENUM_CONSTANT(OP_ADD)
-    BIND_ENUM_CONSTANT(OP_SUB)
-    BIND_ENUM_CONSTANT(OP_MUL)
-    BIND_ENUM_CONSTANT(OP_DIV)
-    BIND_ENUM_CONSTANT(OP_MOD)
-    BIND_ENUM_CONSTANT(OP_POW)
-    BIND_ENUM_CONSTANT(OP_MAX)
-    BIND_ENUM_CONSTANT(OP_MIN)
-    BIND_ENUM_CONSTANT(OP_ATAN2)
-    BIND_ENUM_CONSTANT(OP_STEP)
+    BIND_ENUM_CONSTANT(OP_ADD);
+    BIND_ENUM_CONSTANT(OP_SUB);
+    BIND_ENUM_CONSTANT(OP_MUL);
+    BIND_ENUM_CONSTANT(OP_DIV);
+    BIND_ENUM_CONSTANT(OP_MOD);
+    BIND_ENUM_CONSTANT(OP_POW);
+    BIND_ENUM_CONSTANT(OP_MAX);
+    BIND_ENUM_CONSTANT(OP_MIN);
+    BIND_ENUM_CONSTANT(OP_ATAN2);
+    BIND_ENUM_CONSTANT(OP_STEP);
 }
 
 VisualShaderNodeScalarOp::VisualShaderNodeScalarOp() {
@@ -1147,18 +1147,18 @@ void VisualShaderNodeVectorOp::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "operator", PropertyHint::Enum, "Add,Sub,Multiply,Divide,Remainder,Power,Max,Min,Cross,Atan2,Reflect,Step"), "set_operator", "get_operator");
 
-    BIND_ENUM_CONSTANT(OP_ADD)
-    BIND_ENUM_CONSTANT(OP_SUB)
-    BIND_ENUM_CONSTANT(OP_MUL)
-    BIND_ENUM_CONSTANT(OP_DIV)
-    BIND_ENUM_CONSTANT(OP_MOD)
-    BIND_ENUM_CONSTANT(OP_POW)
-    BIND_ENUM_CONSTANT(OP_MAX)
-    BIND_ENUM_CONSTANT(OP_MIN)
-    BIND_ENUM_CONSTANT(OP_CROSS)
-    BIND_ENUM_CONSTANT(OP_ATAN2)
-    BIND_ENUM_CONSTANT(OP_REFLECT)
-    BIND_ENUM_CONSTANT(OP_STEP)
+    BIND_ENUM_CONSTANT(OP_ADD);
+    BIND_ENUM_CONSTANT(OP_SUB);
+    BIND_ENUM_CONSTANT(OP_MUL);
+    BIND_ENUM_CONSTANT(OP_DIV);
+    BIND_ENUM_CONSTANT(OP_MOD);
+    BIND_ENUM_CONSTANT(OP_POW);
+    BIND_ENUM_CONSTANT(OP_MAX);
+    BIND_ENUM_CONSTANT(OP_MIN);
+    BIND_ENUM_CONSTANT(OP_CROSS);
+    BIND_ENUM_CONSTANT(OP_ATAN2);
+    BIND_ENUM_CONSTANT(OP_REFLECT);
+    BIND_ENUM_CONSTANT(OP_STEP);
 }
 
 VisualShaderNodeVectorOp::VisualShaderNodeVectorOp() {
@@ -1328,15 +1328,15 @@ void VisualShaderNodeColorOp::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "operator", PropertyHint::Enum, "Screen,Difference,Darken,Lighten,Overlay,Dodge,Burn,SoftLight,HardLight"), "set_operator", "get_operator");
 
-    BIND_ENUM_CONSTANT(OP_SCREEN)
-    BIND_ENUM_CONSTANT(OP_DIFFERENCE)
-    BIND_ENUM_CONSTANT(OP_DARKEN)
-    BIND_ENUM_CONSTANT(OP_LIGHTEN)
-    BIND_ENUM_CONSTANT(OP_OVERLAY)
-    BIND_ENUM_CONSTANT(OP_DODGE)
-    BIND_ENUM_CONSTANT(OP_BURN)
-    BIND_ENUM_CONSTANT(OP_SOFT_LIGHT)
-    BIND_ENUM_CONSTANT(OP_HARD_LIGHT)
+    BIND_ENUM_CONSTANT(OP_SCREEN);
+    BIND_ENUM_CONSTANT(OP_DIFFERENCE);
+    BIND_ENUM_CONSTANT(OP_DARKEN);
+    BIND_ENUM_CONSTANT(OP_LIGHTEN);
+    BIND_ENUM_CONSTANT(OP_OVERLAY);
+    BIND_ENUM_CONSTANT(OP_DODGE);
+    BIND_ENUM_CONSTANT(OP_BURN);
+    BIND_ENUM_CONSTANT(OP_SOFT_LIGHT);
+    BIND_ENUM_CONSTANT(OP_HARD_LIGHT);
 }
 
 VisualShaderNodeColorOp::VisualShaderNodeColorOp() {
@@ -1409,10 +1409,10 @@ void VisualShaderNodeTransformMult::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "operator", PropertyHint::Enum, "A x B,B x A,A x B(per component),B x A(per component)"), "set_operator", "get_operator");
 
-    BIND_ENUM_CONSTANT(OP_AxB)
-    BIND_ENUM_CONSTANT(OP_BxA)
-    BIND_ENUM_CONSTANT(OP_AxB_COMP)
-    BIND_ENUM_CONSTANT(OP_BxA_COMP)
+    BIND_ENUM_CONSTANT(OP_AxB);
+    BIND_ENUM_CONSTANT(OP_BxA);
+    BIND_ENUM_CONSTANT(OP_AxB_COMP);
+    BIND_ENUM_CONSTANT(OP_BxA_COMP);
 }
 
 VisualShaderNodeTransformMult::VisualShaderNodeTransformMult() {
@@ -1484,10 +1484,10 @@ void VisualShaderNodeTransformVecMult::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "operator", PropertyHint::Enum, "A x B,B x A,A x B (3x3),B x A (3x3)"), "set_operator", "get_operator");
 
-    BIND_ENUM_CONSTANT(OP_AxB)
-    BIND_ENUM_CONSTANT(OP_BxA)
-    BIND_ENUM_CONSTANT(OP_3x3_AxB)
-    BIND_ENUM_CONSTANT(OP_3x3_BxA)
+    BIND_ENUM_CONSTANT(OP_AxB);
+    BIND_ENUM_CONSTANT(OP_BxA);
+    BIND_ENUM_CONSTANT(OP_3x3_AxB);
+    BIND_ENUM_CONSTANT(OP_3x3_BxA);
 }
 
 VisualShaderNodeTransformVecMult::VisualShaderNodeTransformVecMult() {
@@ -1587,38 +1587,38 @@ void VisualShaderNodeScalarFunc::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, "Sin,Cos,Tan,ASin,ACos,ATan,SinH,CosH,TanH,Log,Exp,Sqrt,Abs,Sign,Floor,Round,Ceil,Frac,Saturate,Negate,ACosH,ASinH,ATanH,Degrees,Exp2,InverseSqrt,Log2,Radians,Reciprocal,RoundEven,Trunc,OneMinus"), "set_function", "get_function");
 
-    BIND_ENUM_CONSTANT(FUNC_SIN)
-    BIND_ENUM_CONSTANT(FUNC_COS)
-    BIND_ENUM_CONSTANT(FUNC_TAN)
-    BIND_ENUM_CONSTANT(FUNC_ASIN)
-    BIND_ENUM_CONSTANT(FUNC_ACOS)
-    BIND_ENUM_CONSTANT(FUNC_ATAN)
-    BIND_ENUM_CONSTANT(FUNC_SINH)
-    BIND_ENUM_CONSTANT(FUNC_COSH)
-    BIND_ENUM_CONSTANT(FUNC_TANH)
-    BIND_ENUM_CONSTANT(FUNC_LOG)
-    BIND_ENUM_CONSTANT(FUNC_EXP)
-    BIND_ENUM_CONSTANT(FUNC_SQRT)
-    BIND_ENUM_CONSTANT(FUNC_ABS)
-    BIND_ENUM_CONSTANT(FUNC_SIGN)
-    BIND_ENUM_CONSTANT(FUNC_FLOOR)
-    BIND_ENUM_CONSTANT(FUNC_ROUND)
-    BIND_ENUM_CONSTANT(FUNC_CEIL)
-    BIND_ENUM_CONSTANT(FUNC_FRAC)
-    BIND_ENUM_CONSTANT(FUNC_SATURATE)
-    BIND_ENUM_CONSTANT(FUNC_NEGATE)
-    BIND_ENUM_CONSTANT(FUNC_ACOSH)
-    BIND_ENUM_CONSTANT(FUNC_ASINH)
-    BIND_ENUM_CONSTANT(FUNC_ATANH)
-    BIND_ENUM_CONSTANT(FUNC_DEGREES)
-    BIND_ENUM_CONSTANT(FUNC_EXP2)
-    BIND_ENUM_CONSTANT(FUNC_INVERSE_SQRT)
-    BIND_ENUM_CONSTANT(FUNC_LOG2)
-    BIND_ENUM_CONSTANT(FUNC_RADIANS)
-    BIND_ENUM_CONSTANT(FUNC_RECIPROCAL)
-    BIND_ENUM_CONSTANT(FUNC_ROUNDEVEN)
-    BIND_ENUM_CONSTANT(FUNC_TRUNC)
-    BIND_ENUM_CONSTANT(FUNC_ONEMINUS)
+    BIND_ENUM_CONSTANT(FUNC_SIN);
+    BIND_ENUM_CONSTANT(FUNC_COS);
+    BIND_ENUM_CONSTANT(FUNC_TAN);
+    BIND_ENUM_CONSTANT(FUNC_ASIN);
+    BIND_ENUM_CONSTANT(FUNC_ACOS);
+    BIND_ENUM_CONSTANT(FUNC_ATAN);
+    BIND_ENUM_CONSTANT(FUNC_SINH);
+    BIND_ENUM_CONSTANT(FUNC_COSH);
+    BIND_ENUM_CONSTANT(FUNC_TANH);
+    BIND_ENUM_CONSTANT(FUNC_LOG);
+    BIND_ENUM_CONSTANT(FUNC_EXP);
+    BIND_ENUM_CONSTANT(FUNC_SQRT);
+    BIND_ENUM_CONSTANT(FUNC_ABS);
+    BIND_ENUM_CONSTANT(FUNC_SIGN);
+    BIND_ENUM_CONSTANT(FUNC_FLOOR);
+    BIND_ENUM_CONSTANT(FUNC_ROUND);
+    BIND_ENUM_CONSTANT(FUNC_CEIL);
+    BIND_ENUM_CONSTANT(FUNC_FRAC);
+    BIND_ENUM_CONSTANT(FUNC_SATURATE);
+    BIND_ENUM_CONSTANT(FUNC_NEGATE);
+    BIND_ENUM_CONSTANT(FUNC_ACOSH);
+    BIND_ENUM_CONSTANT(FUNC_ASINH);
+    BIND_ENUM_CONSTANT(FUNC_ATANH);
+    BIND_ENUM_CONSTANT(FUNC_DEGREES);
+    BIND_ENUM_CONSTANT(FUNC_EXP2);
+    BIND_ENUM_CONSTANT(FUNC_INVERSE_SQRT);
+    BIND_ENUM_CONSTANT(FUNC_LOG2);
+    BIND_ENUM_CONSTANT(FUNC_RADIANS);
+    BIND_ENUM_CONSTANT(FUNC_RECIPROCAL);
+    BIND_ENUM_CONSTANT(FUNC_ROUNDEVEN);
+    BIND_ENUM_CONSTANT(FUNC_TRUNC);
+    BIND_ENUM_CONSTANT(FUNC_ONEMINUS);
 }
 
 VisualShaderNodeScalarFunc::VisualShaderNodeScalarFunc() {
@@ -1751,41 +1751,41 @@ void VisualShaderNodeVectorFunc::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, "Normalize,Saturate,Negate,Reciprocal,RGB2HSV,HSV2RGB,Abs,ACos,ACosH,ASin,ASinH,ATan,ATanH,Ceil,Cos,CosH,Degrees,Exp,Exp2,Floor,Frac,InverseSqrt,Log,Log2,Radians,Round,RoundEven,Sign,Sin,SinH,Sqrt,Tan,TanH,Trunc,OneMinus"), "set_function", "get_function");
 
-    BIND_ENUM_CONSTANT(FUNC_NORMALIZE)
-    BIND_ENUM_CONSTANT(FUNC_SATURATE)
-    BIND_ENUM_CONSTANT(FUNC_NEGATE)
-    BIND_ENUM_CONSTANT(FUNC_RECIPROCAL)
-    BIND_ENUM_CONSTANT(FUNC_RGB2HSV)
-    BIND_ENUM_CONSTANT(FUNC_HSV2RGB)
-    BIND_ENUM_CONSTANT(FUNC_ABS)
-    BIND_ENUM_CONSTANT(FUNC_ACOS)
-    BIND_ENUM_CONSTANT(FUNC_ACOSH)
-    BIND_ENUM_CONSTANT(FUNC_ASIN)
-    BIND_ENUM_CONSTANT(FUNC_ASINH)
-    BIND_ENUM_CONSTANT(FUNC_ATAN)
-    BIND_ENUM_CONSTANT(FUNC_ATANH)
-    BIND_ENUM_CONSTANT(FUNC_CEIL)
-    BIND_ENUM_CONSTANT(FUNC_COS)
-    BIND_ENUM_CONSTANT(FUNC_COSH)
-    BIND_ENUM_CONSTANT(FUNC_DEGREES)
-    BIND_ENUM_CONSTANT(FUNC_EXP)
-    BIND_ENUM_CONSTANT(FUNC_EXP2)
-    BIND_ENUM_CONSTANT(FUNC_FLOOR)
-    BIND_ENUM_CONSTANT(FUNC_FRAC)
-    BIND_ENUM_CONSTANT(FUNC_INVERSE_SQRT)
-    BIND_ENUM_CONSTANT(FUNC_LOG)
-    BIND_ENUM_CONSTANT(FUNC_LOG2)
-    BIND_ENUM_CONSTANT(FUNC_RADIANS)
-    BIND_ENUM_CONSTANT(FUNC_ROUND)
-    BIND_ENUM_CONSTANT(FUNC_ROUNDEVEN)
-    BIND_ENUM_CONSTANT(FUNC_SIGN)
-    BIND_ENUM_CONSTANT(FUNC_SIN)
-    BIND_ENUM_CONSTANT(FUNC_SINH)
-    BIND_ENUM_CONSTANT(FUNC_SQRT)
-    BIND_ENUM_CONSTANT(FUNC_TAN)
-    BIND_ENUM_CONSTANT(FUNC_TANH)
-    BIND_ENUM_CONSTANT(FUNC_TRUNC)
-    BIND_ENUM_CONSTANT(FUNC_ONEMINUS)
+    BIND_ENUM_CONSTANT(FUNC_NORMALIZE);
+    BIND_ENUM_CONSTANT(FUNC_SATURATE);
+    BIND_ENUM_CONSTANT(FUNC_NEGATE);
+    BIND_ENUM_CONSTANT(FUNC_RECIPROCAL);
+    BIND_ENUM_CONSTANT(FUNC_RGB2HSV);
+    BIND_ENUM_CONSTANT(FUNC_HSV2RGB);
+    BIND_ENUM_CONSTANT(FUNC_ABS);
+    BIND_ENUM_CONSTANT(FUNC_ACOS);
+    BIND_ENUM_CONSTANT(FUNC_ACOSH);
+    BIND_ENUM_CONSTANT(FUNC_ASIN);
+    BIND_ENUM_CONSTANT(FUNC_ASINH);
+    BIND_ENUM_CONSTANT(FUNC_ATAN);
+    BIND_ENUM_CONSTANT(FUNC_ATANH);
+    BIND_ENUM_CONSTANT(FUNC_CEIL);
+    BIND_ENUM_CONSTANT(FUNC_COS);
+    BIND_ENUM_CONSTANT(FUNC_COSH);
+    BIND_ENUM_CONSTANT(FUNC_DEGREES);
+    BIND_ENUM_CONSTANT(FUNC_EXP);
+    BIND_ENUM_CONSTANT(FUNC_EXP2);
+    BIND_ENUM_CONSTANT(FUNC_FLOOR);
+    BIND_ENUM_CONSTANT(FUNC_FRAC);
+    BIND_ENUM_CONSTANT(FUNC_INVERSE_SQRT);
+    BIND_ENUM_CONSTANT(FUNC_LOG);
+    BIND_ENUM_CONSTANT(FUNC_LOG2);
+    BIND_ENUM_CONSTANT(FUNC_RADIANS);
+    BIND_ENUM_CONSTANT(FUNC_ROUND);
+    BIND_ENUM_CONSTANT(FUNC_ROUNDEVEN);
+    BIND_ENUM_CONSTANT(FUNC_SIGN);
+    BIND_ENUM_CONSTANT(FUNC_SIN);
+    BIND_ENUM_CONSTANT(FUNC_SINH);
+    BIND_ENUM_CONSTANT(FUNC_SQRT);
+    BIND_ENUM_CONSTANT(FUNC_TAN);
+    BIND_ENUM_CONSTANT(FUNC_TANH);
+    BIND_ENUM_CONSTANT(FUNC_TRUNC);
+    BIND_ENUM_CONSTANT(FUNC_ONEMINUS);
 }
 
 VisualShaderNodeVectorFunc::VisualShaderNodeVectorFunc() {
@@ -1876,8 +1876,8 @@ void VisualShaderNodeColorFunc::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, "Grayscale,Sepia"), "set_function", "get_function");
 
-    BIND_ENUM_CONSTANT(FUNC_GRAYSCALE)
-    BIND_ENUM_CONSTANT(FUNC_SEPIA)
+    BIND_ENUM_CONSTANT(FUNC_GRAYSCALE);
+    BIND_ENUM_CONSTANT(FUNC_SEPIA);
 }
 
 VisualShaderNodeColorFunc::VisualShaderNodeColorFunc() {
@@ -1953,8 +1953,8 @@ void VisualShaderNodeTransformFunc::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, "Inverse,Transpose"), "set_function", "get_function");
 
-    BIND_ENUM_CONSTANT(FUNC_INVERSE)
-    BIND_ENUM_CONSTANT(FUNC_TRANSPOSE)
+    BIND_ENUM_CONSTANT(FUNC_INVERSE);
+    BIND_ENUM_CONSTANT(FUNC_TRANSPOSE);
 }
 
 VisualShaderNodeTransformFunc::VisualShaderNodeTransformFunc() {
@@ -2137,9 +2137,9 @@ void VisualShaderNodeScalarDerivativeFunc::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, "Sum,X,Y"), "set_function", "get_function");
 
-    BIND_ENUM_CONSTANT(FUNC_SUM)
-    BIND_ENUM_CONSTANT(FUNC_X)
-    BIND_ENUM_CONSTANT(FUNC_Y)
+    BIND_ENUM_CONSTANT(FUNC_SUM);
+    BIND_ENUM_CONSTANT(FUNC_X);
+    BIND_ENUM_CONSTANT(FUNC_Y);
 }
 
 VisualShaderNodeScalarDerivativeFunc::VisualShaderNodeScalarDerivativeFunc() {
@@ -2215,9 +2215,9 @@ void VisualShaderNodeVectorDerivativeFunc::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, "Sum,X,Y"), "set_function", "get_function");
 
-    BIND_ENUM_CONSTANT(FUNC_SUM)
-    BIND_ENUM_CONSTANT(FUNC_X)
-    BIND_ENUM_CONSTANT(FUNC_Y)
+    BIND_ENUM_CONSTANT(FUNC_SUM);
+    BIND_ENUM_CONSTANT(FUNC_X);
+    BIND_ENUM_CONSTANT(FUNC_Y);
 }
 
 VisualShaderNodeVectorDerivativeFunc::VisualShaderNodeVectorDerivativeFunc() {
@@ -3326,6 +3326,10 @@ StringName VisualShaderNodeTextureUniform::get_output_port_name(int p_port) cons
     }
 }
 
+bool VisualShaderNodeTextureUniform::is_code_generated() const {
+    return is_output_port_connected(0) || is_output_port_connected(1); // rgb or alpha
+}
+
 String VisualShaderNodeTextureUniform::generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
     String code("uniform sampler2D " + get_uniform_name());
 
@@ -3408,13 +3412,13 @@ void VisualShaderNodeTextureUniform::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "texture_type", PropertyHint::Enum, "Data,Color,Normalmap,Aniso"), "set_texture_type", "get_texture_type");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "color_default", PropertyHint::Enum, "White Default,Black Default"), "set_color_default", "get_color_default");
 
-    BIND_ENUM_CONSTANT(TYPE_DATA)
-    BIND_ENUM_CONSTANT(TYPE_COLOR)
-    BIND_ENUM_CONSTANT(TYPE_NORMALMAP)
-    BIND_ENUM_CONSTANT(TYPE_ANISO)
+    BIND_ENUM_CONSTANT(TYPE_DATA);
+    BIND_ENUM_CONSTANT(TYPE_COLOR);
+    BIND_ENUM_CONSTANT(TYPE_NORMALMAP);
+    BIND_ENUM_CONSTANT(TYPE_ANISO);
 
-    BIND_ENUM_CONSTANT(COLOR_DEFAULT_WHITE)
-    BIND_ENUM_CONSTANT(COLOR_DEFAULT_BLACK)
+    BIND_ENUM_CONSTANT(COLOR_DEFAULT_WHITE);
+    BIND_ENUM_CONSTANT(COLOR_DEFAULT_BLACK);
 }
 StringName VisualShaderNodeTextureUniform::get_input_port_default_hint(int p_port) const {
     if (p_port == 0) {
@@ -3803,6 +3807,13 @@ StringName VisualShaderNodeFresnel::get_output_port_name(int p_port) const {
     return StringName("result");
 }
 
+bool VisualShaderNodeFresnel::is_generate_input_var(int p_port) const {
+    if (p_port == 2) {
+        return false;
+    }
+    return true;
+}
+
 String VisualShaderNodeFresnel::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
 
     String normal;
@@ -3818,7 +3829,15 @@ String VisualShaderNodeFresnel::generate_code(ShaderMode p_mode, VisualShader::T
         view = p_input_vars[1];
     }
 
-    return "\t" + p_output_vars[0] + " = " + p_input_vars[2] + " ? (pow(clamp(dot(" + normal + ", " + view + "), 0.0, 1.0), " + p_input_vars[3] + ")) : (pow(1.0 - clamp(dot(" + normal + ", " + view + "), 0.0, 1.0), " + p_input_vars[3] + "));\n";
+    if (is_input_port_connected(2)) {
+        return "\t" + p_output_vars[0] + " = " + p_input_vars[2] + " ? (pow(clamp(dot(" + normal + ", " + view + "), 0.0, 1.0), " + p_input_vars[3] + ")) : (pow(1.0 - clamp(dot(" + normal + ", " + view + "), 0.0, 1.0), " + p_input_vars[3] + "));\n";
+    } else {
+        if (get_input_port_default_value(2)) {
+            return "\t" + p_output_vars[0] + " = pow(clamp(dot(" + normal + ", " + view + "), 0.0, 1.0), " + p_input_vars[3] + ");\n";
+        } else {
+            return "\t" + p_output_vars[0] + " = pow(1.0 - clamp(dot(" + normal + ", " + view + "), 0.0, 1.0), " + p_input_vars[3] + ");\n";
+        }
+    }
 }
 
 StringName VisualShaderNodeFresnel::get_input_port_default_hint(int p_port) const {
@@ -3911,8 +3930,8 @@ void VisualShaderNodeIs::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, "Inf,NaN"), "set_function", "get_function");
 
-    BIND_ENUM_CONSTANT(FUNC_IS_INF)
-    BIND_ENUM_CONSTANT(FUNC_IS_NAN)
+    BIND_ENUM_CONSTANT(FUNC_IS_INF);
+    BIND_ENUM_CONSTANT(FUNC_IS_NAN);
 }
 
 VisualShaderNodeIs::VisualShaderNodeIs() {
@@ -4131,20 +4150,20 @@ void VisualShaderNodeCompare::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, "a == b,a != b,a > b,a >= b,a < b,a <= b"), "set_function", "get_function");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "condition", PropertyHint::Enum, "All,Any"), "set_condition", "get_condition");
 
-    BIND_ENUM_CONSTANT(CTYPE_SCALAR)
-    BIND_ENUM_CONSTANT(CTYPE_VECTOR)
-    BIND_ENUM_CONSTANT(CTYPE_BOOLEAN)
-    BIND_ENUM_CONSTANT(CTYPE_TRANSFORM)
+    BIND_ENUM_CONSTANT(CTYPE_SCALAR);
+    BIND_ENUM_CONSTANT(CTYPE_VECTOR);
+    BIND_ENUM_CONSTANT(CTYPE_BOOLEAN);
+    BIND_ENUM_CONSTANT(CTYPE_TRANSFORM);
 
-    BIND_ENUM_CONSTANT(FUNC_EQUAL)
-    BIND_ENUM_CONSTANT(FUNC_NOT_EQUAL)
-    BIND_ENUM_CONSTANT(FUNC_GREATER_THAN)
-    BIND_ENUM_CONSTANT(FUNC_GREATER_THAN_EQUAL)
-    BIND_ENUM_CONSTANT(FUNC_LESS_THAN)
-    BIND_ENUM_CONSTANT(FUNC_LESS_THAN_EQUAL)
+    BIND_ENUM_CONSTANT(FUNC_EQUAL);
+    BIND_ENUM_CONSTANT(FUNC_NOT_EQUAL);
+    BIND_ENUM_CONSTANT(FUNC_GREATER_THAN);
+    BIND_ENUM_CONSTANT(FUNC_GREATER_THAN_EQUAL);
+    BIND_ENUM_CONSTANT(FUNC_LESS_THAN);
+    BIND_ENUM_CONSTANT(FUNC_LESS_THAN_EQUAL);
 
-    BIND_ENUM_CONSTANT(COND_ALL)
-    BIND_ENUM_CONSTANT(COND_ANY)
+    BIND_ENUM_CONSTANT(COND_ALL);
+    BIND_ENUM_CONSTANT(COND_ANY);
 }
 
 VisualShaderNodeCompare::VisualShaderNodeCompare() {

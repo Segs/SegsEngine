@@ -536,8 +536,7 @@ void NetworkedMultiplayerENet::disconnect_peer(int p_peer, bool now) {
                 enet_peer_send(peer_pair.second, SYSCH_CONFIG, packet);
             }
         }
-        if (id)
-            memdelete(id);
+        memdelete(id);
 
         emit_signal("peer_disconnected", p_peer);
         D()->peer_map.erase(p_peer);
@@ -899,11 +898,11 @@ void NetworkedMultiplayerENet::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "always_ordered"), "set_always_ordered", "is_always_ordered");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "server_relay"), "set_server_relay_enabled", "is_server_relay_enabled");
 
-    BIND_ENUM_CONSTANT(COMPRESS_NONE)
-    BIND_ENUM_CONSTANT(COMPRESS_RANGE_CODER)
-    BIND_ENUM_CONSTANT(COMPRESS_FASTLZ)
-    BIND_ENUM_CONSTANT(COMPRESS_ZLIB)
-    BIND_ENUM_CONSTANT(COMPRESS_ZSTD)
+    BIND_ENUM_CONSTANT(COMPRESS_NONE);
+    BIND_ENUM_CONSTANT(COMPRESS_RANGE_CODER);
+    BIND_ENUM_CONSTANT(COMPRESS_FASTLZ);
+    BIND_ENUM_CONSTANT(COMPRESS_ZLIB);
+    BIND_ENUM_CONSTANT(COMPRESS_ZSTD);
 }
 
 NetworkedMultiplayerENet::NetworkedMultiplayerENet() {

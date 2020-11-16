@@ -32,7 +32,7 @@
 #include "core/method_bind.h"
 #include "core/io/ip_address.h"
 
-GDCINULL(WebSocketClient);
+GDCINULL(WebSocketClient)
 IMPL_GDCLASS(WebSocketClient)
 
 WebSocketClient::WebSocketClient() {

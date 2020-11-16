@@ -3018,7 +3018,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                                         }
                                     }
                                     if (error) {
-                                        _set_error(vformat("Constant value cannot be passed for '%s' parameter!", _get_qualifier_str(call_function->arguments[i].qualifier)));
+                                        _set_error(String(String::CtorSprintf(),"Constant value cannot be passed for '%s' parameter!", _get_qualifier_str(call_function->arguments[i].qualifier).c_str()));
                                         return nullptr;
                                     }
                                 }
@@ -3720,7 +3720,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
             if (!_validate_operator(op, &op->return_cache)) {
 
                 String at = join_args(op->arguments);
-                _set_error(FormatVE("Invalid arguments to operator '%s' :",get_operator_text(op->op),at.c_str()));
+                _set_error(FormatVE("Invalid arguments to operator '%s' : %s",get_operator_text(op->op),at.c_str()));
                 return nullptr;
             }
 

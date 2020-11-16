@@ -30,6 +30,8 @@
 
 #include "navigation_agent_2d.h"
 
+
+#include "core/callable_method_pointer.h"
 #include "core/engine.h"
 #include "scene/2d/navigation_2d.h"
 #include "servers/navigation_2d_server.h"
@@ -99,16 +101,16 @@ void NavigationAgent2D::_notification(int p_what) {
 
             agent_parent = object_cast<Node2D>(get_parent());
 
-            Navigation2DServer::get_singleton()->agent_set_callback(agent, this, "_avoidance_done");
+            Navigation2DServer::get_singleton()->agent_set_callback(agent, callable_mp(this, &NavigationAgent2D::_avoidance_done));
 
             // Search the navigation node and set it
             {
-                Navigation2D *nav = NULL;
+                Navigation2D *nav = nullptr;
                 Node *p = get_parent();
-                while (p != NULL) {
+                while (p != nullptr) {
                     nav = object_cast<Navigation2D>(p);
-                    if (nav != NULL)
-                        p = NULL;
+                    if (nav != nullptr)
+                        p = nullptr;
                     else
                         p = p->get_parent();
                 }
@@ -119,8 +121,8 @@ void NavigationAgent2D::_notification(int p_what) {
             set_physics_process_internal(true);
         } break;
         case NOTIFICATION_EXIT_TREE: {
-            agent_parent = NULL;
-            set_navigation(NULL);
+            agent_parent = nullptr;
+            set_navigation(nullptr);
             set_physics_process_internal(false);
         } break;
         case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
@@ -139,8 +141,8 @@ void NavigationAgent2D::_notification(int p_what) {
 }
 
 NavigationAgent2D::NavigationAgent2D() :
-        agent_parent(NULL),
-        navigation(NULL),
+        agent_parent(nullptr),
+        navigation(nullptr),
         agent(RID()),
         target_desired_distance(1.0),
         path_max_distance(3.0),
@@ -165,7 +167,7 @@ void NavigationAgent2D::set_navigation(Navigation2D *p_nav) {
         return; // Pointless
 
     navigation = p_nav;
-    Navigation2DServer::get_singleton()->agent_set_map(agent, navigation == NULL ? RID() : navigation->get_rid());
+    Navigation2DServer::get_singleton()->agent_set_map(agent, navigation == nullptr ? RID() : navigation->get_rid());
 }
 
 void NavigationAgent2D::set_navigation_node(Node *p_nav) {
@@ -282,18 +284,18 @@ void NavigationAgent2D::_avoidance_done(Vector3 p_new_velocity) {
     emit_signal("velocity_computed", velocity);
 }
 
-StringName NavigationAgent2D::get_configuration_warning() const {
+String NavigationAgent2D::get_configuration_warning() const {
     if (!object_cast<Node2D>(get_parent())) {
-        return TTR("The NavigationAgent2D can be used only under a Node2D node");
+        return TTRS("The NavigationAgent2D can be used only under a Node2D node");
     }
 
-    return StringName();
+    return String();
 }
 
 void NavigationAgent2D::update_navigation() {
 
-    if (agent_parent == NULL) return;
-    if (navigation == NULL) return;
+    if (agent_parent == nullptr) return;
+    if (navigation == nullptr) return;
     if (update_frame_id == Engine::get_singleton()->get_physics_frames()) return;
 
     update_frame_id = Engine::get_singleton()->get_physics_frames();

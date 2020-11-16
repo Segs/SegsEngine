@@ -282,8 +282,7 @@ RigidBodyBullet::RigidBodyBullet() :
         areaWhereIamCount(0),
         countGravityPointSpaces(0),
         isScratchedSpaceOverrideModificator(false),
-        previousActiveState(true),
-        force_integration_callback(nullptr) {
+        previousActiveState(true) {
 
     godotMotionState = bulletnew(GodotMotionState(this));
 
@@ -310,9 +309,6 @@ RigidBodyBullet::RigidBodyBullet() :
 
 RigidBodyBullet::~RigidBodyBullet() {
     bulletdelete(godotMotionState);
-
-    if (force_integration_callback)
-        memdelete(force_integration_callback);
 
     destroy_kinematic_utilities();
 }
@@ -364,7 +360,7 @@ void RigidBodyBullet::set_space(SpaceBullet *p_space) {
 
 void RigidBodyBullet::dispatch_callbacks() {
     /// The check isFirstTransformChanged is necessary in order to call integrated forces only when the first transform is sent
-    if ((btBody->isKinematicObject() || btBody->isActive() || previousActiveState != btBody->isActive()) && force_integration_callback && can_integrate_forces) {
+    if ((btBody->isKinematicObject() || btBody->isActive() || previousActiveState != btBody->isActive()) && force_integration_callback.is_valid() && can_integrate_forces) {
 
         if (omit_forces_integration)
             btBody->clearForces();
@@ -373,16 +369,16 @@ void RigidBodyBullet::dispatch_callbacks() {
 
         Variant variantBodyDirect(bodyDirect);
 
-        Object *obj = gObjectDB().get_instance(force_integration_callback->id);
+        Object *obj = force_integration_callback.get_object();
         if (!obj) {
             // Remove integration callback
-            set_force_integration_callback(ObjectID(), StringName());
+            set_force_integration_callback({});
         } else {
-            const Variant *vp[2] = { &variantBodyDirect, &force_integration_callback->udata };
+            const Variant *vp[1] = { &variantBodyDirect };
 
             Callable::CallError responseCallError;
-            int argc = (force_integration_callback->udata.get_type() == VariantType::NIL) ? 1 : 2;
-            obj->call(force_integration_callback->method, vp, argc, responseCallError);
+            Variant res;
+            force_integration_callback.call(vp,1,res,responseCallError);
         }
     }
 
@@ -398,19 +394,9 @@ void RigidBodyBullet::dispatch_callbacks() {
     previousActiveState = btBody->isActive();
 }
 
-void RigidBodyBullet::set_force_integration_callback(ObjectID p_id, const StringName &p_method, const Variant &p_udata) {
+void RigidBodyBullet::set_force_integration_callback(Callable &&callback) {
 
-    if (force_integration_callback) {
-        memdelete(force_integration_callback);
-        force_integration_callback = nullptr;
-    }
-
-    if (p_id.is_valid()) {
-        force_integration_callback = memnew(ForceIntegrationCallback);
-        force_integration_callback->id = p_id;
-        force_integration_callback->method = p_method;
-        force_integration_callback->udata = p_udata;
-    }
+    force_integration_callback = eastl::move(callback);
 }
 
 void RigidBodyBullet::scratch_space_override_modificator() {

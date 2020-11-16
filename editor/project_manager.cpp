@@ -122,22 +122,22 @@ private:
 
             case MESSAGE_ERROR: {
 
-                msg->add_color_override("font_color", get_color("error_color", "Editor"));
+                msg->add_theme_color_override("font_color", get_theme_color("error_color", "Editor"));
                 msg->set_modulate(Color(1, 1, 1, 1));
-                new_icon = get_icon("StatusError", "EditorIcons");
+                new_icon = get_theme_icon("StatusError", "EditorIcons");
 
             } break;
             case MESSAGE_WARNING: {
 
-                msg->add_color_override("font_color", get_color("warning_color", "Editor"));
+                msg->add_theme_color_override("font_color", get_theme_color("warning_color", "Editor"));
                 msg->set_modulate(Color(1, 1, 1, 1));
-                new_icon = get_icon("StatusWarning", "EditorIcons");
+                new_icon = get_theme_icon("StatusWarning", "EditorIcons");
 
             } break;
             case MESSAGE_SUCCESS: {
 
                 msg->set_modulate(Color(1, 1, 1, 0));
-                new_icon = get_icon("StatusSuccess", "EditorIcons");
+                new_icon = get_theme_icon("StatusSuccess", "EditorIcons");
 
             } break;
         }
@@ -355,11 +355,11 @@ private:
         String sp = PathUtils::simplify_path(p);
         project_path->set_text(sp);
         _path_text_changed(sp);
-        if (StringUtils::ends_with(p,".zip")) {
-            install_path->call_deferred("grab_focus");
-        } else {
-            get_ok()->call_deferred("grab_focus");
+        Control *focus_target = install_path;
+        if (!StringUtils::ends_with(p,".zip")) {
+            focus_target = get_ok();
         }
+        focus_target->call_deferred([focus_target] { focus_target->grab_focus();});
     }
 
     void _path_selected(StringView p_path) {
@@ -367,14 +367,14 @@ private:
         String sp = PathUtils::simplify_path(p_path);
         project_path->set_text(sp);
         _path_text_changed(sp);
-        get_ok()->call_deferred("grab_focus");
+        get_ok()->call_deferred([focus_target=get_ok()] { focus_target->grab_focus();});
     }
 
     void _install_path_selected(StringView p_path) {
         String sp = PathUtils::simplify_path(p_path);
         install_path->set_text(sp);
         _path_text_changed(sp);
-        get_ok()->call_deferred("grab_focus");
+        get_ok()->call_deferred([focus_target=get_ok()] { focus_target->grab_focus();});
     }
 
     void _browse_path() {
@@ -442,14 +442,14 @@ private:
         _test_path();
 
         if (p_text.empty())
-            set_message(TTR("It would be a good idea to name your project."), MESSAGE_WARNING);
+            set_message(TTR("It would be a good idea to name your project."), MESSAGE_ERROR);
     }
 
     void ok_pressed() override {
 
         String dir = project_path->get_text();
-
-        if (mode == MODE_RENAME) {
+        switch(mode) {
+        case MODE_RENAME: {
 
             String dir2 = _test_path();
             if (dir2.empty()) {
@@ -457,42 +457,43 @@ private:
                 return;
             }
 
-            ProjectSettings *current = memnew(ProjectSettings);
+            ProjectSettings* current = memnew(ProjectSettings);
 
             int err = current->setup(dir2, StringView());
             if (err != OK) {
                 set_message(FormatSN(TTR("Couldn't load project.godot in project path (error %d). It may be missing or corrupted.").asCString(), err), MESSAGE_ERROR);
-            } else {
+            }
+            else {
                 ProjectSettings::CustomMap edited_settings;
                 edited_settings["application/config/name"] = project_name->get_text();
 
-                if (current->save_custom(PathUtils::plus_file(dir2,"project.godot"), edited_settings) != OK) {
+                if (current->save_custom(PathUtils::plus_file(dir2, "project.godot"), edited_settings) != OK) {
                     set_message(TTR("Couldn't edit project.godot in project path."), MESSAGE_ERROR);
                 }
             }
 
             hide();
             emit_signal("projects_updated");
+            return;
+        }
+        case MODE_IMPORT: {
 
-        } else {
-
-            if (mode == MODE_IMPORT) {
-
-                if (StringUtils::ends_with(project_path->get_text_ui(),".zip")) {
+            if (StringUtils::ends_with(project_path->get_text_ui(), ".zip")) {
 
                     mode = MODE_INSTALL;
                     ok_pressed();
 
                     return;
                 }
-
-            } else {
-                if (mode == MODE_NEW) {
+            break;
+        }
+        case MODE_NEW: {
 
                     ProjectSettings::CustomMap initial_settings;
                     if (rasterizer_button_group->get_pressed_button()->get_meta("driver_name") == "GLES3") {
                         initial_settings["rendering/quality/driver/driver_name"] = "GLES3";
-                    } else {
+            }
+            else {
                         assert(false);
                         //initial_settings["rendering/quality/driver/driver_name"] = "GLES2";
                         //initial_settings["rendering/vram_compression/import_etc2"] = false;
@@ -502,15 +503,19 @@ private:
                     initial_settings["application/config/icon"] = "res://icon.png";
                     initial_settings["rendering/environment/default_environment"] = "res://default_env.tres";
 
-                    if (ProjectSettings::get_singleton()->save_custom(PathUtils::plus_file(dir,"project.godot"), initial_settings, {}, false) != OK) {
+            if (ProjectSettings::get_singleton()->save_custom(PathUtils::plus_file(dir, "project.godot"),
+                initial_settings, {}, false) != OK) {
                         set_message(TTR("Couldn't create project.godot in project path."), MESSAGE_ERROR);
-                    } else {
-                        gResourceManager().save(PathUtils::plus_file(dir,"icon.png"), get_icon("DefaultProjectIcon", "EditorIcons"));
+            }
+            else {
+                gResourceManager().save(PathUtils::plus_file(dir, "icon.png"),
+                    get_theme_icon("DefaultProjectIcon", "EditorIcons"));
 
-                        FileAccess *f = FileAccess::open(PathUtils::plus_file(dir,"default_env.tres"), FileAccess::WRITE);
+                FileAccess* f = FileAccess::open(PathUtils::plus_file(dir, "default_env.tres"), FileAccess::WRITE);
                         if (!f) {
                             set_message(TTR("Couldn't create project.godot in project path."), MESSAGE_ERROR);
-                        } else {
+                }
+                else {
                             f->store_line("[gd_resource type=\"Environment\" load_steps=2 format=2]");
                             f->store_line("[sub_resource type=\"ProceduralSky\" id=1]");
                             f->store_line("[resource]");
@@ -519,15 +524,16 @@ private:
                             memdelete(f);
                         }
                     }
+            break;
+        }
+        case MODE_INSTALL: {
 
-                } else if (mode == MODE_INSTALL) {
-
-                    if (StringUtils::ends_with(project_path->get_text_ui(),".zip")) {
+            if (StringUtils::ends_with(project_path->get_text_ui(), ".zip")) {
                         dir = install_path->get_text();
                         zip_path = project_path->get_text();
                     }
 
-                    FileAccess *src_f = nullptr;
+            FileAccess* src_f = nullptr;
                     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
                     unzFile pkg = unzOpen2(zip_path.c_str(), &io);
@@ -555,40 +561,44 @@ private:
                         int depth = 1; //stuff from github comes with tag
                         bool skip = false;
                         while (depth > 0) {
-                            auto pp = StringUtils::find(path,"/");
+                    auto pp = StringUtils::find(path, "/");
                             if (pp == String::npos) {
                                 skip = true;
                                 break;
                             }
-                            path = StringUtils::substr(path,pp + 1, path.length());
+                    path = StringUtils::substr(path, pp + 1, path.length());
                             depth--;
                         }
 
                         if (skip || path.empty()) {
                             //
-                        } else if (StringUtils::ends_with(path,"/")) { // a dir
+                }
+                else if (StringUtils::ends_with(path, "/")) {
+                    // a dir
 
-                            path = StringUtils::substr(path,0, path.length() - 1);
+                    path = StringUtils::substr(path, 0, path.length() - 1);
 
-                            DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-                            da->make_dir(PathUtils::plus_file(dir,path));
+                    DirAccess* da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
+                    da->make_dir(PathUtils::plus_file(dir, path));
                             memdelete(da);
 
-                        } else {
-                            size_t sz= info.uncompressed_size;
-                            auto data= eastl::make_unique<uint8_t[]>(sz);
+                }
+                else {
+                    size_t sz = info.uncompressed_size;
+                    auto data = eastl::make_unique<uint8_t[]>(sz);
 
                             //read
                             unzOpenCurrentFile(pkg);
                             unzReadCurrentFile(pkg, data.get(), sz);
                             unzCloseCurrentFile(pkg);
 
-                            FileAccess *f = FileAccess::open(PathUtils::plus_file(dir,path), FileAccess::WRITE);
+                    FileAccess* f = FileAccess::open(PathUtils::plus_file(dir, path), FileAccess::WRITE);
 
                             if (f) {
                                 f->store_buffer(data.get(), sz);
                                 memdelete(f);
-                            } else {
+                    }
+                    else {
                                 failed_files.emplace_back(eastl::move(path));
                             }
                         }
@@ -613,10 +623,12 @@ private:
                         dialog_error->set_text_utf8(msg);
                         dialog_error->popup_centered_minsize();
 
-                    } else if (!StringUtils::ends_with(project_path->get_text_ui(),".zip")) {
+            }
+            else if (!StringUtils::ends_with(project_path->get_text_ui(), ".zip")) {
                         dialog_error->set_text(TTR("Package installed successfully!"));
                         dialog_error->popup_centered_minsize();
                     }
+            break;
                 }
             }
 
@@ -629,7 +641,6 @@ private:
 
             hide();
             emit_signal("project_created", dir);
-        }
     }
 
     void _remove_created_folder() {
@@ -653,10 +664,10 @@ private:
         project_name->clear();
         _text_changed(String());
 
-        if (status_rect->get_texture() == get_icon("StatusError", "EditorIcons"))
+        if (status_rect->get_texture() == get_theme_icon("StatusError", "EditorIcons"))
             msg->show();
 
-        if (install_status_rect->get_texture() == get_icon("StatusError", "EditorIcons"))
+        if (install_status_rect->get_texture() == get_theme_icon("StatusError", "EditorIcons"))
             msg->show();
     }
 
@@ -668,15 +679,6 @@ private:
 
 protected:
     static void _bind_methods() {
-
-        MethodBinder::bind_method("_browse_path", &ProjectDialog::_browse_path);
-        MethodBinder::bind_method("_create_folder", &ProjectDialog::_create_folder);
-        MethodBinder::bind_method("_text_changed", &ProjectDialog::_text_changed);
-        MethodBinder::bind_method("_path_text_changed", &ProjectDialog::_path_text_changed);
-        MethodBinder::bind_method("_path_selected", &ProjectDialog::_path_selected);
-        MethodBinder::bind_method("_file_selected", &ProjectDialog::_file_selected);
-        MethodBinder::bind_method("_install_path_selected", &ProjectDialog::_install_path_selected);
-        MethodBinder::bind_method("_browse_install_path", &ProjectDialog::_browse_install_path);
         ADD_SIGNAL(MethodInfo("project_created"));
         ADD_SIGNAL(MethodInfo("projects_updated"));
     }
@@ -730,7 +732,7 @@ public:
                 _text_changed(proj);
             }
 
-            project_name->call_deferred("grab_focus");
+            project_name->call_deferred([focus_target=project_name] { focus_target->grab_focus();});
 
             create_dir->hide();
 
@@ -775,8 +777,11 @@ public:
                 name_container->show();
                 install_path_container->hide();
                 rasterizer_container->show();
-                project_name->call_deferred("grab_focus");
-                project_name->call_deferred("select_all");
+                project_name->call_deferred([focus_target=project_name] {
+                    focus_target->grab_focus();
+                    focus_target->select_all();
+                });
+
 
             } else if (mode == MODE_INSTALL) {
 
@@ -971,7 +976,7 @@ public:
             } break;
             case NOTIFICATION_DRAW: {
                 if (hover) {
-                    draw_style_box(get_stylebox("hover", "Tree"), Rect2(Point2(), get_size() - Size2(10, 0) * EDSCALE));
+                    draw_style_box(get_theme_stylebox("hover", "Tree"), Rect2(Point2(), get_size() - Size2(10, 0) * EDSCALE));
                 }
             } break;
         }
@@ -1147,7 +1152,7 @@ void ProjectList::_notification(int p_what) {
 void ProjectList::load_project_icon(int p_index) {
     Item &item = _projects[p_index];
 
-    Ref<Texture> default_icon = get_icon("DefaultProjectIcon", "EditorIcons");
+    Ref<Texture> default_icon = get_theme_icon("DefaultProjectIcon", "EditorIcons");
     Ref<Texture> icon;
     if (!item.icon.empty()) {
         Ref<Image> img(make_ref_counted<Image>());
@@ -1311,8 +1316,8 @@ void ProjectList::create_project_item_control(int p_index) {
     Item &item = _projects[p_index];
     ERR_FAIL_COND(item.control != nullptr); // Already created
 
-    Ref<Texture> favorite_icon = get_icon("Favorites", "EditorIcons");
-    Color font_color = get_color("font_color", "Tree");
+    Ref<Texture> favorite_icon = get_theme_icon("Favorites", "EditorIcons");
+    Color font_color = get_theme_color("font_color", "Tree");
 
     ProjectListItemControl *hb = memnew(ProjectListItemControl);
     hb->connect("draw",callable_mp(this, &ClassName::_panel_draw), varray(Variant(hb)));
@@ -1337,7 +1342,7 @@ void ProjectList::create_project_item_control(int p_index) {
     TextureRect *tf = memnew(TextureRect);
     // The project icon may not be loaded by the time the control is displayed,
     // so use a loading placeholder.
-    tf->set_texture(get_icon("ProjectIconLoading", "EditorIcons"));
+    tf->set_texture(get_theme_icon("ProjectIconLoading", "EditorIcons"));
     tf->set_v_size_flags(SIZE_SHRINK_CENTER);
     if (item.missing) {
         tf->set_modulate(Color(1, 1, 1, 0.5));
@@ -1355,8 +1360,8 @@ void ProjectList::create_project_item_control(int p_index) {
     ec->set_mouse_filter(MOUSE_FILTER_PASS);
     vb->add_child(ec);
     Label *title = memnew(Label(!item.missing ? StringName(item.project_name) : (TTR("Missing Project"))));
-    title->add_font_override("font", get_font("title", "EditorFonts"));
-    title->add_color_override("font_color", font_color);
+    title->add_font_override("font", get_theme_font("title", "EditorFonts"));
+    title->add_theme_color_override("font_color", font_color);
     title->set_clip_text(true);
     vb->add_child(title);
 
@@ -1366,7 +1371,7 @@ void ProjectList::create_project_item_control(int p_index) {
 
     Button *show = memnew(Button);
     // Display a folder icon if the project directory can be opened, or a "broken file" icon if it can't
-    show->set_button_icon(get_icon(!item.missing ? StringName("Load") : StringName("FileBroken"), "EditorIcons"));
+    show->set_button_icon(get_theme_icon(!item.missing ? StringName("Load") : StringName("FileBroken"), "EditorIcons"));
     show->set_flat(true);
     if (!item.grayed) {
         // Don't make the icon less prominent if the parent is already grayed out
@@ -1384,7 +1389,7 @@ void ProjectList::create_project_item_control(int p_index) {
     path_hb->add_child(fpath);
     fpath->set_h_size_flags(SIZE_EXPAND_FILL);
     fpath->set_modulate(Color(1, 1, 1, 0.5));
-    fpath->add_color_override("font_color", font_color);
+    fpath->add_theme_color_override("font_color", font_color);
     fpath->set_clip_text(true);
 
     _scroll_children->add_child(hb);
@@ -1699,12 +1704,12 @@ void ProjectList::erase_selected_projects() {
 void ProjectList::_panel_draw(Node *p_hb) {
     Control *hb = object_cast<Control>(p_hb);
 
-    hb->draw_line(Point2(0, hb->get_size().y + 1), Point2(hb->get_size().x - 10, hb->get_size().y + 1), get_color("guide_color", "Tree"));
+    hb->draw_line(Point2(0, hb->get_size().y + 1), Point2(hb->get_size().x - 10, hb->get_size().y + 1), get_theme_color("guide_color", "Tree"));
 
     StringName key = _projects[p_hb->get_index()].project_key;
 
     if (_selected_project_keys.contains(key)) {
-        hb->draw_style_box(get_stylebox("selected", "Tree"), Rect2(Point2(), hb->get_size() - Size2(10, 0) * EDSCALE));
+        hb->draw_style_box(get_theme_stylebox("selected", "Tree"), Rect2(Point2(), hb->get_size() - Size2(10, 0) * EDSCALE));
     }
 }
 
@@ -1789,12 +1794,6 @@ const char *ProjectList::SIGNAL_SELECTION_CHANGED = "selection_changed";
 const char *ProjectList::SIGNAL_PROJECT_ASK_OPEN = "project_ask_open";
 
 void ProjectList::_bind_methods() {
-
-    MethodBinder::bind_method("_panel_draw", &ProjectList::_panel_draw);
-    MethodBinder::bind_method("_panel_input", &ProjectList::_panel_input);
-    MethodBinder::bind_method("_favorite_pressed", &ProjectList::_favorite_pressed);
-    MethodBinder::bind_method("_show_project", &ProjectList::_show_project);
-
     ADD_SIGNAL(MethodInfo(SIGNAL_SELECTION_CHANGED));
     ADD_SIGNAL(MethodInfo(SIGNAL_PROJECT_ASK_OPEN));
 }
@@ -1862,7 +1861,7 @@ void ProjectManager::_update_project_buttons() {
     rename_btn->set_disabled(empty_selection || is_missing_project_selected);
     run_btn->set_disabled(empty_selection || is_missing_project_selected);
 
-    erase_missing_btn->set_visible(_project_list->is_any_project_missing());
+    erase_missing_btn->set_disabled(!_project_list->is_any_project_missing());
 }
 
 void ProjectManager::_unhandled_input(const Ref<InputEvent> &p_ev) {
@@ -2284,7 +2283,7 @@ void ProjectManager::_language_selected(int p_id) {
     StringName lang = language_btn->get_item_metadata(p_id).as<StringName>();
     EditorSettings::get_singleton()->set("interface/editor/editor_language", lang);
     language_btn->set_text(lang);
-    language_btn->set_button_icon(get_icon("Environment", "EditorIcons"));
+    language_btn->set_button_icon(get_theme_icon("Environment", "EditorIcons"));
 
     language_restart_ask->set_text(TTR("Language changed.\nThe interface will update after restarting the editor or project manager."));
     language_restart_ask->popup_centered();
@@ -2376,34 +2375,8 @@ void ProjectManager::_on_filter_option_changed() {
 
 void ProjectManager::_bind_methods() {
 
-    MethodBinder::bind_method("_open_selected_projects_ask", &ProjectManager::_open_selected_projects_ask);
-    MethodBinder::bind_method("_open_selected_projects", &ProjectManager::_open_selected_projects);
     MethodBinder::bind_method(D_METHOD("_global_menu_action"), &ProjectManager::_global_menu_action, {DEFVAL(Variant())});
-    MethodBinder::bind_method("_run_project", &ProjectManager::_run_project);
-    MethodBinder::bind_method("_run_project_confirm", &ProjectManager::_run_project_confirm);
-    MethodBinder::bind_method("_scan_projects", &ProjectManager::_scan_projects);
-    MethodBinder::bind_method("_scan_begin", &ProjectManager::_scan_begin);
-    MethodBinder::bind_method("_import_project", &ProjectManager::_import_project);
-    MethodBinder::bind_method("_new_project", &ProjectManager::_new_project);
-    MethodBinder::bind_method("_rename_project", &ProjectManager::_rename_project);
-    MethodBinder::bind_method("_erase_project", &ProjectManager::_erase_project);
-    MethodBinder::bind_method("_erase_missing_projects", &ProjectManager::_erase_missing_projects);
-    MethodBinder::bind_method("_erase_project_confirm", &ProjectManager::_erase_project_confirm);
-    MethodBinder::bind_method("_erase_missing_projects_confirm", &ProjectManager::_erase_missing_projects_confirm);
-    MethodBinder::bind_method("_language_selected", &ProjectManager::_language_selected);
-    MethodBinder::bind_method("_restart_confirm", &ProjectManager::_restart_confirm);
-    MethodBinder::bind_method("_exit_dialog", &ProjectManager::_exit_dialog);
-    MethodBinder::bind_method("_on_order_option_changed", &ProjectManager::_on_order_option_changed);
-    MethodBinder::bind_method("_on_filter_option_changed", &ProjectManager::_on_filter_option_changed);
-    MethodBinder::bind_method("_on_projects_updated", &ProjectManager::_on_projects_updated);
-    MethodBinder::bind_method("_on_project_created", &ProjectManager::_on_project_created);
     MethodBinder::bind_method("_unhandled_input", &ProjectManager::_unhandled_input);
-    MethodBinder::bind_method("_install_project", &ProjectManager::_install_project);
-    MethodBinder::bind_method("_files_dropped", &ProjectManager::_files_dropped);
-    MethodBinder::bind_method("_open_asset_library", &ProjectManager::_open_asset_library);
-    MethodBinder::bind_method("_confirm_update_settings", &ProjectManager::_confirm_update_settings);
-    MethodBinder::bind_method("_update_project_buttons", &ProjectManager::_update_project_buttons);
-    MethodBinder::bind_method(D_METHOD("_scan_multiple_folders", {"files"}), &ProjectManager::_scan_multiple_folders);
 }
 
 void ProjectManager::_open_asset_library() {
@@ -2463,17 +2436,15 @@ ProjectManager::ProjectManager() {
     Panel *panel = memnew(Panel);
     gui_base->add_child(panel);
     panel->set_anchors_and_margins_preset(Control::PRESET_WIDE);
-    panel->add_style_override("panel", gui_base->get_stylebox("Background", "EditorStyles"));
+    panel->add_theme_style_override("panel", gui_base->get_theme_stylebox("Background", "EditorStyles"));
 
     VBoxContainer *vb = memnew(VBoxContainer);
     panel->add_child(vb);
     vb->set_anchors_and_margins_preset(Control::PRESET_WIDE, Control::PRESET_MODE_MINSIZE, 8 * EDSCALE);
 
-    String cp;
-    cp.push_back(0xC2);
-    cp.push_back(0xA9);
+    const uint8_t cp[3] = {0xC2,0xA9,0x00};
     OS::get_singleton()->set_window_title(
-            (VERSION_NAME + String(" - ") + TTR("Project Manager") + " - " + cp +
+            (VERSION_NAME + String(" - ") + TTR("Project Manager") + " - " + (const char *)cp +
                                  " 2007-2019 Juan Linietsky, Ariel Manzur & Godot Contributors"));
 
     Control *center_box = memnew(Control);
@@ -2526,7 +2497,7 @@ ProjectManager::ProjectManager() {
     search_tree_vb->add_child(sort_filters);
 
     PanelContainer *pc = memnew(PanelContainer);
-    pc->add_style_override("panel", gui_base->get_stylebox("bg", "Tree"));
+    pc->add_theme_style_override("panel", gui_base->get_theme_stylebox("bg", "Tree"));
     search_tree_vb->add_child(pc);
     pc->set_v_size_flags(SIZE_EXPAND_FILL);
 
@@ -2537,6 +2508,7 @@ ProjectManager::ProjectManager() {
     _project_list->set_enable_h_scroll(false);
 
     VBoxContainer *tree_vb = memnew(VBoxContainer);
+    tree_vb->set_custom_minimum_size(Size2(120, 120));
     tree_hb->add_child(tree_vb);
 
     Button *open = memnew(Button);
@@ -2645,7 +2617,7 @@ ProjectManager::ProjectManager() {
             language_btn->set_text_utf8(lang);
         }
     }
-    language_btn->set_button_icon(get_icon("Environment", "EditorIcons"));
+    language_btn->set_button_icon(get_theme_icon("Environment", "EditorIcons"));
 
     settings_hb->add_child(language_btn);
     language_btn->connect("item_selected",callable_mp(this, &ClassName::_language_selected));
@@ -2763,16 +2735,12 @@ void ProjectListFilter::_filter_option_selected(int p_idx) {
 void ProjectListFilter::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE && has_search_box) {
-        search_box->set_right_icon(get_icon("Search", "EditorIcons"));
+        search_box->set_right_icon(get_theme_icon("Search", "EditorIcons"));
         search_box->set_clear_button_enabled(true);
     }
 }
 
 void ProjectListFilter::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_search_text_changed"), &ProjectListFilter::_search_text_changed);
-    MethodBinder::bind_method(D_METHOD("_filter_option_selected"), &ProjectListFilter::_filter_option_selected);
-
     ADD_SIGNAL(MethodInfo("filter_changed"));
 }
 

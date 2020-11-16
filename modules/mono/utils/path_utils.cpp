@@ -85,8 +85,8 @@ namespace path {
 String cwd() {
 #ifdef WINDOWS_ENABLED
     const DWORD expected_size = ::GetCurrentDirectoryW(0, nullptr);
+    eastl::vector<wchar_t> wbuffer;
 
-    eastl::wstring wbuffer;
     wbuffer.resize((int)expected_size);
     if (::GetCurrentDirectoryW(expected_size, wbuffer.data()) == 0)
         return ".";
@@ -130,7 +130,8 @@ String realpath(StringView p_path) {
         return String(p_path);
     }
 
-    eastl::wstring wbuffer;
+    eastl::vector<wchar_t> wbuffer;
+
     wbuffer.resize((int)expected_size);
     ::GetFinalPathNameByHandleW(hFile, wbuffer.data(), expected_size, FILE_NAME_NORMALIZED);
 

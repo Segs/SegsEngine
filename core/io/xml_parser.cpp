@@ -347,7 +347,7 @@ void XMLParser::_parse_current_node() {
 uint64_t XMLParser::get_node_offset() const {
 
     return node_offset;
-};
+}
 
 Error XMLParser::seek(uint64_t p_pos) {
 
@@ -357,7 +357,7 @@ Error XMLParser::seek(uint64_t p_pos) {
     P = data + p_pos;
 
     return read();
-};
+}
 
 void XMLParser::_bind_methods() {
 
@@ -379,14 +379,14 @@ void XMLParser::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("open", {"file"}), &XMLParser::open);
     MethodBinder::bind_method(D_METHOD("open_buffer", {"buffer"}), &XMLParser::open_buffer);
 
-    BIND_ENUM_CONSTANT(NODE_NONE)
-    BIND_ENUM_CONSTANT(NODE_ELEMENT)
-    BIND_ENUM_CONSTANT(NODE_ELEMENT_END)
-    BIND_ENUM_CONSTANT(NODE_TEXT)
-    BIND_ENUM_CONSTANT(NODE_COMMENT)
-    BIND_ENUM_CONSTANT(NODE_CDATA)
-    BIND_ENUM_CONSTANT(NODE_UNKNOWN)
-};
+    BIND_ENUM_CONSTANT(NODE_NONE);
+    BIND_ENUM_CONSTANT(NODE_ELEMENT);
+    BIND_ENUM_CONSTANT(NODE_ELEMENT_END);
+    BIND_ENUM_CONSTANT(NODE_TEXT);
+    BIND_ENUM_CONSTANT(NODE_COMMENT);
+    BIND_ENUM_CONSTANT(NODE_CDATA);
+    BIND_ENUM_CONSTANT(NODE_UNKNOWN);
+}
 
 Error XMLParser::read() {
 

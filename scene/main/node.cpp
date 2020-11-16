@@ -39,8 +39,9 @@
 #include "core/io/resource_loader.h"
 #include "core/message_queue.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
+#include "core/resource/resource_manager.h"
 #include "core/print_string.h"
-//#include "core/map.h"
 #include "core/node_path.h"
 #include "core/hash_map.h"
 #include "core/resource/resource_manager.h"
@@ -75,6 +76,11 @@ StringView _get_name_num_separator() {
     }
     return " ";
 }
+struct GroupData {
+    SceneTreeGroup *group=nullptr;
+    bool persistent = false;
+};
+
 struct Node::PrivData {
     struct NetData {
         StringName name;
@@ -172,7 +178,7 @@ void Node::_notification(int p_notification) {
             if (get_script_instance()) {
 
                 Variant time = get_process_delta_time();
-                get_script_instance()->call(SceneStringNames::get_singleton()->_process, time);
+                get_script_instance()->call(SceneStringNames::_process, time);
             }
         } break;
         case NOTIFICATION_PHYSICS_PROCESS: {
@@ -180,7 +186,7 @@ void Node::_notification(int p_notification) {
             if (get_script_instance()) {
 
                 Variant time = get_physics_process_delta_time();
-                get_script_instance()->call(SceneStringNames::get_singleton()->_physics_process, time);
+                get_script_instance()->call(SceneStringNames::_physics_process, time);
             }
 
         } break;
@@ -224,43 +230,38 @@ void Node::_notification(int p_notification) {
                 remove_from_group(StringName("_vp_unhandled_key_input" + itos(get_viewport()->get_instance_id())));
 
             priv_data->pause_owner = nullptr;
-            if (priv_data->path_cache) {
-                memdelete(priv_data->path_cache);
-                priv_data->path_cache = nullptr;
-            }
+            memdelete(priv_data->path_cache);
+            priv_data->path_cache = nullptr;
         } break;
         case NOTIFICATION_PATH_CHANGED: {
-
-            if (priv_data->path_cache) {
-                memdelete(priv_data->path_cache);
-                priv_data->path_cache = nullptr;
-            }
+            memdelete(priv_data->path_cache);
+            priv_data->path_cache = nullptr;
         } break;
         case NOTIFICATION_READY: {
 
             if (get_script_instance()) {
 
-                if (get_script_instance()->has_method(SceneStringNames::get_singleton()->_input)) {
+                if (get_script_instance()->has_method(SceneStringNames::_input)) {
                     set_process_input(true);
                 }
 
-                if (get_script_instance()->has_method(SceneStringNames::get_singleton()->_unhandled_input)) {
+                if (get_script_instance()->has_method(SceneStringNames::_unhandled_input)) {
                     set_process_unhandled_input(true);
                 }
 
-                if (get_script_instance()->has_method(SceneStringNames::get_singleton()->_unhandled_key_input)) {
+                if (get_script_instance()->has_method(SceneStringNames::_unhandled_key_input)) {
                     set_process_unhandled_key_input(true);
                 }
 
-                if (get_script_instance()->has_method(SceneStringNames::get_singleton()->_process)) {
+                if (get_script_instance()->has_method(SceneStringNames::_process)) {
                     set_process(true);
                 }
 
-                if (get_script_instance()->has_method(SceneStringNames::get_singleton()->_physics_process)) {
+                if (get_script_instance()->has_method(SceneStringNames::_physics_process)) {
                     set_physics_process(true);
                 }
 
-                get_script_instance()->call(SceneStringNames::get_singleton()->_ready);
+                get_script_instance()->call(SceneStringNames::_ready);
             }
 
         } break;
@@ -309,7 +310,7 @@ void Node::_propagate_ready() {
     if (priv_data->ready_first) {
         priv_data->ready_first = false;
         notification(NOTIFICATION_READY);
-        emit_signal(SceneStringNames::get_singleton()->ready);
+        emit_signal(SceneStringNames::ready);
     }
 }
 
@@ -337,10 +338,11 @@ void Node::_propagate_enter_tree() {
     notification(NOTIFICATION_ENTER_TREE);
 
     if (get_script_instance()) {
-        get_script_instance()->call(SceneStringNames::get_singleton()->_enter_tree);
+        get_script_instance()->call(SceneStringNames::_enter_tree);
     }
 
-    emit_signal(SceneStringNames::get_singleton()->tree_entered);
+    //emit tree_entered();
+    emit_signal(SceneStringNames::tree_entered);
 
     tree->node_added(this);
 
@@ -369,11 +371,11 @@ void Node::_propagate_enter_tree() {
 void Node::_propagate_after_exit_tree() {
 
     blocked++;
-    for (int i = 0; i < priv_data->children.size(); i++) {
-        priv_data->children[i]->_propagate_after_exit_tree();
+    for (Node * child : priv_data->children) {
+        child->_propagate_after_exit_tree();
     }
     blocked--;
-    emit_signal(SceneStringNames::get_singleton()->tree_exited);
+    emit_signal(SceneStringNames::tree_exited);
 }
 
 void Node::_propagate_exit_tree() {
@@ -412,9 +414,9 @@ void Node::_propagate_exit_tree() {
     blocked--;
 
     if (get_script_instance()) {
-        get_script_instance()->call(SceneStringNames::get_singleton()->_exit_tree);
+        get_script_instance()->call(SceneStringNames::_exit_tree);
     }
-    emit_signal(SceneStringNames::get_singleton()->tree_exiting);
+    emit_signal(SceneStringNames::tree_exiting);
 
     notification(NOTIFICATION_EXIT_TREE, true);
     if (tree) {
@@ -514,11 +516,11 @@ void Node::set_physics_process(bool p_process) {
     priv_data->physics_process = p_process;
 
     if (priv_data->physics_process)
-        add_to_group("physics_process", false);
+        add_to_group(SceneStringNames::physics_process, false);
     else
-        remove_from_group("physics_process");
+        remove_from_group(SceneStringNames::physics_process);
 
-    Object_change_notify(this,"physics_process");
+    Object_change_notify(this,SceneStringNames::physics_process);
 }
 
 bool Node::is_physics_processing() const {
@@ -534,11 +536,11 @@ void Node::set_physics_process_internal(bool p_process_internal) {
     priv_data->physics_process_internal = p_process_internal;
 
     if (priv_data->physics_process_internal)
-        add_to_group("physics_process_internal", false);
+        add_to_group(SceneStringNames::physics_process_internal, false);
     else
-        remove_from_group("physics_process_internal");
+        remove_from_group(SceneStringNames::physics_process_internal);
 
-    Object_change_notify(this,"physics_process_internal");
+    Object_change_notify(this,SceneStringNames::physics_process_internal);
 }
 
 bool Node::is_physics_processing_internal() const {
@@ -1002,11 +1004,11 @@ void Node::set_process_priority(int p_priority) {
     }
 
     if (is_physics_processing()) {
-        tree->make_group_changed("physics_process");
+        tree->make_group_changed(SceneStringNames::physics_process);
     }
 
     if (is_physics_processing_internal()) {
-        tree->make_group_changed("physics_process_internal");
+        tree->make_group_changed(SceneStringNames::physics_process_internal);
     }
 }
 
@@ -1216,7 +1218,7 @@ void Node::_generate_serial_child_name(const Node *p_child, StringName &name) co
 
         name = p_child->get_class_name();
         // Adjust casing according to project setting. The current type name is expected to be in PascalCase.
-        switch (ProjectSettings::get_singleton()->get("node/name_casing").as<int>()) {
+        switch (ProjectSettings::get_singleton()->get("node/name_casing").as<NameCasing>()) {
             case NAME_CASING_PASCAL_CASE:
                 break;
             case NAME_CASING_CAMEL_CASE: {
@@ -1326,9 +1328,11 @@ void Node::add_child(Node *p_child, bool p_legible_unique_name) {
 
     ERR_FAIL_NULL(p_child);
     ERR_FAIL_COND_MSG(p_child == this, "Can't add child '" + String(p_child->get_name()) + "' to itself."); // adding to itself!
-    ERR_FAIL_COND_MSG(p_child->priv_data->parent, "Can't add child '" + String(p_child->get_name()) + "' to '" + get_name() +
-                                                    "', already has a parent '" + p_child->priv_data->parent->get_name() +
-                                                    "'."); // Fail if node has a parent
+    if (unlikely(p_child->priv_data->parent))  // Fail if node has a parent
+    {
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"p_child->priv_data->parent\" ' is true.", DEBUG_STR("Can't add child '" + String(p_child->get_name()) + "' to '" + get_name() + "', already has a parent '" + p_child->priv_data->parent->get_name() + "'."));
+        return;
+    }
     ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, add_node() failed. Consider using "
                                          "call_deferred(\"add_child\", child) instead.");
 
@@ -1468,36 +1472,53 @@ Node *Node::_get_child_by_name(const StringName &p_name) const {
     return nullptr;
 }
 
+static Node *get_by_name(Node *from,StringView name) {
+    if(from->get_name()==name)
+        return from;
+    int cnt=from->get_child_count();
+    for(int idx=0; idx<cnt; ++idx) {
+        auto res = get_by_name(from->get_child(idx),name);
+        if(res)
+            return res;
+    }
+    return nullptr;
+}
+
 Node *Node::get_node_or_null(const NodePath &p_path) const {
 
     if (p_path.is_empty()) {
         return nullptr;
     }
 
-    ERR_FAIL_COND_V_MSG(!inside_tree && p_path.is_absolute(), nullptr, "Can't use get_node() with absolute paths from outside the active scene tree.");
+    ERR_FAIL_COND_V_MSG(!inside_tree && (p_path.is_absolute()||p_path.is_locator()), nullptr, "Can't use get_node() with absolute/locator paths from outside the active scene tree.");
 
     Node *current = nullptr;
     Node *root = nullptr;
 
-    if (!p_path.is_absolute()) {
+    int elem = 0;
+    if (!p_path.is_absolute() && !p_path.is_locator()) {
         current = const_cast<Node *>(this); //start from this
-    } else {
+    } else if(p_path.is_locator()) {
+        current = get_by_name(const_cast<Node *>(this),StringView(p_path.get_name(0)).substr(1));
+        elem = 1; // start from second element;
+    }
+    else {
 
         root = const_cast<Node *>(this);
         while (root->priv_data->parent)
             root = root->priv_data->parent; //start from root
     }
 
-    for (int i = 0; i < p_path.get_name_count(); i++) {
+    for ( ; elem < p_path.get_name_count(); elem++) {
 
-        StringName name = p_path.get_name(i);
+        StringName name = p_path.get_name(elem);
         Node *next = nullptr;
 
-        if (name == SceneStringNames::get_singleton()->dot) { // .
+        if (name == SceneStringNames::dot) { // .
 
             next = current;
 
-        } else if (name == SceneStringNames::get_singleton()->doubledot) { // ..
+        } else if (name == SceneStringNames::doubledot) { // ..
 
             if (current == nullptr || !current->priv_data->parent)
                 return nullptr;
@@ -1544,42 +1565,9 @@ bool Node::has_node(const NodePath &p_path) const {
     return get_node_or_null(p_path) != nullptr;
 }
 
-Node *Node::find_node(StringView p_mask, bool p_recursive, bool p_owned) const {
-
-    Node *const *cptr = priv_data->children.data();
-    int ccount = priv_data->children.size();
-    for (int i = 0; i < ccount; i++) {
-        if (p_owned && !cptr[i]->priv_data->owner)
-            continue;
-        if (StringUtils::match(cptr[i]->priv_data->name,p_mask))
-            return cptr[i];
-
-        if (!p_recursive)
-            continue;
-
-        Node *ret = cptr[i]->find_node(p_mask, true, p_owned);
-        if (ret)
-            return ret;
-    }
-    return nullptr;
-}
-
 Node *Node::get_parent() const {
 
     return priv_data->parent;
-}
-
-Node *Node::find_parent(StringView p_mask) const {
-
-    Node *p = priv_data->parent;
-    while (p) {
-
-        if (StringUtils::match(p->priv_data->name,p_mask))
-            return p;
-        p = p->priv_data->parent;
-    }
-
-    return nullptr;
 }
 
 bool Node::is_a_parent_of(const Node *p_node) const {
@@ -1957,15 +1945,17 @@ void Node::propagate_call(const StringName &p_method, const Array &p_args, const
 
     blocked++;
 
-    if (p_parent_first && has_method(p_method))
+    if (p_parent_first && has_method(p_method)) {
         callv(p_method, p_args);
+    }
 
     for (int i = 0; i < priv_data->children.size(); i++) {
         priv_data->children[i]->propagate_call(p_method, p_args, p_parent_first);
     }
 
-    if (!p_parent_first && has_method(p_method))
+    if (!p_parent_first && has_method(p_method)) {
         callv(p_method, p_args);
+    }
 
     blocked--;
 }
@@ -2147,8 +2137,7 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
         Object *obj = ClassDB::instance(get_class_name());
         ERR_FAIL_COND_V(!obj, nullptr);
         node = object_cast<Node>(obj);
-        if (!node)
-            memdelete(obj);
+        memdelete(obj);
         ERR_FAIL_COND_V(!node, nullptr);
     }
 
@@ -2396,7 +2385,7 @@ void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
     if (this != p_original && (get_owner() != p_original && get_owner() != p_original->get_owner()))
         return;
 
-    List<Connection> conns;
+    Vector<Connection> conns;
     get_all_signal_connections(&conns);
 
     for (const Connection &E : conns) {
@@ -2572,19 +2561,19 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
 
 void Node::_replace_connections_target(Node *p_new_target) {
 
-    List<Connection> cl;
+    Vector<Connection> cl;
     get_signals_connected_to_this(&cl);
 
     for (Connection &c : cl) {
 
         if (c.flags & ObjectNS::CONNECT_PERSIST) {
-            
+
             c.signal.get_object()->disconnect(c.signal.get_name(), Callable(this, c.callable.get_method()));
             bool valid = p_new_target->has_method(c.callable.get_method())
                     || !refFromRefPtr<Script>(p_new_target->get_script())
                     || refFromRefPtr<Script>(p_new_target->get_script())->has_method(c.callable.get_method());
             ERR_CONTINUE_MSG(!valid, String("Attempt to connect signal '") + c.signal.get_object()->get_class() + "." + c.signal.get_name() + "' to nonexistent method '" + c.callable.get_object()->get_class() + "." + c.callable.get_method() + "'.");
-			c.signal.get_object()->connect(c.signal.get_name(), Callable(p_new_target, c.callable.get_method()), c.binds, c.flags);
+            c.signal.get_object()->connect(c.signal.get_name(), Callable(p_new_target, c.callable.get_method()), c.binds, c.flags);
         }
     }
 }
@@ -2662,12 +2651,14 @@ Node *Node::get_node_and_resource(const NodePath &p_path, RES &r_res, Vector<Str
     if (!node)
         return nullptr;
 
-    if (p_path.get_subname_count()) {
-
-        int j = 0;
-        // If not p_last_is_property, we shouldn't consider the last one as part of the resource
+    if (p_path.get_subname_count()==0) {
+        return node;
+    }
+    // Global resource reference, -> material animations etc.
+    if(StringView(p_path.get_subname(0)).starts_with('@')){
+        int j=0;
         for (; j < p_path.get_subname_count() - (int)p_last_is_property; j++) {
-            Variant new_res_v = j == 0 ? node->get(p_path.get_subname(j)) : r_res->get(p_path.get_subname(j));
+            Variant new_res_v = j == 0 ? Variant(gResourceManager().load(StringView(p_path.get_subname(0)).substr(1))) : r_res->get(p_path.get_subname(j));
 
             if (new_res_v.get_type() == VariantType::NIL) { // Found nothing on that path
                 return nullptr;
@@ -2685,6 +2676,29 @@ Node *Node::get_node_and_resource(const NodePath &p_path, RES &r_res, Vector<Str
             // Put the rest of the subpath in the leftover path
             r_leftover_subpath.push_back(p_path.get_subname(j));
         }
+        return node;
+    }
+
+    int j = 0;
+    // If not p_last_is_property, we shouldn't consider the last one as part of the resource
+    for (; j < p_path.get_subname_count() - (int)p_last_is_property; j++) {
+        Variant new_res_v = j == 0 ? node->get(p_path.get_subname(j)) : r_res->get(p_path.get_subname(j));
+
+        if (new_res_v.get_type() == VariantType::NIL) { // Found nothing on that path
+            return nullptr;
+        }
+
+        RES new_res(refFromVariant<Resource>(new_res_v));
+
+        if (not new_res) { // No longer a resource, assume property
+            break;
+        }
+
+        r_res = new_res;
+    }
+    for (; j < p_path.get_subname_count(); j++) {
+        // Put the rest of the subpath in the leftover path
+        r_leftover_subpath.push_back(p_path.get_subname(j));
     }
 
     return node;
@@ -2828,13 +2842,13 @@ void Node::clear_internal_tree_resource_paths() {
     }
 }
 
-StringName Node::get_configuration_warning() const {
+String Node::get_configuration_warning() const {
 
     if (get_script_instance() && get_script_instance()->get_script() &&
             get_script_instance()->has_method("_get_configuration_warning")) {
-        return get_script_instance()->call("_get_configuration_warning").as<StringName>();
+        return get_script_instance()->call("_get_configuration_warning").as<String>();
     }
-    return StringName();
+    return String();
 }
 
 void Node::update_configuration_warning() {
@@ -2844,7 +2858,7 @@ void Node::update_configuration_warning() {
         return;
     auto edited_root=get_tree()->get_edited_scene_root();
     if (edited_root && (edited_root == this || edited_root->is_a_parent_of(this))) {
-        get_tree()->emit_signal(SceneStringNames::get_singleton()->node_configuration_warning_changed, Variant(this));
+        get_tree()->emit_signal(SceneStringNames::node_configuration_warning_changed, this);
     }
 #endif
 }
@@ -2886,8 +2900,6 @@ void Node::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_node", {"path"}), &Node::get_node);
     MethodBinder::bind_method(D_METHOD("get_node_or_null", {"path"}), &Node::get_node_or_null);
     MethodBinder::bind_method(D_METHOD("get_parent"), &Node::get_parent);
-    MethodBinder::bind_method(D_METHOD("find_node", {"mask", "recursive", "owned"}), &Node::find_node, {DEFVAL(true), DEFVAL(true)});
-    MethodBinder::bind_method(D_METHOD("find_parent", {"mask"}), &Node::find_parent);
     MethodBinder::bind_method(D_METHOD("has_node_and_resource", {"path"}), &Node::has_node_and_resource);
     MethodBinder::bind_method(D_METHOD("get_node_and_resource", {"path"}), &Node::_get_node_and_resource);
 

@@ -36,7 +36,7 @@ class Mesh;
 
 class GODOT_EXPORT NavigationMesh : public Resource {
 
-    GDCLASS(NavigationMesh, Resource);
+    GDCLASS(NavigationMesh, Resource)
 
     Vector<Vector3> vertices;
     struct Polygon {

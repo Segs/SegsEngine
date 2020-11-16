@@ -93,11 +93,12 @@ Vector<Vector2> expand(const Vector<Vector2> &points, const Rect2i &rect, float 
     cl.StrictlySimple(true);
     cl.AddPath(p->Contour, ClipperLib::ptSubject, true);
     //create the clipping rect
-    ClipperLib::Path clamp;
-    clamp.push_back(ClipperLib::IntPoint(0, 0));
-    clamp.push_back(ClipperLib::IntPoint(rect.size.width * PRECISION, 0));
-    clamp.push_back(ClipperLib::IntPoint(rect.size.width * PRECISION, rect.size.height * PRECISION));
-    clamp.push_back(ClipperLib::IntPoint(0, rect.size.height * PRECISION));
+    ClipperLib::Path clamp {
+        ClipperLib::IntPoint(0, 0),
+        ClipperLib::IntPoint(rect.size.width * PRECISION, 0),
+        ClipperLib::IntPoint(rect.size.width * PRECISION, rect.size.height * PRECISION),
+        ClipperLib::IntPoint(0, rect.size.height * PRECISION)
+    };
     cl.AddPath(clamp, ClipperLib::ptClip, true);
     cl.Execute(ClipperLib::ctIntersection, out);
 
@@ -499,11 +500,6 @@ void SpriteEditor::_debug_uv_draw() {
 }
 
 void SpriteEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_menu_option", &SpriteEditor::_menu_option);
-    MethodBinder::bind_method("_debug_uv_draw", &SpriteEditor::_debug_uv_draw);
-    MethodBinder::bind_method("_update_mesh_data", &SpriteEditor::_update_mesh_data);
-    MethodBinder::bind_method("_create_node", &SpriteEditor::_create_node);
     MethodBinder::bind_method("_add_as_sibling_or_child", &SpriteEditor::_add_as_sibling_or_child);
 }
 
@@ -514,7 +510,7 @@ SpriteEditor::SpriteEditor() {
     CanvasItemEditor::get_singleton()->add_control_to_menu_panel(options);
 
     options->set_text(TTR("Sprite2D"));
-    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Sprite2D", "EditorIcons"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("Sprite2D", "EditorIcons"));
 
     options->get_popup()->add_item(TTR("Convert to Mesh2D"), MENU_OPTION_CONVERT_TO_MESH_2D);
     options->get_popup()->add_item(TTR("Convert to Polygon2D"), MENU_OPTION_CONVERT_TO_POLYGON_2D);

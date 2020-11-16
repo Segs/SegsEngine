@@ -173,19 +173,19 @@ void EditorScenePostImport::init(StringView p_source_folder, StringView p_source
 
 EditorScenePostImport::EditorScenePostImport() = default;
 
-StringName ResourceImporterScene::get_importer_name() const {
+const char *ResourceImporterScene::get_importer_name() const {
 
     return "scene";
 }
 
-StringName ResourceImporterScene::get_visible_name() const {
+const char *ResourceImporterScene::get_visible_name() const {
 
     return "Scene";
 }
 
 void ResourceImporterScene::get_recognized_extensions(Vector<String> &p_extensions) const {
 
-    for (EditorSceneImporterInterface *E : importers) {
+    for (EditorSceneImporterInterface *E : scene_importers) {
         E->get_extensions(p_extensions);
     }
 }
@@ -1251,6 +1251,24 @@ void ResourceImporterScene::_replace_owner(Node *p_node, Node *p_scene, Node *p_
         _replace_owner(n, p_scene, p_new_owner);
     }
 }
+bool ResourceImporterScene::can_import(StringView p_path) const {
+
+    String ext = StringUtils::to_lower(PathUtils::get_extension(p_path));
+
+    for (EditorSceneImporterInterface* E : scene_importers) {
+
+        Vector<String> extensions;
+        E->get_extensions(extensions);
+
+        for (auto& extension : extensions) {
+
+            if (StringUtils::compare(extension, ext, StringUtils::CaseInsensitive) == 0 && E->can_import(p_path)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 Node *ResourceImporterScene::import_scene_from_other_importer(
         EditorSceneImporter *p_exception, StringView p_path, uint32_t p_flags, int p_bake_fps) {
@@ -1258,7 +1276,7 @@ Node *ResourceImporterScene::import_scene_from_other_importer(
     EditorSceneImporterInterface *importer = nullptr;
     String ext = StringUtils::to_lower(PathUtils::get_extension(p_path));
 
-    for (EditorSceneImporterInterface *E : importers) {
+    for (EditorSceneImporterInterface *E : scene_importers) {
 
         if (E == p_exception) continue;
         Vector<String> extensions;
@@ -1266,7 +1284,7 @@ Node *ResourceImporterScene::import_scene_from_other_importer(
 
         for (auto &extension : extensions) {
 
-            if (StringUtils::compare(extension,ext,StringUtils::CaseInsensitive)==0) {
+            if (StringUtils::compare(extension,ext,StringUtils::CaseInsensitive)==0 && E->can_import(p_path)) {
 
                 importer = E;
                 break;
@@ -1290,7 +1308,7 @@ Ref<Animation> ResourceImporterScene::import_animation_from_other_importer(
     EditorSceneImporterInterface *importer = nullptr;
     String ext = StringUtils::to_lower(PathUtils::get_extension(p_path));
 
-    for (EditorSceneImporterInterface *E : importers) {
+    for (EditorSceneImporterInterface *E : scene_importers) {
 
         if (E == p_exception) continue;
         Vector<String> extensions;
@@ -1298,7 +1316,7 @@ Ref<Animation> ResourceImporterScene::import_animation_from_other_importer(
 
         for (auto & extension : extensions) {
 
-            if (StringUtils::to_lower(extension) == ext) {
+            if (StringUtils::to_lower(extension) == ext && E->can_import(p_path)) {
 
                 importer = E;
                 break;
@@ -1314,9 +1332,8 @@ Ref<Animation> ResourceImporterScene::import_animation_from_other_importer(
 }
 
 Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_path,
-        const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps, Vector<String> *r_platform_variants, Vector<String> *
-        r_gen_files,
-        Variant *r_metadata) {
+        const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
+        Vector<String> *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     StringView src_path = p_source_file;
 
@@ -1326,14 +1343,14 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
     EditorProgress progress(("import"), TTR("Import Scene"), 104);
     progress.step(TTR("Importing Scene..."), 0);
 
-    for (EditorSceneImporterInterface *E : importers) {
+    for (EditorSceneImporterInterface *E : scene_importers) {
 
         Vector<String> extensions;
         E->get_extensions(extensions);
 
         for (const auto &extension : extensions) {
 
-            if (StringUtils::compare(extension, ext,StringUtils::CaseInsensitive) == 0) {
+            if (StringUtils::compare(extension, ext,StringUtils::CaseInsensitive) == 0 && E->can_import(p_source_file)) {
 
                 importer = E;
                 break;
@@ -1597,6 +1614,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
 ResourceImporterScene *ResourceImporterScene::singleton = nullptr;
 
 ResourceImporterScene::ResourceImporterScene() {
+    assert(singleton==nullptr);
     singleton = this;
 }
 ///////////////////////////////////////

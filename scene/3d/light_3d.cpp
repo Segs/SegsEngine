@@ -44,10 +44,10 @@ IMPL_GDCLASS(OmniLight3D)
 IMPL_GDCLASS(SpotLight3D)
 VARIANT_ENUM_CAST(Light3D::Param);
 VARIANT_ENUM_CAST(Light3D::BakeMode);
-VARIANT_ENUM_CAST(DirectionalLight3D::ShadowMode)
-VARIANT_ENUM_CAST(DirectionalLight3D::ShadowDepthRange)
-VARIANT_ENUM_CAST(OmniLight3D::ShadowMode)
-VARIANT_ENUM_CAST(OmniLight3D::ShadowDetail)
+VARIANT_ENUM_CAST(DirectionalLight3D::ShadowMode);
+VARIANT_ENUM_CAST(DirectionalLight3D::ShadowDepthRange);
+VARIANT_ENUM_CAST(OmniLight3D::ShadowMode);
+VARIANT_ENUM_CAST(OmniLight3D::ShadowDetail);
 
 bool Light3D::_can_gizmo_scale() const {
 
@@ -178,14 +178,11 @@ void Light3D::set_bake_mode(BakeMode p_mode) {
     RenderingServer::get_singleton()->light_set_use_gi(light, p_mode != BAKE_DISABLED);
 }
 
-Light3D::BakeMode Light3D::get_bake_mode() const {
-    return bake_mode;
-}
-
 void Light3D::_update_visibility() {
 
-    if (!is_inside_tree())
+    if (!is_inside_tree()) {
         return;
+    }
 
     bool editor_ok = true;
 
@@ -285,26 +282,26 @@ void Light3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor_only"), "set_editor_only", "is_editor_only");
     ADD_GROUP("", "");
 
-    BIND_ENUM_CONSTANT(PARAM_ENERGY)
-    BIND_ENUM_CONSTANT(PARAM_INDIRECT_ENERGY)
-    BIND_ENUM_CONSTANT(PARAM_SPECULAR)
-    BIND_ENUM_CONSTANT(PARAM_RANGE)
-    BIND_ENUM_CONSTANT(PARAM_ATTENUATION)
-    BIND_ENUM_CONSTANT(PARAM_SPOT_ANGLE)
-    BIND_ENUM_CONSTANT(PARAM_SPOT_ATTENUATION)
-    BIND_ENUM_CONSTANT(PARAM_CONTACT_SHADOW_SIZE)
-    BIND_ENUM_CONSTANT(PARAM_SHADOW_MAX_DISTANCE)
-    BIND_ENUM_CONSTANT(PARAM_SHADOW_SPLIT_1_OFFSET)
-    BIND_ENUM_CONSTANT(PARAM_SHADOW_SPLIT_2_OFFSET)
-    BIND_ENUM_CONSTANT(PARAM_SHADOW_SPLIT_3_OFFSET)
-    BIND_ENUM_CONSTANT(PARAM_SHADOW_NORMAL_BIAS)
-    BIND_ENUM_CONSTANT(PARAM_SHADOW_BIAS)
-    BIND_ENUM_CONSTANT(PARAM_SHADOW_BIAS_SPLIT_SCALE)
-    BIND_ENUM_CONSTANT(PARAM_MAX)
+    BIND_ENUM_CONSTANT(PARAM_ENERGY);
+    BIND_ENUM_CONSTANT(PARAM_INDIRECT_ENERGY);
+    BIND_ENUM_CONSTANT(PARAM_SPECULAR);
+    BIND_ENUM_CONSTANT(PARAM_RANGE);
+    BIND_ENUM_CONSTANT(PARAM_ATTENUATION);
+    BIND_ENUM_CONSTANT(PARAM_SPOT_ANGLE);
+    BIND_ENUM_CONSTANT(PARAM_SPOT_ATTENUATION);
+    BIND_ENUM_CONSTANT(PARAM_CONTACT_SHADOW_SIZE);
+    BIND_ENUM_CONSTANT(PARAM_SHADOW_MAX_DISTANCE);
+    BIND_ENUM_CONSTANT(PARAM_SHADOW_SPLIT_1_OFFSET);
+    BIND_ENUM_CONSTANT(PARAM_SHADOW_SPLIT_2_OFFSET);
+    BIND_ENUM_CONSTANT(PARAM_SHADOW_SPLIT_3_OFFSET);
+    BIND_ENUM_CONSTANT(PARAM_SHADOW_NORMAL_BIAS);
+    BIND_ENUM_CONSTANT(PARAM_SHADOW_BIAS);
+    BIND_ENUM_CONSTANT(PARAM_SHADOW_BIAS_SPLIT_SCALE);
+    BIND_ENUM_CONSTANT(PARAM_MAX);
 
-    BIND_ENUM_CONSTANT(BAKE_DISABLED)
-    BIND_ENUM_CONSTANT(BAKE_INDIRECT)
-    BIND_ENUM_CONSTANT(BAKE_ALL)
+    BIND_ENUM_CONSTANT(BAKE_DISABLED);
+    BIND_ENUM_CONSTANT(BAKE_INDIRECT);
+    BIND_ENUM_CONSTANT(BAKE_ALL);
 }
 
 Light3D::Light3D(RS::LightType p_type) {
@@ -315,7 +312,7 @@ Light3D::Light3D(RS::LightType p_type) {
         case RS::LIGHT_OMNI: light = RenderingServer::get_singleton()->omni_light_create(); break;
         case RS::LIGHT_SPOT: light = RenderingServer::get_singleton()->spot_light_create(); break;
         default: {
-        };
+        }
     }
 
     RenderingServer::get_singleton()->instance_set_base(get_instance(), light);
@@ -356,8 +353,9 @@ Light3D::~Light3D() {
 
     RenderingServer::get_singleton()->instance_set_base(get_instance(), RID());
 
-    if (light.is_valid())
+    if (light.is_valid()) {
         RenderingServer::get_singleton()->free_rid(light);
+    }
 }
 /////////////////////////////////////////
 
@@ -415,12 +413,12 @@ void DirectionalLight3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "directional_shadow_depth_range", PropertyHint::Enum, "Stable,Optimized"), "set_shadow_depth_range", "get_shadow_depth_range");
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "directional_shadow_max_distance", PropertyHint::ExpRange, "0,8192,0.1,or_greater"), "set_param", "get_param", PARAM_SHADOW_MAX_DISTANCE);
 
-    BIND_ENUM_CONSTANT(SHADOW_ORTHOGONAL)
-    BIND_ENUM_CONSTANT(SHADOW_PARALLEL_2_SPLITS)
-    BIND_ENUM_CONSTANT(SHADOW_PARALLEL_4_SPLITS)
+    BIND_ENUM_CONSTANT(SHADOW_ORTHOGONAL);
+    BIND_ENUM_CONSTANT(SHADOW_PARALLEL_2_SPLITS);
+    BIND_ENUM_CONSTANT(SHADOW_PARALLEL_4_SPLITS);
 
-    BIND_ENUM_CONSTANT(SHADOW_DEPTH_RANGE_STABLE)
-    BIND_ENUM_CONSTANT(SHADOW_DEPTH_RANGE_OPTIMIZED)
+    BIND_ENUM_CONSTANT(SHADOW_DEPTH_RANGE_STABLE);
+    BIND_ENUM_CONSTANT(SHADOW_DEPTH_RANGE_OPTIMIZED);
 }
 
 DirectionalLight3D::DirectionalLight3D() :
@@ -471,11 +469,11 @@ void OmniLight3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "omni_shadow_mode", PropertyHint::Enum, "Dual Paraboloid,Cube"), "set_shadow_mode", "get_shadow_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "omni_shadow_detail", PropertyHint::Enum, "Vertical,Horizontal"), "set_shadow_detail", "get_shadow_detail");
 
-    BIND_ENUM_CONSTANT(SHADOW_DUAL_PARABOLOID)
-    BIND_ENUM_CONSTANT(SHADOW_CUBE)
+    BIND_ENUM_CONSTANT(SHADOW_DUAL_PARABOLOID);
+    BIND_ENUM_CONSTANT(SHADOW_CUBE);
 
-    BIND_ENUM_CONSTANT(SHADOW_DETAIL_VERTICAL)
-    BIND_ENUM_CONSTANT(SHADOW_DETAIL_HORIZONTAL)
+    BIND_ENUM_CONSTANT(SHADOW_DETAIL_VERTICAL);
+    BIND_ENUM_CONSTANT(SHADOW_DETAIL_HORIZONTAL);
 }
 
 OmniLight3D::OmniLight3D() :
@@ -485,7 +483,7 @@ OmniLight3D::OmniLight3D() :
     set_shadow_detail(SHADOW_DETAIL_HORIZONTAL);
 }
 
-StringName SpotLight3D::get_configuration_warning() const {
+String SpotLight3D::get_configuration_warning() const {
     String warning(Light3D::get_configuration_warning());
 
     if (has_shadow() && get_param(PARAM_SPOT_ANGLE) >= 90.0f) {
@@ -493,10 +491,10 @@ StringName SpotLight3D::get_configuration_warning() const {
             warning += "\n\n";
         }
 
-        warning += TTR("A SpotLight3D with an angle wider than 90 degrees cannot cast shadows.");
+        warning += TTRS("A SpotLight3D with an angle wider than 90 degrees cannot cast shadows.");
     }
 
-    return StringName(warning);
+    return warning;
 }
 
 void SpotLight3D::_bind_methods() {

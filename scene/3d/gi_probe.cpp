@@ -41,7 +41,7 @@
 
 IMPL_GDCLASS(GIProbeData)
 IMPL_GDCLASS(GIProbe)
-VARIANT_ENUM_CAST(GIProbe::Subdiv)
+VARIANT_ENUM_CAST(GIProbe::Subdiv);
 
 void GIProbeData::set_bounds(const AABB &p_bounds) {
 
@@ -498,8 +498,8 @@ Vector<Face3> GIProbe::get_faces(uint32_t p_usage_flags) const {
     return Vector<Face3>();
 }
 
-StringName GIProbe::get_configuration_warning() const {
-    return StringName();
+String GIProbe::get_configuration_warning() const {
+    return BaseClassName::get_configuration_warning();
 }
 
 void GIProbe::_bind_methods() {
@@ -548,11 +548,11 @@ void GIProbe::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "compress"), "set_compress", "is_compressed");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "data", PropertyHint::ResourceType, "GIProbeData", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE), "set_probe_data", "get_probe_data");
 
-    BIND_ENUM_CONSTANT(SUBDIV_64)
-    BIND_ENUM_CONSTANT(SUBDIV_128)
-    BIND_ENUM_CONSTANT(SUBDIV_256)
-    BIND_ENUM_CONSTANT(SUBDIV_512)
-    BIND_ENUM_CONSTANT(SUBDIV_MAX)
+    BIND_ENUM_CONSTANT(SUBDIV_64);
+    BIND_ENUM_CONSTANT(SUBDIV_128);
+    BIND_ENUM_CONSTANT(SUBDIV_256);
+    BIND_ENUM_CONSTANT(SUBDIV_512);
+    BIND_ENUM_CONSTANT(SUBDIV_MAX);
 }
 
 GIProbe::GIProbe() {

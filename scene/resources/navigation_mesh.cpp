@@ -34,6 +34,7 @@
 #include "core/method_bind_interface.h"
 #include "core/method_bind.h"
 #include "core/map.h"
+#include "core/object_tooling.h"
 
 IMPL_GDCLASS(NavigationMesh)
 

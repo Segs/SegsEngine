@@ -49,10 +49,8 @@ void EditorSubScene::_path_changed(StringView p_path) {
 
     tree->clear();
 
-    if (scene) {
-        memdelete(scene);
-        scene = nullptr;
-    }
+    memdelete(scene);
+    scene = nullptr;
 
     if (p_path.empty())
         return;
@@ -222,11 +220,6 @@ void EditorSubScene::clear() {
 
 void EditorSubScene::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_path_selected"), &EditorSubScene::_path_selected);
-    MethodBinder::bind_method(D_METHOD("_path_changed"), &EditorSubScene::_path_changed);
-    MethodBinder::bind_method(D_METHOD("_path_browse"), &EditorSubScene::_path_browse);
-    MethodBinder::bind_method(D_METHOD("_item_multi_selected"), &EditorSubScene::_item_multi_selected);
-    MethodBinder::bind_method(D_METHOD("_selected_changed"), &EditorSubScene::_selected_changed);
     ADD_SIGNAL(MethodInfo("subscene_selected"));
 }
 
@@ -261,7 +254,7 @@ EditorSubScene::EditorSubScene() {
     //tree->connect("nothing_selected",callable_mp(this, &ClassName::_deselect_items));
     tree->connect("cell_selected",callable_mp(this, &ClassName::_selected_changed));
 
-    tree->connect("item_activated",callable_mp((AcceptDialog *)this, &EditorSubScene::_ok_pressed), make_binds(), ObjectNS::CONNECT_QUEUED);
+    tree->connect("item_activated",callable_gen(this,[this] () { _ok_pressed(); }), make_binds(), ObjectNS::CONNECT_QUEUED);
 
     file_dialog = memnew(EditorFileDialog);
     Vector<String> extensions;

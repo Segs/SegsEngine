@@ -48,7 +48,7 @@ class EditorAssetInstaller : public ConfirmationDialog {
     void ok_pressed() override;
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {};
 
 public:
     void open(StringView p_path, int p_depth = 0);

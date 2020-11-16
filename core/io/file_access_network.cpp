@@ -59,7 +59,7 @@ struct FileAccessNetworkClient_priv {
         int id;
         int size;
     };
-    Ref<StreamPeerTCP> client=make_ref_counted<StreamPeerTCP>();;
+    Ref<StreamPeerTCP> client=make_ref_counted<StreamPeerTCP>();
 
     Dequeue<BlockRequest> block_requests;
     Map<int, FileAccessNetwork *> accesses;

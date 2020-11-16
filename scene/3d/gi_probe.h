@@ -168,7 +168,7 @@ public:
     AABB get_aabb() const override;
     Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     GIProbe();
     ~GIProbe() override;

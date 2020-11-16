@@ -34,7 +34,6 @@
 #include "servers/camera/camera_feed.h"
 #include "rendering_server.h"
 
-#include "core/method_arg_casters.h"
 #include "core/method_bind.h"
 #include "core/method_enum_caster.h"
 #include "core/os/mutex.h"
@@ -58,17 +57,17 @@ void CameraServer::_bind_methods() {
     ADD_SIGNAL(MethodInfo("camera_feed_added", PropertyInfo(VariantType::INT, "id")));
     ADD_SIGNAL(MethodInfo("camera_feed_removed", PropertyInfo(VariantType::INT, "id")));
 
-    BIND_ENUM_CONSTANT(FEED_RGBA_IMAGE)
-    BIND_ENUM_CONSTANT(FEED_YCBCR_IMAGE)
-    BIND_ENUM_CONSTANT(FEED_Y_IMAGE)
-    BIND_ENUM_CONSTANT(FEED_CBCR_IMAGE)
-};
+    BIND_ENUM_CONSTANT(FEED_RGBA_IMAGE);
+    BIND_ENUM_CONSTANT(FEED_YCBCR_IMAGE);
+    BIND_ENUM_CONSTANT(FEED_Y_IMAGE);
+    BIND_ENUM_CONSTANT(FEED_CBCR_IMAGE);
+}
 
 CameraServer *CameraServer::singleton = nullptr;
 
 CameraServer *CameraServer::get_singleton() {
     return singleton;
-};
+}
 
 int CameraServer::get_free_id() {
     bool id_exists = true;
@@ -86,7 +85,7 @@ int CameraServer::get_free_id() {
     }
 
     return newid;
-};
+}
 
 int CameraServer::get_feed_index(int p_id) {
     for (int i = 0; i < feeds.size(); i++) {
@@ -96,7 +95,7 @@ int CameraServer::get_feed_index(int p_id) {
     }
 
     return -1;
-};
+}
 
 Ref<CameraFeed> CameraServer::get_feed_by_id(int p_id) {
     int index = get_feed_index(p_id);
@@ -106,7 +105,7 @@ Ref<CameraFeed> CameraServer::get_feed_by_id(int p_id) {
     } else {
         return feeds[index];
     }
-};
+}
 
 void CameraServer::add_feed(const Ref<CameraFeed> &p_feed) {
     // add our feed
@@ -119,7 +118,7 @@ void CameraServer::add_feed(const Ref<CameraFeed> &p_feed) {
 
     // let whomever is interested know
     emit_signal("camera_feed_added", p_feed->get_id());
-};
+}
 
 void CameraServer::remove_feed(const Ref<CameraFeed> &p_feed) {
     for (int i = 0; i < feeds.size(); i++) {
@@ -139,17 +138,17 @@ void CameraServer::remove_feed(const Ref<CameraFeed> &p_feed) {
             return;
         }
     }
-};
+}
 
 Ref<CameraFeed> CameraServer::get_feed(int p_index) {
     ERR_FAIL_INDEX_V(p_index, feeds.size(), Ref<CameraFeed>());
 
     return feeds[p_index];
-};
+}
 
 int CameraServer::get_feed_count() {
     return feeds.size();
-};
+}
 
 Array CameraServer::get_feeds() {
     Array return_feeds;
@@ -161,7 +160,7 @@ Array CameraServer::get_feeds() {
     }
 
     return return_feeds;
-};
+}
 
 RID CameraServer::feed_texture(int p_id, CameraServer::FeedImage p_texture) {
     int index = get_feed_index(p_id);
@@ -170,13 +169,13 @@ RID CameraServer::feed_texture(int p_id, CameraServer::FeedImage p_texture) {
     Ref<CameraFeed> feed = get_feed(index);
 
     return feed->get_texture(p_texture);
-};
+}
 
 CameraServer::CameraServer() {
     __thread__safe__.reset(new Mutex);
     singleton = this;
-};
+}
 
 CameraServer::~CameraServer() {
     singleton = nullptr;
-};
+}

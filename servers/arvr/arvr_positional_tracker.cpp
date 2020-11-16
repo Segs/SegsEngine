@@ -39,9 +39,9 @@
 IMPL_GDCLASS(ARVRPositionalTracker)
 
 void ARVRPositionalTracker::_bind_methods() {
-    BIND_ENUM_CONSTANT(TRACKER_HAND_UNKNOWN)
-    BIND_ENUM_CONSTANT(TRACKER_LEFT_HAND)
-    BIND_ENUM_CONSTANT(TRACKER_RIGHT_HAND)
+    BIND_ENUM_CONSTANT(TRACKER_HAND_UNKNOWN);
+    BIND_ENUM_CONSTANT(TRACKER_LEFT_HAND);
+    BIND_ENUM_CONSTANT(TRACKER_RIGHT_HAND);
 
     // this class is read only from GDScript, so we only have access to getters..
     MethodBinder::bind_method(D_METHOD("get_type"), &ARVRPositionalTracker::get_type);
@@ -67,7 +67,7 @@ void ARVRPositionalTracker::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_rumble", {"rumble"}), &ARVRPositionalTracker::set_rumble);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rumble"), "set_rumble", "get_rumble");
-};
+}
 
 void ARVRPositionalTracker::set_type(ARVRServer::TrackerType p_type) {
     if (type != p_type) {
@@ -81,52 +81,52 @@ void ARVRPositionalTracker::set_type(ARVRServer::TrackerType p_type) {
         // note if this is a controller this will be 3 or higher but we may change it later.
         tracker_id = arvr_server->get_free_tracker_id_for_type(p_type);
     }
-};
+}
 
 ARVRServer::TrackerType ARVRPositionalTracker::get_type() const {
     return type;
-};
+}
 
 void ARVRPositionalTracker::set_name(const StringName &p_name) {
     name = p_name;
-};
+}
 
 StringName ARVRPositionalTracker::get_name() const {
     return name;
-};
+}
 
 int ARVRPositionalTracker::get_tracker_id() const {
     return tracker_id;
-};
+}
 
 void ARVRPositionalTracker::set_joy_id(int p_joy_id) {
     joy_id = p_joy_id;
-};
+}
 
 int ARVRPositionalTracker::get_joy_id() const {
     return joy_id;
-};
+}
 
 bool ARVRPositionalTracker::get_tracks_orientation() const {
     return tracks_orientation;
-};
+}
 
 void ARVRPositionalTracker::set_orientation(const Basis &p_orientation) {
     _THREAD_SAFE_METHOD_
 
     tracks_orientation = true; // obviously we have this
     orientation = p_orientation;
-};
+}
 
 Basis ARVRPositionalTracker::get_orientation() const {
     _THREAD_SAFE_METHOD_
 
     return orientation;
-};
+}
 
 bool ARVRPositionalTracker::get_tracks_position() const {
     return tracks_position;
-};
+}
 
 void ARVRPositionalTracker::set_position(const Vector3 &p_position) {
     _THREAD_SAFE_METHOD_
@@ -138,7 +138,7 @@ void ARVRPositionalTracker::set_position(const Vector3 &p_position) {
 
     tracks_position = true; // obviously we have this
     rw_position = p_position / world_scale;
-};
+}
 
 Vector3 ARVRPositionalTracker::get_position() const {
     _THREAD_SAFE_METHOD_
@@ -148,36 +148,36 @@ Vector3 ARVRPositionalTracker::get_position() const {
     real_t world_scale = arvr_server->get_world_scale();
 
     return rw_position * world_scale;
-};
+}
 
 void ARVRPositionalTracker::set_rw_position(const Vector3 &p_rw_position) {
     _THREAD_SAFE_METHOD_
 
     tracks_position = true; // obviously we have this
     rw_position = p_rw_position;
-};
+}
 
 Vector3 ARVRPositionalTracker::get_rw_position() const {
     _THREAD_SAFE_METHOD_
 
     return rw_position;
-};
+}
 
 void ARVRPositionalTracker::set_mesh(const Ref<Mesh> &p_mesh) {
     _THREAD_SAFE_METHOD_
 
     mesh = p_mesh;
-};
+}
 
 Ref<Mesh> ARVRPositionalTracker::get_mesh() const {
     _THREAD_SAFE_METHOD_
 
     return mesh;
-};
+}
 
 ARVRPositionalTracker::TrackerHand ARVRPositionalTracker::get_hand() const {
     return hand;
-};
+}
 
 void ARVRPositionalTracker::set_hand(const ARVRPositionalTracker::TrackerHand p_hand) {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
@@ -198,7 +198,7 @@ void ARVRPositionalTracker::set_hand(const ARVRPositionalTracker::TrackerHand p_
             }
         }
     }
-};
+}
 
 Transform ARVRPositionalTracker::get_transform(bool p_adjust_by_reference_frame) const {
     Transform new_transform;
@@ -214,11 +214,11 @@ Transform ARVRPositionalTracker::get_transform(bool p_adjust_by_reference_frame)
     }
 
     return new_transform;
-};
+}
 
 real_t ARVRPositionalTracker::get_rumble() const {
     return rumble;
-};
+}
 
 void ARVRPositionalTracker::set_rumble(real_t p_rumble) {
     if (p_rumble > 0.0f) {
@@ -226,7 +226,7 @@ void ARVRPositionalTracker::set_rumble(real_t p_rumble) {
     } else {
         rumble = 0.0;
     }
-};
+}
 
 ARVRPositionalTracker::ARVRPositionalTracker() {
     __thread__safe__.reset(new Mutex);
@@ -238,8 +238,8 @@ ARVRPositionalTracker::ARVRPositionalTracker() {
     tracks_position = false;
     hand = TRACKER_HAND_UNKNOWN;
     rumble = 0.0;
-};
+}
 
 ARVRPositionalTracker::~ARVRPositionalTracker(){
 
-};
+}

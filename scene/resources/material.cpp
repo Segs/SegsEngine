@@ -46,19 +46,19 @@ IMPL_GDCLASS(ShaderMaterial)
 IMPL_GDCLASS(SpatialMaterial)
 RES_BASE_EXTENSION_IMPL(Material,"material")
 
-VARIANT_ENUM_CAST(SpatialMaterial::TextureParam)
-VARIANT_ENUM_CAST(SpatialMaterial::DetailUV)
-VARIANT_ENUM_CAST(SpatialMaterial::Feature)
-VARIANT_ENUM_CAST(SpatialMaterial::BlendMode)
-VARIANT_ENUM_CAST(SpatialMaterial::DepthDrawMode)
-VARIANT_ENUM_CAST(SpatialMaterial::CullMode)
-VARIANT_ENUM_CAST(SpatialMaterial::Flags)
-VARIANT_ENUM_CAST(SpatialMaterial::DiffuseMode)
-VARIANT_ENUM_CAST(SpatialMaterial::SpecularMode)
-VARIANT_ENUM_CAST(SpatialMaterial::BillboardMode)
-VARIANT_ENUM_CAST(SpatialMaterial::TextureChannel)
-VARIANT_ENUM_CAST(SpatialMaterial::EmissionOperator)
-VARIANT_ENUM_CAST(SpatialMaterial::DistanceFadeMode)
+VARIANT_ENUM_CAST(SpatialMaterial::TextureParam);
+VARIANT_ENUM_CAST(SpatialMaterial::DetailUV);
+VARIANT_ENUM_CAST(SpatialMaterial::Feature);
+VARIANT_ENUM_CAST(SpatialMaterial::BlendMode);
+VARIANT_ENUM_CAST(SpatialMaterial::DepthDrawMode);
+VARIANT_ENUM_CAST(SpatialMaterial::CullMode);
+VARIANT_ENUM_CAST(SpatialMaterial::Flags);
+VARIANT_ENUM_CAST(SpatialMaterial::DiffuseMode);
+VARIANT_ENUM_CAST(SpatialMaterial::SpecularMode);
+VARIANT_ENUM_CAST(SpatialMaterial::BillboardMode);
+VARIANT_ENUM_CAST(SpatialMaterial::TextureChannel);
+VARIANT_ENUM_CAST(SpatialMaterial::EmissionOperator);
+VARIANT_ENUM_CAST(SpatialMaterial::DistanceFadeMode);
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"
@@ -137,10 +137,7 @@ void Material::set_next_pass(const Ref<Material> &p_pass) {
     RenderingServer::get_singleton()->material_set_next_pass(material, next_pass_rid);
 }
 
-Ref<Material> Material::get_next_pass() const {
 
-    return next_pass;
-}
 
 void Material::set_render_priority(int p_priority) {
 
@@ -295,11 +292,6 @@ void ShaderMaterial::set_shader(const Ref<Shader> &p_shader) {
     emit_changed();
 }
 
-Ref<Shader> ShaderMaterial::get_shader() const {
-
-    return shader;
-}
-
 void ShaderMaterial::set_shader_param(const StringName &p_param, const Variant &p_value) {
 
     RenderingServer::get_singleton()->material_set_param(_get_material(), p_param, p_value);
@@ -320,7 +312,6 @@ void ShaderMaterial::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_shader"), &ShaderMaterial::get_shader);
     MethodBinder::bind_method(D_METHOD("set_shader_param", {"param", "value"}), &ShaderMaterial::set_shader_param);
     MethodBinder::bind_method(D_METHOD("get_shader_param", {"param"}), &ShaderMaterial::get_shader_param);
-    MethodBinder::bind_method(D_METHOD("_shader_changed"), &ShaderMaterial::_shader_changed);
     MethodBinder::bind_method(D_METHOD("property_can_revert", {"name"}), &ShaderMaterial::property_can_revert);
     MethodBinder::bind_method(D_METHOD("property_get_revert", {"name"}), &ShaderMaterial::property_get_revert);
 
@@ -350,22 +341,18 @@ void ShaderMaterial::get_argument_options(const StringName &p_function, int p_id
 }
 using namespace RenderingServerEnums;
 bool ShaderMaterial::_can_do_next_pass() const {
-
     return shader && shader->get_mode() == ShaderMode::SPATIAL;
 }
 
 ShaderMode ShaderMaterial::get_shader_mode() const {
-    if (shader)
+    if (shader) {
         return shader->get_mode();
-    else
+    } else {
         return ShaderMode::SPATIAL;
+    }
 }
-
-ShaderMaterial::ShaderMaterial() {
-}
-
-ShaderMaterial::~ShaderMaterial() {
-}
+ShaderMaterial::ShaderMaterial() = default;
+ShaderMaterial::~ShaderMaterial() = default;
 
 /////////////////////////////////
 

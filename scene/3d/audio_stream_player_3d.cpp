@@ -42,9 +42,9 @@
 #include "scene/resources/world_3d.h"
 
 IMPL_GDCLASS(AudioStreamPlayer3D)
-VARIANT_ENUM_CAST(AudioStreamPlayer3D::AttenuationModel)
-VARIANT_ENUM_CAST(AudioStreamPlayer3D::OutOfRangeMode)
-VARIANT_ENUM_CAST(AudioStreamPlayer3D::DopplerTracking)
+VARIANT_ENUM_CAST(AudioStreamPlayer3D::AttenuationModel);
+VARIANT_ENUM_CAST(AudioStreamPlayer3D::OutOfRangeMode);
+VARIANT_ENUM_CAST(AudioStreamPlayer3D::DopplerTracking);
 
 // Based on "A Novel Multichannel Panning Method for Standard and Arbitrary Loudspeaker Configurations" by Ramy Sadek and Chris Kyriakakis (2004)
 // Speaker-Placement Correction Amplitude Panning (SPCAP)
@@ -557,7 +557,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
 
                                 for (int i = 0; i < vol_index_max; i++) {
 
-                                    output.reverb_vol[i] = output.reverb_vol[i].linear_interpolate(center_frame, attenuation);
+                                    output.reverb_vol[i] = output.reverb_vol[i].lerp(center_frame, attenuation);
                                 }
                             } else {
                                 for (int i = 0; i < vol_index_max; i++) {
@@ -568,7 +568,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
 
                             for (int i = 0; i < vol_index_max; i++) {
 
-                                output.reverb_vol[i] = output.vol[i].linear_interpolate(output.reverb_vol[i] * attenuation, uniformity);
+                                output.reverb_vol[i] = output.vol[i].lerp(output.reverb_vol[i] * attenuation, uniformity);
                                 output.reverb_vol[i] *= area_send;
                             }
 
@@ -1039,17 +1039,17 @@ void AudioStreamPlayer3D::_bind_methods() {
     ADD_GROUP("Doppler", "doppler_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "doppler_tracking", PropertyHint::Enum, "Disabled,Idle,Physics"), "set_doppler_tracking", "get_doppler_tracking");
 
-    BIND_ENUM_CONSTANT(ATTENUATION_INVERSE_DISTANCE)
-    BIND_ENUM_CONSTANT(ATTENUATION_INVERSE_SQUARE_DISTANCE)
-    BIND_ENUM_CONSTANT(ATTENUATION_LOGARITHMIC)
-    BIND_ENUM_CONSTANT(ATTENUATION_DISABLED)
+    BIND_ENUM_CONSTANT(ATTENUATION_INVERSE_DISTANCE);
+    BIND_ENUM_CONSTANT(ATTENUATION_INVERSE_SQUARE_DISTANCE);
+    BIND_ENUM_CONSTANT(ATTENUATION_LOGARITHMIC);
+    BIND_ENUM_CONSTANT(ATTENUATION_DISABLED);
 
-    BIND_ENUM_CONSTANT(OUT_OF_RANGE_MIX)
-    BIND_ENUM_CONSTANT(OUT_OF_RANGE_PAUSE)
+    BIND_ENUM_CONSTANT(OUT_OF_RANGE_MIX);
+    BIND_ENUM_CONSTANT(OUT_OF_RANGE_PAUSE);
 
-    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_DISABLED)
-    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_IDLE_STEP)
-    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_PHYSICS_STEP)
+    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_DISABLED);
+    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_IDLE_STEP);
+    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_PHYSICS_STEP);
 
     ADD_SIGNAL(MethodInfo("finished"));
 }

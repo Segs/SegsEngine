@@ -7,11 +7,6 @@ add_custom_command(
 
 set(source_files
 
-    editor/godotsharp_export.cpp
-    editor/editor_internal_calls.cpp
-    editor/code_completion.cpp
-    editor/script_class_parser.cpp
-    editor/csharp_project.cpp
     utils/osx_utils.cpp
     utils/mono_reg_utils.cpp
     utils/path_utils.cpp
@@ -35,6 +30,16 @@ set(source_files
     signal_awaiter_utils.cpp
     register_types.cpp
 )
+set(editor_source_files
+    editor/godotsharp_export.cpp
+    editor/editor_internal_calls.cpp
+    editor/code_completion.cpp
+    editor/script_class_parser.cpp
+    editor/csharp_project.cpp
+)
+set(client_source_files
+)
+
 
 set(header_files
     editor/godotsharp_export.h
@@ -102,7 +107,7 @@ macro(add_glue_module name tgt)
             ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/${name}_plugin.json
             #${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/${name}.csproj
         DEPENDS
-            bindings_generator ${tgt}_engine
+            bindings_generator ${tgt}_engine reflection_${tgt}_gen
             #${CMAKE_CURRENT_BINARY_DIR}/${name}.json not depending on source json, since reflection_${tgt}_gen depends on them and we depend on reflection_${tgt}_gen
         COMMENT "Generating mono glue for ${name}"
     )
@@ -201,23 +206,28 @@ foreach(tgt ${global_targets})
     add_library(${tgt}_module_mono STATIC)
 #TODO: only set hot reload on non-release builds
     target_compile_definitions(${tgt}_module_mono PRIVATE GD_MONO_HOT_RELOAD)
-    target_sources(${tgt}_module_mono PRIVATE ${source_files} ${header_files} ${qrc_files} ${CMAKE_CURRENT_BINARY_DIR}/glue/cs_glue_version.gen.h)
+    target_sources(${tgt}_module_mono PRIVATE
+            ${source_files} ${${tgt}_source_files} ${header_files} ${qrc_files}
+            ${CMAKE_CURRENT_BINARY_DIR}/glue/cs_glue_version.gen.h)
     target_include_directories(${tgt}_module_mono PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
     target_link_libraries(${tgt}_module_mono PRIVATE ${tgt}_core)
     set_target_properties(${tgt}_module_mono PROPERTIES AUTORCC ON)
     target_link_libraries(${tgt}_module_mono PRIVATE Mono)
     set_common_target_properties(${tgt}_module_mono)
+
+    if(${tgt} STREQUAL "editor")
+        if(DOTNET_FOUND)
+            ADD_DOTNET(
+                editor/GodotTools/GodotTools.sln
+                OUTPUT_PATH ${OUTPUT_DIR}/csharp/assemblies
+                PLATFORM x64
+                ARGUMENTS -noWarn:CS1591
+            )
+            add_dependencies(BUILD_GodotTools BUILD_GodotCore)
+            add_dependencies(BUILD_GodotTools BUILD_GodotEditor)
+        endif()
+    endif()
 endforeach()
 
-if(DOTNET_FOUND)
-    ADD_DOTNET(
-        editor/GodotTools/GodotTools.sln
-        OUTPUT_PATH ${OUTPUT_DIR}/csharp/assemblies
-		PLATFORM x64
-        ARGUMENTS -noWarn:CS1591
-    )
-    add_dependencies(BUILD_GodotTools BUILD_GodotCore)
-    add_dependencies(BUILD_GodotTools BUILD_GodotEditor)
-endif()
 
 install(DIRECTORY ${OUTPUT_DIR}/csharp/ DESTINATION  bin/csharp)

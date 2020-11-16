@@ -7,6 +7,7 @@ Release
 Debug
 *.d
 *.o
+*.so
 *.swp
 imgui.ini
 test/tracy_test
@@ -18,5 +19,12 @@ manual/t*.out
 manual/t*.pdf
 manual/t*.synctex.gz
 manual/t*.toc
+manual/t*.bbl
+manual/t*.blg
 profiler/build/win32/packages
 profiler/build/win32/Tracy.aps
+# include the vcpkg install script but not the files it produces
+vcpkg/*
+!vcpkg/install_vcpkg_dependencies.bat
+.deps/
+.dirstamp

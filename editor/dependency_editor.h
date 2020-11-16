@@ -63,7 +63,7 @@ class DependencyEditor : public AcceptDialog {
     void _update_file();
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() { }
 
 public:
     void edit(StringView p_path);
@@ -80,7 +80,7 @@ class DependencyEditorOwners : public AcceptDialog {
 
     void _fill_owners(EditorFileSystemDirectory *efsd);
 
-    static void _bind_methods();
+    static void _bind_methods() {}
     void _list_rmb_select(int p_item, const Vector2 &p_pos);
     void _select_file(int p_idx);
     void _file_option(int p_option);
@@ -172,7 +172,7 @@ class OrphanResourcesDialog : public ConfirmationDialog {
     void _button_pressed(Object *p_item, int p_column, int p_id);
 
     void refresh();
-    static void _bind_methods();
+    static void _bind_methods() { }
 
 public:
     void show();

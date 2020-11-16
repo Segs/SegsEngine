@@ -43,8 +43,8 @@
 #include <cstdint>
 #include "EASTL/type_traits.h"
 
-class Node;
-class Control;
+//class Node;
+//class Control;
 class Object;
 class ObjectRC;
 using UIString = class QString;
@@ -88,11 +88,22 @@ using PoolVector2Array = PoolVector<Vector2>;
 using PoolVector3Array = PoolVector<Vector3>;
 using PoolColorArray = PoolVector<Color>;
 
+
+// With DEBUG_ENABLED, the pointer to a deleted object stored in ObjectRC is set to nullptr,
+// so _OBJ_PTR is not useful for checks in which we want to act as if we still believed the
+// object is alive; e.g., comparing a Variant that points to a deleted object with NIL,
+// should return false regardless DEBUG_ENABLED is defined or not.
+// So in cases like that we use _UNSAFE_OBJ_PROXY_PTR, which serves that purpose. With DEBUG_ENABLED
+// it won't be the real pointer to the object for non-Reference types, but that's fine.
+// We just need it to be unique for each object, to be comparable and not to be forced to NULL
+// when the object is freed.
 #ifdef DEBUG_ENABLED
-// Ideally, an inline member of ObjectRC, but would cause circular includes
-#define _OBJ_PTR(m_variant) ((m_variant)._get_obj().rc ? (m_variant)._get_obj().rc->get_ptr() : reinterpret_cast<Ref<RefCounted> *>((m_variant)._get_obj().ref.get())->get())
+#define _REF_OBJ_PTR(m_variant) (reinterpret_cast<Ref<RefCounted> *>((m_variant)._get_obj().ref.get())->get())
+#define _OBJ_PTR(m_variant) ((m_variant)._get_obj().rc ? (m_variant)._get_obj().rc->get_ptr() : _REF_OBJ_PTR(m_variant))
+#define _UNSAFE_OBJ_PROXY_PTR(m_variant) ((m_variant)._get_obj().rc ? reinterpret_cast<uint8_t *>((m_variant)._get_obj().rc) : reinterpret_cast<uint8_t *>(_REF_OBJ_PTR(m_variant)))
 #else
 #define _OBJ_PTR(m_variant) ((m_variant)._get_obj().obj)
+#define _UNSAFE_OBJ_PROXY_PTR(m_variant) _OBJ_PTR(m_variant)
 #endif
 
 // Temporary workaround until c++11 alignas()
@@ -357,6 +368,8 @@ public:
 
     //static const char * get_operator_name(Operator p_op);
     static void evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Variant &r_ret, bool &r_valid);
+    static bool evaluate_equal(const Variant &p_a, const Variant &p_b);
+
     static _FORCE_INLINE_ Variant evaluate(Operator p_op, const Variant &p_a, const Variant &p_b) {
 
         bool valid = true;
@@ -413,7 +426,6 @@ public:
     bool booleanize() const;
     String stringify(Vector<const void *> &stack) const;
 
-    static void get_constructor_list(VariantType p_type, Vector<MethodInfo> *p_list);
     static void get_constants_for_type(VariantType p_type, Vector<StringName> *p_constants);
     static bool has_constant(VariantType p_type, const StringName &p_value);
     static Variant get_constant_value(VariantType p_type, const StringName &p_value, bool *r_valid = nullptr);
@@ -494,14 +506,14 @@ public:
     [[nodiscard]] explicit operator unsigned int() const; // this is the real one
     [[nodiscard]] explicit operator unsigned short() const;
     [[nodiscard]] explicit operator bool() const { return booleanize();  }
-    [[nodiscard]] explicit operator Control *() const;
-    [[nodiscard]] explicit operator Node *() const;
+//    [[nodiscard]] explicit operator Control *() const;
+//    [[nodiscard]] explicit operator Node *() const;
     [[nodiscard]] explicit operator Callable() const;
     [[nodiscard]] explicit operator Signal() const;
     template<typename E, eastl::enable_if_t<eastl::is_enum<E>::value>* = nullptr>
     [[nodiscard]] explicit operator E() const { return (E)((eastl::underlying_type_t<E>)*this); }
     template<typename E, eastl::enable_if_t< eastl::is_pointer_v<E> >* = nullptr>
-    [[nodiscard]] explicit operator E() const { return object_cast<eastl::remove_pointer_t<E>>((Object *)(this)); }
+    [[nodiscard]] explicit operator E() const { return object_cast<eastl::remove_pointer_t<E>>((Object *)(*this)); }
 
 };
 static constexpr int longest_variant_type_name=16;
@@ -546,8 +558,6 @@ const Variant::ObjData &Variant::_get_obj() const {
     return *reinterpret_cast<const ObjData *>(&_data._mem[0]);
 }
 
-GODOT_EXPORT String vformat(StringView p_text, const Variant &p1 = Variant(), const Variant &p2 = Variant(), const Variant &p3 = Variant(), const Variant &p4 = Variant(), const Variant &p5 = Variant());
-
 // All `as` overloads returing a Span are restricted to no-conversion/no-allocation cases.
 // some core type enums to convert to
 
@@ -574,3 +584,5 @@ struct GODOT_EXPORT VariantOps {
     static Variant duplicate(const Variant& arg,bool deep=false);
     static void remove(Variant& arg, int idx);
 };
+
+extern const Vector<Variant> null_variant_pvec;

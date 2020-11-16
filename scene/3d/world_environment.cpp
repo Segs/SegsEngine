@@ -84,28 +84,36 @@ Ref<Environment> WorldEnvironment::get_environment() const {
     return environment;
 }
 
-StringName WorldEnvironment::get_configuration_warning() const {
+String WorldEnvironment::get_configuration_warning() const {
 
-    if (not environment) {
-        return TTR("WorldEnvironment requires its \"Environment\" property to contain an Environment to have a visible effect.");
+    String warning = Node::get_configuration_warning();
+    if (!environment) {
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("WorldEnvironment requires its \"Environment\" property to contain an Environment to have a visible effect.");
+        return warning;
     }
 
     if (/*!is_visible_in_tree() ||*/ !is_inside_tree())
-        return StringName();
+        return String();
 
     Deque<Node *> nodes;
     get_tree()->get_nodes_in_group(StringName("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id())), &nodes);
 
     if (nodes.size() > 1) {
-        return TTR("Only one WorldEnvironment is allowed per scene (or set of instanced scenes).");
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("Only one WorldEnvironment is allowed per scene (or set of instanced scenes).");
     }
 
     // Commenting this warning for now, I think it makes no sense. If anyone can figure out what its supposed to do, feedback welcome. Else it should be deprecated.
-    //if (environment && get_viewport() && !get_viewport()->get_camera_rid() && environment->get_background() != Environment::BG_CANVAS) {
-    //	return TTR("This WorldEnvironment is ignored. Either add a Camera3D (for 3D scenes) or set this environment's Background Mode to Canvas (for 2D scenes).");
+    //if (environment.is_valid() && get_viewport() && !get_viewport()->get_camera() && environment->get_background() != Environment::BG_CANVAS) {
+    //	return TTR("This WorldEnvironment is ignored. Either add a Camera (for 3D scenes) or set this environment's Background Mode to Canvas (for 2D scenes).");
     //}
 
-    return StringName();
+    return warning;
 }
 
 void WorldEnvironment::_bind_methods() {

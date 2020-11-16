@@ -140,11 +140,11 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<Str
         file = file.substr(6, file.length());
 
         StringName file_type = efsd->get_file_type(i);
-        if (ClassDB::is_parent_class(file_type, base_type) && search_text.contains(file,false)) {
+        if (ClassDB::is_parent_class(file_type, base_type) && file.contains(search_text,false)) {
             Pair<String, Ref<Texture> > pair;
             pair.first = file;
             StringName icon_name = search_options->has_icon(file_type, ei) ? file_type : ot;
-            pair.second = search_options->get_icon(icon_name, ei);
+            pair.second = search_options->get_theme_icon(icon_name, ei);
             list.push_back(pair);
         }
     }
@@ -229,7 +229,7 @@ void EditorQuickOpen::_notification(int p_what) {
             [[fallthrough]];
         }
         case NOTIFICATION_THEME_CHANGED: {
-            search_box->set_right_icon(get_icon("Search", "EditorIcons"));
+            search_box->set_right_icon(get_theme_icon("Search", "EditorIcons"));
         } break;
         case NOTIFICATION_EXIT_TREE: {
             disconnect("confirmed",callable_mp(this, &ClassName::_confirmed));
@@ -243,10 +243,6 @@ StringName EditorQuickOpen::get_base_type() const {
 }
 
 void EditorQuickOpen::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_text_changed"), &EditorQuickOpen::_text_changed);
-    MethodBinder::bind_method(D_METHOD("_confirmed"), &EditorQuickOpen::_confirmed);
-    MethodBinder::bind_method(D_METHOD("_sbox_input"), &EditorQuickOpen::_sbox_input);
 
     ADD_SIGNAL(MethodInfo("quick_open"));
 }

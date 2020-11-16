@@ -184,13 +184,17 @@ void RemoteTransform3D::force_update_cache() {
     _update_cache();
 }
 
-StringName RemoteTransform3D::get_configuration_warning() const {
+String RemoteTransform3D::get_configuration_warning() const {
 
+    String warning = BaseClassName::get_configuration_warning();
     if (!has_node(remote_node) || !object_cast<Node3D>(get_node(remote_node))) {
-        return TTR("The \"Remote Path\" property must point to a valid Node3D or Node3D-derived node to work.");
+        if (warning != String()) {
+            warning += "\n\n";
+        }
+        warning += TTR("The \"Remote Path\" property must point to a valid Spatial or Spatial-derived node to work.");
     }
 
-    return StringName();
+    return warning;
 }
 
 void RemoteTransform3D::_bind_methods() {

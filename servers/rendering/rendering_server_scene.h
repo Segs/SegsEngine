@@ -100,7 +100,7 @@ public:
         RS::ScenarioDebugMode debug;
         RID self;
 
-        Octree<Instance, true> octree;
+        Octree_CL<Instance, true> octree;
 
         Vector<Instance *> directional_lights;
         RID environment;
@@ -185,9 +185,7 @@ public:
         }
 
         ~Instance() override {
-
-            if (base_data)
-                memdelete(base_data);
+            memdelete(base_data);
         }
     };
 

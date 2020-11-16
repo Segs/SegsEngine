@@ -174,8 +174,10 @@ void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<
         }
         r_texture = dynamic_ref_cast<ImageTexture>(generated);
 
-        int small_thumbnail_size = EditorNode::get_singleton()->get_theme_base()->get_icon("Object", "EditorIcons")->get_width(); // Kind of a workaround to retrieve the default icon size
-        small_thumbnail_size *= EDSCALE;
+        if (!EditorNode::get_singleton()->get_theme_base())
+            return;
+
+        int small_thumbnail_size = EditorNode::get_singleton()->get_theme_base()->get_theme_icon("Object", "EditorIcons")->get_width(); // Kind of a workaround to retrieve the default icon size
 
         if (preview_generator->can_generate_small_preview()) {
             Ref<Texture> generated_small;
@@ -466,7 +468,7 @@ void EditorResourcePreview::check_for_invalidation(StringView p_path) {
     preview_mutex->unlock();
 
     if (call_invalidated) { //do outside mutex
-        call_deferred("emit_signal", "preview_invalidated", p_path);
+        call_deferred([this,path=Variant(p_path)] { emit_signal("preview_invalidated", path);});
     }
 }
 

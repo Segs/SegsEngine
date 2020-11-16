@@ -42,7 +42,7 @@
 #include "scene/3d/physics_body_3d.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
-#include "spatial_editor_plugin.h"
+#include "node_3d_editor_plugin.h"
 #include "core/translation_helpers.h"
 #include "servers/rendering_server.h"
 IMPL_GDCLASS(SceneLibraryEditor)
@@ -175,10 +175,6 @@ void SceneLibraryEditor::_menu_cbk(int p_option) {
 }
 
 void SceneLibraryEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_menu_cbk", &SceneLibraryEditor::_menu_cbk);
-    MethodBinder::bind_method("_menu_confirm", &SceneLibraryEditor::_menu_confirm);
-    MethodBinder::bind_method("_import_scene_cbk", &SceneLibraryEditor::_import_scene_cbk);
 }
 
 SceneLibraryEditor::SceneLibraryEditor(EditorNode *p_editor) {
@@ -197,10 +193,10 @@ SceneLibraryEditor::SceneLibraryEditor(EditorNode *p_editor) {
     file->connect("file_selected",callable_mp(this, &ClassName::_import_scene_cbk));
 
     menu = memnew(MenuButton);
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(menu);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(menu);
     menu->set_position(Point2(1, 1));
     menu->set_text(TTR("Scene Library"));
-    menu->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("SceneLibrary", "EditorIcons"));
+    menu->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("SceneLibrary", "EditorIcons"));
     menu->get_popup()->add_item(TTR("Add Item"), MENU_OPTION_ADD_ITEM);
     menu->get_popup()->add_item(TTR("Remove Selected Item"), MENU_OPTION_REMOVE_ITEM);
     menu->get_popup()->add_separator();

@@ -597,19 +597,9 @@ void ThemeEditor::_notification(int p_what) {
             }
         } break;
         case NOTIFICATION_THEME_CHANGED: {
-            theme_menu->set_button_icon(get_icon("Theme", "EditorIcons"));
+            theme_menu->set_button_icon(get_theme_icon("Theme", "EditorIcons"));
         } break;
     }
-}
-
-void ThemeEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_type_menu_cbk", &ThemeEditor::_type_menu_cbk);
-    MethodBinder::bind_method("_name_menu_about_to_show", &ThemeEditor::_name_menu_about_to_show);
-    MethodBinder::bind_method("_name_menu_cbk", &ThemeEditor::_name_menu_cbk);
-    MethodBinder::bind_method("_theme_menu_cbk", &ThemeEditor::_theme_menu_cbk);
-    MethodBinder::bind_method("_dialog_cbk", &ThemeEditor::_dialog_cbk);
-    MethodBinder::bind_method("_save_template_cbk", &ThemeEditor::_save_template_cbk);
 }
 
 ThemeEditor::ThemeEditor() {

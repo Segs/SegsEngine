@@ -39,7 +39,7 @@
 #include "scene/main/scene_tree.h"
 #include "scene/resources/capsule_shape_3d.h"
 #include "scene/resources/sphere_shape_3d.h"
-#include "spatial_editor_plugin.h"
+#include "node_3d_editor_plugin.h"
 
 IMPL_GDCLASS(SkeletonEditor)
 IMPL_GDCLASS(SkeletonEditorPlugin)
@@ -155,16 +155,15 @@ void SkeletonEditor::_node_removed(Node *p_node) {
 
 void SkeletonEditor::_bind_methods() {
     MethodBinder::bind_method("_on_click_option", &SkeletonEditor::_on_click_option);
-    MethodBinder::bind_method("_node_removed", &SkeletonEditor::_node_removed);
 }
 
 SkeletonEditor::SkeletonEditor() {
     skeleton = nullptr;
     options = memnew(MenuButton);
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(options);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(options);
 
     options->set_text(TTR("Skeleton"));
-    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Skeleton", "EditorIcons"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("Skeleton", "EditorIcons"));
 
     options->get_popup()->add_item(TTR("Create physical skeleton"), MENU_OPTION_CREATE_PHYSICAL_SKELETON);
 

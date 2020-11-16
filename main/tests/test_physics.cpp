@@ -30,6 +30,8 @@
 
 #include "test_physics.h"
 
+
+#include "core/callable_method_pointer.h"
 #include "core/map.h"
 #include "core/method_bind.h"
 #include "core/math/math_funcs.h"
@@ -98,7 +100,7 @@ protected:
         ps->body_set_param(body, PhysicsServer3D::BODY_PARAM_BOUNCE, 0.0);
         //todo set space
         ps->body_add_shape(body, type_shape_map[p_shape]);
-        ps->body_set_force_integration_callback(body, this, "body_changed_transform", mesh_instance);
+        ps->body_set_force_integration_callback(body, callable_gen(this, ([this, mesh_instance](Object* ob)->void { body_changed_transform(ob, mesh_instance); })));
 
         ps->body_set_state(body, PhysicsServer3D::BODY_STATE_TRANSFORM, p_location);
         bodies.push_back(body);
@@ -388,7 +390,8 @@ public:
         //todo add space
         ps->body_add_shape(character, capsule_shape);
 
-        ps->body_set_force_integration_callback(character, this, "body_changed_transform", mesh_instance);
+        eastl::function<void(Object* ob)> cb = [this, mesh_instance](Object* ob) { body_changed_transform(ob, mesh_instance); };
+        ps->body_set_force_integration_callback(character, callable_gen(this, cb));
 
         ps->body_set_state(character, PhysicsServer3D::BODY_STATE_TRANSFORM, Transform(Basis(), Vector3(-2, 5, -2)));
         bodies.push_back(character);

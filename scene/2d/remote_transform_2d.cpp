@@ -189,13 +189,17 @@ void RemoteTransform2D::force_update_cache() {
     _update_cache();
 }
 
-StringName RemoteTransform2D::get_configuration_warning() const {
+String RemoteTransform2D::get_configuration_warning() const {
 
+    String warning = BaseClassName::get_configuration_warning();
     if (!has_node(remote_node) || !object_cast<Node2D>(get_node(remote_node))) {
-        return TTR("Path property must point to a valid Node2D node to work.");
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("Path property must point to a valid Node2D node to work.");
     }
 
-    return StringName();
+    return warning;
 }
 
 void RemoteTransform2D::_bind_methods() {

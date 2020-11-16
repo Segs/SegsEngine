@@ -147,7 +147,7 @@ MonoAssembly *GDMonoAssembly::_search_hook(MonoAssemblyName *aname, [[maybe_unus
     if (loaded_asm)
         return loaded_asm->get_assembly();
 
-	return nullptr;
+    return nullptr;
 }
 
 MonoAssembly *GDMonoAssembly::_preload_hook(MonoAssemblyName *aname, char **, [[maybe_unused]] void *user_data, bool refonly) {
@@ -399,21 +399,21 @@ GDMonoClass *GDMonoAssembly::get_object_derived_class(const StringName &p_class)
         for (int i = 1; i < rows; i++) {
             MonoClass *mono_class = mono_class_get(image, (i + 1) | MONO_TOKEN_TYPE_DEF);
 
-			if (!mono_class_is_assignable_from(CACHED_CLASS_RAW(GodotObject), mono_class)) {
+            if (!mono_class_is_assignable_from(CACHED_CLASS_RAW(GodotObject), mono_class)) {
                 continue;
-			}
+            }
 
             GDMonoClass *current = get_class(mono_class);
 
-			if (!current) {
+            if (!current) {
                 continue;
-			}
+            }
 
             nested_classes.push_back(current);
 
-			if (!match && current->get_name() == p_class) {
+            if (!match && current->get_name() == p_class) {
                 match = current;
-			}
+            }
 
             while (!nested_classes.empty()) {
                 GDMonoClass *current_nested = nested_classes.front();
@@ -424,9 +424,9 @@ GDMonoClass *GDMonoAssembly::get_object_derived_class(const StringName &p_class)
                 while (true) {
                     MonoClass *raw_nested = mono_class_get_nested_types(current_nested->get_mono_ptr(), &iter);
 
-					if (!raw_nested) {
+                    if (!raw_nested) {
                         break;
-					}
+                    }
 
                     GDMonoClass *nested_class = get_class(raw_nested);
 
@@ -496,9 +496,6 @@ GDMonoAssembly::GDMonoAssembly(StringView p_name, MonoImage *p_image, MonoAssemb
         name(p_name),
         image(p_image),
         assembly(p_assembly),
-#ifdef GD_MONO_HOT_RELOAD
-        modified_time(0),
-#endif
         gdobject_class_cache_updated(false) {
 }
 

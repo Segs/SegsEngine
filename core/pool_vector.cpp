@@ -68,7 +68,7 @@ void MemoryPool::cleanup() {
     memdelete_arr(allocs);
     memdelete(alloc_mutex);
 
-    ERR_FAIL_COND_MSG(allocs_used > 0, "There are still MemoryPool allocs in use at exit!"); 
+    ERR_FAIL_COND_MSG(allocs_used > 0, "There are still MemoryPool allocs in use at exit!");
 }
 
 bool MemoryPool::do_alloc_block(MemoryPool::Alloc *&alloc)
@@ -108,6 +108,7 @@ void MemoryPool::releaseBlock(MemoryPool::Alloc *alloc) {
     memfree(alloc->mem);
     alloc->mem = nullptr;
     alloc->size = 0;
+
     alloc_mutex->lock();
     alloc->free_list = free_list;
     free_list = alloc;

@@ -203,7 +203,7 @@ void CreateDialog::add_type(
                 0, String(p_type) + " (" + PathUtils::get_file(ScriptServer::get_global_class_path(p_type)) + ")");
     }
     if (!can_instance) {
-        item->set_custom_color(0, get_color("disabled_font_color", "Editor"));
+        item->set_custom_color(0, get_theme_color("disabled_font_color", "Editor"));
         item->set_selectable(0, false);
     } else if (!(*to_select && (*to_select)->get_text(0) == search_box->get_text())) {
         String search_term = StringUtils::to_utf8(search_box->get_text_ui().toLower());
@@ -324,7 +324,7 @@ void CreateDialog::_update_search() {
 
     root->set_text(0, base_type);
     if (has_icon(base_type, "EditorIcons")) {
-        root->set_icon(0, get_icon(base_type, "EditorIcons"));
+        root->set_icon(0, get_theme_icon(base_type, "EditorIcons"));
     }
 
     TreeItem *to_select = search_box->get_text() == base_type ? root : nullptr;
@@ -470,17 +470,17 @@ void CreateDialog::_notification(int p_what) {
 
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
-            connect("confirmed",callable_mp(this, &ClassName::_confirmed));
-            search_box->set_right_icon(get_icon("Search", "EditorIcons"));
+            connect("confirmed",callable_mp(this, &CreateDialog::_confirmed));
+            search_box->set_right_icon(get_theme_icon("Search", "EditorIcons"));
             search_box->set_clear_button_enabled(true);
-            favorite->set_button_icon(get_icon("Favorites", "EditorIcons"));
+            favorite->set_button_icon(get_theme_icon("Favorites", "EditorIcons"));
         } break;
         case NOTIFICATION_EXIT_TREE: {
-            disconnect("confirmed",callable_mp(this, &ClassName::_confirmed));
+            disconnect("confirmed",callable_mp(this, &CreateDialog::_confirmed));
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
             if (is_visible_in_tree()) {
-                search_box->call_deferred("grab_focus"); // still not visible
+                search_box->call_deferred([sb=search_box] {sb->grab_focus();}); // still not visible
                 search_box->select_all();
             }
         } break;
@@ -730,18 +730,6 @@ void CreateDialog::_save_and_update_favorite_list() {
 }
 
 void CreateDialog::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_text_changed"), &CreateDialog::_text_changed);
-    MethodBinder::bind_method(D_METHOD("_confirmed"), &CreateDialog::_confirmed);
-    MethodBinder::bind_method(D_METHOD("_sbox_input"), &CreateDialog::_sbox_input);
-    MethodBinder::bind_method(D_METHOD("_item_selected"), &CreateDialog::_item_selected);
-    MethodBinder::bind_method(D_METHOD("_favorite_toggled"), &CreateDialog::_favorite_toggled);
-    MethodBinder::bind_method(D_METHOD("_history_selected"), &CreateDialog::_history_selected);
-    MethodBinder::bind_method(D_METHOD("_favorite_selected"), &CreateDialog::_favorite_selected);
-    MethodBinder::bind_method(D_METHOD("_history_activated"), &CreateDialog::_history_activated);
-    MethodBinder::bind_method(D_METHOD("_favorite_activated"), &CreateDialog::_favorite_activated);
-    MethodBinder::bind_method(
-            D_METHOD("_save_and_update_favorite_list"), &CreateDialog::_save_and_update_favorite_list);
 
     MethodBinder::bind_method("get_drag_data_fw", &CreateDialog::get_drag_data_fw);
     MethodBinder::bind_method("can_drop_data_fw", &CreateDialog::can_drop_data_fw);

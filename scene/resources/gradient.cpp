@@ -104,10 +104,7 @@ Color Gradient::get_color_at_offset(float p_offset) {
     if (points.empty())
         return Color(0, 0, 0, 1);
 
-    if (!is_sorted) {
-        eastl::sort(points.begin(),points.end());
-        is_sorted = true;
-    }
+    _update_sorting();
 
     //binary search
     int low = 0;
@@ -184,7 +181,7 @@ void Gradient::add_point(float p_offset, const Color &p_color) {
 void Gradient::remove_point(int p_index) {
 
     ERR_FAIL_INDEX(p_index, points.size());
-            ERR_FAIL_COND(points.size() <= 2);
+    ERR_FAIL_COND(points.size() <= 1);
             points.erase_at(p_index);
     emit_signal(CoreStringNames::get_singleton()->changed);
 }
@@ -196,26 +193,22 @@ void Gradient::set_points(const Vector<Gradient::Point> &p_points) {
 }
 
 void Gradient::set_offset(int pos, const float offset) {
-
-    ERR_FAIL_COND(pos < 0);
-    if (points.size() <= pos)
-        points.resize(pos + 1);
+    ERR_FAIL_INDEX(pos, points.size());
+    _update_sorting();
     points[pos].offset = offset;
     is_sorted = false;
     emit_signal(CoreStringNames::get_singleton()->changed);
 }
 
-float Gradient::get_offset(int pos) const {
+float Gradient::get_offset(int pos) {
     ERR_FAIL_INDEX_V(pos, points.size(), 0.0);
+    _update_sorting();
     return points[pos].offset;
 }
 
 void Gradient::set_color(int pos, const Color &color) {
-    ERR_FAIL_COND(pos < 0);
-    if (points.size() <= pos) {
-        points.resize(pos + 1);
-        is_sorted = false;
-    }
+    ERR_FAIL_INDEX(pos, points.size());
+    _update_sorting();
     points[pos].color = color;
     emit_signal(CoreStringNames::get_singleton()->changed);
 }

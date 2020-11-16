@@ -47,8 +47,8 @@
 IMPL_GDCLASS(AnimationNode)
 IMPL_GDCLASS(AnimationRootNode)
 IMPL_GDCLASS(AnimationTree)
-VARIANT_ENUM_CAST(AnimationNode::FilterAction)
-VARIANT_ENUM_CAST(AnimationTree::AnimationProcessMode)
+VARIANT_ENUM_CAST(AnimationNode::FilterAction);
+VARIANT_ENUM_CAST(AnimationTree::AnimationProcessMode);
 
 void AnimationNode::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     if (get_script_instance()) {
@@ -463,10 +463,10 @@ void AnimationNode::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("tree_changed"));
 
-    BIND_ENUM_CONSTANT(FILTER_IGNORE)
-    BIND_ENUM_CONSTANT(FILTER_PASS)
-    BIND_ENUM_CONSTANT(FILTER_STOP)
-    BIND_ENUM_CONSTANT(FILTER_BLEND)
+    BIND_ENUM_CONSTANT(FILTER_IGNORE);
+    BIND_ENUM_CONSTANT(FILTER_PASS);
+    BIND_ENUM_CONSTANT(FILTER_STOP);
+    BIND_ENUM_CONSTANT(FILTER_BLEND);
 }
 
 AnimationNode::AnimationNode() {
@@ -844,11 +844,11 @@ void AnimationTree::_process_graph(float p_delta) {
 
         if (started) {
             //if started, seek
-            root->_pre_process(SceneStringNames::get_singleton()->parameters_base_path, nullptr, &state, 0, true, {});
+            root->_pre_process(SceneStringNames::parameters_base_path, nullptr, &state, 0, true, {});
             started = false;
         }
 
-        root->_pre_process(SceneStringNames::get_singleton()->parameters_base_path, nullptr, &state, p_delta, false, {});
+        root->_pre_process(SceneStringNames::parameters_base_path, nullptr, &state, p_delta, false, {});
     }
 
     if (!state.valid) {
@@ -1348,7 +1348,7 @@ uint64_t AnimationTree::get_last_process_pass() const {
     return process_pass;
 }
 
-StringName AnimationTree::get_configuration_warning() const {
+String AnimationTree::get_configuration_warning() const {
 
     String warning(Node::get_configuration_warning());
 
@@ -1356,7 +1356,7 @@ StringName AnimationTree::get_configuration_warning() const {
         if (!warning.empty()) {
             warning += "\n\n";
         }
-        warning += TTR("No root AnimationNode for the graph is set.");
+        warning += TTRS("No root AnimationNode for the graph is set.");
     }
 
     if (!has_node(animation_player)) {
@@ -1365,8 +1365,8 @@ StringName AnimationTree::get_configuration_warning() const {
             warning += "\n\n";
         }
 
-        warning += TTR("Path to an AnimationPlayer node containing animations is not set.");
-        return StringName(warning);
+        warning += TTRS("Path to an AnimationPlayer node containing animations is not set.");
+        return warning;
     }
 
     AnimationPlayer *player = object_cast<AnimationPlayer>(get_node(animation_player));
@@ -1376,16 +1376,16 @@ StringName AnimationTree::get_configuration_warning() const {
             warning += ("\n\n");
         }
 
-        warning += TTR("Path set for AnimationPlayer does not lead to an AnimationPlayer node.");
+        warning += TTRS("Path set for AnimationPlayer does not lead to an AnimationPlayer node.");
     }
     else if (!player->has_node(player->get_root())) {
         if (!warning.empty()) {
             warning += "\n\n";
         }
 
-        warning += TTR("The AnimationPlayer root node is not a valid node.");
+        warning += TTRS("The AnimationPlayer root node is not a valid node.");
     }
-    return StringName(warning);
+    return warning;
 }
 
 void AnimationTree::set_root_motion_track(const NodePath &p_track) {
@@ -1405,7 +1405,7 @@ void AnimationTree::_tree_changed() {
         return;
     }
 
-    call_deferred("_update_properties");
+    call_deferred([this]() {_update_properties();});
     properties_dirty = true;
 }
 
@@ -1466,7 +1466,7 @@ void AnimationTree::_update_properties() {
     input_activity_map_get.clear();
 
     if (root) {
-        _update_properties_for_node(SceneStringNames::get_singleton()->parameters_base_path, root);
+        _update_properties_for_node(SceneStringNames::parameters_base_path, root);
     }
 
     properties_dirty = false;
@@ -1558,15 +1558,9 @@ void AnimationTree::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_root_motion_transform"), &AnimationTree::get_root_motion_transform);
 
-    MethodBinder::bind_method(D_METHOD("_tree_changed"), &AnimationTree::_tree_changed);
-    MethodBinder::bind_method(D_METHOD("_update_properties"), &AnimationTree::_update_properties);
-
     MethodBinder::bind_method(D_METHOD("rename_parameter", {"old_name", "new_name"}), &AnimationTree::rename_parameter);
 
     MethodBinder::bind_method(D_METHOD("advance", {"delta"}), &AnimationTree::advance);
-
-    MethodBinder::bind_method(D_METHOD("_node_removed"), &AnimationTree::_node_removed);
-    MethodBinder::bind_method(D_METHOD("_clear_caches"), &AnimationTree::_clear_caches);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "tree_root", PropertyHint::ResourceType, "AnimationRootNode"), "set_tree_root", "get_tree_root");
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "anim_player", PropertyHint::NodePathValidTypes, "AnimationPlayer"), "set_animation_player", "get_animation_player");
@@ -1575,9 +1569,9 @@ void AnimationTree::_bind_methods() {
     ADD_GROUP("Root Motion", "root_motion_");
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "root_motion_track"), "set_root_motion_track", "get_root_motion_track");
 
-    BIND_ENUM_CONSTANT(ANIMATION_PROCESS_PHYSICS)
-    BIND_ENUM_CONSTANT(ANIMATION_PROCESS_IDLE)
-    BIND_ENUM_CONSTANT(ANIMATION_PROCESS_MANUAL)
+    BIND_ENUM_CONSTANT(ANIMATION_PROCESS_PHYSICS);
+    BIND_ENUM_CONSTANT(ANIMATION_PROCESS_IDLE);
+    BIND_ENUM_CONSTANT(ANIMATION_PROCESS_MANUAL);
 }
 
 AnimationTree::AnimationTree() {

@@ -31,7 +31,6 @@
 #include "audio_effect_filter.h"
 #include "servers/audio_server.h"
 #include "core/method_bind.h"
-#include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 
 IMPL_GDCLASS(AudioEffectFilterInstance)
@@ -44,7 +43,7 @@ IMPL_GDCLASS(AudioEffectBandLimitFilter)
 IMPL_GDCLASS(AudioEffectLowShelfFilter)
 IMPL_GDCLASS(AudioEffectHighShelfFilter)
 
-VARIANT_ENUM_CAST(AudioEffectFilter::FilterDB)
+VARIANT_ENUM_CAST(AudioEffectFilter::FilterDB);
 
 template <int S>
 void AudioEffectFilterInstance::_process_filter(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) {
@@ -175,10 +174,10 @@ void AudioEffectFilter::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "gain", PropertyHint::Range, "0,4,0.01"), "set_gain", "get_gain");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "db", PropertyHint::Enum, "6 dB,12 dB,18 dB,24 dB"), "set_db", "get_db");
 
-    BIND_ENUM_CONSTANT(FILTER_6DB)
-    BIND_ENUM_CONSTANT(FILTER_12DB)
-    BIND_ENUM_CONSTANT(FILTER_18DB)
-    BIND_ENUM_CONSTANT(FILTER_24DB)
+    BIND_ENUM_CONSTANT(FILTER_6DB);
+    BIND_ENUM_CONSTANT(FILTER_12DB);
+    BIND_ENUM_CONSTANT(FILTER_18DB);
+    BIND_ENUM_CONSTANT(FILTER_24DB);
 }
 
 AudioEffectFilter::AudioEffectFilter(AudioFilterSW::Mode p_mode) {

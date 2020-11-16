@@ -67,7 +67,7 @@ class Physics2DServerSW : public PhysicsServer2D {
     mutable RID_Owner<Body2DSW> body_owner;
     mutable RID_Owner<Joint2DSW> joint_owner;
 
-    static Physics2DServerSW *singletonsw;
+    //static Physics2DServerSW *singletonsw;
 
     //void _clear_query(Query2DSW *p_query);
     friend class CollisionObject2DSW;
@@ -77,6 +77,10 @@ class Physics2DServerSW : public PhysicsServer2D {
     RID _shape_create(ShapeType p_shape);
 
 public:
+    static Physics2DServerSW *get()
+    {
+        return (Physics2DServerSW*)submission_thread_singleton;
+    }
     struct CollCbkData {
 
         Vector2 valid_dir;
@@ -162,8 +166,8 @@ public:
     void area_set_collision_mask(RID p_area, uint32_t p_mask) override;
     void area_set_collision_layer(RID p_area, uint32_t p_layer) override;
 
-    void area_set_monitor_callback(RID p_area, Object *p_receiver, const StringName &p_method) override;
-    void area_set_area_monitor_callback(RID p_area, Object *p_receiver, const StringName &p_method) override;
+    void area_set_monitor_callback(RID p_area, Callable &&cb) override;
+    void area_set_area_monitor_callback(RID p_area, Callable&& cb) override;
 
     void area_set_pickable(RID p_area, bool p_pickable) override;
 
@@ -243,7 +247,7 @@ public:
     void body_set_max_contacts_reported(RID p_body, int p_contacts) override;
     int body_get_max_contacts_reported(RID p_body) const override;
 
-    void body_set_force_integration_callback(RID p_body, Object *p_receiver, const StringName &p_method, const Variant &p_udata = Variant()) override;
+    void body_set_force_integration_callback(RID p_body, Callable &&callback) override;
     bool body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, Vector2 *r_results, int p_result_max, int &r_result_count) override;
 
     void body_set_pickable(RID p_body, bool p_pickable) override;

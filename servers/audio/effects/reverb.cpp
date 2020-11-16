@@ -60,19 +60,19 @@ void Reverb::process(float *p_src, float *p_dst, int p_frames) {
         p_frames = INPUT_BUFFER_MAX_SIZE;
 
     int predelay_frames = lrint((params.predelay / 1000.0) * params.mix_rate);
-    if (predelay_frames < 10)
-        predelay_frames = 10;
-    if (predelay_frames >= echo_buffer_size)
-        predelay_frames = echo_buffer_size - 1;
+
+    CLAMP(predelay_frames,10,echo_buffer_size - 1);
 
     for (int i = 0; i < p_frames; i++) {
 
-        if (echo_buffer_pos >= echo_buffer_size)
+        if (echo_buffer_pos >= echo_buffer_size) {
             echo_buffer_pos = 0;
+        }
 
         int read_pos = echo_buffer_pos - predelay_frames;
-        while (read_pos < 0)
+        while (read_pos < 0) {
             read_pos += echo_buffer_size;
+        }
 
         float in = undenormalise(echo_buffer[read_pos] * params.predelay_fb + p_src[i]);
 
@@ -160,8 +160,9 @@ void Reverb::process(float *p_src, float *p_dst, int p_frames) {
 
         for (int j = 0; j < p_frames; j++) {
 
-            if (a.pos >= size_limit)
+            if (a.pos >= size_limit) {
                 a.pos = 0;
+            }
 
             float aux = a.buffer[a.pos];
             a.buffer[a.pos] = undenormalise(allpass_feedback * aux + p_dst[j]);
@@ -305,21 +306,24 @@ void Reverb::update_parameters() {
 
 void Reverb::clear_buffers() {
 
-    if (echo_buffer)
+    if (echo_buffer) {
         memdelete_arr(echo_buffer);
+    }
 
     for (int i = 0; i < MAX_COMBS; i++) {
 
-        if (comb[i].buffer)
+        if (comb[i].buffer) {
             memdelete_arr(comb[i].buffer);
+        }
 
         comb[i].buffer = nullptr;
     }
 
     for (int i = 0; i < MAX_ALLPASS; i++) {
 
-        if (allpass[i].buffer)
+        if (allpass[i].buffer) {
             memdelete_arr(allpass[i].buffer);
+        }
 
         allpass[i].buffer = nullptr;
     }

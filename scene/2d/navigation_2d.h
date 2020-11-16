@@ -35,7 +35,7 @@
 
 class GODOT_EXPORT Navigation2D : public Node2D {
 
-    GDCLASS(Navigation2D, Node2D);
+    GDCLASS(Navigation2D, Node2D)
 
     RID map;
     real_t cell_size;

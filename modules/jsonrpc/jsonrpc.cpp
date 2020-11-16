@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "jsonrpc.h"
+
+#include "core/dictionary.h"
 #include "core/io/json.h"
 #include "core/method_bind.h"
 
@@ -52,11 +54,11 @@ void JSONRPC::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("make_notification", {"method", "params"}), &JSONRPC::make_notification);
     MethodBinder::bind_method(D_METHOD("make_response_error", {"code", "message", "id"}), &JSONRPC::make_response_error, {DEFVAL(Variant())});
 
-    BIND_ENUM_CONSTANT(PARSE_ERROR)
-    BIND_ENUM_CONSTANT(INVALID_REQUEST)
-    BIND_ENUM_CONSTANT(METHOD_NOT_FOUND)
-    BIND_ENUM_CONSTANT(INVALID_PARAMS)
-    BIND_ENUM_CONSTANT(INTERNAL_ERROR)
+    BIND_ENUM_CONSTANT(PARSE_ERROR);
+    BIND_ENUM_CONSTANT(INVALID_REQUEST);
+    BIND_ENUM_CONSTANT(METHOD_NOT_FOUND);
+    BIND_ENUM_CONSTANT(INVALID_PARAMS);
+    BIND_ENUM_CONSTANT(INTERNAL_ERROR);
 }
 
 Dictionary JSONRPC::make_response_error(int p_code, StringView p_message, const Variant &p_id) const {
@@ -103,6 +105,9 @@ Variant JSONRPC::process_action(const Variant &p_action, bool p_process_arr_elem
     if (p_action.get_type() == VariantType::DICTIONARY) {
         Dictionary dict = p_action.as<Dictionary>();
         String method = dict.get("method", "").as<String>();
+        if (method.starts_with("$/")) {
+            return ret;
+        }
         Array args;
         if (dict.has("params")) {
             Variant params = dict.get("params", Variant());
@@ -127,7 +132,16 @@ Variant JSONRPC::process_action(const Variant &p_action, bool p_process_arr_elem
         if (object == nullptr || !object->has_method(StringName(method))) {
             ret = make_response_error(JSONRPC::METHOD_NOT_FOUND, ("Method not found") + method, id);
         } else {
-            Variant call_ret = object->callv(StringName(method), args);
+            const Variant** argptrs = nullptr;
+            int argc = args.size();
+            if (argc > 0) {
+                argptrs = (const Variant**)alloca(sizeof(Variant*) * argc);
+                for (int i = 0; i < argc; i++) {
+                    argptrs[i] = &args[i];
+                }
+            }
+            Callable::CallError ce;
+            Variant call_ret = object->call(StringName(method), argptrs,argc,ce);
             if (id.get_type() != VariantType::NIL) {
                 ret = make_response(call_ret, id);
             }

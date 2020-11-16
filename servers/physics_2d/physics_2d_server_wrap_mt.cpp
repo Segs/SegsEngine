@@ -147,20 +147,19 @@ void Physics2DServerWrapMT::finish() {
     area_free_cached_ids();
     body_free_cached_ids();
 
-    if (step_sem)
-        memdelete(step_sem);
+
+    memdelete(step_sem);
 }
 
 Physics2DServerWrapMT::Physics2DServerWrapMT(PhysicsServer2D *p_contained, bool p_create_thread) :
         command_queue(p_create_thread) {
-
+    queueing_thread_singleton = this;
     physics_server_2d = p_contained;
     create_thread = p_create_thread;
     thread = nullptr;
     step_sem = nullptr;
     step_pending = 0;
     step_thread_up = false;
-    alloc_mutex = memnew(Mutex);
 
     pool_max_size = T_GLOBAL_GET<int>("memory/limits/multithreaded_server/rid_pool_prealloc");
 
@@ -177,6 +176,6 @@ Physics2DServerWrapMT::Physics2DServerWrapMT(PhysicsServer2D *p_contained, bool 
 Physics2DServerWrapMT::~Physics2DServerWrapMT() {
 
     memdelete(physics_server_2d);
-    memdelete(alloc_mutex);
+    queueing_thread_singleton = nullptr;
     //finish();
 }

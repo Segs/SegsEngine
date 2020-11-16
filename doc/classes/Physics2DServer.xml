@@ -163,9 +163,7 @@
             </return>
             <argument index="0" name="area" type="RID">
             </argument>
-            <argument index="1" name="receiver" type="Object">
-            </argument>
-            <argument index="2" name="method" type="String">
+            <argument index="1" name="callback" type="Callable">
             </argument>
             <description>
             </description>
@@ -197,9 +195,7 @@
             </return>
             <argument index="0" name="area" type="RID">
             </argument>
-            <argument index="1" name="receiver" type="Object">
-            </argument>
-            <argument index="2" name="method" type="String">
+            <argument index="1" name="callback" type="Callable">
             </argument>
             <description>
                 Sets the function to call when any body/area enters or exits the area. This callback will be called for any object interacting with the area, and takes five parameters:
@@ -659,11 +655,7 @@
             </return>
             <argument index="0" name="body" type="RID">
             </argument>
-            <argument index="1" name="receiver" type="Object">
-            </argument>
-            <argument index="2" name="method" type="String">
-            </argument>
-            <argument index="3" name="userdata" type="Variant" default="null">
+            <argument index="1" name="callback" type="Callable">
             </argument>
             <description>
                 Sets the function used to calculate physics for an object, if that object allows it (see [method body_set_omit_force_integration]).

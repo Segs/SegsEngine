@@ -37,7 +37,7 @@
 class GODOT_EXPORT Shape2D : public Resource {
     GDCLASS(Shape2D,Resource)
 
-    OBJ_SAVE_TYPE(Shape2D);
+    OBJ_SAVE_TYPE(Shape2D)
 
     RID shape;
     real_t custom_bias;
@@ -47,7 +47,9 @@ protected:
     Shape2D(const RID &p_rid);
 
 public:
+#ifdef TOOLS_ENABLED
     virtual bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const { return get_rect().has_point(p_point); }
+#endif
 
     void set_custom_solver_bias(real_t p_bias);
     real_t get_custom_solver_bias() const;

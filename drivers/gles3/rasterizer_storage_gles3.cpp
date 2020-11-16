@@ -1396,8 +1396,9 @@ void RasterizerStorageGLES3::texture_debug_usage(Vector<RenderingServer::Texture
     for (const RID &E : textures) {
 
         Texture *t = texture_owner.get(E);
-        if (!t)
+        if (!t) {
             continue;
+        }
         RenderingServer::TextureInfo tinfo;
         tinfo.path = t->path;
         tinfo.format = t->format;
@@ -1543,8 +1544,9 @@ RID RasterizerStorageGLES3::texture_create_radiance_cubemap(RID p_source, int p_
 #endif
         }
 
-        if (size > 1)
+        if (size > 1) {
             size >>= 1;
+        }
         lod++;
         mm_level--;
     }
@@ -1667,20 +1669,16 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(texture->target, texture->tex_id);
     glTexParameteri(texture->target, GL_TEXTURE_BASE_LEVEL, 0);
-#ifdef GLES_OVER_GL
+
     glTexParameteri(texture->target, GL_TEXTURE_MAX_LEVEL, int(Math::floor(Math::log(float(texture->width)) / Math::log(2.0f))));
     glGenerateMipmap(texture->target);
-#else
-    glTexParameteri(texture->target, GL_TEXTURE_MAX_LEVEL, 0);
-#endif
+
     // Need Mipmaps regardless of whether they are set in import by user
     glTexParameterf(texture->target, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(texture->target, GL_TEXTURE_WRAP_T, GL_REPEAT);
-#ifdef GLES_OVER_GL
+
     glTexParameterf(texture->target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-#else
-    glTexParameterf(texture->target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-#endif
+
     glTexParameterf(texture->target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     if (config.srgb_decode_supported && texture->srgb && !texture->using_srgb) {
@@ -1846,11 +1844,8 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
 
             glBindFramebuffer(GL_FRAMEBUFFER, tmp_fb2);
 
-#ifdef GLES_OVER_GL
+
             if (j < 3) {
-#else
-            if (j == 0) {
-#endif
 
                 shaders.cubemap_filter.set_conditional(CubemapFilterShaderGLES3::USE_DUAL_PARABOLOID, true);
                 shaders.cubemap_filter.set_conditional(CubemapFilterShaderGLES3::USE_SOURCE_PANORAMA, true);
@@ -1975,12 +1970,8 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
             glTexImage2D(GL_TEXTURE_2D, 0, internal_format, size, size * 2, 0, format, type, nullptr);
             glBindFramebuffer(GL_FRAMEBUFFER, tmp_fb2);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tmp_tex, 0);
-#ifdef GLES_OVER_GL
-            if (lod < 3) {
-#else
-            if (lod == 0) {
-#endif
 
+            if (lod < 3) {
                 shaders.cubemap_filter.set_conditional(CubemapFilterShaderGLES3::USE_DUAL_PARABOLOID, true);
                 shaders.cubemap_filter.set_conditional(CubemapFilterShaderGLES3::USE_SOURCE_PANORAMA, true);
                 shaders.cubemap_filter.set_conditional(CubemapFilterShaderGLES3::USE_SOURCE_DUAL_PARABOLOID, false);
@@ -2176,6 +2167,8 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
             p_shader->spatial.uses_screen_texture = false;
             p_shader->spatial.uses_depth_texture = false;
             p_shader->spatial.uses_vertex = false;
+            p_shader->spatial.uses_tangent = false;
+            p_shader->spatial.uses_ensure_correct_normals = false;
             p_shader->spatial.writes_modelview_or_projection = false;
             p_shader->spatial.uses_world_coordinates = false;
 
@@ -2198,6 +2191,8 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
 
             shaders.actions_scene.render_mode_flags["vertex_lighting"] = &p_shader->spatial.uses_vertex_lighting;
 
+            shaders.actions_scene.render_mode_flags["ensure_correct_normals"] = &p_shader->spatial.uses_ensure_correct_normals;
+
             shaders.actions_scene.render_mode_flags["world_vertex_coords"] = &p_shader->spatial.uses_world_coordinates;
 
             shaders.actions_scene.usage_flag_pointers["ALPHA"] = &p_shader->spatial.uses_alpha;
@@ -2208,6 +2203,12 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
             shaders.actions_scene.usage_flag_pointers["SCREEN_TEXTURE"] = &p_shader->spatial.uses_screen_texture;
             shaders.actions_scene.usage_flag_pointers["DEPTH_TEXTURE"] = &p_shader->spatial.uses_depth_texture;
             shaders.actions_scene.usage_flag_pointers["TIME"] = &p_shader->spatial.uses_time;
+
+            // Use of any of these BUILTINS indicate the need for transformed tangents.
+            // This is needed to know when to transform tangents in software skinning.
+            shaders.actions_scene.usage_flag_pointers["TANGENT"] = &p_shader->spatial.uses_tangent;
+            shaders.actions_scene.usage_flag_pointers["NORMALMAP"] = &p_shader->spatial.uses_tangent;
+
 
             shaders.actions_scene.write_flag_pointers["MODELVIEW_MATRIX"] = &p_shader->spatial.writes_modelview_or_projection;
             shaders.actions_scene.write_flag_pointers["PROJECTION_MATRIX"] = &p_shader->spatial.writes_modelview_or_projection;
@@ -2549,6 +2550,7 @@ bool RasterizerStorageGLES3::material_is_animated(RID p_material) {
     }
     return animated;
 }
+
 bool RasterizerStorageGLES3::material_casts_shadows(RID p_material) {
 
     Material *material = material_owner.get(p_material);
@@ -2564,6 +2566,36 @@ bool RasterizerStorageGLES3::material_casts_shadows(RID p_material) {
     }
 
     return casts_shadows;
+}
+
+bool RasterizerStorageGLES3::material_uses_tangents(RID p_material) {
+    Material *material = material_owner.get(p_material);
+    ERR_FAIL_COND_V(!material, false);
+
+    if (!material->shader) {
+        return false;
+    }
+
+    if (material->shader->dirty_list.in_list()) {
+        _update_shader(material->shader);
+    }
+
+    return material->shader->spatial.uses_tangent;
+}
+
+bool RasterizerStorageGLES3::material_uses_ensure_correct_normals(RID p_material) {
+    Material *material = material_owner.get(p_material);
+    ERR_FAIL_COND_V(!material, false);
+
+    if (!material->shader) {
+        return false;
+    }
+
+    if (material->shader->dirty_list.in_list()) {
+        _update_shader(material->shader);
+    }
+
+    return material->shader->spatial.uses_ensure_correct_normals;
 }
 
 void RasterizerStorageGLES3::material_add_instance_owner(RID p_material, RasterizerScene::InstanceBase *p_instance) {
@@ -3265,7 +3297,9 @@ RID RasterizerStorageGLES3::mesh_create() {
     return mesh_owner.make_rid(mesh);
 }
 
-void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, RS::PrimitiveType p_primitive, Span<const uint8_t> p_array, int p_vertex_count, Span<const uint8_t> p_index_array, int p_index_count, const AABB &p_aabb, const Vector<PoolVector<uint8_t> > &p_blend_shapes, Span<const AABB> p_bone_aabbs) {
+void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, RS::PrimitiveType p_primitive,
+        Span<const uint8_t> p_array, int p_vertex_count, Span<const uint8_t> p_index_array, int p_index_count,
+        const AABB &p_aabb, const Vector<PoolVector<uint8_t>> &p_blend_shapes, Span<const AABB> p_bone_aabbs) {
 
     Span<const uint8_t> array = p_array;
     Vector<uint8_t> converted_array;
@@ -7775,10 +7809,9 @@ bool RasterizerStorageGLES3::free(RID p_rid) {
             if (ins->material_override == p_rid) {
                 ins->material_override = RID();
             }
-            auto wr(ins->materials.write());
-            for (int i = 0; i < ins->materials.size(); i++) {
-                if (ins->materials[i] == p_rid) {
-                    wr[i] = RID();
+            for (auto & rid : ins->materials) {
+                if (rid == p_rid) {
+                    rid = RID();
                 }
             }
         }
@@ -8061,8 +8094,9 @@ void RasterizerStorageGLES3::initialize() {
         glGetIntegerv(GL_NUM_EXTENSIONS, &max_extensions);
         for (int i = 0; i < max_extensions; i++) {
             const GLubyte *s = glGetStringi(GL_EXTENSIONS, i);
-            if (!s)
+            if (!s) {
                 break;
+            }
             config.extensions.insert((const char *)s);
         }
     }

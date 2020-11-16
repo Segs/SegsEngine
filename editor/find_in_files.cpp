@@ -435,7 +435,8 @@ void FindInFilesDialog::_notification(int p_what) {
     if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
         if (is_visible()) {
             // Doesn't work more than once if not deferred...
-            _search_text_line_edit->call_deferred("grab_focus");
+            auto stle=_search_text_line_edit;
+            stle->call_deferred([stle] { stle->grab_focus(); });
             _search_text_line_edit->select_all();
             // Extensions might have changed in the meantime, we clean them and instance them again.
             for (int i = 0; i < _filters_container->get_child_count(); i++) {
@@ -498,11 +499,6 @@ void FindInFilesDialog::_on_folder_selected(StringView path) {
 
 void FindInFilesDialog::_bind_methods() {
 
-    MethodBinder::bind_method("_on_folder_button_pressed", &FindInFilesDialog::_on_folder_button_pressed);
-    MethodBinder::bind_method("_on_folder_selected", &FindInFilesDialog::_on_folder_selected);
-    MethodBinder::bind_method("_on_search_text_modified", &FindInFilesDialog::_on_search_text_modified);
-    MethodBinder::bind_method("_on_search_text_entered", &FindInFilesDialog::_on_search_text_entered);
-
     ADD_SIGNAL(MethodInfo(SIGNAL_FIND_REQUESTED));
     ADD_SIGNAL(MethodInfo(SIGNAL_REPLACE_REQUESTED));
 }
@@ -533,7 +529,7 @@ FindInFilesPanel::FindInFilesPanel() {
         hbc->add_child(find_label);
 
         _search_text_label = memnew(Label);
-        _search_text_label->add_font_override("font", EditorNode::get_singleton()->get_gui_base()->get_font("source", "EditorFonts"));
+        _search_text_label->add_font_override("font", EditorNode::get_singleton()->get_gui_base()->get_theme_font("source", "EditorFonts"));
         hbc->add_child(_search_text_label);
 
         _progress_bar = memnew(ProgressBar);
@@ -561,7 +557,7 @@ FindInFilesPanel::FindInFilesPanel() {
     }
 
     _results_display = memnew(Tree);
-    _results_display->add_font_override("font", EditorNode::get_singleton()->get_gui_base()->get_font("source", "EditorFonts"));
+    _results_display->add_font_override("font", EditorNode::get_singleton()->get_gui_base()->get_theme_font("source", "EditorFonts"));
     _results_display->set_v_size_flags(SIZE_EXPAND_FILL);
     _results_display->connect("item_selected",callable_mp(this, &ClassName::_on_result_selected));
     _results_display->connect("item_edited",callable_mp(this, &ClassName::_on_item_edited));
@@ -682,12 +678,12 @@ void FindInFilesPanel::_on_result_found(StringView fpath, int line_number, int b
     // Do this first because it resets properties of the cell...
     item->set_cell_mode(text_index, TreeItem::CELL_MODE_CUSTOM);
 
-    StringName item_text = FormatSN("%3s:    %s", line_number, StringUtils::replace(text,"\t", "    ").c_str());
+    StringName item_text = FormatSN("%03d:    %s", line_number, StringUtils::replace(text,"\t", "    ").c_str());
 
     item->set_text(text_index, item_text);
-    item->set_custom_draw(text_index, this, "_draw_result_text");
+    item->set_custom_draw(text_index, callable_mp(this,&FindInFilesPanel::draw_result_text));
 
-    Ref<Font> font = _results_display->get_font("font");
+    Ref<Font> font = _results_display->get_theme_font("font");
 
     float raw_text_width = font->get_string_size(text).x;
     float item_text_width = font->get_string_size(item_text).x;
@@ -733,11 +729,11 @@ void FindInFilesPanel::_on_item_edited() {
     TreeItem *item = _results_display->get_selected();
 
     if (item->is_checked(0)) {
-        item->set_custom_color(1, _results_display->get_color("font_color"));
+        item->set_custom_color(1, _results_display->get_theme_color("font_color"));
 
     } else {
         // Grey out
-        Color color = _results_display->get_color("font_color");
+        Color color = _results_display->get_theme_color("font_color");
         color.a /= 2.0f;
         item->set_custom_color(1, color);
     }
@@ -885,7 +881,7 @@ void FindInFilesPanel::apply_replaces_in_file(StringView fpath, const Vector<Fin
         int _;
         if (!find_next(line, search_text, repl_begin, _finder->is_match_case(), _finder->is_whole_words(), _, _)) {
             // Make sure the replace is still valid in case the file was tampered with.
-            print_verbose(FormatVE("Occurrence no longer matches, replace will be ignored in %.*s: line %d, col %d",fpath.size(),fpath.data(), repl_line_number, repl_begin));
+            print_verbose(FormatVE("Occurrence no longer matches, replace will be ignored in %.*s: line %d, col %d",(int)fpath.size(),fpath.data(), repl_line_number, repl_begin));
             continue;
         }
 
@@ -926,16 +922,6 @@ void FindInFilesPanel::set_progress_visible(bool visible) {
 }
 
 void FindInFilesPanel::_bind_methods() {
-
-    MethodBinder::bind_method("_on_result_found", &FindInFilesPanel::_on_result_found);
-    MethodBinder::bind_method("_on_item_edited", &FindInFilesPanel::_on_item_edited);
-    MethodBinder::bind_method("_on_finished", &FindInFilesPanel::_on_finished);
-    MethodBinder::bind_method("_on_refresh_button_clicked", &FindInFilesPanel::_on_refresh_button_clicked);
-    MethodBinder::bind_method("_on_cancel_button_clicked", &FindInFilesPanel::_on_cancel_button_clicked);
-    MethodBinder::bind_method("_on_result_selected", &FindInFilesPanel::_on_result_selected);
-    MethodBinder::bind_method("_on_replace_text_changed", &FindInFilesPanel::_on_replace_text_changed);
-    MethodBinder::bind_method("_on_replace_all_clicked", &FindInFilesPanel::_on_replace_all_clicked);
-    MethodBinder::bind_method("_draw_result_text", &FindInFilesPanel::draw_result_text);
 
     ADD_SIGNAL(MethodInfo(SIGNAL_RESULT_SELECTED,
             PropertyInfo(VariantType::STRING, "path"),

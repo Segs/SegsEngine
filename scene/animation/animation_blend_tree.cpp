@@ -32,6 +32,7 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "scene/scene_string_names.h"
@@ -49,8 +50,8 @@ IMPL_GDCLASS(AnimationNodeTimeSeek)
 IMPL_GDCLASS(AnimationNodeTransition)
 IMPL_GDCLASS(AnimationNodeOutput)
 IMPL_GDCLASS(AnimationNodeBlendTree)
-VARIANT_ENUM_CAST(AnimationNodeOneShot::MixMode)
-VARIANT_ENUM_CAST(AnimationNodeBlendTree::ConnectionError)
+VARIANT_ENUM_CAST(AnimationNodeOneShot::MixMode);
+VARIANT_ENUM_CAST(AnimationNodeBlendTree::ConnectionError);
 
 void AnimationNodeAnimation::set_animation(const StringName &p_name) {
     animation = p_name;
@@ -372,8 +373,8 @@ void AnimationNodeOneShot::_bind_methods() {
     ADD_GROUP("", "");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "sync"), "set_use_sync", "is_using_sync");
 
-    BIND_ENUM_CONSTANT(MIX_MODE_BLEND)
-    BIND_ENUM_CONSTANT(MIX_MODE_ADD)
+    BIND_ENUM_CONSTANT(MIX_MODE_BLEND);
+    BIND_ENUM_CONSTANT(MIX_MODE_ADD);
 }
 
 AnimationNodeOneShot::AnimationNodeOneShot() {
@@ -900,7 +901,7 @@ void AnimationNodeBlendTree::add_node(const StringName &p_name, Ref<AnimationNod
 
     ERR_FAIL_COND(nodes.contains(p_name));
     ERR_FAIL_COND(not p_node);
-    ERR_FAIL_COND(p_name == SceneStringNames::get_singleton()->output);
+    ERR_FAIL_COND(p_name == SceneStringNames::output);
     ERR_FAIL_COND(StringUtils::contains(p_name,'/'));
 
     Node n;
@@ -971,7 +972,7 @@ const Vector<StringName> &AnimationNodeBlendTree::get_node_connection_array(cons
 void AnimationNodeBlendTree::remove_node(const StringName &p_name) {
 
     ERR_FAIL_COND(!nodes.contains(p_name));
-    ERR_FAIL_COND(p_name == SceneStringNames::get_singleton()->output); //can't delete output
+    ERR_FAIL_COND(p_name == SceneStringNames::output); //can't delete output
 
     {
         Ref<AnimationNode> node = nodes[p_name].node;
@@ -998,8 +999,8 @@ void AnimationNodeBlendTree::rename_node(const StringName &p_name, const StringN
 
     ERR_FAIL_COND(!nodes.contains(p_name));
     ERR_FAIL_COND(nodes.contains(p_new_name));
-    ERR_FAIL_COND(p_name == SceneStringNames::get_singleton()->output);
-    ERR_FAIL_COND(p_new_name == SceneStringNames::get_singleton()->output);
+    ERR_FAIL_COND(p_name == SceneStringNames::output);
+    ERR_FAIL_COND(p_new_name == SceneStringNames::output);
 
     nodes[p_name].node->disconnect("changed",callable_mp(this, &ClassName::_node_changed));
 
@@ -1025,7 +1026,7 @@ void AnimationNodeBlendTree::connect_node(const StringName &p_input_node, int p_
 
     ERR_FAIL_COND(!nodes.contains(p_output_node));
     ERR_FAIL_COND(!nodes.contains(p_input_node));
-    ERR_FAIL_COND(p_output_node == SceneStringNames::get_singleton()->output);
+    ERR_FAIL_COND(p_output_node == SceneStringNames::output);
     ERR_FAIL_COND(p_input_node == p_output_node);
 
     Ref<AnimationNode> input = nodes[p_input_node].node;
@@ -1055,7 +1056,7 @@ void AnimationNodeBlendTree::disconnect_node(const StringName &p_node, int p_inp
 
 AnimationNodeBlendTree::ConnectionError AnimationNodeBlendTree::can_connect_node(const StringName &p_input_node, int p_input_index, const StringName &p_output_node) const {
 
-    if (!nodes.contains(p_output_node) || p_output_node == SceneStringNames::get_singleton()->output) {
+    if (!nodes.contains(p_output_node) || p_output_node == SceneStringNames::output) {
         return CONNECTION_ERROR_NO_OUTPUT;
     }
 
@@ -1113,8 +1114,8 @@ StringView AnimationNodeBlendTree::get_caption() const {
 
 float AnimationNodeBlendTree::process(float p_time, bool p_seek) {
 
-    Ref<AnimationNodeOutput> output = dynamic_ref_cast<AnimationNodeOutput>(nodes[SceneStringNames::get_singleton()->output].node);
-    return _blend_node("output", nodes[SceneStringNames::get_singleton()->output].connections, this, output, p_time, p_seek, 1.0);
+    Ref<AnimationNodeOutput> output = dynamic_ref_cast<AnimationNodeOutput>(nodes[SceneStringNames::output].node);
+    return _blend_node("output", nodes[SceneStringNames::output].connections, this, output, p_time, p_seek, 1.0);
 }
 
 void AnimationNodeBlendTree::get_node_list(List<StringName> *r_list) {
@@ -1259,9 +1260,6 @@ void AnimationNodeBlendTree::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_graph_offset", {"offset"}), &AnimationNodeBlendTree::set_graph_offset);
     MethodBinder::bind_method(D_METHOD("get_graph_offset"), &AnimationNodeBlendTree::get_graph_offset);
-
-    MethodBinder::bind_method(D_METHOD("_tree_changed"), &AnimationNodeBlendTree::_tree_changed);
-    MethodBinder::bind_method(D_METHOD("_node_changed", {"node"}), &AnimationNodeBlendTree::_node_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "graph_offset", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_graph_offset", "get_graph_offset");
 

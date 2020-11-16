@@ -36,13 +36,14 @@
 #include "core/list.h"
 #include "core/math/math_funcs.h"
 #include "core/method_bind.h"
-#include "core/script_language.h"
 #include "core/object.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
+#include "core/project_settings.h"
 #include "core/rid.h"
+#include "core/script_language.h"
 #include "core/translation_helpers.h"
 #include "scene/scene_string_names.h"
-#include "core/project_settings.h"
 
 IMPL_GDCLASS(PhysicsBody2D)
 IMPL_GDCLASS(StaticBody2D)
@@ -169,7 +170,7 @@ void PhysicsBody2D::add_collision_exception_with(Node *p_node) {
 
     ERR_FAIL_NULL(p_node);
     PhysicsBody2D *physics_body = object_cast<PhysicsBody2D>(p_node);
-    ERR_FAIL_COND_MSG(!physics_body, "Collision exception only works between two objects of PhysicsBody3D type."); 
+    ERR_FAIL_COND_MSG(!physics_body, "Collision exception only works between two objects of PhysicsBody3D type.");
     PhysicsServer2D::get_singleton()->body_add_collision_exception(get_rid(), physics_body->get_rid());
 }
 
@@ -177,7 +178,7 @@ void PhysicsBody2D::remove_collision_exception_with(Node *p_node) {
 
     ERR_FAIL_NULL(p_node);
     PhysicsBody2D *physics_body = object_cast<PhysicsBody2D>(p_node);
-    ERR_FAIL_COND_MSG(!physics_body, "Collision exception only works between two objects of PhysicsBody3D type."); 
+    ERR_FAIL_COND_MSG(!physics_body, "Collision exception only works between two objects of PhysicsBody3D type.");
     PhysicsServer2D::get_singleton()->body_remove_collision_exception(get_rid(), physics_body->get_rid());
 }
 
@@ -274,11 +275,11 @@ void RigidBody2D::_body_enter_tree(ObjectID p_id) {
     contact_monitor->locked = true;
 
     E->second.in_scene = true;
-    emit_signal(SceneStringNames::get_singleton()->body_entered, Variant(node));
+    emit_signal(SceneStringNames::body_entered, Variant(node));
 
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
-        emit_signal(SceneStringNames::get_singleton()->body_shape_entered, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
+        emit_signal(SceneStringNames::body_shape_entered, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
     }
 
     contact_monitor->locked = false;
@@ -297,11 +298,11 @@ void RigidBody2D::_body_exit_tree(ObjectID p_id) {
 
     contact_monitor->locked = true;
 
-    emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
+    emit_signal(SceneStringNames::body_exited, Variant(node));
 
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
-        emit_signal(SceneStringNames::get_singleton()->body_shape_exited, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
+        emit_signal(SceneStringNames::body_shape_exited, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
     }
 
     contact_monitor->locked = false;
@@ -327,10 +328,10 @@ void RigidBody2D::_body_inout(int p_status, ObjectID p_instance, int p_body_shap
             //E.second.rc=0;
             E->second.in_scene = node && node->is_inside_tree();
             if (node) {
-                node->connect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &RigidBody2D::_body_enter_tree), make_binds(objid));
-                node->connect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &RigidBody2D::_body_exit_tree), make_binds(objid));
+                node->connect(SceneStringNames::tree_entered, callable_mp(this, &RigidBody2D::_body_enter_tree), make_binds(objid));
+                node->connect(SceneStringNames::tree_exiting, callable_mp(this, &RigidBody2D::_body_exit_tree), make_binds(objid));
                 if (E->second.in_scene) {
-                    emit_signal(SceneStringNames::get_singleton()->body_entered, Variant(node));
+                    emit_signal(SceneStringNames::body_entered, Variant(node));
                 }
             }
 
@@ -342,7 +343,7 @@ void RigidBody2D::_body_inout(int p_status, ObjectID p_instance, int p_body_shap
         }
 
         if (E->second.in_scene) {
-            emit_signal(SceneStringNames::get_singleton()->body_shape_entered, Variant::from(objid), Variant(node), p_body_shape, p_local_shape);
+            emit_signal(SceneStringNames::body_shape_entered, Variant::from(objid), Variant(node), p_body_shape, p_local_shape);
         }
 
     } else {
@@ -357,16 +358,16 @@ void RigidBody2D::_body_inout(int p_status, ObjectID p_instance, int p_body_shap
         if (E->second.shapes.empty()) {
 
             if (node) {
-                node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &RigidBody2D::_body_enter_tree));
-                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &RigidBody2D::_body_exit_tree));
+                node->disconnect(SceneStringNames::tree_entered, callable_mp(this, &RigidBody2D::_body_enter_tree));
+                node->disconnect(SceneStringNames::tree_exiting, callable_mp(this, &RigidBody2D::_body_exit_tree));
                 if (in_scene)
-                    emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
+                    emit_signal(SceneStringNames::body_exited, Variant(node));
             }
 
             contact_monitor->body_map.erase(E);
         }
         if (node && in_scene) {
-            emit_signal(SceneStringNames::get_singleton()->body_shape_exited, Variant::from(objid), Variant(node), p_body_shape, p_local_shape);
+            emit_signal(SceneStringNames::body_shape_exited, Variant::from(objid), Variant(node), p_body_shape, p_local_shape);
         }
     }
 }
@@ -401,7 +402,7 @@ void RigidBody2D::_direct_state_changed(Object *p_state) {
     angular_velocity = state->get_angular_velocity();
     if (sleeping != state->is_sleeping()) {
         sleeping = state->is_sleeping();
-        emit_signal(SceneStringNames::get_singleton()->sleeping_state_changed);
+        emit_signal(SceneStringNames::sleeping_state_changed);
     }
     if (get_script_instance())
         get_script_instance()->call("_integrate_forces", Variant(state));
@@ -721,22 +722,22 @@ void RigidBody2D::apply_torque_impulse(float p_torque) {
 void RigidBody2D::set_applied_force(const Vector2 &p_force) {
 
     PhysicsServer2D::get_singleton()->body_set_applied_force(get_rid(), p_force);
-};
+}
 
 Vector2 RigidBody2D::get_applied_force() const {
 
     return PhysicsServer2D::get_singleton()->body_get_applied_force(get_rid());
-};
+}
 
 void RigidBody2D::set_applied_torque(const float p_torque) {
 
     PhysicsServer2D::get_singleton()->body_set_applied_torque(get_rid(), p_torque);
-};
+}
 
 float RigidBody2D::get_applied_torque() const {
 
     return PhysicsServer2D::get_singleton()->body_get_applied_torque(get_rid());
-};
+}
 
 void RigidBody2D::add_central_force(const Vector2 &p_force) {
     PhysicsServer2D::get_singleton()->body_add_central_force(get_rid(), p_force);
@@ -788,7 +789,7 @@ void RigidBody2D::set_contact_monitor(bool p_enabled) {
 
     if (!p_enabled) {
 
-        ERR_FAIL_COND_MSG(contact_monitor->locked, "Can't disable contact monitoring during in/out callback. Use call_deferred(\"set_contact_monitor\", false) instead."); 
+        ERR_FAIL_COND_MSG(contact_monitor->locked, "Can't disable contact monitoring during in/out callback. Use call_deferred(\"set_contact_monitor\", false) instead.");
 
         for (eastl::pair<const ObjectID,BodyState> &E : contact_monitor->body_map) {
 
@@ -797,8 +798,8 @@ void RigidBody2D::set_contact_monitor(bool p_enabled) {
             Node *node = object_cast<Node>(obj);
 
             if (node) {
-                node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &RigidBody2D::_body_enter_tree));
-                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &RigidBody2D::_body_exit_tree));
+                node->disconnect(SceneStringNames::tree_entered, callable_mp(this, &RigidBody2D::_body_enter_tree));
+                node->disconnect(SceneStringNames::tree_exiting, callable_mp(this, &RigidBody2D::_body_exit_tree));
             }
         }
 
@@ -834,7 +835,7 @@ void RigidBody2D::_notification(int p_what) {
 #endif
 }
 
-StringName RigidBody2D::get_configuration_warning() const {
+String RigidBody2D::get_configuration_warning() const {
 
     Transform2D t = get_transform();
 
@@ -847,7 +848,7 @@ StringName RigidBody2D::get_configuration_warning() const {
         warning += TTR("Size changes to RigidBody2D (in character or rigid modes) will be overridden by the physics engine when running.\nChange the size in children collision shapes instead.");
     }
 
-    return StringName(warning);
+    return String(warning);
 }
 
 void RigidBody2D::_bind_methods() {
@@ -952,14 +953,14 @@ void RigidBody2D::_bind_methods() {
     ADD_SIGNAL(MethodInfo("body_exited", PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node")));
     ADD_SIGNAL(MethodInfo("sleeping_state_changed"));
 
-    BIND_ENUM_CONSTANT(MODE_RIGID)
-    BIND_ENUM_CONSTANT(MODE_STATIC)
-    BIND_ENUM_CONSTANT(MODE_CHARACTER)
-    BIND_ENUM_CONSTANT(MODE_KINEMATIC)
+    BIND_ENUM_CONSTANT(MODE_RIGID);
+    BIND_ENUM_CONSTANT(MODE_STATIC);
+    BIND_ENUM_CONSTANT(MODE_CHARACTER);
+    BIND_ENUM_CONSTANT(MODE_KINEMATIC);
 
-    BIND_ENUM_CONSTANT(CCD_MODE_DISABLED)
-    BIND_ENUM_CONSTANT(CCD_MODE_CAST_RAY)
-    BIND_ENUM_CONSTANT(CCD_MODE_CAST_SHAPE)
+    BIND_ENUM_CONSTANT(CCD_MODE_DISABLED);
+    BIND_ENUM_CONSTANT(CCD_MODE_CAST_RAY);
+    BIND_ENUM_CONSTANT(CCD_MODE_CAST_SHAPE);
 }
 
 RigidBody2D::RigidBody2D() :
@@ -984,13 +985,11 @@ RigidBody2D::RigidBody2D() :
     contact_monitor = nullptr;
     can_sleep = true;
 
-    PhysicsServer2D::get_singleton()->body_set_force_integration_callback(get_rid(), this, "_direct_state_changed");
+    PhysicsServer2D::get_singleton()->body_set_force_integration_callback(get_rid(),callable_mp(this,&RigidBody2D::_direct_state_changed));
 }
 
 RigidBody2D::~RigidBody2D() {
-
-    if (contact_monitor)
-        memdelete(contact_monitor);
+    memdelete(contact_monitor);
 }
 
 void RigidBody2D::_reload_physics_characteristics() {
@@ -1302,11 +1301,11 @@ void KinematicBody2D::set_sync_to_physics(bool p_enable) {
         return;
 
     if (p_enable) {
-        PhysicsServer2D::get_singleton()->body_set_force_integration_callback(get_rid(), this, "_direct_state_changed");
+        PhysicsServer2D::get_singleton()->body_set_force_integration_callback(get_rid(), callable_mp(this,&KinematicBody2D::_direct_state_changed));
         set_only_update_transform_changes(true);
         set_notify_local_transform(true);
     } else {
-        PhysicsServer2D::get_singleton()->body_set_force_integration_callback(get_rid(), nullptr, "");
+        PhysicsServer2D::get_singleton()->body_set_force_integration_callback(get_rid(), {});
         set_only_update_transform_changes(false);
         set_notify_local_transform(false);
     }

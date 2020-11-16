@@ -263,13 +263,13 @@ void TextureButton::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "expand", PropertyHint::ResourceType, "bool"), "set_expand", "get_expand");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "stretch_mode", PropertyHint::Enum, "Scale,Tile,Keep,Keep Centered,Keep Aspect,Keep Aspect Centered,Keep Aspect Covered"), "set_stretch_mode", "get_stretch_mode");
 
-    BIND_ENUM_CONSTANT(STRETCH_SCALE)
-    BIND_ENUM_CONSTANT(STRETCH_TILE)
-    BIND_ENUM_CONSTANT(STRETCH_KEEP)
-    BIND_ENUM_CONSTANT(STRETCH_KEEP_CENTERED)
-    BIND_ENUM_CONSTANT(STRETCH_KEEP_ASPECT)
-    BIND_ENUM_CONSTANT(STRETCH_KEEP_ASPECT_CENTERED)
-    BIND_ENUM_CONSTANT(STRETCH_KEEP_ASPECT_COVERED)
+    BIND_ENUM_CONSTANT(STRETCH_SCALE);
+    BIND_ENUM_CONSTANT(STRETCH_TILE);
+    BIND_ENUM_CONSTANT(STRETCH_KEEP);
+    BIND_ENUM_CONSTANT(STRETCH_KEEP_CENTERED);
+    BIND_ENUM_CONSTANT(STRETCH_KEEP_ASPECT);
+    BIND_ENUM_CONSTANT(STRETCH_KEEP_ASPECT_CENTERED);
+    BIND_ENUM_CONSTANT(STRETCH_KEEP_ASPECT_COVERED);
 }
 
 void TextureButton::set_normal_texture(const Ref<Texture> &p_normal) {
@@ -324,12 +324,12 @@ Ref<BitMap> TextureButton::get_click_mask() const {
 Ref<Texture> TextureButton::get_focused_texture() const {
 
     return focused;
-};
+}
 
 void TextureButton::set_focused_texture(const Ref<Texture> &p_focused) {
 
     focused = p_focused;
-};
+}
 
 bool TextureButton::get_expand() const {
     return expand;

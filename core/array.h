@@ -65,6 +65,14 @@ public:
 
     uint32_t hash() const;
     Array &operator=(const Array &p_array);
+    Array &operator=(Array && from) noexcept {
+        if(this == &from)
+            return *this;
+        _unref();
+        _p = from._p;
+        from._p = nullptr;
+        return *this;
+    }
 
     void push_back(const Variant &p_value);
     void emplace_back(Variant &&p_value);
@@ -105,7 +113,13 @@ public:
     Variant min() const;
     Variant max() const;
     const void *id() const;
-
+    template<class T>
+    explicit Array(Span<T> from) {
+        reserve(from.size());
+        for(const auto &entry : from) {
+            emplace_back(entry);
+        }
+    }
     Array(const Array &p_from);
     Array(Vector<Variant> &&v) noexcept;
     Array(Array &&from) noexcept {

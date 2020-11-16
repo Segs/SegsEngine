@@ -31,13 +31,12 @@
 #include "audio_effect_spectrum_analyzer.h"
 #include "servers/audio_server.h"
 #include "core/method_bind.h"
-#include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 
 IMPL_GDCLASS(AudioEffectSpectrumAnalyzerInstance)
 IMPL_GDCLASS(AudioEffectSpectrumAnalyzer)
 
-VARIANT_ENUM_CAST(AudioEffectSpectrumAnalyzerInstance::MagnitudeMode)
+VARIANT_ENUM_CAST(AudioEffectSpectrumAnalyzerInstance::MagnitudeMode);
 VARIANT_ENUM_CAST(AudioEffectSpectrumAnalyzer::FFT_Size);
 
 static void smbFft(float *fftBuffer, long fftFrameSize, long sign)
@@ -159,8 +158,8 @@ void AudioEffectSpectrumAnalyzerInstance::process(const AudioFrame *p_src_frames
 void AudioEffectSpectrumAnalyzerInstance::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_magnitude_for_frequency_range", {"from_hz", "to_hz", "mode"}), &AudioEffectSpectrumAnalyzerInstance::get_magnitude_for_frequency_range, {DEFVAL(MAGNITUDE_MAX)});
-    BIND_ENUM_CONSTANT(MAGNITUDE_AVERAGE)
-    BIND_ENUM_CONSTANT(MAGNITUDE_MAX)
+    BIND_ENUM_CONSTANT(MAGNITUDE_AVERAGE);
+    BIND_ENUM_CONSTANT(MAGNITUDE_MAX);
 }
 
 Vector2 AudioEffectSpectrumAnalyzerInstance::get_magnitude_for_frequency_range(float p_begin, float p_end, MagnitudeMode p_mode) const {
@@ -280,12 +279,12 @@ void AudioEffectSpectrumAnalyzer::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tap_back_pos", PropertyHint::Range, "0.1,4,0.1"), "set_tap_back_pos", "get_tap_back_pos");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "fft_size", PropertyHint::Enum, "256,512,1024,2048,4096"), "set_fft_size", "get_fft_size");
 
-    BIND_ENUM_CONSTANT(FFT_SIZE_256)
-    BIND_ENUM_CONSTANT(FFT_SIZE_512)
-    BIND_ENUM_CONSTANT(FFT_SIZE_1024)
-    BIND_ENUM_CONSTANT(FFT_SIZE_2048)
-    BIND_ENUM_CONSTANT(FFT_SIZE_4096)
-    BIND_ENUM_CONSTANT(FFT_SIZE_MAX)
+    BIND_ENUM_CONSTANT(FFT_SIZE_256);
+    BIND_ENUM_CONSTANT(FFT_SIZE_512);
+    BIND_ENUM_CONSTANT(FFT_SIZE_1024);
+    BIND_ENUM_CONSTANT(FFT_SIZE_2048);
+    BIND_ENUM_CONSTANT(FFT_SIZE_4096);
+    BIND_ENUM_CONSTANT(FFT_SIZE_MAX);
 }
 
 AudioEffectSpectrumAnalyzer::AudioEffectSpectrumAnalyzer() {

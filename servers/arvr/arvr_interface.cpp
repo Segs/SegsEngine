@@ -68,33 +68,33 @@ void ARVRInterface::_bind_methods() {
     ADD_GROUP("AR", "ar_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ar_is_anchor_detection_enabled"), "set_anchor_detection_is_enabled", "get_anchor_detection_is_enabled");
 
-    BIND_ENUM_CONSTANT(ARVR_NONE)
-    BIND_ENUM_CONSTANT(ARVR_MONO)
-    BIND_ENUM_CONSTANT(ARVR_STEREO)
-    BIND_ENUM_CONSTANT(ARVR_AR)
-    BIND_ENUM_CONSTANT(ARVR_EXTERNAL)
+    BIND_ENUM_CONSTANT(ARVR_NONE);
+    BIND_ENUM_CONSTANT(ARVR_MONO);
+    BIND_ENUM_CONSTANT(ARVR_STEREO);
+    BIND_ENUM_CONSTANT(ARVR_AR);
+    BIND_ENUM_CONSTANT(ARVR_EXTERNAL);
 
-    BIND_ENUM_CONSTANT(EYE_MONO)
-    BIND_ENUM_CONSTANT(EYE_LEFT)
-    BIND_ENUM_CONSTANT(EYE_RIGHT)
+    BIND_ENUM_CONSTANT(EYE_MONO);
+    BIND_ENUM_CONSTANT(EYE_LEFT);
+    BIND_ENUM_CONSTANT(EYE_RIGHT);
 
-    BIND_ENUM_CONSTANT(ARVR_NORMAL_TRACKING)
-    BIND_ENUM_CONSTANT(ARVR_EXCESSIVE_MOTION)
-    BIND_ENUM_CONSTANT(ARVR_INSUFFICIENT_FEATURES)
-    BIND_ENUM_CONSTANT(ARVR_UNKNOWN_TRACKING)
-    BIND_ENUM_CONSTANT(ARVR_NOT_TRACKING)
-};
+    BIND_ENUM_CONSTANT(ARVR_NORMAL_TRACKING);
+    BIND_ENUM_CONSTANT(ARVR_EXCESSIVE_MOTION);
+    BIND_ENUM_CONSTANT(ARVR_INSUFFICIENT_FEATURES);
+    BIND_ENUM_CONSTANT(ARVR_UNKNOWN_TRACKING);
+    BIND_ENUM_CONSTANT(ARVR_NOT_TRACKING);
+}
 
 StringName ARVRInterface::get_name() const {
     return "Unknown";
-};
+}
 
 bool ARVRInterface::is_primary() {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
     ERR_FAIL_NULL_V(arvr_server, false);
 
     return arvr_server->get_primary_interface() == this;
-};
+}
 
 void ARVRInterface::set_is_primary(bool p_is_primary) {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
@@ -119,35 +119,35 @@ void ARVRInterface::set_is_initialized(bool p_initialized) {
             uninitialize();
         }
     }
-};
+}
 
 ARVRInterface::Tracking_status ARVRInterface::get_tracking_status() const {
     return tracking_state;
-};
+}
 
 ARVRInterface::ARVRInterface() {
     __thread__safe__.reset(new Mutex);
     tracking_state = ARVR_UNKNOWN_TRACKING;
-};
+}
 
 ARVRInterface::~ARVRInterface(){}
 
 // optional render to external texture which enhances performance on those platforms that require us to submit our end result into special textures.
 unsigned int ARVRInterface::get_external_texture_for_eye(ARVREyes p_eye) {
     return 0;
-};
+}
 
 /** these will only be implemented on AR interfaces, so we want dummies for VR **/
 bool ARVRInterface::get_anchor_detection_is_enabled() const {
     return false;
-};
+}
 
 void ARVRInterface::set_anchor_detection_is_enabled(bool p_enable){
     // don't do anything here, this needs to be implemented on AR interface to enable/disable things like plane detection etc.
-};
+}
 
 int ARVRInterface::get_camera_feed_id() {
     // don't do anything here, this needs to be implemented on AR interface to enable/disable things like plane detection etc.
 
     return 0;
-};
+}

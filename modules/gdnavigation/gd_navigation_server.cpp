@@ -368,14 +368,31 @@ bool GdNavigationServer::agent_is_map_changed(RID p_agent) const {
     return agent->is_map_changed();
 }
 
-COMMAND_4(agent_set_callback, RID, p_agent, Object *, p_receiver, StringName, p_method, Variant, p_udata) {
+struct agent_set_callback_command : public SetCommand {
+    RID d_0; Callable d_1;
+    bool valid=true;
+    agent_set_callback_command( RID p_d_0, Callable && p_d_1) : d_0(p_d_0), d_1(p_d_1) {}
+    virtual void exec(GdNavigationServer *server)
+    {
+        ERR_FAIL_COND(valid == false);
+        server->_cmd_agent_set_callback(d_0, eastl::move(d_1));
+        // we've moved from d_1, now we have to prevent calls to this again.
+        valid = false;
+    }
+};
+void GdNavigationServer::agent_set_callback(RID p_agent, Callable && cb) const
+{
+    auto cmd = memnew(agent_set_callback_command( p_agent, eastl::move(cb))); add_command(cmd);
+}
+void GdNavigationServer::MERGE(_cmd_, agent_set_callback)(RID p_agent, Callable && cb)
+{
     RvoAgent *agent = agent_owner.getornull(p_agent);
     ERR_FAIL_COND(agent == nullptr);
-
-    agent->set_callback(p_receiver == nullptr ? ObjectID(0ULL) : p_receiver->get_instance_id(), p_method, p_udata);
+    bool cb_is_null = cb.is_null();
+    agent->set_callback(eastl::move(cb));
 
     if (agent->get_map()) {
-        if (p_receiver == nullptr) {
+        if (cb_is_null) {
             agent->get_map()->remove_agent_as_controlled(agent);
         } else {
             agent->get_map()->set_agent_as_controlled(agent);
@@ -442,6 +459,8 @@ void GdNavigationServer::set_active(bool p_active) const {
 }
 
 void GdNavigationServer::step(real_t p_delta_time) {
+    SCOPE_AUTONAMED;
+
     if (!active) {
         return;
     }

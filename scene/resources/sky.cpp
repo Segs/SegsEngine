@@ -41,8 +41,8 @@ IMPL_GDCLASS(Sky)
 IMPL_GDCLASS(PanoramaSky)
 IMPL_GDCLASS(ProceduralSky)
 
-VARIANT_ENUM_CAST(Sky::RadianceSize)
-VARIANT_ENUM_CAST(ProceduralSky::TextureSize)
+VARIANT_ENUM_CAST(Sky::RadianceSize);
+VARIANT_ENUM_CAST(ProceduralSky::TextureSize);
 
 void Sky::set_radiance_size(RadianceSize p_size) {
     ERR_FAIL_INDEX(p_size, RADIANCE_SIZE_MAX);
@@ -63,14 +63,14 @@ void Sky::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "radiance_size", PropertyHint::Enum, "32,64,128,256,512,1024,2048"), "set_radiance_size", "get_radiance_size");
 
-    BIND_ENUM_CONSTANT(RADIANCE_SIZE_32)
-    BIND_ENUM_CONSTANT(RADIANCE_SIZE_64)
-    BIND_ENUM_CONSTANT(RADIANCE_SIZE_128)
-    BIND_ENUM_CONSTANT(RADIANCE_SIZE_256)
-    BIND_ENUM_CONSTANT(RADIANCE_SIZE_512)
-    BIND_ENUM_CONSTANT(RADIANCE_SIZE_1024)
-    BIND_ENUM_CONSTANT(RADIANCE_SIZE_2048)
-    BIND_ENUM_CONSTANT(RADIANCE_SIZE_MAX)
+    BIND_ENUM_CONSTANT(RADIANCE_SIZE_32);
+    BIND_ENUM_CONSTANT(RADIANCE_SIZE_64);
+    BIND_ENUM_CONSTANT(RADIANCE_SIZE_128);
+    BIND_ENUM_CONSTANT(RADIANCE_SIZE_256);
+    BIND_ENUM_CONSTANT(RADIANCE_SIZE_512);
+    BIND_ENUM_CONSTANT(RADIANCE_SIZE_1024);
+    BIND_ENUM_CONSTANT(RADIANCE_SIZE_2048);
+    BIND_ENUM_CONSTANT(RADIANCE_SIZE_MAX);
 }
 
 Sky::Sky() {
@@ -456,12 +456,10 @@ void ProceduralSky::_thread_done(const Ref<Image> &p_image) {
 void ProceduralSky::_thread_function(void *p_ud) {
 
     ProceduralSky *psky = (ProceduralSky *)p_ud;
-    psky->call_deferred("_thread_done", psky->_generate_sky());
+    psky->call_deferred([psky,gen=psky->_generate_sky()]() { psky->_thread_done(gen); });
 }
 
 void ProceduralSky::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_update_sky"), &ProceduralSky::_update_sky);
 
     MethodBinder::bind_method(D_METHOD("set_sky_top_color", {"color"}), &ProceduralSky::set_sky_top_color);
     MethodBinder::bind_method(D_METHOD("get_sky_top_color"), &ProceduralSky::get_sky_top_color);
@@ -511,8 +509,6 @@ void ProceduralSky::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_texture_size", {"size"}), &ProceduralSky::set_texture_size);
     MethodBinder::bind_method(D_METHOD("get_texture_size"), &ProceduralSky::get_texture_size);
 
-    MethodBinder::bind_method(D_METHOD("_thread_done", {"image"}), &ProceduralSky::_thread_done);
-
     ADD_GROUP("Sky", "sky_");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "sky_top_color"), "set_sky_top_color", "get_sky_top_color");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "sky_horizon_color"), "set_sky_horizon_color", "get_sky_horizon_color");
@@ -537,12 +533,12 @@ void ProceduralSky::_bind_methods() {
     ADD_GROUP("Texture", "texture_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "texture_size", PropertyHint::Enum, "256,512,1024,2048,4096"), "set_texture_size", "get_texture_size");
 
-    BIND_ENUM_CONSTANT(TEXTURE_SIZE_256)
-    BIND_ENUM_CONSTANT(TEXTURE_SIZE_512)
-    BIND_ENUM_CONSTANT(TEXTURE_SIZE_1024)
-    BIND_ENUM_CONSTANT(TEXTURE_SIZE_2048)
-    BIND_ENUM_CONSTANT(TEXTURE_SIZE_4096)
-    BIND_ENUM_CONSTANT(TEXTURE_SIZE_MAX)
+    BIND_ENUM_CONSTANT(TEXTURE_SIZE_256);
+    BIND_ENUM_CONSTANT(TEXTURE_SIZE_512);
+    BIND_ENUM_CONSTANT(TEXTURE_SIZE_1024);
+    BIND_ENUM_CONSTANT(TEXTURE_SIZE_2048);
+    BIND_ENUM_CONSTANT(TEXTURE_SIZE_4096);
+    BIND_ENUM_CONSTANT(TEXTURE_SIZE_MAX);
 }
 
 ProceduralSky::ProceduralSky(bool p_desaturate) {

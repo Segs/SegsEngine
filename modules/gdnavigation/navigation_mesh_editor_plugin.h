@@ -41,7 +41,7 @@ class NavigationMeshInstance;
 class GODOT_EXPORT NavigationMeshEditor : public Control {
     friend class NavigationMeshEditorPlugin;
 
-    GDCLASS(NavigationMeshEditor, Control);
+    GDCLASS(NavigationMeshEditor, Control)
 
     AcceptDialog *err_dialog;
 
@@ -57,7 +57,7 @@ class GODOT_EXPORT NavigationMeshEditor : public Control {
 
 protected:
     void _node_removed(Node *p_node);
-    static void _bind_methods();
+    static void _bind_methods() {}
     void _notification(int p_option);
 
 public:
@@ -68,7 +68,7 @@ public:
 
 class NavigationMeshEditorPlugin : public EditorPlugin {
 
-    GDCLASS(NavigationMeshEditorPlugin, EditorPlugin);
+    GDCLASS(NavigationMeshEditorPlugin, EditorPlugin)
 
     NavigationMeshEditor *navigation_mesh_editor;
     EditorNode *editor;

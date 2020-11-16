@@ -76,8 +76,7 @@ void *ThreadPosix::thread_callback(void *userdata) {
     ScriptServer::thread_exit();
     void *value = pthread_getspecific(thread_id_key);
 
-    if (value)
-        memdelete(static_cast<ID *>(value));
+    memdelete(static_cast<ID *>(value));
     pthread_setspecific(thread_id_key, nullptr);
     return nullptr;
 }
@@ -143,7 +142,7 @@ Error ThreadPosix::set_name_func_posix(StringView p_name) {
     return err == 0 ? OK : ERR_INVALID_PARAMETER;
 
 #endif // PTHREAD_NO_RENAME
-};
+}
 
 void ThreadPosix::make_default() {
 

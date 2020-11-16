@@ -77,13 +77,14 @@ ObjectID Callable::get_object_id() const {
 
 StringName Callable::get_method() const {
     ERR_FAIL_COND_V_MSG(is_custom(), StringName(),
-            vformat("Can't get method on CallableCustom \"%s\".", operator String()));
+            String(String::CtorSprintf(),"Can't get method on CallableCustom \"%s\".", (operator String()).c_str()));
     return method;
 }
 
 CallableCustom *Callable::get_custom() const {
     ERR_FAIL_COND_V_MSG(!is_custom(), nullptr,
-            vformat("Can't get custom on non-CallableCustom \"%s\".", operator String()));
+            String(String::CtorSprintf(),"Can't get custom on non-CallableCustom \"%s\".", (operator String()).c_str())
+            );
     return custom;
 }
 
@@ -275,10 +276,6 @@ StringName Signal::get_name() const {
     return name;
 }
 
-bool Signal::operator==(const Signal &p_signal) const {
-    return object == p_signal.object && name == p_signal.name;
-}
-
 bool Signal::operator!=(const Signal &p_signal) const {
     return object != p_signal.object || name != p_signal.name;
 }
@@ -305,14 +302,14 @@ Signal::operator String() const {
     return class_name + "::[signal]" + String(name);
 }
 
-Error Signal::emit_signal(const Variant **p_arguments, int p_argcount) const {
-    Object *obj = ObjectDB::get_instance(object);
-    if (!obj) {
-        return ERR_INVALID_DATA;
-    }
+//void Signal::emit_signal(const Variant **p_arguments, int p_argcount) const {
+//    Object *obj = ObjectDB::get_instance(object);
+//    if (!obj) {
+//        return;// ERR_INVALID_DATA;
+//    }
 
-    return obj->emit_signal(name, p_arguments, p_argcount);
-}
+//    obj->emit_signal(name, p_arguments, p_argcount);
+//}
 
 Error Signal::connect(const Callable &p_callable, const Vector<Variant> &p_binds, uint32_t p_flags) {
     Object *object = get_object();
@@ -340,10 +337,11 @@ Array Signal::get_connections() const {
         return Array();
     }
 
-    List<Object::Connection> connections;
+    Vector<Object::Connection> connections;
     object->get_signal_connection_list(name, &connections);
 
     Array arr;
+    arr.reserve(connections.size());
     for (Object::Connection &E : connections) {
         arr.emplace_back(E);
     }

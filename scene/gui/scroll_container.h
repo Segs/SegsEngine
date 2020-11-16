@@ -102,7 +102,7 @@ public:
 
     bool clips_input() const override;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     ScrollContainer();
 };

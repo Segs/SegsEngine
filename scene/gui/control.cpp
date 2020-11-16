@@ -34,17 +34,19 @@
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/os/os.h"
 #include "core/script_language.h"
+#include "scene/gui/control_enum_casters.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/theme.h"
 #include "scene/scene_string_names.h"
 #include "servers/rendering_server.h"
-#include "scene/gui/control_enum_casters.h"
-#include "scene/resources/font.h"
+#include "core/translation_helpers.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"
@@ -123,11 +125,11 @@ void Control::_edit_set_position(const Point2 &p_position) {
     // Unlikely to happen. TODO: enclose all _edit_ functions into TOOLS_ENABLED
     set_position(p_position);
 #endif
-};
+}
 
 Point2 Control::_edit_get_position() const {
     return get_position();
-};
+}
 
 void Control::_edit_set_scale(const Size2 &p_scale) {
     set_scale(p_scale);
@@ -238,59 +240,59 @@ Transform2D Control::_get_internal_transform() const {
 
 bool Control::_set(const StringName &p_name, const Variant &p_value) {
 
-    StringName name = p_name;
-    if (!StringUtils::begins_with(name,"custom")) {
+    if (!StringUtils::begins_with(p_name,"custom")) {
         return false;
     }
 
-    StringName dname(StringUtils::get_slice(name,'/', 1));
+    StringName dname(StringUtils::get_slice(p_name,'/', 1));
     if (p_value.get_type() == VariantType::NIL) {
 
-        if (StringUtils::begins_with(name,"custom_icons/")) {
+        if (StringUtils::begins_with(p_name,"custom_icons/")) {
             if (data.icon_override.contains(dname)) {
                 data.icon_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.icon_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (StringUtils::begins_with(name,"custom_shaders/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_shaders/")) {
             if (data.shader_override.contains(dname)) {
                 data.shader_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.shader_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (StringUtils::begins_with(name,"custom_styles/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_styles/")) {
             if (data.style_override.contains(dname)) {
                 data.style_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.style_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (StringUtils::begins_with(name,"custom_fonts/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_fonts/")) {
             if (data.font_override.contains(dname)) {
                 data.font_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.font_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (StringUtils::begins_with(name,"custom_colors/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_colors/")) {
             data.color_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (StringUtils::begins_with(name,"custom_constants/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_constants/")) {
             data.constant_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else
+        } else {
             return false;
+        }
 
     } else {
-        if (StringUtils::begins_with(name,"custom_icons/")) {
+        if (StringUtils::begins_with(p_name,"custom_icons/")) {
             add_icon_override(dname, refFromVariant<Texture>(p_value));
-        } else if (StringUtils::begins_with(name,"custom_shaders/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_shaders/")) {
             add_shader_override(dname, refFromVariant<Shader>(p_value));
-        } else if (StringUtils::begins_with(name,"custom_styles/")) {
-            add_style_override(dname, refFromVariant<StyleBox>(p_value));
-        } else if (StringUtils::begins_with(name,"custom_fonts/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_styles/")) {
+            add_theme_style_override(dname, refFromVariant<StyleBox>(p_value));
+        } else if (StringUtils::begins_with(p_name,"custom_fonts/")) {
             add_font_override(dname, refFromVariant<Font>(p_value));
-        } else if (StringUtils::begins_with(name,"custom_colors/")) {
-            add_color_override(dname, p_value.as<Color>());
-        } else if (StringUtils::begins_with(name,"custom_constants/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_colors/")) {
+            add_theme_color_override(dname, p_value.as<Color>());
+        } else if (StringUtils::begins_with(p_name,"custom_constants/")) {
             add_constant_override(dname, p_value.as<int>());
         } else
             return false;
@@ -313,7 +315,7 @@ void Control::_update_minimum_size() {
 
     if (minsize != data.last_minimum_size) {
         data.last_minimum_size = minsize;
-        emit_signal(SceneStringNames::get_singleton()->minimum_size_changed);
+        emit_signal(SceneStringNames::minimum_size_changed);
     }
 }
 
@@ -503,7 +505,7 @@ void Control::_notification(int p_notification) {
 
             data.parent = object_cast<Control>(get_parent());
 
-            if (is_set_as_toplevel()) {
+            if (is_set_as_top_level()) {
                 get_viewport()->_gui_add_subwindow_control(this);
                 data.SI = this;
 
@@ -526,7 +528,7 @@ void Control::_notification(int p_notification) {
                         break;
 
                     CanvasItem *ci = object_cast<CanvasItem>(parent);
-                    if (ci && ci->is_set_as_toplevel()) {
+                    if (ci && ci->is_set_as_top_level()) {
                         subwindow = true;
                         break;
                     }
@@ -583,7 +585,7 @@ void Control::_notification(int p_notification) {
 
                 data.parent_canvas_item->disconnect("item_rect_changed",callable_mp(this, &ClassName::_size_changed));
                 data.parent_canvas_item = nullptr;
-            } else if (!is_set_as_toplevel()) {
+            } else if (!is_set_as_top_level()) {
                 //disconnect viewport
                 get_viewport()->disconnect("size_changed",callable_mp(this, &ClassName::_size_changed));
             }
@@ -630,32 +632,32 @@ void Control::_notification(int p_notification) {
         } break;
         case NOTIFICATION_RESIZED: {
 
-            emit_signal(SceneStringNames::get_singleton()->resized);
+            emit_signal(SceneStringNames::resized);
         } break;
         case NOTIFICATION_DRAW: {
 
             _update_canvas_item_transform();
             RenderingServer::get_singleton()->canvas_item_set_custom_rect(get_canvas_item(), !data.disable_visibility_clip, Rect2(Point2(), get_size()));
             RenderingServer::get_singleton()->canvas_item_set_clip(get_canvas_item(), data.clip_contents);
-            //emit_signal(SceneStringNames::get_singleton()->draw);
+            //emit_signal(SceneStringNames::draw);
 
         } break;
         case NOTIFICATION_MOUSE_ENTER: {
 
-            emit_signal(SceneStringNames::get_singleton()->mouse_entered);
+            emit_signal(SceneStringNames::mouse_entered);
         } break;
         case NOTIFICATION_MOUSE_EXIT: {
 
-            emit_signal(SceneStringNames::get_singleton()->mouse_exited);
+            emit_signal(SceneStringNames::mouse_exited);
         } break;
         case NOTIFICATION_FOCUS_ENTER: {
 
-            emit_signal(SceneStringNames::get_singleton()->focus_entered);
+            emit_signal(SceneStringNames::focus_entered);
             update();
         } break;
         case NOTIFICATION_FOCUS_EXIT: {
 
-            emit_signal(SceneStringNames::get_singleton()->focus_exited);
+            emit_signal(SceneStringNames::focus_exited);
             update();
 
         } break;
@@ -671,8 +673,9 @@ void Control::_notification(int p_notification) {
 
             if (!is_visible_in_tree()) {
 
-                if (get_viewport() != nullptr)
+                if (get_viewport() != nullptr) {
                     get_viewport()->_gui_hid_control(this);
+                }
 
                 if (is_inside_tree()) {
                     _modal_stack_remove();
@@ -697,7 +700,7 @@ void Control::_notification(int p_notification) {
 bool Control::clips_input() const {
 
     if (get_script_instance()) {
-        return get_script_instance()->call(SceneStringNames::get_singleton()->_clips_input).as<bool>();
+        return get_script_instance()->call(SceneStringNames::_clips_input).as<bool>();
     }
     return false;
 }
@@ -707,7 +710,7 @@ bool Control::has_point(const Point2 &p_point) const {
         Variant v = p_point;
         const Variant *p = &v;
         Callable::CallError ce;
-        Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->has_point, &p, 1, ce);
+        Variant ret = get_script_instance()->call(SceneStringNames::has_point, &p, 1, ce);
         if (ce.error == Callable::CallError::CALL_OK) {
             return ret.as<bool>();
         }
@@ -741,7 +744,7 @@ Variant Control::get_drag_data(const Point2 &p_point) {
         Variant v = p_point;
         const Variant *p = &v;
         Callable::CallError ce;
-        Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->get_drag_data, &p, 1, ce);
+        Variant ret = get_script_instance()->call(SceneStringNames::get_drag_data, &p, 1, ce);
         if (ce.error == Callable::CallError::CALL_OK)
             return ret;
     }
@@ -763,7 +766,7 @@ bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const 
         Variant v = p_point;
         const Variant *p[2] = { &v, &p_data };
         Callable::CallError ce;
-        Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->can_drop_data, p, 2, ce);
+        Variant ret = get_script_instance()->call(SceneStringNames::can_drop_data, p, 2, ce);
         if (ce.error == Callable::CallError::CALL_OK)
             return ret.as<bool>();
     }
@@ -785,7 +788,7 @@ void Control::drop_data(const Point2 &p_point, const Variant &p_data) {
         Variant v = p_point;
         const Variant *p[2] = { &v, &p_data };
         Callable::CallError ce;
-        Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->drop_data, p, 2, ce);
+        Variant ret = get_script_instance()->call(SceneStringNames::drop_data, p, 2, ce);
         if (ce.error == Callable::CallError::CALL_OK)
             return;
     }
@@ -825,14 +828,14 @@ Size2 Control::get_minimum_size() const {
     if (si) {
 
         Callable::CallError ce;
-        Variant s = si->call(SceneStringNames::get_singleton()->_get_minimum_size, nullptr, 0, ce);
+        Variant s = si->call(SceneStringNames::_get_minimum_size, nullptr, 0, ce);
         if (ce.error == Callable::CallError::CALL_OK)
             return s.as<Vector2>();
     }
     return Size2();
 }
 
-Ref<Texture> Control::get_icon(const StringName &p_name, const StringName &p_type) const {
+Ref<Texture> Control::get_theme_icon(const StringName &p_name, const StringName &p_type) const {
 
     if (p_type.empty() || p_type == get_class_name()) {
 
@@ -923,7 +926,7 @@ Ref<Shader> Control::get_shader(const StringName &p_name, const StringName &p_ty
     return Theme::get_default()->get_shader(p_name, type);
 }
 
-Ref<StyleBox> Control::get_stylebox(const StringName &p_name, const StringName &p_type) const {
+Ref<StyleBox> Control::get_theme_stylebox(const StringName &p_name, const StringName &p_type) const {
 
     if (p_type.empty() || p_type == get_class_name()) {
 
@@ -970,7 +973,7 @@ Ref<StyleBox> Control::get_stylebox(const StringName &p_name, const StringName &
     }
     return Theme::get_default()->get_stylebox(p_name, type);
 }
-Ref<Font> Control::get_font(const StringName &p_name, const StringName &p_type) const {
+Ref<Font> Control::get_theme_font(const StringName &p_name, const StringName &p_type) const {
 
     if (p_type.empty() || p_type == get_class_name()) {
         auto font = data.font_override.find(p_name);
@@ -1007,7 +1010,7 @@ Ref<Font> Control::get_font(const StringName &p_name, const StringName &p_type) 
 
     return Theme::get_default()->get_font(p_name, type);
 }
-Color Control::get_color(const StringName &p_name, const StringName &p_type) const {
+Color Control::get_theme_color(const StringName &p_name, const StringName &p_type) const {
 
     if (p_type.empty() || p_type == get_class_name()) {
         auto color = data.color_override.find(p_name);
@@ -1047,7 +1050,7 @@ Color Control::get_color(const StringName &p_name, const StringName &p_type) con
     return Theme::get_default()->get_color(p_name, type);
 }
 
-int Control::get_constant(const StringName &p_name, const StringName &p_type) const {
+int Control::get_theme_constant(const StringName &p_name, const StringName &p_type) const {
 
     if (p_type.empty() || p_type == get_class_name()) {
         auto constant = data.constant_override.find(p_name);
@@ -1146,10 +1149,11 @@ bool Control::has_icon(const StringName &p_name, const StringName &p_type) const
 
         Control *parent = object_cast<Control>(theme_owner->get_parent());
 
-        if (parent)
+        if (parent) {
             theme_owner = parent->data.theme_owner;
-        else
+        } else {
             theme_owner = nullptr;
+        }
     }
 
     if (Theme::get_project_default()) {
@@ -1261,10 +1265,11 @@ bool Control::has_font(const StringName &p_name, const StringName &p_type) const
 
         Control *parent = object_cast<Control>(theme_owner->get_parent());
 
-        if (parent)
+        if (parent) {
             theme_owner = parent->data.theme_owner;
-        else
+        } else {
             theme_owner = nullptr;
+        }
     }
 
     if (Theme::get_project_default()) {
@@ -1937,7 +1942,7 @@ void Control::add_shader_override(const StringName &p_name, const Ref<Shader> &p
     }
     notification(NOTIFICATION_THEME_CHANGED);
 }
-void Control::add_style_override(const StringName &p_name, const Ref<StyleBox> &p_style) {
+void Control::add_theme_style_override(const StringName &p_name, const Ref<StyleBox> &p_style) {
 
     if (data.style_override.contains(p_name)) {
         data.style_override[p_name]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
@@ -1972,7 +1977,7 @@ void Control::add_font_override(const StringName &p_name, const Ref<Font> &p_fon
     }
     notification(NOTIFICATION_THEME_CHANGED);
 }
-void Control::add_color_override(const StringName &p_name, const Color &p_color) {
+void Control::add_theme_color_override(const StringName &p_name, const Color &p_color) {
 
     data.color_override[p_name] = p_color;
     notification(NOTIFICATION_THEME_CHANGED);
@@ -1993,13 +1998,13 @@ void Control::set_focus_mode(FocusMode p_focus_mode) {
 
 static Control *_next_control(Control *p_from) {
 
-    if (p_from->is_set_as_toplevel())
+    if (p_from->is_set_as_top_level()) {
         return nullptr; // can't go above
+    }
 
     Control *parent = object_cast<Control>(p_from->get_parent());
 
     if (!parent) {
-
         return nullptr;
     }
 
@@ -2008,7 +2013,7 @@ static Control *_next_control(Control *p_from) {
     for (int i = (next + 1); i < parent->get_child_count(); i++) {
 
         Control *c = object_cast<Control>(parent->get_child(i));
-        if (!c || !c->is_visible_in_tree() || c->is_set_as_toplevel())
+        if (!c || !c->is_visible_in_tree() || c->is_set_as_top_level())
             continue;
 
         return c;
@@ -2046,7 +2051,7 @@ Control *Control::find_next_valid_focus() const {
         for (int i = 0; i < from->get_child_count(); i++) {
 
             Control *c = object_cast<Control>(from->get_child(i));
-            if (!c || !c->is_visible_in_tree() || c->is_set_as_toplevel()) {
+            if (!c || !c->is_visible_in_tree() || c->is_set_as_top_level()) {
                 continue;
             }
 
@@ -2059,7 +2064,7 @@ Control *Control::find_next_valid_focus() const {
             next_child = _next_control(from);
             if (!next_child) { //nothing else.. go up and find either window or subwindow
                 next_child = const_cast<Control *>(this);
-                while (next_child && !next_child->is_set_as_toplevel()) {
+                while (next_child && !next_child->is_set_as_top_level()) {
 
                     next_child = object_cast<Control>(next_child->get_parent());
                 }
@@ -2096,7 +2101,7 @@ static Control *_prev_control(Control *p_from) {
     for (int i = p_from->get_child_count() - 1; i >= 0; i--) {
 
         Control *c = object_cast<Control>(p_from->get_child(i));
-        if (!c || !c->is_visible_in_tree() || c->is_set_as_toplevel())
+        if (!c || !c->is_visible_in_tree() || c->is_set_as_top_level())
             continue;
 
         child = c;
@@ -2134,7 +2139,7 @@ Control *Control::find_prev_valid_focus() const {
 
         Control *prev_child = nullptr;
 
-        if (from->is_set_as_toplevel() || !object_cast<Control>(from->get_parent())) {
+        if (from->is_set_as_top_level() || !object_cast<Control>(from->get_parent())) {
 
             //find last of the children
 
@@ -2146,7 +2151,7 @@ Control *Control::find_prev_valid_focus() const {
 
                 Control *c = object_cast<Control>(from->get_parent()->get_child(i));
 
-                if (!c || !c->is_visible_in_tree() || c->is_set_as_toplevel()) {
+                if (!c || !c->is_visible_in_tree() || c->is_set_as_top_level()) {
                     continue;
                 }
 
@@ -2163,11 +2168,13 @@ Control *Control::find_prev_valid_focus() const {
             }
         }
 
-        if (prev_child == this) // no prev control->
+        if (prev_child == this) { // no prev control->
             return (get_focus_mode() == FOCUS_ALL) ? prev_child : nullptr;
+        }
 
-        if (prev_child->get_focus_mode() == FOCUS_ALL)
+        if (prev_child->get_focus_mode() == FOCUS_ALL) {
             return prev_child;
+        }
 
         from = prev_child;
     }
@@ -2200,8 +2207,9 @@ void Control::release_focus() {
 
     ERR_FAIL_COND(!is_inside_tree());
 
-    if (!has_focus())
+    if (!has_focus()) {
         return;
+    }
 
     get_viewport()->_gui_remove_focus();
     update();
@@ -2209,7 +2217,7 @@ void Control::release_focus() {
 
 bool Control::is_toplevel_control() const {
 
-    return is_inside_tree() && (!data.parent_canvas_item && !data.RI && is_set_as_toplevel());
+    return is_inside_tree() && (!data.parent_canvas_item && !data.RI && is_set_as_top_level());
 }
 
 void Control::show_modal(bool p_exclusive) {
@@ -2217,8 +2225,9 @@ void Control::show_modal(bool p_exclusive) {
     ERR_FAIL_COND(!is_inside_tree());
     ERR_FAIL_COND(!data.SI);
 
-    if (is_visible_in_tree())
+    if (is_visible_in_tree()) {
         hide();
+    }
 
     ERR_FAIL_COND(data.MI != nullptr);
     show();
@@ -2237,8 +2246,9 @@ void Control::_modal_stack_remove() {
 
     ERR_FAIL_COND(!is_inside_tree());
 
-    if (!data.MI)
+    if (!data.MI) {
         return;
+    }
 
     Control * element = data.MI;
     data.MI = nullptr;
@@ -2279,8 +2289,9 @@ void Control::_theme_changed() {
 
 void Control::set_theme(const Ref<Theme> &p_theme) {
 
-    if (data.theme == p_theme)
+    if (data.theme == p_theme) {
         return;
+    }
 
     if (data.theme) {
         data.theme->disconnect("changed",callable_mp(this, &ClassName::_theme_changed));
@@ -2309,8 +2320,9 @@ void Control::set_theme(const Ref<Theme> &p_theme) {
 
 void Control::accept_event() {
 
-    if (is_inside_tree())
+    if (is_inside_tree()) {
         get_viewport()->_gui_accept_event();
+    }
 }
 
 Ref<Theme> Control::get_theme() const {
@@ -2346,7 +2358,7 @@ Control::CursorShape Control::get_default_cursor_shape() const {
 
     return data.default_cursor;
 }
-Control::CursorShape Control::get_cursor_shape(const Point2 &p_pos) const {
+Control::CursorShape Control::get_cursor_shape(const Point2 & /*p_pos*/) const {
 
     return data.default_cursor;
 }
@@ -2414,9 +2426,7 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
             return nullptr;
         }
         bool valid = true;
-        if (!c->is_visible())
-            valid = false;
-        if (c->get_focus_mode() == FOCUS_NONE)
+        if (!c->is_visible() || c->get_focus_mode() == FOCUS_NONE)
             valid = false;
         if (valid)
             return c;
@@ -2437,7 +2447,7 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
     points[2] = xform.xform(get_size());
     points[3] = xform.xform(Point2(0, get_size().y));
 
-    const Vector2 dir[4] = {
+    constexpr Vector2 dir[4] = {
         Vector2(-1, 0),
         Vector2(0, -1),
         Vector2(1, 0),
@@ -2446,25 +2456,23 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
 
     Vector2 vdir = dir[(int)p_margin];
 
-    float maxd = -1e7;
+    float maxd = -1e7f;
 
     for (int i = 0; i < 4; i++) {
 
         float d = vdir.dot(points[i]);
-        if (d > maxd)
+        if (d > maxd) {
             maxd = d;
+        }
     }
 
     Node *base = this;
 
     while (base) {
 
-        Control *c = object_cast<Control>(base);
-        if (c) {
-            if (c->data.SI)
-                break;
-            if (c->data.RI)
-                break;
+        auto *c = object_cast<Control>(base);
+        if (c && (c->data.SI || c->data.RI)) {
+            break;
         }
         base = base->get_parent();
     }
@@ -2500,8 +2508,9 @@ void Control::_window_find_focus_neighbour(const Vector2 &p_dir, Node *p_at, con
         for (int i = 0; i < 4; i++) {
 
             float d = p_dir.dot(points[i]);
-            if (d < min)
+            if (d < min) {
                 min = d;
+            }
         }
 
         if (min > (p_min - CMP_EPSILON)) {
@@ -2540,10 +2549,11 @@ void Control::_window_find_focus_neighbour(const Vector2 &p_dir, Node *p_at, con
 
 void Control::set_h_size_flags(int p_flags) {
 
-    if (data.h_size_flags == p_flags)
+    if (data.h_size_flags == p_flags) {
         return;
+    }
     data.h_size_flags = p_flags;
-    emit_signal(SceneStringNames::get_singleton()->size_flags_changed);
+    emit_signal(SceneStringNames::size_flags_changed);
 }
 
 int Control::get_h_size_flags() const {
@@ -2551,19 +2561,20 @@ int Control::get_h_size_flags() const {
 }
 void Control::set_v_size_flags(int p_flags) {
 
-    if (data.v_size_flags == p_flags)
+    if (data.v_size_flags == p_flags) {
         return;
+    }
     data.v_size_flags = p_flags;
-    emit_signal(SceneStringNames::get_singleton()->size_flags_changed);
+    emit_signal(SceneStringNames::size_flags_changed);
 }
 
 void Control::set_stretch_ratio(float p_ratio) {
 
-    if (data.expand == p_ratio)
+    if (data.expand == p_ratio){
         return;
-
+    }
     data.expand = p_ratio;
-    emit_signal(SceneStringNames::get_singleton()->size_flags_changed);
+    emit_signal(SceneStringNames::size_flags_changed);
 }
 
 float Control::get_stretch_ratio() const {
@@ -2588,20 +2599,23 @@ void Control::minimum_size_changed() {
     //invalidate cache upwards
     while (invalidate && invalidate->data.minimum_size_valid) {
         invalidate->data.minimum_size_valid = false;
-        if (invalidate->is_set_as_toplevel())
+        if (invalidate->is_set_as_top_level()) {
             break; // do not go further up
+        }
         invalidate = invalidate->data.parent;
     }
 
-    if (!is_visible_in_tree())
+    if (!is_visible_in_tree()) {
         return;
+    }
 
-    if (data.updating_last_minimum_size)
+    if (data.updating_last_minimum_size) {
         return;
+    }
 
     data.updating_last_minimum_size = true;
 
-    MessageQueue::get_singleton()->push_call(this, "_update_minimum_size");
+    MessageQueue::get_singleton()->push_call(get_instance_id(),[this]() {_update_minimum_size(); });
 }
 
 int Control::get_v_size_flags() const {
@@ -2699,10 +2713,12 @@ void Control::set_scale(const Vector2 &p_scale) {
 
     data.scale = p_scale;
     // Avoid having 0 scale values, can lead to errors in physics and rendering.
-    if (data.scale.x == 0)
+    if (data.scale.x == 0) {
         data.scale.x = CMP_EPSILON;
-    if (data.scale.y == 0)
+    }
+    if (data.scale.y == 0) {
         data.scale.y = CMP_EPSILON;
+    }
 
     update();
     _notify_transform();
@@ -2767,13 +2783,13 @@ void Control::get_argument_options(const StringName &p_function, int p_idx, List
     if (p_idx == 0) {
         Vector<StringName> sn;
         StringView pf = p_function;
-        if (pf == "add_color_override"_sv || pf == "has_color"_sv || pf == "has_color_override"_sv || pf == "get_color"_sv) {
+        if (pf == "add_theme_color_override"_sv || pf == "has_color"_sv || pf == "has_color_override"_sv || pf == "get_theme_color"_sv) {
             Theme::get_default()->get_color_list(get_class_name(), &sn);
-        } else if (pf == "add_style_override"_sv || pf == "has_style"_sv || pf == "has_style_override"_sv || pf == "get_style"_sv) {
+        } else if (pf == "add_theme_style_override"_sv || pf == "has_style"_sv || pf == "has_style_override"_sv || pf == "get_theme_style"_sv) {
             sn = Theme::get_default()->get_stylebox_list(get_class_name());
-        } else if (pf == "add_font_override"_sv || pf == "has_font"_sv || pf == "has_font_override"_sv || pf == "get_font"_sv) {
+        } else if (pf == "add_font_override"_sv || pf == "has_font"_sv || pf == "has_font_override"_sv || pf == "get_theme_font"_sv) {
             Theme::get_default()->get_font_list(get_class_name(), &sn);
-        } else if (pf == "add_constant_override"_sv || pf == "has_constant"_sv || pf == "has_constant_override"_sv || pf == "get_constant"_sv) {
+        } else if (pf == "add_constant_override"_sv || pf == "has_constant"_sv || pf == "has_constant_override"_sv || pf == "get_theme_constant"_sv) {
             Theme::get_default()->get_constant_list(get_class_name(), &sn);
         }
         eastl::sort(sn.begin(),sn.end(),WrapAlphaCompare());
@@ -2783,7 +2799,7 @@ void Control::get_argument_options(const StringName &p_function, int p_idx, List
     }
 }
 
-StringName Control::get_configuration_warning() const {
+String Control::get_configuration_warning() const {
     String warning(CanvasItem::get_configuration_warning());
 
     if (data.mouse_filter == MOUSE_FILTER_IGNORE && !data.tooltip.empty()) {
@@ -2793,7 +2809,7 @@ StringName Control::get_configuration_warning() const {
         warning += TTR(R"(The Hint Tooltip won't be displayed as the control's Mouse Filter is set to "Ignore". To solve this, set the Mouse Filter to "Stop" or "Pass".)");
     }
 
-    return StringName(warning);
+    return warning;
 }
 
 void Control::set_clip_contents(bool p_clip) {
@@ -2832,10 +2848,6 @@ Control::GrowDirection Control::get_v_grow_direction() const {
 }
 
 void Control::_bind_methods() {
-
-    //MethodBinder::bind_method(D_METHOD("_window_resize_event"),&Control::_window_resize_event);
-    MethodBinder::bind_method(D_METHOD("_size_changed"), &Control::_size_changed);
-    MethodBinder::bind_method(D_METHOD("_update_minimum_size"), &Control::_update_minimum_size);
 
     MethodBinder::bind_method(D_METHOD("accept_event"), &Control::accept_event);
     MethodBinder::bind_method(D_METHOD("get_minimum_size"), &Control::get_minimum_size);
@@ -2897,16 +2909,16 @@ void Control::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_icon_override", {"name", "texture"}), &Control::add_icon_override);
     MethodBinder::bind_method(D_METHOD("add_shader_override", {"name", "shader"}), &Control::add_shader_override);
-    MethodBinder::bind_method(D_METHOD("add_style_override", {"name", "stylebox"}), &Control::add_style_override);
+    MethodBinder::bind_method(D_METHOD("add_theme_style_override", {"name", "stylebox"}), &Control::add_theme_style_override);
     MethodBinder::bind_method(D_METHOD("add_font_override", {"name", "font"}), &Control::add_font_override);
-    MethodBinder::bind_method(D_METHOD("add_color_override", {"name", "color"}), &Control::add_color_override);
+    MethodBinder::bind_method(D_METHOD("add_theme_color_override", {"name", "color"}), &Control::add_theme_color_override);
     MethodBinder::bind_method(D_METHOD("add_constant_override", {"name", "constant"}), &Control::add_constant_override);
 
-    MethodBinder::bind_method(D_METHOD("get_icon", {"name", "type"}), &Control::get_icon, {DEFVAL("")});
-    MethodBinder::bind_method(D_METHOD("get_stylebox", {"name", "type"}), &Control::get_stylebox, {DEFVAL(StringName())});
-    MethodBinder::bind_method(D_METHOD("get_font", {"name", "type"}), &Control::get_font, {DEFVAL("")});
-    MethodBinder::bind_method(D_METHOD("get_color", {"name", "type"}), &Control::get_color, {DEFVAL("")});
-    MethodBinder::bind_method(D_METHOD("get_constant", {"name", "type"}), &Control::get_constant, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_theme_icon", {"name", "type"}), &Control::get_theme_icon, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_theme_stylebox", {"name", "type"}), &Control::get_theme_stylebox, {DEFVAL(StringName())});
+    MethodBinder::bind_method(D_METHOD("get_theme_font", {"name", "type"}), &Control::get_theme_font, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_theme_color", {"name", "type"}), &Control::get_theme_color, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_theme_constant", {"name", "type"}), &Control::get_theme_constant, {DEFVAL("")});
 
     MethodBinder::bind_method(D_METHOD("has_icon_override", {"name"}), &Control::has_icon_override);
     MethodBinder::bind_method(D_METHOD("has_shader_override", {"name"}), &Control::has_shader_override);
@@ -2962,10 +2974,6 @@ void Control::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("warp_mouse", {"to_position"}), &Control::warp_mouse);
 
     MethodBinder::bind_method(D_METHOD("minimum_size_changed"), &Control::minimum_size_changed);
-
-    MethodBinder::bind_method(D_METHOD("_theme_changed"), &Control::_theme_changed);
-
-    MethodBinder::bind_method(D_METHOD("_override_changed"), &Control::_override_changed);
 
     BIND_VMETHOD(MethodInfo("_gui_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
     BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_get_minimum_size"));

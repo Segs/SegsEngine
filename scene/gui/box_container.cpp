@@ -51,7 +51,7 @@ void BoxContainer::_resort() {
 
     Size2i new_size = get_size();
 
-    int sep = get_constant("separation"); //,vertical?"VBoxContainer":"HBoxContainer");
+    int sep = get_theme_constant("separation"); //,vertical?"VBoxContainer":"HBoxContainer");
 
     bool first = true;
     int children_count = 0;
@@ -64,7 +64,7 @@ void BoxContainer::_resort() {
         Control *c = object_cast<Control>(get_child(i));
         if (!c || !c->is_visible_in_tree())
             continue;
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
 
         Size2i size = c->get_combined_minimum_size();
@@ -101,7 +101,7 @@ void BoxContainer::_resort() {
     }
 
     stretch_avail += stretch_diff; //available stretch space.
-    /** Second, pass sucessively to discard elements that can't be stretched, this will run while stretchable
+    /** Second, pass successively to discard elements that can't be stretched, this will run while stretchable
         elements exist */
 
     bool has_stretched = false;
@@ -116,7 +116,7 @@ void BoxContainer::_resort() {
             Control *c = object_cast<Control>(get_child(i));
             if (!c || !c->is_visible_in_tree())
                 continue;
-            if (c->is_set_as_toplevel())
+            if (c->is_set_as_top_level())
                 continue;
 
             ERR_FAIL_COND(!min_size_cache.contains(c));
@@ -176,7 +176,7 @@ void BoxContainer::_resort() {
         Control *c = object_cast<Control>(get_child(i));
         if (!c || !c->is_visible_in_tree())
             continue;
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
 
         _MinSizeCache &msc = min_size_cache[c];
@@ -220,7 +220,7 @@ Size2 BoxContainer::get_minimum_size() const {
     /* Calculate MINIMUM SIZE */
 
     Size2i minimum;
-    int sep = get_constant("separation"); //,vertical?"VBoxContainer":"HBoxContainer");
+    int sep = get_theme_constant("separation"); //,vertical?"VBoxContainer":"HBoxContainer");
 
     bool first = true;
 
@@ -228,7 +228,7 @@ Size2 BoxContainer::get_minimum_size() const {
         Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
 
         if (!c->is_visible()) {
@@ -311,9 +311,9 @@ void BoxContainer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_alignment"), &BoxContainer::get_alignment);
     MethodBinder::bind_method(D_METHOD("set_alignment", {"alignment"}), &BoxContainer::set_alignment);
 
-    BIND_ENUM_CONSTANT(ALIGN_BEGIN)
-    BIND_ENUM_CONSTANT(ALIGN_CENTER)
-    BIND_ENUM_CONSTANT(ALIGN_END)
+    BIND_ENUM_CONSTANT(ALIGN_BEGIN);
+    BIND_ENUM_CONSTANT(ALIGN_CENTER);
+    BIND_ENUM_CONSTANT(ALIGN_END);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "alignment", PropertyHint::Enum, "Begin,Center,End"), "set_alignment", "get_alignment");
 }

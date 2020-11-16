@@ -13,6 +13,7 @@ namespace StringUtils {
 
 // Gets parsed.
 GODOT_EXPORT StringName TTR(StringView);
+GODOT_EXPORT String TTRS(StringView);
 GODOT_EXPORT StringName DTR(StringView);
 #define TTR_utf8(v) StringUtils::to_utf8(TTR(v))
 
@@ -27,6 +28,7 @@ GODOT_EXPORT StringName DTR(StringView);
 #define DTR(m_value) (String())
 #define TTRC(m_value) (m_value)
 #define TTRGET(m_value) (m_value)
+#define TTRS(m_value) (m_value)
 
 #endif
 

@@ -32,8 +32,8 @@
 
 #include "core/color_names.inc"
 #include "core/container_tools.h"
-#include "core/string_utils.inl"
 #include "core/crypto/crypto_core.h"
+#include "core/dictionary.h"
 #include "core/math/aabb.h"
 #include "core/math/basis.h"
 #include "core/math/plane.h"
@@ -43,89 +43,41 @@
 #include "core/math/vector3.h"
 #include "core/method_info.h"
 #include "core/object.h"
+#include "core/rid.h"
 #include "core/script_language.h"
 #include "core/string.h"
+#include "core/string_utils.inl"
 #include "core/vector.h"
-#include "core/rid.h"
-
 
 namespace {
-    using VariantConstructFunc = void (*)(Variant&, const Variant&);
-    struct VariantAutoCaster {
-        const Variant &from;
-        constexpr VariantAutoCaster(const Variant&src) : from(src) {}
-        operator Variant() const{
-          return from;
-        }
-
-        template<class T>
-        operator T() const{
-          return from.as<T>();
-        }
-    };
+using VariantConstructFunc = void (*)(Variant &, const Variant &);
 struct _VariantCall {
-    struct ConstructData {
-
-        int arg_count;
-        Vector<VariantType> arg_types;
-        Vector<StringName> arg_names;
-        VariantConstructFunc func;
-    };
-
-    struct ConstructFunc {
-
-        Vector<ConstructData> constructors;
-    };
-
-    static ConstructFunc *construct_funcs;
-
-    static void Quat_init3(Variant &r_ret, const Variant &p_args) {
-
-        r_ret = Quat(p_args.as<Vector3>());
-    }
-
-    static void add_constructor(VariantConstructFunc p_func, const VariantType p_type, StringName p_name1, const VariantType p_type1) {
-
-        ConstructData cd;
-        cd.func = p_func;
-        cd.arg_count = 0;
-
-        cd.arg_count++;
-        cd.arg_names.emplace_back(eastl::move(p_name1));
-        cd.arg_types.push_back(p_type1);
-
-        construct_funcs[static_cast<int>(p_type)].constructors.emplace_back(cd);
-    }
-
     struct ConstantData {
-
         HashMap<StringName, int> value;
 #ifdef DEBUG_ENABLED
         Vector<StringName> value_ordered;
 #endif
         HashMap<StringName, Variant> variant_value;
     };
-
+    static_assert (sizeof(ConstantData)==(sizeof(HashMap<StringName,int>)+sizeof(HashMap<StringName,Variant>)+sizeof(Vector<StringName>)));
     static ConstantData *constant_data;
 
     static void add_constant(VariantType p_type, const StringName &p_constant_name, int p_constant_value) {
-
         constant_data[static_cast<int8_t>(p_type)].value[p_constant_name] = p_constant_value;
 #ifdef DEBUG_ENABLED
         constant_data[static_cast<int8_t>(p_type)].value_ordered.emplace_back(p_constant_name);
 #endif
     }
 
-    static void add_variant_constant(VariantType p_type, const StringName &p_constant_name, const Variant &p_constant_value) {
-
+    static void add_variant_constant(
+            VariantType p_type, const StringName &p_constant_name, const Variant &p_constant_value) {
         constant_data[static_cast<int8_t>(p_type)].variant_value[p_constant_name] = p_constant_value;
     }
 };
 
-_VariantCall::ConstructFunc *_VariantCall::construct_funcs = nullptr;
 _VariantCall::ConstantData *_VariantCall::constant_data = nullptr;
 
-}
+} // namespace
 
 Variant Variant::construct_default(const VariantType p_type) {
     switch (p_type) {
@@ -133,47 +85,69 @@ Variant Variant::construct_default(const VariantType p_type) {
             return Variant();
 
             // atomic types
-        case VariantType::BOOL: return Variant(false);
-        case VariantType::INT: return Variant(0);
-        case VariantType::FLOAT: return Variant(0.0f);
+        case VariantType::BOOL:
+            return Variant(false);
+        case VariantType::INT:
+            return Variant(0);
+        case VariantType::FLOAT:
+            return Variant(0.0f);
         case VariantType::STRING:
             return String();
 
             // math types
         case VariantType::VECTOR2:
             return Vector2(); // 5
-        case VariantType::RECT2: return Rect2();
-        case VariantType::VECTOR3: return Vector3();
-        case VariantType::TRANSFORM2D: return Transform2D();
-        case VariantType::PLANE: return Plane();
-        case VariantType::QUAT: return Quat();
+        case VariantType::RECT2:
+            return Rect2();
+        case VariantType::VECTOR3:
+            return Vector3();
+        case VariantType::TRANSFORM2D:
+            return Transform2D();
+        case VariantType::PLANE:
+            return Plane();
+        case VariantType::QUAT:
+            return Quat();
         case VariantType::AABB:
             return ::AABB(); // 10
-        case VariantType::BASIS: return Basis();
+        case VariantType::BASIS:
+            return Basis();
         case VariantType::TRANSFORM:
             return Transform();
 
             // misc types
-        case VariantType::COLOR: return Color();
-        case VariantType::STRING_NAME: return StringName();
+        case VariantType::COLOR:
+            return Color();
+        case VariantType::STRING_NAME:
+            return StringName();
 
         case VariantType::NODE_PATH:
             return NodePath(); // 15
-        case VariantType::_RID: return RID();
-        case VariantType::OBJECT: return Variant(static_cast<Object *>(nullptr));
-        case VariantType::CALLABLE: return (Variant)Callable();
-        case VariantType::SIGNAL: return (Variant)Signal();
-        case VariantType::DICTIONARY: return Dictionary();
+        case VariantType::_RID:
+            return RID();
+        case VariantType::OBJECT:
+            return Variant(static_cast<Object *>(nullptr));
+        case VariantType::CALLABLE:
+            return (Variant)Callable();
+        case VariantType::SIGNAL:
+            return (Variant)Signal();
+        case VariantType::DICTIONARY:
+            return Dictionary();
         case VariantType::ARRAY:
             return Array(); // 20
-        case VariantType::POOL_BYTE_ARRAY: return PoolByteArray();
-        case VariantType::POOL_INT_ARRAY: return PoolIntArray();
-        case VariantType::POOL_REAL_ARRAY: return PoolRealArray();
-        case VariantType::POOL_STRING_ARRAY: return PoolStringArray();
+        case VariantType::POOL_BYTE_ARRAY:
+            return PoolByteArray();
+        case VariantType::POOL_INT_ARRAY:
+            return PoolIntArray();
+        case VariantType::POOL_REAL_ARRAY:
+            return PoolRealArray();
+        case VariantType::POOL_STRING_ARRAY:
+            return PoolStringArray();
         case VariantType::POOL_VECTOR2_ARRAY:
             return Variant(PoolVector2Array()); // 25
-        case VariantType::POOL_VECTOR3_ARRAY: return PoolVector3Array();
-        case VariantType::POOL_COLOR_ARRAY: return PoolColorArray();
+        case VariantType::POOL_VECTOR3_ARRAY:
+            return PoolVector3Array();
+        case VariantType::POOL_COLOR_ARRAY:
+            return PoolColorArray();
 
         case VariantType::VARIANT_MAX:
         default:
@@ -182,19 +156,17 @@ Variant Variant::construct_default(const VariantType p_type) {
 }
 
 Variant Variant::construct(const VariantType p_type, const Variant &p_arg, Callable::CallError &r_error) {
-
     r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
     ERR_FAIL_INDEX_V(int(p_type), int(VariantType::VARIANT_MAX), Variant());
     r_error.error = Callable::CallError::CALL_OK;
     if (p_arg.type == p_type) {
-        return p_arg; //copy construct
+        return p_arg; // copy construct
     }
     if (can_convert(p_arg.type, p_type)) {
-        //near match construct
+        // near match construct
 
         switch (p_type) {
             case VariantType::NIL: {
-
                 return Variant();
             }
             case VariantType::BOOL: {
@@ -212,111 +184,81 @@ Variant Variant::construct(const VariantType p_type, const Variant &p_arg, Calla
             case VariantType::VECTOR2: {
                 return static_cast<Vector2>(p_arg);
             }
-            case VariantType::RECT2: return static_cast<Rect2>(p_arg);
-            case VariantType::VECTOR3: return static_cast<Vector3>(p_arg);
+            case VariantType::RECT2:
+                return static_cast<Rect2>(p_arg);
+            case VariantType::VECTOR3:
+                return static_cast<Vector3>(p_arg);
             case VariantType::TRANSFORM2D:
                 return static_cast<Transform2D>(p_arg);
 
-            case VariantType::PLANE: return static_cast<Plane>(p_arg);
-            case VariantType::QUAT: return static_cast<Quat>(p_arg);
+            case VariantType::PLANE:
+                return static_cast<Plane>(p_arg);
+            case VariantType::QUAT:
+                return static_cast<Quat>(p_arg);
             case VariantType::AABB:
                 return p_arg.as<::AABB>(); // 10
-            case VariantType::BASIS: return static_cast<Basis>(p_arg);
+            case VariantType::BASIS:
+                return static_cast<Basis>(p_arg);
             case VariantType::TRANSFORM:
                 return Transform(static_cast<Transform>(p_arg));
 
                 // misc types
-            case VariantType::COLOR: return p_arg.type == VariantType::STRING ? Color::html(static_cast<String>(p_arg)) : Color::hex(static_cast<uint32_t>(p_arg));
-            case VariantType::STRING_NAME: return p_arg.as<StringName>();
+            case VariantType::COLOR:
+                return p_arg.type == VariantType::STRING ? Color::html(static_cast<String>(p_arg)) :
+                                                           Color::hex(static_cast<uint32_t>(p_arg));
+            case VariantType::STRING_NAME:
+                return p_arg.as<StringName>();
             case VariantType::NODE_PATH:
                 return NodePath(static_cast<NodePath>(p_arg)); // 15
-            case VariantType::_RID: return static_cast<RID>(p_arg);
-            case VariantType::OBJECT: return Variant(p_arg.as<Object *>());
-            case VariantType::CALLABLE: return Variant((Callable)p_arg);
-            case VariantType::SIGNAL: return Variant((Signal)p_arg);
-            case VariantType::DICTIONARY: return static_cast<Dictionary>(p_arg);
+            case VariantType::_RID:
+                return static_cast<RID>(p_arg);
+            case VariantType::OBJECT:
+                return Variant(p_arg.as<Object *>());
+            case VariantType::CALLABLE:
+                return Variant((Callable)p_arg);
+            case VariantType::SIGNAL:
+                return Variant((Signal)p_arg);
+            case VariantType::DICTIONARY:
+                return static_cast<Dictionary>(p_arg);
             case VariantType::ARRAY:
                 return static_cast<Array>(p_arg); // 20
 
                 // arrays
-            case VariantType::POOL_BYTE_ARRAY: return static_cast<PoolByteArray>(p_arg);
-            case VariantType::POOL_INT_ARRAY: return static_cast<PoolIntArray>(p_arg);
-            case VariantType::POOL_REAL_ARRAY: return static_cast<PoolRealArray>(p_arg);
-            case VariantType::POOL_STRING_ARRAY: return static_cast<PoolStringArray>(p_arg);
+            case VariantType::POOL_BYTE_ARRAY:
+                return static_cast<PoolByteArray>(p_arg);
+            case VariantType::POOL_INT_ARRAY:
+                return static_cast<PoolIntArray>(p_arg);
+            case VariantType::POOL_REAL_ARRAY:
+                return static_cast<PoolRealArray>(p_arg);
+            case VariantType::POOL_STRING_ARRAY:
+                return static_cast<PoolStringArray>(p_arg);
             case VariantType::POOL_VECTOR2_ARRAY:
                 return Variant(static_cast<PoolVector2Array>(p_arg)); // 25
-            case VariantType::POOL_VECTOR3_ARRAY: return static_cast<PoolVector3Array>(p_arg);
-            case VariantType::POOL_COLOR_ARRAY: return static_cast<PoolColorArray>(p_arg);
-            default: return Variant();
+            case VariantType::POOL_VECTOR3_ARRAY:
+                return static_cast<PoolVector3Array>(p_arg);
+            case VariantType::POOL_COLOR_ARRAY:
+                return static_cast<PoolColorArray>(p_arg);
+            default:
+                return Variant();
         }
     }
-    _VariantCall::ConstructFunc &c = _VariantCall::construct_funcs[static_cast<int>(p_type)];
 
-    for (const _VariantCall::ConstructData &cd : c.constructors) {
-        if (cd.arg_count != 1)
-            continue;
-
-        //validate parameters
-        if (!Variant::can_convert(p_arg.type, cd.arg_types[0])) {
-            r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT; //no such constructor
-            r_error.argument = 0;
-            r_error.expected = cd.arg_types[0];
-            return Variant();
-        }
-
-        Variant v;
-        cd.func(v, p_arg);
-        return v;
+    // quat construct from vec3 euler
+    if(p_type==VariantType::QUAT && p_arg.type== VariantType::VECTOR3) {
+        return Quat(p_arg.as<Vector3>());
     }
-    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD; //no such constructor
+
+    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD; // no such constructor
     return Variant();
 }
 
-void Variant::get_constructor_list(VariantType p_type, Vector<MethodInfo> *p_list) {
-
-    ERR_FAIL_INDEX(int(p_type), int(VariantType::VARIANT_MAX));
-
-    //custom constructors
-    for (const _VariantCall::ConstructData &cd : _VariantCall::construct_funcs[static_cast<int>(p_type)].constructors) {
-
-        MethodInfo mi;
-        mi.name = Variant::interned_type_name(p_type);
-        mi.return_val.type = p_type;
-        for (int i = 0; i < cd.arg_count; i++) {
-
-            PropertyInfo pi;
-            pi.name = StringName(cd.arg_names[i]);
-            pi.type = cd.arg_types[i];
-            mi.arguments.emplace_back(eastl::move(pi));
-        }
-        p_list->push_back(mi);
-    }
-    //default constructors
-    for (int i = 0; i < static_cast<int>(VariantType::VARIANT_MAX); i++) {
-        if (i == static_cast<int>(p_type))
-            continue;
-        if (!Variant::can_convert(static_cast<VariantType>(i), p_type))
-            continue;
-
-        MethodInfo mi(p_type);
-        mi.name = eastl::move(Variant::interned_type_name(p_type));
-        PropertyInfo pi;
-        pi.name = "from";
-        pi.type = static_cast<VariantType>(i);
-        mi.arguments.emplace_back(eastl::move(pi));
-        p_list->emplace_back(eastl::move(mi));
-    }
-}
-
 void Variant::get_constants_for_type(VariantType p_type, Vector<StringName> *p_constants) {
-
     ERR_FAIL_INDEX((int)p_type, (int)VariantType::VARIANT_MAX);
 
     _VariantCall::ConstantData &cd = _VariantCall::constant_data[static_cast<int>(p_type)];
 
 #ifdef DEBUG_ENABLED
     for (const StringName &E : cd.value_ordered) {
-
         p_constants->push_back(E);
 #else
     for (const auto &E : cd.value) {
@@ -324,56 +266,48 @@ void Variant::get_constants_for_type(VariantType p_type, Vector<StringName> *p_c
 #endif
     }
 
-    for (eastl::pair<const StringName,Variant> &E : cd.variant_value) {
-
+    for (eastl::pair<const StringName, Variant> &E : cd.variant_value) {
         p_constants->push_back(E.first);
     }
 }
 
 bool Variant::has_constant(VariantType p_type, const StringName &p_value) {
-
     ERR_FAIL_INDEX_V((int)p_type, (int)VariantType::VARIANT_MAX, false);
     _VariantCall::ConstantData &cd = _VariantCall::constant_data[static_cast<int>(p_type)];
     return cd.value.contains(p_value) || cd.variant_value.contains(p_value);
 }
 
 Variant Variant::get_constant_value(VariantType p_type, const StringName &p_value, bool *r_valid) {
-
-    if (r_valid)
+    if (r_valid) {
         *r_valid = false;
+    }
 
     ERR_FAIL_INDEX_V((int)p_type, (int)VariantType::VARIANT_MAX, 0);
     _VariantCall::ConstantData &cd = _VariantCall::constant_data[static_cast<int>(p_type)];
 
     auto E = cd.value.find(p_value);
-    if (E==cd.value.end()) {
+    if (E == cd.value.end()) {
         auto F = cd.variant_value.find(p_value);
-        if (F!=cd.variant_value.end()) {
-            if (r_valid)
+        if (F != cd.variant_value.end()) {
+            if (r_valid) {
                 *r_valid = true;
+            }
             return F->second;
         }
         return -1;
     }
-    if (r_valid)
+    if (r_valid) {
         *r_valid = true;
+    }
 
     return E->second;
 }
 void register_variant_methods() {
-
-    _VariantCall::construct_funcs = memnew_arr(_VariantCall::ConstructFunc, static_cast<int>(VariantType::VARIANT_MAX));
     _VariantCall::constant_data = memnew_arr(_VariantCall::ConstantData, static_cast<int>(VariantType::VARIANT_MAX));
-
-    /* STRING */
-
-
-    /* REGISTER CONSTRUCTORS */
-    _VariantCall::add_constructor(_VariantCall::Quat_init3, VariantType::QUAT, "euler", VariantType::VECTOR3);
 
     /* REGISTER CONSTANTS */
 
-    for (const eastl::pair<const char *const,Color> &color : _named_colors) {
+    for (const eastl::pair<const char *const, Color> &color : _named_colors) {
         _VariantCall::add_variant_constant(VariantType::COLOR, StringName(color.first), color.second);
     }
 
@@ -402,18 +336,21 @@ void register_variant_methods() {
     _VariantCall::add_variant_constant(VariantType::VECTOR2, "DOWN", Vector2(0, 1));
 
     _VariantCall::add_variant_constant(VariantType::TRANSFORM2D, "IDENTITY", Transform2D());
-    _VariantCall::add_variant_constant(VariantType::TRANSFORM2D, "FLIP_X", Transform2D(-1, 0, 0,  1, 0, 0));
-    _VariantCall::add_variant_constant(VariantType::TRANSFORM2D, "FLIP_Y", Transform2D( 1, 0, 0, -1, 0, 0));
+    _VariantCall::add_variant_constant(VariantType::TRANSFORM2D, "FLIP_X", Transform2D(-1, 0, 0, 1, 0, 0));
+    _VariantCall::add_variant_constant(VariantType::TRANSFORM2D, "FLIP_Y", Transform2D(1, 0, 0, -1, 0, 0));
 
     _VariantCall::add_variant_constant(VariantType::TRANSFORM, "IDENTITY", Transform());
-    _VariantCall::add_variant_constant(VariantType::TRANSFORM, "FLIP_X", Transform(-1, 0, 0, 0,  1, 0, 0, 0,  1, 0, 0, 0));
-    _VariantCall::add_variant_constant(VariantType::TRANSFORM, "FLIP_Y", Transform( 1, 0, 0, 0, -1, 0, 0, 0,  1, 0, 0, 0));
-    _VariantCall::add_variant_constant(VariantType::TRANSFORM, "FLIP_Z", Transform( 1, 0, 0, 0,  1, 0, 0, 0, -1, 0, 0, 0));
+    _VariantCall::add_variant_constant(
+            VariantType::TRANSFORM, "FLIP_X", Transform(-1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0));
+    _VariantCall::add_variant_constant(
+            VariantType::TRANSFORM, "FLIP_Y", Transform(1, 0, 0, 0, -1, 0, 0, 0, 1, 0, 0, 0));
+    _VariantCall::add_variant_constant(
+            VariantType::TRANSFORM, "FLIP_Z", Transform(1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0));
 
     _VariantCall::add_variant_constant(VariantType::BASIS, "IDENTITY", Basis());
-    _VariantCall::add_variant_constant(VariantType::BASIS, "FLIP_X", Basis(-1, 0, 0, 0,  1, 0, 0, 0,  1));
-    _VariantCall::add_variant_constant(VariantType::BASIS, "FLIP_Y", Basis( 1, 0, 0, 0, -1, 0, 0, 0,  1));
-    _VariantCall::add_variant_constant(VariantType::BASIS, "FLIP_Z", Basis( 1, 0, 0, 0,  1, 0, 0, 0, -1));
+    _VariantCall::add_variant_constant(VariantType::BASIS, "FLIP_X", Basis(-1, 0, 0, 0, 1, 0, 0, 0, 1));
+    _VariantCall::add_variant_constant(VariantType::BASIS, "FLIP_Y", Basis(1, 0, 0, 0, -1, 0, 0, 0, 1));
+    _VariantCall::add_variant_constant(VariantType::BASIS, "FLIP_Z", Basis(1, 0, 0, 0, 1, 0, 0, 0, -1));
 
     _VariantCall::add_variant_constant(VariantType::PLANE, "PLANE_YZ", Plane(Vector3(1, 0, 0), 0));
     _VariantCall::add_variant_constant(VariantType::PLANE, "PLANE_XZ", Plane(Vector3(0, 1, 0), 0));
@@ -423,7 +360,5 @@ void register_variant_methods() {
 }
 
 void unregister_variant_methods() {
-
-    memdelete_arr(_VariantCall::construct_funcs);
     memdelete_arr(_VariantCall::constant_data);
 }

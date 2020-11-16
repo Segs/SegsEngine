@@ -38,7 +38,7 @@
 #include "rendering_server_scene.h"
 #include "rendering_server_viewport.h"
 
-class  VisualServerRaster : public RenderingServer {
+class  RenderingServerRaster : public RenderingServer {
 
     enum {
 
@@ -54,17 +54,11 @@ class  VisualServerRaster : public RenderingServer {
     };
 
     static int changes;
-    RID test_cube;
 
     int black_margin[4];
     RID black_image[4];
 
-    struct FrameDrawnCallbacks {
-
-        ObjectID object;
-        StringName method;
-        Variant param;
-    };
+    using FrameDrawnCallbacks = Callable;
 
     Vector<FrameDrawnCallbacks> frame_drawn_callbacks;
 
@@ -84,7 +78,6 @@ public:
 #define DISPLAY_CHANGED \
     changes++;          \
     _changes_changed();
-
 #else
     _FORCE_INLINE_ static void redraw_request() { changes++; }
 
@@ -677,7 +670,7 @@ public:
 
     /* EVENT QUEUING */
 
-    void request_frame_drawn_callback(Object *p_where, const StringName &p_method, const Variant &p_userdata) override;
+    void request_frame_drawn_callback(Callable &&cb) override;
 
     void draw(bool p_swap_buffers, double frame_step) override;
     void sync() override;
@@ -690,8 +683,6 @@ public:
     int get_render_info(RS::RenderInfo p_info) override;
     const char * get_video_adapter_name() const override;
     const char * get_video_adapter_vendor() const override;
-
-    RID get_test_cube() override;
 
     /* TESTING */
 
@@ -707,11 +698,11 @@ public:
 
     // bool is_low_end() const override;
 
-    GODOT_EXPORT VisualServerRaster();
-    GODOT_EXPORT ~VisualServerRaster() override;
+    GODOT_EXPORT RenderingServerRaster();
+    GODOT_EXPORT ~RenderingServerRaster() override;
+    static RenderingServerRaster *get() { (RenderingServerRaster*)submission_thread_singleton;}
 
 #undef DISPLAY_CHANGED
-
 #undef BIND0R
 #undef BIND1RC
 #undef BIND2RC
@@ -729,4 +720,3 @@ public:
 #undef BIND9
 #undef BIND10
 };
-

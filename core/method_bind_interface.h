@@ -10,18 +10,18 @@
 class MethodBind {
 
     int method_id;
-    uint32_t hint_flags;
+    uint32_t hint_flags=METHOD_FLAGS_DEFAULT;
     StringName name;
     Vector<Variant> default_arguments;
-    int default_argument_count;
-    int argument_count;
+    int default_argument_count=0;
+    int argument_count=0;
     template<class T, class RESULT,typename ...Args>
     friend class MethodBindVA;
 protected:
     const char *instance_class_name=nullptr;
-    bool _const;
-    bool _returns;
-    bool _is_vararg=false;
+    bool _const = false;
+    bool _returns = false;
+    bool _is_vararg = false;
 
 #ifdef DEBUG_METHODS_ENABLED
     VariantType *argument_types=nullptr;
@@ -121,10 +121,10 @@ public:
     virtual ~MethodBind();
 };
 
-template <class T>
+template <class R,class T>
 class MethodBindVarArg final : public MethodBind {
 public:
-    using NativeCall = Variant (T::*)(const Variant **, int, Callable::CallError &);
+    using NativeCall = R (T::*)(const Variant **, int, Callable::CallError &);
 
 protected:
     NativeCall call_method;
@@ -153,7 +153,12 @@ public:
     Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Callable::CallError &r_error) override {
 
         T *instance = static_cast<T *>(p_object);
-        return (instance->*call_method)(p_args, p_arg_count, r_error);
+        if constexpr(eastl::is_same_v<void,R>) {
+            (instance->*call_method)(p_args, p_arg_count, r_error);
+            return Variant();
+        }
+        else
+            return (instance->*call_method)(p_args, p_arg_count, r_error);
     }
 
     void set_method_info(MethodInfo &&p_info, bool p_return_nil_is_variant) {
@@ -224,7 +229,6 @@ struct MethodBinder {
             const Vector<Variant> &p_default_args = null_variant_pvec, bool p_return_nil_is_variant = true) {
 
         GLOBAL_LOCK_FUNCTION
-
         MethodBind *bind = create_vararg_method_bind(p_method, eastl::move(p_info), p_return_nil_is_variant);
         ERR_FAIL_COND_V(!bind, nullptr);
         bind->set_name(p_name);

@@ -32,13 +32,6 @@
 
 #include "core/os/os.h"
 
-void CommandQueueMT::lock() {
-    mutex.lock();
-}
-
-void CommandQueueMT::unlock() {
-    mutex.unlock();
-}
 
 void CommandQueueMT::wait_for_flush() {
 
@@ -98,15 +91,12 @@ tryagain:
 }
 
 CommandQueueMT::CommandQueueMT(bool p_sync) {
-
-    if (p_sync)
+    if (p_sync) {
         sync = memnew(Semaphore);
+    }
 }
 
 CommandQueueMT::~CommandQueueMT() {
-
-    if (sync)
-        memdelete(sync);
-
+    memdelete(sync);
     memfree(command_mem);
 }

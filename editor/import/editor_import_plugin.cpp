@@ -30,6 +30,7 @@
 
 #include "editor_import_plugin.h"
 
+#include "core/dictionary.h"
 #include "core/list.h"
 #include "core/script_language.h"
 #include "core/method_info.h"
@@ -39,14 +40,16 @@ IMPL_GDCLASS(EditorImportPlugin)
 
 EditorImportPlugin::EditorImportPlugin() {
 }
-StringName EditorImportPlugin::get_importer_name() const {
+const char *EditorImportPlugin::get_importer_name() const {
     ERR_FAIL_COND_V(!(get_script_instance() && get_script_instance()->has_method("get_importer_name")), {});
-    return get_script_instance()->call("get_importer_name").as<StringName>();
+    static String s_last_returned = get_script_instance()->call("get_importer_name").as<String>();
+    return s_last_returned.c_str();
 }
 
-StringName EditorImportPlugin::get_visible_name() const {
+const char *EditorImportPlugin::get_visible_name() const {
     ERR_FAIL_COND_V(!(get_script_instance() && get_script_instance()->has_method("get_visible_name")), {});
-    return get_script_instance()->call("get_visible_name").as<StringName>();
+    static String s_last_returned = get_script_instance()->call("get_visible_name").as<String>();
+    return s_last_returned.c_str();
 }
 
 void EditorImportPlugin::get_recognized_extensions(Vector<String> &p_extensions) const {
@@ -56,6 +59,13 @@ void EditorImportPlugin::get_recognized_extensions(Vector<String> &p_extensions)
     for (int i = 0; i < extensions.size(); i++) {
         p_extensions.emplace_back(extensions[i].as<String>());
     }
+}
+
+bool EditorImportPlugin::can_import(StringView path) const
+{
+    ERR_FAIL_COND_V(!(get_script_instance() && get_script_instance()->has_method("can_import")), true);
+    return (bool)get_script_instance()->call("can_import", path);
+
 }
 
 StringName EditorImportPlugin::get_preset_name(int p_idx) const {
@@ -161,6 +171,7 @@ void EditorImportPlugin::_bind_methods() {
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::STRING, "get_visible_name"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::INT, "get_preset_count"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::STRING, "get_preset_name", PropertyInfo(VariantType::INT, "preset")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "can_import"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::ARRAY, "get_recognized_extensions"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::ARRAY, "get_import_options", PropertyInfo(VariantType::INT, "preset")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::STRING, "get_save_extension"));

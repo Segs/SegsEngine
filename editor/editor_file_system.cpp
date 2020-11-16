@@ -644,8 +644,7 @@ void EditorFileSystem::scan() {
         scanning = true;
         scan_total = 0;
         _scan_filesystem();
-        if (filesystem)
-            memdelete(filesystem);
+        memdelete(filesystem);
         //file_type_cache.clear();
         filesystem = new_filesystem;
         new_filesystem = nullptr;
@@ -786,7 +785,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
         FileCache *fc = file_cache.end()==fc_iter ? nullptr : &fc_iter->second;
         uint64_t mt = FileAccess::get_modified_time(path);
 
-        if (import_extensions.contains(ext)) {
+        if (import_extensions.contains(ext) && ResourceFormatImporter::get_singleton()->any_can_import(path)) {
 
             //is imported
             uint64_t import_mt = 0;
@@ -939,7 +938,6 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
                 String ext = StringUtils::to_lower(PathUtils::get_extension(f));
                 if (!valid_extensions.contains(ext))
                     continue; //invalid
-
                 int idx = p_dir->find_file_index(f);
 
                 if (idx == -1) {
@@ -948,6 +946,7 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
                     fi->file = f;
 
                     String path = PathUtils::plus_file(cd,fi->file);
+                    bool importer_can_import = ResourceFormatImporter::get_singleton()->any_can_import(path);
                     fi->modified_time = FileAccess::get_modified_time(path);
                     fi->import_modified_time = 0;
                     fi->type = StringName(gResourceManager().get_resource_type(path));
@@ -964,7 +963,7 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
                         scan_actions.push_back(ia);
                     }
 
-                    if (import_extensions.contains(ext)) {
+                    if (importer_can_import && import_extensions.contains(ext)) {
                         //if it can be imported, and it was added, it needs to be reimported
                         ItemAction ia;
                         ia.action = ItemAction::ACTION_FILE_TEST_REIMPORT;
@@ -999,6 +998,10 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
 
         if (import_extensions.contains(StringUtils::to_lower(PathUtils::get_extension(p_dir->files[i]->file)))) {
             //check here if file must be imported or not
+            bool importer_can_import = ResourceFormatImporter::get_singleton()->any_can_import(path);
+            if(!importer_can_import) {
+                continue;
+            }
 
             uint64_t mt = FileAccess::get_modified_time(path);
 
@@ -1157,10 +1160,8 @@ void EditorFileSystem::_notification(int p_what) {
                 set_process(false);
             }
 
-            if (filesystem)
-                memdelete(filesystem);
-            if (new_filesystem)
-                memdelete(new_filesystem);
+            memdelete(filesystem);
+            memdelete(new_filesystem);
             filesystem = nullptr;
             new_filesystem = nullptr;
 
@@ -1501,7 +1502,7 @@ void EditorFileSystem::_queue_update_script_classes() {
     }
 
     update_script_classes_queued = true;
-    call_deferred("update_script_classes");
+    call_deferred([this] {update_script_classes();});
 }
 
 void EditorFileSystem::update_file(StringView p_file) {
@@ -1523,7 +1524,7 @@ void EditorFileSystem::update_file(StringView p_file) {
             fs->files.erase_at(cpos);
         }
 
-        call_deferred("emit_signal", "filesystem_changed"); //update later
+        call_deferred([this] { emit_signal("filesystem_changed"); }); //update later
         _queue_update_script_classes();
         return;
     }
@@ -1573,7 +1574,7 @@ void EditorFileSystem::update_file(StringView p_file) {
     // Update preview
     EditorResourcePreview::get_singleton()->check_for_invalidation(p_file);
 
-    call_deferred("emit_signal", "filesystem_changed"); //update later
+    call_deferred([this] { emit_signal("filesystem_changed"); }); //update later
     _queue_update_script_classes();
 }
 
@@ -2206,18 +2207,18 @@ void EditorFileSystem::_update_extensions() {
     valid_extensions.clear();
     import_extensions.clear();
 
-    Vector<String> extensionsl;
-    gResourceManager().get_recognized_extensions_for_type("", extensionsl);
-    for (const String &E : extensionsl) {
+    Vector<String> tmp_extensions;
+    gResourceManager().get_recognized_extensions_for_type("", tmp_extensions);
+    for (String &E : tmp_extensions) {
 
-        valid_extensions.insert(E);
+        valid_extensions.emplace(eastl::move(E));
     }
 
-    extensionsl.clear();
-    ResourceFormatImporter::get_singleton()->get_recognized_extensions(extensionsl);
-    for (const String &E : extensionsl) {
+    tmp_extensions.clear();
+    ResourceFormatImporter::get_singleton()->get_recognized_extensions(tmp_extensions);
+    for (String &E : tmp_extensions) {
 
-        import_extensions.insert(E);
+        import_extensions.emplace(eastl::move(E));
     }
 }
 

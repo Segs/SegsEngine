@@ -36,7 +36,7 @@
 
 class GODOT_EXPORT Navigation3D : public Node3D {
 
-    GDCLASS(Navigation3D, Node3D);
+    GDCLASS(Navigation3D, Node3D)
 
     RID map;
 

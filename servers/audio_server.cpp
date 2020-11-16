@@ -32,7 +32,6 @@
 #include "core/debugger/script_debugger.h"
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
-#include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 #include "core/os/file_access.h"
 #include "core/os/mutex.h"
@@ -60,7 +59,7 @@ using namespace eastl; // for string view suffix
 
 IMPL_GDCLASS(AudioServer)
 IMPL_GDCLASS(AudioBusLayout)
-VARIANT_ENUM_CAST(AudioServer::SpeakerMode)
+VARIANT_ENUM_CAST(AudioServer::SpeakerMode);
 
 struct AudioServerBus {
 
@@ -1054,6 +1053,7 @@ void AudioServer::init() {
 }
 
 void AudioServer::update() {
+    SCOPE_AUTONAMED;
 #ifdef DEBUG_ENABLED
     if (ScriptDebugger::get_singleton() && ScriptDebugger::get_singleton()->is_profiling()) {
 
@@ -1405,10 +1405,10 @@ void AudioServer::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("bus_layout_changed"));
 
-    BIND_ENUM_CONSTANT(SPEAKER_MODE_STEREO)
-    BIND_ENUM_CONSTANT(SPEAKER_SURROUND_31)
-    BIND_ENUM_CONSTANT(SPEAKER_SURROUND_51)
-    BIND_ENUM_CONSTANT(SPEAKER_SURROUND_71)
+    BIND_ENUM_CONSTANT(SPEAKER_MODE_STEREO);
+    BIND_ENUM_CONSTANT(SPEAKER_SURROUND_31);
+    BIND_ENUM_CONSTANT(SPEAKER_SURROUND_51);
+    BIND_ENUM_CONSTANT(SPEAKER_SURROUND_71);
 }
 
 AudioServer::AudioServer() {

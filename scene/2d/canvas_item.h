@@ -253,7 +253,7 @@ public:
 
     // Save and restore a CanvasItem state
     /*Q_INVOKABLE*/ virtual void _edit_set_state(const Dictionary &/*p_state*/){}
-    virtual Dictionary _edit_get_state() const { return Dictionary(); }
+    virtual Dictionary _edit_get_state() const;
 
     // Used to move the node
     virtual void _edit_set_position(const Point2 &p_position) = 0;
@@ -280,6 +280,8 @@ public:
     virtual Point2 _edit_get_pivot() const { return Point2(); }
 
     virtual Transform2D _edit_get_transform() const;
+#else
+    bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const { return false; }
 #endif
     /* VISIBILITY */
 
@@ -332,8 +334,8 @@ public:
 
     /* RECT / TRANSFORM */
 
-    void set_as_toplevel(bool p_toplevel);
-    bool is_set_as_toplevel() const;
+    void set_as_top_level(bool p_toplevel);
+    bool is_set_as_top_level() const;
 
     void set_draw_behind_parent(bool p_enable);
     bool is_draw_behind_parent_enabled() const;

@@ -554,8 +554,7 @@ void NavigationMeshGenerator::bake(Ref<NavigationMesh> p_nav_mesh, Node *p_node)
     if (ep)
         ep->step(TTR("Done!"), 11);
 
-    if (ep)
-        memdelete(ep);
+    memdelete(ep);
 #endif
 }
 

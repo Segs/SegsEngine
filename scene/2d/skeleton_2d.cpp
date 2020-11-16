@@ -139,7 +139,7 @@ int Bone2D::get_index_in_skeleton() const {
     skeleton->_update_bone_setup();
     return skeleton_index;
 }
-StringName Bone2D::get_configuration_warning() const {
+String Bone2D::get_configuration_warning() const {
 
     String warning(Node2D::get_configuration_warning());
     if (!skeleton) {
@@ -160,7 +160,7 @@ StringName Bone2D::get_configuration_warning() const {
         warning += TTR("This bone lacks a proper REST pose. Go to the Skeleton2D node and set one.");
     }
 
-    return StringName(warning);
+    return warning;
 }
 
 Bone2D::Bone2D() {
@@ -183,7 +183,7 @@ void Skeleton2D::_make_bone_setup_dirty() {
         return;
     bone_setup_dirty = true;
     if (is_inside_tree()) {
-        call_deferred("_update_bone_setup");
+        call_deferred([this]() { _update_bone_setup(); });
     }
 }
 
@@ -218,7 +218,7 @@ void Skeleton2D::_make_transform_dirty() {
         return;
     transform_dirty = true;
     if (is_inside_tree()) {
-        call_deferred("_update_transform");
+        call_deferred([this]() { _update_transform(); });
     }
 }
 

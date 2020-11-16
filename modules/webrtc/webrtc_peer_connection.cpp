@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "webrtc_peer_connection.h"
+
+#include "core/dictionary.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(WebRTCPeerConnection)
@@ -49,8 +51,8 @@ WebRTCPeerConnection *WebRTCPeerConnection::create() {
 }
 
 void WebRTCPeerConnection::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("initialize", {"configuration"}), &WebRTCPeerConnection::initialize, {DEFVAL(Dictionary())});
-    MethodBinder::bind_method(D_METHOD("create_data_channel", {"label", "options"}), &WebRTCPeerConnection::create_data_channel, {DEFVAL(Dictionary())});
+    MethodBinder::bind_method(D_METHOD("initialize", {"configuration"}), &WebRTCPeerConnection::initialize);
+    MethodBinder::bind_method(D_METHOD("create_data_channel", {"label", "options"}), &WebRTCPeerConnection::create_data_channel);
     MethodBinder::bind_method(D_METHOD("create_offer"), &WebRTCPeerConnection::create_offer);
     MethodBinder::bind_method(D_METHOD("set_local_description", {"type", "sdp"}), &WebRTCPeerConnection::set_local_description);
     MethodBinder::bind_method(D_METHOD("set_remote_description", {"type", "sdp"}), &WebRTCPeerConnection::set_remote_description);
@@ -64,12 +66,12 @@ void WebRTCPeerConnection::_bind_methods() {
     ADD_SIGNAL(MethodInfo("ice_candidate_created", PropertyInfo(VariantType::STRING, "media"), PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::STRING, "name")));
     ADD_SIGNAL(MethodInfo("data_channel_received", PropertyInfo(VariantType::OBJECT, "channel")));
 
-    BIND_ENUM_CONSTANT(STATE_NEW)
-    BIND_ENUM_CONSTANT(STATE_CONNECTING)
-    BIND_ENUM_CONSTANT(STATE_CONNECTED)
-    BIND_ENUM_CONSTANT(STATE_DISCONNECTED)
-    BIND_ENUM_CONSTANT(STATE_FAILED)
-    BIND_ENUM_CONSTANT(STATE_CLOSED)
+    BIND_ENUM_CONSTANT(STATE_NEW);
+    BIND_ENUM_CONSTANT(STATE_CONNECTING);
+    BIND_ENUM_CONSTANT(STATE_CONNECTED);
+    BIND_ENUM_CONSTANT(STATE_DISCONNECTED);
+    BIND_ENUM_CONSTANT(STATE_FAILED);
+    BIND_ENUM_CONSTANT(STATE_CLOSED);
 }
 
 WebRTCPeerConnection::WebRTCPeerConnection() {

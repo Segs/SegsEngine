@@ -1049,7 +1049,7 @@ void RasterizerSceneGLES3::gi_probe_instance_set_bounds(RID p_probe, const Vecto
 ////////////////////////////
 
 bool RasterizerSceneGLES3::_setup_material(RasterizerStorageGLES3::Material *p_material, bool p_depth_pass, bool p_alpha_pass) {
-    SCOPE_AUTONAMED
+    SCOPE_AUTONAMED;
 
     /* this is handled outside
     if (p_material->shader->spatial.cull_mode == RasterizerStorageGLES3::Shader::Node3D::CULL_MODE_DISABLED) {
@@ -1131,7 +1131,7 @@ bool RasterizerSceneGLES3::_setup_material(RasterizerStorageGLES3::Material *p_m
         if (t) {
 
             if (t->redraw_if_visible) { //must check before proxy because this is often used with proxies
-                VisualServerRaster::redraw_request();
+                RenderingServerRaster::redraw_request();
             }
 
             t = t->get_ptr(); //resolve for proxies
@@ -1553,7 +1553,7 @@ void RasterizerSceneGLES3::_render_geometry(RenderList::Element *e) {
                     RasterizerStorageGLES3::Texture *t = storage->texture_owner.get(c.texture);
 
                     if (t->redraw_if_visible) {
-                        VisualServerRaster::redraw_request();
+                        RenderingServerRaster::redraw_request();
                     }
                     t = t->get_ptr(); //resolve for proxies
 
@@ -1786,26 +1786,20 @@ void RasterizerSceneGLES3::_setup_light(RenderList::Element *e, const Transform 
 
     int maxobj = MIN(16, state.max_forward_lights_per_object);
 
-    int lc = e->instance->light_instances.size();
-    if (lc) {
-        auto rd(e->instance->light_instances.read());
-        const RID *lights = rd.ptr();
+    for (const RID &light : e->instance->light_instances) {
+        LightInstance *li = light_instance_owner.getornull(light);
+        if (!li || li->last_pass != render_pass) //not visible
+            continue;
 
-        for (int i = 0; i < lc; i++) {
-            LightInstance *li = light_instance_owner.getornull(lights[i]);
-            if (!li || li->last_pass != render_pass) //not visible
-                continue;
-
-            if (li->light_ptr->type == RS::LIGHT_OMNI) {
-                if (omni_count < maxobj && e->instance->layer_mask & li->light_ptr->cull_mask) {
-                    omni_indices[omni_count++] = li->light_index;
-                }
+        if (li->light_ptr->type == RS::LIGHT_OMNI) {
+            if (omni_count < maxobj && e->instance->layer_mask & li->light_ptr->cull_mask) {
+                omni_indices[omni_count++] = li->light_index;
             }
+        }
 
-            if (li->light_ptr->type == RS::LIGHT_SPOT) {
-                if (spot_count < maxobj && e->instance->layer_mask & li->light_ptr->cull_mask) {
-                    spot_indices[spot_count++] = li->light_index;
-                }
+        if (li->light_ptr->type == RS::LIGHT_SPOT) {
+            if (spot_count < maxobj && e->instance->layer_mask & li->light_ptr->cull_mask) {
+                spot_indices[spot_count++] = li->light_index;
             }
         }
     }
@@ -1821,20 +1815,13 @@ void RasterizerSceneGLES3::_setup_light(RenderList::Element *e, const Transform 
         glUniform1iv(state.scene_shader.get_uniform(SceneShaderGLES3::SPOT_LIGHT_INDICES), spot_count, spot_indices);
     }
 
-    int rc = e->instance->reflection_probe_instances.size();
+    for (const RID &reflection : e->instance->reflection_probe_instances) {
+        ReflectionProbeInstance *rpi = reflection_probe_instance_owner.getptr(reflection);
+        if (rpi->last_pass != render_pass) //not visible
+            continue;
 
-    if (rc) {
-        auto rd(e->instance->reflection_probe_instances.read());
-        const RID *reflections = rd.ptr();
-
-        for (int i = 0; i < rc; i++) {
-            ReflectionProbeInstance *rpi = reflection_probe_instance_owner.getptr(reflections[i]);
-            if (rpi->last_pass != render_pass) //not visible
-                continue;
-
-            if (reflection_count < maxobj) {
-                reflection_indices[reflection_count++] = rpi->reflection_index;
-            }
+        if (reflection_count < maxobj) {
+            reflection_indices[reflection_count++] = rpi->reflection_index;
         }
     }
 
@@ -1845,8 +1832,8 @@ void RasterizerSceneGLES3::_setup_light(RenderList::Element *e, const Transform 
 
     int gi_probe_count = e->instance->gi_probe_instances.size();
     if (gi_probe_count) {
-        auto rd(e->instance->gi_probe_instances.read());
-        const RID *ridp = rd.ptr();
+        const auto &rd(e->instance->gi_probe_instances);
+        const RID *ridp = rd.data();
 
         GIProbeInstance *gipi = gi_probe_instance_owner.getptr(ridp[0]);
 
@@ -2375,7 +2362,7 @@ void RasterizerSceneGLES3::_add_geometry_with_material(RasterizerStorageGLES3::G
     }
 
     if (p_material->shader->spatial.uses_time) {
-        VisualServerRaster::redraw_request();
+        RenderingServerRaster::redraw_request();
     }
 }
 
@@ -2756,7 +2743,7 @@ void RasterizerSceneGLES3::_setup_lights(RID *p_light_cull_result, int p_light_c
 
             } break;
             case RS::LIGHT_OMNI: {
-
+                ERR_BREAK(state.omni_light_count>= state.max_ubo_lights);
                 float sign = li->light_ptr->negative ? -1 : 1;
 
                 Color linear_col = li->light_ptr->color.to_linear();
@@ -2836,6 +2823,7 @@ void RasterizerSceneGLES3::_setup_lights(RID *p_light_cull_result, int p_light_c
 
             } break;
             case RS::LIGHT_SPOT: {
+                ERR_BREAK(state.spot_light_count >= state.max_ubo_lights);
 
                 float sign = li->light_ptr->negative ? -1 : 1;
 
@@ -3824,7 +3812,7 @@ void RasterizerSceneGLES3::_post_process(Environment *env, const CameraMatrix &p
 
         glViewport(0, 0, storage->frame.current_rt->width, storage->frame.current_rt->height);
 
-        VisualServerRaster::redraw_request(); //if using auto exposure, redraw must happen
+        RenderingServerRaster::redraw_request(); //if using auto exposure, redraw must happen
     }
 
     int max_glow_level = -1;
@@ -4023,7 +4011,11 @@ void RasterizerSceneGLES3::_post_process(Environment *env, const CameraMatrix &p
     state.tonemap_shader.set_conditional(TonemapShaderGLES3::V_FLIP, false);
 }
 
-void RasterizerSceneGLES3::render_scene(const Transform &p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_ortogonal, InstanceBase **p_cull_result, int p_cull_count, RID *p_light_cull_result, int p_light_cull_count, RID *p_reflection_probe_cull_result, int p_reflection_probe_cull_count, RID p_environment, RID p_shadow_atlas, RID p_reflection_atlas, RID p_reflection_probe, int p_reflection_probe_pass) {
+void RasterizerSceneGLES3::render_scene(const Transform &p_cam_transform, const CameraMatrix &p_cam_projection,
+        bool p_cam_ortogonal, InstanceBase **p_cull_result, int p_cull_count, RID *p_light_cull_result,
+        int p_light_cull_count, RID *p_reflection_probe_cull_result, int p_reflection_probe_cull_count,
+        RID p_environment, RID p_shadow_atlas, RID p_reflection_atlas, RID p_reflection_probe,
+        int p_reflection_probe_pass) {
     SCOPE_AUTONAMED
 
     //first of all, make a new render pass

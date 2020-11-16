@@ -45,7 +45,7 @@
 
 class WSLPeer : public WebSocketPeer {
 
-    GDCIIMPL(WSLPeer, WebSocketPeer);
+    GDCIIMPL(WSLPeer, WebSocketPeer)
 
 public:
     struct PeerData {

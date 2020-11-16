@@ -977,24 +977,7 @@ Error Main::setup(bool p_second_phase) {
         audio_driver_idx = 0;
     }
 
-    {
-        String orientation = GLOBAL_DEF("display/window/handheld/orientation", "landscape");
-
-        if (orientation == "portrait")
-            OS::get_singleton()->set_screen_orientation(OS::SCREEN_PORTRAIT);
-        else if (orientation == "reverse_landscape")
-            OS::get_singleton()->set_screen_orientation(OS::SCREEN_REVERSE_LANDSCAPE);
-        else if (orientation == "reverse_portrait")
-            OS::get_singleton()->set_screen_orientation(OS::SCREEN_REVERSE_PORTRAIT);
-        else if (orientation == "sensor_landscape")
-            OS::get_singleton()->set_screen_orientation(OS::SCREEN_SENSOR_LANDSCAPE);
-        else if (orientation == "sensor_portrait")
-            OS::get_singleton()->set_screen_orientation(OS::SCREEN_SENSOR_PORTRAIT);
-        else if (orientation == "sensor")
-            OS::get_singleton()->set_screen_orientation(OS::SCREEN_SENSOR);
-        else
-            OS::get_singleton()->set_screen_orientation(OS::SCREEN_LANDSCAPE);
-    }
+    OS::get_singleton()->set_screen_orientation(OS::SCREEN_LANDSCAPE);
 
     Engine::get_singleton()->set_iterations_per_second(GLOBAL_DEF("physics/common/physics_fps", 60));
     ProjectSettings::get_singleton()->set_custom_property_info("physics/common/physics_fps", PropertyInfo(VariantType::INT, "physics/common/physics_fps", PropertyHint::Range, "1,120,1,or_greater"));

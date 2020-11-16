@@ -44,7 +44,7 @@
 #include "scene/3d/immediate_geometry_3d.h"
 #include "scene/3d/mesh_instance_3d.h"
 
-#include "spatial_editor_plugin.h"
+#include "node_3d_editor_plugin.h"
 
 IMPL_GDCLASS(CollisionPolygon3DEditor)
 IMPL_GDCLASS(CollisionPolygon3DEditorPlugin)
@@ -55,8 +55,8 @@ void CollisionPolygon3DEditor::_notification(int p_what) {
 
         case NOTIFICATION_READY: {
 
-            button_create->set_button_icon(get_icon("Edit", "EditorIcons"));
-            button_edit->set_button_icon(get_icon("MovePoint", "EditorIcons"));
+            button_create->set_button_icon(get_theme_icon("Edit", "EditorIcons"));
+            button_edit->set_button_icon(get_theme_icon("MovePoint", "EditorIcons"));
             button_edit->set_pressed(true);
             get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
 
@@ -357,10 +357,10 @@ bool CollisionPolygon3DEditor::forward_spatial_gui_input(Camera3D *p_camera, con
                 snap_ignore = false;
             }
 
-            if (!snap_ignore && SpatialEditor::get_singleton()->is_snap_enabled()) {
+            if (!snap_ignore && Node3DEditor::get_singleton()->is_snap_enabled()) {
                 cpoint = cpoint.snapped(Vector2(
-                        SpatialEditor::get_singleton()->get_translate_snap(),
-                        SpatialEditor::get_singleton()->get_translate_snap()));
+                        Node3DEditor::get_singleton()->get_translate_snap(),
+                        Node3DEditor::get_singleton()->get_translate_snap()));
             }
             edited_point_pos = cpoint;
 
@@ -527,9 +527,7 @@ void CollisionPolygon3DEditor::edit(Node *p_collision_polygon) {
 
 void CollisionPolygon3DEditor::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_menu_option"), &CollisionPolygon3DEditor::_menu_option);
     MethodBinder::bind_method(D_METHOD("_polygon_draw"), &CollisionPolygon3DEditor::_polygon_draw);
-    MethodBinder::bind_method(D_METHOD("_node_removed"), &CollisionPolygon3DEditor::_node_removed);
 }
 
 CollisionPolygon3DEditor::CollisionPolygon3DEditor(EditorNode *p_editor) {
@@ -568,7 +566,7 @@ CollisionPolygon3DEditor::CollisionPolygon3DEditor(EditorNode *p_editor) {
     handle_material->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
     handle_material->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
     handle_material->set_flag(SpatialMaterial::FLAG_SRGB_VERTEX_COLOR, true);
-    Ref<Texture> handle = editor->get_gui_base()->get_icon("Editor3DHandle", "EditorIcons");
+    Ref<Texture> handle = editor->get_gui_base()->get_theme_icon("Editor3DHandle", "EditorIcons");
     handle_material->set_point_size(handle->get_width());
     handle_material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, handle);
 
@@ -611,7 +609,7 @@ CollisionPolygon3DEditorPlugin::CollisionPolygon3DEditorPlugin(EditorNode *p_nod
 
     editor = p_node;
     collision_polygon_editor = memnew(CollisionPolygon3DEditor(p_node));
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(collision_polygon_editor);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(collision_polygon_editor);
 
     collision_polygon_editor->hide();
 }

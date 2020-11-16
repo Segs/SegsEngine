@@ -160,8 +160,8 @@ public:
     void area_set_collision_layer(RID p_area, uint32_t p_layer) override;
 
     void area_set_monitorable(RID p_area, bool p_monitorable) override;
-    void area_set_monitor_callback(RID p_area, Object *p_receiver, const StringName &p_method) override;
-    void area_set_area_monitor_callback(RID p_area, Object *p_receiver, const StringName &p_method) override;
+    void area_set_monitor_callback(RID p_area, Callable&& cb) override;
+    void area_set_area_monitor_callback(RID p_area, Callable&& cb) override;
     void area_set_ray_pickable(RID p_area, bool p_enable) override;
     bool area_is_ray_pickable(RID p_area) const override;
 
@@ -247,7 +247,7 @@ public:
     void body_set_omit_force_integration(RID p_body, bool p_omit) override;
     bool body_is_omitting_force_integration(RID p_body) const override;
 
-    void body_set_force_integration_callback(RID p_body, Object *p_receiver, const StringName &p_method, const Variant &p_udata = Variant()) override;
+    void body_set_force_integration_callback(RID p_body, Callable &&callback) override;
 
     void body_set_ray_pickable(RID p_body, bool p_enable) override;
     bool body_is_ray_pickable(RID p_body) const override;

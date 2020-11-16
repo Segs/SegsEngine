@@ -103,7 +103,7 @@ void GroupDialog::_load_nodes(Node *p_current) {
 
         if (!_can_edit(p_current, selected_group)) {
             node->set_selectable(0, false);
-            node->set_custom_color(0, get_color("disabled_font_color", "Editor"));
+            node->set_custom_color(0, get_theme_color("disabled_font_color", "Editor"));
         }
     }
 
@@ -213,7 +213,7 @@ void GroupDialog::_add_group(const StringName& p_name) {
 
     TreeItem *new_group = groups->create_item(groups_root);
     new_group->set_text_utf8(0, name);
-    new_group->add_button(0, get_icon("Remove", "EditorIcons"), 0);
+    new_group->add_button(0, get_theme_icon("Remove", "EditorIcons"), 0);
     new_group->set_editable(0, true);
     new_group->select(0);
     groups->ensure_cursor_is_visible();
@@ -367,12 +367,12 @@ void GroupDialog::_delete_group_item(StringView p_name) {
 void GroupDialog::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
-            add_button->set_button_icon(get_icon("Forward", "EditorIcons"));
-            remove_button->set_button_icon(get_icon("Back", "EditorIcons"));
+            add_button->set_button_icon(get_theme_icon("Forward", "EditorIcons"));
+            remove_button->set_button_icon(get_theme_icon("Back", "EditorIcons"));
 
-            add_filter->set_right_icon(get_icon("Search", "EditorIcons"));
+            add_filter->set_right_icon(get_theme_icon("Search", "EditorIcons"));
             add_filter->set_clear_button_enabled(true);
-            remove_filter->set_right_icon(get_icon("Search", "EditorIcons"));
+            remove_filter->set_right_icon(get_theme_icon("Search", "EditorIcons"));
             remove_filter->set_clear_button_enabled(true);
         } break;
     }
@@ -397,19 +397,9 @@ void GroupDialog::edit() {
 
 void GroupDialog::_bind_methods() {
 
-    MethodBinder::bind_method("_add_pressed", &GroupDialog::_add_pressed);
-    MethodBinder::bind_method("_removed_pressed", &GroupDialog::_removed_pressed);
-    MethodBinder::bind_method("_delete_group_pressed", &GroupDialog::_delete_group_pressed);
     MethodBinder::bind_method("_delete_group_item", &GroupDialog::_delete_group_item);
-
     MethodBinder::bind_method("_group_selected", &GroupDialog::_group_selected);
-    MethodBinder::bind_method("_add_group_pressed", &GroupDialog::_add_group_pressed);
     MethodBinder::bind_method("_add_group", &GroupDialog::_add_group);
-
-    MethodBinder::bind_method("_add_filter_changed", &GroupDialog::_add_filter_changed);
-    MethodBinder::bind_method("_remove_filter_changed", &GroupDialog::_remove_filter_changed);
-
-    MethodBinder::bind_method("_group_renamed", &GroupDialog::_group_renamed);
     MethodBinder::bind_method("_rename_group_item", &GroupDialog::_rename_group_item);
 
     ADD_SIGNAL(MethodInfo("group_edited"));
@@ -544,7 +534,7 @@ GroupDialog::GroupDialog() {
     group_empty->set_anchors_and_margins_preset(PRESET_WIDE, PRESET_MODE_KEEP_SIZE, 8 * EDSCALE);
 
     set_title(TTR("Group Editor"));
-    set_as_toplevel(true);
+    set_as_top_level(true);
     set_resizable(true);
 
     error = memnew(ConfirmationDialog);
@@ -653,7 +643,7 @@ void GroupsEditor::update_tree() {
         TreeItem *item = tree->create_item(root);
         item->set_text(0, gi.name);
         if (can_be_deleted) {
-            item->add_button(0, get_icon("Remove", "EditorIcons"), 0);
+            item->add_button(0, get_theme_icon("Remove", "EditorIcons"), 0);
         } else {
             item->set_selectable(0, false);
         }
@@ -687,7 +677,7 @@ GroupsEditor::GroupsEditor() {
     VBoxContainer *vbc = this;
 
     group_dialog = memnew(GroupDialog);
-    group_dialog->set_as_toplevel(true);
+    group_dialog->set_as_top_level(true);
     add_child(group_dialog);
     group_dialog->connect("group_edited",callable_mp(this, &ClassName::update_tree));
 

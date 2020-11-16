@@ -280,7 +280,7 @@ public:
     void set_gravity(const Vector3 &p_gravity);
     Vector3 get_gravity() const;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     void restart();
 

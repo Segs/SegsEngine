@@ -43,7 +43,7 @@ class GODOT_EXPORT Animation : public Resource {
     RES_BASE_EXTENSION("anim")
 
 public:
-    enum TrackType {
+    enum TrackType : int8_t {
         TYPE_VALUE, ///< Set a value in a property, can be interpolated.
         TYPE_TRANSFORM, ///< Transform a node or a bone.
         TYPE_METHOD, ///< Call any method on a specific node.
@@ -52,13 +52,13 @@ public:
         TYPE_ANIMATION,
     };
 
-    enum InterpolationType {
+    enum InterpolationType : int8_t  {
         INTERPOLATION_NEAREST,
         INTERPOLATION_LINEAR,
         INTERPOLATION_CUBIC
     };
 
-    enum UpdateMode {
+    enum UpdateMode  : int8_t {
         UPDATE_CONTINUOUS,
         UPDATE_DISCRETE,
         UPDATE_TRIGGER,
@@ -69,9 +69,9 @@ public:
 private:
     struct Track {
 
+        NodePath path; // path to something
         TrackType type;
         InterpolationType interpolation = INTERPOLATION_LINEAR;
-        NodePath path; // path to something
         bool loop_wrap=true;
         bool imported = false;
         bool enabled = true;

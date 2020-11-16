@@ -37,10 +37,12 @@
 
 IMPL_GDCLASS(ConvexPolygonShape2D)
 
+#ifdef TOOLS_ENABLED
 bool ConvexPolygonShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     return Geometry::is_point_in_polygon(p_point, points);
 }
+#endif
 
 void ConvexPolygonShape2D::_update_shape() {
 

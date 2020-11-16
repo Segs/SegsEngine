@@ -32,7 +32,35 @@
 #include "core/godot_export.h"
 #include "core/error_list.h"
 #include <mutex>
+#include <atomic>
 
 using Mutex = std::recursive_mutex;
 using MutexLock = std::scoped_lock<Mutex>;
 
+class SpinLock
+{
+private:
+    std::atomic_flag lock_flag;
+
+public:
+    SpinLock() : lock_flag {ATOMIC_FLAG_INIT}
+    { }
+
+    void lock()
+    {
+        while(lock_flag.test_and_set(std::memory_order_acquire)) {
+            ;
+        }
+    }
+
+    bool try_lock()
+    {
+        return !lock_flag.test_and_set(std::memory_order_acquire);
+    }
+
+    void unlock()
+    {
+        lock_flag.clear();
+    }
+};
+using SpinGuard = std::scoped_lock<SpinLock>;

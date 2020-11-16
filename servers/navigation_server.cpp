@@ -71,7 +71,7 @@ void NavigationServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("agent_set_target_velocity", {"agent", "target_velocity"}),&NavigationServer::agent_set_target_velocity);
     MethodBinder::bind_method(D_METHOD("agent_set_position", {"agent", "position"}),&NavigationServer::agent_set_position);
     MethodBinder::bind_method(D_METHOD("agent_is_map_changed", {"agent"}),&NavigationServer::agent_is_map_changed);
-    MethodBinder::bind_method(D_METHOD("agent_set_callback", {"agent", "receiver", "method", "userdata"}),&NavigationServer::agent_set_callback, {DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("agent_set_callback", {"agent", "callback"}),&NavigationServer::agent_set_callback);
 
     MethodBinder::bind_method(D_METHOD("free", {"object"}),&NavigationServer::free);
 

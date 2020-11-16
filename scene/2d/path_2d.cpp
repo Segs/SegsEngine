@@ -282,16 +282,20 @@ void PathFollow2D::_validate_property(PropertyInfo &property) const {
     }
 }
 
-StringName PathFollow2D::get_configuration_warning() const {
+String PathFollow2D::get_configuration_warning() const {
 
     if (!is_visible_in_tree() || !is_inside_tree())
-        return StringName();
+        return String();
 
+    String warning = Node2D::get_configuration_warning();
     if (!object_cast<Path2D>(get_parent())) {
-        return TTR("PathFollow2D only works when set as a child of a Path2D node.");
+        if (warning != String()) {
+            warning += "\n\n";
+        }
+        warning += TTR("PathFollow2D only works when set as a child of a Path2D node.");
     }
 
-    return StringName();
+    return warning;
 }
 
 void PathFollow2D::_bind_methods() {

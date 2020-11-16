@@ -96,10 +96,10 @@ public:
 
         //RID sampled_light;
 
-        PoolVector<RID> materials;
-        PoolVector<RID> light_instances;
-        PoolVector<RID> reflection_probe_instances;
-        PoolVector<RID> gi_probe_instances;
+        Vector<RID> materials;
+        Vector<RID> light_instances;
+        Vector<RID> reflection_probe_instances;
+        Vector<RID> gi_probe_instances;
 
         Vector<float> blend_values;
 
@@ -171,7 +171,7 @@ public:
 
     virtual bool free(RID p_rid) = 0;
 
-    virtual ~RasterizerScene();;
+    virtual ~RasterizerScene();
 };
 
 class RasterizerStorage {
@@ -266,6 +266,8 @@ public:
 
     virtual bool material_is_animated(RID p_material) = 0;
     virtual bool material_casts_shadows(RID p_material) = 0;
+    virtual bool material_uses_tangents(RID p_material) { return false; }
+    virtual bool material_uses_ensure_correct_normals(RID p_material) { return false; }
 
     virtual void material_add_instance_owner(RID p_material, RasterizerScene::InstanceBase *p_instance) = 0;
     virtual void material_remove_instance_owner(RID p_material, RasterizerScene::InstanceBase *p_instance) = 0;
@@ -1063,7 +1065,7 @@ public:
         }
         ~Item() override {
             clear();
-            if (copy_back_buffer) memdelete(copy_back_buffer);
+            memdelete(copy_back_buffer);
         }
     };
 

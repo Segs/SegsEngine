@@ -31,7 +31,6 @@
 #pragma once
 
 #include "core/io/packet_peer.h"
-#include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 
 #define WRTC_IN_BUF "network/limits/webrtc/max_channel_in_buffer_kb"

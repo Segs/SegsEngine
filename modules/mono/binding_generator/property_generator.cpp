@@ -240,7 +240,13 @@ void process_group_property(const String &icall_ns,const TS_Property &cprop, Gen
         }
     cs_ctx.end_block();
 
-    String base_cs_property = "public %name%Structifier %name% => new %name%Structifier(Object.GetPtr(this));";
+    const TS_Type *enc=cprop.m_owner;
+    bool is_in_singleton = enc->source_type->is_singleton;
+
+    String base_cs_property = "public "+String(is_in_singleton ? "static " : "") +
+                              "%name%Structifier %name% => new %name%Structifier("
+                              + String(is_in_singleton ? "ptr":"Object.GetPtr(this)") +
+                              ");";
     base_cs_property.replace("%name%",base_property_name);
     cs_ctx.append_line(base_cs_property);
 }
@@ -248,7 +254,11 @@ void process_group_property(const String &icall_ns,const TS_Property &cprop, Gen
 void gen_property_cs_impl(const String &icall_ns,const TS_Property &pinfo,GeneratorContext &cs_ctx) {
     _generate_docs_for(&pinfo,cs_ctx);
 
-    String decl="public %type %name ";
+    String decl;
+    if(pinfo.m_owner->source_type->is_singleton) {
+        decl="static ";
+    }
+    decl += "public %type %name ";
     auto frst=pinfo.indexed_entries.front();
     String ret_type(func_return_type(*frst.getter));
     decl.replace("%type",ret_type);

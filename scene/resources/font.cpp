@@ -382,7 +382,7 @@ void BitmapFont::add_texture(const Ref<Texture> &p_texture) {
 int BitmapFont::get_texture_count() const {
 
     return textures.size();
-};
+}
 
 Ref<Texture> BitmapFont::get_texture(int p_idx) const {
 
@@ -393,7 +393,7 @@ Ref<Texture> BitmapFont::get_texture(int p_idx) const {
 int BitmapFont::get_character_count() const {
 
     return char_map.size();
-};
+}
 
 Vector<CharType> BitmapFont::get_char_keys() const {
 

@@ -842,7 +842,7 @@ void TileMap::_make_quadrant_dirty(HashMap<PosKey, Quadrant>::iterator Q, bool u
         return;
 
     if (update) {
-        call_deferred("update_dirty_quadrants");
+        call_deferred([this]() { update_dirty_quadrants(); });
     }
 }
 
@@ -1773,7 +1773,7 @@ bool TileMap::get_clip_uv() const {
     return clip_uv;
 }
 
-StringName TileMap::get_configuration_warning() const {
+String TileMap::get_configuration_warning() const {
 
     String warning(Node2D::get_configuration_warning());
 
@@ -1781,10 +1781,10 @@ StringName TileMap::get_configuration_warning() const {
         if (!warning.empty()) {
             warning += "\n\n";
         }
-        return TTR("TileMap with Use Parent on needs a parent CollisionObject2D to give shapes to. Please use it as a child of Area2D, StaticBody2D, RigidBody2D, KinematicBody2D, etc. to give them a shape.");
+        return warning + TTRS("TileMap with Use Parent on needs a parent CollisionObject2D to give shapes to. Please use it as a child of Area2D, StaticBody2D, RigidBody2D, KinematicBody2D, etc. to give them a shape.");
     }
 
-    return StringName(warning);
+    return warning;
 }
 
 void TileMap::_bind_methods() {
@@ -1914,19 +1914,19 @@ void TileMap::_bind_methods() {
 
     BIND_CONSTANT(INVALID_CELL);
 
-    BIND_ENUM_CONSTANT(MODE_SQUARE)
-    BIND_ENUM_CONSTANT(MODE_ISOMETRIC)
-    BIND_ENUM_CONSTANT(MODE_CUSTOM)
+    BIND_ENUM_CONSTANT(MODE_SQUARE);
+    BIND_ENUM_CONSTANT(MODE_ISOMETRIC);
+    BIND_ENUM_CONSTANT(MODE_CUSTOM);
 
-    BIND_ENUM_CONSTANT(HALF_OFFSET_X)
-    BIND_ENUM_CONSTANT(HALF_OFFSET_Y)
-    BIND_ENUM_CONSTANT(HALF_OFFSET_DISABLED)
-    BIND_ENUM_CONSTANT(HALF_OFFSET_NEGATIVE_X)
-    BIND_ENUM_CONSTANT(HALF_OFFSET_NEGATIVE_Y)
+    BIND_ENUM_CONSTANT(HALF_OFFSET_X);
+    BIND_ENUM_CONSTANT(HALF_OFFSET_Y);
+    BIND_ENUM_CONSTANT(HALF_OFFSET_DISABLED);
+    BIND_ENUM_CONSTANT(HALF_OFFSET_NEGATIVE_X);
+    BIND_ENUM_CONSTANT(HALF_OFFSET_NEGATIVE_Y);
 
-    BIND_ENUM_CONSTANT(TILE_ORIGIN_TOP_LEFT)
-    BIND_ENUM_CONSTANT(TILE_ORIGIN_CENTER)
-    BIND_ENUM_CONSTANT(TILE_ORIGIN_BOTTOM_LEFT)
+    BIND_ENUM_CONSTANT(TILE_ORIGIN_TOP_LEFT);
+    BIND_ENUM_CONSTANT(TILE_ORIGIN_CENTER);
+    BIND_ENUM_CONSTANT(TILE_ORIGIN_BOTTOM_LEFT);
 }
 
 void TileMap::_changed_callback(Object *p_changed, StringName p_prop) {

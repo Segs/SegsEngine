@@ -73,7 +73,7 @@ void MainLoop::_bind_methods() {
     ADD_SIGNAL(MethodInfo("on_request_permissions_result", PropertyInfo(VariantType::STRING, "permission"),
             PropertyInfo(VariantType::BOOL, "granted")));
 
-};
+}
 
 void MainLoop::set_init_script(const Ref<Script> &p_init_script) {
 
@@ -89,8 +89,9 @@ MainLoop::~MainLoop()
 
 void MainLoop::input_text(StringView p_text) {
 
-    if (get_script_instance())
+    if (get_script_instance()) {
         get_script_instance()->call("_input_text", p_text);
+    }
 }
 
 void MainLoop::input_event(const Ref<InputEvent> &p_event) {
@@ -108,6 +109,7 @@ void MainLoop::init() {
         get_script_instance()->call("_initialize");
 }
 bool MainLoop::iteration(float p_time) {
+    SCOPE_AUTONAMED;
 
     if (get_script_instance())
         return get_script_instance()->call("_iteration", p_time).as<bool>();

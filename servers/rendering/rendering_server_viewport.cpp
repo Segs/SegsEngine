@@ -284,7 +284,12 @@ void VisualServerViewport::draw_viewports() {
 
     //draw viewports
     for (int i = 0; i < active_viewports.size(); i++) {
-
+#ifdef TRACY_ENABLE
+        char buf[16]="ActiveVP:";
+        snprintf(buf+9,5,"%d",i);
+        ZoneScoped("frame_drawn_callbacks");
+        ZoneText(buf,strlen(buf));
+#endif
         Viewport *vp = active_viewports[i];
 
         if (vp->update_mode == RS::VIEWPORT_UPDATE_DISABLED)
@@ -295,8 +300,9 @@ void VisualServerViewport::draw_viewports() {
         bool visible = vp->viewport_to_screen_rect != Rect2() || vp->update_mode == RS::VIEWPORT_UPDATE_ALWAYS || vp->update_mode == RS::VIEWPORT_UPDATE_ONCE || (vp->update_mode == RS::VIEWPORT_UPDATE_WHEN_VISIBLE && VSG::storage->render_target_was_used(vp->render_target));
         visible = visible && vp->size.x > 1 && vp->size.y > 1;
 
-        if (!visible)
+        if (!visible) {
             continue;
+        }
 
         VSG::storage->render_target_clear_used(vp->render_target);
 

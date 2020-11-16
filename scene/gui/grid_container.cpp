@@ -46,8 +46,8 @@ void GridContainer::_notification(int p_what) {
             Set<int> col_expanded; // Columns which have the SIZE_EXPAND flag set.
             Set<int> row_expanded; // Rows which have the SIZE_EXPAND flag set.
 
-            int hsep = get_constant("hseparation");
-            int vsep = get_constant("vseparation");
+            int hsep = get_theme_constant("hseparation");
+            int vsep = get_theme_constant("vseparation");
             int max_col = MIN(get_child_count(), columns);
             int max_row = std::ceil((float)get_child_count() / (float)columns);
 
@@ -186,11 +186,6 @@ void GridContainer::set_columns(int p_columns) {
     minimum_size_changed();
 }
 
-int GridContainer::get_columns() const {
-
-    return columns;
-}
-
 void GridContainer::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_columns", {"columns"}), &GridContainer::set_columns);
@@ -204,8 +199,8 @@ Size2 GridContainer::get_minimum_size() const {
     HashMap<int, int> col_minw;
     HashMap<int, int> row_minh;
 
-    int hsep = get_constant("hseparation");
-    int vsep = get_constant("vseparation");
+    int hsep = get_theme_constant("hseparation");
+    int vsep = get_theme_constant("vseparation");
 
     int max_row = 0;
     int max_col = 0;
@@ -250,6 +245,4 @@ Size2 GridContainer::get_minimum_size() const {
     return ms;
 }
 
-GridContainer::GridContainer() {
-    columns = 1;
-}
+GridContainer::GridContainer() = default;

@@ -175,6 +175,7 @@ Ref<Shape2D> CollisionShape2D::get_shape() const {
 
     return shape;
 }
+#ifdef TOOLS_ENABLED
 
 bool CollisionShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
@@ -183,22 +184,36 @@ bool CollisionShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p
 
     return shape->_edit_is_selected_on_click(p_point, p_tolerance);
 }
+#endif
+String CollisionShape2D::get_configuration_warning() const {
 
-StringName CollisionShape2D::get_configuration_warning() const {
+    String warning = Node2D::get_configuration_warning();
 
     if (!object_cast<CollisionObject2D>(get_parent())) {
-        return TTR("CollisionShape2D only serves to provide a collision shape to a CollisionObject2D derived node. Please only use it as a child of Area2D, StaticBody2D, RigidBody2D, KinematicBody2D, etc. to give them a shape.");
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("CollisionShape2D only serves to provide a collision shape to a CollisionObject2D derived node. Please only use it as a child of Area2D, StaticBody2D, RigidBody2D, KinematicBody2D, etc. to give them a shape.");
     }
 
-    if (not shape) {
-        return TTR("A shape must be provided for CollisionShape2D to function. Please create a shape resource for it!");
+    if (!shape) {
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("A shape must be provided for CollisionShape2D to function. Please create a shape resource for it!");
+    } else {
+        Ref<ConvexPolygonShape2D> convex {dynamic_ref_cast<ConvexPolygonShape2D>(shape)};
+        Ref<ConcavePolygonShape2D> concave {dynamic_ref_cast<ConcavePolygonShape2D>(shape)};
+        if (convex || concave) {
+            if (!warning.empty()) {
+                warning += "\n\n";
+            }
+            warning += TTR("Polygon-based shapes are not meant be used nor edited directly through the CollisionShape2D node. Please use the CollisionPolygon2D node instead.");
+        }
     }
-    Ref<ConvexPolygonShape2D> convex {dynamic_ref_cast<ConvexPolygonShape2D>(shape)};
-    Ref<ConcavePolygonShape2D> concave {dynamic_ref_cast<ConcavePolygonShape2D>(shape)};
-    if (convex || concave) {
-        return TTR("Polygon-based shapes are not meant be used nor edited directly through the CollisionShape2D node. Please use the CollisionPolygon2D node instead.");
-    }
-    return StringName();
+
+    return warning;
+
 }
 
 void CollisionShape2D::set_disabled(bool p_disabled) {

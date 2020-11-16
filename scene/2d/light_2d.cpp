@@ -359,13 +359,18 @@ void Light2D::_notification(int p_what) {
     }
 }
 
-StringName Light2D::get_configuration_warning() const {
+String Light2D::get_configuration_warning() const {
 
-    if (not texture) {
-        return TTR("A texture with the shape of the light must be supplied to the \"Texture\" property.");
+    String warning = Node2D::get_configuration_warning();
+    if (!texture) {
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("A texture with the shape of the light must be supplied to the \"Texture\" property.");
     }
 
-    return StringName();
+    return warning;
+
 }
 
 void Light2D::set_shadow_smooth(float p_amount) {
@@ -469,17 +474,17 @@ void Light2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "shadow_filter_smooth", PropertyHint::Range, "0,64,0.1"), "set_shadow_smooth", "get_shadow_smooth");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "shadow_item_cull_mask", PropertyHint::Layers2DRenderer), "set_item_shadow_cull_mask", "get_item_shadow_cull_mask");
 
-    BIND_ENUM_CONSTANT(MODE_ADD)
-    BIND_ENUM_CONSTANT(MODE_SUB)
-    BIND_ENUM_CONSTANT(MODE_MIX)
-    BIND_ENUM_CONSTANT(MODE_MASK)
+    BIND_ENUM_CONSTANT(MODE_ADD);
+    BIND_ENUM_CONSTANT(MODE_SUB);
+    BIND_ENUM_CONSTANT(MODE_MIX);
+    BIND_ENUM_CONSTANT(MODE_MASK);
 
-    BIND_ENUM_CONSTANT(SHADOW_FILTER_NONE)
-    BIND_ENUM_CONSTANT(SHADOW_FILTER_PCF3)
-    BIND_ENUM_CONSTANT(SHADOW_FILTER_PCF5)
-    BIND_ENUM_CONSTANT(SHADOW_FILTER_PCF7)
-    BIND_ENUM_CONSTANT(SHADOW_FILTER_PCF9)
-    BIND_ENUM_CONSTANT(SHADOW_FILTER_PCF13)
+    BIND_ENUM_CONSTANT(SHADOW_FILTER_NONE);
+    BIND_ENUM_CONSTANT(SHADOW_FILTER_PCF3);
+    BIND_ENUM_CONSTANT(SHADOW_FILTER_PCF5);
+    BIND_ENUM_CONSTANT(SHADOW_FILTER_PCF7);
+    BIND_ENUM_CONSTANT(SHADOW_FILTER_PCF9);
+    BIND_ENUM_CONSTANT(SHADOW_FILTER_PCF13);
 }
 
 Light2D::Light2D() {

@@ -39,6 +39,7 @@
 #include "core/math/math_defs.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
+#include "core/string_formatter.h"
 #include "core/resource/resource_manager.h"
 #include "scene/3d/bone_attachment_3d.h"
 #include "scene/3d/camera_3d.h"
@@ -691,10 +692,13 @@ namespace {
 
     String _sanitize_bone_name(const StringView name) {
         String p_name = StringUtils::camelcase_to_underscore(name, true);
-
-        QRegularExpression pattern_del("([^a-zA-Z0-9_ ])+");
         QString val(UIString::fromUtf8(name.data(),name.size()));
-        val.remove(pattern_del);
+
+        QRegularExpression pattern_nocolon(":");
+        val.replace(pattern_nocolon, "_");
+
+        QRegularExpression pattern_noslash("/");
+        val.replace(pattern_noslash, "_");
 
         QRegularExpression pattern_nospace(" +");
         val.replace(pattern_nospace, "_");
@@ -709,8 +713,10 @@ namespace {
     }
     String _gen_unique_bone_name(GLTFState& state, const GLTFSkeletonIndex skel_i, StringView p_name) {
 
-        const String s_name = _sanitize_bone_name(p_name);
-
+        String s_name = _sanitize_bone_name(p_name);
+        if (s_name.empty()) {
+            s_name = "bone";
+        }
         String name;
         int index = 1;
         while (true) {
@@ -801,16 +807,16 @@ namespace {
                 node->xform.basis.set_quat_scale(node->rotation, node->scale);
                 node->xform.origin = node->translation;
             }
-		    if (n.has("extensions")) {
-			    Dictionary extensions = (Dictionary)n["extensions"];
-			    if (extensions.has("KHR_lights_punctual")) {
-				    Dictionary lights_punctual = (Dictionary)extensions["KHR_lights_punctual"];
-				    if (lights_punctual.has("light")) {
-					    GLTFLightIndex light = (GLTFLightIndex)lights_punctual["light"];
-					    node->light = light;
-				    }
-			    }
-		    }
+            if (n.has("extensions")) {
+                Dictionary extensions = (Dictionary)n["extensions"];
+                if (extensions.has("KHR_lights_punctual")) {
+                    Dictionary lights_punctual = (Dictionary)extensions["KHR_lights_punctual"];
+                    if (lights_punctual.has("light")) {
+                        GLTFLightIndex light = (GLTFLightIndex)lights_punctual["light"];
+                        node->light = light;
+                    }
+                }
+            }
             if (n.has("children")) {
                 const Array children = n["children"].as<Array>();
                 for (int j = 0; j < children.size(); j++) {
@@ -898,15 +904,17 @@ namespace {
                 Vector<uint8_t> buffer_data;
                 String uri = buffer["uri"].as<String>();
 
-                if (StringUtils::findn(uri, "data:application/octet-stream;base64") == 0) {
-                    //embedded data
+                if (uri.starts_with("data:")) { // Embedded data using base64.
+                    // Validate data MIME types and throw an error if it's one we don't know/support.
+                    if (!uri.starts_with("data:application/octet-stream;base64") &&
+                            !uri.starts_with("data:application/gltf-buffer;base64")) {
+                        ERR_PRINT("glTF: Got buffer with an unknown URI data type: " + uri);
+                    }
                     buffer_data = _parse_base64_uri(uri);
-                }
-                else {
-
-                    uri = StringUtils::replace(PathUtils::plus_file(p_base_path, uri), "\\", "/"); //fix for windows
+                } else { // Relative path to an external image file.
+                    uri = PathUtils::plus_file(p_base_path,uri).replaced("\\", "/"); // Fix for Windows.
                     buffer_data = FileAccess::get_file_as_array(uri);
-                    ERR_FAIL_COND_V(buffer.empty(), ERR_PARSE_ERROR);
+                    ERR_FAIL_COND_V_MSG(buffer.size() == 0, ERR_PARSE_ERROR, "glTF: Couldn't load binary file as an array: " + uri);
                 }
 
                 ERR_FAIL_COND_V(!buffer.has("byteLength"), ERR_PARSE_ERROR);
@@ -1567,7 +1575,13 @@ namespace {
                 if (p.has("material")) {
                     const int material = p["material"].as<int>();
                     ERR_FAIL_INDEX_V(material, state.materials.size(), ERR_FILE_CORRUPT);
-                    const Ref<Material>& mat = state.materials[material];
+                    const Ref<Material> &mat = state.materials[material];
+
+                    mesh.mesh->surface_set_material(mesh.mesh->get_surface_count() - 1, mat);
+                } else {
+                    Ref<SpatialMaterial> mat(make_ref_counted<SpatialMaterial>());
+
+                    mat->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
 
                     mesh.mesh->surface_set_material(mesh.mesh->get_surface_count() - 1, mat);
                 }
@@ -1591,50 +1605,93 @@ namespace {
         return OK;
     }
 
-    Error _parse_images(GLTFState& state, StringView p_base_path) {
+    Error _parse_images(GLTFState &state, const String &p_base_path) {
 
         if (!state.json.has("images"))
             return OK;
+
+        // Ref: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#images
 
         const Array images = state.json["images"].as<Array>();
         for (int i = 0; i < images.size(); i++) {
 
             const Dictionary d = images[i].as<Dictionary>();
 
+            // glTF 2.0 supports PNG and JPEG types, which can be specified as (from spec):
+            // "- a URI to an external file in one of the supported images formats, or
+            //  - a URI with embedded base64-encoded data, or
+            //  - a reference to a bufferView; in that case mimeType must be defined."
+            // Since mimeType is optional for external files and base64 data, we'll have to
+            // fall back on letting Godot parse the data to figure out if it's PNG or JPEG.
+
+            // We'll assume that we use either URI or bufferView, so let's warn the user
+            // if their image somehow uses both. And fail if it has neither.
+            ERR_CONTINUE_MSG(!d.has("uri") && !d.has("bufferView"), "Invalid image definition in glTF file, it should specific an 'uri' or 'bufferView'.");
+            if (d.has("uri") && d.has("bufferView")) {
+                WARN_PRINT("Invalid image definition in glTF file using both 'uri' and 'bufferView'. 'bufferView' will take precedence.");
+            }
+
             String mimetype;
-            if (d.has("mimeType")) {
-                mimetype = d["mimeType"].as<String>();
+            if (d.has("mimeType")) { // Should be "image/png" or "image/jpeg".
+                mimetype = (String)d["mimeType"];
             }
 
             Vector<uint8_t> data;
-            const uint8_t* data_ptr = nullptr;
+            const uint8_t *data_ptr = NULL;
             int data_size = 0;
 
             if (d.has("uri")) {
-                String uri = d["uri"].as<String>();
+                // Handles the first two bullet points from the spec (embedded data, or external file).
+                String uri = (String)d["uri"];
 
-                if (StringUtils::findn(uri, "data:application/octet-stream;base64") == 0 ||
-                    StringUtils::findn(uri, "data:" + mimetype + ";base64") == 0) {
-                    //embedded data
+                if (uri.starts_with("data:")) { // Embedded data using base64.
+                    // Validate data MIME types and throw an error if it's one we don't know/support.
+                    if (!uri.starts_with("data:application/octet-stream;base64") &&
+                            !uri.starts_with("data:application/gltf-buffer;base64") &&
+                            !uri.starts_with("data:image/png;base64") &&
+                            !uri.starts_with("data:image/jpeg;base64")) {
+                        ERR_PRINT("glTF: Got image data with an unknown URI data type: " + uri);
+                    }
                     data = _parse_base64_uri(uri);
                     data_ptr = data.data();
                     data_size = data.size();
+                    // mimeType is optional, but if we have it defined in the URI, let's use it.
+                    if (mimetype.empty()) {
+                        if (uri.starts_with("data:image/png;base64")) {
+                            mimetype = "image/png";
+                        } else if (uri.starts_with("data:image/jpeg;base64")) {
+                            mimetype = "image/jpeg";
+                        }
+                    }
+                } else { // Relative path to an external image file.
+                    uri = PathUtils::plus_file(p_base_path,uri).replaced("\\", "/"); // Fix for Windows.
+                    // The spec says that if mimeType is defined, we should enforce it.
+                    // So we should only rely on ResourceLoader::load if mimeType is not defined,
+                    // otherwise we should use the same logic as for buffers.
+                    if (mimetype == "image/png" || mimetype == "image/jpeg") {
+                        // Load data buffer and rely on PNG and JPEG-specific logic below to load the image.
+                        // This makes it possible to load a file with a wrong extension but correct MIME type,
+                        // e.g. "foo.jpg" containing PNG data and with MIME type "image/png". ResourceLoader would fail.
+                        data = FileAccess::get_file_as_array(uri);
+                        ERR_FAIL_COND_V_MSG(data.size() == 0, ERR_PARSE_ERROR, "glTF: Couldn't load image file as an array: " + uri);
+                        data_ptr = data.data();
+                        data_size = data.size();
+                    } else {
+                        // Good old ResourceLoader will rely on file extension.
+                        Ref<Texture> texture = dynamic_ref_cast<Texture>(gResourceManager().load(uri));
+                        state.images.push_back(texture);
+                        continue;
+                    }
                 }
-                else {
+            } else if (d.has("bufferView")) {
+                // Handles the third bullet point from the spec (bufferView).
+                ERR_FAIL_COND_V_MSG(mimetype.empty(), ERR_FILE_CORRUPT, "glTF: Image specifies 'bufferView' but no 'mimeType', which is invalid.");
 
-                    uri = StringUtils::replace(PathUtils::plus_file(p_base_path, uri), "\\", "/"); //fix for windows
-                    Ref<Texture> texture(dynamic_ref_cast<Texture>(gResourceManager().load(uri)));
-                    state.images.push_back(texture);
-                    continue;
-                }
-            }
-
-            if (d.has("bufferView")) {
-                const GLTFBufferViewIndex bvi = d["bufferView"].as<int>();
+                const GLTFBufferViewIndex bvi = (int)d["bufferView"];
 
                 ERR_FAIL_INDEX_V(bvi, state.buffer_views.size(), ERR_PARAMETER_RANGE_ERROR);
 
-                const GLTFBufferView& bv = state.buffer_views[bvi];
+                const GLTFBufferView &bv = state.buffer_views[bvi];
 
                 const GLTFBufferIndex bi = bv.buffer;
                 ERR_FAIL_INDEX_V(bi, state.buffers.size(), ERR_PARAMETER_RANGE_ERROR);
@@ -1645,9 +1702,8 @@ namespace {
                 data_size = bv.byte_length;
             }
 
-            ERR_FAIL_COND_V(mimetype.empty(), ERR_FILE_CORRUPT);
-
-            if (StringUtils::findn(mimetype, "png") != String::npos) {
+            Ref<Image> img;
+            if (mimetype=="image/png") {
                 //is a png
                 ImageData img_data = ImageLoader::load_image("png", data_ptr, data_size);
 
@@ -1655,15 +1711,8 @@ namespace {
                 Ref<Image> img(make_ref_counted<Image>());
 
                 img->create(eastl::move(img_data));
-                Ref<ImageTexture> t(make_ref_counted<ImageTexture>());
-
-                t->create_from_image(img);
-
-                state.images.push_back(t);
-                continue;
             }
-
-            if (StringUtils::findn(mimetype, "jpeg") != String::npos) {
+            else if (StringUtils::findn(mimetype, "jpeg") != String::npos) {
                 //is a jpg
                 ImageData img_data = ImageLoader::load_image("jpeg", data_ptr, data_size);
 
@@ -1672,19 +1721,28 @@ namespace {
 
                 img->create(eastl::move(img_data));
 
-                Ref<ImageTexture> t(make_ref_counted<ImageTexture>());
+            } else  {
+                // We can land here if we got an URI with base64-encoded data with application/* MIME type,
+                // and the optional mimeType property was not defined to tell us how to handle this data (or was invalid).
+                // So let's try PNG first, then JPEG.
+                ImageData img_data = ImageLoader::load_image("png", data_ptr, data_size);
+                if (img_data.data.empty()) {
+                    img_data = ImageLoader::load_image("jpeg", data_ptr, data_size);
+                }
+                Ref<Image> img(make_ref_counted<Image>());
 
-                t->create_from_image(img);
+                img->create(eastl::move(img_data));
 
-                state.images.push_back(t);
-
-                continue;
             }
 
-            ERR_FAIL_V(ERR_FILE_CORRUPT);
+            Ref<ImageTexture> t(make_ref_counted<ImageTexture>());
+
+            t->create_from_image(img);
+
+            state.images.push_back(t);
         }
 
-        print_verbose("Total images: " + itos(state.images.size()));
+        print_verbose("glTF: Total images: " + itos(state.images.size()));
 
         return OK;
     }
@@ -1732,6 +1790,7 @@ namespace {
             if (d.has("name")) {
                 material->set_name(d["name"].as<String>());
             }
+            material->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
 
             if (d.has("pbrMetallicRoughness")) {
 
@@ -1850,7 +1909,7 @@ namespace {
             state.materials.push_back(material);
         }
 
-        print_verbose("Total materials: " + itos(state.materials.size()));
+        print_verbose("glTF: Total materials: " + itos(state.materials.size()));
 
         return OK;
     }
@@ -3342,12 +3401,11 @@ namespace {
 
         return root;
     }
-
-
 }
 
 
 Node *EditorSceneImporterGLTF::import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
+    print_verbose(FormatVE("glTF: Importing file %.*s as scene.", (int)p_path.size(),p_path.data()));
 
     GLTFState state;
 

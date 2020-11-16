@@ -425,7 +425,7 @@ Callable::CallError vcall_error;
 
     registerTypeMaps(getGodotOpaqueType("Dictionary","Collections.Dictionary"), {
                          {CPP_TO_WRAP_TYPE,"Dictionary *"},
-                         {WRAP_TO_CPP_IN,""}, // empty mapping to prevent temporaries?
+                         {WRAP_TO_CPP_IN,""}, // empty mapping to prevent temporaries
                          {WRAP_TO_CPP_IN_ARG,"*%input%"},
                          {WRAP_TO_CPP_OUT,"return memnew(Dictionary(%val%))"},
                          {SCRIPT_TO_WRAP_TYPE,"IntPtr"},
@@ -436,7 +436,7 @@ Callable::CallError vcall_error;
     // Array
     registerTypeMaps(getGodotOpaqueType("Array","Collections.Array"), {
                          {CPP_TO_WRAP_TYPE,"Array *"},
-                         {WRAP_TO_CPP_IN,""}, // empty mapping to prevent temporaries?
+                         {WRAP_TO_CPP_IN,""}, // empty mapping to prevent temporaries
                          {WRAP_TO_CPP_IN_ARG,"ArrConverter(%input%)"},
                          {WRAP_TO_CPP_OUT,"return ToArray(%val%)"},
                          {SCRIPT_TO_WRAP_TYPE,"IntPtr"},
@@ -446,7 +446,8 @@ Callable::CallError vcall_error;
 
     registerTypeMaps(getGodotOpaqueType("Callable","Callable"), {
                          {CPP_TO_WRAP_TYPE,"GDMonoMarshal::M_Callable*"},
-                         {WRAP_TO_CPP_IN,"auto %val%(::managed_to_callable(*%input%))"},
+                         {WRAP_TO_CPP_IN_ARG,""},
+                         {WRAP_TO_CPP_IN_ARG,"::managed_to_callable(*%input%)"},
                          {WRAP_TO_CPP_OUT,"return ::callable_to_managed(%val%)"},
                          {SCRIPT_TO_WRAP_TYPE,"ref Callable"},
                          {SCRIPT_TO_WRAP_IN_ARG,"ref %input%"},

@@ -209,7 +209,7 @@ bool AABB::intersects_segment(const Vector3 &p_from, const Vector3 &p_to, Vector
 
 bool AABB::intersects_plane(const Plane &p_plane) const {
 
-    Vector3 points[8] = {
+    const Vector3 points[8] = {
         Vector3(position.x, position.y, position.z),
         Vector3(position.x, position.y, position.z + size.z),
         Vector3(position.x, position.y + size.y, position.z),

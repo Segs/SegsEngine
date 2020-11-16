@@ -43,9 +43,9 @@ bool RefCounted::init_ref() {
         return false;
     }
 
-		if (!is_referenced() && refcount_init.unref()) {
-			unreference(); // first referencing is already 1, so compensate for the ref above
-		}
+        if (!is_referenced() && refcount_init.unref()) {
+            unreference(); // first referencing is already 1, so compensate for the ref above
+        }
 
     return true;
 }
@@ -63,16 +63,16 @@ int RefCounted::reference_get_count() const {
 
 bool RefCounted::reference() {
 
-	uint32_t rc_val = refcount.refval();
-	bool success = rc_val != 0;
+    uint32_t rc_val = refcount.refval();
+    bool success = rc_val != 0;
 
-	if (success && rc_val <= 2 /* higher is not relevant */) {
+    if (success && rc_val <= 2 /* higher is not relevant */) {
         if (get_script_instance()) {
             get_script_instance()->refcount_incremented();
         }
         if (instance_binding_count > 0 && !ScriptServer::are_languages_finished()) {
             for (int i = 0; i < MAX_SCRIPT_INSTANCE_BINDINGS; i++) {
-                if (_script_instance_bindings[i]) {
+                if (_script_instance_bindings && (*_script_instance_bindings)[i]) {
                     ScriptServer::get_language(i)->refcount_incremented_instance_binding(this);
                 }
             }
@@ -84,17 +84,17 @@ bool RefCounted::reference() {
 
 bool RefCounted::unreference() {
 
-	uint32_t rc_val = refcount.unrefval();
-	bool die = rc_val == 0;
+    uint32_t rc_val = refcount.unrefval();
+    bool die = rc_val == 0;
 
-	if (rc_val <= 1 /* higher is not relevant */) {
+    if (rc_val <= 1 /* higher is not relevant */) {
         if (get_script_instance()) {
             bool script_ret = get_script_instance()->refcount_decremented();
             die = die && script_ret;
         }
         if (instance_binding_count > 0 && !ScriptServer::are_languages_finished()) {
             for (int i = 0; i < MAX_SCRIPT_INSTANCE_BINDINGS; i++) {
-                if (_script_instance_bindings[i]) {
+                if (_script_instance_bindings && (*_script_instance_bindings)[i]) {
                     bool script_ret = ScriptServer::get_language(i)->refcount_decremented_instance_binding(this);
                     die = die && script_ret;
                 }

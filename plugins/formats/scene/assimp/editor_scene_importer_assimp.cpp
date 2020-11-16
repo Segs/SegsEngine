@@ -568,9 +568,7 @@ Node3D *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *s
         }
 
         for (Node3D * element : cleanup_template_nodes) {
-            if (element) {
-                memdelete(element);
-            }
+            memdelete(element);
         }
     }
 

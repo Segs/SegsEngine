@@ -273,7 +273,7 @@ void Sprite2D::set_frame(int p_frame) {
 
     Object_change_notify(this,"frame");
     Object_change_notify(this,"frame_coords");
-    emit_signal(SceneStringNames::get_singleton()->frame_changed);
+    emit_signal(SceneStringNames::frame_changed);
 }
 
 int Sprite2D::get_frame() const {
@@ -470,8 +470,8 @@ void Sprite2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_h"), "set_flip_h", "is_flipped_h");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_v"), "set_flip_v", "is_flipped_v");
     ADD_GROUP("Animation", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "vframes", PropertyHint::Range, "1,16384,1"), "set_vframes", "get_vframes");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "hframes", PropertyHint::Range, "1,16384,1"), "set_hframes", "get_hframes");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "vframes", PropertyHint::Range, "1,16384,1"), "set_vframes", "get_vframes");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "frame"), "set_frame", "get_frame");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "frame_coords", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_frame_coords", "get_frame_coords");
 

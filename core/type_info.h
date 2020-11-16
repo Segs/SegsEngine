@@ -405,7 +405,7 @@ struct GetTypeInfo<const T *, typename EnableIf<TypeInherits<Object, T>::value>:
             return RawPropertyInfo { nullptr, nullptr, #m_impl, int8_t(VARIANT_TYPE),                                  \
                 PropertyHint::None, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_CLASS_IS_ENUM };                           \
         }                                                                                                              \
-    };
+    }
 
 #define EXTERN_MAKE_ENUM_TYPE_INFO(m_enum) extern template class GetTypeInfo<m_enum>;
 

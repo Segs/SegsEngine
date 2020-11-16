@@ -35,6 +35,7 @@
 #include "core/project_settings.h"
 #include "core/method_bind.h"
 #include "core/resource/resource_manager.h"
+#include "core/callable_method_pointer.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
@@ -42,6 +43,7 @@
 #include "scene/resources/dynamic_font.h"
 #include "scene/resources/material.h"
 #include "scene/resources/mesh.h"
+
 
 #include "servers/rendering_server.h"
 #include "servers/audio/audio_stream.h"
@@ -318,11 +320,6 @@ void EditorMaterialPreviewPlugin::_preview_done(const Variant &p_udata) {
     preview_done = true;
 }
 
-void EditorMaterialPreviewPlugin::_bind_methods() {
-
-    MethodBinder::bind_method("_preview_done", &EditorMaterialPreviewPlugin::_preview_done);
-}
-
 bool EditorMaterialPreviewPlugin::handles(StringView p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "Material"); //any material
@@ -344,7 +341,7 @@ Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size
         RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_ONCE); //once used for capture
 
         preview_done = false;
-        RenderingServer::get_singleton()->request_frame_drawn_callback(const_cast<EditorMaterialPreviewPlugin *>(this), "_preview_done", Variant());
+        RenderingServer::get_singleton()->request_frame_drawn_callback(callable_gen(this,[this]() {const_cast<EditorMaterialPreviewPlugin*>(this)->_preview_done(Variant());}));
 
         while (!preview_done) {
             OS::get_singleton()->delay_usec(10);
@@ -704,10 +701,6 @@ void EditorMeshPreviewPlugin::_preview_done(const Variant &p_udata) {
     preview_done = true;
 }
 
-void EditorMeshPreviewPlugin::_bind_methods() {
-
-    MethodBinder::bind_method("_preview_done", &EditorMeshPreviewPlugin::_preview_done);
-}
 bool EditorMeshPreviewPlugin::handles(StringView p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "Mesh"); //any Mesh
@@ -740,7 +733,8 @@ Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p
     RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_ONCE); //once used for capture
 
     preview_done = false;
-    RenderingServer::get_singleton()->request_frame_drawn_callback(const_cast<EditorMeshPreviewPlugin *>(this), "_preview_done", Variant());
+    auto nonconst_self=const_cast<EditorMeshPreviewPlugin*>(this);
+    RenderingServer::get_singleton()->request_frame_drawn_callback(callable_gen(nonconst_self,[nonconst_self] {nonconst_self->_preview_done(Variant());}));
 
     while (!preview_done) {
         OS::get_singleton()->delay_usec(10);
@@ -824,11 +818,6 @@ void EditorFontPreviewPlugin::_preview_done(const Variant &p_udata) {
     preview_done = true;
 }
 
-void EditorFontPreviewPlugin::_bind_methods() {
-
-    MethodBinder::bind_method("_preview_done", &EditorFontPreviewPlugin::_preview_done);
-}
-
 bool EditorFontPreviewPlugin::handles(StringView p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "DynamicFontData") || ClassDB::is_parent_class(StringName(p_type), "DynamicFont");
@@ -865,7 +854,7 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(StringView p_path, cons
 
     preview_done = false;
     RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_ONCE); //once used for capture
-    RenderingServer::get_singleton()->request_frame_drawn_callback(const_cast<EditorFontPreviewPlugin *>(this), "_preview_done", Variant());
+    RenderingServer::get_singleton()->request_frame_drawn_callback(callable_gen(this,[this] { const_cast<EditorFontPreviewPlugin*>(this)->_preview_done(Variant());}));
 
     while (!preview_done) {
         OS::get_singleton()->delay_usec(10);
@@ -905,19 +894,19 @@ Ref<Texture> EditorFontPreviewPlugin::generate(const RES &p_from, const Size2 &p
 }
 
 EditorFontPreviewPlugin::EditorFontPreviewPlugin() {
+    RenderingServer *rs=RenderingServer::get_singleton();
+    viewport = rs->viewport_create();
+    rs->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_DISABLED);
+    rs->viewport_set_vflip(viewport, true);
+    rs->viewport_set_size(viewport, 128, 128);
+    rs->viewport_set_active(viewport, true);
+    viewport_texture = rs->viewport_get_texture(viewport);
 
-    viewport = RenderingServer::get_singleton()->viewport_create();
-    RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_DISABLED);
-    RenderingServer::get_singleton()->viewport_set_vflip(viewport, true);
-    RenderingServer::get_singleton()->viewport_set_size(viewport, 128, 128);
-    RenderingServer::get_singleton()->viewport_set_active(viewport, true);
-    viewport_texture = RenderingServer::get_singleton()->viewport_get_texture(viewport);
+    canvas = rs->canvas_create();
+    canvas_item = rs->canvas_item_create();
 
-    canvas = RenderingServer::get_singleton()->canvas_create();
-    canvas_item = RenderingServer::get_singleton()->canvas_item_create();
-
-    RenderingServer::get_singleton()->viewport_attach_canvas(viewport, canvas);
-    RenderingServer::get_singleton()->canvas_item_set_parent(canvas_item, canvas);
+    rs->viewport_attach_canvas(viewport, canvas);
+    rs->canvas_item_set_parent(canvas_item, canvas);
 }
 
 EditorFontPreviewPlugin::~EditorFontPreviewPlugin() {

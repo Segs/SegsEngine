@@ -143,9 +143,9 @@ void OccluderPolygon2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "cull_mode", PropertyHint::Enum, "Disabled,ClockWise,CounterClockWise"), "set_cull_mode", "get_cull_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
 
-    BIND_ENUM_CONSTANT(CULL_DISABLED)
-    BIND_ENUM_CONSTANT(CULL_CLOCKWISE)
-    BIND_ENUM_CONSTANT(CULL_COUNTER_CLOCKWISE)
+    BIND_ENUM_CONSTANT(CULL_DISABLED);
+    BIND_ENUM_CONSTANT(CULL_CLOCKWISE);
+    BIND_ENUM_CONSTANT(CULL_COUNTER_CLOCKWISE);
 }
 
 OccluderPolygon2D::OccluderPolygon2D() {
@@ -262,17 +262,24 @@ int LightOccluder2D::get_occluder_light_mask() const {
     return mask;
 }
 
-StringName LightOccluder2D::get_configuration_warning() const {
+String LightOccluder2D::get_configuration_warning() const {
 
-    if (not occluder_polygon) {
-        return TTR("An occluder polygon must be set (or drawn) for this occluder to take effect.");
+    String warning = BaseClassName::get_configuration_warning();
+    if (!occluder_polygon) {
+        if (!warning.empty()){
+            warning += "\n\n";
+        }
+        warning += TTR("An occluder polygon must be set (or drawn) for this occluder to take effect.");
     }
 
     if (occluder_polygon && occluder_polygon->get_polygon().size() == 0) {
-        return TTR("The occluder polygon for this occluder is empty. Please draw a polygon.");
+        if (!warning.empty()){
+            warning += "\n\n";
+        }
+        warning += TTR("The occluder polygon for this occluder is empty. Please draw a polygon.");
     }
 
-    return StringName();
+    return warning;
 }
 
 void LightOccluder2D::_bind_methods() {

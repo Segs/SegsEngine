@@ -40,7 +40,7 @@ class Node2D;
 class Navigation2D;
 
 class GODOT_EXPORT NavigationAgent2D : public Node {
-    GDCLASS(NavigationAgent2D, Node);
+    GDCLASS(NavigationAgent2D, Node)
 
     Node2D *agent_parent;
     Navigation2D *navigation;
@@ -143,7 +143,7 @@ public:
     void set_velocity(Vector2 p_velocity);
     void _avoidance_done(Vector3 p_new_velocity);
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
 private:
     void update_navigation();

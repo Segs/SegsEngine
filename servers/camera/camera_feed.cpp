@@ -68,14 +68,14 @@ void CameraFeed::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "feed_is_active"), "set_active", "is_active");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "feed_transform"), "set_transform", "get_transform");
 
-    BIND_ENUM_CONSTANT(FEED_NOIMAGE)
-    BIND_ENUM_CONSTANT(FEED_RGB)
-    BIND_ENUM_CONSTANT(FEED_YCBCR)
-    BIND_ENUM_CONSTANT(FEED_YCBCR_SEP)
+    BIND_ENUM_CONSTANT(FEED_NOIMAGE);
+    BIND_ENUM_CONSTANT(FEED_RGB);
+    BIND_ENUM_CONSTANT(FEED_YCBCR);
+    BIND_ENUM_CONSTANT(FEED_YCBCR_SEP);
 
-    BIND_ENUM_CONSTANT(FEED_UNSPECIFIED)
-    BIND_ENUM_CONSTANT(FEED_FRONT)
-    BIND_ENUM_CONSTANT(FEED_BACK)
+    BIND_ENUM_CONSTANT(FEED_UNSPECIFIED);
+    BIND_ENUM_CONSTANT(FEED_FRONT);
+    BIND_ENUM_CONSTANT(FEED_BACK);
 }
 
 int CameraFeed::get_id() const {
@@ -153,9 +153,9 @@ CameraFeed::CameraFeed() {
     transform = Transform2D(1.0, 0.0, 0.0, -1.0, 0.0, 1.0);
 
     // create a texture object
-    RenderingServer *vs = RenderingServer::get_singleton();
-    texture[CameraServer::FEED_Y_IMAGE] = vs->texture_create(); // also used for RGBA
-    texture[CameraServer::FEED_CBCR_IMAGE] = vs->texture_create();
+    RenderingServer *rs = RenderingServer::get_singleton();
+    texture[CameraServer::FEED_Y_IMAGE] = rs->texture_create(); // also used for RGBA
+    texture[CameraServer::FEED_CBCR_IMAGE] = rs->texture_create();
 }
 
 CameraFeed::CameraFeed(StringView p_name, FeedPosition p_position) {

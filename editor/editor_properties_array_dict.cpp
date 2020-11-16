@@ -376,13 +376,13 @@ void EditorPropertyArray::update_property() {
             if (is_untyped_array) {
 
                 Button *edit = memnew(Button);
-                edit->set_button_icon(get_icon("Edit", "EditorIcons"));
+                edit->set_button_icon(get_theme_icon("Edit", "EditorIcons"));
                 hb->add_child(edit);
                 edit->connect("pressed",callable_mp(this, &ClassName::_change_type), varray(Variant(edit), i + offset));
             } else {
 
                 Button *remove = memnew(Button);
-                remove->set_button_icon(get_icon("Remove", "EditorIcons"));
+                remove->set_button_icon(get_theme_icon("Remove", "EditorIcons"));
                 remove->connect("pressed",callable_mp(this, &ClassName::_remove_pressed), varray(i + offset));
                 hb->add_child(remove);
             }
@@ -487,17 +487,6 @@ void EditorPropertyArray::setup(VariantType p_array_type, StringView p_hint_stri
             subtype = VariantType(StringUtils::to_int(subtype_string));
         }
     }
-}
-
-void EditorPropertyArray::_bind_methods() {
-    MethodBinder::bind_method("_edit_pressed", &EditorPropertyArray::_edit_pressed);
-    MethodBinder::bind_method("_page_changed", &EditorPropertyArray::_page_changed);
-    MethodBinder::bind_method("_length_changed", &EditorPropertyArray::_length_changed);
-    MethodBinder::bind_method("_property_changed", &EditorPropertyArray::_property_changed, {DEFVAL(StringView()), DEFVAL(false)});
-    MethodBinder::bind_method("_change_type", &EditorPropertyArray::_change_type);
-    MethodBinder::bind_method("_change_type_menu", &EditorPropertyArray::_change_type_menu);
-    MethodBinder::bind_method("_object_id_selected", &EditorPropertyArray::_object_id_selected);
-    MethodBinder::bind_method("_remove_pressed", &EditorPropertyArray::_remove_pressed);
 }
 
 EditorPropertyArray::EditorPropertyArray() {
@@ -900,9 +889,9 @@ void EditorPropertyDictionary::update_property() {
                 for (int j = 0; j < 4; j++) {
                     flat->set_default_margin(Margin(j), 2 * EDSCALE);
                 }
-                flat->set_bg_color(get_color("prop_subsection", "Editor"));
+                flat->set_bg_color(get_theme_color("prop_subsection", "Editor"));
 
-                pc->add_style_override("panel", flat);
+                pc->add_theme_style_override("panel", flat);
                 add_vbox = memnew(VBoxContainer);
                 pc->add_child(add_vbox);
             }
@@ -935,7 +924,7 @@ void EditorPropertyDictionary::update_property() {
             hb->add_child(prop);
             prop->set_h_size_flags(SIZE_EXPAND_FILL);
             Button *edit = memnew(Button);
-            edit->set_button_icon(get_icon("Edit", "EditorIcons"));
+            edit->set_button_icon(get_theme_icon("Edit", "EditorIcons"));
             hb->add_child(edit);
             edit->connect("pressed",callable_mp(this, &ClassName::_change_type), varray(Variant(edit), change_index));
 
@@ -984,16 +973,6 @@ void EditorPropertyDictionary::_page_changed(double p_page) {
         return;
     page_idx = p_page;
     update_property();
-}
-
-void EditorPropertyDictionary::_bind_methods() {
-    MethodBinder::bind_method("_edit_pressed", &EditorPropertyDictionary::_edit_pressed);
-    MethodBinder::bind_method("_page_changed", &EditorPropertyDictionary::_page_changed);
-    MethodBinder::bind_method("_property_changed", &EditorPropertyDictionary::_property_changed, {DEFVAL(StringView()), DEFVAL(false)});
-    MethodBinder::bind_method("_change_type", &EditorPropertyDictionary::_change_type);
-    MethodBinder::bind_method("_change_type_menu", &EditorPropertyDictionary::_change_type_menu);
-    MethodBinder::bind_method("_add_key_value", &EditorPropertyDictionary::_add_key_value);
-    MethodBinder::bind_method("_object_id_selected", &EditorPropertyDictionary::_object_id_selected);
 }
 
 EditorPropertyDictionary::EditorPropertyDictionary() {

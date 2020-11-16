@@ -127,7 +127,11 @@ uint64_t DirAccessUnix::get_modified_time(StringView _file) {
         ERR_FAIL_V(0);
     }
     return 0;
-};
+}
+
+bool DirAccessUnix::is_hidden(StringView p_name) {
+    return p_name != StringView(".") && p_name != StringView("..") && StringUtils::begins_with(p_name,".");
+}
 
 String DirAccessUnix::get_next() {
 
@@ -161,7 +165,7 @@ String DirAccessUnix::get_next() {
         _cisdir = (entry->d_type == DT_DIR);
     }
 
-    _cishidden = (fname != "." && fname != ".." && StringUtils::begins_with(fname,"."));
+    _cishidden = is_hidden(fname);
 
     return fname;
 }
@@ -411,7 +415,7 @@ size_t DirAccessUnix::get_space_left() {
     // FIXME: Implement this.
     return 0;
 #endif
-};
+}
 
 String DirAccessUnix::get_filesystem_type() const {
     return String(); //TODO this should be implemented

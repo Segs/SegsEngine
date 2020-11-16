@@ -75,17 +75,16 @@ void Area2DSW::set_space(Space2DSW *p_space) {
     _set_space(p_space);
 }
 
-void Area2DSW::set_monitor_callback(ObjectID p_id, const StringName &p_method) {
+void Area2DSW::set_monitor_callback(Callable&& cb) {
 
-    if (p_id == monitor_callback_id) {
-        monitor_callback_method = p_method;
+    if (monitor_callback.get_object_id() == cb.get_object_id()) {
+        monitor_callback = eastl::move(cb);
         return;
     }
 
     _unregister_shapes();
 
-    monitor_callback_id = p_id;
-    monitor_callback_method = p_method;
+    monitor_callback = eastl::move(cb);
 
     monitored_bodies.clear();
     monitored_areas.clear();
@@ -96,17 +95,16 @@ void Area2DSW::set_monitor_callback(ObjectID p_id, const StringName &p_method) {
         get_space()->area_add_to_moved_list(&moved_list);
 }
 
-void Area2DSW::set_area_monitor_callback(ObjectID p_id, const StringName &p_method) {
+void Area2DSW::set_area_monitor_callback(Callable&& cb) {
 
-    if (p_id == area_monitor_callback_id) {
-        area_monitor_callback_method = p_method;
+    if (area_monitor_callback.get_object_id() == cb.get_object_id()) {
+        area_monitor_callback = eastl::move(cb);
         return;
     }
 
     _unregister_shapes();
 
-    area_monitor_callback_id = p_id;
-    area_monitor_callback_method = p_method;
+    area_monitor_callback = eastl::move(cb);
 
     monitored_bodies.clear();
     monitored_areas.clear();
@@ -175,17 +173,17 @@ void Area2DSW::set_monitorable(bool p_monitorable) {
 
 void Area2DSW::call_queries() {
 
-    if (monitor_callback_id.is_valid() && !monitored_bodies.empty()) {
+    if (monitor_callback.is_valid() && !monitored_bodies.empty()) {
 
         Variant res[5];
         Variant *resptr[5];
         for (int i = 0; i < 5; i++)
             resptr[i] = &res[i];
 
-        Object *obj = gObjectDB().get_instance(monitor_callback_id);
+        Object *obj = monitor_callback.get_object();
         if (!obj) {
             monitored_bodies.clear();
-            monitor_callback_id = 0;
+            monitor_callback = {};
             return;
         }
         for (auto iter=monitored_bodies.begin(); iter!=monitored_bodies.end(); ) {
@@ -203,24 +201,25 @@ void Area2DSW::call_queries() {
 
             iter = monitored_bodies.erase(iter);
             Callable::CallError ce;
-            obj->call(monitor_callback_method, (const Variant **)resptr, 5, ce);
+            Variant res;
+            monitor_callback.call((const Variant**)resptr, 5, res,ce);
         }
 
     }
 
     monitored_bodies.clear();
 
-    if (area_monitor_callback_id.is_valid() && !monitored_areas.empty()) {
+    if (area_monitor_callback.is_valid() && !monitored_areas.empty()) {
 
         Variant res[5];
         Variant *resptr[5];
         for (int i = 0; i < 5; i++)
             resptr[i] = &res[i];
 
-        Object *obj = gObjectDB().get_instance(area_monitor_callback_id);
+        Object *obj = area_monitor_callback.get_object();
         if (!obj) {
             monitored_areas.clear();
-            area_monitor_callback_id = 0;
+            area_monitor_callback = {};
             return;
         }
         for (auto iter=monitored_areas.begin(); iter!=monitored_areas.end(); ) {
@@ -237,7 +236,8 @@ void Area2DSW::call_queries() {
 
             iter = monitored_areas.erase(iter);
             Callable::CallError ce;
-            obj->call(area_monitor_callback_method, (const Variant **)resptr, 5, ce);
+            Variant res;
+            area_monitor_callback.call((const Variant**)resptr, 5, res, ce);
         }
     }
 }
@@ -258,8 +258,6 @@ Area2DSW::Area2DSW() :
     angular_damp = 1.0f;
     linear_damp = 0.1f;
     priority = 0;
-    monitor_callback_id = 0;
-    area_monitor_callback_id = 0;
     monitorable = false;
 }
 

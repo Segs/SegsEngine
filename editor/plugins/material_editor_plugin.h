@@ -71,7 +71,7 @@ class MaterialEditor : public Control {
 protected:
     void _notification(int p_what);
 
-    static void _bind_methods();
+    static void _bind_methods() { }
 
 public:
     void edit(const Ref<Material>& p_material, const Ref<Environment> &p_env);

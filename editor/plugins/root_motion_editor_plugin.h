@@ -37,36 +37,36 @@
 #include "scene/animation/animation_tree.h"
 
 class EditorPropertyRootMotion : public EditorProperty {
-	GDCLASS(EditorPropertyRootMotion,EditorProperty)
-	Button *assign;
-	Button *clear;
-	NodePath base_hint;
+    GDCLASS(EditorPropertyRootMotion,EditorProperty)
+    Button *assign;
+    Button *clear;
+    NodePath base_hint;
 
-	ConfirmationDialog *filter_dialog;
-	Tree *filters;
+    ConfirmationDialog *filter_dialog;
+    Tree *filters;
 
-	void _confirmed();
-	void _node_assign();
-	void _node_clear();
+    void _confirmed();
+    void _node_assign();
+    void _node_clear();
 
 protected:
-	static void _bind_methods();
-	void _notification(int p_what);
+    static void _bind_methods() { }
+    void _notification(int p_what);
 
 public:
-	void update_property() override;
-	void setup(const NodePath &p_base_hint);
-	EditorPropertyRootMotion();
+    void update_property() override;
+    void setup(const NodePath &p_base_hint);
+    EditorPropertyRootMotion();
 };
 
 class EditorInspectorRootMotionPlugin : public EditorInspectorPlugin {
-	GDCLASS(EditorInspectorRootMotionPlugin,EditorInspectorPlugin)
+    GDCLASS(EditorInspectorRootMotionPlugin,EditorInspectorPlugin)
 
 public:
-	bool can_handle(Object *p_object) override;
-	void parse_begin(Object *p_object) override;
+    bool can_handle(Object *p_object) override;
+    void parse_begin(Object *p_object) override;
     bool parse_property(Object *p_object, VariantType p_type, StringView p_path, PropertyHint p_hint, StringView p_hint_text, int p_usage) override;
-	void parse_end() override;
+    void parse_end() override;
 };
 
 #endif // ROOT_MOTION_EDITOR_PLUGIN_H

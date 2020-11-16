@@ -77,6 +77,9 @@ public:
     _FORCE_INLINE_ bool is_null() const {
         return method == StringName() && object == 0;
     }
+    _FORCE_INLINE_ bool is_valid() const {
+        return !is_null();
+    }
     _FORCE_INLINE_ bool is_custom() const {
         return method == StringName() && custom != nullptr;
     }
@@ -147,14 +150,16 @@ public:
     [[nodiscard]] ObjectID get_object_id() const;
     [[nodiscard]] StringName get_name() const;
 
-    bool operator==(const Signal &p_signal) const;
+    bool operator==(const Signal &p_signal) const {
+        return object == p_signal.object && name == p_signal.name;
+    }
     bool operator!=(const Signal &p_signal) const;
     bool operator<(const Signal &p_signal) const;
 
     operator String() const;
 
-    Error emit_signal(const Variant **p_arguments, int p_argcount) const;
-    Error connect(const Callable &p_callable, const Vector<Variant> &p_binds = Vector<Variant>(), uint32_t p_flags = 0);
+    //void emit_signal(const Variant **p_arguments, int p_argcount) const;
+    Error connect(const Callable &p_callable, const Vector<Variant> &p_binds, uint32_t p_flags = 0);
     void disconnect(const Callable &p_callable);
     [[nodiscard]] bool is_connected(const Callable &p_callable) const;
 

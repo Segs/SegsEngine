@@ -964,7 +964,13 @@ void EditorData::script_class_save_icon_paths() {
             d[E.first] = _script_class_icon_paths[E.first];
     }
 
-    ProjectSettings::get_singleton()->set("_global_script_class_icons", d);
+    if (d.empty()) {
+        if (ProjectSettings::get_singleton()->has_setting("_global_script_class_icons")) {
+            ProjectSettings::get_singleton()->clear("_global_script_class_icons");
+        }
+    } else {
+        ProjectSettings::get_singleton()->set("_global_script_class_icons", d);
+    }
     ProjectSettings::get_singleton()->save();
 }
 
@@ -999,8 +1005,7 @@ void EditorSelection::_node_removed(Node *p_node) {
         return;
 
     Object *meta = selection[p_node];
-    if (meta)
-        memdelete(meta);
+    memdelete(meta);
     selection.erase(p_node);
     changed = true;
     nl_changed = true;
@@ -1040,8 +1045,7 @@ void EditorSelection::remove_node(Node *p_node) {
     changed = true;
     nl_changed = true;
     Object *meta = selection[p_node];
-    if (meta)
-        memdelete(meta);
+    memdelete(meta);
     selection.erase(p_node);
     p_node->disconnect("tree_exiting",callable_mp(this, &ClassName::_node_removed));
     //emit_signal("selection_changed");
@@ -1076,13 +1080,11 @@ Array EditorSelection::get_selected_nodes() {
 
 void EditorSelection::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_node_removed"), &EditorSelection::_node_removed);
     MethodBinder::bind_method(D_METHOD("clear"), &EditorSelection::clear);
     MethodBinder::bind_method(D_METHOD("add_node", {"node"}), &EditorSelection::add_node);
     MethodBinder::bind_method(D_METHOD("remove_node", {"node"}), &EditorSelection::remove_node);
     MethodBinder::bind_method(D_METHOD("get_selected_nodes"), &EditorSelection::get_selected_nodes);
     MethodBinder::bind_method(D_METHOD("get_transformable_selected_nodes"), &EditorSelection::_get_transformable_selected_nodes);
-    MethodBinder::bind_method(D_METHOD("_emit_change"), &EditorSelection::_emit_change);
     ADD_SIGNAL(MethodInfo("selection_changed"));
 }
 
@@ -1128,7 +1130,7 @@ void EditorSelection::update() {
     changed = false;
     if (!emitted) {
         emitted = true;
-        call_deferred("_emit_change");
+        call_deferred([this]() {_emit_change();});
     }
 }
 

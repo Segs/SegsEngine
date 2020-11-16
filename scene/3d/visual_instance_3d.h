@@ -45,8 +45,6 @@ class GODOT_EXPORT VisualInstance3D : public Node3D {
     RID instance;
     uint32_t layers;
 
-    RID _get_visual_instance_rid() const;
-
 protected:
     void _update_visibility();
 
@@ -58,20 +56,19 @@ public:
         FACES_SOLID = 1, // solid geometry
         FACES_ENCLOSING = 2,
         FACES_DYNAMIC = 4 // dynamic object geometry
-
     };
 
-    RID get_instance() const;
+    RID get_instance() const { return instance; }
     virtual AABB get_aabb() const = 0;
     virtual Vector<Face3> get_faces(uint32_t p_usage_flags) const = 0;
 
     virtual AABB get_transformed_aabb() const; // helper
 
     void set_base(const RID &p_base);
-    RID get_base() const;
+    RID get_base() const { return base; }
 
     void set_layer_mask(uint32_t p_mask);
-    uint32_t get_layer_mask() const;
+    uint32_t get_layer_mask() const { return layers; }
 
     void set_layer_mask_bit(int p_layer, bool p_enable);
     bool get_layer_mask_bit(int p_layer) const;
@@ -121,7 +118,7 @@ public:
     ShadowCastingSetting get_cast_shadows_setting() const;
 
     void set_lod_min_distance(float p_dist);
-    float get_lod_min_distance() const;
+    float get_lod_min_distance() const { return lod_min_distance; }
 
     void set_lod_max_distance(float p_dist);
     float get_lod_max_distance() const;
@@ -132,7 +129,7 @@ public:
     void set_lod_max_hysteresis(float p_dist);
     float get_lod_max_hysteresis() const;
 
-    void set_material_override(const Ref<Material> &p_material);
+    virtual void set_material_override(const Ref<Material> &p_material);
     Ref<Material> get_material_override() const;
 
     void set_extra_cull_margin(float p_margin);

@@ -425,12 +425,6 @@
         <member name="display/window/energy_saving/keep_screen_on" type="bool" setter="" getter="" default="true">
             If [code]true[/code], keeps the screen on (even in case of inactivity), so the screensaver does not take over. Works on desktop and mobile platforms.
         </member>
-        <member name="display/window/handheld/orientation" type="String" setter="" getter="" default="&quot;landscape&quot;">
-            Default orientation on mobile devices.
-        </member>
-        <member name="display/window/ios/hide_home_indicator" type="bool" setter="" getter="" default="true">
-            If [code]true[/code], the home indicator is hidden automatically. This only affects iOS devices without a physical home button.
-        </member>
         <member name="display/window/per_pixel_transparency/allowed" type="bool" setter="" getter="" default="false">
             If [code]true[/code], allows per-pixel transparency in a desktop window. This affects performance, so leave it on [code]false[/code] unless you need it.
         </member>
@@ -807,12 +801,12 @@
         <member name="logging/file_logging/enable_file_logging" type="bool" setter="" getter="" default="false">
             If [code]true[/code], logs all output to files.
         </member>
-		<member name="logging/file_logging/enable_file_logging.pc" type="bool" setter="" getter="" default="true">
-		</member>
-		<member name="logging/file_logging/log_path" type="String" setter="" getter="" default="&quot;user://logs/godot.log&quot;">
+        <member name="logging/file_logging/enable_file_logging.pc" type="bool" setter="" getter="" default="true">
+        </member>
+        <member name="logging/file_logging/log_path" type="String" setter="" getter="" default="&quot;user://logs/godot.log&quot;">
             Path to logs within the project. Using an [code]user://[/code] path is recommended.
         </member>
-		<member name="logging/file_logging/max_log_files" type="int" setter="" getter="" default="5">
+        <member name="logging/file_logging/max_log_files" type="int" setter="" getter="" default="5">
             Specifies the maximum amount of log files allowed (used for rotation).
         </member>
         <member name="memory/limits/message_queue/max_size_kb" type="int" setter="" getter="" default="1024">
@@ -970,61 +964,61 @@
             Fix to improve physics jitter, specially on monitors where refresh rate is different than the physics FPS.
             [b]Note:[/b] This property is only read when the project starts. To change the physics FPS at runtime, set [member Engine.physics_jitter_fix] instead.
         </member>
-		<member name="rendering/batching/debug/diagnose_frame" type="bool" setter="" getter="" default="false">
-			When batching is on, this regularly prints a frame diagnosis log. Note that this will degrade performance.
+        <member name="rendering/batching/debug/diagnose_frame" type="bool" setter="" getter="" default="false">
+            When batching is on, this regularly prints a frame diagnosis log. Note that this will degrade performance.
         </member>
-		<member name="rendering/batching/debug/flash_batching" type="bool" setter="" getter="" default="false">
-			[b]Experimental[/b] For regression testing against the old renderer. If this is switched on, and [code]use_batching[/code] is set, the renderer will swap alternately between using the old renderer, and the batched renderer, on each frame. This makes it easy to identify visual differences. Performance will be degraded.
+        <member name="rendering/batching/debug/flash_batching" type="bool" setter="" getter="" default="false">
+            [b]Experimental[/b] For regression testing against the old renderer. If this is switched on, and [code]use_batching[/code] is set, the renderer will swap alternately between using the old renderer, and the batched renderer, on each frame. This makes it easy to identify visual differences. Performance will be degraded.
         </member>
-		<member name="rendering/batching/lights/max_join_items" type="int" setter="" getter="" default="32">
-			Lights have the potential to prevent joining items, and break many of the performance benefits of batching. This setting enables some complex logic to allow joining items if their lighting is similar, and overlap tests pass. This can significantly improve performance in some games. Set to 0 to switch off. With large values the cost of overlap tests may lead to diminishing returns.
+        <member name="rendering/batching/lights/max_join_items" type="int" setter="" getter="" default="32">
+            Lights have the potential to prevent joining items, and break many of the performance benefits of batching. This setting enables some complex logic to allow joining items if their lighting is similar, and overlap tests pass. This can significantly improve performance in some games. Set to 0 to switch off. With large values the cost of overlap tests may lead to diminishing returns.
         </member>
-		<member name="rendering/batching/lights/scissor_area_threshold" type="float" setter="" getter="" default="1.0">
-			Sets the proportion of the total screen area (in pixels) that must be saved by a scissor operation in order to activate light scissoring. This can prevent parts of items being rendered outside the light area. Lower values scissor more aggressively. A value of 1 scissors none of the items, a value of 0 scissors every item. The power of 4 of the value is used, in order to emphasize the lower range, and multiplied by the total screen area in pixels to give the threshold. This can reduce fill rate requirements in scenes with a lot of lighting.
-		</member>
-		<member name="rendering/batching/options/single_rect_fallback" type="bool" setter="" getter="" default="false">
-			Enabling this setting uses the legacy method to draw batches containing only one rect. The legacy method is faster (approx twice as fast), but can cause flicker on some systems. In order to directly compare performance with the non-batching renderer you can set this to true, but it is recommended to turn this off unless you can guarantee your target hardware will work with this method.
-		</member>
-		<member name="rendering/batching/options/use_batching" type="bool" setter="" getter="" default="true">
-			Turns batching on and off. Batching increases performance by reducing the amount of graphics API drawcalls.
-			[b]Note:[/b] Currently only effective when using the GLES2 renderer.
-		</member>
-		<member name="rendering/batching/options/use_batching_in_editor" type="bool" setter="" getter="" default="true">
-			Switches on batching within the editor.
-			[b]Note:[/b] Currently only effective when using the GLES2 renderer.
-		</member>
-		<member name="rendering/batching/parameters/batch_buffer_size" type="int" setter="" getter="" default="16384">
-			Size of buffer reserved for batched vertices. Larger size enables larger batches, but there are diminishing returns for the memory used. This should only have a minor effect on performance.
-		</member>
-		<member name="rendering/batching/parameters/colored_vertex_format_threshold" type="float" setter="" getter="" default="0.25">
+        <member name="rendering/batching/lights/scissor_area_threshold" type="float" setter="" getter="" default="1.0">
+            Sets the proportion of the total screen area (in pixels) that must be saved by a scissor operation in order to activate light scissoring. This can prevent parts of items being rendered outside the light area. Lower values scissor more aggressively. A value of 1 scissors none of the items, a value of 0 scissors every item. The power of 4 of the value is used, in order to emphasize the lower range, and multiplied by the total screen area in pixels to give the threshold. This can reduce fill rate requirements in scenes with a lot of lighting.
+        </member>
+        <member name="rendering/batching/options/single_rect_fallback" type="bool" setter="" getter="" default="false">
+            Enabling this setting uses the legacy method to draw batches containing only one rect. The legacy method is faster (approx twice as fast), but can cause flicker on some systems. In order to directly compare performance with the non-batching renderer you can set this to true, but it is recommended to turn this off unless you can guarantee your target hardware will work with this method.
+        </member>
+        <member name="rendering/batching/options/use_batching" type="bool" setter="" getter="" default="true">
+            Turns batching on and off. Batching increases performance by reducing the amount of graphics API drawcalls.
+            [b]Note:[/b] Currently only effective when using the GLES2 renderer.
+        </member>
+        <member name="rendering/batching/options/use_batching_in_editor" type="bool" setter="" getter="" default="true">
+            Switches on batching within the editor.
+            [b]Note:[/b] Currently only effective when using the GLES2 renderer.
+        </member>
+        <member name="rendering/batching/parameters/batch_buffer_size" type="int" setter="" getter="" default="16384">
+            Size of buffer reserved for batched vertices. Larger size enables larger batches, but there are diminishing returns for the memory used. This should only have a minor effect on performance.
+        </member>
+        <member name="rendering/batching/parameters/colored_vertex_format_threshold" type="float" setter="" getter="" default="0.25">
             Including color in the vertex format has a cost, however, not including color prevents batching across color changes. This threshold determines the ratio of [code]number of vertex color changes / total number of vertices[/code] above which vertices will be translated to colored format. A value of 0 will always use colored vertices, 1 will never use colored vertices.
         </member>
-		<member name="rendering/batching/parameters/item_reordering_lookahead" type="int" setter="" getter="" default="4">
+        <member name="rendering/batching/parameters/item_reordering_lookahead" type="int" setter="" getter="" default="4">
             In certain circumstances, the batcher can reorder items in order to better join them. This may result in better performance. An overlap test is needed however for each item lookahead, so there is a trade off, with diminishing returns. If you are getting no benefit, setting this to 0 will switch it off.
         </member>
-		<member name="rendering/batching/parameters/max_join_item_commands" type="int" setter="" getter="" default="16">
-			Sets the number of commands to lookahead to determine whether to batch render items. A value of 1 can join items consisting of single commands, 0 turns off joining. Higher values are in theory more likely to join, however this has diminishing returns and has a runtime cost so a small value is recommended.
+        <member name="rendering/batching/parameters/max_join_item_commands" type="int" setter="" getter="" default="16">
+            Sets the number of commands to lookahead to determine whether to batch render items. A value of 1 can join items consisting of single commands, 0 turns off joining. Higher values are in theory more likely to join, however this has diminishing returns and has a runtime cost so a small value is recommended.
         </member>
-		<member name="rendering/batching/precision/uv_contract" type="bool" setter="" getter="" default="false">
-			On some platforms (especially mobile), precision issues in shaders can lead to reading 1 texel outside of bounds, particularly where rects are scaled. This can particularly lead to border artifacts around tiles in tilemaps.
-			This adjustment corrects for this by making a small contraction to the UV coordinates used. Note that this can result in a slight squashing of border texels.
+        <member name="rendering/batching/precision/uv_contract" type="bool" setter="" getter="" default="false">
+            On some platforms (especially mobile), precision issues in shaders can lead to reading 1 texel outside of bounds, particularly where rects are scaled. This can particularly lead to border artifacts around tiles in tilemaps.
+            This adjustment corrects for this by making a small contraction to the UV coordinates used. Note that this can result in a slight squashing of border texels.
         </member>
-		<member name="rendering/batching/precision/uv_contract_amount" type="int" setter="" getter="" default="100">
-			The amount of UV contraction. This figure is divided by 1000000, and is a proportion of the total texture dimensions, where the width and height are both ranged from 0.0 to 1.0.
-			Use the default unless correcting for a problem on particular hardware.
+        <member name="rendering/batching/precision/uv_contract_amount" type="int" setter="" getter="" default="100">
+            The amount of UV contraction. This figure is divided by 1000000, and is a proportion of the total texture dimensions, where the width and height are both ranged from 0.0 to 1.0.
+            Use the default unless correcting for a problem on particular hardware.
         </member>
-		<member name="rendering/environment/default_clear_color" type="Color" setter="" getter="" default="Color( 0.3, 0.3, 0.3, 1 )">
-			Default background clear color. Overridable per [Viewport] using its [Environment]. See [member Environment.background_mode] and [member Environment.background_color] in particular. To change this default color programmatically, use [method VisualServer.set_default_clear_color].
+        <member name="rendering/environment/default_clear_color" type="Color" setter="" getter="" default="Color( 0.3, 0.3, 0.3, 1 )">
+            Default background clear color. Overridable per [Viewport] using its [Environment]. See [member Environment.background_mode] and [member Environment.background_color] in particular. To change this default color programmatically, use [method VisualServer.set_default_clear_color].
         </member>
-		<member name="rendering/environment/default_environment" type="String" setter="" getter="" default="&quot;&quot;">
-			[Environment] that will be used as a fallback environment in case a scene does not specify its own environment. The default environment is loaded in at scene load time regardless of whether you have set an environment or not. If you do not rely on the fallback environment, it is best to delete [code]default_env.tres[/code], or to specify a different default environment here.
+        <member name="rendering/environment/default_environment" type="String" setter="" getter="" default="&quot;&quot;">
+            [Environment] that will be used as a fallback environment in case a scene does not specify its own environment. The default environment is loaded in at scene load time regardless of whether you have set an environment or not. If you do not rely on the fallback environment, it is best to delete [code]default_env.tres[/code], or to specify a different default environment here.
         </member>
-		<member name="rendering/gles2/compatibility/disable_half_float" type="bool" setter="" getter="" default="false">
+        <member name="rendering/gles2/compatibility/disable_half_float" type="bool" setter="" getter="" default="false">
             The use of half-float vertex compression may be producing rendering errors on some platforms (especially iOS). These have been seen particularly in particles. Disabling half-float may resolve these problems.
         </member>
-		<member name="rendering/gles2/compatibility/enable_high_float.Android" type="bool" setter="" getter="" default="false">
-			If [code]true[/code] and available on the target device, enables high floating point precision for all shader computations in GLES2.
-			[b]Warning:[/b] High floating point precision can be extremely slow on older devices and is often not available at all. Use with caution.
+        <member name="rendering/gles2/compatibility/enable_high_float.Android" type="bool" setter="" getter="" default="false">
+            If [code]true[/code] and available on the target device, enables high floating point precision for all shader computations in GLES2.
+            [b]Warning:[/b] High floating point precision can be extremely slow on older devices and is often not available at all. Use with caution.
         </member>
         <member name="rendering/limits/buffers/blend_shape_max_buffer_size_kb" type="int" setter="" getter="" default="4096">
             Max buffer size for blend shapes. Any blend shape bigger than this will not work.
@@ -1199,7 +1193,7 @@
             If [code]true[/code], the texture importer will import VRAM-compressed textures using the S3 Texture Compression algorithm. This algorithm is only supported on desktop platforms and consoles.
         </member>
         <member name="world/2d/cell_size" type="int" setter="" getter="" default="100">
-			Cell size used for the 2D hash grid that [VisibilityNotifier2D] uses (in pixels).
+            Cell size used for the 2D hash grid that [VisibilityNotifier2D] uses (in pixels).
         </member>
     </members>
     <constants>

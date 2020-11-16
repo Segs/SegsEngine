@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "editor/plugins/spatial_editor_plugin.h"
+#include "editor/plugins/node_3d_editor_plugin.h"
 #include "scene/3d/camera_3d.h"
 
 class Camera3D;
@@ -44,11 +44,11 @@ public:
     StringView get_name() const override;
     int get_priority() const override;
 
-    StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
-    void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    StringName get_handle_name(const EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    Variant get_handle_value(EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    void set_handle(EditorNode3DGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
+    void commit_handle(EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
     LightSpatialGizmoPlugin();
 };
@@ -62,11 +62,11 @@ public:
     StringView get_name() const override;
     int get_priority() const override;
 
-    StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
-    void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    StringName get_handle_name(const EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    Variant get_handle_value(EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    void set_handle(EditorNode3DGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
+    void commit_handle(EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
     AudioStreamPlayer3DSpatialGizmoPlugin();
 };
@@ -80,11 +80,11 @@ public:
     StringView get_name() const override;
     int get_priority() const override;
 
-    StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
-    void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    StringName get_handle_name(const EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    Variant get_handle_value(EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    void set_handle(EditorNode3DGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
+    void commit_handle(EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
     CameraSpatialGizmoPlugin();
 };
@@ -98,7 +98,7 @@ public:
     StringView get_name() const override;
     int get_priority() const override;
     bool can_be_hidden() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
     MeshInstanceSpatialGizmoPlugin();
 };
@@ -112,7 +112,7 @@ public:
     StringView get_name() const override;
     int get_priority() const override;
     bool can_be_hidden() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
     Sprite3DSpatialGizmoPlugin();
 };
@@ -128,7 +128,7 @@ public:
     bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
     Position3DSpatialGizmoPlugin();
 };
@@ -141,7 +141,7 @@ public:
     bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
     SkeletonSpatialGizmoPlugin();
 };
@@ -154,15 +154,15 @@ public:
     bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
     PhysicalBoneSpatialGizmoPlugin();
 };
 
 #if 0
-class PortalSpatialGizmo : public EditorSpatialGizmo {
+class PortalSpatialGizmo : public EditorNode3DGizmo {
 
-    GDCLASS(PortalSpatialGizmo,EditorSpatialGizmo)
+    GDCLASS(PortalSpatialGizmo,EditorNode3DGizmo)
 
     Portal *portal;
 
@@ -180,7 +180,7 @@ public:
     bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
     RayCastSpatialGizmoPlugin();
 };
@@ -193,7 +193,7 @@ public:
     bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
     SpringArm3DSpatialGizmoPlugin();
 };
@@ -206,7 +206,7 @@ public:
     bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
     VehicleWheelSpatialGizmoPlugin();
 };
@@ -220,12 +220,12 @@ public:
     StringView get_name() const override;
     int get_priority() const override;
     bool is_selectable_when_hidden() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
-    StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel) override;
-    bool is_handle_highlighted(const EditorSpatialGizmo *p_gizmo, int idx) const override;
+    StringName get_handle_name(const EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    Variant get_handle_value(EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    void commit_handle(EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel) override;
+    bool is_handle_highlighted(const EditorNode3DGizmo *p_gizmo, int idx) const override;
 
     SoftBodySpatialGizmoPlugin();
 };
@@ -238,12 +238,12 @@ public:
     bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
-    StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
-    void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
+    StringName get_handle_name(const EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    Variant get_handle_value(EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    void set_handle(EditorNode3DGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
+    void commit_handle(EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
 
     VisibilityNotifierGizmoPlugin();
 };
@@ -256,7 +256,7 @@ public:
     StringView get_name() const override;
     int get_priority() const override;
     bool is_selectable_when_hidden() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
     CPUParticlesGizmoPlugin();
 };
 
@@ -269,12 +269,12 @@ public:
     StringView get_name() const override;
     int get_priority() const override;
     bool is_selectable_when_hidden() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
-    StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
-    void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
+    StringName get_handle_name(const EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    Variant get_handle_value(EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    void set_handle(EditorNode3DGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
+    void commit_handle(EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
 
     ParticlesGizmoPlugin();
 };
@@ -287,12 +287,12 @@ public:
     bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
-    StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
-    void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
+    StringName get_handle_name(const EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    Variant get_handle_value(EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    void set_handle(EditorNode3DGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
+    void commit_handle(EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
 
     ReflectionProbeGizmoPlugin();
 };
@@ -305,12 +305,12 @@ public:
     bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
-    StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
-    void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
+    StringName get_handle_name(const EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    Variant get_handle_value(EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    void set_handle(EditorNode3DGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
+    void commit_handle(EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
 
     GIProbeGizmoPlugin();
 };
@@ -323,12 +323,12 @@ public:
     bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
-    StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
-    void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
+    StringName get_handle_name(const EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    Variant get_handle_value(EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    void set_handle(EditorNode3DGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
+    void commit_handle(EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
 
     BakedIndirectLightGizmoPlugin();
 };
@@ -341,12 +341,12 @@ public:
     bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
-    StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-    void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
-    void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
+    StringName get_handle_name(const EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    Variant get_handle_value(EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+    void set_handle(EditorNode3DGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
+    void commit_handle(EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false) override;
 
     CollisionShapeSpatialGizmoPlugin();
 };
@@ -358,7 +358,7 @@ public:
     bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
     CollisionPolygonSpatialGizmoPlugin();
 };
 
@@ -378,7 +378,7 @@ public:
     bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
     NavigationMeshSpatialGizmoPlugin();
 };
@@ -412,7 +412,7 @@ public:
     bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
-    void redraw(EditorSpatialGizmo *p_gizmo) override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
 
     static void CreatePinJointGizmo(const Transform &p_offset, Vector<Vector3> &r_cursor_points);
     static void CreateHingeJointGizmo(const Transform &p_offset, const Transform &p_trs_joint, const Transform &p_trs_body_a, const Transform &p_trs_body_b, real_t p_limit_lower, real_t p_limit_upper, bool p_use_limit, Vector<Vector3> &r_common_points, Vector<Vector3> *r_body_a_points, Vector<Vector3> *r_body_b_points);

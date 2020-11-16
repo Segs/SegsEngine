@@ -30,42 +30,42 @@
 
 #include "rendering_server_wrap_mt.h"
 #include "core/os/os.h"
-#include "core/list.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
+#include "servers/rendering/rendering_server_raster.h"
 
-void VisualServerWrapMT::thread_exit() {
+void RenderingServerWrapMT::thread_exit() {
 
     exit = true;
 }
 
-void VisualServerWrapMT::thread_draw(bool p_swap_buffers, double frame_step) {
+void RenderingServerWrapMT::thread_draw(bool p_swap_buffers, double frame_step) {
 
     if (!atomic_decrement(&draw_pending)) {
 
-        rendering_server->draw(p_swap_buffers, frame_step);
+        submission_thread_singleton->draw(p_swap_buffers, frame_step);
     }
 }
 
-void VisualServerWrapMT::thread_flush() {
+void RenderingServerWrapMT::thread_flush() {
 
     atomic_decrement(&draw_pending);
 }
 
-void VisualServerWrapMT::_thread_callback(void *_instance) {
+void RenderingServerWrapMT::_thread_callback(void *_instance) {
 
-    VisualServerWrapMT *vsmt = reinterpret_cast<VisualServerWrapMT *>(_instance);
+    RenderingServerWrapMT *vsmt = reinterpret_cast<RenderingServerWrapMT *>(_instance);
 
     vsmt->thread_loop();
 }
 
-void VisualServerWrapMT::thread_loop() {
+void RenderingServerWrapMT::thread_loop() {
 
     server_thread = Thread::get_caller_id();
 
     OS::get_singleton()->make_rendering_thread();
 
-    rendering_server->init();
+    submission_thread_singleton->init();
 
     exit = false;
     draw_thread_up = true;
@@ -76,12 +76,12 @@ void VisualServerWrapMT::thread_loop() {
 
     command_queue.flush_all(); // flush all
 
-    rendering_server->finish();
+    submission_thread_singleton->finish();
 }
 
 /* EVENT QUEUING */
 
-void VisualServerWrapMT::sync() {
+void RenderingServerWrapMT::sync() {
 
     if (create_thread) {
 
@@ -93,7 +93,7 @@ void VisualServerWrapMT::sync() {
     }
 }
 
-void VisualServerWrapMT::draw(bool p_swap_buffers, double frame_step) {
+void RenderingServerWrapMT::draw(bool p_swap_buffers, double frame_step) {
 
     if (create_thread) {
 
@@ -101,31 +101,30 @@ void VisualServerWrapMT::draw(bool p_swap_buffers, double frame_step) {
         command_queue.push([this,p_swap_buffers,frame_step]() {thread_draw(p_swap_buffers,frame_step); });
     } else {
 
-        rendering_server->draw(p_swap_buffers, frame_step);
+        submission_thread_singleton->draw(p_swap_buffers, frame_step);
     }
 }
 
-void VisualServerWrapMT::init() {
+void RenderingServerWrapMT::init() {
 
+    if (!create_thread) {
+        submission_thread_singleton->init();
+        return;
+    }
+
+    print_verbose("VisualServerWrapMT: Creating render thread");
+    OS::get_singleton()->release_rendering_thread();
     if (create_thread) {
-
-        print_verbose("VisualServerWrapMT: Creating render thread");
-        OS::get_singleton()->release_rendering_thread();
-        if (create_thread) {
-            thread = Thread::create(_thread_callback, this);
-            print_verbose("VisualServerWrapMT: Starting render thread");
-        }
-        while (!draw_thread_up) {
-            OS::get_singleton()->delay_usec(1000);
-        }
-        print_verbose("VisualServerWrapMT: Finished render thread");
-    } else {
-
-        rendering_server->init();
+        thread = Thread::create(_thread_callback, this);
+        print_verbose("VisualServerWrapMT: Starting render thread");
     }
+    while (!draw_thread_up) {
+        OS::get_singleton()->delay_usec(1000);
+    }
+    print_verbose("VisualServerWrapMT: Finished render thread");
 }
 
-void VisualServerWrapMT::finish() {
+void RenderingServerWrapMT::finish() {
 
     if (thread) {
 
@@ -135,7 +134,7 @@ void VisualServerWrapMT::finish() {
 
         thread = nullptr;
     } else {
-        rendering_server->finish();
+        submission_thread_singleton->finish();
     }
 
     texture_free_cached_ids();
@@ -164,25 +163,22 @@ void VisualServerWrapMT::finish() {
     canvas_occluder_polygon_free_cached_ids();
 }
 
-void VisualServerWrapMT::set_use_vsync_callback(bool p_enable) {
+void RenderingServerWrapMT::set_use_vsync_callback(bool p_enable) {
 
-    singleton_mt->call_set_use_vsync(p_enable);
+    queueing_thread_singleton->call_set_use_vsync(p_enable);
 }
 
-VisualServerWrapMT *VisualServerWrapMT::singleton_mt = nullptr;
-
-VisualServerWrapMT::VisualServerWrapMT(RenderingServer *p_contained, bool p_create_thread) :
+RenderingServerWrapMT::RenderingServerWrapMT(bool p_create_thread) :
         command_queue(p_create_thread) {
+    queueing_thread_singleton = this;
 
-    singleton_mt = this;
     OS::switch_vsync_function = set_use_vsync_callback; //as this goes to another thread, make sure it goes properly
 
-    rendering_server = p_contained;
+    memnew(RenderingServerRaster);
     create_thread = p_create_thread;
     thread = nullptr;
     draw_pending = 0;
     draw_thread_up = false;
-    alloc_mutex = memnew(Mutex);
     pool_max_size = T_GLOBAL_GET<int>("memory/limits/multithreaded_server/rid_pool_prealloc");
 
     if (!p_create_thread) {
@@ -192,9 +188,8 @@ VisualServerWrapMT::VisualServerWrapMT(RenderingServer *p_contained, bool p_crea
     }
 }
 
-VisualServerWrapMT::~VisualServerWrapMT() {
-
-    memdelete(rendering_server);
-    memdelete(alloc_mutex);
+RenderingServerWrapMT::~RenderingServerWrapMT() {
+    queueing_thread_singleton = nullptr;
+    memdelete(submission_thread_singleton);
     //finish();
 }

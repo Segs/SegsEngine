@@ -72,7 +72,9 @@ public:
         RENDER_PRIORITY_MIN = RS::MATERIAL_RENDER_PRIORITY_MIN,
     };
     void set_next_pass(const Ref<Material> &p_pass);
-    Ref<Material> get_next_pass() const;
+    const Ref<Material> &get_next_pass() const {
+        return next_pass;
+    }
 
     void set_render_priority(int p_priority);
     int get_render_priority() const;
@@ -109,7 +111,9 @@ protected:
 
 public:
     void set_shader(const Ref<Shader> &p_shader);
-    Ref<Shader> get_shader() const;
+    const Ref<Shader> &get_shader() const {
+        return shader;
+    }
 
     void set_shader_param(const StringName &p_param, const Variant &p_value);
     Variant get_shader_param(const StringName &p_param) const;

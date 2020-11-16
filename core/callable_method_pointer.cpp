@@ -31,59 +31,53 @@
 #include "callable_method_pointer.h"
 
 bool CallableCustomMethodPointerBase::compare_equal(const CallableCustom *p_a, const CallableCustom *p_b) {
-	const CallableCustomMethodPointerBase *a = static_cast<const CallableCustomMethodPointerBase *>(p_a);
-	const CallableCustomMethodPointerBase *b = static_cast<const CallableCustomMethodPointerBase *>(p_b);
+    const auto *a = static_cast<const CallableCustomMethodPointerBase *>(p_a);
+    const auto *b = static_cast<const CallableCustomMethodPointerBase *>(p_b);
 
-	if (a->comp_size != b->comp_size) {
-		return false;
-	}
+    if (a->comp_size != b->comp_size) {
+        return false;
+    }
 
-	for (uint32_t i = 0; i < a->comp_size; i++) {
-		if (a->comp_ptr[i] != b->comp_ptr[i]) {
-			return false;
-		}
-	}
+    for (uint32_t i = 0; i < a->comp_size; i++) {
+        if (a->comp_ptr[i] != b->comp_ptr[i]) {
+            return false;
+        }
+    }
 
-	return true;
+    return true;
 }
 
 bool CallableCustomMethodPointerBase::compare_less(const CallableCustom *p_a, const CallableCustom *p_b) {
-	const CallableCustomMethodPointerBase *a = static_cast<const CallableCustomMethodPointerBase *>(p_a);
-	const CallableCustomMethodPointerBase *b = static_cast<const CallableCustomMethodPointerBase *>(p_b);
+    const auto *a = static_cast<const CallableCustomMethodPointerBase *>(p_a);
+    const auto *b = static_cast<const CallableCustomMethodPointerBase *>(p_b);
 
-	if (a->comp_size != b->comp_size) {
-		return a->comp_size < b->comp_size;
-	}
+    if (a->comp_size != b->comp_size) {
+        return a->comp_size < b->comp_size;
+    }
 
-	for (uint32_t i = 0; i < a->comp_size; i++) {
-		if (a->comp_ptr[i] == b->comp_ptr[i]) {
-			continue;
-		}
+    for (uint32_t i = 0; i < a->comp_size; i++) {
+        if (a->comp_ptr[i] == b->comp_ptr[i]) {
+            continue;
+        }
 
-		return a->comp_ptr[i] < b->comp_ptr[i];
-	}
+        return a->comp_ptr[i] < b->comp_ptr[i];
+    }
 
-	return false;
+    return false;
 }
 
 
-
-
-
-uint32_t CallableCustomMethodPointerBase::hash() const {
-	return h;
-}
 
 void CallableCustomMethodPointerBase::_setup(uint32_t *p_base_ptr, uint32_t p_ptr_size) {
-	comp_ptr = p_base_ptr;
-	comp_size = p_ptr_size / 4;
+    comp_ptr = p_base_ptr;
+    comp_size = p_ptr_size / 4;
 
-	// Precompute hash.
-	for (uint32_t i = 0; i < comp_size; i++) {
-		if (i == 0) {
-			h = hash_djb2_one_32(comp_ptr[i]);
-		} else {
-			h = hash_djb2_one_32(comp_ptr[i], h);
-		}
-	}
+    // Precompute hash.
+    for (uint32_t i = 0; i < comp_size; i++) {
+        if (i == 0) {
+            h = hash_djb2_one_32(comp_ptr[i]);
+        } else {
+            h = hash_djb2_one_32(comp_ptr[i], h);
+        }
+    }
 }

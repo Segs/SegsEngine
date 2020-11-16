@@ -190,6 +190,7 @@
 #include "scene/3d/gi_probe.h"
 #include "scene/3d/gpu_particles_3d.h"
 #include "scene/3d/immediate_geometry_3d.h"
+#include "scene/3d/instantiation.h"
 #include "scene/3d/interpolated_camera.h"
 #include "scene/3d/light_3d.h"
 #include "scene/3d/listener_3d.h"
@@ -552,6 +553,7 @@ void register_scene_types() {
     ImmediateGeometry3D::initialize_class();
     AudioStreamPlayer3D::initialize_class();
     MultiMeshInstance3D::initialize_class();
+    LibraryEntryInstance::initialize_class();
     RemoteTransform3D::initialize_class();
     StaticBody3D::initialize_class();
     RigidBody::initialize_class();
@@ -772,6 +774,7 @@ void register_scene_types() {
     ClassDB::register_class<ARVROrigin>();
     ClassDB::register_class<InterpolatedCamera>();
     ClassDB::register_class<MeshInstance3D>();
+    ClassDB::register_class<LibraryEntryInstance>();
     ClassDB::register_class<ImmediateGeometry3D>();
     ClassDB::register_virtual_class<SpriteBase3D>();
     ClassDB::register_class<Sprite3D>();
@@ -890,6 +893,7 @@ void register_scene_types() {
     ClassDB::register_class<VisualShaderNodeTexture>();
     ClassDB::register_class<VisualShaderNodeCubeMap>();
     ClassDB::register_virtual_class<VisualShaderNodeUniform>();
+    ClassDB::register_class<VisualShaderNodeUniformRef>();
     ClassDB::register_class<VisualShaderNodeScalarUniform>();
     ClassDB::register_class<VisualShaderNodeBooleanUniform>();
     ClassDB::register_class<VisualShaderNodeColorUniform>();

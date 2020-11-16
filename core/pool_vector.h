@@ -30,7 +30,6 @@
 
 #pragma once
 
-
 #include "core/os/memory.h"
 #include "core/os/rw_lock.h"
 
@@ -400,12 +399,14 @@ public:
 
     PoolVector & operator=(const PoolVector &p_pool_vector) { _reference(p_pool_vector); return *this; }
     PoolVector & operator=(PoolVector &&p_pool_vector) noexcept {
-        if(this == &p_pool_vector)
-            abort();
         pv_unreference();
         alloc=p_pool_vector.alloc;
         p_pool_vector.alloc=nullptr;
         return *this;
+    }
+    PoolVector(PoolVector&& from) noexcept {
+        alloc = from.alloc;
+        from.alloc = nullptr;
     }
     constexpr PoolVector() : alloc(nullptr) {}
     explicit PoolVector(Vector<T> &from) : PoolVector() {

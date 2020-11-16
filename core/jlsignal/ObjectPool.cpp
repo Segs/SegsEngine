@@ -6,19 +6,6 @@ namespace jl {
     // Some helper routines
     namespace
     {
-        bool IsBounded( const void* pObject, const unsigned char* pObjectBuffer, unsigned nCapacity, unsigned nStride )
-        {
-            const unsigned char* const pFirst = pObjectBuffer;
-            const unsigned char* const pLast = pObjectBuffer + nStride * (nCapacity - 1);
-            return pFirst <= pObject && pObject <= pLast;
-        }
-
-        bool IsAligned( const void* pObject, const unsigned char* pObjectBuffer, unsigned nStride )
-        {
-            const ptrdiff_t nDiff = reinterpret_cast<const unsigned char*>(pObject) - pObjectBuffer;
-            return ( nDiff % nStride == 0 );
-        }
-
         // Populate a sorted array with pointers to every free node, and return the number of free nodes.
         unsigned GetSortedFreeNodeList( ObjectPool::FreeNode* ppSortedFreeNodes[], ObjectPool::FreeNode* pFreeListHead )
         {
@@ -75,7 +62,9 @@ jl::ObjectPool::FreeNode* jl::ObjectPool::InitFreeList( unsigned char* pObjectBu
 unsigned jl::ObjectPool::FreeListSize( ObjectPool::FreeNode* pFreeListHead )
 {
     // Early out for degenerate case
-    if ( ! pFreeListHead ) return 0;
+    if ( ! pFreeListHead ) {
+        return 0;
+    }
 
     unsigned n = 0;
     for ( ; pFreeListHead; pFreeListHead = pFreeListHead->pNextFree )
@@ -84,12 +73,6 @@ unsigned jl::ObjectPool::FreeListSize( ObjectPool::FreeNode* pFreeListHead )
     }
 
     return n;
-}
-
-bool jl::ObjectPool::IsBoundedAndAligned( const void* pObject, const unsigned char* pObjectBuffer, unsigned nCapacity, unsigned nStride )
-{
-    return IsBounded( pObject, pObjectBuffer, nCapacity, nStride )
-        && IsAligned( pObject, pObjectBuffer, nStride );
 }
 
 bool jl::ObjectPool::IsFree( const void* pObject, const FreeNode* pFreeListHead )
@@ -109,10 +92,7 @@ bool jl::ObjectPool::IsFree( const void* pObject, const FreeNode* pFreeListHead 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-jl::PreallocatedObjectPool::PreallocatedObjectPool()
-{
-    Reset();
-}
+
 
 jl::PreallocatedObjectPool::PreallocatedObjectPool( void* pBuffer, unsigned nCapacity, unsigned nStride, unsigned nFlags /*= eFlag_Default */ )
 {

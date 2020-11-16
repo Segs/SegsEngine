@@ -106,7 +106,7 @@ constexpr int PACKED_SCENE_VERSION = 2;
 IMPL_GDCLASS(SceneState)
 IMPL_GDCLASS(PackedScene)
 RES_BASE_EXTENSION_IMPL(PackedScene,"scn")
-VARIANT_ENUM_CAST(PackedGenEditState)
+VARIANT_ENUM_CAST(PackedGenEditState);
 
 bool SceneState::can_instance() const {
 
@@ -298,10 +298,10 @@ Node *SceneState::instance(PackedGenEditState p_edit_state) const {
             //node belongs to this scene and must be created
             Object *obj = ClassDB::instance(snames[n.type]);
             if (!object_cast<Node>(obj)) {
-                if (obj) {
-                    memdelete(obj);
-                    obj = nullptr;
-                }
+
+                memdelete(obj);
+                obj = nullptr;
+
                 WARN_PRINT("Warning node of type " + snames[n.type] + " does not exist.");
                 if (n.parent >= 0 && n.parent < nc && ret_nodes[n.parent]) {
                     if (object_cast<Node3D>(ret_nodes[n.parent])) {
@@ -517,12 +517,12 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
         Variant default_value = ClassDB::class_get_default_property_value(type, name);
 
         if (default_value.get_type() != VariantType::NIL) {
-            isdefault = Variant::evaluate(Variant::OP_EQUAL, value, default_value).as<bool>();
+            isdefault = Variant::evaluate_equal(value, default_value);
         }
 
         Ref<Script> script(refFromRefPtr<Script>(p_node->get_script()));
         if (!isdefault && script && script->get_property_default_value(name, default_value)) {
-            isdefault = Variant::evaluate(Variant::OP_EQUAL, value, default_value).as<bool>();
+            isdefault = Variant::evaluate_equal(value, default_value);
         }
         // the version above makes more sense, because it does not rely on placeholder or usage flag
         // in the script, just the default value function.
@@ -565,7 +565,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
 
                     if (Math::is_equal_approx(a, b))
                         continue;
-                } else if (Variant::evaluate(Variant::OP_EQUAL, value, original).as<bool>()) {
+                } else if (Variant::evaluate_equal(value, original)) {
 
                     continue;
                 }
@@ -707,10 +707,10 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
 
     for (const MethodInfo &E : _signals) {
 
-        List<Node::Connection> conns;
+        Vector<Node::Connection> conns;
         p_node->get_signal_connection_list(E.name, &conns);
 
-        conns.sort();
+        eastl::sort(conns.begin(),conns.end());
 
         for (const Node::Connection &c : conns) {
 
@@ -1565,7 +1565,7 @@ int SceneState::add_value(const Variant &p_value) {
 int SceneState::add_node_path(const NodePath &p_path) {
 
     node_paths.push_back(p_path);
-    return node_paths.size() - 1 | FLAG_ID_IS_PATH;
+    return (node_paths.size() - 1) | FLAG_ID_IS_PATH;
 }
 int SceneState::add_node(int p_parent, int p_owner, int p_type, int p_name, int p_instance, int p_index) {
 

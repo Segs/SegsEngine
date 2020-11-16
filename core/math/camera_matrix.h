@@ -60,6 +60,7 @@ struct GODOT_EXPORT CameraMatrix {
 
     real_t matrix[4][4];
 
+	float determinant() const;
     void set_identity();
     void set_zero();
     void set_light_bias();

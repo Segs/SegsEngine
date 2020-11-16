@@ -30,10 +30,11 @@
 
 #include "instance_placeholder.h"
 
+#include "core/dictionary.h"
 #include "core/method_bind.h"
-#include "scene/resources/packed_scene.h"
 #include "core/pool_vector.h"
 #include "core/resource/resource_manager.h"
+#include "scene/resources/packed_scene.h"
 
 IMPL_GDCLASS(InstancePlaceholder)
 
@@ -116,11 +117,6 @@ Node *InstancePlaceholder::create_instance(bool p_replace, const Ref<PackedScene
     return scene;
 }
 
-void InstancePlaceholder::replace_by_instance(const Ref<PackedScene> &p_custom_scene) {
-    //Deprecated by
-    create_instance(true, p_custom_scene);
-}
-
 Dictionary InstancePlaceholder::get_stored_values(bool p_with_order) {
 
     Dictionary ret;
@@ -136,13 +132,12 @@ Dictionary InstancePlaceholder::get_stored_values(bool p_with_order) {
         ret[".order"] = order;
 
     return ret;
-};
+}
 
 void InstancePlaceholder::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_stored_values", {"with_order"}), &InstancePlaceholder::get_stored_values, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("create_instance", {"replace", "custom_scene"}), &InstancePlaceholder::create_instance, {DEFVAL(false), DEFVAL(Variant())});
-    MethodBinder::bind_method(D_METHOD("replace_by_instance", {"custom_scene"}), &InstancePlaceholder::replace_by_instance, {DEFVAL(Variant())});
     MethodBinder::bind_method(D_METHOD("get_instance_path"), &InstancePlaceholder::get_instance_path);
 }
 

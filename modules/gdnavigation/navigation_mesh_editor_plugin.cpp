@@ -56,8 +56,8 @@ void NavigationMeshEditor::_notification(int p_option) {
 
     if (p_option == NOTIFICATION_ENTER_TREE) {
 
-        button_bake->set_button_icon(get_icon("Bake", "EditorIcons"));
-        button_reset->set_button_icon(get_icon("Reload", "EditorIcons"));
+        button_bake->set_button_icon(get_theme_icon("Bake", "EditorIcons"));
+        button_reset->set_button_icon(get_theme_icon("Reload", "EditorIcons"));
     }
 }
 
@@ -97,12 +97,6 @@ void NavigationMeshEditor::edit(NavigationMeshInstance *p_nav_mesh_instance) {
     }
 
     node = p_nav_mesh_instance;
-}
-
-void NavigationMeshEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_bake_pressed", &NavigationMeshEditor::_bake_pressed);
-    MethodBinder::bind_method("_clear_pressed", &NavigationMeshEditor::_clear_pressed);
 }
 
 NavigationMeshEditor::NavigationMeshEditor() {

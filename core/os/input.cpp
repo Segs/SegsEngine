@@ -32,7 +32,6 @@
 
 #include "core/input/input_map.h"
 #include "core/list.h"
-#include "core/method_arg_casters.h"
 #include "core/method_bind.h"
 #include "core/method_enum_caster.h"
 #include "core/os/os.h"
@@ -111,28 +110,28 @@ void Input::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("parse_input_event", {"event"}), &Input::parse_input_event);
     MethodBinder::bind_method(D_METHOD("set_use_accumulated_input", {"enable"}), &Input::set_use_accumulated_input);
 
-    BIND_ENUM_CONSTANT(MOUSE_MODE_VISIBLE)
-    BIND_ENUM_CONSTANT(MOUSE_MODE_HIDDEN)
-    BIND_ENUM_CONSTANT(MOUSE_MODE_CAPTURED)
-    BIND_ENUM_CONSTANT(MOUSE_MODE_CONFINED)
+    BIND_ENUM_CONSTANT(MOUSE_MODE_VISIBLE);
+    BIND_ENUM_CONSTANT(MOUSE_MODE_HIDDEN);
+    BIND_ENUM_CONSTANT(MOUSE_MODE_CAPTURED);
+    BIND_ENUM_CONSTANT(MOUSE_MODE_CONFINED);
 
-    BIND_ENUM_CONSTANT(CURSOR_ARROW)
-    BIND_ENUM_CONSTANT(CURSOR_IBEAM)
-    BIND_ENUM_CONSTANT(CURSOR_POINTING_HAND)
-    BIND_ENUM_CONSTANT(CURSOR_CROSS)
-    BIND_ENUM_CONSTANT(CURSOR_WAIT)
-    BIND_ENUM_CONSTANT(CURSOR_BUSY)
-    BIND_ENUM_CONSTANT(CURSOR_DRAG)
-    BIND_ENUM_CONSTANT(CURSOR_CAN_DROP)
-    BIND_ENUM_CONSTANT(CURSOR_FORBIDDEN)
-    BIND_ENUM_CONSTANT(CURSOR_VSIZE)
-    BIND_ENUM_CONSTANT(CURSOR_HSIZE)
-    BIND_ENUM_CONSTANT(CURSOR_BDIAGSIZE)
-    BIND_ENUM_CONSTANT(CURSOR_FDIAGSIZE)
-    BIND_ENUM_CONSTANT(CURSOR_MOVE)
-    BIND_ENUM_CONSTANT(CURSOR_VSPLIT)
-    BIND_ENUM_CONSTANT(CURSOR_HSPLIT)
-    BIND_ENUM_CONSTANT(CURSOR_HELP)
+    BIND_ENUM_CONSTANT(CURSOR_ARROW);
+    BIND_ENUM_CONSTANT(CURSOR_IBEAM);
+    BIND_ENUM_CONSTANT(CURSOR_POINTING_HAND);
+    BIND_ENUM_CONSTANT(CURSOR_CROSS);
+    BIND_ENUM_CONSTANT(CURSOR_WAIT);
+    BIND_ENUM_CONSTANT(CURSOR_BUSY);
+    BIND_ENUM_CONSTANT(CURSOR_DRAG);
+    BIND_ENUM_CONSTANT(CURSOR_CAN_DROP);
+    BIND_ENUM_CONSTANT(CURSOR_FORBIDDEN);
+    BIND_ENUM_CONSTANT(CURSOR_VSIZE);
+    BIND_ENUM_CONSTANT(CURSOR_HSIZE);
+    BIND_ENUM_CONSTANT(CURSOR_BDIAGSIZE);
+    BIND_ENUM_CONSTANT(CURSOR_FDIAGSIZE);
+    BIND_ENUM_CONSTANT(CURSOR_MOVE);
+    BIND_ENUM_CONSTANT(CURSOR_VSPLIT);
+    BIND_ENUM_CONSTANT(CURSOR_HSPLIT);
+    BIND_ENUM_CONSTANT(CURSOR_HELP);
 
     ADD_SIGNAL(MethodInfo("joy_connection_changed", PropertyInfo(VariantType::INT, "device"), PropertyInfo(VariantType::BOOL, "connected")));
 }
@@ -150,8 +149,9 @@ void Input::get_argument_options(const StringName &p_function, int p_idx, List<S
 
         for(const PropertyInfo &pi : pinfo ) {
 
-            if (!StringUtils::begins_with(pi.name,"input/"))
+            if (!StringUtils::begins_with(pi.name,"input/")) {
                 continue;
+            }
 
             StringView name = pi.name.asCString();
             name = StringUtils::substr(name,StringUtils::find(name,"/") + 1, name.length());

@@ -42,7 +42,7 @@
 
 class WSLClient : public WebSocketClient {
 
-    GDCIIMPL(WSLClient, WebSocketClient);
+    GDCIIMPL(WSLClient, WebSocketClient)
 
 private:
     int _in_buf_size;

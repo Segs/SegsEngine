@@ -251,9 +251,6 @@ void ConnectDialog::_notification(int p_what) {
 
 void ConnectDialog::_bind_methods() {
 
-    MethodBinder::bind_method("_cancel", &ConnectDialog::_cancel_pressed);
-    MethodBinder::bind_method("_update_ok_enabled", &ConnectDialog::_update_ok_enabled);
-
     ADD_SIGNAL(MethodInfo("connected"));
 }
 
@@ -351,7 +348,7 @@ void ConnectDialog::init(const ConnectionData &c, bool bEdit) {
 void ConnectDialog::popup_dialog(const UIString &p_for_signal) {
 
     from_signal->set_text_uistring(p_for_signal);
-    error_label->add_color_override("font_color", get_color("error_color", "Editor"));
+    error_label->add_theme_color_override("font_color", get_theme_color("error_color", "Editor"));
     if (!advanced->is_pressed())
         error_label->set_visible(!_find_first_script(get_tree()->get_edited_scene_root(), get_tree()->get_edited_scene_root()));
 
@@ -482,7 +479,7 @@ ConnectDialog::ConnectDialog() {
     oneshot->set_tooltip(TTR("Disconnects the signal after its first emission."));
     vbc_right->add_child(oneshot);
 
-    set_as_toplevel(true);
+    set_as_top_level(true);
 
     cdbinds = memnew(ConnectDialogBinds);
 
@@ -494,7 +491,6 @@ ConnectDialog::ConnectDialog() {
 }
 
 ConnectDialog::~ConnectDialog() {
-
     memdelete(cdbinds);
 }
 
@@ -504,7 +500,7 @@ ConnectDialog::~ConnectDialog() {
 Control *ConnectionsDockTree::make_custom_tooltip(StringView p_text) const {
 
     EditorHelpBit *help_bit = memnew(EditorHelpBit);
-    help_bit->add_style_override("panel", get_stylebox("panel", "TooltipPanel"));
+    help_bit->add_theme_style_override("panel", get_theme_stylebox("panel", "TooltipPanel"));
     help_bit->get_rich_text()->set_fixed_size_to_width(360 * EDSCALE);
 
     FixedVector<StringView,16,true> parts;
@@ -526,6 +522,10 @@ struct _ConnectionsDockMethodInfoSort {
         return a.name < b.name;
     }
 };
+
+void ConnectionsDock::_filter_changed(StringView p_text) {
+    update_tree();
+}
 
 /*
  * Post-ConnectDialog callback for creating/editing connections.
@@ -762,7 +762,7 @@ void ConnectionsDock::_open_connection_dialog(const ConnectDialog::ConnectionDat
     if (src && dst) {
         const StringName &signalname = cToEdit.signal;
         connect_dialog->set_title(TTR("Edit Connection:") + cToEdit.signal);
-        connect_dialog->popup_centered();
+        connect_dialog->popup_dialog(StringUtils::from_utf8(signalname));
         connect_dialog->init(cToEdit, true);
     }
 }
@@ -786,11 +786,12 @@ void ConnectionsDock::_go_to_script(TreeItem &item) {
 
     Ref<Script> script = refFromRefPtr<Script>(c.target->get_script());
 
-    if (not script)
+    if (not script) {
         return;
+    }
 
     if (script && ScriptEditor::get_singleton()->script_goto_method(script, c.method)) {
-        editor->call_va("_editor_select", EditorNode::EDITOR_SCRIPT);
+        editor->_editor_select(EditorNode::EDITOR_SCRIPT);
     }
 }
 
@@ -899,8 +900,9 @@ void ConnectionsDock::update_tree() {
 
     tree->clear();
 
-    if (!selectedNode)
+    if (!selectedNode) {
         return;
+    }
 
     TreeItem *root = tree->create_item();
 
@@ -922,13 +924,14 @@ void ConnectionsDock::update_tree() {
             Ref<Script> scr(refFromRefPtr<Script>(selectedNode->get_script()));
             if (scr) {
                 scr->get_script_signal_list(&node_signals2);
-                if (PathUtils::is_resource_file(scr->get_path()))
+                if (PathUtils::is_resource_file(scr->get_path())) {
                     name = PathUtils::get_file(scr->get_path());
-                else
+                } else {
                     name = scr->get_class();
+                }
 
                 if (has_icon(scr->get_class_name(), "EditorIcons")) {
-                    icon = get_icon(scr->get_class_name(), "EditorIcons");
+                    icon = get_theme_icon(scr->get_class_name(), "EditorIcons");
                 }
             }
 
@@ -936,20 +939,20 @@ void ConnectionsDock::update_tree() {
 
             ClassDB::get_signal_list(base, &node_signals2, true);
             if (has_icon(base, "EditorIcons")) {
-                icon = get_icon(base, "EditorIcons");
+                icon = get_theme_icon(base, "EditorIcons");
             }
             name = base;
         }
 
-        TreeItem *pitem = nullptr;
+        TreeItem *section_item = nullptr;
 
         if (!node_signals2.empty()) {
-            pitem = tree->create_item(root);
-            pitem->set_text_utf8(0, name);
-            pitem->set_icon(0, icon);
-            pitem->set_selectable(0, false);
-            pitem->set_editable(0, false);
-            pitem->set_custom_bg_color(0, get_color("prop_subsection", "Editor"));
+            section_item = tree->create_item(root);
+            section_item->set_text_utf8(0, name);
+            section_item->set_icon(0, icon);
+            section_item->set_selectable(0, false);
+            section_item->set_editable(0, false);
+            section_item->set_custom_bg_color(0, get_theme_color("prop_subsection", "Editor"));
             eastl::sort(node_signals2.begin(), node_signals2.end());
         }
 
@@ -958,6 +961,12 @@ void ConnectionsDock::update_tree() {
             StringName signal_name = mi.name;
             String signaldesc("(");
             PoolVector<String> argnames;
+
+            String filter_text = search_box->get_text();
+            if (!StringUtils::is_subsequence_of(filter_text,signal_name,StringUtils::CaseInsensitive)) {
+                continue;
+            }
+
             if (!mi.arguments.empty()) {
                 int idx=0;
                 for (PropertyInfo &pi : mi.arguments) {
@@ -976,13 +985,13 @@ void ConnectionsDock::update_tree() {
             }
             signaldesc += ')';
 
-            TreeItem *signal_item = tree->create_item(pitem);
+            TreeItem *signal_item = tree->create_item(section_item);
             signal_item->set_text_utf8(0, String(signal_name) + signaldesc);
             Dictionary sinfo;
             sinfo["name"] = signal_name;
             sinfo["args"] = argnames;
             signal_item->set_metadata(0, sinfo);
-            signal_item->set_icon(0, get_icon("Signal", "EditorIcons"));
+            signal_item->set_icon(0, get_theme_icon("Signal", "EditorIcons"));
 
             // Set tooltip with the signal's documentation.
             {
@@ -1022,7 +1031,7 @@ void ConnectionsDock::update_tree() {
             }
 
             // List existing connections
-            List<Object::Connection> connections;
+            Vector<Object::Connection> connections;
             selectedNode->get_signal_connection_list(signal_name, &connections);
 
             for (Object::Connection &cn : connections) {
@@ -1056,7 +1065,7 @@ void ConnectionsDock::update_tree() {
                 connection_item->set_text_utf8(0, path);
                 Connection cd = c;
                 connection_item->set_metadata(0, cd);
-                connection_item->set_icon(0, get_icon("Slot", "EditorIcons"));
+                connection_item->set_icon(0, get_theme_icon("Slot", "EditorIcons"));
 
             }
         }
@@ -1079,6 +1088,15 @@ ConnectionsDock::ConnectionsDock(EditorNode *p_editor) {
 
     VBoxContainer *vbc = this;
 
+    search_box = memnew(LineEdit);
+    search_box->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+    search_box->set_placeholder(TTR("Filter signals"));
+    search_box->set_right_icon(get_theme_icon("Search", "EditorIcons"));
+    search_box->set_clear_button_enabled(true);
+    search_box->connect("text_changed", callable_mp(this,&ConnectionsDock::_filter_changed));
+    vbc->add_child(search_box);
+
+
     tree = memnew(ConnectionsDockTree);
     tree->set_columns(1);
     tree->set_select_mode(Tree::SELECT_ROW);
@@ -1095,11 +1113,11 @@ ConnectionsDock::ConnectionsDock(EditorNode *p_editor) {
     connect_button->connect("pressed", callable_mp(this, &ConnectionsDock::_connect_pressed));
 
     connect_dialog = memnew(ConnectDialog);
-    connect_dialog->set_as_toplevel(true);
+    connect_dialog->set_as_top_level(true);
     add_child(connect_dialog);
 
     disconnect_all_dialog = memnew(ConfirmationDialog);
-    disconnect_all_dialog->set_as_toplevel(true);
+    disconnect_all_dialog->set_as_top_level(true);
     add_child(disconnect_all_dialog);
     disconnect_all_dialog->connect("confirmed", callable_mp(this, &ConnectionsDock::_disconnect_all));
     disconnect_all_dialog->set_text(TTR("Are you sure you want to remove all connections from this signal?"));

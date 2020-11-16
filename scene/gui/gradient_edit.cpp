@@ -503,6 +503,5 @@ Vector<Gradient::Point> &GradientEdit::get_points() {
 
 void GradientEdit::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_gui_input"), &GradientEdit::_gui_input);
-    MethodBinder::bind_method(D_METHOD("_color_changed"), &GradientEdit::_color_changed);
     ADD_SIGNAL(MethodInfo("ramp_changed"));
 }

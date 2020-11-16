@@ -66,14 +66,14 @@ _FORCE_INLINE_ bool is_str_less(const L *l_ptr, const R *r_ptr) {
 } // end of anonymous namespace
 
 struct StringName::_Data {
-    _Data *prev;
-    _Data *next;
-    const char *cname;
+    _Data *prev = nullptr;
+    _Data *next = nullptr;
+    const char *cname = nullptr;
     SafeRefCount refcount;
     uint32_t idx:31;
     //! if set to 1 then underlying char * array was allocated dynamically.
     uint32_t mark:1;
-    uint32_t hash;
+    uint32_t hash=0;
 
     const char *get_name() const { return cname; }
     void set_static_name(const char *s) {
@@ -89,8 +89,6 @@ struct StringName::_Data {
         mark = 1;
     }
     _Data() {
-        cname = nullptr;
-        next = prev = nullptr;
         idx = 0;
         hash = 0;
     }

@@ -37,7 +37,6 @@ class Timer;
 class GODOT_EXPORT HTTPRequest : public Node {
 
     GDCLASS(HTTPRequest,Node)
-
 public:
     enum Result {
         RESULT_SUCCESS,
@@ -59,6 +58,7 @@ public:
 private:
 
     void _redirect_request(StringView p_new_url);
+public: // slots
     void _request_done(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
 
 protected:

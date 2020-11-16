@@ -108,7 +108,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
             if (ap) {
                 Vector<StringName> names(ap->get_animation_list());
                 for (const StringName &E : names) {
-                    animations_menu->add_icon_item(get_icon("Animation", "EditorIcons"), E);
+                    animations_menu->add_icon_item(get_theme_icon("Animation", "EditorIcons"), E);
                     animations_to_add.push_back(E);
                 }
             }
@@ -160,7 +160,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 
             if (node_rects[i].name.has_point(mb->get_position())) { //edit name
 
-                Ref<StyleBox> line_sb = get_stylebox("normal", "LineEdit");
+                Ref<StyleBox> line_sb = get_theme_stylebox("normal", "LineEdit");
 
                 Rect2 edit_rect = node_rects[i].name;
                 edit_rect.position -= line_sb->get_offset();
@@ -178,7 +178,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
             }
 
             if (node_rects[i].edit.has_point(mb->get_position())) { //edit name
-                call_deferred("_open_editor", node_rects[i].node_name);
+                call_deferred([this,nm=node_rects[i].node_name] { _open_editor(nm); });
                 return;
             }
 
@@ -514,9 +514,9 @@ void AnimationNodeStateMachineEditor::_add_animation_type(int p_index) {
 
 void AnimationNodeStateMachineEditor::_connection_draw(const Vector2 &p_from, const Vector2 &p_to, AnimationNodeStateMachineTransition::SwitchMode p_mode, bool p_enabled, bool p_selected, bool p_travel, bool p_auto_advance) {
 
-    Color linecolor = get_color("font_color", "Label");
+    Color linecolor = get_theme_color("font_color", "Label");
     Color icon_color(1, 1, 1);
-    Color accent = get_color("accent_color", "Editor");
+    Color accent = get_theme_color("accent_color", "Editor");
 
     if (!p_enabled) {
         linecolor.a *= 0.2f;
@@ -525,12 +525,12 @@ void AnimationNodeStateMachineEditor::_connection_draw(const Vector2 &p_from, co
     }
 
     Ref<Texture> icons[6] = {
-        get_icon("TransitionImmediateBig", "EditorIcons"),
-        get_icon("TransitionSyncBig", "EditorIcons"),
-        get_icon("TransitionEndBig", "EditorIcons"),
-        get_icon("TransitionImmediateAutoBig", "EditorIcons"),
-        get_icon("TransitionSyncAutoBig", "EditorIcons"),
-        get_icon("TransitionEndAutoBig", "EditorIcons")
+        get_theme_icon("TransitionImmediateBig", "EditorIcons"),
+        get_theme_icon("TransitionSyncBig", "EditorIcons"),
+        get_theme_icon("TransitionEndBig", "EditorIcons"),
+        get_theme_icon("TransitionImmediateAutoBig", "EditorIcons"),
+        get_theme_icon("TransitionSyncAutoBig", "EditorIcons"),
+        get_theme_icon("TransitionEndAutoBig", "EditorIcons")
     };
 
     if (p_selected) {
@@ -584,18 +584,18 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
     Ref<AnimationNodeStateMachinePlayback> playback(AnimationTreeEditor::get_singleton()->get_tree()->get(
             StringName(AnimationTreeEditor::get_singleton()->get_base_path() + "playback")));
 
-    Ref<StyleBox> style = get_stylebox("state_machine_frame", "GraphNode");
-    Ref<StyleBox> style_selected = get_stylebox("state_machine_selectedframe", "GraphNode");
+    Ref<StyleBox> style = get_theme_stylebox("state_machine_frame", "GraphNode");
+    Ref<StyleBox> style_selected = get_theme_stylebox("state_machine_selectedframe", "GraphNode");
 
-    Ref<Font> font = get_font("title_font", "GraphNode");
-    Color font_color = get_color("title_color", "GraphNode");
-    Ref<Texture> play = get_icon("Play", "EditorIcons");
-    Ref<Texture> auto_play = get_icon("AutoPlay", "EditorIcons");
-    Ref<Texture> edit = get_icon("Edit", "EditorIcons");
-    Color accent = get_color("accent_color", "Editor");
-    Color linecolor = get_color("font_color", "Label");
+    Ref<Font> font = get_theme_font("title_font", "GraphNode");
+    Color font_color = get_theme_color("title_color", "GraphNode");
+    Ref<Texture> play = get_theme_icon("Play", "EditorIcons");
+    Ref<Texture> auto_play = get_theme_icon("AutoPlay", "EditorIcons");
+    Ref<Texture> edit = get_theme_icon("Edit", "EditorIcons");
+    Color accent = get_theme_color("accent_color", "Editor");
+    Color linecolor = get_theme_color("font_color", "Label");
     linecolor.a *= 0.3f;
-    Ref<StyleBox> playing_overlay = get_stylebox("position", "GraphNode");
+    Ref<StyleBox> playing_overlay = get_theme_stylebox("position", "GraphNode");
 
     bool playing = false;
     StringName current;
@@ -696,7 +696,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
         _connection_draw(from, to, AnimationNodeStateMachineTransition::SwitchMode(transition_mode->get_selected()), true, false, false, false);
     }
 
-    Ref<Texture> tr_reference_icon = get_icon("TransitionImmediateBig", "EditorIcons");
+    Ref<Texture> tr_reference_icon = get_theme_icon("TransitionImmediateBig", "EditorIcons");
     float tr_bidi_offset = int(tr_reference_icon->get_height() * 0.8);
 
     //draw transition lines
@@ -891,7 +891,7 @@ void AnimationNodeStateMachineEditor::_state_machine_pos_draw() {
 
     float pos = CLAMP(play_pos, 0, len);
     float c = pos / len;
-    Color fg = get_color("font_color", "Label");
+    Color fg = get_theme_color("font_color", "Label");
     Color bg = fg;
     bg.a *= 0.3f;
 
@@ -917,34 +917,34 @@ void AnimationNodeStateMachineEditor::_update_graph() {
 void AnimationNodeStateMachineEditor::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
-        error_panel->add_style_override("panel", get_stylebox("bg", "Tree"));
-        error_label->add_color_override("font_color", get_color("error_color", "Editor"));
-        panel->add_style_override("panel", get_stylebox("bg", "Tree"));
+        error_panel->add_theme_style_override("panel", get_theme_stylebox("bg", "Tree"));
+        error_label->add_theme_color_override("font_color", get_theme_color("error_color", "Editor"));
+        panel->add_theme_style_override("panel", get_theme_stylebox("bg", "Tree"));
 
-        tool_select->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
-        tool_create->set_button_icon(get_icon("ToolAddNode", "EditorIcons"));
-        tool_connect->set_button_icon(get_icon("ToolConnect", "EditorIcons"));
+        tool_select->set_button_icon(get_theme_icon("ToolSelect", "EditorIcons"));
+        tool_create->set_button_icon(get_theme_icon("ToolAddNode", "EditorIcons"));
+        tool_connect->set_button_icon(get_theme_icon("ToolConnect", "EditorIcons"));
 
         transition_mode->clear();
-        transition_mode->add_icon_item(get_icon("TransitionImmediate", "EditorIcons"), TTR("Immediate"));
-        transition_mode->add_icon_item(get_icon("TransitionSync", "EditorIcons"), TTR("Sync"));
-        transition_mode->add_icon_item(get_icon("TransitionEnd", "EditorIcons"), TTR("At End"));
+        transition_mode->add_icon_item(get_theme_icon("TransitionImmediate", "EditorIcons"), TTR("Immediate"));
+        transition_mode->add_icon_item(get_theme_icon("TransitionSync", "EditorIcons"), TTR("Sync"));
+        transition_mode->add_icon_item(get_theme_icon("TransitionEnd", "EditorIcons"), TTR("At End"));
 
         //force filter on those, so they deform better
-        get_icon("TransitionImmediateBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
-        get_icon("TransitionEndBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
-        get_icon("TransitionSyncBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
-        get_icon("TransitionImmediateAutoBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
-        get_icon("TransitionEndAutoBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
-        get_icon("TransitionSyncAutoBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
+        get_theme_icon("TransitionImmediateBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
+        get_theme_icon("TransitionEndBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
+        get_theme_icon("TransitionSyncBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
+        get_theme_icon("TransitionImmediateAutoBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
+        get_theme_icon("TransitionEndAutoBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
+        get_theme_icon("TransitionSyncAutoBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
 
-        tool_erase->set_button_icon(get_icon("Remove", "EditorIcons"));
-        tool_autoplay->set_button_icon(get_icon("AutoPlay", "EditorIcons"));
-        tool_end->set_button_icon(get_icon("AutoEnd", "EditorIcons"));
+        tool_erase->set_button_icon(get_theme_icon("Remove", "EditorIcons"));
+        tool_autoplay->set_button_icon(get_theme_icon("AutoPlay", "EditorIcons"));
+        tool_end->set_button_icon(get_theme_icon("AutoEnd", "EditorIcons"));
 
         play_mode->clear();
-        play_mode->add_icon_item(get_icon("PlayTravel", "EditorIcons"), TTR("Travel"));
-        play_mode->add_icon_item(get_icon("Play", "EditorIcons"), TTR("Immediate"));
+        play_mode->add_icon_item(get_theme_icon("PlayTravel", "EditorIcons"), TTR("Travel"));
+        play_mode->add_icon_item(get_theme_icon("Play", "EditorIcons"), TTR("Immediate"));
     }
 
     if (p_what == NOTIFICATION_PROCESS) {
@@ -1257,27 +1257,7 @@ void AnimationNodeStateMachineEditor::_update_mode() {
 
 void AnimationNodeStateMachineEditor::_bind_methods() {
 
-    MethodBinder::bind_method("_state_machine_gui_input", &AnimationNodeStateMachineEditor::_state_machine_gui_input);
-    MethodBinder::bind_method("_state_machine_draw", &AnimationNodeStateMachineEditor::_state_machine_draw);
-    MethodBinder::bind_method("_state_machine_pos_draw", &AnimationNodeStateMachineEditor::_state_machine_pos_draw);
     MethodBinder::bind_method("_update_graph", &AnimationNodeStateMachineEditor::_update_graph);
-
-    MethodBinder::bind_method("_add_menu_type", &AnimationNodeStateMachineEditor::_add_menu_type);
-    MethodBinder::bind_method("_add_animation_type", &AnimationNodeStateMachineEditor::_add_animation_type);
-
-    MethodBinder::bind_method("_name_edited", &AnimationNodeStateMachineEditor::_name_edited);
-    MethodBinder::bind_method("_name_edited_focus_out", &AnimationNodeStateMachineEditor::_name_edited_focus_out);
-
-    MethodBinder::bind_method("_removed_from_graph", &AnimationNodeStateMachineEditor::_removed_from_graph);
-
-    MethodBinder::bind_method("_open_editor", &AnimationNodeStateMachineEditor::_open_editor);
-    MethodBinder::bind_method("_scroll_changed", &AnimationNodeStateMachineEditor::_scroll_changed);
-
-    MethodBinder::bind_method("_erase_selected", &AnimationNodeStateMachineEditor::_erase_selected);
-    MethodBinder::bind_method("_autoplay_selected", &AnimationNodeStateMachineEditor::_autoplay_selected);
-    MethodBinder::bind_method("_end_selected", &AnimationNodeStateMachineEditor::_end_selected);
-    MethodBinder::bind_method("_update_mode", &AnimationNodeStateMachineEditor::_update_mode);
-    MethodBinder::bind_method("_file_opened", &AnimationNodeStateMachineEditor::_file_opened);
 }
 
 AnimationNodeStateMachineEditor *AnimationNodeStateMachineEditor::singleton = nullptr;
@@ -1400,7 +1380,7 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
     name_edit->hide();
     name_edit->connect("text_entered",callable_mp(this, &ClassName::_name_edited));
     name_edit->connect("focus_exited",callable_mp(this, &ClassName::_name_edited_focus_out));
-    name_edit->set_as_toplevel(true);
+    name_edit->set_as_top_level(true);
 
     open_file = memnew(EditorFileDialog);
     add_child(open_file);

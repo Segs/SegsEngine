@@ -51,7 +51,7 @@ protected:
 	void _notification(int p_what);
 
 public:
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
 	Vector3 project_local_ray_normal(const Point2 &p_pos) const override;
 	Point2 unproject_position(const Vector3 &p_pos) const override;
@@ -99,7 +99,7 @@ public:
 
 	Ref<Mesh> get_mesh() const;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
 	ARVRController();
 	~ARVRController() override;
@@ -135,7 +135,7 @@ public:
 
 	Ref<Mesh> get_mesh() const;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
 	ARVRAnchor();
 	~ARVRAnchor() override;
@@ -161,7 +161,7 @@ protected:
 	static void _bind_methods();
 
 public:
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
 	void set_tracked_camera(ARVRCamera *p_tracked_camera);
 	void clear_tracked_camera_if(ARVRCamera *p_tracked_camera);

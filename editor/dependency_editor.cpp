@@ -183,7 +183,7 @@ void DependencyEditor::_update_list() {
 
     TreeItem *root = tree->create_item();
 
-    Ref<Texture> folder = get_icon("folder", "FileDialog");
+    Ref<Texture> folder = get_theme_icon("folder", "FileDialog");
 
     bool broken = false;
 
@@ -234,13 +234,6 @@ void DependencyEditor::edit(StringView p_path) {
     } else if (ResourceCache::has(p_path)) {
         EditorNode::get_singleton()->show_warning(FormatSN(TTR("Resource '%.*s' is in use.\nChanges will only take effect when reloaded.").asCString(), filepath.length(),filepath.data()));
     }
-}
-
-void DependencyEditor::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_searched"), &DependencyEditor::_searched);
-    MethodBinder::bind_method(D_METHOD("_load_pressed"), &DependencyEditor::_load_pressed);
-    MethodBinder::bind_method(D_METHOD("_fix_all"), &DependencyEditor::_fix_all);
 }
 
 DependencyEditor::DependencyEditor() {
@@ -315,13 +308,6 @@ void DependencyEditorOwners::_file_option(int p_option) {
             _select_file(idx);
         } break;
     }
-}
-
-void DependencyEditorOwners::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_list_rmb_select"), &DependencyEditorOwners::_list_rmb_select);
-    MethodBinder::bind_method(D_METHOD("_file_option"), &DependencyEditorOwners::_file_option);
-    MethodBinder::bind_method(D_METHOD("_select_file"), &DependencyEditorOwners::_select_file);
 }
 
 void DependencyEditorOwners::_fill_owners(EditorFileSystemDirectory *efsd) {
@@ -438,17 +424,17 @@ void DependencyRemoveDialog::_build_removed_dependency_tree(const Vector<Removed
                 if (!tree_items.contains(rd.dependency_folder)) {
                     TreeItem *folder_item = owners->create_item(owners->get_root());
                     folder_item->set_text_utf8(0, rd.dependency_folder);
-                    folder_item->set_icon(0, get_icon("Folder", "EditorIcons"));
+                    folder_item->set_icon(0, get_theme_icon("Folder", "EditorIcons"));
                     tree_items[rd.dependency_folder] = folder_item;
                 }
                 TreeItem *dependency_item = owners->create_item(tree_items[rd.dependency_folder]);
                 dependency_item->set_text_utf8(0, rd.dependency);
-                dependency_item->set_icon(0, get_icon("Warning", "EditorIcons"));
+                dependency_item->set_icon(0, get_theme_icon("Warning", "EditorIcons"));
                 tree_items[rd.dependency] = dependency_item;
             } else {
                 TreeItem *dependency_item = owners->create_item(owners->get_root());
                 dependency_item->set_text_utf8(0, rd.dependency);
-                dependency_item->set_icon(0, get_icon("Warning", "EditorIcons"));
+                dependency_item->set_icon(0, get_theme_icon("Warning", "EditorIcons"));
                 tree_items[rd.dependency] = dependency_item;
             }
         }
@@ -695,7 +681,7 @@ bool OrphanResourcesDialog::_fill_owners(EditorFileSystemDirectory *efsd, HashMa
         if (p_parent) {
             dir_item = files->create_item(p_parent);
             dir_item->set_text_utf8(0, efsd->get_subdir(i)->get_name());
-            dir_item->set_icon(0, get_icon("folder", "FileDialog"));
+            dir_item->set_icon(0, get_theme_icon("folder", "FileDialog"));
         }
         bool children = _fill_owners(efsd->get_subdir(i), refs, dir_item);
 
@@ -734,7 +720,7 @@ bool OrphanResourcesDialog::_fill_owners(EditorFileSystemDirectory *efsd, HashMa
                 int ds = efsd->get_file_deps(i).size();
                 ti->set_text_utf8(1, itos(ds));
                 if (ds) {
-                    ti->add_button(1, get_icon("GuiVisibilityVisible", "EditorIcons"), -1, false, TTR("Show Dependencies"));
+                    ti->add_button(1, get_theme_icon("GuiVisibilityVisible", "EditorIcons"), -1, false, TTR("Show Dependencies"));
                 }
                 ti->set_metadata(0, path);
                 has_children = true;
@@ -795,11 +781,7 @@ void OrphanResourcesDialog::_button_pressed(Object *p_item, int p_column, int p_
     dep_edit->edit(path);
 }
 
-void OrphanResourcesDialog::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_delete_confirm"), &OrphanResourcesDialog::_delete_confirm);
-    MethodBinder::bind_method(D_METHOD("_button_pressed"), &OrphanResourcesDialog::_button_pressed);
-}
 
 OrphanResourcesDialog::OrphanResourcesDialog() {
 

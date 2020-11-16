@@ -31,9 +31,10 @@
 #include "animation.h"
 #include "animation_enum_casters.h"
 
-#include "scene/scene_string_names.h"
+#include "core/dictionary.h"
 #include "core/method_bind.h"
 #include "core/pool_vector.h"
+#include "scene/scene_string_names.h"
 
 #include "core/math/geometry.h"
 
@@ -720,7 +721,7 @@ int Animation::add_track(TrackType p_type, int p_at_pos) {
         }
     }
     emit_changed();
-    emit_signal(SceneStringNames::get_singleton()->tracks_changed);
+    emit_signal(SceneStringNames::tracks_changed);
     return p_at_pos;
 }
 
@@ -772,7 +773,7 @@ void Animation::remove_track(int p_track) {
     memdelete(t);
     tracks.erase_at(p_track);
     emit_changed();
-    emit_signal(SceneStringNames::get_singleton()->tracks_changed);
+    emit_signal(SceneStringNames::tracks_changed);
 }
 
 int Animation::get_track_count() const {
@@ -791,7 +792,7 @@ void Animation::track_set_path(int p_track, const NodePath &p_path) {
     ERR_FAIL_INDEX(p_track, tracks.size());
     tracks[p_track]->path = p_path;
     emit_changed();
-    emit_signal(SceneStringNames::get_singleton()->tracks_changed);
+    emit_signal(SceneStringNames::tracks_changed);
 }
 
 NodePath Animation::track_get_path(int p_track) const {
@@ -804,11 +805,12 @@ int Animation::find_track(const NodePath &p_path) const {
 
     for (int i = 0; i < tracks.size(); i++) {
 
-        if (tracks[i]->path == p_path)
+        if (tracks[i]->path == p_path) {
             return i;
-    };
+        }
+    }
     return -1;
-};
+}
 
 void Animation::track_set_interpolation_type(int p_track, InterpolationType p_interp) {
 
@@ -2706,7 +2708,7 @@ void Animation::track_move_up(int p_track) {
     }
 
     emit_changed();
-    emit_signal(SceneStringNames::get_singleton()->tracks_changed);
+    emit_signal(SceneStringNames::tracks_changed);
 }
 
 void Animation::track_move_down(int p_track) {
@@ -2717,7 +2719,7 @@ void Animation::track_move_down(int p_track) {
     }
 
     emit_changed();
-    emit_signal(SceneStringNames::get_singleton()->tracks_changed);
+    emit_signal(SceneStringNames::tracks_changed);
 }
 
 void Animation::track_move_to(int p_track, int p_to_index) {
@@ -2733,7 +2735,7 @@ void Animation::track_move_to(int p_track, int p_to_index) {
     tracks.insert_at(p_to_index > p_track ? p_to_index - 1 : p_to_index, track);
 
     emit_changed();
-    emit_signal(SceneStringNames::get_singleton()->tracks_changed);
+    emit_signal(SceneStringNames::tracks_changed);
 }
 
 void Animation::track_swap(int p_track, int p_with_track) {
@@ -2745,7 +2747,7 @@ void Animation::track_swap(int p_track, int p_with_track) {
     SWAP(tracks[p_track], tracks[p_with_track]);
 
     emit_changed();
-    emit_signal(SceneStringNames::get_singleton()->tracks_changed);
+    emit_signal(SceneStringNames::tracks_changed);
 }
 
 void Animation::set_step(float p_step) {
@@ -2824,6 +2826,7 @@ void Animation::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("value_track_get_update_mode", {"track_idx"}), &Animation::value_track_get_update_mode);
 
     MethodBinder::bind_method(D_METHOD("value_track_get_key_indices", {"track_idx", "time_sec", "delta"}), (PoolVector<int>(Animation::*)(int, float, float) const)&Animation::value_track_get_key_indices);
+    MethodBinder::bind_method(D_METHOD("value_track_interpolate", {"track_idx", "time_sec"}), &Animation::value_track_interpolate);
 
     MethodBinder::bind_method(D_METHOD("method_track_get_key_indices", {"track_idx", "time_sec", "delta"}), (PoolVector<int>(Animation::*)(int, float, float) const)&Animation::method_track_get_key_indices);
     MethodBinder::bind_method(D_METHOD("method_track_get_name", {"track_idx", "key_idx"}), &Animation::method_track_get_name);
@@ -2871,32 +2874,32 @@ void Animation::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("tracks_changed"));
 
-    BIND_ENUM_CONSTANT(TYPE_VALUE)
-    BIND_ENUM_CONSTANT(TYPE_TRANSFORM)
-    BIND_ENUM_CONSTANT(TYPE_METHOD)
-    BIND_ENUM_CONSTANT(TYPE_BEZIER)
-    BIND_ENUM_CONSTANT(TYPE_AUDIO)
-    BIND_ENUM_CONSTANT(TYPE_ANIMATION)
+    BIND_ENUM_CONSTANT(TYPE_VALUE);
+    BIND_ENUM_CONSTANT(TYPE_TRANSFORM);
+    BIND_ENUM_CONSTANT(TYPE_METHOD);
+    BIND_ENUM_CONSTANT(TYPE_BEZIER);
+    BIND_ENUM_CONSTANT(TYPE_AUDIO);
+    BIND_ENUM_CONSTANT(TYPE_ANIMATION);
 
-    BIND_ENUM_CONSTANT(INTERPOLATION_NEAREST)
-    BIND_ENUM_CONSTANT(INTERPOLATION_LINEAR)
-    BIND_ENUM_CONSTANT(INTERPOLATION_CUBIC)
+    BIND_ENUM_CONSTANT(INTERPOLATION_NEAREST);
+    BIND_ENUM_CONSTANT(INTERPOLATION_LINEAR);
+    BIND_ENUM_CONSTANT(INTERPOLATION_CUBIC);
 
-    BIND_ENUM_CONSTANT(UPDATE_CONTINUOUS)
-    BIND_ENUM_CONSTANT(UPDATE_DISCRETE)
-    BIND_ENUM_CONSTANT(UPDATE_TRIGGER)
-    BIND_ENUM_CONSTANT(UPDATE_CAPTURE)
+    BIND_ENUM_CONSTANT(UPDATE_CONTINUOUS);
+    BIND_ENUM_CONSTANT(UPDATE_DISCRETE);
+    BIND_ENUM_CONSTANT(UPDATE_TRIGGER);
+    BIND_ENUM_CONSTANT(UPDATE_CAPTURE);
 }
 
 void Animation::clear() {
 
-    for (int i = 0; i < tracks.size(); i++)
-        memdelete(tracks[i]);
+    for (Track * t: tracks)
+        memdelete(t);
     tracks.clear();
     loop = false;
     length = 1;
     emit_changed();
-    emit_signal(SceneStringNames::get_singleton()->tracks_changed);
+    emit_signal(SceneStringNames::tracks_changed);
 }
 
 bool Animation::_transform_track_optimize_key(const TKey<TransformKey> &t0, const TKey<TransformKey> &t1, const TKey<TransformKey> &t2, float p_alowed_linear_err, float p_alowed_angular_err, float p_max_optimizable_angle, const Vector3 &p_norm) {

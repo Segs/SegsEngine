@@ -115,9 +115,9 @@ private:
     bool _are_api_assemblies_out_of_sync();
     bool _temp_domain_load_are_assemblies_out_of_sync(StringView p_config);
 
-    String select_assembly_dir(StringView p_config);
     bool _load_core_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, StringView p_config, bool p_refonly);
 #ifdef TOOLS_ENABLED
+    String select_assembly_dir(StringView p_config);
     bool _load_editor_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, StringView p_config, bool p_refonly);
 #endif
 
@@ -286,13 +286,13 @@ public:
     (void)__gdmono__scope__exit__domain__unload__;
 
 class GODOT_EXPORT _GodotSharp : public Object {
-    GDCLASS(_GodotSharp, Object);
+    GDCLASS(_GodotSharp, Object)
 
     friend class GDMono;
 
     bool _is_domain_finalizing_for_unload(int32_t p_domain_id);
 
-
+public: // slots  used by godot_icall_Internal_ReloadAssemblies
     void _reload_assemblies(bool p_soft_reload);
 
 protected:

@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/dictionary.h"
 #include "core/resource.h"
 #include "core/math/vector2.h"
 #include "core/color.h"

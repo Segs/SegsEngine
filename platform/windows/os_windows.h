@@ -53,6 +53,8 @@
 #include <windows.h>
 #include <windowsx.h>
 
+class RenderingServerWrapMT;
+
 #ifndef POINTER_STRUCTURES
 
 #define POINTER_STRUCTURES
@@ -167,7 +169,7 @@ class OS_Windows : public OS {
 #if defined(OPENGL_ENABLED)
     ContextGL_Windows *gl_context;
 #endif
-    RenderingServer *rendering_server;
+    RenderingServerWrapMT *rendering_server;
     int pressrc;
     HINSTANCE hInstance; // Holds The Instance Of The Application
     HWND hWnd;
