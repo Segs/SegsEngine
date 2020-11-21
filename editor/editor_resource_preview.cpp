@@ -483,7 +483,7 @@ void EditorResourcePreview::stop() {
         preview_sem->post();
         while (!exited) {
             OS::get_singleton()->delay_usec(10000);
-            RenderingServer::get_singleton()->sync(); //sync pending stuff, as thread may be blocked on visual server
+            RenderingServer::sync_thread(); //sync pending stuff, as thread may be blocked on visual server
         }
         Thread::wait_to_finish(thread);
         memdelete(thread);

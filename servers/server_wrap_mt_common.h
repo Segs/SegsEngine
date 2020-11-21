@@ -39,6 +39,7 @@
 #define FUNCRID(m_type)                                                                    \
     Vector<RID> m_type##_id_pool;                                                          \
     void m_type##_free_cached_ids() {                                                      \
+        assert(Thread::get_caller_id() != server_thread);                       \
         command_queue.push_and_sync( [this]() {                                            \
             for(auto v : m_type##_id_pool) {                                               \
                 submission_thread_singleton->free_rid(v);                                  \

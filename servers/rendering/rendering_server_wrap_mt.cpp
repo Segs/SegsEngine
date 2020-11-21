@@ -124,9 +124,35 @@ void RenderingServerWrapMT::init() {
     print_verbose("VisualServerWrapMT: Finished render thread");
 }
 
+
 void RenderingServerWrapMT::finish() {
 
+
     if (thread) {
+        texture_free_cached_ids();
+        sky_free_cached_ids();
+        shader_free_cached_ids();
+        material_free_cached_ids();
+        mesh_free_cached_ids();
+        multimesh_free_cached_ids();
+        immediate_free_cached_ids();
+        skeleton_free_cached_ids();
+        directional_light_free_cached_ids();
+        omni_light_free_cached_ids();
+        spot_light_free_cached_ids();
+        reflection_probe_free_cached_ids();
+        gi_probe_free_cached_ids();
+        lightmap_capture_free_cached_ids();
+        particles_free_cached_ids();
+        camera_free_cached_ids();
+        viewport_free_cached_ids();
+        environment_free_cached_ids();
+        scenario_free_cached_ids();
+        instance_free_cached_ids();
+        canvas_free_cached_ids();
+        canvas_item_free_cached_ids();
+        canvas_light_occluder_free_cached_ids();
+        canvas_occluder_polygon_free_cached_ids();
 
         command_queue.push([this]() {thread_exit(); });
         Thread::wait_to_finish(thread);
@@ -134,33 +160,130 @@ void RenderingServerWrapMT::finish() {
 
         thread = nullptr;
     } else {
+        assert(Thread::get_caller_id() == server_thread);
+        for (auto v : texture_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        texture_id_pool.clear();
+
+        for (auto v : sky_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        sky_id_pool.clear();
+
+        for (auto v : shader_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        shader_id_pool.clear();
+
+        for (auto v : material_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        material_id_pool.clear();
+
+        for (auto v : mesh_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        mesh_id_pool.clear();
+
+        for (auto v : multimesh_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        multimesh_id_pool.clear();
+
+        for (auto v : immediate_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        immediate_id_pool.clear();
+
+        for (auto v : skeleton_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        skeleton_id_pool.clear();
+
+        for (auto v : directional_light_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        directional_light_id_pool.clear();
+
+        for (auto v : omni_light_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        omni_light_id_pool.clear();
+
+        for (auto v : spot_light_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        spot_light_id_pool.clear();
+
+        for (auto v : reflection_probe_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        reflection_probe_id_pool.clear();
+
+        for (auto v : gi_probe_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        gi_probe_id_pool.clear();
+
+        for (auto v : lightmap_capture_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        lightmap_capture_id_pool.clear();
+
+        for (auto v : particles_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        particles_id_pool.clear();
+
+        for (auto v : camera_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        camera_id_pool.clear();
+
+        for (auto v : viewport_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        viewport_id_pool.clear();
+
+        for (auto v : environment_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        environment_id_pool.clear();
+
+        for (auto v : scenario_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        scenario_id_pool.clear();
+
+        for (auto v : instance_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        instance_id_pool.clear();
+
+        for (auto v : canvas_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        canvas_id_pool.clear();
+
+        for (auto v : canvas_item_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        canvas_item_id_pool.clear();
+
+        for (auto v : canvas_light_occluder_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        canvas_light_occluder_id_pool.clear();
+
+        for (auto v : canvas_occluder_polygon_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        canvas_occluder_polygon_id_pool.clear();
+
         submission_thread_singleton->finish();
     }
 
-    texture_free_cached_ids();
-    sky_free_cached_ids();
-    shader_free_cached_ids();
-    material_free_cached_ids();
-    mesh_free_cached_ids();
-    multimesh_free_cached_ids();
-    immediate_free_cached_ids();
-    skeleton_free_cached_ids();
-    directional_light_free_cached_ids();
-    omni_light_free_cached_ids();
-    spot_light_free_cached_ids();
-    reflection_probe_free_cached_ids();
-    gi_probe_free_cached_ids();
-    lightmap_capture_free_cached_ids();
-    particles_free_cached_ids();
-    camera_free_cached_ids();
-    viewport_free_cached_ids();
-    environment_free_cached_ids();
-    scenario_free_cached_ids();
-    instance_free_cached_ids();
-    canvas_free_cached_ids();
-    canvas_item_free_cached_ids();
-    canvas_light_occluder_free_cached_ids();
-    canvas_occluder_polygon_free_cached_ids();
 }
 
 void RenderingServerWrapMT::set_use_vsync_callback(bool p_enable) {

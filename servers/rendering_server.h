@@ -233,6 +233,10 @@ public: // scripting glue helpers
     {
         return (Thread::get_caller_id()==server_thread) ? submission_thread_singleton : queueing_thread_singleton;
     }
+    static void sync_thread()
+    {
+        queueing_thread_singleton->sync();
+    }
 
     virtual RID texture_create() = 0;
     RID texture_create_from_image(const Ref<Image> &p_image, uint32_t p_flags = RS::TEXTURE_FLAGS_DEFAULT); // helper
