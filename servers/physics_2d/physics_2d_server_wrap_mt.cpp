@@ -124,6 +124,18 @@ void Physics2DServerWrapMT::init() {
 void Physics2DServerWrapMT::finish() {
 
     if (thread) {
+        line_shape_free_cached_ids();
+        ray_shape_free_cached_ids();
+        segment_shape_free_cached_ids();
+        circle_shape_free_cached_ids();
+        rectangle_shape_free_cached_ids();
+        capsule_shape_free_cached_ids();
+        convex_polygon_shape_free_cached_ids();
+        concave_polygon_shape_free_cached_ids();
+
+        space_free_cached_ids();
+        area_free_cached_ids();
+        body_free_cached_ids();
 
         command_queue.push([this]() {thread_exit(); });
         Thread::wait_to_finish(thread);
@@ -131,21 +143,66 @@ void Physics2DServerWrapMT::finish() {
 
         thread = nullptr;
     } else {
+        for (auto v : line_shape_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        line_shape_id_pool.clear();
+
+        for (auto v : ray_shape_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        ray_shape_id_pool.clear();
+
+        for (auto v : segment_shape_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        segment_shape_id_pool.clear();
+
+        for (auto v : circle_shape_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        circle_shape_id_pool.clear();
+
+        for (auto v : rectangle_shape_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        rectangle_shape_id_pool.clear();
+
+        for (auto v : capsule_shape_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        capsule_shape_id_pool.clear();
+
+        for (auto v : convex_polygon_shape_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        convex_polygon_shape_id_pool.clear();
+
+        for (auto v : concave_polygon_shape_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        concave_polygon_shape_id_pool.clear();
+
+
+        for (auto v : space_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        space_id_pool.clear();
+
+        for (auto v : area_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        area_id_pool.clear();
+
+        for (auto v : body_id_pool) {
+            submission_thread_singleton->free_rid(v);
+        }
+        body_id_pool.clear();
+
+
         physics_server_2d->finish();
     }
 
-    line_shape_free_cached_ids();
-    ray_shape_free_cached_ids();
-    segment_shape_free_cached_ids();
-    circle_shape_free_cached_ids();
-    rectangle_shape_free_cached_ids();
-    capsule_shape_free_cached_ids();
-    convex_polygon_shape_free_cached_ids();
-    concave_polygon_shape_free_cached_ids();
-
-    space_free_cached_ids();
-    area_free_cached_ids();
-    body_free_cached_ids();
 
 
     memdelete(step_sem);
