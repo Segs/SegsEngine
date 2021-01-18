@@ -29,8 +29,8 @@
 /*************************************************************************/
 
 #include "engine.h"
-#include "engine.h"
 
+#include "core/reference.h"
 #include "core/dictionary.h"
 #include "core/variant.h"
 #include "core/ustring.h"
@@ -261,4 +261,15 @@ public:
 extern CoreInterface *getCoreInterface() {
     static CoreInterfaceImpl impl;
     return &impl;
+}
+
+Engine::Singleton::Singleton(const StringName &p_name, Object *p_ptr) :
+    name(p_name),
+    ptr(p_ptr) {
+#ifdef DEBUG_ENABLED
+    RefCounted *ref = object_cast<RefCounted>(p_ptr);
+    if (ref && !ref->is_referenced()) {
+        WARN_PRINT("You must use Ref<> to ensure the lifetime of a Reference object intended to be used as a singleton.");
+    }
+#endif
 }

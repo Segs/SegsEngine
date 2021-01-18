@@ -170,6 +170,7 @@ void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageUsedChannel
     if (p_source == ImageUsedChannels::USED_CHANNELS_RG) {
         flags |= cvtt::Flags::Uniform;
     }
+    options.flags = flags;
 
     Image::Format target_format = Image::FORMAT_BPTC_RGBA;
 

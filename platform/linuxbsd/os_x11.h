@@ -76,7 +76,7 @@ typedef struct _xrr_monitor_info {
 #undef CursorShape
 
 class OS_X11 : public OS_Unix {
-
+    using EventStore = FixedVector<XEvent,256,true>;
     Atom wm_delete;
     Atom xdnd_enter;
     Atom xdnd_position;
@@ -155,7 +155,9 @@ class OS_X11 : public OS_Unix {
     MouseMode mouse_mode;
     Point2i center;
 
-    void handle_key_event(XKeyEvent *p_event, bool p_echo = false);
+    void _handle_key_event(XKeyEvent *p_event, EventStore &p_events, uint32_t &p_event_index, bool p_echo=false);
+    Atom _process_selection_request_target(Atom p_target, Window p_requestor, Atom p_property) const;
+    void _handle_selection_request_event(XSelectionRequestEvent *p_event) const;
     void process_xevents();
     void delete_main_loop() override;
 
@@ -204,6 +206,10 @@ class OS_X11 : public OS_Unix {
     void *xrandr_handle;
     Bool xrandr_ext_ok;
     mutable Mutex events_mutex;
+    Thread *events_thread = nullptr;
+    bool events_thread_done = false;
+    EventStore polled_events;
+
 
     //void set_wm_border(bool p_enabled);
     void set_wm_fullscreen(bool p_enabled);
@@ -222,6 +228,13 @@ protected:
 
     bool window_maximize_check(const char *p_atom_name) const;
     bool is_window_maximize_allowed() const;
+    static void _poll_events_thread(void *ud);
+
+    bool _wait_for_events() const;
+    void _poll_events();
+    String _get_clipboard_impl(Atom p_source, Window x11_window, Atom target) const;
+    String _get_clipboard(Atom p_source, Window x11_window) const;
+    void _clipboard_transfer_ownership(Atom p_source, Window x11_window) const;
 public:
     String get_name() const override;
 
@@ -236,6 +249,7 @@ public:
     Point2 get_mouse_position() const override;
     int get_mouse_button_state() const override;
     void set_window_title(StringView p_title) override;
+    void set_window_mouse_passthrough(const PoolVector2Array &p_region) override;
 
     void set_icon(const Ref<Image> &p_icon) override;
 
@@ -283,6 +297,7 @@ public:
     bool is_window_always_on_top() const override;
     bool is_window_focused() const override;
     void request_attention() override;
+    void *get_native_handle(int p_handle_type) override;
 
     void set_borderless_window(bool p_borderless) override;
     bool get_borderless_window() override;

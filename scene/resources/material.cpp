@@ -2245,10 +2245,10 @@ void SpatialMaterial::_bind_methods() {
 
     ADD_GROUP("Depth", "depth_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "depth_enabled"), "set_feature", "get_feature", FEATURE_DEPTH_MAPPING);
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "depth_scale", PropertyHint::Range, "-16,16,0.01"), "set_depth_scale", "get_depth_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "depth_scale", PropertyHint::Range, "-16,16,0.001"), "set_depth_scale", "get_depth_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "depth_deep_parallax"), "set_depth_deep_parallax", "is_depth_deep_parallax_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "depth_min_layers", PropertyHint::Range, "1,32,1"), "set_depth_deep_parallax_min_layers", "get_depth_deep_parallax_min_layers");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "depth_max_layers", PropertyHint::Range, "1,32,1"), "set_depth_deep_parallax_max_layers", "get_depth_deep_parallax_max_layers");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "depth_min_layers", PropertyHint::Range, "1,64,1"), "set_depth_deep_parallax_min_layers", "get_depth_deep_parallax_min_layers");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "depth_max_layers", PropertyHint::Range, "1,64,1"), "set_depth_deep_parallax_max_layers", "get_depth_deep_parallax_max_layers");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "depth_flip_tangent"), "set_depth_deep_parallax_flip_tangent", "get_depth_deep_parallax_flip_tangent");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "depth_flip_binormal"), "set_depth_deep_parallax_flip_binormal", "get_depth_deep_parallax_flip_binormal");
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "depth_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_DEPTH);

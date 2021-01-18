@@ -69,9 +69,6 @@ void ProjectExportDialog::_notification(int p_what) {
         case NOTIFICATION_THEME_CHANGED: {
             duplicate_preset->set_button_icon(get_theme_icon("Duplicate", "EditorIcons"));
             delete_preset->set_button_icon(get_theme_icon("Remove", "EditorIcons"));
-            Control *panel = custom_feature_display->get_parent_control();
-            if (panel)
-                panel->add_theme_style_override("panel", get_theme_stylebox("bg", "Tree"));
         } break;
     }
 }
@@ -829,15 +826,20 @@ void ProjectExportDialog::_fill_resource_tree() {
 
 bool ProjectExportDialog::_fill_tree(EditorFileSystemDirectory *p_dir, TreeItem *p_item, Ref<EditorExportPreset> &current, bool p_only_scenes) {
 
+    p_item->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
     p_item->set_icon(0, get_theme_icon("folder", "FileDialog"));
     p_item->set_text_utf8(0, p_dir->get_name() + "/");
+    p_item->set_editable(0, true);
+    p_item->set_metadata(0, p_dir->get_path());
 
     bool used = false;
+    bool checked = true;
     for (int i = 0; i < p_dir->get_subdir_count(); i++) {
 
         TreeItem *subdir = include_files->create_item(p_item);
         if (_fill_tree(p_dir->get_subdir(i), subdir, current, p_only_scenes)) {
             used = true;
+            checked = checked && subdir->is_checked(0);
         } else {
             memdelete(subdir);
         }
@@ -859,11 +861,46 @@ bool ProjectExportDialog::_fill_tree(EditorFileSystemDirectory *p_dir, TreeItem 
         file->set_editable(0, true);
         file->set_checked(0, current->has_export_file(path));
         file->set_metadata(0, path);
+        checked = checked && file->is_checked(0);
 
         used = true;
     }
 
+    p_item->set_checked(0, checked);
     return used;
+}
+static void _check_dir_recursive(ProjectExportDialog *self,TreeItem *p_dir, bool p_checked) {
+    for (TreeItem *child = p_dir->get_children(); child; child = child->get_next()) {
+        String path = child->get_metadata(0).as<String>();
+
+        child->set_checked(0, p_checked);
+        if (path.ends_with("/")) {
+            _check_dir_recursive(self,child, p_checked);
+        } else {
+            if (p_checked) {
+                self->get_current_preset()->add_export_file(path);
+            } else {
+                self->get_current_preset()->remove_export_file(path);
+            }
+        }
+    }
+}
+static void _refresh_parent_checks(TreeItem *p_item) {
+    TreeItem *parent = p_item->get_parent();
+    if (!parent) {
+        return;
+    }
+
+    bool checked = true;
+    for (TreeItem *child = parent->get_children(); child; child = child->get_next()) {
+        checked = checked && child->is_checked(0);
+        if (!checked) {
+            break;
+        }
+    }
+    parent->set_checked(0, checked);
+
+    _refresh_parent_checks(parent);
 }
 
 void ProjectExportDialog::_tree_changed() {
@@ -882,11 +919,16 @@ void ProjectExportDialog::_tree_changed() {
     String path = item->get_metadata(0).as<String>();
     bool added = item->is_checked(0);
 
-    if (added) {
-        current->add_export_file(path);
+    if (path.ends_with("/")) {
+        _check_dir_recursive(this,item, added);
     } else {
-        current->remove_export_file(path);
+        if (added) {
+            current->add_export_file(path);
+        } else {
+            current->remove_export_file(path);
+        }
     }
+    _refresh_parent_checks(item); // Makes parent folder checked if all files/folders are checked.
 }
 
 void ProjectExportDialog::_export_pck_zip() {

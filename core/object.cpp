@@ -508,7 +508,6 @@ void Object::get_property_list(Vector<PropertyInfo> *p_list, bool p_reversed) co
     _get_property_listv(p_list, p_reversed);
 
     if (!is_class("Script")) { // can still be set, but this is for userfriendliness
-        Object_add_tool_properties(p_list);
         p_list->push_back(PropertyInfo(VariantType::OBJECT, "script", PropertyHint::ResourceType, "Script", PROPERTY_USAGE_DEFAULT));
     }
     if (metadata && !metadata->empty()) {

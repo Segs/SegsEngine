@@ -37,7 +37,6 @@ IMPL_GDCLASS(RandomNumberGenerator)
 void RandomNumberGenerator::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_seed", {"seed"}), &RandomNumberGenerator::set_seed);
     MethodBinder::bind_method(D_METHOD("get_seed"), &RandomNumberGenerator::get_seed);
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "seed"), "set_seed", "get_seed");
 
     MethodBinder::bind_method(D_METHOD("randi"), &RandomNumberGenerator::randi);
     MethodBinder::bind_method(D_METHOD("randf"), &RandomNumberGenerator::randf);
@@ -45,4 +44,8 @@ void RandomNumberGenerator::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("randf_range", {"from", "to"}), &RandomNumberGenerator::randf_range);
     MethodBinder::bind_method(D_METHOD("randi_range", {"from", "to"}), &RandomNumberGenerator::randi_range);
     MethodBinder::bind_method(D_METHOD("randomize"), &RandomNumberGenerator::randomize);
+
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "seed"), "set_seed", "get_seed");
+    // Default value is non-deterministic, override it for doc generation purposes.
+    ADD_PROPERTY_DEFAULT("seed", 0);
 }

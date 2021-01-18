@@ -381,7 +381,9 @@ const String &EditorSpinSlider::get_label() const {
 
 void EditorSpinSlider::_evaluate_input_text() {
     // Replace comma with dot to support it as decimal separator (GH-6028).
-    // We'd rather support German/French keyboard layouts out of the box.
+    // This prevents using functions like `pow()`, but using functions
+    // in EditorSpinSlider is a barely known (and barely used) feature.
+    // Instead, we'd rather support German/French keyboard layouts out of the box.
     String text = value_input->get_text().replaced(",", ".");
     bool was_ok= false;
     float val=StringUtils::to_float(text, &was_ok);

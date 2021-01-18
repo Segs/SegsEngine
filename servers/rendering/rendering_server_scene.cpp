@@ -401,7 +401,7 @@ RID VisualServerScene::scenario_create() {
     RID scenario_rid = scenario_owner.make_rid(scenario);
 
     scenario->self = scenario_rid;
-
+    scenario->octree.set_balance(T_GLOBAL_GET<float>("rendering/quality/spatial_partitioning/render_tree_balance"));
     scenario->octree.set_pair_callback(_instance_pair, this);
     scenario->octree.set_unpair_callback(_instance_unpair, this);
     scenario->reflection_probe_shadow_atlas = VSG::scene_render->shadow_atlas_create();
@@ -803,6 +803,18 @@ void VisualServerScene::instance_set_visible(RID p_instance, bool p_visible) {
         return;
 
     instance->visible = p_visible;
+    // when showing or hiding geometry, lights must be kept up to date to show / hide shadows
+    if ((1 << instance->base_type) & RS::INSTANCE_GEOMETRY_MASK) {
+        InstanceGeometryData *geom = get_instance_geometry(instance->self);
+        auto &cm_geom(get_component<GeometryComponent>(instance->self));
+
+        if (cm_geom.can_cast_shadows) {
+            for (auto E : geom->lighting) {
+                InstanceLightData *light = static_cast<InstanceLightData *>(E->base_data);
+                light->shadow_dirty = true;
+            }
+        }
+    }
 
     switch (instance->base_type) {
         case RS::INSTANCE_LIGHT: {
@@ -1431,10 +1443,15 @@ void VisualServerScene::_update_instance_lightmap_captures(Instance *p_instance)
 
         Vector3 pos = to_cell_xform.xform(p_instance->transform.origin);
 
+        const float capture_energy = VSG::storage->lightmap_capture_get_energy(E->base);
+
         for (int i = 0; i < 12; i++) {
 
             Vector3 dir = to_cell_xform.basis.xform(cone_traces[i]).normalized();
             Color capture = _light_capture_voxel_cone_trace(octree_r.ptr(), pos, dir, cone_aperture, cell_subdiv);
+            capture.r *= capture_energy;
+            capture.g *= capture_energy;
+            capture.b *= capture_energy;
             p_instance->lightmap_capture_data[i] += capture;
         }
     }
@@ -3263,7 +3280,7 @@ bool VisualServerScene::_check_gi_probe(Instance *p_gi_probe) {
 
     for (Instance *E : p_gi_probe->scenario->directional_lights) {
 
-        if (!VSG::storage->light_get_use_gi(E->base))
+        if (VSG::storage->light_get_bake_mode(E->base) == RS::LightBakeMode::LIGHT_BAKE_DISABLED)
             continue;
 
         InstanceGIProbeData::LightCache lc;
@@ -3286,7 +3303,7 @@ bool VisualServerScene::_check_gi_probe(Instance *p_gi_probe) {
 
     for (Instance * E : probe_data->lights) {
 
-        if (!VSG::storage->light_get_use_gi(E->base))
+        if (VSG::storage->light_get_bake_mode(E->base) == RS::LightBakeMode::LIGHT_BAKE_DISABLED)
             continue;
 
         InstanceGIProbeData::LightCache lc;

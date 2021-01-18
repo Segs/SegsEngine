@@ -741,7 +741,19 @@ void FindInFilesPanel::_on_item_edited() {
 
 void FindInFilesPanel::_on_finished() {
 
-    _status_label->set_text(TTR("Search complete"));
+    String results_text;
+    int result_count = _result_items.size();
+    int file_count = _file_items.size();
+
+    if (result_count == 1 && file_count == 1) {
+        results_text = FormatVE(TTR("%d match in %d file.").asCString(), result_count, file_count);
+    } else if (result_count != 1 && file_count == 1) {
+        results_text = FormatVE(TTR("%d matches in %d file.").asCString(), result_count, file_count);
+    } else {
+        results_text = FormatVE(TTR("%d matches in %d files.").asCString(), result_count, file_count);
+    }
+
+    _status_label->set_text(results_text);
     update_replace_buttons();
     set_progress_visible(false);
     _refresh_button->show();

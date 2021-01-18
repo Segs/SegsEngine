@@ -322,7 +322,7 @@ Image::Format ImageTexture::get_format() const {
 
 void ImageTexture::set_data(const Ref<Image> &p_image) {
 
-    ERR_FAIL_COND(not p_image);
+    ERR_FAIL_COND_MSG(not p_image,"Invalid image");
 
     RenderingServer::get_singleton()->texture_set_data(texture, p_image);
 

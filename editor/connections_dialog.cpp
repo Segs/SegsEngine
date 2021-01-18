@@ -39,6 +39,7 @@
 #include "editor/editor_help.h"
 #include "editor/editor_scale.h"
 #include "editor/scene_tree_dock.h"
+#include "editor/scene_tree_editor.h"
 #include "editor_node.h"
 #include "editor_settings.h"
 #include "plugins/script_editor_plugin.h"
@@ -400,6 +401,7 @@ ConnectDialog::ConnectDialog() {
 
     tree = memnew(SceneTreeEditor(false));
     tree->set_connecting_signal(true);
+    tree->set_show_enabled_subscene(true);
     tree->get_scene_tree()->connect("item_activated",callable_mp((AcceptDialog *)this, &AcceptDialog::_ok_pressed));
     tree->connect("node_selected",callable_mp(this, &ConnectDialog::_tree_node_selected));
     tree->set_connect_to_script_mode(true);
@@ -920,7 +922,7 @@ void ConnectionsDock::update_tree() {
         String name;
 
         if (!did_script) {
-
+            // Get script signals (including signals from any base scripts).
             Ref<Script> scr(refFromRefPtr<Script>(selectedNode->get_script()));
             if (scr) {
                 scr->get_script_signal_list(&node_signals2);
@@ -945,7 +947,7 @@ void ConnectionsDock::update_tree() {
         }
 
         TreeItem *section_item = nullptr;
-
+        // Create subsections.
         if (!node_signals2.empty()) {
             section_item = tree->create_item(root);
             section_item->set_text_utf8(0, name);
@@ -984,7 +986,7 @@ void ConnectionsDock::update_tree() {
                 }
             }
             signaldesc += ')';
-
+            // Create the children of the subsection - the actual list of signals.
             TreeItem *signal_item = tree->create_item(section_item);
             signal_item->set_text_utf8(0, String(signal_name) + signaldesc);
             Dictionary sinfo;

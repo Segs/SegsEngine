@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="AudioStreamMP3.svg">icons/AudioStreamMP3.svg</file>
+    </qresource>
+</RCC>

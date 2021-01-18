@@ -45,6 +45,8 @@ class GODOT_EXPORT Joint3D : public Node3D {
     NodePath a;
     NodePath b;
 
+    String warning;
+
     int solver_priority;
     bool exclude_from_collision;
 
@@ -58,6 +60,9 @@ protected:
     static void _bind_methods();
 
 public:
+    String get_configuration_warning() const override;
+
+
     void set_node_a(const NodePath &p_node_a);
     NodePath get_node_a() const;
 
@@ -281,7 +286,6 @@ protected:
     float params_z[PARAM_MAX];
     bool flags_z[FLAG_MAX];
 
-    int precision;
 public: //made public to allow script access
     void _set_angular_hi_limit_x(float p_limit_angular);
     float _get_angular_hi_limit_x() const;
@@ -324,11 +328,6 @@ public:
 
     void set_flag_z(Flag p_flag, bool p_enabled);
     bool get_flag_z(Flag p_flag) const;
-
-    void set_precision(int p_precision);
-    int get_precision() const {
-        return precision;
-    }
 
     Generic6DOFJoint3D();
 };

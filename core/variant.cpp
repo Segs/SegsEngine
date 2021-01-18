@@ -2116,16 +2116,23 @@ Variant::Variant(const RID &p_rid) {
 
 Variant::Variant(const Object *p_object) {
     type = VariantType::OBJECT;
-#if DEBUG_VARIANT_OBJECT_CONSTRUCTOR
-    assert(!p_object || !ObjectNS::cast_to<RefCounted>(p_object));
-#endif
+    Object *obj = const_cast<Object *>(p_object);
+
     memnew_placement(_data._mem, ObjData);
+    RefCounted *ref = object_cast<RefCounted>(obj);
+    if (unlikely(ref)) {
+        *reinterpret_cast<Ref<RefCounted> *>(_get_obj().ref.get()) = Ref<RefCounted>(ref);
 #ifdef DEBUG_ENABLED
-    _get_obj().rc = p_object ? const_cast<Object *>(p_object)->_use_rc() : nullptr;
-#else
-    _get_obj().obj = const_cast<Object *>(p_object);
+        _get_obj().rc = NULL;
+    } else {
+        _get_obj().rc = likely(obj) ? obj->_use_rc() : NULL;
+#endif
+    }
+#if !defined(DEBUG_ENABLED)
+    _get_obj().obj = obj;
 #endif
 }
+
 
 Variant::Variant(const Callable &p_callable) {
     type = VariantType::CALLABLE;

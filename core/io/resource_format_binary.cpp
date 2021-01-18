@@ -45,6 +45,7 @@
 #include "core/rid.h"
 #include "core/string_utils.h"
 #include "core/version.h"
+#include "core/string_formatter.h"
 
 #include "EASTL/sort.h"
 #include "core/resource/resource_manager.h"
@@ -777,9 +778,8 @@ void ResourceInteractiveLoaderBinary::open(FileAccess *p_f) {
     if (ver_format > FORMAT_VERSION || ver_major > VERSION_MAJOR) {
 
         f->close();
-        ERR_FAIL_MSG("File format '" + ::to_string(FORMAT_VERSION) + "." + ::to_string(ver_major) + "." +
-                     ::to_string(ver_minor) + "' is too new! Please upgrade to a new engine version: " + local_path +
-                     ".");
+        ERR_FAIL_MSG(FormatVE("File '%s' can't be loaded, as it uses a format version (%d) or engine version (%d.%d) which are not supported by your engine version (%s).",
+                local_path.c_str(), ver_format, ver_major, ver_minor, VERSION_BRANCH));
     }
 
     type = get_unicode_string();
@@ -1051,7 +1051,9 @@ Error ResourceFormatLoaderBinary::rename_dependencies(StringView _path, const Ha
 
         memdelete(f);
         memdelete(fw);
-        ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "File format '" + ::to_string(FORMAT_VERSION) + "." + ::to_string(ver_major) + "." + ::to_string(ver_minor) + "' is too new! Please upgrade to a new engine version: " + local_path + ".");
+        ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED,
+                FormatVE("File '%s' can't be loaded, as it uses a format version (%d) or engine version (%d.%d) which are not supported by your engine version (%s).",
+                        local_path.c_str(), ver_format, ver_major, ver_minor, VERSION_BRANCH));
     }
 
     // Since we're not actually converting the file contents, leave the version

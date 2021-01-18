@@ -648,6 +648,7 @@ public:
     Vector<Rect2> flag_rects;
     Vector<StringName> names;
     Vector<StringName> tooltips;
+    int hovered_index;
 
     Size2 get_minimum_size() const override {
         Ref<Font> font = get_theme_font("font", "Label");
@@ -663,57 +664,78 @@ public:
         return StringName();
     }
     void _gui_input(const Ref<InputEvent> &p_ev) {
-        Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_ev);
-        if (mb && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed()) {
+        const Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_ev);
+
+        if (mm) {
             for (int i = 0; i < flag_rects.size(); i++) {
-                if (flag_rects[i].has_point(mb->get_position())) {
-                    //toggle
-                    if (value & 1 << i) {
-                        value &= ~(1 << i);
-                    } else {
-                        value |= 1 << i;
-                    }
-                    emit_signal("flag_changed", value);
+                if (flag_rects[i].has_point(mm->get_position())) {
+                    // Used to highlight the hovered flag in the layers grid.
+                    hovered_index = i;
                     update();
+                    break;
                 }
             }
+        }
+
+        Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_ev);
+        if (mb && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed() && hovered_index >= 0) {
+            // Toggle the flag.
+            // We base our choice on the hovered flag, so that it always matches the hovered flag.
+            if (value & (1 << hovered_index)) {
+                value &= ~(1 << hovered_index);
+            } else {
+                value |= (1 << hovered_index);
+            }
+
+            emit_signal("flag_changed", value);
+            update();
         }
     }
 
     void _notification(int p_what) {
-        if (p_what == NOTIFICATION_DRAW) {
+        switch (p_what) {
+            case NOTIFICATION_DRAW: {
+                Rect2 rect;
+                rect.size = get_size();
+                flag_rects.clear();
 
-            Rect2 rect;
-            rect.size = get_size();
-            flag_rects.clear();
+                const int bsize = (rect.size.height * 80 / 100) / 2;
+                const int h = bsize * 2 + 1;
+                const int vofs = (rect.size.height - h) / 2;
 
-            int bsize = rect.size.height * 80 / 100 / 2;
+                Color color = get_theme_color("highlight_color", "Editor");
+                for (int i = 0; i < 2; i++) {
+                    Point2 ofs(4, vofs);
+                    if (i == 1)
+                        ofs.y += bsize + 1;
 
-            int h = bsize * 2 + 1;
-            int vofs = (rect.size.height - h) / 2;
+                    ofs += rect.position;
+                    for (int j = 0; j < 10; j++) {
+                        Point2 o = ofs + Point2(j * (bsize + 1), 0);
+                        if (j >= 5)
+                            o.x += 1;
 
-            Color color = get_theme_color("highlight_color", "Editor");
-            for (int i = 0; i < 2; i++) {
+                        const int idx = i * 10 + j;
+                        const bool on = value & (1 << idx);
+                        Rect2 rect2 = Rect2(o, Size2(bsize, bsize));
 
-                Point2 ofs(4, vofs);
-                if (i == 1)
-                    ofs.y += bsize + 1;
+                        color.a = on ? 0.6 : 0.2;
+                        if (idx == hovered_index) {
+                            // Add visual feedback when hovering a flag.
+                            color.a += 0.15;
+                        }
 
-                ofs += rect.position;
-                for (int j = 0; j < 10; j++) {
-
-                    Point2 o = ofs + Point2(j * (bsize + 1), 0);
-                    if (j >= 5)
-                        o.x += 1;
-
-                    uint32_t idx = i * 10 + j;
-                    bool on = value & 1 << idx;
-                    Rect2 rect2 = Rect2(o, Size2(bsize, bsize));
-                    color.a = on ? 0.6 : 0.2;
-                    draw_rect(rect2, color);
-                    flag_rects.push_back(rect2);
+                        draw_rect(rect2, color);
+                        flag_rects.push_back(rect2);
+                    }
                 }
-            }
+            } break;
+            case NOTIFICATION_MOUSE_EXIT: {
+                hovered_index = -1;
+                update();
+            } break;
+            default:
+                break;
         }
     }
 
@@ -730,6 +752,7 @@ public:
 
     EditorPropertyLayersGrid() {
         value = 0;
+        hovered_index = -1; // Nothing is hovered.
     }
 };
 
@@ -995,7 +1018,7 @@ void EditorPropertyEasing::_drag_easing(const Ref<InputEvent> &p_ev) {
         val = Math::absf(val);
 
         val = Math::log(val) / Math::log(2.0f);
-        //logspace
+        // Logarithmic space.
         val += rel * 0.05f;
 
         val = Math::pow(2.0f, val);
@@ -1874,11 +1897,6 @@ void EditorPropertyColor::_color_changed(const Color &p_color) {
     emit_changed(get_edited_property(), p_color, "", true);
 }
 
-void EditorPropertyColor::_popup_closed() {
-
-    emit_changed(get_edited_property(), picker->get_pick_color(), "", false);
-}
-
 void EditorPropertyColor::_picker_created() {
     // get default color picker mode from editor settings
     int default_color_mode = EDITOR_GET_T<int>("interface/inspector/default_color_picker_mode");
@@ -1924,7 +1942,6 @@ EditorPropertyColor::EditorPropertyColor() {
     add_child(picker);
     picker->set_flat(true);
     picker->connect("color_changed",callable_mp(this, &ClassName::_color_changed));
-    picker->connect("popup_closed",callable_mp(this, &ClassName::_popup_closed));
     picker->connect("picker_created",callable_mp(this, &ClassName::_picker_created));
 }
 
@@ -2294,32 +2311,34 @@ void EditorPropertyResource::_menu_option(int p_which) {
             }
 
             Object *obj = nullptr;
+            RES res_temp;
 
             if (ScriptServer::is_global_class(intype)) {
                 obj = ClassDB::instance(ScriptServer::get_global_class_native_base(intype));
                 if (obj) {
                     Ref<Script> script = dynamic_ref_cast<Script>(gResourceManager().load(ScriptServer::get_global_class_path(intype)));
+                    res_temp = script;
                     if (script) {
                         obj->set_script(script.get_ref_ptr());
                     }
                 }
             } else {
                 obj = ClassDB::instance(intype);
+                res_temp = object_cast<Resource>(obj);
             }
 
             if (!obj) {
                 obj = EditorNode::get_editor_data().instance_custom_type(intype,"Resource");
+                res_temp = object_cast<Resource>(obj);
             }
 
-            ERR_BREAK(!obj);
-            Resource *resp = object_cast<Resource>(obj);
-            ERR_BREAK(!resp);
+            ERR_BREAK(!res_temp);
             if (get_edited_object() && !base_type.empty() && base_type == "Script") {
                 //make visual script the right type
-                resp->call_va("set_instance_base_type", get_edited_object()->get_class());
+                res_temp->call_va("set_instance_base_type", get_edited_object()->get_class());
             }
 
-            res = Ref<Resource>(resp);
+            res = eastl::move(res_temp);
             emit_changed(get_edited_property(), res);
             update_property();
 

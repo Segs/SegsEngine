@@ -35,6 +35,7 @@ VARIANT_NS_ENUM_CAST(RenderingServerEnums,LightOmniShadowMode);
 VARIANT_NS_ENUM_CAST(RenderingServerEnums,LightOmniShadowDetail);
 VARIANT_NS_ENUM_CAST(RenderingServerEnums,LightDirectionalShadowMode);
 VARIANT_NS_ENUM_CAST(RenderingServerEnums,LightDirectionalShadowDepthRangeMode);
+VARIANT_NS_ENUM_CAST(RenderingServerEnums,LightBakeMode);
 VARIANT_NS_ENUM_CAST(RenderingServerEnums,ReflectionProbeUpdateMode);
 VARIANT_NS_ENUM_CAST(RenderingServerEnums,ParticlesDrawOrder);
 VARIANT_NS_ENUM_CAST(RenderingServerEnums,EnvironmentBG);

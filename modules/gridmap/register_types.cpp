@@ -41,7 +41,7 @@ void register_gridmap_types() {
 #ifndef _3D_DISABLED
     ClassDB::register_class<GridMap>();
 #ifdef TOOLS_ENABLED
-	Q_INIT_RESOURCE(gridmap);
+    Q_INIT_RESOURCE(gridmap);
     GridMapEditor::initialize_class();
     EditorPlugins::add_by_type<GridMapEditorPlugin>();
 #endif
@@ -49,4 +49,8 @@ void register_gridmap_types() {
 }
 
 void unregister_gridmap_types() {
+#ifdef TOOLS_ENABLED
+    Q_CLEANUP_RESOURCE(gridmap);
+#endif
+
 }

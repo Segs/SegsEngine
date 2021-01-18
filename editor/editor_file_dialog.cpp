@@ -150,9 +150,7 @@ void EditorFileDialog::_unhandled_input(const Ref<InputEvent> &p_event) {
                 handled = true;
             }
             if (ED_IS_SHORTCUT("file_dialog/toggle_hidden_files", p_event)) {
-                bool show = !show_hidden_files;
-                set_show_hidden_files(show);
-                EditorSettings::get_singleton()->set("filesystem/file_dialog/show_hidden_files", show);
+                set_show_hidden_files(!show_hidden_files);
                 handled = true;
             }
             if (ED_IS_SHORTCUT("file_dialog/toggle_favorite", p_event)) {
@@ -238,7 +236,6 @@ void EditorFileDialog::update_dir() {
 void EditorFileDialog::_dir_entered(StringView p_dir) {
 
     dir_access->change_dir(p_dir);
-    file->set_text("");
     invalidate();
     update_dir();
     _push_history();
@@ -260,6 +257,14 @@ void EditorFileDialog::_save_confirm_pressed() {
 void EditorFileDialog::_post_popup() {
 
     ConfirmationDialog::_post_popup();
+
+    // Check if the current path doesn't exist and correct it.
+    String current = dir_access->get_current_dir();
+    while (!dir_access->dir_exists(current)) {
+        current = PathUtils::get_base_dir(current);
+    }
+    set_current_dir(current);
+
     if (invalidated) {
         update_file_list();
         invalidated = false;
@@ -295,12 +300,18 @@ void EditorFileDialog::_post_popup() {
             } else {
                 name = String(PathUtils::get_file(name)) + "/";
             }
-
-            recent->add_item(StringName(name), folder);
-            recent->set_item_metadata(recent->get_item_count() - 1, recentd[i]);
-            recent->set_item_icon_modulate(recent->get_item_count() - 1, folder_color);
+            bool exists = dir_access->dir_exists(recentd[i]);
+            if (!exists) {
+                // Remove invalid directory from the list of Recent directories.
+                recentd.erase_at(i--);
+            } else {
+                recent->add_item(StringName(name), folder);
+                recent->set_item_metadata(recent->get_item_count() - 1, recentd[i]);
+                recent->set_item_icon_modulate(recent->get_item_count() - 1, folder_color);
+            }
         }
 
+        EditorSettings::get_singleton()->set_recent_dirs(recentd);
         local_history.clear();
         local_history_pos = -1;
         _push_history();
@@ -458,10 +469,14 @@ void EditorFileDialog::_action_pressed() {
             }
         }
 
+        // Add first extension of filter if no valid extension is found.
         if (!valid) {
+            int idx = filter->get_selected();
+            Vector<StringView> flts;
 
-            exterr->popup_centered_minsize(Size2(250, 80) * EDSCALE);
-            return;
+            String::split_ref(flts,filters[idx],';');
+            String ext(PathUtils::get_extension(StringUtils::strip_edges(flts.front())));
+            f += "." + ext;
         }
 
         if (dir_access->file_exists(f) && !disable_overwrite_warning) {
@@ -1441,6 +1456,12 @@ void EditorFileDialog::_bind_methods() {
 }
 
 void EditorFileDialog::set_show_hidden_files(bool p_show) {
+    if (p_show == show_hidden_files) {
+        return;
+    }
+
+    EditorSettings::get_singleton()->set("filesystem/file_dialog/show_hidden_files", p_show);
+
     show_hidden_files = p_show;
     show_hidden->set_pressed(p_show);
     invalidate();
@@ -1717,10 +1738,6 @@ EditorFileDialog::EditorFileDialog() {
     mkdirerr = memnew(AcceptDialog);
     mkdirerr->set_text(TTR("Could not create folder."));
     add_child(mkdirerr);
-
-    exterr = memnew(AcceptDialog);
-    exterr->set_text(TTR("Must use a valid extension."));
-    add_child(exterr);
 
     update_filters();
     update_dir();

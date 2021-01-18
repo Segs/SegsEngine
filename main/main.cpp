@@ -294,7 +294,7 @@ void Main::print_help(const String &p_binary) {
     OS::get_singleton()->print("  --resolution <W>x<H>             Request window resolution.\n");
     OS::get_singleton()->print("  --position <X>,<Y>               Request window position.\n");
     OS::get_singleton()->print("  --low-dpi                        Force low-DPI mode (macOS and Windows only).\n");
-    OS::get_singleton()->print("  --no-window                      Disable window creation (Windows only). Useful together with --script.\n");
+    OS::get_singleton()->print("  --no-window                      Run with invisible window. Useful together with --script.\n");
     OS::get_singleton()->print("  --enable-vsync-via-compositor    When vsync is enabled, vsync via the OS' window compositor (Windows only).\n");
     OS::get_singleton()->print("  --disable-vsync-via-compositor   Disable vsync via the OS' window compositor (Windows only).\n");
     OS::get_singleton()->print("\n");
@@ -701,7 +701,7 @@ Error Main::setup(bool p_second_phase) {
         } else if (*I == "--low-dpi") { // force low DPI (macOS only)
 
             force_lowdpi = true;
-        } else if (*I == "--no-window") { // disable window creation (Windows only)
+        } else if (*I == "--no-window") { // run with an invisible window
 
             os->set_no_window_mode(true);
         } else if (*I == "--enable-vsync-via-compositor") {
@@ -1178,6 +1178,9 @@ Error Main::setup(bool p_second_phase) {
     }
 
     Engine::get_singleton()->_pixel_snap = T_GLOBAL_DEF("rendering/quality/2d/use_pixel_snap", false);
+    Engine::get_singleton()->_snap_2d_transforms = T_GLOBAL_DEF("rendering/quality/2d/use_transform_snap", false);
+    Engine::get_singleton()->_snap_2d_viewports = T_GLOBAL_DEF("rendering/quality/2d/use_camera_snap", false);
+
     os->_keep_screen_on = T_GLOBAL_DEF("display/window/energy_saving/keep_screen_on", true);
     if (rtm == -1) {
         rtm = T_GLOBAL_DEF("rendering/threads/thread_model", OS::RENDER_THREAD_SAFE);
@@ -1401,7 +1404,8 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
     MAIN_PRINT("Main: END");
 
     GLOBAL_DEF("application/config/icon", String());
-    ProjectSettings::get_singleton()->set_custom_property_info("application/config/icon", PropertyInfo(VariantType::STRING, "application/config/icon", PropertyHint::File, "*.png,*.webp"));
+    ProjectSettings::get_singleton()->set_custom_property_info("application/config/icon",
+            PropertyInfo(VariantType::STRING, "application/config/icon", PropertyHint::File, "*.png,*.webp,*.svg,*.svgz"));
 
     GLOBAL_DEF("application/config/macos_native_icon", String());
     ProjectSettings::get_singleton()->set_custom_property_info("application/config/macos_native_icon", PropertyInfo(VariantType::STRING, "application/config/macos_native_icon", PropertyHint::File, "*.icns"));
@@ -1485,6 +1489,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
             print_error("Failed to save reflection data json file.");
         }
 #endif
+        _start_success = true;
         cleanup();
         exit(0);
     }
@@ -1621,7 +1626,7 @@ bool Main::start() {
         Engine::get_singleton()->set_editor_hint(true); // Needed to instance editor-only classes for their default values
         {
             DirAccessRef da = DirAccess::open(doc_tool);
-            ERR_FAIL_COND_V_MSG(!da, false, "Argument supplied to --doctool must be a base Godot build directory.");
+            ERR_FAIL_COND_V_MSG(!da, false, "Argument supplied to --doctool must be a valid directory path.");
         }
         DocData doc;
         generate_docs_from_running_program(doc,doc_base);
@@ -1666,14 +1671,6 @@ bool Main::start() {
         doc.save_classes(index_path.c_str(), VERSION_BRANCH,doc_data_classes);
 
         return false;
-    }
-    if (not _export_preset.empty()) {
-        if (positional_arg.empty()) {
-            String err = "Command line includes export parameter option, but no destination path was given.\n";
-            err += "Please specify the binary's file path to export to. Aborting export.";
-            ERR_PRINT(err);
-            return false;
-        }
     }
 #endif
     if (script.empty() && game_path.empty() && !T_GLOBAL_DEF("application/run/main_scene", String()).empty()) {
@@ -2129,7 +2126,6 @@ bool Main::iteration() {
 
         uint64_t physics_begin = OS::get_singleton()->get_ticks_usec();
 
-        PhysicsServer3D::get_singleton()->sync();
         PhysicsServer3D::get_singleton()->flush_queries();
 
         PhysicsServer2D::get_singleton()->sync();

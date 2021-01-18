@@ -144,7 +144,7 @@ void UNSCALE_BT_BASIS(btTransform &scaledBasis) {
         }
     }
 
-    // Normalize
+    // Normalize.
     column0.normalize();
     column1.normalize();
     column2.normalize();

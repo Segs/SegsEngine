@@ -41,10 +41,7 @@ public:
     struct Singleton {
         StringName name;
         Object *ptr;
-        Singleton(const StringName &p_name = StringName(), Object *p_ptr = nullptr) :
-                name(p_name),
-                ptr(p_ptr) {
-        }
+        Singleton(const StringName &p_name = StringName(), Object *p_ptr = nullptr);
     };
 
 private:
@@ -67,6 +64,8 @@ private:
 
     uint64_t _idle_frames=0;
     bool _pixel_snap=false;
+    bool _snap_2d_transforms=false;
+    bool _snap_2d_viewports;
     bool _in_physics=false;
     bool editor_hint=false;
     bool abort_on_gpu_errors=false;
@@ -108,6 +107,8 @@ public:
     Object *get_named_singleton(const StringName &p_name) const;
 
     bool get_use_pixel_snap() const { return _pixel_snap; }
+    bool get_snap_2d_transforms() const { return _snap_2d_transforms; }
+    bool get_snap_2d_viewports() const { return _snap_2d_viewports; }
 
 #ifdef TOOLS_ENABLED
     void set_editor_hint(bool p_enabled) { editor_hint = p_enabled; }

@@ -32,6 +32,7 @@
 #include "voxelizer.h"
 
 #include "scene/main/scene_tree.h"
+#include "scene/resources/texture.h"
 #include "core/io/config_file.h"
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"

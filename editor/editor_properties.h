@@ -524,7 +524,6 @@ class EditorPropertyColor : public EditorProperty {
 
     ColorPickerButton *picker;
     void _color_changed(const Color &p_color);
-    void _popup_closed();
     void _picker_created();
 
 protected:

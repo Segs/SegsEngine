@@ -90,6 +90,7 @@ private:
     bool antialiased;
     bool force_autohinter;
     Hinting hinting;
+    Vector<uint8_t> _fontdata;
 
     String font_path;
     HashMap<CacheID, DynamicFontAtSize *> size_cache;

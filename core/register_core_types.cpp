@@ -246,7 +246,7 @@ void register_core_types() {
 }
 
 void register_core_settings() {
-    //since in register core types, globals may not e present
+    // Since in register core types, globals may not e present.
     GLOBAL_DEF("network/limits/tcp/connect_timeout_seconds", (30));
     ProjectSettings::get_singleton()->set_custom_property_info("network/limits/tcp/connect_timeout_seconds", PropertyInfo(VariantType::INT, "network/limits/tcp/connect_timeout_seconds", PropertyHint::Range, "1,1800,1"));
     GLOBAL_DEF_RST("network/limits/packet_peer_stream/max_buffer_po2", (16));

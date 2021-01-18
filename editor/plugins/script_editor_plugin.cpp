@@ -308,8 +308,6 @@ void ScriptEditor::_breaked(bool p_breaked, bool p_can_debug)
 }
 
 void ScriptEditor::_show_debugger(bool p_show) {
-
-    //debug_menu->get_popup()->set_item_checked( debug_menu->get_popup()->get_item_index(DEBUG_SHOW), p_show);
 }
 
 void ScriptEditor::_script_created(Ref<Script> p_script) {
@@ -1040,7 +1038,7 @@ void ScriptEditor::_menu_option(int p_option) {
 
     switch (p_option) {
         case FILE_NEW: {
-            script_create_dialog->config("Node", "new_script",false,false);
+            script_create_dialog->config("Node", "new_script", false, false);
             script_create_dialog->popup_centered();
         } break;
         case FILE_NEW_TEXTFILE: {
@@ -1060,7 +1058,7 @@ void ScriptEditor::_menu_option(int p_option) {
             Vector<String> extensions;
             gResourceManager().get_recognized_extensions_for_type("Script", extensions);
             file_dialog->clear_filters();
-            for (const String & ext : extensions) {
+            for (const String &ext : extensions) {
                 file_dialog->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
             }
 
@@ -1069,7 +1067,6 @@ void ScriptEditor::_menu_option(int p_option) {
             return;
         } break;
         case FILE_REOPEN_CLOSED: {
-
             if (previous_scripts.empty())
                 return;
 
@@ -1080,15 +1077,15 @@ void ScriptEditor::_menu_option(int p_option) {
             gResourceManager().get_recognized_extensions_for_type("Script", extensions);
             bool built_in = !PathUtils::is_resource_file(path);
 
-            if (ContainerUtils::contains(extensions,PathUtils::get_extension(path)) || built_in) {
+            if (ContainerUtils::contains(extensions, PathUtils::get_extension(path)) || built_in) {
                 if (built_in) {
-                    StringView res_path = StringUtils::get_slice(path,"::", 0);
+                    StringView res_path = StringUtils::get_slice(path, "::", 0);
                     if (gResourceManager().get_resource_type(res_path) == "PackedScene") {
                         if (!EditorNode::get_singleton()->is_scene_open(res_path)) {
                             EditorNode::get_singleton()->load_scene(res_path);
-                        script_editor->call_deferred([p_option]() { script_editor->_menu_option(p_option); });
-                        previous_scripts.push_back(path); //repeat the operation
-                        return;
+                            script_editor->call_deferred([p_option]() { script_editor->_menu_option(p_option); });
+                            previous_scripts.push_back(path); // repeat the operation
+                            return;
                         }
                     } else {
                         EditorNode::get_singleton()->load_resource(res_path);
@@ -1119,69 +1116,63 @@ void ScriptEditor::_menu_option(int p_option) {
             }
         } break;
         case FILE_SAVE_ALL: {
-
             if (_test_script_times_on_disk())
                 return;
 
             save_all_scripts();
         } break;
         case SEARCH_IN_FILES: {
-
             _on_find_in_files_requested({});
         } break;
         case SEARCH_HELP: {
-
             help_search_dialog->popup_dialog();
         } break;
         case SEARCH_WEBSITE: {
-
             OS::get_singleton()->shell_open("https://docs.godotengine.org/");
         } break;
 
         case WINDOW_NEXT: {
-
             _history_forward();
         } break;
         case WINDOW_PREV: {
-
             _history_back();
         } break;
         case WINDOW_SORT: {
             _sort_list_on_update = true;
             _update_script_names();
         } break;
-        case DEBUG_SHOW: {
+        case DEBUG_KEEP_DEBUGGER_OPEN: {
+            bool ischecked = debug_menu->get_popup()->is_item_checked(
+                    debug_menu->get_popup()->get_item_index(DEBUG_KEEP_DEBUGGER_OPEN));
             if (debugger) {
-                bool visible = debug_menu->get_popup()->is_item_checked(debug_menu->get_popup()->get_item_index(DEBUG_SHOW));
-                debug_menu->get_popup()->set_item_checked(debug_menu->get_popup()->get_item_index(DEBUG_SHOW), !visible);
-                if (visible)
-                    debugger->hide();
-                else
-                    debugger->show();
+                debugger->set_hide_on_stop(ischecked);
             }
-        } break;
-        case DEBUG_SHOW_KEEP_OPEN: {
-            bool visible = debug_menu->get_popup()->is_item_checked(debug_menu->get_popup()->get_item_index(DEBUG_SHOW_KEEP_OPEN));
-            if (debugger)
-                debugger->set_hide_on_stop(visible);
-            debug_menu->get_popup()->set_item_checked(debug_menu->get_popup()->get_item_index(DEBUG_SHOW_KEEP_OPEN), !visible);
+            debug_menu->get_popup()->set_item_checked(
+                    debug_menu->get_popup()->get_item_index(DEBUG_KEEP_DEBUGGER_OPEN), !ischecked);
+            EditorSettings::get_singleton()->set_project_metadata("debug_options", "keep_debugger_open", !ischecked);
         } break;
         case DEBUG_WITH_EXTERNAL_EDITOR: {
-            bool debug_with_external_editor = !debug_menu->get_popup()->is_item_checked(debug_menu->get_popup()->get_item_index(DEBUG_WITH_EXTERNAL_EDITOR));
-            debugger->set_debug_with_external_editor(debug_with_external_editor);
-            debug_menu->get_popup()->set_item_checked(debug_menu->get_popup()->get_item_index(DEBUG_WITH_EXTERNAL_EDITOR), debug_with_external_editor);
+            bool ischecked = debug_menu->get_popup()->is_item_checked(
+                    debug_menu->get_popup()->get_item_index(DEBUG_WITH_EXTERNAL_EDITOR));
+            if (debugger) {
+                debugger->set_debug_with_external_editor(!ischecked);
+            }
+            debug_menu->get_popup()->set_item_checked(
+                    debug_menu->get_popup()->get_item_index(DEBUG_WITH_EXTERNAL_EDITOR), !ischecked);
+            EditorSettings::get_singleton()->set_project_metadata(
+                    "debug_options", "debug_with_external_editor", !ischecked);
         } break;
         case TOGGLE_SCRIPTS_PANEL: {
-        if (current) {
-            ScriptTextEditor *editor = object_cast<ScriptTextEditor>(current);
-            toggle_scripts_panel();
-            if (editor) {
-                editor->update_toggle_scripts_button();
+            if (current) {
+                ScriptTextEditor *editor = object_cast<ScriptTextEditor>(current);
+                toggle_scripts_panel();
+                if (editor) {
+                    editor->update_toggle_scripts_button();
+                }
+            } else {
+                toggle_scripts_panel();
             }
-        } else {
-            toggle_scripts_panel();
         }
-    }
     }
 
     if (current) {
@@ -1418,6 +1409,19 @@ void ScriptEditor::_menu_option(int p_option) {
     }
 }
 
+void ScriptEditor::_update_debug_options() {
+    bool keep_debugger_open = EditorSettings::get_singleton()->get_project_metadataT("debug_options", "keep_debugger_open", false);
+    bool debug_with_external_editor = EditorSettings::get_singleton()->get_project_metadataT("debug_options", "debug_with_external_editor", false);
+
+    if (keep_debugger_open) {
+        _menu_option(DEBUG_KEEP_DEBUGGER_OPEN);
+    }
+    if (debug_with_external_editor) {
+        _menu_option(DEBUG_WITH_EXTERNAL_EDITOR);
+    }
+}
+
+
 void ScriptEditor::_theme_option(int p_option) {
     switch (p_option) {
         case THEME_IMPORT: {
@@ -1505,6 +1509,7 @@ void ScriptEditor::_notification(int p_what) {
             get_tree()->connect("tree_changed", callable_mp(this, &ScriptEditor::_tree_changed));
             editor->get_inspector_dock()->connect("request_help", callable_mp(this, &ScriptEditor::_help_class_open));
             editor->connect("request_help_search", callable_mp(this, &ScriptEditor::_help_search));
+            _update_debug_options();
         } break;
 
         case NOTIFICATION_EXIT_TREE: {
@@ -1932,9 +1937,9 @@ void ScriptEditor::_update_script_names() {
 
         Vector<String> disambiguated_script_names;
         Vector<String> full_script_paths;
-        for (int j = 0; j < sedata.size(); j++) {
-            disambiguated_script_names.push_back(sedata[j].name.replaced("(*)", ""));
-            full_script_paths.push_back(sedata[j].tooltip);
+        for (const _ScriptEditorItemData &item : sedata) {
+            disambiguated_script_names.push_back(String(PathUtils::get_file(item.name.replaced("(*)", ""))));
+            full_script_paths.push_back(item.tooltip);
         }
 
         EditorNode::disambiguate_filenames(full_script_paths, disambiguated_script_names);
@@ -3385,8 +3390,7 @@ ScriptEditor::ScriptEditor(EditorNode *p_editor) {
     debug_menu->get_popup()->add_shortcut(ED_SHORTCUT("debugger/break", TTR("Break")), DEBUG_BREAK);
     debug_menu->get_popup()->add_shortcut(ED_SHORTCUT("debugger/continue", TTR("Continue"), KEY_F12), DEBUG_CONTINUE);
     debug_menu->get_popup()->add_separator();
-    //debug_menu->get_popup()->add_check_item("Show Debugger",DEBUG_SHOW);
-    debug_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("debugger/keep_debugger_open", TTR("Keep Debugger Open")), DEBUG_SHOW_KEEP_OPEN);
+    debug_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("debugger/keep_debugger_open", TTR("Keep Debugger Open")), DEBUG_KEEP_DEBUGGER_OPEN);
     debug_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("debugger/debug_with_external_editor", TTR("Debug with External Editor")), DEBUG_WITH_EXTERNAL_EDITOR);
     debug_menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
 

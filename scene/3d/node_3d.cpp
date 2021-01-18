@@ -811,7 +811,6 @@ void Node3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "rotation_degrees", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "rotation", PropertyHint::None, "", 0), "set_rotation", "get_rotation");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "scale", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_scale", "get_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "toplevel"), "set_as_top_level", "is_set_as_top_level");
 
     ADD_GROUP("Matrix", "");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "transform", PropertyHint::None, ""), "set_transform", "get_transform");

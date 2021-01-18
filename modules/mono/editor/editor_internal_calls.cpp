@@ -49,7 +49,6 @@
 #include "../mono_gd/gd_mono_marshal.h"
 #include "../utils/osx_utils.h"
 #include "core/class_db.h"
-//#include "bindings_generator.h"
 #include "code_completion.h"
 #include "godotsharp_export.h"
 #include "script_class_parser.h"
@@ -174,37 +173,6 @@ MonoBoolean godot_icall_EditorProgress_Step(MonoString *p_task, MonoString *p_st
     StringName state(GDMonoMarshal::mono_string_to_godot(p_state));
     return EditorNode::progress_task_step(task, state, p_step, (bool)p_force_refresh);
 }
-
-//BindingsGenerator *godot_icall_BindingsGenerator_Ctor() {
-//    return memnew(BindingsGenerator);
-//}
-
-//void godot_icall_BindingsGenerator_Dtor(BindingsGenerator *p_handle) {
-//    memdelete(p_handle);
-//}
-
-//MonoBoolean godot_icall_BindingsGenerator_LogPrintEnabled(BindingsGenerator *p_handle) {
-//    return p_handle->is_log_print_enabled();
-//}
-
-//void godot_icall_BindingsGenerator_SetLogPrintEnabled(BindingsGenerator p_handle, MonoBoolean p_enabled) {
-//    p_handle.set_log_print_enabled(p_enabled);
-//}
-
-//int32_t godot_icall_BindingsGenerator_GenerateCsApi(BindingsGenerator *p_handle, MonoString *p_output_dir) {
-//    String output_dir = GDMonoMarshal::mono_string_to_godot(p_output_dir);
-//    assert(false);
-//    //p_handle->generate_cs_api(output_dir);
-//    return -1;
-//}
-
-//uint32_t godot_icall_BindingsGenerator_Version() {
-//    return BindingsGenerator::get_version();
-//}
-
-//uint32_t godot_icall_BindingsGenerator_CsGlueVersion() {
-//    return CS_GLUE_VERSION;
-//}
 
 int32_t godot_icall_ScriptClassParser_ParseFile(MonoString *p_filepath, MonoObject *p_classes, MonoString **r_error_str) {
     *r_error_str = nullptr;

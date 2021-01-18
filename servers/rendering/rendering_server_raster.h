@@ -313,6 +313,7 @@ public:
     BIND2(light_set_cull_mask, RID, uint32_t)
     BIND2(light_set_reverse_cull_face_mode, RID, bool)
     BIND2(light_set_use_gi, RID, bool)
+    BIND2(light_set_bake_mode, RID, RS::LightBakeMode)
 
     BIND2(light_omni_set_shadow_mode, RID, RS::LightOmniShadowMode)
     BIND2(light_omni_set_shadow_detail, RID, RS::LightOmniShadowDetail)
@@ -469,6 +470,8 @@ public:
     BIND2(viewport_set_shadow_atlas_size, RID, int)
     BIND3(viewport_set_shadow_atlas_quadrant_subdivision, RID, int, int)
     BIND2(viewport_set_msaa, RID, RS::ViewportMSAA)
+    BIND2(viewport_set_use_fxaa, RID, bool)
+    BIND2(viewport_set_use_debanding, RID, bool)
     BIND2(viewport_set_hdr, RID, bool)
     BIND2(viewport_set_usage, RID, RS::ViewportUsage)
 
@@ -700,7 +703,7 @@ public:
 
     GODOT_EXPORT RenderingServerRaster();
     GODOT_EXPORT ~RenderingServerRaster() override;
-    static RenderingServerRaster *get() { (RenderingServerRaster*)submission_thread_singleton;}
+    static RenderingServerRaster *get() { return (RenderingServerRaster*)submission_thread_singleton;}
 
 #undef DISPLAY_CHANGED
 #undef BIND0R

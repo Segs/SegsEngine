@@ -110,6 +110,10 @@ Error HTTPClient::connect_to_host(const String &p_host, int p_port, bool p_ssl, 
 void HTTPClient::set_connection(const Ref<StreamPeer> &p_connection) {
     ERR_FAIL_COND_MSG(not p_connection, "Connection is not a reference to a valid StreamPeer object.");
 
+    if (connection == p_connection) {
+        return;
+    }
+
     close();
     connection = p_connection;
     status = STATUS_CONNECTED;
@@ -120,25 +124,43 @@ Ref<StreamPeer> HTTPClient::get_connection() const {
     return connection;
 }
 
+static bool _check_request_url(HTTPClient::Method p_method, StringView p_url) {
+    switch (p_method) {
+        case HTTPClient::METHOD_CONNECT: {
+            // Authority in host:port format, as in RFC7231
+            auto pos = p_url.find(':');
+            return pos!=StringView::npos && pos < p_url.length() - 1;
+        }
+        case HTTPClient::METHOD_OPTIONS: {
+            if (p_url == "*") {
+                return true;
+            }
+
+            [[fallthrough]];
+        }
+        default:
+            // Absolute path or absolute URL
+            return p_url.starts_with("/") || p_url.starts_with("http://") || p_url.starts_with("https://");
+    }
+}
+
 Error HTTPClient::request_raw(Method p_method, StringView p_url, const Vector<String> &p_headers, const Vector<uint8_t> &p_body) {
 
     ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!_check_request_url(p_method, p_url), ERR_INVALID_PARAMETER);
     ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER);
     ERR_FAIL_COND_V(not connection, ERR_INVALID_DATA);
 
     String request = String(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
-    if ((ssl && conn_port == PORT_HTTPS) || (!ssl && conn_port == PORT_HTTP)) {
-        // Don't append the standard ports
-        request += "Host: " + (conn_host) + "\r\n";
-    } else {
-        request += "Host: " + (conn_host) + ":" + ::to_string(conn_port) + "\r\n";
-    }
+    bool add_host = true;
     bool add_clen = p_body.size() > 0;
     bool add_uagent = true;
     bool add_accept = true;
     for (const String &hdr : p_headers) {
         request += hdr + "\r\n";
+        if (add_host && StringUtils::findn(hdr,"Host:") == 0) {
+            add_host = false;
+        }
         if (add_clen && StringUtils::findn(hdr,"Content-Length:") == 0) {
             add_clen = false;
         }
@@ -147,6 +169,14 @@ Error HTTPClient::request_raw(Method p_method, StringView p_url, const Vector<St
         }
         if (add_accept && StringUtils::findn(hdr,"Accept:") == 0) {
             add_accept = false;
+        }
+    }
+    if (add_host) {
+        if ((ssl && conn_port == PORT_HTTPS) || (!ssl && conn_port == PORT_HTTP)) {
+            // Don't append the standard ports
+            request += "Host: " + conn_host + "\r\n";
+        } else {
+            request += "Host: " + conn_host + ":" + itos(conn_port) + "\r\n";
         }
     }
     if (add_clen) {
@@ -186,22 +216,20 @@ Error HTTPClient::request_raw(Method p_method, StringView p_url, const Vector<St
 Error HTTPClient::request(Method p_method, StringView p_url, const Vector<String> &p_headers, const String &p_body) {
 
     ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!_check_request_url(p_method, p_url), ERR_INVALID_PARAMETER);
     ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER);
     ERR_FAIL_COND_V(not connection, ERR_INVALID_DATA);
 
     String request = String(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
-    if ((ssl && conn_port == PORT_HTTPS) || (!ssl && conn_port == PORT_HTTP)) {
-        // Don't append the standard ports
-        request += "Host: " + conn_host + "\r\n";
-    } else {
-        request += "Host: " + conn_host + ":" + ::to_string(conn_port) + "\r\n";
-    }
+    bool add_host = true;
     bool add_uagent = true;
     bool add_accept = true;
     bool add_clen = p_body.length() > 0;
     for (const String &hdr : p_headers) {
         request += hdr + "\r\n";
+        if (add_host && StringUtils::findn(hdr,"Host:") == 0) {
+            add_host = false;
+        }
         if (add_clen && StringUtils::findn(hdr,("Content-Length:")) == 0) {
             add_clen = false;
         }
@@ -210,6 +238,14 @@ Error HTTPClient::request(Method p_method, StringView p_url, const Vector<String
         }
         if (add_accept && StringUtils::findn(hdr,("Accept:")) == 0) {
             add_accept = false;
+        }
+    }
+    if (add_host) {
+        if ((ssl && conn_port == PORT_HTTPS) || (!ssl && conn_port == PORT_HTTP)) {
+            // Don't append the standard ports
+            request += "Host: " + conn_host + "\r\n";
+        } else {
+            request += "Host: " + conn_host + ":" + itos(conn_port) + "\r\n";
         }
     }
     if (add_clen) {
@@ -475,7 +511,7 @@ Error HTTPClient::poll() {
                             response_headers.push_back(String(header));
                         }
                     }
-                    // This is a HEAD request, we wont receive anything.
+                    // This is a HEAD request, we won't receive anything.
                     if (head_request) {
                         body_size = 0;
                         body_left = 0;
@@ -745,7 +781,8 @@ HTTPClient::HTTPClient() {
     ssl = false;
     blocking = false;
     handshaking = false;
-    read_chunk_size = 4096;
+    // 64 KiB by default (favors fast download speeds at the cost of memory usage).
+    read_chunk_size = 65536;
 }
 
 HTTPClient::~HTTPClient() = default;

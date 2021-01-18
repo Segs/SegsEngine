@@ -133,6 +133,8 @@ Error ThreadPosix::set_name_func_posix(StringView p_name) {
 #ifdef PTHREAD_BSD_SET_NAME
     pthread_set_name_np(running_thread, String(p_name).c_str());
     int err = 0; // Open/FreeBSD ignore errors in this function
+#elif defined(PTHREAD_NETBSD_SET_NAME)
+    int err = pthread_setname_np(running_thread, "%s", String(p_name).c_str());
 #else
     int err = pthread_setname_np(running_thread, String(p_name).c_str());
 #endif // PTHREAD_BSD_SET_NAME

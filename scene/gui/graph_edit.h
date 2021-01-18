@@ -46,11 +46,51 @@ class GraphEditFilter : public Control {
     GDCLASS(GraphEditFilter,Control)
 
     friend class GraphEdit;
+    friend class GraphEditMinimap;
     GraphEdit *ge;
     bool has_point(const Point2 &p_point) const override;
 
 public:
     GraphEditFilter(GraphEdit *p_edit);
+};
+
+class GODOT_EXPORT GraphEditMinimap : public Control {
+    GDCLASS(GraphEditMinimap, Control);
+
+    friend class GraphEdit;
+    friend class GraphEditFilter;
+    GraphEdit *ge;
+
+protected:
+    static void _bind_methods();
+
+public:
+    GraphEditMinimap(GraphEdit *p_edit);
+
+    void update_minimap();
+    Rect2 get_camera_rect();
+
+private:
+    Vector2 minimap_padding;
+    Vector2 minimap_offset;
+    Vector2 graph_proportions;
+    Vector2 graph_padding;
+    Vector2 camera_position;
+    Vector2 camera_size;
+
+    bool is_pressing;
+    bool is_resizing;
+
+    Vector2 _get_render_size();
+    Vector2 _get_graph_offset();
+    Vector2 _get_graph_size();
+
+    Vector2 _convert_from_graph_position(const Vector2 &p_position);
+    Vector2 _convert_to_graph_position(const Vector2 &p_position);
+
+    void _gui_input(const Ref<InputEvent> &p_ev);
+
+    void _adjust_graph_scroll(const Vector2 &p_offset);
 };
 
 class GODOT_EXPORT GraphEdit : public Control {
@@ -73,6 +113,7 @@ private:
 
     ToolButton *snap_button;
     SpinBox *snap_amount;
+    Button *minimap_button;
 
     void _zoom_minus();
     void _zoom_reset();
@@ -108,6 +149,7 @@ private:
     bool just_disconnected;
     bool dragging;
     bool just_selected;
+    bool moving_selection;
     bool box_selecting;
     bool box_selection_mode_additive;
     bool setting_scroll_ofs;
@@ -117,6 +159,7 @@ private:
     List<Connection> connections;
     Control *connections_layer;
     GraphEditFilter *top_layer;
+    GraphEditMinimap *minimap;
     bool lines_on_bg;
 
     struct ConnType {
@@ -152,7 +195,7 @@ private:
 public:
     void _bake_segment2d(Vector<Vector2> &points, Vector<Color> &colors, float p_begin, float p_end, const Vector2 &p_a, const Vector2 &p_out, const Vector2 &p_b, const Vector2 &p_in, int p_depth, int p_min_depth, int p_max_depth, float p_tol, const Color &p_color, const Color &p_to_color, int &lines) const;
 
-    void _draw_cos_line(CanvasItem *p_where, const Vector2 &p_from, const Vector2 &p_to, const Color &p_color, const Color &p_to_color);
+    void _draw_cos_line(CanvasItem *p_where, const Vector2 &p_from, const Vector2 &p_to, const Color &p_color, const Color &p_to_color, float p_width = 2.0f, float p_bezier_ratio = 1.0f);
 
     void _graph_node_raised(Node *p_gn);
     void _graph_node_moved(Node *p_gn);
@@ -167,16 +210,20 @@ public:
 
     void _top_layer_draw();
     void _connections_layer_draw();
+    void _minimap_draw();
     void _update_scroll_offset();
 
     Array _get_connection_list() const;
 private:
 
     friend class GraphEditFilter;
+    friend class GraphEditMinimap;
+
     bool _filter_input(const Point2 &p_point);
     void _snap_toggled();
     void _snap_value_changed(double);
 
+    void _minimap_toggled();
     bool _check_clickable_control(Control *p_control, const Vector2 &pos);
 
 protected:
@@ -202,7 +249,16 @@ public:
     void set_zoom_custom(float p_zoom, const Vector2 &p_center);
     float get_zoom() const;
 
+    void set_minimap_size(Vector2 p_size);
+    Vector2 get_minimap_size() const;
+    void set_minimap_opacity(float p_opacity);
+    float get_minimap_opacity() const;
+
+    void set_minimap_enabled(bool p_enable);
+    bool is_minimap_enabled() const;
+
     GraphEditFilter *get_top_layer() const { return top_layer; }
+    GraphEditMinimap *get_minimap() const { return minimap; }
     void get_connection_list(List<Connection> *r_connections) const;
 
     void set_right_disconnects(bool p_enable);

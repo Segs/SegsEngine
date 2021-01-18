@@ -9,7 +9,7 @@ namespace GodotTools.ProjectEditor
 {
     public static class ProjectGenerator
     {
-        //public const string GodotSdkVersionToUse = "3.2.3";
+        //public const string GodotSdkVersionToUse = "3.2.4";
         //public static string GodotSdkAttrValue => $"Godot.NET.Sdk/{GodotSdkVersionToUse}";
         public static string GodotSdkAttrValue => "Microsoft.NET.Sdk";
 
@@ -18,7 +18,7 @@ namespace GodotTools.ProjectEditor
             // Create directory props to redirect build output... sigh
             var props_root = ProjectRootElement.Create(NewProjectFileOptions.None);
             var propsGroup = props_root.AddPropertyGroup();
-            propsGroup.AddProperty("IntermediateOutputPath","$(GodotProjectDir).csharp/temp/obj/").Condition = "'$(IntermediateOutputPath)' == ''"; 
+            propsGroup.AddProperty("IntermediateOutputPath","$(GodotProjectDir).csharp/temp/obj/").Condition = "'$(IntermediateOutputPath)' == ''";
             propsGroup.AddProperty("BaseIntermediateOutputPath","$(GodotProjectDir).csharp/temp/obj/").Condition = "'$(BaseIntermediateOutputPath)' == ''";
             return props_root;
 
@@ -33,13 +33,13 @@ namespace GodotTools.ProjectEditor
 
             var mainGroup = root.AddPropertyGroup();
             mainGroup.AddProperty("TargetFramework", "netstandard2.1");
-            mainGroup.AddProperty("GodotProjectDir","$(SolutionDir)").Condition = "'$(SolutionDir)' != ''"; 
-            mainGroup.AddProperty("GodotProjectDir","$(MSBuildProjectDirectory)").Condition = "'$(SolutionDir)' == ''"; 
-            mainGroup.AddProperty("GodotProjectDir","$([MSBuild]::EnsureTrailingSlash('$(GodotProjectDir)'))"); 
-            mainGroup.AddProperty("BaseOutputPath","$(GodotProjectDir).csharp/temp/bin/"); 
-            mainGroup.AddProperty("OutputPath","$(GodotProjectDir).csharp/temp/bin/$(Configuration)/"); 
+            mainGroup.AddProperty("GodotProjectDir","$(SolutionDir)").Condition = "'$(SolutionDir)' != ''";
+            mainGroup.AddProperty("GodotProjectDir","$(MSBuildProjectDirectory)").Condition = "'$(SolutionDir)' == ''";
+            mainGroup.AddProperty("GodotProjectDir","$([MSBuild]::EnsureTrailingSlash('$(GodotProjectDir)'))");
+            mainGroup.AddProperty("BaseOutputPath","$(GodotProjectDir).csharp/temp/bin/");
+            mainGroup.AddProperty("OutputPath","$(GodotProjectDir).csharp/temp/bin/$(Configuration)/");
             mainGroup.AddProperty("AppendTargetFrameworkToOutputPath","false");
-           
+
             string sanitizedName = IdentifierUtils.SanitizeQualifiedIdentifier(name, allowEmptyIdentifiers: true);
 
             // If the name is not a valid namespace, manually set RootNamespace to a sanitized one.
@@ -51,7 +51,7 @@ namespace GodotTools.ProjectEditor
             entries["HintPath"] = "$(GodotProjectDir).csharp/assemblies/$(Configuration)/GodotCoreAssembly.dll";
             entries["Private"] = "false";
             var item_info=importGroup.AddItem("Reference","GodotCoreAssembly", entries);
-            
+
             var edit_entries = new Dictionary<string, string>();
             edit_entries["HintPath"] = "$(GodotProjectDir).csharp/assemblies/$(Configuration)/GodotEditorAssembly.dll";
             edit_entries["Private"] = "false";

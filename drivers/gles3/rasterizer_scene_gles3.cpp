@@ -1777,19 +1777,22 @@ void RasterizerSceneGLES3::_render_geometry(RenderList::Element *e) {
 
 void RasterizerSceneGLES3::_setup_light(RenderList::Element *e, const Transform &p_view_transform) {
 
-    int omni_indices[16];
+    int maxobj = state.max_forward_lights_per_object;
+    int *omni_indices = (int *)alloca(maxobj * sizeof(int));
     int omni_count = 0;
-    int spot_indices[16];
+    int *spot_indices = (int *)alloca(maxobj * sizeof(int));
     int spot_count = 0;
     int reflection_indices[16];
     int reflection_count = 0;
 
-    int maxobj = MIN(16, state.max_forward_lights_per_object);
-
     for (const RID &light : e->instance->light_instances) {
         LightInstance *li = light_instance_owner.getornull(light);
-        if (!li || li->last_pass != render_pass) //not visible
-            continue;
+        if (!li || li->last_pass != render_pass) {
+            continue; // Not visible
+        }
+        if (e->instance->baked_light && li->light_ptr->bake_mode == RS::LightBakeMode::LIGHT_BAKE_ALL) {
+            continue; // This light is already included in the lightmap
+        }
 
         if (li->light_ptr->type == RS::LIGHT_OMNI) {
             if (omni_count < maxobj && e->instance->layer_mask & li->light_ptr->cull_mask) {
@@ -3547,8 +3550,7 @@ void RasterizerSceneGLES3::_post_process(Environment *env, const CameraMatrix &p
         glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     }
-
-    if (!env || storage->frame.current_rt->flags[RasterizerStorage::RENDER_TARGET_TRANSPARENT] || storage->frame.current_rt->width < 4 || storage->frame.current_rt->height < 4) { //no post process on small render targets
+    if ((!env || storage->frame.current_rt->flags[RasterizerStorage::RENDER_TARGET_TRANSPARENT] || storage->frame.current_rt->width < 4 || storage->frame.current_rt->height < 4) && !storage->frame.current_rt->use_fxaa && !storage->frame.current_rt->use_debanding) { //no post process on small render targets
         //no environment or transparent render, simply return and convert to SRGB
         if (storage->frame.current_rt->external.fbo != 0) {
             glBindFramebuffer(GL_FRAMEBUFFER, storage->frame.current_rt->external.fbo);
@@ -3573,14 +3575,14 @@ void RasterizerSceneGLES3::_post_process(Environment *env, const CameraMatrix &p
 
     //order of operation
     //1) DOF Blur (first blur, then copy to buffer applying the blur)
-    //2) Motion Blur
-    //3) Bloom
+    //2) FXAA
+    //3) Bloom (Glow)
     //4) Tonemap
     //5) Adjustments
 
     GLuint composite_from = storage->frame.current_rt->effects.mip_maps[0].color;
 
-    if (env->dof_blur_far_enabled) {
+    if (env && env->dof_blur_far_enabled) {
 
         //blur diffuse into effect mipmaps using separatable convolution
         //storage->shaders.copy.set_conditional(CopyShaderGLES3::GAUSSIAN_HORIZONTAL,true);
@@ -3636,7 +3638,7 @@ void RasterizerSceneGLES3::_post_process(Environment *env, const CameraMatrix &p
         composite_from = storage->frame.current_rt->effects.mip_maps[0].color;
     }
 
-    if (env->dof_blur_near_enabled) {
+    if (env && env->dof_blur_near_enabled) {
 
         //blur diffuse into effect mipmaps using separatable convolution
         //storage->shaders.copy.set_conditional(CopyShaderGLES3::GAUSSIAN_HORIZONTAL,true);
@@ -3725,7 +3727,7 @@ void RasterizerSceneGLES3::_post_process(Environment *env, const CameraMatrix &p
         composite_from = storage->frame.current_rt->effects.mip_maps[0].color;
     }
 
-    if (env->dof_blur_near_enabled || env->dof_blur_far_enabled) {
+    if (env && (env->dof_blur_near_enabled || env->dof_blur_far_enabled)) {
         //these needed to disable filtering, reenamble
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, storage->frame.current_rt->effects.mip_maps[0].color);
@@ -3735,7 +3737,7 @@ void RasterizerSceneGLES3::_post_process(Environment *env, const CameraMatrix &p
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
-    if (env->auto_exposure) {
+    if (env && env->auto_exposure) {
 
         //compute auto exposure
         //first step, copy from image to luminance buffer
@@ -3818,7 +3820,7 @@ void RasterizerSceneGLES3::_post_process(Environment *env, const CameraMatrix &p
     int max_glow_level = -1;
     int glow_mask = 0;
 
-    if (env->glow_enabled) {
+    if (env && env->glow_enabled) {
 
         for (int i = 0; i < RS::MAX_GLOW_LEVELS; i++) {
             if (env->glow_levels & (1 << i)) {
@@ -3905,15 +3907,18 @@ void RasterizerSceneGLES3::_post_process(Environment *env, const CameraMatrix &p
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, composite_from);
 
-    state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_FILMIC_TONEMAPPER, env->tone_mapper == RS::ENV_TONE_MAPPER_FILMIC);
-    state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_ACES_TONEMAPPER, env->tone_mapper == RS::ENV_TONE_MAPPER_ACES);
-    state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_REINHARD_TONEMAPPER, env->tone_mapper == RS::ENV_TONE_MAPPER_REINHARD);
+    if (env) {
+        state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_FILMIC_TONEMAPPER, env->tone_mapper == RS::ENV_TONE_MAPPER_FILMIC);
+        state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_ACES_TONEMAPPER, env->tone_mapper == RS::ENV_TONE_MAPPER_ACES);
+        state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_REINHARD_TONEMAPPER, env->tone_mapper == RS::ENV_TONE_MAPPER_REINHARD);
+        state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_AUTO_EXPOSURE, env->auto_exposure);
+        state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_GLOW_FILTER_BICUBIC, env->glow_bicubic_upscale);
+    }
     state.tonemap_shader.set_conditional(TonemapShaderGLES3::KEEP_3D_LINEAR, storage->frame.current_rt->flags[RasterizerStorage::RENDER_TARGET_KEEP_3D_LINEAR]);
+    state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_FXAA, storage->frame.current_rt->use_fxaa);
+    state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_DEBANDING, storage->frame.current_rt->use_debanding);
 
-    state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_AUTO_EXPOSURE, env->auto_exposure);
-    state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_GLOW_FILTER_BICUBIC, env->glow_bicubic_upscale);
-
-    if (max_glow_level >= 0) {
+    if (env && max_glow_level >= 0) {
 
         for (int i = 0; i < (max_glow_level + 1); i++) {
 
@@ -3949,7 +3954,7 @@ void RasterizerSceneGLES3::_post_process(Environment *env, const CameraMatrix &p
         glBindTexture(GL_TEXTURE_2D, storage->frame.current_rt->effects.mip_maps[0].color);
     }
 
-    if (env->adjustments_enabled) {
+    if (env && env->adjustments_enabled) {
 
         state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_BCS, true);
         RasterizerStorageGLES3::Texture *tex = storage->texture_owner.getornull(env->color_correction);
@@ -3962,35 +3967,45 @@ void RasterizerSceneGLES3::_post_process(Environment *env, const CameraMatrix &p
 
     state.tonemap_shader.set_conditional(TonemapShaderGLES3::V_FLIP, storage->frame.current_rt->flags[RasterizerStorage::RENDER_TARGET_VFLIP]);
     state.tonemap_shader.bind();
+    if(env) {
+        state.tonemap_shader.set_uniform(TonemapShaderGLES3::EXPOSURE, env->tone_mapper_exposure);
+        state.tonemap_shader.set_uniform(TonemapShaderGLES3::WHITE, env->tone_mapper_exposure_white);
 
-    state.tonemap_shader.set_uniform(TonemapShaderGLES3::EXPOSURE, env->tone_mapper_exposure);
-    state.tonemap_shader.set_uniform(TonemapShaderGLES3::WHITE, env->tone_mapper_exposure_white);
+        if (max_glow_level >= 0) {
 
-    if (max_glow_level >= 0) {
+            state.tonemap_shader.set_uniform(TonemapShaderGLES3::GLOW_INTENSITY, env->glow_intensity);
+            int ss[2] = {
+                storage->frame.current_rt->width,
+                storage->frame.current_rt->height,
+            };
+            glUniform2iv(state.tonemap_shader.get_uniform(TonemapShaderGLES3::GLOW_TEXTURE_SIZE), 1, ss);
+        }
 
-        state.tonemap_shader.set_uniform(TonemapShaderGLES3::GLOW_INTENSITY, env->glow_intensity);
-        int ss[2] = {
-            storage->frame.current_rt->width,
-            storage->frame.current_rt->height,
-        };
-        glUniform2iv(state.tonemap_shader.get_uniform(TonemapShaderGLES3::GLOW_TEXTURE_SIZE), 1, ss);
+        if (env->auto_exposure) {
+
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, storage->frame.current_rt->exposure.color);
+            state.tonemap_shader.set_uniform(TonemapShaderGLES3::AUTO_EXPOSURE_GREY, env->auto_exposure_grey);
+        }
+
+        if (env->adjustments_enabled) {
+
+            state.tonemap_shader.set_uniform(TonemapShaderGLES3::BCS, Vector3(env->adjustments_brightness, env->adjustments_contrast, env->adjustments_saturation));
+        }
+    } else {
+        // No environment, so no exposure.
+        state.tonemap_shader.set_uniform(TonemapShaderGLES3::EXPOSURE, 1.0);
     }
 
-    if (env->auto_exposure) {
-
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, storage->frame.current_rt->exposure.color);
-        state.tonemap_shader.set_uniform(TonemapShaderGLES3::AUTO_EXPOSURE_GREY, env->auto_exposure_grey);
-    }
-
-    if (env->adjustments_enabled) {
-
-        state.tonemap_shader.set_uniform(TonemapShaderGLES3::BCS, Vector3(env->adjustments_brightness, env->adjustments_contrast, env->adjustments_saturation));
+    if (storage->frame.current_rt->use_fxaa) {
+        state.tonemap_shader.set_uniform(TonemapShaderGLES3::PIXEL_SIZE, Vector2(1.0 / storage->frame.current_rt->width, 1.0 / storage->frame.current_rt->height));
     }
 
     _copy_screen(true, true);
 
     //turn off everything used
+    state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_FXAA, false);
+    state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_DEBANDING, false);
     state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_AUTO_EXPOSURE, false);
     state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_FILMIC_TONEMAPPER, false);
     state.tonemap_shader.set_conditional(TonemapShaderGLES3::USE_ACES_TONEMAPPER, false);
@@ -4959,11 +4974,13 @@ void RasterizerSceneGLES3::initialize() {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     render_list.max_elements = GLOBAL_DEF_RST("rendering/limits/rendering/max_renderable_elements", (int)RenderList::DEFAULT_MAX_ELEMENTS).as<int>();
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/rendering/max_renderable_elements", PropertyInfo(VariantType::INT, "rendering/limits/rendering/max_renderable_elements", PropertyHint::Range, "1024,1000000,1"));
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/rendering/max_renderable_elements", PropertyInfo(VariantType::INT, "rendering/limits/rendering/max_renderable_elements", PropertyHint::Range, "1024,65536,1"));
     render_list.max_lights = GLOBAL_DEF("rendering/limits/rendering/max_renderable_lights", (int)RenderList::DEFAULT_MAX_LIGHTS).as<int>();
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/rendering/max_renderable_lights", PropertyInfo(VariantType::INT, "rendering/limits/rendering/max_renderable_lights", PropertyHint::Range, "16,4096,1"));
     render_list.max_reflections = GLOBAL_DEF("rendering/limits/rendering/max_renderable_reflections", (int)RenderList::DEFAULT_MAX_REFLECTIONS).as<int>();
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/rendering/max_renderable_reflections", PropertyInfo(VariantType::INT, "rendering/limits/rendering/max_renderable_reflections", PropertyHint::Range, "8,1024,1"));
+    render_list.max_lights_per_object = GLOBAL_DEF_RST("rendering/limits/rendering/max_lights_per_object", (int)RenderList::DEFAULT_MAX_LIGHTS_PER_OBJECT).as<int>();
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/rendering/max_lights_per_object", PropertyInfo(VariantType::INT, "rendering/limits/rendering/max_lights_per_object", PropertyHint::Range, "8,1024,1"));
 
     {
         //quad buffers
@@ -5078,7 +5095,7 @@ void RasterizerSceneGLES3::initialize() {
         glBufferData(GL_UNIFORM_BUFFER, sizeof(LightDataUBO), nullptr, GL_DYNAMIC_DRAW);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-        state.max_forward_lights_per_object = 8;
+        state.max_forward_lights_per_object = MIN(state.max_ubo_lights, render_list.max_lights_per_object);
 
         state.scene_shader.add_custom_define("#define MAX_LIGHT_DATA_STRUCTS " + ::to_string(state.max_ubo_lights) + "\n");
         state.scene_shader.add_custom_define("#define MAX_FORWARD_LIGHTS " + ::to_string(state.max_forward_lights_per_object) + "\n");

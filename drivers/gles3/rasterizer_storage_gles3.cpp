@@ -1900,6 +1900,9 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
         glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+        //reset flags on Sky Texture that may have changed
+        texture_set_flags(sky->panorama, texture->flags);
+
         glBindFramebuffer(GL_FRAMEBUFFER, RasterizerStorageGLES3::system_fbo);
         glDeleteFramebuffers(1, &tmp_fb);
         glDeleteFramebuffers(1, &tmp_fb2);
@@ -2130,21 +2133,39 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
             p_shader->canvas_item.uses_screen_texture = false;
             p_shader->canvas_item.uses_screen_uv = false;
             p_shader->canvas_item.uses_time = false;
+            p_shader->canvas_item.uses_modulate = false;
+            p_shader->canvas_item.uses_color = false;
+            p_shader->canvas_item.uses_vertex = false;
+            p_shader->canvas_item.batch_flags = 0;
 
-            shaders.actions_canvas.render_mode_values[StringName("blend_add")] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_ADD);
-            shaders.actions_canvas.render_mode_values["blend_mix"] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_MIX);
-            shaders.actions_canvas.render_mode_values["blend_sub"] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_SUB);
-            shaders.actions_canvas.render_mode_values["blend_mul"] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_MUL);
-            shaders.actions_canvas.render_mode_values["blend_premul_alpha"] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_PMALPHA);
-            shaders.actions_canvas.render_mode_values["blend_disabled"] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_DISABLED);
+            p_shader->canvas_item.uses_world_matrix = false;
+            p_shader->canvas_item.uses_extra_matrix = false;
+            p_shader->canvas_item.uses_projection_matrix = false;
+            p_shader->canvas_item.uses_instance_custom = false;
 
-            shaders.actions_canvas.render_mode_values["unshaded"] = Pair<int *, int>(&p_shader->canvas_item.light_mode, Shader::CanvasItem::LIGHT_MODE_UNSHADED);
-            shaders.actions_canvas.render_mode_values["light_only"] = Pair<int *, int>(&p_shader->canvas_item.light_mode, Shader::CanvasItem::LIGHT_MODE_LIGHT_ONLY);
+            shaders.actions_canvas.render_mode_values[StringName("blend_add")] = Pair<int8_t *, int>((int8_t *)&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_ADD);
+            shaders.actions_canvas.render_mode_values["blend_mix"] = Pair<int8_t *, int>((int8_t *)&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_MIX);
+            shaders.actions_canvas.render_mode_values["blend_sub"] = Pair<int8_t *, int>((int8_t *)&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_SUB);
+            shaders.actions_canvas.render_mode_values["blend_mul"] = Pair<int8_t *, int>((int8_t *)&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_MUL);
+            shaders.actions_canvas.render_mode_values["blend_premul_alpha"] = Pair<int8_t *, int>((int8_t *)&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_PMALPHA);
+            shaders.actions_canvas.render_mode_values["blend_disabled"] = Pair<int8_t *, int>((int8_t *)&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_DISABLED);
+
+            shaders.actions_canvas.render_mode_values["unshaded"] = Pair<int8_t *, int>((int8_t *)&p_shader->canvas_item.light_mode, Shader::CanvasItem::LIGHT_MODE_UNSHADED);
+            shaders.actions_canvas.render_mode_values["light_only"] = Pair<int8_t *, int>((int8_t *)&p_shader->canvas_item.light_mode, Shader::CanvasItem::LIGHT_MODE_LIGHT_ONLY);
 
             shaders.actions_canvas.usage_flag_pointers["SCREEN_UV"] = &p_shader->canvas_item.uses_screen_uv;
             shaders.actions_canvas.usage_flag_pointers["SCREEN_PIXEL_SIZE"] = &p_shader->canvas_item.uses_screen_uv;
             shaders.actions_canvas.usage_flag_pointers["SCREEN_TEXTURE"] = &p_shader->canvas_item.uses_screen_texture;
             shaders.actions_canvas.usage_flag_pointers["TIME"] = &p_shader->canvas_item.uses_time;
+
+            shaders.actions_canvas.usage_flag_pointers["MODULATE"] = &p_shader->canvas_item.uses_modulate;
+            shaders.actions_canvas.usage_flag_pointers["COLOR"] = &p_shader->canvas_item.uses_color;
+            shaders.actions_canvas.usage_flag_pointers["VERTEX"] = &p_shader->canvas_item.uses_vertex;
+
+            shaders.actions_canvas.usage_flag_pointers["WORLD_MATRIX"] = &p_shader->canvas_item.uses_world_matrix;
+            shaders.actions_canvas.usage_flag_pointers["EXTRA_MATRIX"] = &p_shader->canvas_item.uses_extra_matrix;
+            shaders.actions_canvas.usage_flag_pointers["PROJECTION_MATRIX"] = &p_shader->canvas_item.uses_projection_matrix;
+            shaders.actions_canvas.usage_flag_pointers["INSTANCE_CUSTOM"] = &p_shader->canvas_item.uses_instance_custom;
 
             actions = &shaders.actions_canvas;
             actions->uniforms = &p_shader->uniforms;
@@ -2172,19 +2193,19 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
             p_shader->spatial.writes_modelview_or_projection = false;
             p_shader->spatial.uses_world_coordinates = false;
 
-            shaders.actions_scene.render_mode_values[StringName("blend_add")] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Node3D::BLEND_MODE_ADD);
-            shaders.actions_scene.render_mode_values["blend_mix"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Node3D::BLEND_MODE_MIX);
-            shaders.actions_scene.render_mode_values["blend_sub"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Node3D::BLEND_MODE_SUB);
-            shaders.actions_scene.render_mode_values["blend_mul"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Node3D::BLEND_MODE_MUL);
+            shaders.actions_scene.render_mode_values[StringName("blend_add")] = Pair<int8_t *, int>(&p_shader->spatial.blend_mode, Shader::Node3D::BLEND_MODE_ADD);
+            shaders.actions_scene.render_mode_values["blend_mix"] = Pair<int8_t *, int>(&p_shader->spatial.blend_mode, Shader::Node3D::BLEND_MODE_MIX);
+            shaders.actions_scene.render_mode_values["blend_sub"] = Pair<int8_t *, int>(&p_shader->spatial.blend_mode, Shader::Node3D::BLEND_MODE_SUB);
+            shaders.actions_scene.render_mode_values["blend_mul"] = Pair<int8_t *, int>(&p_shader->spatial.blend_mode, Shader::Node3D::BLEND_MODE_MUL);
 
-            shaders.actions_scene.render_mode_values["depth_draw_opaque"] = Pair<int *, int>(&p_shader->spatial.depth_draw_mode, Shader::Node3D::DEPTH_DRAW_OPAQUE);
-            shaders.actions_scene.render_mode_values["depth_draw_always"] = Pair<int *, int>(&p_shader->spatial.depth_draw_mode, Shader::Node3D::DEPTH_DRAW_ALWAYS);
-            shaders.actions_scene.render_mode_values["depth_draw_never"] = Pair<int *, int>(&p_shader->spatial.depth_draw_mode, Shader::Node3D::DEPTH_DRAW_NEVER);
-            shaders.actions_scene.render_mode_values["depth_draw_alpha_prepass"] = Pair<int *, int>(&p_shader->spatial.depth_draw_mode, Shader::Node3D::DEPTH_DRAW_ALPHA_PREPASS);
+            shaders.actions_scene.render_mode_values["depth_draw_opaque"] = Pair<int8_t *, int>(&p_shader->spatial.depth_draw_mode, Shader::Node3D::DEPTH_DRAW_OPAQUE);
+            shaders.actions_scene.render_mode_values["depth_draw_always"] = Pair<int8_t *, int>(&p_shader->spatial.depth_draw_mode, Shader::Node3D::DEPTH_DRAW_ALWAYS);
+            shaders.actions_scene.render_mode_values["depth_draw_never"] = Pair<int8_t *, int>(&p_shader->spatial.depth_draw_mode, Shader::Node3D::DEPTH_DRAW_NEVER);
+            shaders.actions_scene.render_mode_values["depth_draw_alpha_prepass"] = Pair<int8_t *, int>(&p_shader->spatial.depth_draw_mode, Shader::Node3D::DEPTH_DRAW_ALPHA_PREPASS);
 
-            shaders.actions_scene.render_mode_values["cull_front"] = Pair<int *, int>(&p_shader->spatial.cull_mode, Shader::Node3D::CULL_MODE_FRONT);
-            shaders.actions_scene.render_mode_values["cull_back"] = Pair<int *, int>(&p_shader->spatial.cull_mode, Shader::Node3D::CULL_MODE_BACK);
-            shaders.actions_scene.render_mode_values["cull_disabled"] = Pair<int *, int>(&p_shader->spatial.cull_mode, Shader::Node3D::CULL_MODE_DISABLED);
+            shaders.actions_scene.render_mode_values["cull_front"] = Pair<int8_t *, int>(&p_shader->spatial.cull_mode, Shader::Node3D::CULL_MODE_FRONT);
+            shaders.actions_scene.render_mode_values["cull_back"] = Pair<int8_t *, int>(&p_shader->spatial.cull_mode, Shader::Node3D::CULL_MODE_BACK);
+            shaders.actions_scene.render_mode_values["cull_disabled"] = Pair<int8_t *, int>(&p_shader->spatial.cull_mode, Shader::Node3D::CULL_MODE_DISABLED);
 
             shaders.actions_scene.render_mode_flags["unshaded"] = &p_shader->spatial.unshaded;
             shaders.actions_scene.render_mode_flags["depth_test_disable"] = &p_shader->spatial.no_depth_test;
@@ -2245,6 +2266,19 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
 
     p_shader->uses_vertex_time = gen_code.uses_vertex_time;
     p_shader->uses_fragment_time = gen_code.uses_fragment_time;
+
+    // some logic for batching
+    if (p_shader->mode == RS::ShaderMode::CANVAS_ITEM) {
+        if (p_shader->canvas_item.uses_modulate | p_shader->canvas_item.uses_color) {
+            p_shader->canvas_item.batch_flags |= RasterizerStorageCommon::PREVENT_COLOR_BAKING;
+        }
+        if (p_shader->canvas_item.uses_vertex) {
+            p_shader->canvas_item.batch_flags |= RasterizerStorageCommon::PREVENT_VERTEX_BAKING;
+        }
+        if (p_shader->canvas_item.uses_world_matrix | p_shader->canvas_item.uses_extra_matrix | p_shader->canvas_item.uses_projection_matrix | p_shader->canvas_item.uses_instance_custom) {
+            p_shader->canvas_item.batch_flags |= RasterizerStorageCommon::PREVENT_ITEM_JOINING;
+        }
+    }
 
     //all materials using this shader will have to be invalidated, unfortunately
 
@@ -4873,7 +4907,12 @@ void RasterizerStorageGLES3::update_dirty_multimeshes() {
         if (multimesh->size && multimesh->dirty_data) {
 
             glBindBuffer(GL_ARRAY_BUFFER, multimesh->buffer);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, multimesh->data.size() * sizeof(float), multimesh->data.read().ptr());
+            uint32_t buffer_size = multimesh->data.size() * sizeof(float);
+            if (config.should_orphan) {
+                glBufferData(GL_ARRAY_BUFFER, buffer_size, multimesh->data.read().ptr(), GL_DYNAMIC_DRAW);
+            } else {
+                glBufferSubData(GL_ARRAY_BUFFER, 0, buffer_size, multimesh->data.read().ptr());
+            }
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
@@ -5334,7 +5373,7 @@ RID RasterizerStorageGLES3::light_create(RS::LightType p_type) {
     light->directional_blend_splits = false;
     light->directional_range_mode = RS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_STABLE;
     light->reverse_cull = false;
-    light->use_gi = true;
+    light->bake_mode = RS::LIGHT_BAKE_INDIRECT;
     light->version = 0;
 
     return light_owner.make_rid(light);
@@ -5427,14 +5466,20 @@ void RasterizerStorageGLES3::light_set_reverse_cull_face_mode(RID p_light, bool 
 }
 
 void RasterizerStorageGLES3::light_set_use_gi(RID p_light, bool p_enabled) {
+    WARN_DEPRECATED_MSG("'VisualServer.light_set_use_gi' is deprecated and will be removed in a future version. Use 'VisualServer.light_set_bake_mode' instead.");
+    light_set_bake_mode(p_light, p_enabled ? RS::LightBakeMode::LIGHT_BAKE_INDIRECT : RS::LightBakeMode::LIGHT_BAKE_DISABLED);
+}
+
+void RasterizerStorageGLES3::light_set_bake_mode(RID p_light, RS::LightBakeMode p_bake_mode) {
     Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
 
-    light->use_gi = p_enabled;
+    light->bake_mode = p_bake_mode;
 
     light->version++;
     light->instance_change_notify(true, false);
 }
+
 void RasterizerStorageGLES3::light_omni_set_shadow_mode(RID p_light, RS::LightOmniShadowMode p_mode) {
 
     Light3D *light = light_owner.getornull(p_light);
@@ -5541,10 +5586,14 @@ Color RasterizerStorageGLES3::light_get_color(RID p_light) {
 }
 
 bool RasterizerStorageGLES3::light_get_use_gi(RID p_light) {
-    Light3D *light = light_owner.getornull(p_light);
-    ERR_FAIL_COND_V(!light, false);
+    return light_get_bake_mode(p_light) != RS::LightBakeMode::LIGHT_BAKE_DISABLED;
+}
 
-    return light->use_gi;
+RS::LightBakeMode RasterizerStorageGLES3::light_get_bake_mode(RID p_light) {
+    Light3D *light = light_owner.getornull(p_light);
+    ERR_FAIL_COND_V(!light, RS::LightBakeMode::LIGHT_BAKE_DISABLED);
+
+    return light->bake_mode;
 }
 
 bool RasterizerStorageGLES3::light_has_shadow(RID p_light) const {
@@ -7538,6 +7587,22 @@ void RasterizerStorageGLES3::render_target_set_msaa(RID p_render_target, RS::Vie
     _render_target_allocate(rt);
 }
 
+void RasterizerStorageGLES3::render_target_set_use_fxaa(RID p_render_target, bool p_fxaa) {
+
+    RenderTarget *rt = render_target_owner.getornull(p_render_target);
+    ERR_FAIL_COND(!rt);
+
+    rt->use_fxaa = p_fxaa;
+}
+
+void RasterizerStorageGLES3::render_target_set_use_debanding(RID p_render_target, bool p_debanding) {
+
+    RenderTarget *rt = render_target_owner.getornull(p_render_target);
+    ERR_FAIL_COND(!rt);
+
+    rt->use_debanding = p_debanding;
+}
+
 /* CANVAS SHADOW */
 
 RID RasterizerStorageGLES3::canvas_light_shadow_buffer_create(int p_width) {
@@ -8115,6 +8180,8 @@ void RasterizerStorageGLES3::initialize() {
     config.texture_float_linear_supported = true;
     config.framebuffer_float_supported = true;
     config.framebuffer_half_float_supported = true;
+    // not yet detected on GLES3 (is this mandated?)
+    config.support_npot_repeat_mipmap = true;
 
     config.pvrtc_supported = config.extensions.contains("GL_IMG_texture_compression_pvrtc");
     config.srgb_decode_supported = config.extensions.contains("GL_EXT_texture_sRGB_decode");
@@ -8322,4 +8389,5 @@ void RasterizerStorageGLES3::update_dirty_resources() {
 }
 
 RasterizerStorageGLES3::RasterizerStorageGLES3() {
+    config.should_orphan = true;
 }

@@ -450,6 +450,9 @@ public: // scripting glue helpers
     virtual void light_set_reverse_cull_face_mode(RID p_light, bool p_enabled) = 0;
     virtual void light_set_use_gi(RID p_light, bool p_enable) = 0;
 
+    // bake mode
+    virtual void light_set_bake_mode(RID p_light, RS::LightBakeMode p_bake_mode) = 0;
+
     // omni light
     virtual void light_omni_set_shadow_mode(RID p_light, RS::LightOmniShadowMode p_mode) = 0;
     virtual void light_omni_set_shadow_detail(RID p_light, RS::LightOmniShadowDetail p_detail) = 0;
@@ -616,6 +619,8 @@ public: // scripting glue helpers
     virtual void viewport_set_shadow_atlas_quadrant_subdivision(RID p_viewport, int p_quadrant, int p_subdiv) = 0;
 
     virtual void viewport_set_msaa(RID p_viewport, RS::ViewportMSAA p_msaa) = 0;
+    virtual void viewport_set_use_fxaa(RID p_viewport, bool p_fxaa) = 0;
+    virtual void viewport_set_use_debanding(RID p_viewport, bool p_debanding) = 0;
 
     virtual void viewport_set_hdr(RID p_viewport, bool p_enabled) = 0;
     virtual void viewport_set_usage(RID p_viewport, RS::ViewportUsage p_usage) = 0;

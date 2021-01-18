@@ -40,7 +40,7 @@ class ShaderCompilerGLES3 {
 public:
     struct IdentifierActions {
 
-        HashMap<StringName, Pair<int *, int> > render_mode_values;
+        HashMap<StringName, Pair<int8_t *, int> > render_mode_values;
         HashMap<StringName, bool *> render_mode_flags;
         HashMap<StringName, bool *> usage_flag_pointers;
         HashMap<StringName, bool *> write_flag_pointers;

@@ -490,40 +490,44 @@ void JoypadLinux::process_joypads() {
 
                     case EV_ABS:
 
-                        switch (ev.code) {
-                            case ABS_HAT0X:
-                                if (ev.value != 0) {
-                                    if (ev.value < 0)
-                                        joy->dpad |= InputDefault::HAT_MASK_LEFT;
-                                    else
-                                        joy->dpad |= InputDefault::HAT_MASK_RIGHT;
-                                } else
-                                    joy->dpad &= ~(InputDefault::HAT_MASK_LEFT | InputDefault::HAT_MASK_RIGHT);
-
-                                input->joy_hat(i, joy->dpad);
-                                break;
-
-                            case ABS_HAT0Y:
-                                if (ev.value != 0) {
-                                    if (ev.value < 0)
-                                        joy->dpad |= InputDefault::HAT_MASK_UP;
-                                    else
-                                        joy->dpad |= InputDefault::HAT_MASK_DOWN;
-                                } else
-                                    joy->dpad &= ~(InputDefault::HAT_MASK_UP | InputDefault::HAT_MASK_DOWN);
-
-                                input->joy_hat(i, joy->dpad);
-                                break;
-
-                            default:
-                                if (ev.code >= MAX_ABS)
-                                    return;
-                                if (joy->abs_map[ev.code] != -1 && joy->abs_info[ev.code]) {
-                                    InputDefault::JoyAxis value = axis_correct(joy->abs_info[ev.code], ev.value);
-                                    joy->curr_axis[joy->abs_map[ev.code]] = value;
+                    switch (ev.code) {
+                        case ABS_HAT0X:
+                            if (ev.value != 0) {
+                                if (ev.value < 0) {
+                                    joy->dpad = (joy->dpad | InputDefault::HAT_MASK_LEFT) & ~InputDefault::HAT_MASK_RIGHT;
+                                } else {
+                                    joy->dpad = (joy->dpad | InputDefault::HAT_MASK_RIGHT) & ~InputDefault::HAT_MASK_LEFT;
                                 }
-                                break;
-                        }
+                            } else {
+                                joy->dpad &= ~(InputDefault::HAT_MASK_LEFT | InputDefault::HAT_MASK_RIGHT);
+                            }
+
+                            input->joy_hat(i, joy->dpad);
+                            break;
+
+                        case ABS_HAT0Y:
+                            if (ev.value != 0) {
+                                if (ev.value < 0) {
+                                    joy->dpad = (joy->dpad | InputDefault::HAT_MASK_UP) & ~InputDefault::HAT_MASK_DOWN;
+                                } else {
+                                    joy->dpad = (joy->dpad | InputDefault::HAT_MASK_DOWN) & ~InputDefault::HAT_MASK_UP;
+                                }
+                            } else {
+                                joy->dpad &= ~(InputDefault::HAT_MASK_UP | InputDefault::HAT_MASK_DOWN);
+                            }
+
+                            input->joy_hat(i, joy->dpad);
+                            break;
+
+                        default:
+                            if (ev.code >= MAX_ABS)
+                                return;
+                            if (joy->abs_map[ev.code] != -1 && joy->abs_info[ev.code]) {
+                                InputDefault::JoyAxis value = axis_correct(joy->abs_info[ev.code], ev.value);
+                                joy->curr_axis[joy->abs_map[ev.code]] = value;
+                            }
+                            break;
+                    }
                         break;
                 }
             }

@@ -82,9 +82,6 @@ class FabrikInverseKinematic {
                 chain_item(p_chain_item),
                 end_effector(p_end_effector) {}
 
-        ChainTip(const ChainTip &p_other_ct) :
-                chain_item(p_other_ct.chain_item),
-                end_effector(p_other_ct.end_effector) {}
     };
 
     struct Chain {

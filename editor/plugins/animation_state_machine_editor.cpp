@@ -413,6 +413,11 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
             over_text = over_text_now;
         }
     }
+    Ref<InputEventPanGesture> pan_gesture = dynamic_ref_cast<InputEventPanGesture>(p_event);
+    if (pan_gesture) {
+        h_scroll->set_value(h_scroll->get_value() + h_scroll->get_page() * pan_gesture->get_delta().x / 8);
+        v_scroll->set_value(v_scroll->get_value() + v_scroll->get_page() * pan_gesture->get_delta().y / 8);
+    }
 }
 
 void AnimationNodeStateMachineEditor::_file_opened(StringView p_file) {
@@ -1036,7 +1041,7 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
             is_playing = playback->is_playing();
             current_node = playback->get_current_node();
             blend_from_node = playback->get_blend_from_node();
-            play_pos = playback->get_current_play_pos();
+            play_pos = playback->get_current_play_position();
             current_length = playback->get_current_length();
         }
 
@@ -1081,7 +1086,7 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
 
                 // when current_node is a state machine, use playback of current_node to set play_pos
                 if (current_node_playback) {
-                    play_pos = current_node_playback->get_current_play_pos();
+                    play_pos = current_node_playback->get_current_play_position();
                     current_length = current_node_playback->get_current_length();
                 }
             }

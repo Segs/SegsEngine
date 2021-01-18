@@ -51,7 +51,7 @@ void register_csg_types() {
     ClassDB::register_class<CSGCombiner>();
 
 #ifdef TOOLS_ENABLED
-    Q_INIT_RESOURCE(csg); 
+    Q_INIT_RESOURCE(csg);
     CSGShapeSpatialGizmoPlugin::initialize_class();
 
     EditorPlugins::add_by_type<EditorPluginCSG>();
@@ -60,4 +60,7 @@ void register_csg_types() {
 }
 
 void unregister_csg_types() {
+#ifdef TOOLS_ENABLED
+    Q_CLEANUP_RESOURCE(csg);
+#endif
 }

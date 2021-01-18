@@ -236,7 +236,8 @@ public:
     enum {
         GIZMO_BASE_LAYER = 27,
         GIZMO_EDIT_LAYER = 26,
-        GIZMO_GRID_LAYER = 25
+        GIZMO_GRID_LAYER = 25,
+        MISC_TOOL_LAYER = 24
     };
 
     enum NavigationScheme {
@@ -497,6 +498,8 @@ public:
     Transform last_xform; // last transform
     Node3D *sp = nullptr;
     RID sbox_instance;
+    RID sbox_instance_xray;
+
     bool last_xform_dirty =  true;
 
     Node3DEditorSelectedItem() = default;
@@ -612,6 +615,7 @@ private:
     float snap_rotate_value;
     float snap_scale_value;
 
+    Ref<ArrayMesh> selection_box_xray;
     Ref<ArrayMesh> selection_box;
     RID indicators;
     RID indicators_instance;
@@ -701,7 +705,7 @@ private:
 
     HBoxContainer *hbc_menu;
 
-    void _generate_selection_box();
+    void _generate_selection_boxes();
     UndoRedo *undo_redo;
 
     int camera_override_viewport_id;

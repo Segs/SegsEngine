@@ -1010,6 +1010,10 @@ namespace {
                 accessor.byte_offset = d["byteOffset"].as<int>();
             }
 
+            if (d.has("normalized")) {
+                accessor.normalized = d["normalized"].as<bool>();
+            }
+
             if (d.has("max")) {
                 accessor.max = d["max"].as<float>();
             }
@@ -1650,7 +1654,9 @@ namespace {
                             !uri.starts_with("data:application/gltf-buffer;base64") &&
                             !uri.starts_with("data:image/png;base64") &&
                             !uri.starts_with("data:image/jpeg;base64")) {
-                        ERR_PRINT("glTF: Got image data with an unknown URI data type: " + uri);
+                        WARN_PRINT(FormatVE("glTF: Image index '%d' uses an unsupported URI data type: %s. Skipping it.", i, uri.c_str()));
+                        state.images.push_back(Ref<Texture>()); // Placeholder to keep count.
+                        continue;
                     }
                     data = _parse_base64_uri(uri);
                     data_ptr = data.data();
@@ -1665,27 +1671,38 @@ namespace {
                     }
                 } else { // Relative path to an external image file.
                     uri = PathUtils::plus_file(p_base_path,uri).replaced("\\", "/"); // Fix for Windows.
-                    // The spec says that if mimeType is defined, we should enforce it.
-                    // So we should only rely on ResourceLoader::load if mimeType is not defined,
-                    // otherwise we should use the same logic as for buffers.
-                    if (mimetype == "image/png" || mimetype == "image/jpeg") {
-                        // Load data buffer and rely on PNG and JPEG-specific logic below to load the image.
-                        // This makes it possible to load a file with a wrong extension but correct MIME type,
-                        // e.g. "foo.jpg" containing PNG data and with MIME type "image/png". ResourceLoader would fail.
+                    // ResourceLoader will rely on the file extension to use the relevant loader.
+                    // The spec says that if mimeType is defined, it should take precedence (e.g.
+                    // there could be a `.png` image which is actually JPEG), but there's no easy
+                    // API for that in Godot, so we'd have to load as a buffer (i.e. embedded in
+                    // the material), so we do this only as fallback.
+                    Ref<Texture> texture(gResourceManager().loadT<Texture>(uri));
+                    if (texture) {
+                        state.images.emplace_back(eastl::move(texture));
+                        continue;
+                    } else if (mimetype == "image/png" || mimetype == "image/jpeg") {
+                        // Fallback to loading as byte array.
+                        // This enables us to support the spec's requirement that we honor mimetype
+                        // regardless of file URI.
                         data = FileAccess::get_file_as_array(uri);
-                        ERR_FAIL_COND_V_MSG(data.size() == 0, ERR_PARSE_ERROR, "glTF: Couldn't load image file as an array: " + uri);
+                        if (data.size() == 0) {
+                            WARN_PRINT(FormatVE("glTF: Image index '%d' couldn't be loaded as a buffer of MIME type '%s' from URI: %s. Skipping it.", i, mimetype.c_str(), uri.c_str()));
+                            state.images.push_back(Ref<Texture>()); // Placeholder to keep count.
+                            continue;
+                        }
                         data_ptr = data.data();
                         data_size = data.size();
                     } else {
-                        // Good old ResourceLoader will rely on file extension.
-                        Ref<Texture> texture = dynamic_ref_cast<Texture>(gResourceManager().load(uri));
-                        state.images.push_back(texture);
+                        WARN_PRINT(FormatVE("glTF: Image index '%d' couldn't be loaded from URI: %s. Skipping it.", i, uri.c_str()));
+                        state.images.push_back(Ref<Texture>()); // Placeholder to keep count.
                         continue;
                     }
+
                 }
             } else if (d.has("bufferView")) {
                 // Handles the third bullet point from the spec (bufferView).
-                ERR_FAIL_COND_V_MSG(mimetype.empty(), ERR_FILE_CORRUPT, "glTF: Image specifies 'bufferView' but no 'mimeType', which is invalid.");
+                ERR_FAIL_COND_V_MSG(mimetype.empty(), ERR_FILE_CORRUPT,
+                        FormatVE("glTF: Image index '%d' specifies 'bufferView' but no 'mimeType', which is invalid.", i));
 
                 const GLTFBufferViewIndex bvi = (int)d["bufferView"];
 
@@ -1734,6 +1751,8 @@ namespace {
                 img->create(eastl::move(img_data));
 
             }
+            ERR_FAIL_COND_V_MSG(!img, ERR_FILE_CORRUPT,
+                    FormatVE("glTF: Couldn't load image index '%d' with its given mimetype: %s.", i, mimetype.c_str()));
 
             Ref<ImageTexture> t(make_ref_counted<ImageTexture>());
 

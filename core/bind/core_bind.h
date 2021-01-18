@@ -126,6 +126,14 @@ public:
         MONTH_DECEMBER
     };
 
+    enum HandleType {
+        APPLICATION_HANDLE, // HINSTANCE, NSApplication*, UIApplication*, JNIEnv* ...
+        DISPLAY_HANDLE, // X11::Display* ...
+        WINDOW_HANDLE, // HWND, X11::Window*, NSWindow*, UIWindow*, Android activity ...
+        WINDOW_VIEW, // HDC, NSView*, UIView*, Android surface ...
+        OPENGL_CONTEXT, // HGLRC, X11::GLXContext, NSOpenGLContext*, EGLContext* ...
+    };
+
     void global_menu_add_item(const StringName &p_menu, const StringName &p_label, const Variant &p_signal, const Variant &p_meta);
     void global_menu_add_separator(const StringName &p_menu);
     void global_menu_remove_item(const StringName &p_menu, int p_idx);
@@ -133,6 +141,7 @@ public:
 
     Point2 get_mouse_position() const;
     void set_window_title(const String &p_title);
+    void set_window_mouse_passthrough(const PoolVector2Array &p_region);
     int get_mouse_button_state() const;
 
     void set_clipboard(StringView p_text);
@@ -187,6 +196,8 @@ public:
     virtual void request_attention();
     virtual void center_window();
     virtual void move_window_to_foreground();
+
+    virtual int64_t get_native_handle(HandleType p_handle_type);
 
     virtual void set_borderless_window(bool p_borderless);
     virtual bool get_borderless_window() const;
@@ -566,9 +577,9 @@ private:
     bool _list_skip_hidden;
 };
 
-class GODOT_EXPORT _Marshalls : public RefCounted {
+class GODOT_EXPORT _Marshalls : public Object {
 
-    GDCLASS(_Marshalls, RefCounted)
+    GDCLASS(_Marshalls, Object)
 
     static _Marshalls *singleton;
 

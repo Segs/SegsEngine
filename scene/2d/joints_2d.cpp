@@ -35,6 +35,7 @@
 #include "servers/physics_server_2d.h"
 #include "core/method_bind.h"
 #include "scene/main/scene_tree.h"
+#include "core/translation_helpers.h"
 
 
 IMPL_GDCLASS(Joint2D)
@@ -54,25 +55,60 @@ void Joint2D::_update_joint(bool p_only_free) {
         bb = RID();
     }
 
-    if (p_only_free || !is_inside_tree())
+    if (p_only_free || !is_inside_tree()) {
+        warning.clear();
         return;
+    }
 
     Node *node_a = has_node(get_node_a()) ? get_node(get_node_a()) : (Node *)nullptr;
     Node *node_b = has_node(get_node_b()) ? get_node(get_node_b()) : (Node *)nullptr;
 
-    if (!node_a || !node_b)
-        return;
-
     PhysicsBody2D *body_a = object_cast<PhysicsBody2D>(node_a);
     PhysicsBody2D *body_b = object_cast<PhysicsBody2D>(node_b);
 
-    if (!body_a || !body_b)
+    if (node_a && !body_a && node_b && !body_b) {
+        warning = TTR("Node A and Node B must be PhysicsBody2Ds");
+        update_configuration_warning();
         return;
+    }
+    if (node_a && !body_a) {
+        warning = TTR("Node A must be a PhysicsBody2D");
+        update_configuration_warning();
+        return;
+    }
+
+    if (node_b && !body_b) {
+        warning = TTR("Node B must be a PhysicsBody2D");
+        update_configuration_warning();
+        return;
+    }
+
+    if (!body_a || !body_b) {
+        warning = TTR("Joint is not connected to two PhysicsBody2Ds");
+        update_configuration_warning();
+        return;
+    }
+
+    if (body_a == body_b) {
+        warning = TTR("Node A and Node B must be different PhysicsBody2Ds");
+        update_configuration_warning();
+        return;
+    }
+
+    warning = String();
+    update_configuration_warning();
+
+    if (body_a) {
+        body_a->force_update_transform();
+    }
+
+    if (body_b) {
+        body_b->force_update_transform();
+    }
 
     joint = _configure_joint(body_a, body_b);
 
-    if (!joint.is_valid())
-        return;
+    ERR_FAIL_COND_MSG(!joint.is_valid(), "Failed to configure the joint.");
 
     PhysicsServer2D::get_singleton()->get_singleton()->joint_set_param(joint, PhysicsServer2D::JOINT_PARAM_BIAS, bias);
 
@@ -150,6 +186,21 @@ bool Joint2D::get_exclude_nodes_from_collision() const {
     return exclude_from_collision;
 }
 
+String Joint2D::get_configuration_warning() const {
+
+    String node_warning = Node2D::get_configuration_warning();
+
+    if (!warning.empty()) {
+        if (!node_warning.empty()) {
+            node_warning += "\n\n";
+        }
+        node_warning += warning;
+    }
+
+    return node_warning;
+}
+
+
 void Joint2D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_node_a", {"node"}), &Joint2D::set_node_a);
@@ -164,8 +215,8 @@ void Joint2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_exclude_nodes_from_collision", {"enable"}), &Joint2D::set_exclude_nodes_from_collision);
     MethodBinder::bind_method(D_METHOD("get_exclude_nodes_from_collision"), &Joint2D::get_exclude_nodes_from_collision);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_a", PropertyHint::NodePathValidTypes, "CollisionObject2D"), "set_node_a", "get_node_a");
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_b", PropertyHint::NodePathValidTypes, "CollisionObject2D"), "set_node_b", "get_node_b");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_a", PropertyHint::NodePathValidTypes, "PhysicsBody2D"), "set_node_a", "get_node_a");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_b", PropertyHint::NodePathValidTypes, "PhysicsBody2D"), "set_node_b", "get_node_b");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bias", PropertyHint::Range, "0,0.9,0.001"), "set_bias", "get_bias");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disable_collision"), "set_exclude_nodes_from_collision", "get_exclude_nodes_from_collision");
 }

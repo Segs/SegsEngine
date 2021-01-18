@@ -450,14 +450,13 @@ void register_scene_types() {
     BackBufferCopy::initialize_class();
     Camera2D::initialize_class();
     AudioStreamPlayer2D::initialize_class();
-    GraphEditFilter::initialize_class();
     GraphEdit::initialize_class();
+    GraphNode::initialize_class();
     HSplitContainer::initialize_class();
     VSplitContainer::initialize_class();
     HSlider::initialize_class();
     VSlider::initialize_class();
     Panel::initialize_class();
-    GraphNode::initialize_class();
     TextureProgress::initialize_class();
     TabContainer::initialize_class();
     Tree::initialize_class();
@@ -721,6 +720,7 @@ void register_scene_types() {
     ClassDB::register_class<VSplitContainer>();
     ClassDB::register_class<GraphNode>();
     GraphEditFilter::initialize_class();
+    GraphEditMinimap::initialize_class();
     ClassDB::register_class<GraphEdit>();
 
     OS::get_singleton()->yield(); //may take time to init

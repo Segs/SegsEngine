@@ -418,7 +418,11 @@ void RasterizerGLES3::register_config() {
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/filters/anisotropic_filter_level", PropertyInfo(VariantType::INT, "rendering/quality/filters/anisotropic_filter_level", PropertyHint::Range, "1,16,1"));
 }
 
-// returns NULL if no error, or an error string
+/**
+ * @brief RasterizerGLES3::gl_check_for_error
+ * @param p_print_error - true if error should be printed out
+ * @return nullptr if no error, or an error string
+ */
 const char *RasterizerGLES3::gl_check_for_error(bool p_print_error) {
     GLenum err = glGetError();
 

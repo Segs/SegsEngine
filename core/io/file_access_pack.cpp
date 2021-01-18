@@ -203,9 +203,16 @@ String DirAccessPack::get_drive(int p_drive) {
     return String();
 }
 
-Error DirAccessPack::change_dir(StringView p_dir) {
+PackedData::PackedDir *DirAccessPack::_find_dir(StringView p_dir) const {
 
     String nd = PathUtils::from_native_path(p_dir);
+
+    // Special handling since simplify_path() will forbid it
+    if (p_dir == "..") {
+        return current->parent;
+    }
+
+
     bool absolute = false;
     if (StringUtils::begins_with(nd,"res://")) {
         nd = StringUtils::replace_first(nd,"res://", "");
@@ -246,13 +253,22 @@ Error DirAccessPack::change_dir(StringView p_dir) {
 
         } else {
 
-            return ERR_INVALID_PARAMETER;
+            return nullptr;
         }
     }
 
-    current = pd;
+    return pd;
+}
 
-    return OK;
+Error DirAccessPack::change_dir(StringView p_dir) {
+
+    PackedData::PackedDir *pd = _find_dir(p_dir);
+    if (pd) {
+        current = pd;
+        return OK;
+    } else {
+        return ERR_INVALID_PARAMETER;
+    }
 }
 
 String DirAccessPack::get_current_dir() {
@@ -271,13 +287,17 @@ String DirAccessPack::get_current_dir() {
 bool DirAccessPack::file_exists(StringView p_file) {
     p_file = fix_path(p_file);
 
-    return current->files.contains_as(p_file);
+    PackedData::PackedDir *pd = _find_dir(PathUtils::get_base_dir(p_file));
+    if (!pd) {
+        return false;
+    }
+    return pd->files.contains_as(PathUtils::get_file(p_file));
 }
 
 bool DirAccessPack::dir_exists(StringView p_dir) {
     p_dir = fix_path(p_dir);
 
-    return current->subdirs.contains_as(p_dir);
+    return _find_dir(p_dir) != nullptr;
 }
 
 Error DirAccessPack::make_dir(StringView p_dir) {

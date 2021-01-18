@@ -22,7 +22,6 @@ namespace GodotTools.Ides.Rider
         public static void Initialize()
         {
             var editorSettings = GodotSharpEditor.Instance.GetEditorInterface().GetEditorSettings();
-            var zz = editorSettings.GetSetting("mono/editor/external_editor");
             var editor = (ExternalEditorId)editorSettings.GetSetting("mono/editor/external_editor");
             if (editor == ExternalEditorId.Rider)
             {

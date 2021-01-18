@@ -1231,6 +1231,9 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
                     _request_image(item->get_instance_id(), r["icon_url"].as<String>(), IMAGE_QUEUE_ICON, 0);
                 }
             }
+            if (!result.empty()) {
+                library_scroll->set_v_scroll(0);
+            }
         } break;
         case REQUESTING_ASSET: {
             Dictionary r = d;

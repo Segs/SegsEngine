@@ -81,4 +81,8 @@ void unregister_mono_types() {
     resource_saver_cs.unref();
 
     memdelete(_godotsharp);
+#ifdef TOOLS_ENABLED
+    Q_CLEANUP_RESOURCE(cs_sources);
+#endif
+
 }

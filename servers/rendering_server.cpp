@@ -1445,6 +1445,7 @@ void RenderingServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("light_set_reverse_cull_face_mode", { "light", "enabled" }),
             &RenderingServer::light_set_reverse_cull_face_mode);
     MethodBinder::bind_method(D_METHOD("light_set_use_gi", { "light", "enabled" }), &RenderingServer::light_set_use_gi);
+    MethodBinder::bind_method(D_METHOD("light_set_bake_mode", {"light", "bake_mode"}), &RenderingServer::light_set_bake_mode);
 
     MethodBinder::bind_method(
             D_METHOD("light_omni_set_shadow_mode", { "light", "mode" }), &RenderingServer::light_omni_set_shadow_mode);
@@ -1661,6 +1662,9 @@ void RenderingServer::_bind_methods() {
             &RenderingServer::viewport_set_shadow_atlas_quadrant_subdivision);
     MethodBinder::bind_method(
             D_METHOD("viewport_set_msaa", { "viewport", "msaa" }), &RenderingServer::viewport_set_msaa);
+    MethodBinder::bind_method(D_METHOD("viewport_set_use_fxaa", {"viewport", "fxaa"}), &RenderingServer::viewport_set_use_fxaa);
+    MethodBinder::bind_method(D_METHOD("viewport_set_use_debanding", {"viewport", "debanding"}), &RenderingServer::viewport_set_use_debanding);
+
     MethodBinder::bind_method(
             D_METHOD("viewport_set_hdr", { "viewport", "enabled" }), &RenderingServer::viewport_set_hdr);
     MethodBinder::bind_method(
@@ -2075,6 +2079,10 @@ void RenderingServer::_bind_methods() {
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums, LIGHT_PARAM_SHADOW_BIAS_SPLIT_SCALE);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums, LIGHT_PARAM_MAX);
 
+    BIND_NS_ENUM_CONSTANT(RenderingServerEnums,LIGHT_BAKE_DISABLED);
+    BIND_NS_ENUM_CONSTANT(RenderingServerEnums,LIGHT_BAKE_INDIRECT);
+    BIND_NS_ENUM_CONSTANT(RenderingServerEnums,LIGHT_BAKE_ALL);
+
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums, LIGHT_OMNI_SHADOW_DUAL_PARABOLOID);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums, LIGHT_OMNI_SHADOW_CUBE);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums, LIGHT_OMNI_SHADOW_DETAIL_VERTICAL);
@@ -2356,6 +2364,40 @@ RenderingServer::RenderingServer() {
     // GLOBAL_DEF("rendering/quality/depth_prepass/disable_for_vendors", "PowerVR,Mali,Adreno,Apple");
 
     GLOBAL_DEF("rendering/quality/filters/use_nearest_mipmap_filter", false);
+
+    GLOBAL_DEF("rendering/quality/skinning/software_skinning_fallback", true);
+    GLOBAL_DEF("rendering/quality/skinning/force_software_skinning", false);
+
+    StringName sz_balance_render_tree("rendering/quality/spatial_partitioning/render_tree_balance");
+    T_GLOBAL_DEF<float>(sz_balance_render_tree, 0.0f);
+    ps->set_custom_property_info(sz_balance_render_tree, PropertyInfo(VariantType::FLOAT, sz_balance_render_tree, PropertyHint::Range, "0.0,1.0,0.01"));
+
+    GLOBAL_DEF("rendering/quality/2d/use_software_skinning", true);
+    GLOBAL_DEF("rendering/quality/2d/ninepatch_mode", 0);
+    ps->set_custom_property_info("rendering/quality/2d/ninepatch_mode", PropertyInfo(VariantType::INT, "rendering/quality/2d/ninepatch_mode", PropertyHint::Enum, "Default,Scaling"));
+
+    GLOBAL_DEF("rendering/batching/options/use_batching", true);
+    GLOBAL_DEF_RST("rendering/batching/options/use_batching_in_editor", true);
+    GLOBAL_DEF("rendering/batching/options/single_rect_fallback", false);
+    GLOBAL_DEF("rendering/batching/parameters/max_join_item_commands", 16);
+    GLOBAL_DEF("rendering/batching/parameters/colored_vertex_format_threshold", 0.25f);
+    GLOBAL_DEF("rendering/batching/lights/scissor_area_threshold", 1.0f);
+    GLOBAL_DEF("rendering/batching/lights/max_join_items", 32);
+    GLOBAL_DEF("rendering/batching/parameters/batch_buffer_size", 16384);
+    GLOBAL_DEF("rendering/batching/parameters/item_reordering_lookahead", 4);
+    GLOBAL_DEF("rendering/batching/debug/flash_batching", false);
+    GLOBAL_DEF("rendering/batching/debug/diagnose_frame", false);
+    GLOBAL_DEF("rendering/batching/precision/uv_contract", false);
+    GLOBAL_DEF("rendering/batching/precision/uv_contract_amount", 100);
+
+    ps->set_custom_property_info("rendering/batching/parameters/max_join_item_commands", PropertyInfo(VariantType::INT, "rendering/batching/parameters/max_join_item_commands", PropertyHint::Range, "0,65535"));
+    ps->set_custom_property_info("rendering/batching/parameters/colored_vertex_format_threshold", PropertyInfo(VariantType::FLOAT, "rendering/batching/parameters/colored_vertex_format_threshold", PropertyHint::Range, "0.0,1.0,0.01"));
+    ps->set_custom_property_info("rendering/batching/parameters/batch_buffer_size", PropertyInfo(VariantType::INT, "rendering/batching/parameters/batch_buffer_size", PropertyHint::Range, "1024,65535,1024"));
+    ps->set_custom_property_info("rendering/batching/lights/scissor_area_threshold", PropertyInfo(VariantType::FLOAT, "rendering/batching/lights/scissor_area_threshold", PropertyHint::Range, "0.0,1.0"));
+    ps->set_custom_property_info("rendering/batching/lights/max_join_items", PropertyInfo(VariantType::INT, "rendering/batching/lights/max_join_items", PropertyHint::Range, "0,512"));
+    ps->set_custom_property_info("rendering/batching/parameters/item_reordering_lookahead", PropertyInfo(VariantType::INT, "rendering/batching/parameters/item_reordering_lookahead", PropertyHint::Range, "0,256"));
+    ps->set_custom_property_info("rendering/batching/precision/uv_contract_amount", PropertyInfo(VariantType::INT, "rendering/batching/precision/uv_contract_amount", PropertyHint::Range, "0,10000"));
+
 }
 
 RenderingServer::~RenderingServer() {

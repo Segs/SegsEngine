@@ -180,7 +180,7 @@ StringName AnimationNodeStateMachinePlayback::get_blend_from_node() const {
 const Vector<StringName> &AnimationNodeStateMachinePlayback::get_travel_path() const {
     return path;
 }
-float AnimationNodeStateMachinePlayback::get_current_play_pos() const {
+float AnimationNodeStateMachinePlayback::get_current_play_position() const {
     return pos_current;
 }
 float AnimationNodeStateMachinePlayback::get_current_length() const {
@@ -516,6 +516,8 @@ void AnimationNodeStateMachinePlayback::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("stop"), &AnimationNodeStateMachinePlayback::stop);
     MethodBinder::bind_method(D_METHOD("is_playing"), &AnimationNodeStateMachinePlayback::is_playing);
     MethodBinder::bind_method(D_METHOD("get_current_node"), &AnimationNodeStateMachinePlayback::get_current_node);
+    MethodBinder::bind_method(D_METHOD("get_current_play_position"), &AnimationNodeStateMachinePlayback::get_current_play_position);
+    MethodBinder::bind_method(D_METHOD("get_current_length"), &AnimationNodeStateMachinePlayback::get_current_length);
     MethodBinder::bind_method(D_METHOD("get_travel_path"), &AnimationNodeStateMachinePlayback::get_travel_path);
 }
 
