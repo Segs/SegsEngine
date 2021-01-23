@@ -122,7 +122,7 @@ void TCP_Server::stop() {
 }
 
 TCP_Server::TCP_Server() :
-        _sock(Ref<NetSocket>(NetSocket::create())) {
+        _sock(NetSocket::create(),DoNotAddRef) {
 }
 
 TCP_Server::~TCP_Server() {

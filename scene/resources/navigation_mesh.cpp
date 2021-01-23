@@ -374,7 +374,7 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
         }
     }
 
-    debug_mesh = Ref<ArrayMesh>(memnew(ArrayMesh));
+    debug_mesh = make_ref_counted<ArrayMesh>();
 
     SurfaceArrays arr(eastl::move(lines));
 

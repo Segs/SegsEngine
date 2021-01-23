@@ -2073,7 +2073,7 @@ Ref<TextFile> ScriptEditor::_load_text_file(StringView p_path, Error *r_error) {
     String path = gResourceRemapper().path_remap(local_path);
 
     TextFile *text_file = memnew(TextFile);
-    Ref<TextFile> text_res(text_file);
+    Ref<TextFile> text_res(text_file,DoNotAddRef);
     Error err = text_file->load_text(path);
 
     ERR_FAIL_COND_V_MSG(err != OK, Ref<TextFile>(), "Cannot load text file '" + path + "'.");

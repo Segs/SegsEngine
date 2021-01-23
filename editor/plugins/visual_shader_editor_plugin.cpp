@@ -1462,7 +1462,7 @@ VisualShaderNode *VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
             }
         }
 
-        vsnode = Ref<VisualShaderNode>(vsn);
+        vsnode = Ref<VisualShaderNode>(vsn,DoNotAddRef);
     } else {
         ERR_FAIL_COND_V(not add_options[p_idx].script,nullptr);
         StringName base_type = add_options[p_idx].script->get_instance_base_type();

@@ -5557,12 +5557,12 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
 
     Theme *info_overlay_theme = memnew(Theme);
     info_overlay_theme->copy_default_theme();
-    info_overlay->set_theme(Ref<Theme>(info_overlay_theme));
+    info_overlay->set_theme(Ref<Theme>(info_overlay_theme,DoNotAddRef));
 
     StyleBoxFlat *info_overlay_label_stylebox = memnew(StyleBoxFlat);
     info_overlay_label_stylebox->set_bg_color(Color(0.0, 0.0, 0.0, 0.2f));
     info_overlay_label_stylebox->set_expand_margin_size_all(4);
-    info_overlay_theme->set_stylebox("normal", "Label", Ref<StyleBox>(info_overlay_label_stylebox));
+    info_overlay_theme->set_stylebox("normal", "Label", Ref<StyleBox>(info_overlay_label_stylebox,DoNotAddRef));
 
     warning_child_of_container = memnew(Label);
     warning_child_of_container->hide();

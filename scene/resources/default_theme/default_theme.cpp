@@ -90,7 +90,7 @@ static Ref<StyleBoxTexture> make_stylebox(T p_src, float p_left, float p_top, fl
 }
 
 static Ref<StyleBoxFlat> make_flat_stylebox(Color p_color, float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_bottom = -1) {
-    Ref<StyleBoxFlat> style(memnew(StyleBoxFlat));
+    Ref<StyleBoxFlat> style(make_ref_counted<StyleBoxFlat>());
     style->set_bg_color(p_color);
     style->set_default_margin(Margin::Left, p_margin_left * scale);
     style->set_default_margin(Margin::Right, p_margin_right * scale);
@@ -137,7 +137,7 @@ static Ref<Texture> flip_icon(Ref<Texture> p_texture, bool p_flip_y = false, boo
         return p_texture;
     }
 
-    Ref<ImageTexture> texture(memnew(ImageTexture));
+    Ref<ImageTexture> texture(make_ref_counted<ImageTexture>());
     Ref<Image> img = p_texture->get_data();
 
     if (p_flip_y) {

@@ -248,7 +248,7 @@ void WSLClient::poll() {
             if (_use_ssl) {
                 if (_connection == _tcp) {
                     // Start SSL handshake
-                    ssl = Ref<StreamPeerSSL>(StreamPeerSSL::create());
+                    ssl = Ref<StreamPeerSSL>(StreamPeerSSL::create(),DoNotAddRef);
                     ERR_FAIL_COND_MSG(not ssl, "SSL is not available in this build."); 
                     ssl->set_blocking_handshake_enabled(false);
                     if (ssl->connect_to_stream(_tcp, verify_ssl, _host, ssl_cert) != OK) {

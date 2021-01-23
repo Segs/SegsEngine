@@ -1161,7 +1161,7 @@ void Viewport::set_world(const Ref<World3D> &p_world) {
             own_world = dynamic_ref_cast<World3D>(world->duplicate());
             world->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &Viewport::_own_world_changed));
         } else {
-            own_world = Ref<World3D>(memnew(World3D));
+            own_world = make_ref_counted<World3D>();
         }
     }
 

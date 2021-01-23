@@ -542,8 +542,8 @@ Error ResourceInteractiveLoaderText::poll_resource()
         error = ERR_FILE_CORRUPT;
         return error;
     }
-
-    resource = Ref<Resource>(r);
+    // we tak over reference
+    resource = Ref<Resource>(r, DoNotAddRef);
 
     resource_current++;
 
@@ -639,7 +639,7 @@ Error ResourceInteractiveLoaderText::poll() {
                 return error;
             }
 
-            res = Ref<Resource>(r);
+            res = Ref<Resource>(r,DoNotAddRef);
             resource_cache.push_back(res);
             res->set_path(path);
         }

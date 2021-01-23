@@ -227,7 +227,7 @@ void WSLServer::poll() {
 
         Ref<PendingPeer> peer(make_ref_counted<PendingPeer>());
         if (private_key && ssl_cert) {
-            Ref<StreamPeerSSL> ssl = Ref<StreamPeerSSL>(StreamPeerSSL::create());
+            Ref<StreamPeerSSL> ssl = Ref<StreamPeerSSL>(StreamPeerSSL::create(), DoNotAddRef);
             ssl->set_blocking_handshake_enabled(false);
             ssl->accept_stream(conn, private_key, ssl_cert, ca_chain);
             peer->connection = ssl;

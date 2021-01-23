@@ -629,7 +629,7 @@ Error ResourceInteractiveLoaderBinary::poll() {
         ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, local_path + ":Resource type in resource field not a resource, type is: " + obj_class + ".");
     }
 
-    RES res(r);
+    RES res(r,DoNotAddRef);
 
     r->set_path(path);
     r->set_subindex(subindex);

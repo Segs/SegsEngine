@@ -40,7 +40,6 @@
 #include "drivers/unix/net_socket_posix.h"
 #include "drivers/windows/dir_access_windows.h"
 #include "drivers/windows/file_access_windows.h"
-#include "drivers/windows/thread_windows.h"
 #include "joypad_windows.h"
 #include "lang_table.h"
 #include "main/main.h"
@@ -218,8 +217,6 @@ void OS_Windows::initialize_core() {
     maximized = false;
     minimized = false;
     borderless = false;
-
-    ThreadWindows::make_default();
 
     FileAccess::make_default<FileAccessWindows>(FileAccess::ACCESS_RESOURCES);
     FileAccess::make_default<FileAccessWindows>(FileAccess::ACCESS_USERDATA);
@@ -1441,7 +1438,7 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
 
     RegisterTouchWindow(hWnd, 0);
 
-    _ensure_user_data_dir();
+    ensure_user_data_dir();
 
     DragAcceptFiles(hWnd, true);
 
@@ -2609,7 +2606,8 @@ static String _quote_command_line_argument(StringView p_text) {
 }
 
 Error OS_Windows::execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
-    String path(PathUtils::to_win_path(p_path))
+    String path(PathUtils::to_win_path(p_path));
+
     if (p_blocking && r_pipe) {
 
         String argss = _quote_command_line_argument(path);

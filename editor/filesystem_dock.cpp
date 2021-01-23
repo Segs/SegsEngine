@@ -1843,7 +1843,7 @@ void FileSystemDock::_resource_created() {
         scene->pack(node);
         memdelete(node);
     }
-    REF res(r);
+    REF res(r, AddRef);
     editor->push_item(c);
 
     RES current_res(r);

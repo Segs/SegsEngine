@@ -494,42 +494,47 @@ private:
             break;
         }
         case MODE_NEW: {
-
-                    ProjectSettings::CustomMap initial_settings;
-                    if (rasterizer_button_group->get_pressed_button()->get_meta("driver_name") == "GLES3") {
-                        initial_settings["rendering/quality/driver/driver_name"] = "GLES3";
+            ProjectSettings::CustomMap initial_settings;
+            if (rasterizer_button_group->get_pressed_button()->get_meta("driver_name") == "GLES3")
+            {
+                initial_settings["rendering/quality/driver/driver_name"] = "GLES3";
             }
-            else {
-                        assert(false);
-                        //initial_settings["rendering/quality/driver/driver_name"] = "GLES2";
-                        //initial_settings["rendering/vram_compression/import_etc2"] = false;
-                        //initial_settings["rendering/vram_compression/import_etc"] = true;
-                    }
-                    initial_settings["application/config/name"] = project_name->get_text();
-                    initial_settings["application/config/icon"] = "res://icon.png";
-                    initial_settings["rendering/environment/default_environment"] = "res://default_env.tres";
+            else
+            {
+                assert(false);
+                //initial_settings["rendering/quality/driver/driver_name"] = "GLES2";
+                //initial_settings["rendering/vram_compression/import_etc2"] = false;
+                //initial_settings["rendering/vram_compression/import_etc"] = true;
+            }
+            initial_settings["application/config/name"] = project_name->get_text();
+            initial_settings["application/config/icon"] = "res://icon.png";
+            initial_settings["rendering/environment/default_environment"] = "res://default_env.tres";
 
             if (ProjectSettings::get_singleton()->save_custom(PathUtils::plus_file(dir, "project.godot"),
-                initial_settings, {}, false) != OK) {
-                        set_message(TTR("Couldn't create project.godot in project path."), MESSAGE_ERROR);
+                                                              initial_settings, {}, false) != OK)
+            {
+                set_message(TTR("Couldn't create project.godot in project path."), MESSAGE_ERROR);
             }
-            else {
+            else
+            {
                 gResourceManager().save(PathUtils::plus_file(dir, "icon.png"),
-                    get_theme_icon("DefaultProjectIcon", "EditorIcons"));
+                                        get_theme_icon("DefaultProjectIcon", "EditorIcons"));
 
-                FileAccess* f = FileAccess::open(PathUtils::plus_file(dir, "default_env.tres"), FileAccess::WRITE);
-                        if (!f) {
-                            set_message(TTR("Couldn't create project.godot in project path."), MESSAGE_ERROR);
+                FileAccess *f = FileAccess::open(PathUtils::plus_file(dir, "default_env.tres"), FileAccess::WRITE);
+                if (!f)
+                {
+                    set_message(TTR("Couldn't create project.godot in project path."), MESSAGE_ERROR);
                 }
-                else {
-                            f->store_line("[gd_resource type=\"Environment\" load_steps=2 format=2]");
-                            f->store_line("[sub_resource type=\"ProceduralSky\" id=1]");
-                            f->store_line("[resource]");
-                            f->store_line("background_mode = 2");
-                            f->store_line("background_sky = SubResource( 1 )");
-                            memdelete(f);
-                        }
-                    }
+                else
+                {
+                    f->store_line("[gd_resource type=\"Environment\" load_steps=2 format=2]");
+                    f->store_line("[sub_resource type=\"ProceduralSky\" id=1]");
+                    f->store_line("[resource]");
+                    f->store_line("background_mode = 2");
+                    f->store_line("background_sky = SubResource( 1 )");
+                    memdelete(f);
+                }
+            }
             break;
         }
         case MODE_INSTALL: {

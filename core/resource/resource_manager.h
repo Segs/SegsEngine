@@ -79,7 +79,7 @@ public:
     RES load(StringView p_path, StringView p_type_hint = StringView(), bool p_no_cache = false, Error* r_error = nullptr);
     template<typename T>
     Ref<T> loadT(StringView p_path, StringView p_type_hint = StringView(), bool p_no_cache = false, Error* r_error = nullptr) {
-        dynamic_ref_cast<T>(load(p_path,p_type_hint,p_no_cache,r_error));
+        return dynamic_ref_cast<T>(load(p_path,p_type_hint,p_no_cache,r_error));
     }
     // TODO: Only used in ResourceFormatImporter::load, try to remove this from the public interface.
     RES load_internal(StringView p_path, StringView p_original_path, StringView p_type_hint = StringView(), bool p_no_cache = false, Error* r_error = nullptr);

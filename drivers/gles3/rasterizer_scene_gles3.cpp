@@ -30,11 +30,12 @@
 
 #include "rasterizer_scene_gles3.h"
 
+#include "rasterizer_canvas_gles3.h"
+
 #include "core/math/math_funcs.h"
 #include "core/external_profiler.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
-#include "rasterizer_canvas_gles3.h"
 #include "servers/camera/camera_feed.h"
 #include "servers/rendering/rendering_server_raster.h"
 

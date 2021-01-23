@@ -2961,7 +2961,7 @@ Ref<CSharpScript> CSharpScript::create_for_managed_type(GDMonoClass *p_class, GD
     CRASH_COND(p_class == nullptr);
 
     // TODO OPTIMIZE: Cache the 'CSharpScript' associated with this 'p_class' instead of allocating a new one every time
-    Ref<CSharpScript> script(memnew(CSharpScript));
+    Ref<CSharpScript> script(memnew(CSharpScript), DoNotAddRef);
 
     initialize_for_managed_type(script, p_class, p_native);
 
@@ -3177,7 +3177,7 @@ Variant CSharpScript::_new(const Variant **p_args, int p_argcount, Callable::Cal
     REF ref;
     RefCounted *r = object_cast<RefCounted>(owner);
     if (r) {
-        ref = REF(r);
+        ref = REF(r, DoNotAddRef);
     }
 
     CSharpInstance *instance = _create_instance(p_args, p_argcount, owner, r != nullptr, r_error);

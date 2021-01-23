@@ -755,7 +755,7 @@ Ref<NetSocket> NetSocketPosix::accept(IP_Address &r_ip, uint16_t &r_port) {
     NetSocketPosix *ns = memnew(NetSocketPosix);
     ns->_set_socket(new SOCKET_HOLDER{fd}, _ip_type, _is_stream);
     ns->set_blocking_enabled(false);
-    return Ref<NetSocket>(ns);
+    return Ref<NetSocket>(ns,DoNotAddRef);
 }
 
 Error NetSocketPosix::join_multicast_group(const IP_Address &p_multi_address, StringView p_if_name) {

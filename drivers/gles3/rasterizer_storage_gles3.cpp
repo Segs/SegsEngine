@@ -1141,7 +1141,7 @@ Ref<Image> RasterizerStorageGLES3::texture_get_data(RID p_texture, int p_layer) 
             img->convert(real_format);
         }
 
-        return Ref<Image>(img);
+        return Ref<Image>(img, DoNotAddRef);
     }
 
     Image::Format real_format;
@@ -1209,9 +1209,7 @@ Ref<Image> RasterizerStorageGLES3::texture_get_data(RID p_texture, int p_layer) 
 
     data.resize(data_size);
 
-    Image *img = memnew(Image(texture->alloc_width, texture->alloc_height, texture->mipmaps > 1, img_format, data));
-
-    return Ref<Image>(img);
+    return make_ref_counted<Image>(texture->alloc_width, texture->alloc_height, texture->mipmaps > 1, img_format, data);
 }
 
 void RasterizerStorageGLES3::texture_set_flags(RID p_texture, uint32_t p_flags) {

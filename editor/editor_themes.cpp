@@ -96,7 +96,7 @@ static Ref<Texture> flip_icon(Ref<Texture> p_texture, bool p_flip_y = false, boo
         return p_texture;
     }
 
-    Ref<ImageTexture> texture(memnew(ImageTexture));
+    Ref<ImageTexture> texture(memnew(ImageTexture), DoNotAddRef);
     Ref<Image> img = p_texture->get_data();
 
     if (p_flip_y) {

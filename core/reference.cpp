@@ -43,9 +43,9 @@ bool RefCounted::init_ref() {
         return false;
     }
 
-        if (!is_referenced() && refcount_init.unref()) {
-            unreference(); // first referencing is already 1, so compensate for the ref above
-        }
+    if (!is_referenced() && refcount_init.unref()) {
+        unreference(); // first referencing is already 1, so compensate for the ref above
+    }
 
     return true;
 }

@@ -378,7 +378,7 @@ Error HTTPClient::poll() {
                         Ref<StreamPeerSSL> ssl;
                         if (!handshaking) {
                             // Connect the StreamPeerSSL and start handshaking
-                            ssl = Ref<StreamPeerSSL>(StreamPeerSSL::create());
+                            ssl = Ref<StreamPeerSSL>(StreamPeerSSL::create(),DoNotAddRef);
                             ssl->set_blocking_handshake_enabled(false);
                             Error err = ssl->connect_to_stream(tcp_connection, ssl_verify_host, conn_host);
                             if (err != OK) {

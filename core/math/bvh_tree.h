@@ -131,7 +131,7 @@ public:
         if (depth > threshold) {
             if (aux_stack.empty()) {
                 aux_stack.resize(ALLOCA_STACK_SIZE * 2);
-                mempcpy(aux_stack.data(), stack, get_alloca_stacksize());
+                memcpy(aux_stack.data(), stack, get_alloca_stacksize());
             } else {
                 aux_stack.resize(aux_stack.size() * 2);
             }

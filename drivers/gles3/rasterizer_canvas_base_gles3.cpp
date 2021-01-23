@@ -33,12 +33,9 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "rasterizer_asserts.h"
+#include "rasterizer_canvas_gles3.h"
 #include "rasterizer_scene_gles3.h"
 #include "servers/rendering/rendering_server_raster.h"
-
-#ifndef GLES_OVER_GL
-#define glClearDepth glClearDepthf
-#endif
 
 static _FORCE_INLINE_ void store_transform2d(const Transform2D &p_mtx, float *p_array) {
 
@@ -77,16 +74,6 @@ void store_transform(const Transform &p_mtx, float *p_array) {
     p_array[13] = p_mtx.origin.y;
     p_array[14] = p_mtx.origin.z;
     p_array[15] = 1;
-}
-
-static _FORCE_INLINE_ void store_camera(const CameraMatrix &p_mtx, float *p_array) {
-
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-
-            p_array[i * 4 + j] = p_mtx.matrix[i][j];
-        }
-    }
 }
 
 RID RasterizerCanvasBaseGLES3::light_internal_create() {
@@ -1207,7 +1194,7 @@ void RasterizerCanvasBaseGLES3::initialize() {
 
         uint32_t poly_size = GLOBAL_DEF_T_RST("rendering/limits/buffers/canvas_polygon_buffer_size_kb", 128,uint32_t);
         ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/canvas_polygon_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/canvas_polygon_buffer_size_kb", PropertyHint::Range, "0,256,1,or_greater"));
-        poly_size = MAX(poly_size, 2); // minimum 2k, may still see anomalies in editor
+        poly_size = M_MAX(poly_size, 2); // minimum 2k, may still see anomalies in editor
         poly_size *= 1024; //kb
         glGenBuffers(1, &data.polygon_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, data.polygon_buffer);
@@ -1267,7 +1254,7 @@ void RasterizerCanvasBaseGLES3::initialize() {
 
         uint32_t index_size = GLOBAL_DEF_T_RST("rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", 128,uint32_t);
         ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", PropertyHint::Range, "0,256,1,or_greater"));
-        index_size = MAX(index_size, 2);
+        index_size = M_MAX(index_size, 2);
         index_size *= 1024; //kb
         glGenBuffers(1, &data.polygon_index_buffer);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data.polygon_index_buffer);

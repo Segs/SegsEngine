@@ -287,7 +287,7 @@ namespace PathUtils
     //! @note for now it just replaces \\ with /
     [[nodiscard]] GODOT_EXPORT String from_native_path(StringView p);
     [[nodiscard]] GODOT_EXPORT UIString from_native_path(const UIString &p);
-    [[nodiscard]] GODOT_EXPORT String to_win_path(const String &v);
+    [[nodiscard]] GODOT_EXPORT String to_win_path(StringView v);
     [[nodiscard]] GODOT_EXPORT UIString to_win_path(const UIString &v);
     // path functions
     [[nodiscard]] GODOT_EXPORT bool is_internal_path(StringView path);

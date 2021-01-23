@@ -2680,7 +2680,7 @@ Variant _ClassDB::instance(const StringName &p_class) const {
 
     auto *r = object_cast<RefCounted>(obj);
     if (r) {
-        return REF(r);
+        return REF(r,DoNotAddRef);
     } else {
         return Variant(obj);
     }

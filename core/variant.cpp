@@ -2123,9 +2123,9 @@ Variant::Variant(const Object *p_object) {
     if (unlikely(ref)) {
         *reinterpret_cast<Ref<RefCounted> *>(_get_obj().ref.get()) = Ref<RefCounted>(ref);
 #ifdef DEBUG_ENABLED
-        _get_obj().rc = NULL;
+        _get_obj().rc = nullptr;
     } else {
-        _get_obj().rc = likely(obj) ? obj->_use_rc() : NULL;
+        _get_obj().rc = likely(obj) ? obj->_use_rc() : nullptr;
 #endif
     }
 #if !defined(DEBUG_ENABLED)

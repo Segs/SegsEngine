@@ -782,15 +782,11 @@ void AudioDriverWASAPI::start() {
 }
 
 void AudioDriverWASAPI::lock() {
-
-    if (mutex)
-        mutex->lock();
+    mutex.lock();
 }
 
 void AudioDriverWASAPI::unlock() {
-
-    if (mutex)
-        mutex->unlock();
+    mutex.unlock();
 }
 
 void AudioDriverWASAPI::finish() {

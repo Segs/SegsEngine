@@ -38,7 +38,7 @@ class AudioStreamMP3;
 struct mp3dec_ex_t;
 
 
-class AudioStreamPlaybackMP3 : public AudioStreamPlaybackResampled {
+class GODOT_EXPORT AudioStreamPlaybackMP3 : public AudioStreamPlaybackResampled {
     GDCLASS(AudioStreamPlaybackMP3, AudioStreamPlaybackResampled);
 
     mp3dec_ex_t *mp3d = nullptr;
@@ -64,11 +64,11 @@ public:
     float get_playback_position() const override;
     void seek(float p_time) override;
 
-    AudioStreamPlaybackMP3() {}
-    ~AudioStreamPlaybackMP3();
+    AudioStreamPlaybackMP3() = default;
+    ~AudioStreamPlaybackMP3() override;
 };
 
-class AudioStreamMP3 : public AudioStream {
+class GODOT_EXPORT AudioStreamMP3 : public AudioStream {
     GDCLASS(AudioStreamMP3, AudioStream);
     OBJ_SAVE_TYPE(AudioStream) //children are all saved as AudioStream, so they can be exchanged
     RES_BASE_EXTENSION("mp3str");

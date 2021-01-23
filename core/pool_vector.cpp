@@ -65,9 +65,12 @@ void MemoryPool::setup(uint32_t p_max_allocs) {
 
 void MemoryPool::cleanup() {
 
+    if(allocs_used > 0)
+    {
+        printf("1");
+    }
     memdelete_arr(allocs);
     memdelete(alloc_mutex);
-
     ERR_FAIL_COND_MSG(allocs_used > 0, "There are still MemoryPool allocs in use at exit!");
 }
 

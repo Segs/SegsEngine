@@ -230,7 +230,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
 
                     Object *inst = ClassDB::instance(orig_type);
 
-                    Ref<Resource> res(object_cast<Resource>(inst));
+                    Ref<Resource> res(object_cast<Resource>(inst), DoNotAddRef);
 
                     ERR_FAIL_COND(not res);
 
@@ -320,7 +320,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                         res->call_va("set_instance_base_type", owner->get_class());
                     }
 
-                    val_variant = Variant(Ref<Resource>(res));
+                    val_variant = Variant(Ref<Resource>(res, DoNotAddRef));
                     emit_signal("variant_changed");
 
                 } break;
@@ -1177,7 +1177,7 @@ void CustomPropertyEditor::_type_create_selected(int p_idx) {
         Resource *res = object_cast<Resource>(obj);
         ERR_FAIL_COND(!res);
 
-        val_variant = Variant(Ref<Resource>(res));
+        val_variant = Variant(Ref<Resource>(res, DoNotAddRef));
         emit_signal("variant_changed");
         hide();
     }
@@ -1381,7 +1381,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                     Resource *res = object_cast<Resource>(obj);
                     ERR_BREAK(!res);
 
-                    val_variant = Variant(Ref<Resource>(res));
+                    val_variant = Variant(Ref<Resource>(res, DoNotAddRef));
                     emit_signal("variant_changed");
                     hide();
                 }
@@ -1439,7 +1439,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                     propvalues.push_back(p);
                 }
 
-                Ref<Resource> res(ObjectNS::cast_to<Resource>(ClassDB::instance(res_orig->get_class_name())));
+                Ref<Resource> res(ObjectNS::cast_to<Resource>(ClassDB::instance(res_orig->get_class_name())), DoNotAddRef);
 
                 ERR_FAIL_COND(not res);
 

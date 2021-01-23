@@ -124,6 +124,7 @@ void Resource::set_path(StringView p_path, bool p_take_over) {
 
     if (!impl_data->path_cache.empty()) {
         RWLockWrite guard(ResourceCache::lock);
+
         cached_resources[impl_data->path_cache] = this;
     }
 
@@ -224,7 +225,7 @@ Ref<Resource> Resource::duplicate_for_local_scene(Node *p_for_scene, Map<Ref<Res
         r->set(E.name, p);
     }
 
-    RES res(r);
+    RES res(r,DoNotAddRef);
 
     return res;
 }
@@ -281,7 +282,7 @@ Ref<Resource> Resource::duplicate(bool p_subresources) const {
         }
     }
 
-    return Ref<Resource>(r);
+    return Ref<Resource>(r,DoNotAddRef);
 }
 
 void Resource::_set_path(StringView p_path) {

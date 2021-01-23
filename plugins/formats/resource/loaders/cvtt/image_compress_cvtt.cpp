@@ -31,10 +31,10 @@
 #include "image_compress_cvtt.h"
 
 #include "core/os/os.h"
-#include "core/os/thread.h"
 #include "core/print_string.h"
 
 #include <ConvectionKernels.h>
+#include <thread>
 
 struct CVTTCompressionJobParams {
     bool is_hdr;
@@ -251,10 +251,8 @@ void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageUsedChannel
     }
 
     if (num_job_threads > 0) {
-        PoolVector<Thread *> threads;
+        Vector<std::thread *> threads;
         threads.resize(num_job_threads);
-
-        PoolVector<Thread *>::Write threads_wb = threads.write();
 
         PoolVector<CVTTCompressionRowTask>::Read tasks_rb = tasks.read();
 
@@ -263,14 +261,13 @@ void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageUsedChannel
         job_queue.num_tasks = static_cast<uint32_t>(tasks.size());
 
         for (int i = 0; i < num_job_threads; i++) {
-            threads_wb[i] = memnew(Thread);
-            threads_wb[i]->start(_digest_job_queue, &job_queue);
+            threads[i] = memnew(std::thread(_digest_job_queue, &job_queue));
         }
         _digest_job_queue(&job_queue);
 
         for (int i = 0; i < num_job_threads; i++) {
-            threads_wb[i]->wait_to_finish();
-            memdelete(threads_wb[i]);
+            threads[i]->join();
+            memdelete(threads[i]);
         }
     }
 

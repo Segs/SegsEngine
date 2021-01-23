@@ -402,7 +402,7 @@ bool ResourceManager::add_custom_resource_format_saver(StringView script_path) {
 
     ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource saver, expected 'ResourceFormatSaver' inheritance, got: " + String(ibt) + ".");
 
-    Ref<ResourceFormatSaver> crl(object_cast<ResourceFormatSaver>(obj));
+    Ref<ResourceFormatSaver> crl(object_cast<ResourceFormatSaver>(obj),DoNotAddRef);
     crl->set_script(s.get_ref_ptr());
     add_resource_format_saver(crl);
 
@@ -454,7 +454,7 @@ bool ResourceManager::add_custom_resource_format_loader(StringView script_path) 
 
     ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource loader, expected 'ResourceFormatLoader' inheritance, got: " + String(ibt) + ".");
 
-    Ref<ResourceFormatLoader> crl(object_cast<ResourceFormatLoader>(obj));
+    Ref<ResourceFormatLoader> crl(object_cast<ResourceFormatLoader>(obj), DoNotAddRef);
     crl->set_script(s.get_ref_ptr());
     add_resource_format_loader(crl);
 
