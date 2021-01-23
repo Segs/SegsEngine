@@ -56,7 +56,7 @@ void RemoteTransform3D::_update_remote() {
     if (cache.is_null())
         return;
 
-    Node3D *n = object_cast<Node3D>(gObjectDB().get_instance(cache));
+    Node3D *n = object_cast<Node3D>(ObjectDB::get_instance(cache));
     if (!n)
         return;
 

@@ -34,13 +34,14 @@
 
 #ifdef ALSA_ENABLED
 #include "core/os/thread.h"
+#include "core/os/mutex.h"
 
 #include <alsa/asoundlib.h>
 
 class GODOT_EXPORT AudioDriverALSA : public AudioDriver {
 
-    Thread *thread=nullptr;
-    Mutex *mutex=nullptr;
+    Thread thread;
+    Mutex mutex;
 
     snd_pcm_t *pcm_handle=nullptr;
 

@@ -411,7 +411,7 @@ struct DynamicFontAtSize::ImplData
         ERR_FAIL_COND_V_MSG(error != 0, ERR_CANT_CREATE, "Error initializing FreeType.");
 
         if (font->font_mem == NULL && !font->font_path.empty()) {
-            FileAccess *f = FileAccess::open(font->font_path, FileAccess::READ);
+            FileAccessRef f(FileAccess::open(font->font_path, FileAccess::READ));
             if (!f) {
                 FT_Done_FreeType(library);
                 ERR_FAIL_V_MSG(ERR_CANT_OPEN, "Cannot open font file '" + font->font_path + "'.");

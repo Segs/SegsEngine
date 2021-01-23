@@ -56,7 +56,7 @@ void Camera2D::_update_scroll() {
 
     if (current) {
 
-        ERR_FAIL_COND(custom_viewport && !gObjectDB().get_instance(custom_viewport_id));
+        ERR_FAIL_COND(custom_viewport && !ObjectDB::get_instance(custom_viewport_id));
 
         Transform2D xform = get_camera_transform();
 
@@ -103,7 +103,7 @@ Transform2D Camera2D::get_camera_transform() {
     if (!get_tree())
         return Transform2D();
 
-    ERR_FAIL_COND_V(custom_viewport && !gObjectDB().get_instance(custom_viewport_id), Transform2D());
+    ERR_FAIL_COND_V(custom_viewport && !ObjectDB::get_instance(custom_viewport_id), Transform2D());
 
     Size2 screen_size = viewport->get_visible_rect().size;
 
@@ -243,7 +243,7 @@ void Camera2D::_notification(int p_what) {
         } break;
         case NOTIFICATION_ENTER_TREE: {
 
-            if (custom_viewport && gObjectDB().get_instance(custom_viewport_id)) {
+            if (custom_viewport && ObjectDB::get_instance(custom_viewport_id)) {
                 viewport = custom_viewport;
             } else {
                 viewport = get_viewport();
@@ -266,7 +266,7 @@ void Camera2D::_notification(int p_what) {
         case NOTIFICATION_EXIT_TREE: {
 
             if (is_current()) {
-                if (viewport && !(custom_viewport && !gObjectDB().get_instance(custom_viewport_id))) {
+                if (viewport && !(custom_viewport && !ObjectDB::get_instance(custom_viewport_id))) {
                     viewport->set_canvas_transform(Transform2D());
                 }
             }
@@ -500,7 +500,7 @@ void Camera2D::reset_smoothing() {
 
 void Camera2D::align() {
 
-    ERR_FAIL_COND(custom_viewport && !gObjectDB().get_instance(custom_viewport_id));
+    ERR_FAIL_COND(custom_viewport && !ObjectDB::get_instance(custom_viewport_id));
 
     Size2 screen_size = viewport->get_visible_rect().size;
 

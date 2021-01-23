@@ -1,6 +1,7 @@
 #pragma once
 #include "core/typedefs.h"
 #include "core/hashfuncs.h"
+#include "core/string.h"
 #include "core/forward_decls.h"
 
 class QChar;

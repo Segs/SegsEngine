@@ -2587,40 +2587,26 @@ Error _Thread::start(Object *p_instance, const StringName &p_method, const Varia
 
     Thread::Settings s;
     s.priority = (Thread::Priority)p_priority;
-    thread = Thread::create(_start_func, ud, s);
-    if (!thread) {
-        active = false;
-        target_method = StringName();
-        target_instance = nullptr;
-        userdata = Variant();
-        return ERR_CANT_CREATE;
-    }
+    thread.start(_start_func, ud, s);
 
     return OK;
 }
 
 String _Thread::get_id() const {
-    if (!thread) {
-        return String();
-    }
-
-    return itos(thread->get_id());
+    return itos(thread.get_id());
 }
 
 bool _Thread::is_active() const {
     return active;
 }
 Variant _Thread::wait_to_finish() {
-    ERR_FAIL_COND_V_MSG(!thread, Variant(), "Thread must exist to wait for its completion.");
     ERR_FAIL_COND_V_MSG(!active, Variant(), "Thread must be active to wait for its completion.");
-    Thread::wait_to_finish(thread);
+    thread.wait_to_finish();
     Variant r = ret;
     active = false;
     target_method = StringName();
     target_instance = nullptr;
     userdata = Variant();
-    memdelete(thread);
-    thread = nullptr;
 
     return r;
 }
@@ -2640,7 +2626,6 @@ void _Thread::_bind_methods() {
 }
 _Thread::_Thread() {
     active = false;
-    thread = nullptr;
     target_instance = nullptr;
 }
 

@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #pragma once
-
+#include "core/forward_decls.h"
 #include "core/error_macros.h"
 #include "core/os/memory.h"
 #include "core/sort_array.h"
@@ -39,9 +39,9 @@
 
 template<class T>
 using Vector = eastl::vector<T,wrap_allocator>;
-template<class T,int N,bool GROWING=false>
+template<class T,int N,bool GROWING>
 using FixedVector = eastl::fixed_vector<T,N,GROWING,wrap_allocator>;
-template <typename T,size_t sz=size_t(-1)>
+template <typename T,size_t sz>
 using Span = eastl::span<T,sz>;
 class Variant;
 

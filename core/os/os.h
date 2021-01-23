@@ -141,7 +141,6 @@ protected:
 
     virtual void set_cmdline(StringView p_execpath, Vector<String> &&p_args);
 
-    void _ensure_user_data_dir();
     virtual bool _check_internal_feature_support(StringView p_feature) = 0;
 
 public:
@@ -155,6 +154,7 @@ public:
     virtual void global_menu_remove_item(const StringName &/*p_menu*/, int /*p_idx*/){}
     virtual void global_menu_clear(const StringName &/*p_menu*/){}
 
+    void ensure_user_data_dir();
     void print_error(StringView p_function, StringView p_file, int p_line, StringView p_code,
             StringView p_rationale, Logger::ErrorType p_type = Logger::ERR_ERROR);
     void print(StringView p_msg);

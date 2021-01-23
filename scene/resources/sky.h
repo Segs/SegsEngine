@@ -33,6 +33,7 @@
 #include "core/resource.h"
 #include "core/rid.h"
 #include "core/color.h"
+#include "core/os/thread.h"
 
 class Texture;
 class Image;
@@ -103,7 +104,7 @@ public:
     };
 
 private:
-    Thread *sky_thread;
+    Thread sky_thread;
     Color sky_top_color;
     Color sky_horizon_color;
     float sky_curve;
@@ -126,6 +127,7 @@ private:
 
     RID sky;
     RID texture;
+    Ref<Image> panorama;
 
     bool update_queued;
     bool regen_queued;
@@ -192,6 +194,8 @@ public:
 
     void set_texture_size(TextureSize p_size);
     TextureSize get_texture_size() const;
+
+    Ref<Image> get_panorama() const;
 
     RID get_rid() const override;
 

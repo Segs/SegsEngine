@@ -32,6 +32,8 @@
 
 #include "core/resource.h"
 #include "core/string.h"
+#include "core/string_name.h"
+#include "core/node_path.h"
 #include "core/map.h"
 #include "core/hash_map.h"
 #include "scene/main/node.h"

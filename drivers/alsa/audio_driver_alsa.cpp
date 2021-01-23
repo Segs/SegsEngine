@@ -156,8 +156,7 @@ Error AudioDriverALSA::init() {
 
     Error err = init_device();
     if (err == OK) {
-        mutex = memnew(Mutex);
-        thread = Thread::create(AudioDriverALSA::thread_func, this);
+        thread.start(AudioDriverALSA::thread_func, this);
     }
 
     return err;
@@ -301,16 +300,12 @@ void AudioDriverALSA::set_device(StringView device) {
 
 void AudioDriverALSA::lock() {
 
-    if (!thread || !mutex)
-        return;
-    mutex->lock();
+    mutex.lock();
 }
 
 void AudioDriverALSA::unlock() {
 
-    if (!thread || !mutex)
-        return;
-    mutex->unlock();
+    mutex.unlock();
 }
 
 void AudioDriverALSA::finish_device() {
@@ -322,18 +317,9 @@ void AudioDriverALSA::finish_device() {
 }
 
 void AudioDriverALSA::finish() {
-
-    if (thread) {
+    if(thread.is_started()) {
         exit_thread = true;
-        Thread::wait_to_finish(thread);
-
-        memdelete(thread);
-        thread = nullptr;
-
-        if (mutex) {
-            memdelete(mutex);
-            mutex = nullptr;
-        }
+        thread.wait_to_finish();
     }
 
     finish_device();

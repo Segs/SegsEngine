@@ -44,6 +44,7 @@
 
 #define OBJTYPE_RLOCK RWLockRead _rw_lockr_(lock);
 #define OBJTYPE_WLOCK RWLockWrite _rw_lockw_(lock);
+RWLock ClassDB::lock;
 
 #ifdef DEBUG_METHODS_ENABLED
 
@@ -749,10 +750,10 @@ void ClassDB::add_property_array(StringName p_class, const char *p_name, int ele
 
 void ClassDB::add_property(StringName p_class, const PropertyInfo &p_pinfo, const StringName &p_setter,
         const StringName &p_getter, int p_index) {
-    lock->read_lock();
+    lock.read_lock();
     auto iter = classes.find(p_class);
     ClassInfo *type = iter != classes.end() ? &iter->second : nullptr;
-    lock->read_unlock();
+    lock.read_unlock();
 
     ERR_FAIL_COND(!type);
 
@@ -1285,12 +1286,6 @@ Variant ClassDB::class_get_default_property_value(
     return default_values[p_class][p_property];
 }
 
-RWLock *ClassDB::lock = nullptr;
-
-void ClassDB::init() {
-    lock = RWLock::create();
-}
-
 void ClassDB::cleanup_defaults() {
     default_values.clear();
     default_values_cached.clear();
@@ -1301,8 +1296,6 @@ void ClassDB::cleanup() {
     classes.clear();
     resource_base_extensions.clear();
     compat_classes.clear();
-
-    memdelete(lock);
 }
 
 //

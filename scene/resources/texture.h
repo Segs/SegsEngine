@@ -34,13 +34,12 @@
 #include "core/image.h"
 #include "core/rid.h"
 #include "core/resource.h"
+#include "core/os/rw_lock.h"
 #include "scene/resources/gradient.h"
 //
 #include "servers/rendering_server_enums.h"
 
 #include <EASTL/unique_ptr.h>
-
-class RWLock;
 
 class GODOT_EXPORT Texture : public Resource {
 
@@ -462,7 +461,11 @@ public:
         FLAG_CONVERT_TO_LINEAR = RS::TEXTURE_FLAG_CONVERT_TO_LINEAR,
         FLAGS_DEFAULT = FLAG_FILTER,
     };
-
+    enum Compression {
+        COMPRESSION_LOSSLESS,
+        COMPRESSION_VRAM,
+        COMPRESSION_UNCOMPRESSED
+    };
 private:
     RID texture;
     Image::Format format;
@@ -609,7 +612,7 @@ class GODOT_EXPORT AnimatedTexture : public Texture {
     GDCLASS(AnimatedTexture,Texture)
 
     //use readers writers lock for this, since its far more times read than written to
-    RWLock *rw_lock;
+    RWLock rw_lock;
 public:
     enum {
         MAX_FRAMES = 256

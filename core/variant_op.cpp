@@ -45,6 +45,7 @@
 #include "core/math/transform_2d.h"
 #include "core/math/vector3.h"
 #include "core/math/math_funcs.h"
+#include "core/node_path.h"
 #include "core/object.h"
 #include "core/object_rc.h"
 #include "core/ustring.h"
@@ -182,77 +183,6 @@ bool Variant::booleanize() const {
         _RETURN_FAIL                                                          \
     }
 
-#ifdef DEBUG_ENABLED
-#define DEFAULT_OP_NUM_DIV(m_prefix, m_op_name, m_name, m_type) \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {       \
-        if (p_b.type == VariantType::INT) {                                  \
-            if (p_b._data._int == 0) {                          \
-                r_valid = false;                                \
-                _RETURN("Division By Zero");                    \
-            }                                                   \
-            _RETURN(p_a._data.m_type / p_b._data._int);         \
-        }                                                       \
-        if (p_b.type == VariantType::FLOAT) {                                 \
-            if (p_b._data._real == 0) {                         \
-                r_valid = false;                                \
-                _RETURN("Division By Zero");                    \
-            }                                                   \
-            _RETURN(p_a._data.m_type / p_b._data._real);        \
-        }                                                       \
-                                                                \
-        _RETURN_FAIL                                            \
-    }
-#else
-#define DEFAULT_OP_NUM_DIV(m_prefix, m_op_name, m_name, m_type)            \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {                               \
-        if (p_b.type == VariantType::INT) _RETURN(p_a._data.m_type / p_b._data._int);   \
-        if (p_b.type == VariantType::FLOAT) _RETURN(p_a._data.m_type / p_b._data._real); \
-                                                                           \
-        _RETURN_FAIL                                                       \
-    }
-#endif
-
-#define DEFAULT_OP_NUM_NEG(m_prefix, m_op_name, m_name, m_type) \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {                    \
-        _RETURN(-p_a._data.m_type);                             \
-    }
-
-#define DEFAULT_OP_NUM_POS(m_prefix, m_op_name, m_name, m_type) \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {                    \
-        _RETURN(p_a._data.m_type);                              \
-    }
-
-#define DEFAULT_OP_NUM_VEC(m_prefix, m_op_name, m_name, m_op, m_type)                                               \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                        \
-        if (p_b.type == VariantType::INT) _RETURN(p_a._data.m_type m_op p_b._data._int);                                         \
-        if (p_b.type == VariantType::FLOAT) _RETURN(p_a._data.m_type m_op p_b._data._real);                                       \
-        if (p_b.type == VariantType::VECTOR2) _RETURN(p_a._data.m_type m_op *reinterpret_cast<const Vector2 *>(p_b._data._mem)); \
-        if (p_b.type == VariantType::VECTOR3) _RETURN(p_a._data.m_type m_op *reinterpret_cast<const Vector3 *>(p_b._data._mem)); \
-                                                                                                                    \
-        _RETURN_FAIL                                                                                                \
-    }
-
-#define DEFAULT_OP_STR_REV(m_prefix, m_op_name, m_name, m_op, m_type)                                                              \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                       \
-        if (p_b.type == VariantType::STRING) _RETURN(*reinterpret_cast<const m_type *>(p_b._data._mem) m_op *reinterpret_cast<const String *>(p_a._data._mem));     \
-        if (p_b.type == VariantType::STRING_NAME) _RETURN(*reinterpret_cast<const m_type *>(p_b._data._mem) m_op (String)*reinterpret_cast<const StringName *>(p_a._data._mem)); \
-        if (p_b.type == VariantType::NODE_PATH) _RETURN(*reinterpret_cast<const m_type *>(p_b._data._mem) m_op (String)*reinterpret_cast<const NodePath *>(p_a._data._mem));   \
-        _RETURN_FAIL                                                                                                               \
-    }
-
-
-#define DEFAULT_OP_STR(m_prefix, m_op_name, m_name, m_op, m_type)                                                                  \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                       \
-        if (p_b.type == VariantType::STRING)                                                                                                    \
-            _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op *reinterpret_cast<const String *>(p_b._data._mem));     \
-        if (p_b.type == VariantType::STRING_NAME)                                                                                               \
-            _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op (String)*reinterpret_cast<const StringName *>(p_b._data._mem)); \
-        if (p_b.type == VariantType::NODE_PATH)                                                                                                 \
-            _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op (String)*reinterpret_cast<const NodePath *>(p_b._data._mem));   \
-                                                                                                                                   \
-        _RETURN_FAIL                                                                                                               \
-    }
-
 #define DEFAULT_OP_STR_NULL(m_prefix, m_op_name, m_name, m_op, m_type)                                                             \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                       \
         if (p_b.type == VariantType::STRING)                                                                                                    \
@@ -316,41 +246,6 @@ bool Variant::booleanize() const {
             _RETURN(!(p_b.type m_op VariantType::NIL));                                                                                     \
                                                                                                                                \
         _RETURN_FAIL                                                                                                           \
-    }
-
-#define DEFAULT_OP_LOCALMEM_NEG(m_prefix, m_op_name, m_name, m_type) \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {                         \
-        _RETURN(-*reinterpret_cast<const m_type *>(p_a._data._mem)); \
-    }
-
-#define DEFAULT_OP_LOCALMEM_POS(m_prefix, m_op_name, m_name, m_type) \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {                         \
-        _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem));  \
-    }
-
-#define DEFAULT_OP_LOCALMEM_NUM(m_prefix, m_op_name, m_name, m_op, m_type)                                                                         \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                                       \
-        if (p_b.type == VariantType::m_name) _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op *reinterpret_cast<const m_type *>(p_b._data._mem)); \
-        if (p_b.type == VariantType::INT) _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op p_b._data._int);                                       \
-        if (p_b.type == VariantType::FLOAT) _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op p_b._data._real);                                     \
-                                                                                                                                                   \
-        _RETURN_FAIL                                                                                                                               \
-    }
-
-#define DEFAULT_OP_PTR(m_op, m_name, m_sub)                \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {               \
-        if (p_b.type == VariantType::m_name)                            \
-            _RETURN(p_a._data.m_sub m_op p_b._data.m_sub); \
-                                                           \
-        _RETURN_FAIL                                       \
-    }
-
-#define DEFAULT_OP_PTRREF(m_prefix, m_op_name, m_name, m_op, m_sub) \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {                        \
-        if (p_b.type == VariantType::m_name)                                     \
-            _RETURN(*p_a._data.m_sub m_op *p_b._data.m_sub);        \
-                                                                    \
-        _RETURN_FAIL                                                \
     }
 
 #define DEFAULT_OP_PTRREF_NULL(m_prefix, m_op_name, m_name, m_op, m_sub) \
@@ -1552,7 +1447,7 @@ void Variant::set_named(const StringName &p_index, const Variant &p_value, bool 
             Object *obj = _OBJ_PTR(*this);
 #ifdef DEBUG_ENABLED
             if (unlikely(!obj)) {
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
                     WARN_PRINT("Attempted set on a deleted object.");
                 }
                 break;
@@ -1720,7 +1615,7 @@ Variant Variant::get_named(const StringName &p_index, bool *r_valid) const {
             if (unlikely(!obj)) {
                 if (r_valid)
                     *r_valid = false;
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
                     WARN_PRINT("Attempted get on a deleted object.");
                 }
                 return Variant();
@@ -2205,7 +2100,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
             if (unlikely(!obj)) {
 #ifdef DEBUG_ENABLED
                 valid = false;
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
                     WARN_PRINT("Attempted set on a deleted object.");
                 }
 #endif
@@ -2575,7 +2470,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
             if (unlikely(!obj)) {
 #ifdef DEBUG_ENABLED
                 valid = false;
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
                     WARN_PRINT("Attempted get on a deleted object.");
                 }
 #endif
@@ -2638,7 +2533,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
                 if (r_valid) {
                     *r_valid = false;
                 }
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
                     WARN_PRINT("Attempted 'in' on a deleted object.");
                 }
 #endif
@@ -2902,7 +2797,7 @@ void Variant::get_property_list(Vector<PropertyInfo> *p_list) const {
             Object *obj = _OBJ_PTR(*this);
             if (unlikely(!obj)) {
 #ifdef DEBUG_ENABLED
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
                     WARN_PRINT("Attempted get property list on a deleted object.");
                 }
 #endif
@@ -2979,7 +2874,7 @@ bool Variant::iter_init(Variant &r_iter, bool &valid) const {
 #ifdef DEBUG_ENABLED
             if (unlikely(!obj)) {
                 valid = false;
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
                     WARN_PRINT("Attempted iteration start on a deleted object.");
                 }
                 return false;
@@ -3146,7 +3041,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
 #ifdef DEBUG_ENABLED
             if (unlikely(!obj)) {
                 valid = false;
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
                     WARN_PRINT("Attempted iteration check next on a deleted object.");
                 }
                 return false;
@@ -3304,7 +3199,7 @@ Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
 #ifdef DEBUG_ENABLED
             if (unlikely(!obj)) {
                 r_valid = false;
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
                     WARN_PRINT("Attempted iteration get next on a deleted object.");
                 }
                 return Variant();

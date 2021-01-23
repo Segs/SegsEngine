@@ -652,7 +652,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
 
                 MAKE_PROPSELECT
 
-                Object *instance = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
+                Object *instance = ObjectDB::get_instance(ObjectID(StringUtils::to_int64(hint_text)));
                 if (instance)
                     property_select->select_method_from_instance(instance, val_variant.as<UIString>());
                 updating = false;
@@ -661,7 +661,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
             } else if (hint == PropertyHint::MethodOfScript) {
                 MAKE_PROPSELECT
 
-                Object *obj = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
+                Object *obj = ObjectDB::get_instance(ObjectID(StringUtils::to_int64(hint_text)));
                 if (object_cast<Script>(obj)) {
                     property_select->select_method_from_script(Ref<Script>(object_cast<Script>(obj)), val_variant.as<UIString>());
                 }
@@ -701,7 +701,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
 
                 MAKE_PROPSELECT
 
-                Object *instance = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
+                Object *instance = ObjectDB::get_instance(ObjectID(StringUtils::to_int64(hint_text)));
                 if (instance)
                     property_select->select_property_from_instance(instance, val_variant.as<UIString>());
 
@@ -711,7 +711,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
             } else if (hint == PropertyHint::PropertyOfScript) {
                 MAKE_PROPSELECT
 
-                Object *obj = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
+                Object *obj = ObjectDB::get_instance(ObjectID(StringUtils::to_int64(hint_text)));
                 if (object_cast<Script>(obj)) {
                     property_select->select_property_from_script(Ref<Script>(object_cast<Script>(obj)), val_variant.as<UIString>());
                 }

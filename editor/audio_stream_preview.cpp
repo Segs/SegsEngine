@@ -176,8 +176,8 @@ Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<
     }
 
     //no preview exists
+    previews.emplace(eastl::make_pair(p_stream->get_instance_id(),eastl::move(Preview())));
 
-    previews[p_stream->get_instance_id()] = Preview();
 
     Preview *preview = &previews[p_stream->get_instance_id()];
     preview->base_stream = p_stream;
@@ -201,7 +201,7 @@ Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<
     preview->preview->length = len_s;
 
     if (preview->playback) {
-        preview->thread = Thread::create(_preview_thread, preview);
+        preview->thread.start(_preview_thread, preview);
     }
 
     return preview->preview;
@@ -223,11 +223,10 @@ void AudioStreamPreviewGenerator::_notification(int p_what) {
     Vector<ObjectID> to_erase;
     for (eastl::pair<const ObjectID,Preview> &E : previews) {
         if (!E.second.generating) {
-            if (E.second.thread) {
-                Thread::wait_to_finish(E.second.thread);
-                E.second.thread = nullptr;
+            if (E.second.thread.is_started()) {
+                E.second.thread.wait_to_finish();
             }
-            if (!gObjectDB().get_instance(E.first)) { //no longer in use, get rid of preview
+            if (!ObjectDB::get_instance(E.first)) { //no longer in use, get rid of preview
                 to_erase.push_back(E.first);
             }
         }

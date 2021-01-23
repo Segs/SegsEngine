@@ -641,6 +641,10 @@ void TabContainer::remove_child_notify(Node *p_child) {
 
     Container::remove_child_notify(p_child);
 
+    if (!object_cast<Control>(p_child)) {
+        return;
+    }
+
     call_deferred([this]() {_update_current_tab(); });
 
     p_child->disconnect("renamed",callable_mp(this, &ClassName::_child_renamed_callback));

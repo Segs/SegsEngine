@@ -1790,9 +1790,12 @@ ProjectSettingsEditor::ProjectSettingsEditor(EditorData *p_data) {
     type = memnew(OptionButton);
     type->set_h_size_flags(Control::SIZE_EXPAND_FILL);
     add_prop_bar->add_child(type);
-    // Start at 1 to avoid adding "Nil" as an option
-    for (int i = 1; i < (int)VariantType::VARIANT_MAX; i++) {
-        type->add_item(Variant::interned_type_name(VariantType(i)));
+    for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
+        // There's no point in adding Nil types, and Object types
+        // can't be serialized correctly in the project settings.
+        if (i != (int)VariantType::NIL && i != (int)VariantType::OBJECT) {
+            type->add_item(Variant::interned_type_name(VariantType(i)));
+        }
     }
 
     Button *add = memnew(Button);

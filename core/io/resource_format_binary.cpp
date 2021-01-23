@@ -39,6 +39,7 @@
 #include "core/math/quat.h"
 #include "core/math/transform.h"
 #include "core/math/transform_2d.h"
+#include "core/node_path.h"
 #include "core/object_tooling.h"
 #include "core/os/dir_access.h"
 #include "core/project_settings.h"

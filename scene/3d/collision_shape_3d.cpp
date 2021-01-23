@@ -89,7 +89,6 @@ void CollisionShape3D::_notification(int p_what) {
                 if (shape) {
                     parent->shape_owner_add_shape(owner_id, shape);
                 }
-                _update_in_shape_owner();
             }
         } break;
         case NOTIFICATION_ENTER_TREE: {
@@ -174,7 +173,9 @@ void CollisionShape3D::_bind_methods() {
 }
 
 void CollisionShape3D::set_shape(const Ref<Shape> &p_shape) {
-
+    if (p_shape == shape) {
+        return;
+    }
     if (shape) {
         shape->unregister_owner(this);
         shape->disconnect("changed",callable_mp(this, &ClassName::_shape_changed));
@@ -197,11 +198,6 @@ void CollisionShape3D::set_shape(const Ref<Shape> &p_shape) {
     update_configuration_warning();
 }
 
-Ref<Shape> CollisionShape3D::get_shape() const {
-
-    return shape;
-}
-
 void CollisionShape3D::set_disabled(bool p_disabled) {
 
     disabled = p_disabled;
@@ -211,10 +207,7 @@ void CollisionShape3D::set_disabled(bool p_disabled) {
     }
 }
 
-bool CollisionShape3D::is_disabled() const {
 
-    return disabled;
-}
 
 CollisionShape3D::CollisionShape3D() {
 

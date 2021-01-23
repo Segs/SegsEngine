@@ -83,15 +83,12 @@ void JoypadLinux::Joypad::reset() {
 JoypadLinux::JoypadLinux(InputDefault *in) {
     exit_udev = false;
     input = in;
-    joy_mutex = memnew(Mutex);
-    joy_thread = Thread::create(joy_thread_func, this);
+    joy_thread.start(joy_thread_func, this);
 }
 
 JoypadLinux::~JoypadLinux() {
     exit_udev = true;
-    Thread::wait_to_finish(joy_thread);
-    memdelete(joy_thread);
-    memdelete(joy_mutex);
+    joy_thread.wait_to_finish();
     close_joypad();
 }
 
@@ -204,15 +201,18 @@ void JoypadLinux::monitor_joypads(udev *p_udev) {
 void JoypadLinux::monitor_joypads() {
 
     while (!exit_udev) {
-        joy_mutex->lock();
-        for (int i = 0; i < 32; i++) {
-            char fname[64];
-            sprintf(fname, "/dev/input/event%d", i);
-            if (!attached_devices.contains(fname)) {
-                open_joypad(fname);
+        {
+            MutexLock guard(joy_mutex);
+
+            for (int i = 0; i < 32; i++) {
+                char fname[64];
+                sprintf(fname, "/dev/input/event%d", i);
+                if (!attached_devices.contains(fname)) {
+                    open_joypad(fname);
+                }
             }
         }
-        joy_mutex->unlock();
+
         usleep(1000000); // 1s
     }
 }
@@ -460,7 +460,7 @@ InputDefault::JoyAxis JoypadLinux::axis_correct(const input_absinfo *p_abs, int 
 
 void JoypadLinux::process_joypads() {
 
-    if (not joy_mutex->try_lock()) {
+    if (not joy_mutex.try_lock()) {
         return;
     }
     for (int i = 0; i < JOYPADS_MAX; i++) {
@@ -555,6 +555,6 @@ void JoypadLinux::process_joypads() {
             }
         }
     }
-    joy_mutex->unlock();
+    joy_mutex.unlock();
 }
 #endif

@@ -97,7 +97,7 @@ void OpenSimplexNoise::set_lacunarity(float p_lacunarity) {
 Ref<Image> OpenSimplexNoise::get_image(int p_width, int p_height) const {
 
     PoolVector<uint8_t> data;
-    data.resize(p_width * p_height * 4);
+    data.resize(p_width * p_height);
 
     PoolVector<uint8_t>::Write wd8 = data.write();
 
@@ -105,21 +105,17 @@ Ref<Image> OpenSimplexNoise::get_image(int p_width, int p_height) const {
         for (int j = 0; j < p_width; j++) {
             float v = get_noise_2d(i, j);
             v = v * 0.5f + 0.5f; // Normalize [0..1]
-            uint8_t value = uint8_t(CLAMP(v * 255.0f, 0, 255));
-            wd8[(i * p_width + j) * 4 + 0] = value;
-            wd8[(i * p_width + j) * 4 + 1] = value;
-            wd8[(i * p_width + j) * 4 + 2] = value;
-            wd8[(i * p_width + j) * 4 + 3] = 255;
+            wd8[(i * p_width + j)] = uint8_t(CLAMP(v * 255.0f, 0, 255));
         }
     }
 
-    return Ref<Image>(make_ref_counted<Image>(p_width, p_height, false, Image::FORMAT_RGBA8, data));
+    return Ref<Image>(make_ref_counted<Image>(p_width, p_height, false, Image::FORMAT_L8, data));
 }
 
 Ref<Image> OpenSimplexNoise::get_seamless_image(int p_size) const {
 
     PoolVector<uint8_t> data;
-    data.resize(p_size * p_size * 4);
+    data.resize(p_size * p_size);
 
     PoolVector<uint8_t>::Write wd8 = data.write();
 
@@ -141,15 +137,12 @@ Ref<Image> OpenSimplexNoise::get_seamless_image(int p_size) const {
             float v = get_noise_4d(x, y, z, w);
 
             v = v * 0.5 + 0.5; // Normalize [0..1]
-            uint8_t value = uint8_t(CLAMP(v * 255.0, 0, 255));
-            wd8[(i * p_size + j) * 4 + 0] = value;
-            wd8[(i * p_size + j) * 4 + 1] = value;
-            wd8[(i * p_size + j) * 4 + 2] = value;
-            wd8[(i * p_size + j) * 4 + 3] = 255;
+            wd8[(i * p_size + j)] = uint8_t(CLAMP(v * 255.0f, 0, 255));
+
         }
     }
 
-    return Ref<Image>(make_ref_counted<Image>(p_size, p_size, false, Image::FORMAT_RGBA8, data));
+    return Ref<Image>(make_ref_counted<Image>(p_size, p_size, false, Image::FORMAT_L8, data));
 }
 
 void OpenSimplexNoise::_bind_methods() {

@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SKELETON_IK_H
-#define SKELETON_IK_H
+#pragma once
 
 #ifndef _3D_DISABLED
 
@@ -37,6 +36,7 @@
  * @author AndreaCatania
  */
 
+#include "core/node_path.h"
 #include "core/math/transform.h"
 #include "scene/3d/skeleton_3d.h"
 
@@ -210,5 +210,3 @@ private:
 };
 
 #endif // _3D_DISABLED
-
-#endif // SKELETON_IK_H

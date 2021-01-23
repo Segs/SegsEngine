@@ -153,6 +153,9 @@ void CollisionShape2D::_notification(int p_what) {
 }
 
 void CollisionShape2D::set_shape(const Ref<Shape2D> &p_shape) {
+    if (p_shape == shape) {
+        return;
+    }
 
     if (shape)
         shape->disconnect("changed",callable_mp(this, &ClassName::_shape_changed));
@@ -163,6 +166,7 @@ void CollisionShape2D::set_shape(const Ref<Shape2D> &p_shape) {
         if (shape) {
             parent->shape_owner_add_shape(owner_id, shape);
         }
+        _update_in_shape_owner();
     }
 
     if (shape)

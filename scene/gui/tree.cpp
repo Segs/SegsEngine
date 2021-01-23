@@ -1450,7 +1450,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 
                     if (!p_item->cells[i].custom_draw.is_null()) {
 
-                        Object *cdo = gObjectDB().get_instance(p_item->cells[i].custom_draw.get_object_id());
+                        Object *cdo = ObjectDB::get_instance(p_item->cells[i].custom_draw.get_object_id());
                         if (cdo) {
                             Variant args[2] = {
                                 Variant(p_item), Rect2(item_rect)

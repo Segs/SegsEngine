@@ -30,15 +30,15 @@
 
 #include "ustring.h"
 
-#include "core/string.h"
-#include "core/string_utils.h"
-#include "core/string_utils.inl"
 #include "core/color.h"
 #include "core/crypto/crypto_core.h"
+#include "core/dictionary.h"
+#include "core/string.h"
+#include "core/string_name.h"
+#include "core/string_utils.h"
+#include "core/string_utils.inl"
 #include "core/translation_helpers.h"
 #include "core/vector.h"
-//#include "core/variant.h"
-#include "core/dictionary.h"
 
 #include <QString>
 #include <QVector>

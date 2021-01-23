@@ -1193,8 +1193,8 @@ PREAMBLE(bool)::_light_find_intersection(const Rect2 &p_item_rect, const Transfo
         return false;
 
     // note this does almost the same as Rect2.clip but slightly more efficient for our use case
-    r_cliprect.position.x = MAX(p_item_rect.position.x, lrect.position.x);
-    r_cliprect.position.y = MAX(p_item_rect.position.y, lrect.position.y);
+    r_cliprect.position.x = M_MAX(p_item_rect.position.x, lrect.position.x);
+    r_cliprect.position.y = M_MAX(p_item_rect.position.y, lrect.position.y);
 
     Point2 item_rect_end = p_item_rect.position + p_item_rect.size;
     Point2 lrect_end = lrect.position + lrect.size;

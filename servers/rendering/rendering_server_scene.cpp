@@ -58,7 +58,7 @@ struct Dirty {
     bool update_aabb : 1;
     bool update_materials : 1;
 
-    constexpr Dirty() : update_aabb(0), update_materials(0) { }
+    constexpr Dirty() : update_aabb(false), update_materials(false) { }
 
     constexpr Dirty(bool aabb,bool material) : update_aabb(aabb),update_materials(material) {
 
@@ -134,13 +134,229 @@ void set_dirty(RID id, bool p_update_aabb, bool p_update_materials) {
     }
     else if(p_update_aabb|| p_update_materials) {
         auto &c_data(get_component<Dirty>(id));
-        if (p_update_aabb)
-            c_data.update_aabb = true;
-        if (p_update_materials)
-            c_data.update_materials = true;
+        c_data.update_aabb |= p_update_aabb;
+        c_data.update_materials |= p_update_materials;
     }
 }
+_FORCE_INLINE_ static uint32_t _gi_bake_find_cell(
+        const VisualServerScene::GIProbeDataCell *cells, int x, int y, int z, int p_cell_subdiv) {
+
+    uint32_t cell = 0;
+
+    int ofs_x = 0;
+    int ofs_y = 0;
+    int ofs_z = 0;
+    int size = 1 << (p_cell_subdiv - 1);
+    int half = size / 2;
+
+    if (x < 0 || x >= size)
+        return ~0U;
+    if (y < 0 || y >= size)
+        return ~0U;
+    if (z < 0 || z >= size)
+        return ~0U;
+
+    for (int i = 0; i < p_cell_subdiv - 1; i++) {
+
+        const VisualServerScene::GIProbeDataCell *bc = &cells[cell];
+
+        int child = 0;
+        if (x >= ofs_x + half) {
+            child |= 1;
+            ofs_x += half;
+        }
+        if (y >= ofs_y + half) {
+            child |= 2;
+            ofs_y += half;
+        }
+        if (z >= ofs_z + half) {
+            child |= 4;
+            ofs_z += half;
+        }
+
+        cell = bc->children[child];
+        if (cell == 0xFFFFFFFF)
+            return 0xFFFFFFFF;
+
+        half >>= 1;
+    }
+
+    return cell;
 }
+
+static float _get_normal_advance(const Vector3 &p_normal) {
+
+    Vector3 normal = p_normal;
+    Vector3 unorm = normal.abs();
+
+    if ((unorm.x >= unorm.y) && (unorm.x >= unorm.z)) {
+        // x code
+        unorm = Vector3(copysignf(1.0f,normal.x), 0.0, 0.0);
+    } else if ((unorm.y > unorm.x) && (unorm.y >= unorm.z)) {
+        // y code
+        unorm = Vector3(0.0, copysignf(1.0f,normal.y), 0.0);
+    } else if ((unorm.z > unorm.x) && (unorm.z > unorm.y)) {
+        // z code
+        unorm = Vector3(0.0, 0.0f, copysignf(1.0f,normal.z));
+    } else {
+        // oh-no we messed up code
+        // has to be
+        unorm = Vector3(1.0, 0.0, 0.0);
+    }
+
+    return 1.0f / normal.dot(unorm);
+}
+
+static void _bake_gi_downscale_light(int p_idx, int p_level, const VisualServerScene::GIProbeDataCell *p_cells,
+        const VisualServerScene::GIProbeDataHeader *p_header, VisualServerScene::InstanceGIProbeData::LocalData *p_local_data, float p_propagate) {
+
+    //average light to upper level
+
+    float divisor = 0;
+    float sum[3] = { 0.0, 0.0, 0.0 };
+
+    for (int i = 0; i < 8; i++) {
+
+        uint32_t child = p_cells[p_idx].children[i];
+
+        if (child == 0xFFFFFFFF)
+            continue;
+
+        if (p_level + 1 < (int)p_header->cell_subdiv - 1) {
+            _bake_gi_downscale_light(child, p_level + 1, p_cells, p_header, p_local_data, p_propagate);
+        }
+
+        sum[0] += p_local_data[child].energy[0];
+        sum[1] += p_local_data[child].energy[1];
+        sum[2] += p_local_data[child].energy[2];
+        divisor += 1.0f;
+    }
+
+    divisor = Math::lerp((float)8.0, divisor, p_propagate);
+    sum[0] /= divisor;
+    sum[1] /= divisor;
+    sum[2] /= divisor;
+
+    //divide by eight for average
+    p_local_data[p_idx].energy[0] = Math::fast_ftoi(sum[0]);
+    p_local_data[p_idx].energy[1] = Math::fast_ftoi(sum[1]);
+    p_local_data[p_idx].energy[2] = Math::fast_ftoi(sum[2]);
+}
+void _gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z,
+        const VisualServerScene::GIProbeDataCell *p_cell, const VisualServerScene::GIProbeDataHeader *p_header,
+        VisualServerScene::InstanceGIProbeData::LocalData *p_local_data, Vector<uint32_t> *prev_cell) {
+
+    if ((uint32_t)p_level == p_header->cell_subdiv - 1) {
+
+        Vector3 emission;
+        emission.x = (p_cell[p_idx].emission >> 24) / 255.0f;
+        emission.y = ((p_cell[p_idx].emission >> 16) & 0xFF) / 255.0f;
+        emission.z = ((p_cell[p_idx].emission >> 8) & 0xFF) / 255.0f;
+        float l = (p_cell[p_idx].emission & 0xFF) / 255.0f;
+        l *= 8.0f;
+
+        emission *= l;
+
+        p_local_data[p_idx].energy[0] = uint16_t(emission.x * 1024); //go from 0 to 1024 for light
+        p_local_data[p_idx].energy[1] = uint16_t(emission.y * 1024); //go from 0 to 1024 for light
+        p_local_data[p_idx].energy[2] = uint16_t(emission.z * 1024); //go from 0 to 1024 for light
+    } else {
+
+        p_local_data[p_idx].energy[0] = 0;
+        p_local_data[p_idx].energy[1] = 0;
+        p_local_data[p_idx].energy[2] = 0;
+
+        int half = (1 << (p_header->cell_subdiv - 1)) >> (p_level + 1);
+
+        for (int i = 0; i < 8; i++) {
+
+            uint32_t child = p_cell[p_idx].children[i];
+
+            if (child == 0xFFFFFFFF)
+                continue;
+
+            int x = p_x;
+            int y = p_y;
+            int z = p_z;
+
+            if (i & 1)
+                x += half;
+            if (i & 2)
+                y += half;
+            if (i & 4)
+                z += half;
+
+            _gi_probe_fill_local_data(child, p_level + 1, x, y, z, p_cell, p_header, p_local_data, prev_cell);
+        }
+    }
+
+    //position for each part of the mipmaped texture
+    p_local_data[p_idx].pos[0] = p_x >> (p_header->cell_subdiv - p_level - 1);
+    p_local_data[p_idx].pos[1] = p_y >> (p_header->cell_subdiv - p_level - 1);
+    p_local_data[p_idx].pos[2] = p_z >> (p_header->cell_subdiv - p_level - 1);
+
+    prev_cell[p_level].emplace_back(p_idx);
+}
+
+static bool _check_gi_probe(VisualServerScene::Instance *p_gi_probe) {
+
+    VisualServerScene::InstanceGIProbeData *probe_data = static_cast<VisualServerScene::InstanceGIProbeData *>(p_gi_probe->base_data);
+
+    probe_data->dynamic.light_cache_changes.clear();
+
+    bool all_equal = true;
+
+    for (VisualServerScene::Instance *E : p_gi_probe->scenario->directional_lights) {
+
+        if (VSG::storage->light_get_bake_mode(E->base) == RS::LightBakeMode::LIGHT_BAKE_DISABLED)
+            continue;
+
+        VisualServerScene::InstanceGIProbeData::LightCache lc;
+        lc.type = VSG::storage->light_get_type(E->base);
+        lc.color = VSG::storage->light_get_color(E->base);
+        lc.energy = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_ENERGY) * VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_INDIRECT_ENERGY);
+        lc.radius = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_RANGE);
+        lc.attenuation = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_ATTENUATION);
+        lc.spot_angle = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_SPOT_ANGLE);
+        lc.spot_attenuation = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_SPOT_ATTENUATION);
+        lc.transform = probe_data->dynamic.light_to_cell_xform * E->transform;
+        lc.visible = E->visible;
+
+        if (!probe_data->dynamic.light_cache.contains(E->self) || probe_data->dynamic.light_cache[E->self] != lc) {
+            all_equal = false;
+        }
+
+        probe_data->dynamic.light_cache_changes[E->self] = lc;
+    }
+
+    for (VisualServerScene::Instance * E : probe_data->lights) {
+
+        if (VSG::storage->light_get_bake_mode(E->base) == RS::LightBakeMode::LIGHT_BAKE_DISABLED)
+            continue;
+
+        VisualServerScene::InstanceGIProbeData::LightCache lc;
+        lc.type = VSG::storage->light_get_type(E->base);
+        lc.color = VSG::storage->light_get_color(E->base);
+        lc.energy = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_ENERGY) * VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_INDIRECT_ENERGY);
+        lc.radius = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_RANGE);
+        lc.attenuation = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_ATTENUATION);
+        lc.spot_angle = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_SPOT_ANGLE);
+        lc.spot_attenuation = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_SPOT_ATTENUATION);
+        lc.transform = probe_data->dynamic.light_to_cell_xform * E->transform;
+        lc.visible = E->visible;
+
+        if (!probe_data->dynamic.light_cache.contains(E->self) || probe_data->dynamic.light_cache[E->self] != lc) {
+            all_equal = false;
+        }
+
+        probe_data->dynamic.light_cache_changes[E->self] = lc;
+    }
+
+    //lighting changed from after to before, must do some updating
+    return !all_equal || probe_data->dynamic.light_cache_changes.size() != probe_data->dynamic.light_cache.size();
+}
+} // end of anonymous namespace
+
 /* CAMERA API */
 
 RID VisualServerScene::camera_create() {
@@ -154,97 +370,79 @@ RID VisualServerScene::camera_create() {
 
 void VisualServerScene::camera_set_perspective(RID p_camera, float p_fovy_degrees, float p_z_near, float p_z_far) {
 
-    if (VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera3D>(p_camera.eid)) {
-        Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera.eid) || !VSG::ecs->registry.has<Camera3D>(p_camera.eid));
 
-        camera.type = Camera3D::PERSPECTIVE;
-        camera.fov = p_fovy_degrees;
-        camera.znear = p_z_near;
-        camera.zfar = p_z_far;
-    }
-    else {
-        ERR_FAIL_COND(true);
-    }
+    Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+
+    camera.type = Camera3D::PERSPECTIVE;
+    camera.fov = p_fovy_degrees;
+    camera.znear = p_z_near;
+    camera.zfar = p_z_far;
 }
 
 void VisualServerScene::camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far) {
-    if (VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera3D>(p_camera.eid)) {
-        Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera.eid) || !VSG::ecs->registry.has<Camera3D>(p_camera.eid));
+    Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
 
-        camera.type = Camera3D::ORTHOGONAL;
-        camera.size = p_size;
-        camera.znear = p_z_near;
-        camera.zfar = p_z_far;
-    }
-    else {
-        ERR_FAIL_COND(true);
-    }
+    camera.type = Camera3D::ORTHOGONAL;
+    camera.size = p_size;
+    camera.znear = p_z_near;
+    camera.zfar = p_z_far;
 }
 
 void VisualServerScene::camera_set_frustum(RID p_camera, float p_size, Vector2 p_offset, float p_z_near, float p_z_far) {
-    if (VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera3D>(p_camera.eid)) {
-        Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera.eid) || !VSG::ecs->registry.has<Camera3D>(p_camera.eid));
 
-        camera.type = Camera3D::FRUSTUM;
-        camera.size = p_size;
-        camera.offset = p_offset;
-        camera.znear = p_z_near;
-        camera.zfar = p_z_far;
-    }
-    else {
-        ERR_FAIL_COND(true);
-    }
+    Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+
+    camera.type = Camera3D::FRUSTUM;
+    camera.size = p_size;
+    camera.offset = p_offset;
+    camera.znear = p_z_near;
+    camera.zfar = p_z_far;
 }
 
 void VisualServerScene::camera_set_transform(RID p_camera, const Transform &p_transform) {
-    if (VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera3D>(p_camera.eid)) {
-        Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera.eid) || !VSG::ecs->registry.has<Camera3D>(p_camera.eid));
 
-        camera.transform = p_transform.orthonormalized();
-    }
-    else {
-        ERR_FAIL_COND(true);
-    }
+    Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+
+    camera.transform = p_transform.orthonormalized();
 }
 
 void VisualServerScene::camera_set_cull_mask(RID p_camera, uint32_t p_layers) {
-    if (VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera3D>(p_camera.eid)) {
-        Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera.eid) || !VSG::ecs->registry.has<Camera3D>(p_camera.eid));
 
-        camera.visible_layers = p_layers;
-    }
-    else {
-        ERR_FAIL_COND(true);
-    }
+    Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+
+    camera.visible_layers = p_layers;
 }
 
 void VisualServerScene::camera_set_environment(RID p_camera, RID p_env) {
-    if (VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera3D>(p_camera.eid)) {
-        Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera.eid) || !VSG::ecs->registry.has<Camera3D>(p_camera.eid));
+    Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
 
-        camera.env = p_env;
-    }
-    else {
-        ERR_FAIL_COND(true);
-    }
+    camera.env = p_env;
+}
+
+/* SPATIAL PARTITIONING */
+VisualServerScene::SpatialPartitionID VisualServerScene::SpatialPartitioningScene_BVH::create(Instance *p_userdata, const AABB &p_aabb, int p_subindex, bool p_pairable, uint32_t p_pairable_type, uint32_t p_pairable_mask) {
+    return _bvh.create(p_userdata, p_aabb, p_subindex, p_pairable, p_pairable_type, p_pairable_mask) + 1;
 }
 
 void VisualServerScene::camera_set_use_vertical_aspect(RID p_camera, bool p_enable) {
-    if (VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera3D>(p_camera.eid)) {
-        Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera.eid) || !VSG::ecs->registry.has<Camera3D>(p_camera.eid));
 
-        camera.vaspect = p_enable;
-    }
-    else {
-        ERR_FAIL_COND(true);
-    }
+    Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+
+    camera.vaspect = p_enable;
 }
 bool VisualServerScene::owns_camera(RID p_camera) {
     return VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera3D>(p_camera.eid);
 }
 /* SCENARIO API */
 
-void *VisualServerScene::_instance_pair(void *p_self, OctreeElementID, Instance *p_A, int, OctreeElementID, Instance *p_B, int) {
+void *VisualServerScene::_instance_pair(void *p_self, SpatialPartitionID, Instance *p_A, int, SpatialPartitionID, Instance *p_B, int) {
 
     //VisualServerScene *self = (VisualServerScene*)p_self;
     Instance *A = p_A;
@@ -324,7 +522,7 @@ void *VisualServerScene::_instance_pair(void *p_self, OctreeElementID, Instance 
 
     return nullptr;
 }
-void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance *p_A, int, OctreeElementID, Instance *p_B, int, void *udata) {
+void VisualServerScene::_instance_unpair(void *p_self, SpatialPartitionID, Instance *p_A, int, SpatialPartitionID, Instance *p_B, int, void *udata) {
     static_assert(sizeof(List<InstanceLightData::PairInfo>::iterator)==sizeof(void*));
     //VisualServerScene *self = (VisualServerScene*)p_self;
     Instance *A = p_A;
@@ -401,9 +599,9 @@ RID VisualServerScene::scenario_create() {
     RID scenario_rid = scenario_owner.make_rid(scenario);
 
     scenario->self = scenario_rid;
-    scenario->octree.set_balance(T_GLOBAL_GET<float>("rendering/quality/spatial_partitioning/render_tree_balance"));
-    scenario->octree.set_pair_callback(_instance_pair, this);
-    scenario->octree.set_unpair_callback(_instance_unpair, this);
+    //scenario->octree.set_balance(T_GLOBAL_GET<float>("rendering/quality/spatial_partitioning/render_tree_balance"));
+    scenario->sps.set_pair_callback(_instance_pair, this);
+    scenario->sps.set_unpair_callback(_instance_unpair, this);
     scenario->reflection_probe_shadow_atlas = VSG::scene_render->shadow_atlas_create();
     VSG::scene_render->shadow_atlas_set_size(scenario->reflection_probe_shadow_atlas, 1024); //make enough shadows for close distance, don't bother with rest
     VSG::scene_render->shadow_atlas_set_quadrant_subdivision(scenario->reflection_probe_shadow_atlas, 0, 4);
@@ -495,9 +693,9 @@ void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
             }
         }
 
-        if (scenario && instance->octree_id) {
-            scenario->octree.erase(instance->octree_id); //make dependencies generated by the octree go away
-            instance->octree_id = 0;
+        if (scenario && instance->spatial_partition_id) {
+            scenario->sps.erase(instance->spatial_partition_id);
+            instance->spatial_partition_id = 0;
         }
 
         switch (instance->base_type) {
@@ -571,8 +769,9 @@ void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
     instance->base_type = RS::INSTANCE_NONE;
     instance->base = RID();
 
-    if (!p_base.is_valid())
+    if (!p_base.is_valid()) {
         return;
+    }
 
     instance->base_type = VSG::storage->get_base_type(p_base);
     ERR_FAIL_COND(instance->base_type == RS::INSTANCE_NONE);
@@ -652,9 +851,9 @@ void VisualServerScene::instance_set_scenario(RID p_instance, RID p_scenario) {
 
         old_scene->instances.remove(&instance->scenario_item);
 
-        if (instance->octree_id) {
-            old_scene->octree.erase(instance->octree_id); //make dependencies generated by the octree go away
-            instance->octree_id = 0;
+        if (instance->spatial_partition_id) {
+            old_scene->sps.erase(instance->spatial_partition_id);
+            instance->spatial_partition_id = 0;
         }
 
         switch (instance->base_type) {
@@ -818,26 +1017,26 @@ void VisualServerScene::instance_set_visible(RID p_instance, bool p_visible) {
 
     switch (instance->base_type) {
         case RS::INSTANCE_LIGHT: {
-            if (VSG::storage->light_get_type(instance->base) != RS::LIGHT_DIRECTIONAL && instance->octree_id && instance->scenario) {
-                instance->scenario->octree.set_pairable(instance->octree_id, p_visible, 1 << RS::INSTANCE_LIGHT, p_visible ? RS::INSTANCE_GEOMETRY_MASK : 0);
+            if (VSG::storage->light_get_type(instance->base) != RS::LIGHT_DIRECTIONAL && instance->spatial_partition_id && instance->scenario) {
+                instance->scenario->sps.set_pairable(instance->spatial_partition_id, p_visible, 1 << RS::INSTANCE_LIGHT, p_visible ? RS::INSTANCE_GEOMETRY_MASK : 0);
             }
 
         } break;
         case RS::INSTANCE_REFLECTION_PROBE: {
-            if (instance->octree_id && instance->scenario) {
-                instance->scenario->octree.set_pairable(instance->octree_id, p_visible, 1 << RS::INSTANCE_REFLECTION_PROBE, p_visible ? RS::INSTANCE_GEOMETRY_MASK : 0);
+            if (instance->spatial_partition_id && instance->scenario) {
+                instance->scenario->sps.set_pairable(instance->spatial_partition_id, p_visible, 1 << RS::INSTANCE_REFLECTION_PROBE, p_visible ? RS::INSTANCE_GEOMETRY_MASK : 0);
             }
 
         } break;
         case RS::INSTANCE_LIGHTMAP_CAPTURE: {
-            if (instance->octree_id && instance->scenario) {
-                instance->scenario->octree.set_pairable(instance->octree_id, p_visible, 1 << RS::INSTANCE_LIGHTMAP_CAPTURE, p_visible ? RS::INSTANCE_GEOMETRY_MASK : 0);
+            if (instance->spatial_partition_id && instance->scenario) {
+                instance->scenario->sps.set_pairable(instance->spatial_partition_id, p_visible, 1 << RS::INSTANCE_LIGHTMAP_CAPTURE, p_visible ? RS::INSTANCE_GEOMETRY_MASK : 0);
             }
 
         } break;
         case RS::INSTANCE_GI_PROBE: {
-            if (instance->octree_id && instance->scenario) {
-                instance->scenario->octree.set_pairable(instance->octree_id, p_visible, 1 << RS::INSTANCE_GI_PROBE, p_visible ? (RS::INSTANCE_GEOMETRY_MASK | (1 << RS::INSTANCE_LIGHT)) : 0);
+            if (instance->spatial_partition_id && instance->scenario) {
+                instance->scenario->sps.set_pairable(instance->spatial_partition_id, p_visible, 1 << RS::INSTANCE_GI_PROBE, p_visible ? (RS::INSTANCE_GEOMETRY_MASK | (1 << RS::INSTANCE_LIGHT)) : 0);
             }
 
         } break;
@@ -934,7 +1133,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_aabb(const AABB &p_aabb, RID 
     const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
 
     Instance *cull[1024];
-    int culled = scenario->octree.cull_aabb(p_aabb, cull, 1024);
+    int culled = scenario->sps.cull_aabb(p_aabb, cull, 1024);
 
     instances.reserve(culled/2);
 
@@ -958,7 +1157,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_ray(const Vector3 &p_from, co
     const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
 
     Instance *cull[1024];
-    int culled = scenario->octree.cull_segment(p_from, p_from + p_to * 10000, cull, 1024);
+    int culled = scenario->sps.cull_segment(p_from, p_from + p_to * 10000, cull, 1024);
 
     instances.reserve(culled/2);
     for (int i = 0; i < culled; i++) {
@@ -982,7 +1181,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_convex(Span<const Plane> p_co
     int culled = 0;
     Instance *cull[1024];
 
-    culled = scenario->octree.cull_convex(p_convex, cull, 1024);
+    culled = scenario->sps.cull_convex(p_convex, cull, 1024);
 
     for (int i = 0; i < culled; i++) {
 
@@ -1110,7 +1309,7 @@ void VisualServerScene::_update_instance(Instance *p_instance) {
         return;
     }
 
-    if (p_instance->octree_id == 0) {
+    if (p_instance->spatial_partition_id == 0) {
 
         uint32_t base_type = 1 << p_instance->base_type;
         uint32_t pairable_mask = 0;
@@ -1129,7 +1328,7 @@ void VisualServerScene::_update_instance(Instance *p_instance) {
         }
 
         // not inside octree
-        p_instance->octree_id = p_instance->scenario->octree.create(p_instance, new_aabb, 0, pairable, base_type, pairable_mask);
+        p_instance->spatial_partition_id = p_instance->scenario->sps.create(p_instance, new_aabb, 0, pairable, base_type, pairable_mask);
 
     } else {
 
@@ -1138,7 +1337,7 @@ void VisualServerScene::_update_instance(Instance *p_instance) {
             return;
         */
 
-        p_instance->scenario->octree.move(p_instance->octree_id, new_aabb);
+        p_instance->scenario->sps.move(p_instance->spatial_partition_id, new_aabb);
     }
 }
 
@@ -1483,7 +1682,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
             if (depth_range_mode == RS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED) {
                 //optimize min/max
                 Frustum planes = p_cam_projection.get_projection_planes(p_cam_transform);
-                int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
+                int cull_count = p_scenario->sps.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
                 Plane base(p_cam_transform.origin, -p_cam_transform.basis.get_axis(2));
                 //check distance max and min
 
@@ -1684,7 +1883,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                 light_frustum_planes[4] = Plane(z_vec, z_max + 1e6f);
                 light_frustum_planes[5] = Plane(-z_vec, -z_min); // z_min is ok, since casters further than far-light plane are not needed
 
-                int cull_count = p_scenario->octree.cull_convex(light_frustum_planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
+                int cull_count = p_scenario->sps.cull_convex(light_frustum_planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
 
                 // a pre pass will need to be needed to determine the actual z-near to be used
 
@@ -1750,7 +1949,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                         light_transform.xform(Plane(Vector3(0, 0, -z).normalized(), radius)),
                     };
 
-                    int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
+                    int cull_count = p_scenario->sps.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
                     Plane near_plane(light_transform.origin, light_transform.basis.get_axis(2) * z);
 
                     for (int j = 0; j < cull_count; j++) {
@@ -1805,7 +2004,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
 
                     Frustum planes = cm.get_projection_planes(xform);
 
-                    int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
+                    int cull_count = p_scenario->sps.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
 
                     Plane near_plane(xform.origin, -xform.basis.get_axis(2));
                     for (int j = 0; j < cull_count; j++) {
@@ -1843,7 +2042,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
             cm.set_perspective(angle * 2.0f, 1.0, 0.01f, radius);
 
             Frustum planes = cm.get_projection_planes(light_transform);
-            int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
+            int cull_count = p_scenario->sps.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
 
             Plane near_plane(light_transform.origin, -light_transform.basis.get_axis(2));
             for (int j = 0; j < cull_count; j++) {
@@ -2029,7 +2228,7 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
     float z_far = p_cam_projection.get_z_far();
 
     /* STEP 2 - CULL */
-    instance_cull_count = scenario->octree.cull_convex(planes, instance_cull_result, MAX_INSTANCE_CULL);
+    instance_cull_count = scenario->sps.cull_convex(planes, instance_cull_result, MAX_INSTANCE_CULL);
     light_cull_count = 0;
 
     reflection_probe_cull_count = 0;
@@ -2442,59 +2641,6 @@ bool VisualServerScene::_render_reflection_probe_step(Instance *p_instance, int 
     return false;
 }
 
-void VisualServerScene::_gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z, const GIProbeDataCell *p_cell, const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, Vector<uint32_t> *prev_cell) {
-
-    if ((uint32_t)p_level == p_header->cell_subdiv - 1) {
-
-        Vector3 emission;
-        emission.x = (p_cell[p_idx].emission >> 24) / 255.0f;
-        emission.y = ((p_cell[p_idx].emission >> 16) & 0xFF) / 255.0f;
-        emission.z = ((p_cell[p_idx].emission >> 8) & 0xFF) / 255.0f;
-        float l = (p_cell[p_idx].emission & 0xFF) / 255.0f;
-        l *= 8.0f;
-
-        emission *= l;
-
-        p_local_data[p_idx].energy[0] = uint16_t(emission.x * 1024); //go from 0 to 1024 for light
-        p_local_data[p_idx].energy[1] = uint16_t(emission.y * 1024); //go from 0 to 1024 for light
-        p_local_data[p_idx].energy[2] = uint16_t(emission.z * 1024); //go from 0 to 1024 for light
-    } else {
-
-        p_local_data[p_idx].energy[0] = 0;
-        p_local_data[p_idx].energy[1] = 0;
-        p_local_data[p_idx].energy[2] = 0;
-
-        int half = (1 << (p_header->cell_subdiv - 1)) >> (p_level + 1);
-
-        for (int i = 0; i < 8; i++) {
-
-            uint32_t child = p_cell[p_idx].children[i];
-
-            if (child == 0xFFFFFFFF)
-                continue;
-
-            int x = p_x;
-            int y = p_y;
-            int z = p_z;
-
-            if (i & 1)
-                x += half;
-            if (i & 2)
-                y += half;
-            if (i & 4)
-                z += half;
-
-            _gi_probe_fill_local_data(child, p_level + 1, x, y, z, p_cell, p_header, p_local_data, prev_cell);
-        }
-    }
-
-    //position for each part of the mipmaped texture
-    p_local_data[p_idx].pos[0] = p_x >> (p_header->cell_subdiv - p_level - 1);
-    p_local_data[p_idx].pos[1] = p_y >> (p_header->cell_subdiv - p_level - 1);
-    p_local_data[p_idx].pos[2] = p_z >> (p_header->cell_subdiv - p_level - 1);
-
-    prev_cell[p_level].push_back(p_idx);
-}
 
 void VisualServerScene::_gi_probe_bake_threads(void *self) {
 
@@ -2502,9 +2648,9 @@ void VisualServerScene::_gi_probe_bake_threads(void *self) {
     vss->_gi_probe_bake_thread();
 }
 
-void VisualServerScene::_setup_gi_probe(Instance *p_instance) {
+void _setup_gi_probe(VisualServerScene::Instance *p_instance) {
 
-    InstanceGIProbeData *probe = static_cast<InstanceGIProbeData *>(p_instance->base_data);
+    VisualServerScene::InstanceGIProbeData *probe = static_cast<VisualServerScene::InstanceGIProbeData *>(p_instance->base_data);
 
     if (probe->dynamic.probe_data.is_valid()) {
         VSG::storage->free(probe->dynamic.probe_data);
@@ -2518,13 +2664,13 @@ void VisualServerScene::_setup_gi_probe(Instance *p_instance) {
     //using dynamic data
     PoolVector<int>::Read r = probe->dynamic.light_data.read();
 
-    const GIProbeDataHeader *header = (GIProbeDataHeader *)r.ptr();
+    const VisualServerScene::GIProbeDataHeader *header = (VisualServerScene::GIProbeDataHeader *)r.ptr();
 
     probe->dynamic.local_data.resize(header->cell_count);
 
     int cell_count = probe->dynamic.local_data.size();
-    Vector<InstanceGIProbeData::LocalData> &ldw = probe->dynamic.local_data;
-    const GIProbeDataCell *cells = (GIProbeDataCell *)&r[16];
+    Vector<VisualServerScene::InstanceGIProbeData::LocalData> &ldw = probe->dynamic.local_data;
+    const VisualServerScene::GIProbeDataCell *cells = (VisualServerScene::GIProbeDataCell *)&r[16];
 
     probe->dynamic.level_cell_lists.resize(header->cell_subdiv);
 
@@ -2570,7 +2716,7 @@ void VisualServerScene::_setup_gi_probe(Instance *p_instance) {
             break;
     }
 
-    probe->dynamic.updating_stage = GI_UPDATE_STAGE_CHECK;
+    probe->dynamic.updating_stage = VisualServerScene::GI_UPDATE_STAGE_CHECK;
     probe->invalid = false;
     probe->dynamic.enabled = true;
 
@@ -2591,14 +2737,14 @@ void VisualServerScene::_setup_gi_probe(Instance *p_instance) {
     if (probe->dynamic.compression == RasterizerStorage::GI_PROBE_S3TC) {
 
         //create all blocks
-        FixedVector<Map<uint32_t, InstanceGIProbeData::CompBlockS3TC>,8,true> comp_blocks;
+        FixedVector<Map<uint32_t, VisualServerScene::InstanceGIProbeData::CompBlockS3TC>,8,true> comp_blocks;
         int mipmap_count = probe->dynamic.mipmaps_3d.size();
         comp_blocks.resize(mipmap_count);
 
         for (int i = 0; i < cell_count; i++) {
 
-            const GIProbeDataCell &c = cells[i];
-            const InstanceGIProbeData::LocalData &ld = ldw[i];
+            const VisualServerScene::GIProbeDataCell &c = cells[i];
+            const VisualServerScene::InstanceGIProbeData::LocalData &ld = ldw[i];
             int level = c.level_alpha >> 16;
             int mipmap = header->cell_subdiv - level - 1;
             if (mipmap >= mipmap_count)
@@ -2615,17 +2761,17 @@ void VisualServerScene::_setup_gi_probe(Instance *p_instance) {
 
             uint32_t key = blockz * blockw * blockh + blocky * blockw + blockx;
 
-            Map<uint32_t, InstanceGIProbeData::CompBlockS3TC> &cmap = comp_blocks[mipmap];
+            Map<uint32_t, VisualServerScene::InstanceGIProbeData::CompBlockS3TC> &cmap = comp_blocks[mipmap];
 
             if (!cmap.contains(key)) {
 
-                InstanceGIProbeData::CompBlockS3TC k;
+                VisualServerScene::InstanceGIProbeData::CompBlockS3TC k;
                 k.offset = key; //use offset as counter first
                 k.source_count = 0;
                 cmap[key] = k;
             }
 
-            InstanceGIProbeData::CompBlockS3TC &k = cmap[key];
+            VisualServerScene::InstanceGIProbeData::CompBlockS3TC &k = cmap[key];
             ERR_CONTINUE(k.source_count == 16);
             k.sources[k.source_count++] = i;
         }
@@ -2636,12 +2782,12 @@ void VisualServerScene::_setup_gi_probe(Instance *p_instance) {
         for (int i = 0; i < mipmap_count; i++) {
             //print_line("S3TC level: " + itos(i) + " blocks: " + itos(comp_blocks[i].size()));
             probe->dynamic.mipmaps_s3tc[i].resize(comp_blocks[i].size());
-            PoolVector<InstanceGIProbeData::CompBlockS3TC>::Write w = probe->dynamic.mipmaps_s3tc[i].write();
+            PoolVector<VisualServerScene::InstanceGIProbeData::CompBlockS3TC>::Write w = probe->dynamic.mipmaps_s3tc[i].write();
             int block_idx = 0;
 
             for (auto &E : comp_blocks[i]) {
 
-                InstanceGIProbeData::CompBlockS3TC k = E.second;
+                VisualServerScene::InstanceGIProbeData::CompBlockS3TC k = E.second;
 
                 //PRECOMPUTE ALPHA
                 int max_alpha = -100000;
@@ -2717,13 +2863,14 @@ void VisualServerScene::_gi_probe_bake_thread() {
 
         Instance *to_bake = nullptr;
 
-        probe_bake_mutex->lock();
+        {
+            MutexLock guard(probe_bake_mutex);
 
-        if (!probe_bake_list.empty()) {
-            to_bake = probe_bake_list.front();
-            probe_bake_list.pop_front();
+            if (!probe_bake_list.empty()) {
+                to_bake = probe_bake_list.front();
+                probe_bake_list.pop_front();
+            }
         }
-        probe_bake_mutex->unlock();
 
         if (!to_bake)
             continue;
@@ -2732,87 +2879,21 @@ void VisualServerScene::_gi_probe_bake_thread() {
     }
 }
 
-uint32_t VisualServerScene::_gi_bake_find_cell(const GIProbeDataCell *cells, int x, int y, int z, int p_cell_subdiv) {
-
-    uint32_t cell = 0;
-
-    int ofs_x = 0;
-    int ofs_y = 0;
-    int ofs_z = 0;
-    int size = 1 << (p_cell_subdiv - 1);
-    int half = size / 2;
-
-    if (x < 0 || x >= size)
-        return ~0U;
-    if (y < 0 || y >= size)
-        return ~0U;
-    if (z < 0 || z >= size)
-        return ~0U;
-
-    for (int i = 0; i < p_cell_subdiv - 1; i++) {
-
-        const GIProbeDataCell *bc = &cells[cell];
-
-        int child = 0;
-        if (x >= ofs_x + half) {
-            child |= 1;
-            ofs_x += half;
-        }
-        if (y >= ofs_y + half) {
-            child |= 2;
-            ofs_y += half;
-        }
-        if (z >= ofs_z + half) {
-            child |= 4;
-            ofs_z += half;
-        }
-
-        cell = bc->children[child];
-        if (cell == 0xFFFFFFFF)
-            return 0xFFFFFFFF;
-
-        half >>= 1;
-    }
-
-    return cell;
-}
-
-static float _get_normal_advance(const Vector3 &p_normal) {
-
-    Vector3 normal = p_normal;
-    Vector3 unorm = normal.abs();
-
-    if ((unorm.x >= unorm.y) && (unorm.x >= unorm.z)) {
-        // x code
-        unorm = normal.x > 0.0f ? Vector3(1.0, 0.0, 0.0) : Vector3(-1.0, 0.0, 0.0);
-    } else if ((unorm.y > unorm.x) && (unorm.y >= unorm.z)) {
-        // y code
-        unorm = normal.y > 0.0f ? Vector3(0.0, 1.0, 0.0) : Vector3(0.0, -1.0, 0.0);
-    } else if ((unorm.z > unorm.x) && (unorm.z > unorm.y)) {
-        // z code
-        unorm = normal.z > 0.0f ? Vector3(0.0, 0.0, 1.0) : Vector3(0.0, 0.0, -1.0);
-    } else {
-        // oh-no we messed up code
-        // has to be
-        unorm = Vector3(1.0, 0.0, 0.0);
-    }
-
-    return 1.0 / normal.dot(unorm);
-}
-
-void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, const GIProbeDataCell *cells, InstanceGIProbeData::LocalData *local_data, const uint32_t *leaves, int p_leaf_count, const InstanceGIProbeData::LightCache &light_cache, int p_sign) {
+void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, const GIProbeDataCell *cells,
+        InstanceGIProbeData::LocalData *local_data, const uint32_t *leaves, int p_leaf_count,
+        const InstanceGIProbeData::LightCache &light_cache, int p_sign) {
 
     int light_r = int(light_cache.color.r * light_cache.energy * 1024.0f) * p_sign;
     int light_g = int(light_cache.color.g * light_cache.energy * 1024.0f) * p_sign;
     int light_b = int(light_cache.color.b * light_cache.energy * 1024.0f) * p_sign;
 
     float limits[3] = { float(header->width), float(header->height), float(header->depth) };
-    Plane clip[3];
     int clip_planes = 0;
 
     switch (light_cache.type) {
 
         case RS::LIGHT_DIRECTIONAL: {
+            Plane clip[3];
 
             float max_len = Vector3(limits[0], limits[1], limits[2]).length() * 1.1f;
 
@@ -2822,6 +2903,7 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
 
                 if (Math::is_zero_approx(light_axis[i]))
                     continue;
+
                 clip[clip_planes].normal[i] = 1.0;
 
                 if (light_axis[i] < 0) {
@@ -2900,6 +2982,7 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
         } break;
         case RS::LIGHT_OMNI:
         case RS::LIGHT_SPOT: {
+            Plane clip[3];
 
             // uint64_t us = OS::get_singleton()->get_ticks_usec();
 
@@ -3007,40 +3090,6 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
     }
 }
 
-void VisualServerScene::_bake_gi_downscale_light(int p_idx, int p_level, const GIProbeDataCell *p_cells, const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, float p_propagate) {
-
-    //average light to upper level
-
-    float divisor = 0;
-    float sum[3] = { 0.0, 0.0, 0.0 };
-
-    for (int i = 0; i < 8; i++) {
-
-        uint32_t child = p_cells[p_idx].children[i];
-
-        if (child == 0xFFFFFFFF)
-            continue;
-
-        if (p_level + 1 < (int)p_header->cell_subdiv - 1) {
-            _bake_gi_downscale_light(child, p_level + 1, p_cells, p_header, p_local_data, p_propagate);
-        }
-
-        sum[0] += p_local_data[child].energy[0];
-        sum[1] += p_local_data[child].energy[1];
-        sum[2] += p_local_data[child].energy[2];
-        divisor += 1.0f;
-    }
-
-    divisor = Math::lerp((float)8.0, divisor, p_propagate);
-    sum[0] /= divisor;
-    sum[1] /= divisor;
-    sum[2] /= divisor;
-
-    //divide by eight for average
-    p_local_data[p_idx].energy[0] = Math::fast_ftoi(sum[0]);
-    p_local_data[p_idx].energy[1] = Math::fast_ftoi(sum[1]);
-    p_local_data[p_idx].energy[2] = Math::fast_ftoi(sum[2]);
-}
 
 void VisualServerScene::_bake_gi_probe(Instance *p_gi_probe) {
 
@@ -3259,73 +3308,10 @@ void VisualServerScene::_bake_gi_probe(Instance *p_gi_probe) {
     }
 
     //send back to main thread to update un little chunks
-    if (probe_bake_mutex) {
-        probe_bake_mutex->lock();
+    {
+        MutexLock guard(probe_bake_mutex);
+        probe_data->dynamic.updating_stage = GI_UPDATE_STAGE_UPLOADING;
     }
-
-    probe_data->dynamic.updating_stage = GI_UPDATE_STAGE_UPLOADING;
-
-    if (probe_bake_mutex) {
-        probe_bake_mutex->unlock();
-    }
-}
-
-bool VisualServerScene::_check_gi_probe(Instance *p_gi_probe) {
-
-    InstanceGIProbeData *probe_data = static_cast<InstanceGIProbeData *>(p_gi_probe->base_data);
-
-    probe_data->dynamic.light_cache_changes.clear();
-
-    bool all_equal = true;
-
-    for (Instance *E : p_gi_probe->scenario->directional_lights) {
-
-        if (VSG::storage->light_get_bake_mode(E->base) == RS::LightBakeMode::LIGHT_BAKE_DISABLED)
-            continue;
-
-        InstanceGIProbeData::LightCache lc;
-        lc.type = VSG::storage->light_get_type(E->base);
-        lc.color = VSG::storage->light_get_color(E->base);
-        lc.energy = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_ENERGY) * VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_INDIRECT_ENERGY);
-        lc.radius = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_RANGE);
-        lc.attenuation = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_ATTENUATION);
-        lc.spot_angle = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_SPOT_ANGLE);
-        lc.spot_attenuation = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_SPOT_ATTENUATION);
-        lc.transform = probe_data->dynamic.light_to_cell_xform * E->transform;
-        lc.visible = E->visible;
-
-        if (!probe_data->dynamic.light_cache.contains(E->self) || probe_data->dynamic.light_cache[E->self] != lc) {
-            all_equal = false;
-        }
-
-        probe_data->dynamic.light_cache_changes[E->self] = lc;
-    }
-
-    for (Instance * E : probe_data->lights) {
-
-        if (VSG::storage->light_get_bake_mode(E->base) == RS::LightBakeMode::LIGHT_BAKE_DISABLED)
-            continue;
-
-        InstanceGIProbeData::LightCache lc;
-        lc.type = VSG::storage->light_get_type(E->base);
-        lc.color = VSG::storage->light_get_color(E->base);
-        lc.energy = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_ENERGY) * VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_INDIRECT_ENERGY);
-        lc.radius = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_RANGE);
-        lc.attenuation = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_ATTENUATION);
-        lc.spot_angle = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_SPOT_ANGLE);
-        lc.spot_attenuation = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_SPOT_ATTENUATION);
-        lc.transform = probe_data->dynamic.light_to_cell_xform * E->transform;
-        lc.visible = E->visible;
-
-        if (!probe_data->dynamic.light_cache.contains(E->self) || probe_data->dynamic.light_cache[E->self] != lc) {
-            all_equal = false;
-        }
-
-        probe_data->dynamic.light_cache_changes[E->self] = lc;
-    }
-
-    //lighting changed from after to before, must do some updating
-    return !all_equal || probe_data->dynamic.light_cache_changes.size() != probe_data->dynamic.light_cache.size();
 }
 
 void VisualServerScene::render_probes() {
@@ -3406,10 +3392,11 @@ void VisualServerScene::render_probes() {
                 case GI_UPDATE_STAGE_CHECK: {
 
                     if (_check_gi_probe(instance_probe) || force_lighting) { //send to lighting thread
-                        probe_bake_mutex->lock();
-                        probe->dynamic.updating_stage = GI_UPDATE_STAGE_LIGHTING;
-                        probe_bake_list.push_back(instance_probe);
-                        probe_bake_mutex->unlock();
+                        {
+                            MutexLock guard(probe_bake_mutex);
+                            probe->dynamic.updating_stage = GI_UPDATE_STAGE_LIGHTING;
+                            probe_bake_list.push_back(instance_probe);
+                        }
                         probe_bake_sem->post();
                     }
                 } break;
@@ -3566,8 +3553,9 @@ void VisualServerScene::_update_instance_material(Instance *p_instance) {
                 for (int i = 0; i < dp; i++) {
 
                     RID mesh = VSG::storage->particles_get_draw_pass_mesh(p_instance->base, i);
-                    if (!mesh.is_valid())
+                    if (!mesh.is_valid()) {
                         continue;
+                    }
 
                     int sc = VSG::storage->mesh_get_surface_count(mesh);
                     for (int j = 0; j < sc; j++) {
@@ -3622,9 +3610,15 @@ void VisualServerScene::update_dirty_instances() {
         SCOPE_PROFILE(update_resources);
         VSG::storage->update_dirty_resources();
     }
+
     //auto view = VSG::ecs->registry.view<InstanceComponent, Dirty>();
     auto view = VSG::ecs->registry.group<>(entt::get<InstanceComponent, Dirty>);
+    Scenario *scenario = nullptr;
 
+    if(!view.empty()) {
+        Instance *p_instance = view.get<InstanceComponent>(view.front()).instance;
+        scenario = p_instance->scenario;
+    }
     for (auto entity : view) {
         Instance *p_instance = view.get<InstanceComponent>(entity).instance;
         const Dirty & dt = view.get<Dirty>(entity);
@@ -3638,6 +3632,9 @@ void VisualServerScene::update_dirty_instances() {
     }
     //remove dirty for everything
     VSG::ecs->registry.clear<Dirty>();
+    if(scenario) {
+        scenario->sps.update();
+    }
 }
 
 bool VisualServerScene::free(RID p_rid) {
@@ -3687,8 +3684,7 @@ VisualServerScene *VisualServerScene::singleton = nullptr;
 VisualServerScene::VisualServerScene() {
 
     probe_bake_sem = memnew(Semaphore);
-    probe_bake_mutex = memnew(Mutex);
-    probe_bake_thread = Thread::create(_gi_probe_bake_threads, this);
+    probe_bake_thread.start(_gi_probe_bake_threads, this);
     probe_bake_thread_exit = false;
 
     render_pass = 1;
@@ -3698,8 +3694,6 @@ VisualServerScene::VisualServerScene() {
 VisualServerScene::~VisualServerScene() {
     probe_bake_thread_exit = true;
     probe_bake_sem->post();
-    Thread::wait_to_finish(probe_bake_thread);
-    memdelete(probe_bake_thread);
+    probe_bake_thread.wait_to_finish();
     memdelete(probe_bake_sem);
-    memdelete(probe_bake_mutex);
 }

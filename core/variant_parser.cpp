@@ -45,6 +45,7 @@
 #include "core/math/transform.h"
 #include "core/math/transform_2d.h"
 #include "core/math/vector3.h"
+#include "core/node_path.h"
 #include "core/input/input_event.h"
 #include "core/os/keyboard.h"
 #include "core/pool_vector.h"

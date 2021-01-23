@@ -2,6 +2,7 @@
 #include <utility>
 
 #include "core/string.h"
+#include "core/string_name.h"
 #include "typesystem_decls.h"
 
 enum class VariantType : int8_t;

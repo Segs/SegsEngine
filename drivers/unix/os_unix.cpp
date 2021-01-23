@@ -33,14 +33,12 @@
 #ifdef UNIX_ENABLED
 
 #include "core/debugger/script_debugger.h"
-#include "core/os/thread_dummy.h"
 #include "core/project_settings.h"
 #include "core/script_language.h"
 #include "core/string_utils.inl"
 #include "drivers/unix/dir_access_unix.h"
 #include "drivers/unix/file_access_unix.h"
 #include "drivers/unix/net_socket_posix.h"
-#include "drivers/unix/rw_lock_posix.h"
 
 #include "drivers/unix/thread_posix.h"
 #include "servers/rendering_server.h"
@@ -124,8 +122,7 @@ int OS_Unix::unix_initialize_audio(int p_audio_driver) {
 
 void OS_Unix::initialize_core() {
 
-    ThreadPosix::make_default();
-    RWLockPosix::make_default();
+    init_thread_posix();
 
     FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_RESOURCES);
     FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_USERDATA);

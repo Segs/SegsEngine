@@ -32,6 +32,7 @@
 
 #include "scene/3d/visual_instance_3d.h"
 #include "scene/resources/mesh.h"
+#include "core/node_path.h"
 
 class Skin;
 class SkinReference;

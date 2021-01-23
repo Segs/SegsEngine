@@ -34,45 +34,67 @@
 #include "core/error_list.h"
 #include "core/forward_decls.h"
 
+#include <thread>
+
 using ThreadCreateCallback = void (*)(void *);
 
-class GODOT_EXPORT Thread {
-public:
-    enum Priority {
 
+
+class Thread {
+public:
+    typedef void (*Callback)(void *p_userdata);
+
+    typedef uint64_t ID;
+
+    enum Priority {
         PRIORITY_LOW,
         PRIORITY_NORMAL,
         PRIORITY_HIGH
     };
 
     struct Settings {
-
         Priority priority;
         Settings() { priority = PRIORITY_NORMAL; }
     };
 
-    using ID = uint64_t;
-
-protected:
-    static Thread *(*create_func)(ThreadCreateCallback p_callback, void *, const Settings &);
-    static ID (*get_thread_id_func)();
-    static void (*wait_to_finish_func)(Thread *);
-    static Error (*set_name_func)(StringView);
+private:
+    static ID main_thread_id;
+    static ID last_thread_id;
 
     friend class Main;
 
-    static ID _main_thread_id;
+    ID id = 0;
+    static thread_local ID caller_id;
+    std::thread thread;
 
-    Thread() = default;
+    static void callback(Thread *p_self, const Settings &p_settings, Thread::Callback p_callback, void *p_userdata);
+
+    static Error (*set_name_func)(StringView);
+    static void (*set_priority_func)(Thread::Priority);
+    static void (*init_func)();
+    static void (*term_func)();
 
 public:
-    virtual ID get_id() const = 0;
+    static void _set_platform_funcs(
+            Error (*p_set_name_func)(StringView),
+            void (*p_set_priority_func)(Thread::Priority),
+            void (*p_init_func)() = nullptr,
+            void (*p_term_func)() = nullptr);
+
+    _FORCE_INLINE_ ID get_id() const { return id; }
+    // get the ID of the caller thread
+    _FORCE_INLINE_ static ID get_caller_id() { return caller_id; }
+    // get the ID of the main thread
+    _FORCE_INLINE_ static ID get_main_id() { return main_thread_id; }
 
     static Error set_name(StringView p_name);
-    _FORCE_INLINE_ static ID get_main_id() { return _main_thread_id; } ///< get the ID of the main thread
-    static ID get_caller_id(); ///< get the ID of the caller function ID
-    static void wait_to_finish(Thread *p_thread); ///< waits until thread is finished, and deallocates it.
-    static Thread *create(ThreadCreateCallback p_callback, void *p_user, const Settings &p_settings = Settings()); ///< Static function to create a thread, will call p_callback
 
-    virtual ~Thread() = default;
+    void start(Thread::Callback p_callback, void *p_user, const Settings &p_settings = Settings());
+    bool is_started() const;
+    ///< waits until thread is finished, and deallocates it.
+    void wait_to_finish();
+    Thread(Thread &&) = default;
+    Thread() = default;
+    Thread(const Thread &) = delete;
+    ~Thread();
 };

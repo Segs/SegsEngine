@@ -28,9 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PHYSICS_JOINT_H
-#define PHYSICS_JOINT_H
+#pragma once
 
+#include "core/node_path.h"
 #include "scene/3d/physics_body_3d.h"
 #include "scene/3d/node_3d.h"
 
@@ -331,5 +331,3 @@ public:
 
     Generic6DOFJoint3D();
 };
-
-#endif // PHYSICS_JOINT_H

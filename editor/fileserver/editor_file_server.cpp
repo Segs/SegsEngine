@@ -49,9 +49,10 @@ IMPL_GDCLASS(EditorFileServer)
 void EditorFileServer::_close_client(ClientData *cd) {
 
     cd->connection->disconnect_from_host();
-    cd->efs->wait_mutex->lock();
-    cd->efs->to_wait.insert(cd->thread);
-    cd->efs->wait_mutex->unlock();
+    {
+        MutexLock guard(cd->efs->wait_mutex);
+        cd->efs->to_wait.insert(&cd->thread);
+    }
     while (!cd->files.empty()) {
         memdelete(cd->files.begin()->second);
         cd->files.erase(cd->files.begin());
@@ -296,20 +297,20 @@ void EditorFileServer::_thread_start(void *s) {
                 cd->connection = self->server->take_connection();
                 cd->efs = self;
                 cd->quit = false;
-                cd->thread = Thread::create(_subthread_start, cd);
+                cd->thread.start(_subthread_start, cd);
             }
         }
 
-        self->wait_mutex->lock();
+        self->wait_mutex.lock();
         while (!self->to_wait.empty()) {
             Thread *w = *self->to_wait.begin();
             self->to_wait.erase(w);
-            self->wait_mutex->unlock();
-            Thread::wait_to_finish(w);
+            self->wait_mutex.unlock();
+            w->wait_to_finish();
             memdelete(w);
-            self->wait_mutex->lock();
+            self->wait_mutex.lock();
         }
-        self->wait_mutex->unlock();
+        self->wait_mutex.unlock();
 
         OS::get_singleton()->delay_usec(100000);
     }
@@ -336,11 +337,10 @@ void EditorFileServer::stop() {
 EditorFileServer::EditorFileServer() {
 
     server = make_ref_counted<TCP_Server>();
-    wait_mutex = memnew(Mutex);
     quit = false;
     active = false;
     cmd = CMD_NONE;
-    thread = Thread::create(_thread_start, this);
+    thread.start(_thread_start, this);
 
     EDITOR_DEF("filesystem/file_server/port", 6010);
     EDITOR_DEF("filesystem/file_server/password", "");
@@ -349,7 +349,6 @@ EditorFileServer::EditorFileServer() {
 EditorFileServer::~EditorFileServer() {
 
     quit = true;
-    Thread::wait_to_finish(thread);
-    memdelete(thread);
-    memdelete(wait_mutex);
+    if(thread.is_started())
+        thread.wait_to_finish();
 }

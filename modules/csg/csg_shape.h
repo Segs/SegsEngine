@@ -33,10 +33,10 @@
 #define CSGJS_HEADER_ONLY
 
 #include "csg.h"
+#include "core/node_path.h"
 #include "scene/3d/visual_instance_3d.h"
 #include "scene/resources/concave_polygon_shape_3d.h"
 #include "thirdparty/misc/mikktspace.h"
-
 class Mesh;
 
 

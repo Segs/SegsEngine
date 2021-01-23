@@ -110,7 +110,7 @@ void PropertySelector::_update_search() {
             v.get_property_list(&props);
         } else {
 
-            Object *obj = gObjectDB().get_instance(script);
+            Object *obj = ObjectDB::get_instance(script);
             if (object_cast<Script>(obj)) {
 
                 props.push_back(PropertyInfo(VariantType::NIL, "Script Variables", PropertyHint::None, "", PROPERTY_USAGE_CATEGORY));
@@ -212,7 +212,7 @@ void PropertySelector::_update_search() {
             //v.get_method_list(&methods);
         } else {
 
-            Object *obj = gObjectDB().get_instance(script);
+            Object *obj = ObjectDB::get_instance(script);
             if (object_cast<Script>(obj)) {
 
                 methods.push_back(MethodInfo("*Script Methods"));

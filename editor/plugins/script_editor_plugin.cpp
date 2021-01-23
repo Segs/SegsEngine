@@ -1934,11 +1934,24 @@ void ScriptEditor::_update_script_names() {
 
             sedata.emplace_back(eastl::move(sd));
         }
-
+        using namespace PathUtils;
         Vector<String> disambiguated_script_names;
         Vector<String> full_script_paths;
         for (const _ScriptEditorItemData &item : sedata) {
-            disambiguated_script_names.push_back(String(PathUtils::get_file(item.name.replaced("(*)", ""))));
+            String name = item.name.replaced("(*)", "");
+            ScriptListName script_display = (ScriptListName)(int)EditorSettings::get_singleton()->get("text_editor/script_list/list_script_names_as");
+            switch (script_display) {
+                case DISPLAY_NAME: {
+                    name = get_file(name);
+                } break;
+                case DISPLAY_DIR_AND_NAME: {
+                    name = plus_file(get_file(get_base_dir(name)),get_file(name));
+                } break;
+                default:
+                    break;
+            }
+
+            disambiguated_script_names.push_back(name);
             full_script_paths.push_back(item.tooltip);
         }
 

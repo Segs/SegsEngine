@@ -52,7 +52,7 @@ void ReferenceRect::set_border_color(const Color &p_color) {
 }
 
 void ReferenceRect::set_border_width(float p_width) {
-    border_width = MAX(0.0, p_width);
+    border_width = M_MAX(0.0, p_width);
     update();
 }
 

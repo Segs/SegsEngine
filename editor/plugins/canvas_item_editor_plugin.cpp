@@ -666,7 +666,7 @@ void CanvasItemEditor::_get_bones_at_pos(const Point2 &p_pos, Vector<CanvasItemE
     Point2 screen_pos = transform.xform(p_pos);
 
     for (eastl::pair<const BoneKey,BoneList> &E : bone_list) {
-        Node2D *from_node = object_cast<Node2D>(gObjectDB().get_instance(E.first.from));
+        Node2D *from_node = object_cast<Node2D>(ObjectDB::get_instance(E.first.from));
 
         Vector<Vector2> bone_shape;
         if (!_get_bone_shape(&bone_shape, nullptr, E))
@@ -700,8 +700,8 @@ bool CanvasItemEditor::_get_bone_shape(Vector<Vector2> *shape, Vector<Vector2> *
     int bone_width = EditorSettings::get_singleton()->get("editors/2d/bone_width").as<int>();
     int bone_outline_width = EditorSettings::get_singleton()->get("editors/2d/bone_outline_size").as<int>();
 
-    Node2D *from_node = object_cast<Node2D>(gObjectDB().get_instance(bone.first.from));
-    Node2D *to_node = object_cast<Node2D>(gObjectDB().get_instance(bone.first.to));
+    Node2D *from_node = object_cast<Node2D>(ObjectDB::get_instance(bone.first.from));
+    Node2D *to_node = object_cast<Node2D>(ObjectDB::get_instance(bone.first.to));
 
     if (!from_node)
         return false;
@@ -3564,7 +3564,7 @@ void CanvasItemEditor::_draw_bones() {
             if (!_get_bone_shape(&bone_shape, &bone_shape_outline, E))
                 continue;
 
-            Node2D *from_node = object_cast<Node2D>(gObjectDB().get_instance(E.first.from));
+            Node2D *from_node = object_cast<Node2D>(ObjectDB::get_instance(E.first.from));
             if (!from_node->is_visible_in_tree())
                 continue;
 
@@ -3947,7 +3947,7 @@ void CanvasItemEditor::_process_physics_notification()
     // Update the viewport if bones changes
     for (eastl::pair<const BoneKey,BoneList> &E : bone_list) {
 
-        Object *b = gObjectDB().get_instance(E.first.from);
+        Object *b = ObjectDB::get_instance(E.first.from);
         if (!b) {
 
             viewport->update();
@@ -4164,7 +4164,7 @@ void CanvasItemEditor::_update_bone_list() {
             continue;
         }
 
-        Node *node = object_cast<Node>(gObjectDB().get_instance(E->first.from));
+        Node *node = object_cast<Node>(ObjectDB::get_instance(E->first.from));
         if (!node || !node->is_inside_tree() || (node != get_tree()->get_edited_scene_root() && !get_tree()->get_edited_scene_root()->is_a_parent_of(node))) {
             bone_to_erase.push_back(E);
             continue;
@@ -4924,7 +4924,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
             undo_redo->create_action(TTR("Paste Pose"));
             for (const PoseClipboard &E : pose_clipboard) {
 
-                Node2D *n2d = object_cast<Node2D>(gObjectDB().get_instance(E.id));
+                Node2D *n2d = object_cast<Node2D>(ObjectDB::get_instance(E.id));
                 if (!n2d)
                     continue;
                 undo_redo->add_do_method(n2d, "set_position", E.pos);

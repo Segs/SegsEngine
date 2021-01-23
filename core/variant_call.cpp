@@ -42,6 +42,7 @@
 #include "core/math/transform_2d.h"
 #include "core/math/vector3.h"
 #include "core/method_info.h"
+#include "core/node_path.h"
 #include "core/object.h"
 #include "core/rid.h"
 #include "core/script_language.h"

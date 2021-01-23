@@ -1472,7 +1472,7 @@ void SceneTree::_flush_delete_queue() {
     _THREAD_SAFE_METHOD_
 
     for(ObjectID id : delete_queue) {
-        Object *obj = gObjectDB().get_instance(id);
+        Object *obj = ObjectDB::get_instance(id);
         memdelete(obj);
     }
     delete_queue.clear();

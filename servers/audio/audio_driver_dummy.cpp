@@ -50,7 +50,7 @@ Error AudioDriverDummy::init() {
 
     samples_in = memnew_arr(int32_t, buffer_frames * channels);
 
-    thread = Thread::create(AudioDriverDummy::thread_func, this);
+    thread.start(AudioDriverDummy::thread_func, this);
 
     return OK;
 }
@@ -94,37 +94,29 @@ AudioDriver::SpeakerMode AudioDriverDummy::get_speaker_mode() const {
 }
 
 void AudioDriverDummy::lock() {
-
-    if (!thread)
-        return;
     mutex.lock();
 }
 
 void AudioDriverDummy::unlock() {
 
-    if (!thread)
-        return;
     mutex.unlock();
 }
 
 void AudioDriverDummy::finish() {
 
-    if (!thread)
-        return;
+    if (thread.is_started()) {
+        exit_thread = true;
+        thread.wait_to_finish();
 
-    exit_thread = true;
-    Thread::wait_to_finish(thread);
+    }
+
 
     if (samples_in) {
         memdelete_arr(samples_in);
     };
-
-    memdelete(thread);
-    thread = nullptr;
 }
 
 AudioDriverDummy::AudioDriverDummy() {
-    thread = nullptr;
 }
 
 AudioDriverDummy::~AudioDriverDummy(){

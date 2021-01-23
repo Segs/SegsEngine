@@ -34,6 +34,7 @@
 #include "core/hash_map.h"
 #include "core/string.h"
 #include "core/rid.h"
+#include "core/node_path.h"
 #include "scene/2d/canvas_item.h"
 
 class Viewport;

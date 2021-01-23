@@ -36,6 +36,7 @@
 #include "core/string.h"
 #include "core/math/rect2.h"
 #include "core/math/vector3.h"
+#include "core/os/thread.h"
 
 class ResourceInteractiveLoader;
 class Resource;
@@ -643,7 +644,7 @@ protected:
     volatile bool active;
     Object *target_instance;
     StringName target_method;
-    Thread *thread;
+    Thread thread;
     static void _bind_methods();
     static void _start_func(void *ud);
 

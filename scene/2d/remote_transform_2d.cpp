@@ -57,7 +57,7 @@ void RemoteTransform2D::_update_remote() {
     if (cache.is_null())
         return;
 
-    Node2D *n = object_cast<Node2D>(gObjectDB().get_instance(cache));
+    Node2D *n = object_cast<Node2D>(ObjectDB::get_instance(cache));
     if (!n)
         return;
 

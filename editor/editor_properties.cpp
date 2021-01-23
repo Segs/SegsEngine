@@ -123,7 +123,9 @@ void EditorPropertyText::_text_changed(StringView p_string) {
 void EditorPropertyText::update_property() {
     String s = get_edited_object()->get(get_edited_property()).as<String>();
     updating = true;
-    text->set_text(s);
+    if (text->get_text() != s) {
+        text->set_text(s);
+    }
     text->set_editable(!is_read_only());
     updating = false;
 }
@@ -179,6 +181,10 @@ void EditorPropertyMultilineText::_open_big_text() {
 
 void EditorPropertyMultilineText::update_property() {
     String t = get_edited_object()->get(get_edited_property()).as<String>();
+
+    if (text->get_text() == t)
+        return;
+
     text->set_text(t);
     if (big_text && big_text->is_visible_in_tree()) {
         big_text->set_text(t);
@@ -435,7 +441,7 @@ void EditorPropertyMember::_property_select() {
         }
         case EditorPropertyMember::MEMBER_METHOD_OF_INSTANCE: {
 
-            Object *instance = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
+            Object *instance = ObjectDB::get_instance(ObjectID(StringUtils::to_int64(hint_text)));
             if (instance)
                 selector->select_method_from_instance(instance, current);
 
@@ -443,7 +449,7 @@ void EditorPropertyMember::_property_select() {
         }
         case EditorPropertyMember::MEMBER_METHOD_OF_SCRIPT: {
 
-            Object *obj = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
+            Object *obj = ObjectDB::get_instance(ObjectID(StringUtils::to_int64(hint_text)));
             if (object_cast<Script>(obj)) {
                 selector->select_method_from_script(Ref<Script>(object_cast<Script>(obj)), current);
             }
@@ -472,7 +478,7 @@ void EditorPropertyMember::_property_select() {
         }
         case EditorPropertyMember::MEMBER_PROPERTY_OF_INSTANCE: {
 
-            Object *instance = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
+            Object *instance = ObjectDB::get_instance(ObjectID(StringUtils::to_int64(hint_text)));
             if (instance)
                 selector->select_property_from_instance(instance, current);
 
@@ -480,7 +486,7 @@ void EditorPropertyMember::_property_select() {
         }
         case EditorPropertyMember::MEMBER_PROPERTY_OF_SCRIPT: {
 
-            Object *obj = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
+            Object *obj = ObjectDB::get_instance(ObjectID(StringUtils::to_int64(hint_text)));
             if (object_cast<Script>(obj)) {
                 selector->select_property_from_script(Ref<Script>(object_cast<Script>(obj)), current);
             }
@@ -1897,6 +1903,12 @@ void EditorPropertyColor::_color_changed(const Color &p_color) {
     emit_changed(get_edited_property(), p_color, "", true);
 }
 
+void EditorPropertyColor::_popup_closed() {
+    if (picker->get_pick_color() != last_color) {
+        emit_changed(get_edited_property(), picker->get_pick_color(), "", false);
+    }
+}
+
 void EditorPropertyColor::_picker_created() {
     // get default color picker mode from editor settings
     int default_color_mode = EDITOR_GET_T<int>("interface/inspector/default_color_picker_mode");
@@ -1906,6 +1918,9 @@ void EditorPropertyColor::_picker_created() {
         picker->get_picker()->set_raw_mode(true);
 }
 
+void EditorPropertyColor::_picker_opening() {
+    last_color = picker->get_pick_color();
+}
 
 
 void EditorPropertyColor::update_property() {
@@ -1942,7 +1957,9 @@ EditorPropertyColor::EditorPropertyColor() {
     add_child(picker);
     picker->set_flat(true);
     picker->connect("color_changed",callable_mp(this, &ClassName::_color_changed));
+    picker->connect("popup_closed",callable_mp(this, &ClassName::_popup_closed));
     picker->connect("picker_created",callable_mp(this, &ClassName::_picker_created));
+    picker->get_popup()->connect("about_to_show", callable_mp(this, &ClassName::_picker_opening));
 }
 
 ////////////// NODE PATH //////////////////////
@@ -1958,7 +1975,7 @@ void EditorPropertyNodePath::_node_selected(const NodePath &p_path) {
         if (!base_node) {
             //try a base node within history
             if (EditorNode::get_singleton()->get_editor_history()->get_path_size() > 0) {
-                Object *base = gObjectDB().get_instance(EditorNode::get_singleton()->get_editor_history()->get_path_object(0));
+                Object *base = ObjectDB::get_instance(EditorNode::get_singleton()->get_editor_history()->get_path_object(0));
                 if (base) {
                     base_node = object_cast<Node>(base);
                 }

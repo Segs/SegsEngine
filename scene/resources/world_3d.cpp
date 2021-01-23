@@ -31,8 +31,8 @@
 #include "world_3d.h"
 
 #include "core/math/camera_matrix.h"
-#include "core/math/octree.h"
 #include "core/list.h"
+#include "core/math/bvh.h"
 #include "scene/3d/camera_3d.h"
 #include "scene/3d/visibility_notifier_3d.h"
 #include "scene/scene_string_names.h"
@@ -40,15 +40,15 @@
 
 IMPL_GDCLASS(World3D)
 RES_BASE_EXTENSION_IMPL(World3D,"world")
-
+typedef uint32_t SpatialPartitionID;
 struct SpatialIndexer {
 
-    Octree<VisibilityNotifier3D> octree;
+    BVH_Manager<VisibilityNotifier3D> octree;
 
     struct NotifierData {
 
         AABB aabb;
-        OctreeElementID id;
+        SpatialPartitionID id;
     };
 
     HashMap<VisibilityNotifier3D *, NotifierData> notifiers;

@@ -267,7 +267,7 @@ void OS::print_all_resources(StringView p_to_file) {
         }
     }
 
-    gObjectDB().debug_objects(_OS_printres);
+    ObjectDB::debug_objects(_OS_printres);
 
     if (!p_to_file.empty()) {
 
@@ -476,7 +476,7 @@ OS::ScreenOrientation OS::get_screen_orientation() const {
     return (OS::ScreenOrientation)_orientation;
 }
 
-void OS::_ensure_user_data_dir() {
+void OS::ensure_user_data_dir() {
 
     String dd(get_user_data_dir());
     DirAccess *da = DirAccess::open(dd);

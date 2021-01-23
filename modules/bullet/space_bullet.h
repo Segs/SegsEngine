@@ -150,6 +150,7 @@ public:
 
     void add_rigid_body(RigidBodyBullet *p_body);
     void remove_rigid_body(RigidBodyBullet *p_body);
+    void remove_rigid_body_constraints(RigidBodyBullet *p_body);
     void reload_collision_filters(RigidBodyBullet *p_body);
 
     void add_soft_body(SoftBodyBullet *p_body);

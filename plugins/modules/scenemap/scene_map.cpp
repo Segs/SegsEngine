@@ -1,6 +1,7 @@
 #include "scene_map.h"
 
 #include "core/object.h"
+
 #include "core/class_db.h"
 #include "core/method_bind_interface.h"
 #include "core/method_bind.h"
@@ -10,7 +11,7 @@ IMPL_GDCLASS(SceneMap)
 
 
 SceneMap::SceneMap() {
-    
+
 }
 
 void SceneMap::create_item(int p_item) {

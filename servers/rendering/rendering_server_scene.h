@@ -31,11 +31,12 @@
 #pragma once
 
 #include "servers/rendering/rasterizer.h"
-
+#include "core/hash_map.h"
 #include "core/math/geometry.h"
-#include "core/math/octree.h"
+#include "core/math/bvh.h"
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
+#include "core/os/mutex.h"
 #include "core/self_list.h"
 #include "core/deque.h"
 
@@ -94,13 +95,55 @@ public:
     /* SCENARIO API */
 
     struct Instance;
+    // common interface for all spatial partitioning schemes
+    // this is a bit excessive boilerplatewise but can be removed if we decide to stick with one method
+
+    // note this is actually the BVH id +1, so that visual server can test against zero
+    // for validity to maintain compatibility with octree (where 0 indicates invalid)
+    typedef uint32_t SpatialPartitionID;
+
+    class SpatialPartitioningScene_BVH {
+        // Note that SpatialPartitionIDs are +1 based when stored in visual server, to enable 0 to indicate invalid ID.
+        BVH_Manager<Instance, true, 256> _bvh;
+
+    public:
+        typedef void *(*PairCallback)(void *, uint32_t, Instance *, int, uint32_t, Instance *, int);
+        typedef void (*UnpairCallback)(void *, uint32_t, Instance *, int, uint32_t, Instance *, int, void *);
+
+        SpatialPartitionID create(Instance *p_userdata, const AABB &p_aabb = AABB(), int p_subindex = 0, bool p_pairable = false, uint32_t p_pairable_type = 0, uint32_t p_pairable_mask = 1);
+        void erase(SpatialPartitionID p_handle) { _bvh.erase(p_handle - 1); }
+        void move(SpatialPartitionID p_handle, const AABB &p_aabb) { _bvh.move(p_handle - 1, p_aabb); }
+        void update() { _bvh.update(); }
+        void update_collisions() { _bvh.update_collisions(); }
+        void set_pairable(SpatialPartitionID p_handle, bool p_pairable, uint32_t p_pairable_type, uint32_t p_pairable_mask) {
+            _bvh.set_pairable(p_handle - 1, p_pairable, p_pairable_type, p_pairable_mask);
+        }
+        int cull_convex(Span<const Plane> p_convex, Instance **p_result_array, int p_result_max, uint32_t p_mask = 0xFFFFFFFF) {
+            return _bvh.cull_convex(p_convex, p_result_array, p_result_max, p_mask);
+        }
+        int cull_aabb(const AABB &p_aabb, Instance **p_result_array, int p_result_max, int *p_subindex_array = nullptr, uint32_t p_mask = 0xFFFFFFFF) {
+            return _bvh.cull_aabb(p_aabb, p_result_array, p_result_max, p_subindex_array, p_mask);
+        }
+        int cull_segment(const Vector3 &p_from, const Vector3 &p_to, Instance **p_result_array, int p_result_max, int *p_subindex_array = nullptr, uint32_t p_mask = 0xFFFFFFFF) {
+            return _bvh.cull_segment(p_from, p_to, p_result_array, p_result_max, p_subindex_array, p_mask);
+        }
+        void set_pair_callback(PairCallback p_callback, void *p_userdata) {
+            _bvh.set_pair_callback(p_callback, p_userdata);
+        }
+        void set_unpair_callback(UnpairCallback p_callback, void *p_userdata) {
+            _bvh.set_unpair_callback(p_callback, p_userdata);
+        }
+
+        void params_set_node_expansion(real_t p_value) { _bvh.params_set_node_expansion(p_value); }
+        void params_set_pairing_expansion(real_t p_value) { _bvh.params_set_pairing_expansion(p_value); }
+    };
 
     struct Scenario : RID_Data {
 
         RS::ScenarioDebugMode debug;
         RID self;
 
-        Octree_CL<Instance, true> octree;
+        SpatialPartitioningScene_BVH sps;
 
         Vector<Instance *> directional_lights;
         RID environment;
@@ -115,8 +158,8 @@ public:
 
     mutable RID_Owner<Scenario> scenario_owner;
 
-    static void *_instance_pair(void *p_self, OctreeElementID, Instance *p_A, int, OctreeElementID, Instance *p_B, int);
-    static void _instance_unpair(void *p_self, OctreeElementID, Instance *p_A, int, OctreeElementID, Instance *p_B, int, void *);
+    static void *_instance_pair(void *p_self, SpatialPartitionID, Instance *p_A, int, SpatialPartitionID, Instance *p_B, int);
+    static void _instance_unpair(void *p_self, SpatialPartitionID, Instance *p_A, int, SpatialPartitionID, Instance *p_B, int, void *);
 
     RID scenario_create();
 
@@ -138,7 +181,7 @@ public:
         //scenario stuff
         Scenario *scenario = nullptr;
         IntrusiveListNode<Instance> scenario_item;
-        OctreeElementID octree_id = 0;
+        SpatialPartitionID spatial_partition_id = 0;
 
         //aabb stuff
 
@@ -449,25 +492,10 @@ public:
     static void _gi_probe_bake_threads(void *);
 
     volatile bool probe_bake_thread_exit;
-    Thread *probe_bake_thread;
+    Thread probe_bake_thread;
     Semaphore *probe_bake_sem;
-    Mutex *probe_bake_mutex;
+    Mutex probe_bake_mutex;
     Deque<Instance *> probe_bake_list;
-
-    bool _render_reflection_probe_step(Instance *p_instance, int p_step);
-    void _gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z, const GIProbeDataCell *p_cell,
-            const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data,
-            Vector<uint32_t> *prev_cell);
-
-    _FORCE_INLINE_ uint32_t _gi_bake_find_cell(const GIProbeDataCell *cells, int x, int y, int z, int p_cell_subdiv);
-    void _bake_gi_downscale_light(int p_idx, int p_level, const GIProbeDataCell *p_cells,
-            const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, float p_propagate);
-    void _bake_gi_probe_light(const GIProbeDataHeader *header, const GIProbeDataCell *cells,
-            InstanceGIProbeData::LocalData *local_data, const uint32_t *leaves, int p_leaf_count,
-            const InstanceGIProbeData::LightCache &light_cache, int p_sign);
-    void _bake_gi_probe(Instance *p_gi_probe);
-    bool _check_gi_probe(Instance *p_gi_probe);
-    void _setup_gi_probe(Instance *p_instance);
 
     void render_probes();
 
@@ -475,5 +503,11 @@ public:
 
     VisualServerScene();
     virtual ~VisualServerScene();
+protected:
+    bool _render_reflection_probe_step(Instance *p_instance, int p_step);
+    void _bake_gi_probe_light(const GIProbeDataHeader *header, const GIProbeDataCell *cells,
+            InstanceGIProbeData::LocalData *local_data, const uint32_t *leaves, int p_leaf_count,
+            const InstanceGIProbeData::LightCache &light_cache, int p_sign);
+    void _bake_gi_probe(Instance *p_gi_probe);
 };
 

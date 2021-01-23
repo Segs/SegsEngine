@@ -36,6 +36,7 @@
 #include "core/hash_map.h"
 #include "core/set.h"
 #include "core/string.h"
+#include "core/node_path.h"
 
 class Node;
 

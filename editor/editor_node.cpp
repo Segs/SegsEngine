@@ -1671,7 +1671,7 @@ void EditorNode::_dialog_action(StringView p_file) {
             save_resource_in_path(saving_resource, p_file);
             saving_resource = Ref<Resource>();
             ObjectID current = editor_history.get_current();
-            Object *current_obj = current.is_valid() ? gObjectDB().get_instance(current) : nullptr;
+            Object *current_obj = current.is_valid() ? ObjectDB::get_instance(current) : nullptr;
             ERR_FAIL_COND(!current_obj);
             Object_change_notify(current_obj);
         } break;
@@ -1874,7 +1874,7 @@ static bool overrides_external_editor(Object *p_object) {
 void EditorNode::_edit_current() {
 
     ObjectID current = editor_history.get_current();
-    Object *current_obj = current.is_valid() ? gObjectDB().get_instance(current) : nullptr;
+    Object *current_obj = current.is_valid() ? ObjectDB::get_instance(current) : nullptr;
     bool inspector_only = editor_history.is_current_inspector_only();
 
     this->current = current_obj;
@@ -2111,7 +2111,10 @@ void EditorNode::_run(bool p_current, StringView p_custom) {
 
         if (scene->get_filename().empty()) {
             current_option = -1;
-            _menu_option_confirm(FILE_SAVE_BEFORE_RUN, false);
+            _menu_option(FILE_SAVE_AS_SCENE);
+            // Set the option to save and run so when the dialog is accepted, the scene runs.
+            current_option = FILE_SAVE_AND_RUN;
+            file->set_title(TTR("Save scene before running..."));
             return;
         }
 
@@ -2290,7 +2293,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
             int scene_idx = p_option == FILE_SAVE_SCENE ? -1 : tab_closing;
 
             Node *scene = editor_data.get_edited_scene_root(scene_idx);
-            if (scene && !scene->get_filename().empty()  && FileAccess::exists(scene->get_filename())) {
+            if (scene && !scene->get_filename().empty()) {
 
                 if (scene_idx != editor_data.get_edited_scene())
                     _save_scene_with_preview(scene->get_filename(), scene_idx);
@@ -2362,18 +2365,6 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
         case FILE_SAVE_ALL_SCENES: {
 
             _save_all_scenes();
-        } break;
-        case FILE_SAVE_BEFORE_RUN: {
-            if (!p_confirmed) {
-                confirmation->get_cancel()->set_text(TTR("No"));
-                confirmation->get_ok()->set_text(TTR("Yes"));
-                confirmation->set_text(TTR("This scene has never been saved. Save before running?"));
-                confirmation->popup_centered_minsize();
-                break;
-            }
-
-            _menu_option(FILE_SAVE_AS_SCENE);
-            _menu_option_confirm(FILE_SAVE_AND_RUN, false);
         } break;
 
         case FILE_EXPORT_PROJECT: {
@@ -2604,6 +2595,8 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
             }
         } break;
         case RUN_PROJECT_DATA_FOLDER: {
+            // ensure_user_data_dir() to prevent the edge case: "Open Project Data Folder" won't work after the project was renamed in ProjectSettingsEditor unless the project is saved
+            OS::get_singleton()->ensure_user_data_dir();
             OS::get_singleton()->shell_open(String("file://") + OS::get_singleton()->get_user_data_dir());
         } break;
         case FILE_EXPLORE_ANDROID_BUILD_TEMPLATES: {
@@ -2879,7 +2872,7 @@ void EditorNode::_tool_menu_option(int p_idx) {
             if (tool_menu->get_item_submenu(p_idx).empty()) {
                 Array params = tool_menu->get_item_metadata(p_idx).as<Array>();
 
-                Object *handler = gObjectDB().get_instance(params[0].as<ObjectID>());
+                Object *handler = ObjectDB::get_instance(params[0].as<ObjectID>());
                 StringName callback = params[1].as<StringName>();
                 Variant *ud = &params[2];
                 Callable::CallError ce;
@@ -5910,7 +5903,7 @@ static void _execute_thread(void *p_ud) {
 
     EditorNode::ExecuteThreadArgs *eta = (EditorNode::ExecuteThreadArgs *)p_ud;
     Error err = OS::get_singleton()->execute(
-            eta->path, eta->args, true, nullptr, &eta->output, &eta->exitcode, true, eta->execute_output_mutex);
+            eta->path, eta->args, true, nullptr, &eta->output, &eta->exitcode, true, &eta->execute_output_mutex);
     print_verbose("Thread exit status: " + itos(eta->exitcode));
     if (err != OK) {
         eta->exitcode = err;
@@ -5931,31 +5924,27 @@ int EditorNode::execute_and_show_output(const StringName &p_title, StringView p_
     ExecuteThreadArgs eta;
     eta.path = p_path;
     eta.args = p_arguments;
-    eta.execute_output_mutex = memnew(Mutex);
     eta.exitcode = 255;
     eta.done = false;
 
     int prev_len = 0;
 
-    eta.execute_output_thread = Thread::create(_execute_thread, &eta);
-
-    ERR_FAIL_COND_V(!eta.execute_output_thread, 0);
+    eta.execute_output_thread.start(_execute_thread, &eta);
 
     while (!eta.done) {
-        eta.execute_output_mutex->lock();
+        MutexLock lock(eta.execute_output_mutex);
+
         if (prev_len != eta.output.length()) {
             StringView to_add = StringUtils::substr(eta.output, prev_len, eta.output.length());
             prev_len = eta.output.length();
             execute_outputs->add_text(to_add);
             Main::iteration();
         }
-        eta.execute_output_mutex->unlock();
         OS::get_singleton()->delay_usec(1000);
     }
 
-    Thread::wait_to_finish(eta.execute_output_thread);
-    memdelete(eta.execute_output_thread);
-    memdelete(eta.execute_output_mutex);
+    eta.execute_output_thread.wait_to_finish();
+
     execute_outputs->add_text("\nExit Code: " + itos(eta.exitcode));
 
     if (p_close_on_errors && eta.exitcode != 0) {

@@ -742,7 +742,7 @@ void SceneTreeEditor::set_selected(Node *p_node, bool p_emit_selected) {
 
 void SceneTreeEditor::_rename_node(ObjectID p_node, StringView p_name) {
 
-    Object *o = gObjectDB().get_instance(p_node);
+    Object *o = ObjectDB::get_instance(p_node);
     ERR_FAIL_COND(!o);
     Node *n = object_cast<Node>(o);
     ERR_FAIL_COND(!n);

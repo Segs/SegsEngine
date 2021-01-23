@@ -29,16 +29,17 @@
 /*************************************************************************/
 
 #pragma once
-#include "core/object.h"
 #include "context_gl_x11.h"
+#include "core/input/input_default.h"
+#include "core/object.h"
 #include "core/os/input.h"
+#include "core/os/thread.h"
 #include "crash_handler_x11.h"
 #include "drivers/alsa/audio_driver_alsa.h"
 #include "drivers/alsamidi/midi_driver_alsamidi.h"
 #include "drivers/pulseaudio/audio_driver_pulseaudio.h"
 #include "drivers/unix/os_unix.h"
 #include "joypad_linux.h"
-#include "core/input/input_default.h"
 
 #include "servers/audio_server.h"
 #include "servers/rendering/rasterizer.h"
@@ -206,7 +207,7 @@ class OS_X11 : public OS_Unix {
     void *xrandr_handle;
     Bool xrandr_ext_ok;
     mutable Mutex events_mutex;
-    Thread *events_thread = nullptr;
+    Thread events_thread;
     bool events_thread_done = false;
     EventStore polled_events;
 

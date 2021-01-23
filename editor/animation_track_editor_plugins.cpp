@@ -184,7 +184,7 @@ void AnimationTrackEditColor::draw_key(int p_index, float p_pixels_sec, int p_x,
 
 void AnimationTrackEditAudio::_preview_changed(ObjectID p_which) {
 
-    Object *object = gObjectDB().get_instance(id);
+    Object *object = ObjectDB::get_instance(id);
 
     if (!object)
         return;
@@ -198,7 +198,7 @@ void AnimationTrackEditAudio::_preview_changed(ObjectID p_which) {
 
 int AnimationTrackEditAudio::get_key_height() const {
 
-    if (!gObjectDB().get_instance(id)) {
+    if (!ObjectDB::get_instance(id)) {
         return AnimationTrackEdit::get_key_height();
     }
 
@@ -207,7 +207,7 @@ int AnimationTrackEditAudio::get_key_height() const {
 }
 Rect2 AnimationTrackEditAudio::get_key_rect(int p_index, float p_pixels_sec) {
 
-    Object *object = gObjectDB().get_instance(id);
+    Object *object = ObjectDB::get_instance(id);
 
     if (!object) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
@@ -247,7 +247,7 @@ bool AnimationTrackEditAudio::is_key_selectable_by_distance() const {
 }
 void AnimationTrackEditAudio::draw_key(int p_index, float p_pixels_sec, int p_x, bool p_selected, int p_clip_left, int p_clip_right) {
 
-    Object *object = gObjectDB().get_instance(id);
+    Object *object = ObjectDB::get_instance(id);
 
     if (!object) {
         AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);
@@ -357,7 +357,7 @@ AnimationTrackEditAudio::AnimationTrackEditAudio() {
 
 int AnimationTrackEditSpriteFrame::get_key_height() const {
 
-    if (!gObjectDB().get_instance(id)) {
+    if (!ObjectDB::get_instance(id)) {
         return AnimationTrackEdit::get_key_height();
     }
 
@@ -366,7 +366,7 @@ int AnimationTrackEditSpriteFrame::get_key_height() const {
 }
 Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_sec) {
 
-    Object *object = gObjectDB().get_instance(id);
+    Object *object = ObjectDB::get_instance(id);
 
     if (!object) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
@@ -443,7 +443,7 @@ bool AnimationTrackEditSpriteFrame::is_key_selectable_by_distance() const {
 }
 void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, int p_x, bool p_selected, int p_clip_left, int p_clip_right) {
 
-    Object *object = gObjectDB().get_instance(id);
+    Object *object = ObjectDB::get_instance(id);
 
     if (!object) {
         AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);
@@ -562,7 +562,7 @@ void AnimationTrackEditSpriteFrame::set_as_coords() {
 
 int AnimationTrackEditSubAnim::get_key_height() const {
 
-    if (!gObjectDB().get_instance(id)) {
+    if (!ObjectDB::get_instance(id)) {
         return AnimationTrackEdit::get_key_height();
     }
 
@@ -571,7 +571,7 @@ int AnimationTrackEditSubAnim::get_key_height() const {
 }
 Rect2 AnimationTrackEditSubAnim::get_key_rect(int p_index, float p_pixels_sec) {
 
-    Object *object = gObjectDB().get_instance(id);
+    Object *object = ObjectDB::get_instance(id);
 
     if (!object) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
@@ -607,7 +607,7 @@ bool AnimationTrackEditSubAnim::is_key_selectable_by_distance() const {
 }
 void AnimationTrackEditSubAnim::draw_key(int p_index, float p_pixels_sec, int p_x, bool p_selected, int p_clip_left, int p_clip_right) {
 
-    Object *object = gObjectDB().get_instance(id);
+    Object *object = ObjectDB::get_instance(id);
 
     if (!object) {
         AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);
@@ -1145,7 +1145,7 @@ void AnimationTrackEditTypeAudio::_gui_input(const Ref<InputEvent> &p_event) {
 
 int AnimationTrackEditTypeAnimation::get_key_height() const {
 
-    if (!gObjectDB().get_instance(id)) {
+    if (!ObjectDB::get_instance(id)) {
         return AnimationTrackEdit::get_key_height();
     }
 
@@ -1154,7 +1154,7 @@ int AnimationTrackEditTypeAnimation::get_key_height() const {
 }
 Rect2 AnimationTrackEditTypeAnimation::get_key_rect(int p_index, float p_pixels_sec) {
 
-    Object *object = gObjectDB().get_instance(id);
+    Object *object = ObjectDB::get_instance(id);
 
     if (!object) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
@@ -1190,7 +1190,7 @@ bool AnimationTrackEditTypeAnimation::is_key_selectable_by_distance() const {
 }
 void AnimationTrackEditTypeAnimation::draw_key(int p_index, float p_pixels_sec, int p_x, bool p_selected, int p_clip_left, int p_clip_right) {
 
-    Object *object = gObjectDB().get_instance(id);
+    Object *object = ObjectDB::get_instance(id);
 
     if (!object) {
         AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);

@@ -1529,7 +1529,7 @@ String Variant::stringify(Vector<const void *> &stack) const {
             }
 #ifdef DEBUG_ENABLED
             if (ScriptDebugger::get_singleton() && _get_obj().rc &&
-                    !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                    !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
                 return "[Deleted Object]";
             }
 #endif
@@ -1653,7 +1653,7 @@ Variant::operator RID() const {
 #endif
     if (unlikely(!obj)) {
 #ifdef DEBUG_ENABLED
-        if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+        if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
             WARN_PRINT("Attempted get RID on a deleted object.");
         }
 #endif

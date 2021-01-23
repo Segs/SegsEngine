@@ -785,10 +785,10 @@ void InputDefault::joy_axis(int p_device, int p_axis, const JoyAxis &p_value) {
         jx.min = p_value.min;
         jx.value = p_value.value < 0.5f ? 0.6f : 0.4f;
         joy_axis(p_device, p_axis, jx);
-    } else if (ABS(last) > 0.5f && last * p_value.value < 0) {
+    } else if (ABS(last) > 0.5f && last * p_value.value <= 0) {
         JoyAxis jx;
         jx.min = p_value.min;
-        jx.value = p_value.value < 0 ? 0.1f : -0.1f;
+        jx.value = last < 0 ? 0.1f : -0.1f;
         joy_axis(p_device, p_axis, jx);
     }
 

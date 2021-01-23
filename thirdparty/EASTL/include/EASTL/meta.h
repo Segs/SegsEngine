@@ -31,20 +31,20 @@ namespace eastl
             template <int I, typename T, typename Head, typename... Types>
             struct get_type_index<I, T, Head, Types...>
             {
-                static const int value = is_same_v<T, Head> ? I : get_type_index<I + 1, T, Types...>::value;
+                static constexpr int value = is_same_v<T, Head> ? I : get_type_index<I + 1, T, Types...>::value;
             };
 
             template <int I, typename T>
             struct get_type_index<I, T>
             {
-                static const int value = -1;
+                static constexpr int value = -1;
             };
         }
 
         template<typename T, typename... Types>
         struct get_type_index
         {
-            static const int value = Internal::get_type_index<0, T, Types...>::value;
+            static constexpr int value = Internal::get_type_index<0, T, Types...>::value;
         };
 
         template <typename T, typename... Ts>

@@ -414,8 +414,8 @@ void ProceduralSky::_update_sky() {
     }
     if (use_thread) {
 
-        if (!sky_thread) {
-            sky_thread = Thread::create(_thread_function, this);
+        if (!sky_thread.is_started()) {
+            sky_thread.start(_thread_function, this);
             regen_queued = false;
         } else {
             regen_queued = true;
@@ -444,11 +444,9 @@ void ProceduralSky::_thread_done(const Ref<Image> &p_image) {
     RenderingServer::get_singleton()->texture_allocate(texture, p_image->get_width(), p_image->get_height(), 0, Image::FORMAT_RGBE9995, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAG_FILTER | RS::TEXTURE_FLAG_REPEAT);
     RenderingServer::get_singleton()->texture_set_data(texture, p_image);
     _radiance_changed();
-    Thread::wait_to_finish(sky_thread);
-    memdelete(sky_thread);
-    sky_thread = nullptr;
+    sky_thread.wait_to_finish();
     if (regen_queued) {
-        sky_thread = Thread::create(_thread_function, this);
+        sky_thread.start(_thread_function, this);
         regen_queued = false;
     }
 }
@@ -572,7 +570,6 @@ ProceduralSky::ProceduralSky(bool p_desaturate) {
     sun_energy = 1;
 
     texture_size = TEXTURE_SIZE_1024;
-    sky_thread = nullptr;
     regen_queued = false;
     first_time = true;
 
@@ -581,10 +578,8 @@ ProceduralSky::ProceduralSky(bool p_desaturate) {
 
 ProceduralSky::~ProceduralSky() {
 
-    if (sky_thread) {
-        Thread::wait_to_finish(sky_thread);
-        memdelete(sky_thread);
-        sky_thread = nullptr;
+    if (sky_thread.is_started()) {
+        sky_thread.wait_to_finish();
     }
     RenderingServer::get_singleton()->free_rid(sky);
     RenderingServer::get_singleton()->free_rid(texture);

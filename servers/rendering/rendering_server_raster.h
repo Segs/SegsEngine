@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "core/math/octree.h"
 #include "servers/rendering/rasterizer.h"
 #include "servers/rendering_server.h"
 #include "rendering_server_canvas.h"

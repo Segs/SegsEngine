@@ -455,8 +455,6 @@ Error Main::setup(bool p_second_phase) {
     os->initialize_core();
     engine = memnew(Engine);
 
-    ClassDB::init();
-
     MAIN_PRINT("Main: Initialize CORE");
 
     register_core_types();
@@ -464,7 +462,8 @@ Error Main::setup(bool p_second_phase) {
 
     MAIN_PRINT("Main: Initialize Globals");
 
-    Thread::_main_thread_id = Thread::get_caller_id();
+    Thread::main_thread_id = Thread::get_caller_id();
+
     ProjectSettings::initialize_class();
     InputMap::initialize_class();
     TranslationServer::initialize_class();
@@ -963,6 +962,8 @@ Error Main::setup(bool p_second_phase) {
         goto error;
 #endif
     }
+    // Initialize user data dir.
+    OS::get_singleton()->ensure_user_data_dir();
 
     GLOBAL_DEF("memory/limits/multithreaded_server/rid_pool_prealloc", 60);
 
@@ -1301,7 +1302,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
     // Print engine name and version
     print_line(String(VERSION_NAME) + " v" + get_full_version_string() + " - " + String(VERSION_WEBSITE));
     if (p_main_tid_override) {
-        Thread::_main_thread_id = p_main_tid_override;
+        Thread::main_thread_id = p_main_tid_override;
     }
 
     register_server_types();

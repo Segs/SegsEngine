@@ -33,6 +33,8 @@
 #include "core/string.h"
 #include "core/string_utils.h"
 #include "core/vector.h"
+#include "core/safe_refcount.h"
+#include "core/string_name.h"
 
 using namespace eastl;
 

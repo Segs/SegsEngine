@@ -165,7 +165,7 @@ void _gdnative_report_loading_error(const godot_object *p_library, const char *p
 }
 
 bool GDAPI godot_is_instance_valid(const godot_object *p_object) {
-    return gObjectDB().instance_validate((Object *)p_object);
+    return ObjectDB::instance_validate((Object *)p_object);
 }
 
 #ifdef __cplusplus

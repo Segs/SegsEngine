@@ -1087,7 +1087,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
                 ERR_FAIL_INDEX(idx, subresources.size());
 
-                Object *obj = gObjectDB().get_instance(subresources[idx]);
+                Object *obj = ObjectDB::get_instance(subresources[idx]);
                 ERR_FAIL_COND(!obj);
 
                 editor->push_item(obj);
@@ -2227,7 +2227,6 @@ void SceneTreeDock::replace_node(Node *p_node, Node *p_by_node, bool p_keep_prop
     if (n == edited_scene) {
         edited_scene = newnode;
         editor->set_edited_scene(newnode);
-        newnode->set_editable_instances(n->get_editable_instances());
     }
     //TODO: SEGS: un-hack this?
     //small hack to make collisionshapes and other kind of nodes to work

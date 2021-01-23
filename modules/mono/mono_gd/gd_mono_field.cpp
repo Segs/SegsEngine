@@ -30,8 +30,8 @@
 
 #include "gd_mono_field.h"
 
-#include <mono/metadata/attrdefs.h>
 
+#include "core/node_path.h"
 #include "core/dictionary.h"
 #include "core/pool_vector.h"
 #include "core/rid.h"
@@ -40,6 +40,8 @@
 #include "gd_mono_class.h"
 #include "gd_mono_marshal.h"
 #include "gd_mono_utils.h"
+
+#include <mono/metadata/attrdefs.h>
 
 void GDMonoField::set_value(MonoObject *p_object, MonoObject *p_value) {
     mono_field_set_value(p_object, mono_field, p_value);

@@ -31,21 +31,22 @@
 #include "object.h"
 
 #include "core/class_db.h"
-#include "core/object_db.h"
 #include "core/core_string_names.h"
+#include "core/hash_map.h"
 #include "core/message_queue.h"
-#include "core/os/os.h"
+#include "core/method_bind.h"
+#include "core/node_path.h"
+#include "core/object_db.h"
 #include "core/object_rc.h"
+#include "core/object_tooling.h"
+#include "core/os/os.h"
+#include "core/pool_vector.h"
 #include "core/print_string.h"
 #include "core/resource.h"
 #include "core/script_language.h"
 #include "core/string.h"
 #include "core/string_formatter.h"
 #include "core/translation.h"
-#include "core/hash_map.h"
-#include "core/pool_vector.h"
-#include "core/method_bind.h"
-#include "core/object_tooling.h"
 
 #include <EASTL/vector_map.h>
 
@@ -1692,7 +1693,7 @@ Object::Object() {
     private_data = memnew_args_basic(ObjectPrivate,this);
     _class_ptr = nullptr;
     _block_signals = false;
-    _instance_id = gObjectDB().add_instance(this);
+    _instance_id = ObjectDB::add_instance(this);
     _can_translate = true;
     _is_queued_for_deletion = false;
     _emitting = false;
@@ -1725,7 +1726,7 @@ Object::~Object() {
     }
     memdelete(private_data);
 
-    gObjectDB().remove_instance(this);
+    ObjectDB::remove_instance(this);
     _instance_id = ObjectID(0ULL);
 
     if (ScriptServer::are_languages_finished() || !_script_instance_bindings) {

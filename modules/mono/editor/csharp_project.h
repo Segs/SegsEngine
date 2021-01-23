@@ -30,8 +30,9 @@
 
 #pragma once
 
-#include "core/ustring.h"
+#include "core/forward_decls.h"
 
+class StringName;
 namespace CSharpProject {
 
 void add_item(StringView p_project_path, const StringName &p_item_type, StringView p_include);

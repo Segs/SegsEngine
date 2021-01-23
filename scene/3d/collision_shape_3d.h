@@ -65,10 +65,10 @@ public:
     void make_convex_from_brothers();
 
     void set_shape(const Ref<Shape> &p_shape);
-    Ref<Shape> get_shape() const;
+    const Ref<Shape> &get_shape() const { return shape; }
 
     void set_disabled(bool p_disabled);
-    bool is_disabled() const;
+    bool is_disabled() const { return disabled; }
 
     String get_configuration_warning() const override;
 

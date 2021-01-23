@@ -481,7 +481,7 @@ void Node3DEditorViewport::_select_clicked(bool p_append, bool p_single, bool p_
         return;
     }
 
-    Node *node = object_cast<Node>(gObjectDB().get_instance(clicked));
+    Node *node = object_cast<Node>(ObjectDB::get_instance(clicked));
     Node3D *selected = object_cast<Node3D>(node);
     if (!selected) {
         return;
@@ -542,7 +542,7 @@ ObjectID Node3DEditorViewport::_select_ray(const Point2 &p_pos, bool p_append, b
 
     for (size_t i = 0; i < instances.size(); i++) {
 
-        Node3D *spat = object_cast<Node3D>(gObjectDB().get_instance(instances[i]));
+        Node3D *spat = object_cast<Node3D>(ObjectDB::get_instance(instances[i]));
 
         if (!spat) {
             continue;
@@ -610,7 +610,7 @@ void Node3DEditorViewport::_find_items_at_pos(const Point2 &p_pos, bool &r_inclu
 
     for (size_t i = 0; i < instances.size(); i++) {
 
-        Node3D *spat = object_cast<Node3D>(gObjectDB().get_instance(instances[i]));
+        Node3D *spat = object_cast<Node3D>(ObjectDB::get_instance(instances[i]));
 
         if (!spat) {
             continue;
@@ -740,7 +740,7 @@ void Node3DEditorViewport::_select_region() {
 
     for (size_t i = 0; i < instances.size(); i++) {
 
-        Node3D *sp = object_cast<Node3D>(gObjectDB().get_instance(instances[i]));
+        Node3D *sp = object_cast<Node3D>(ObjectDB::get_instance(instances[i]));
         if (!sp || _is_node_locked(sp)) {
             continue;
         }
@@ -1410,7 +1410,7 @@ void Node3DEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 
                     if (clicked.is_valid() && gizmo_handle >= 0) {
 
-                        Node3D *spa = object_cast<Node3D>(gObjectDB().get_instance(clicked));
+                        Node3D *spa = object_cast<Node3D>(ObjectDB::get_instance(clicked));
                         if (spa) {
 
                             Ref<EditorNode3DGizmo> seg = dynamic_ref_cast<EditorNode3DGizmo>(spa->get_gizmo());
@@ -2331,7 +2331,7 @@ void Node3DEditorViewport::set_freelook_active(bool active_now) {
 }
 
 void Node3DEditorViewport::scale_cursor_distance(real_t scale) {
-    float min_distance = MAX(camera->get_znear() * 4, ZOOM_FREELOOK_MIN);
+    float min_distance = M_MAX(camera->get_znear() * 4, ZOOM_FREELOOK_MIN);
     float max_distance = MIN(camera->get_zfar() / 4, ZOOM_FREELOOK_MAX);
     if (unlikely(min_distance > max_distance)) {
         cursor.distance = (min_distance + max_distance) / 2;
@@ -2344,7 +2344,7 @@ void Node3DEditorViewport::scale_cursor_distance(real_t scale) {
 }
 
 void Node3DEditorViewport::scale_freelook_speed(real_t scale) {
-    float min_speed = MAX(camera->get_znear() * 4, ZOOM_FREELOOK_MIN);
+    float min_speed = M_MAX(camera->get_znear() * 4, ZOOM_FREELOOK_MIN);
     float max_speed = MIN(camera->get_zfar() / 4, ZOOM_FREELOOK_MAX);
     if (unlikely(min_speed > max_speed)) {
         freelook_speed = (min_speed + max_speed) / 2;
@@ -2829,7 +2829,7 @@ void Node3DEditorViewport::_draw() {
             if (is_freelook_active()) {
                 // Show speed
 
-                float min_speed = MAX(camera->get_znear() * 4, ZOOM_FREELOOK_MIN);
+                float min_speed = M_MAX(camera->get_znear() * 4, ZOOM_FREELOOK_MIN);
                 float max_speed = MIN(camera->get_zfar() / 4, ZOOM_FREELOOK_MAX);
                 float scale_length = max_speed - min_speed;
 
@@ -2849,7 +2849,7 @@ void Node3DEditorViewport::_draw() {
             } else {
                 // Show zoom
 
-                float min_distance = MAX(camera->get_znear() * 4, ZOOM_FREELOOK_MIN);
+                float min_distance = M_MAX(camera->get_znear() * 4, ZOOM_FREELOOK_MIN);
                 float max_distance = MIN(camera->get_zfar() / 4, ZOOM_FREELOOK_MAX);
                 float scale_length = max_distance - min_distance;
 
@@ -3630,7 +3630,7 @@ Vector3 Node3DEditorViewport::_get_instance_position(const Point2 &p_pos) const 
 
     for (int i = 0; i < instances.size(); i++) {
 
-        MeshInstance3D *mesh_instance = object_cast<MeshInstance3D>(gObjectDB().get_instance(instances[i]));
+        MeshInstance3D *mesh_instance = object_cast<MeshInstance3D>(ObjectDB::get_instance(instances[i]));
 
         if (!mesh_instance)
             continue;
@@ -5913,12 +5913,19 @@ void Node3DEditor::snap_selected_nodes_to_floor() {
             // Priorities for snapping to floor are CollisionShapes, VisualInstances and then origin
             HashSet<VisualInstance3D *> vi = _get_child_nodes<VisualInstance3D>(sp);
             HashSet<CollisionShape3D *> cs = _get_child_nodes<CollisionShape3D>(sp);
+            bool found_valid_shape = false;
 
             if (!cs.empty()) {
                 AABB aabb;
-                bool found_valid_shape = false;
-                if ((*cs.begin())->get_shape()) {
-                    aabb = sp->get_global_transform().xform((*cs.begin())->get_shape()->get_debug_mesh()->get_aabb());
+                auto I = cs.begin();
+//				if ((*I)->get_shape()) {
+//					CollisionShape3D *collision_shape = (*I)->get_shape();
+//					aabb = collision_shape->get_global_transform().xform(collision_shape->get_shape()->get_debug_mesh()->get_aabb());
+//					found_valid_shape = true;
+//				}
+
+                if ((*I)->get_shape()) {
+                    aabb = sp->get_global_transform().xform((*I)->get_shape()->get_debug_mesh()->get_aabb());
                     found_valid_shape = true;
                 }
                 for (CollisionShape3D * I : cs) {

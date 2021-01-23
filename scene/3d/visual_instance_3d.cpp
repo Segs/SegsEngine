@@ -39,6 +39,7 @@ IMPL_GDCLASS(VisualInstance3D)
 IMPL_GDCLASS(GeometryInstance)
 
 VARIANT_ENUM_CAST(GeometryInstance::Flags);
+VARIANT_ENUM_CAST(GeometryInstance::LightmapScale);
 VARIANT_ENUM_CAST(GeometryInstance::ShadowCastingSetting);
 
 AABB VisualInstance3D::get_transformed_aabb() const {

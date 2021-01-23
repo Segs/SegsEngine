@@ -524,7 +524,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 #ifdef JOYDEV_ENABLED
     joypad = memnew(JoypadLinux(input));
 #endif
-    _ensure_user_data_dir();
+    ensure_user_data_dir();
 
     if (p_desired.layered) {
         set_window_per_pixel_transparency_enabled(true);
@@ -538,7 +538,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         }
     }
 
-    events_thread = Thread::create(_poll_events_thread, this);
+    events_thread.start(_poll_events_thread, this);
 
     update_real_mouse_position();
 
@@ -714,9 +714,7 @@ void OS_X11::set_ime_position(const Point2 &p_pos) {
 
 void OS_X11::finalize() {
     events_thread_done = true;
-    Thread::wait_to_finish(events_thread);
-    memdelete(events_thread);
-    events_thread = NULL;
+    events_thread.wait_to_finish();
 
     memdelete(main_loop);
     main_loop = nullptr;
@@ -2889,7 +2887,7 @@ String OS_X11::_get_clipboard_impl(Atom p_source, Window x11_window, Atom target
                                 incr_data.resize(initial_size);
                             } else {
                                 // New chunk, resize to be safe and append data.
-                                incr_data.resize(MAX(data_size + len, prev_size));
+                                incr_data.resize(M_MAX(data_size + len, prev_size));
                                 memcpy(incr_data.data() + data_size, data, len);
                                 data_size += len;
                             }

@@ -43,7 +43,7 @@ IMPL_GDCLASS(ArrayPropertyEdit)
 
 Variant ArrayPropertyEdit::get_array() const {
 
-    Object *o = gObjectDB().get_instance(obj);
+    Object *o = ObjectDB::get_instance(obj);
     if (!o)
         return Array();
     Variant arr = o->get(property);
@@ -66,7 +66,7 @@ void ArrayPropertyEdit::_set_size(int p_size) {
     Variant arr = get_array();
     VariantOps::resize(arr,p_size);
 
-    Object *o = gObjectDB().get_instance(obj);
+    Object *o = ObjectDB::get_instance(obj);
     if (!o)
         return;
 
@@ -77,7 +77,7 @@ void ArrayPropertyEdit::_set_value(int p_idx, const Variant &p_value) {
 
     Variant arr = get_array();
     arr.set(p_idx, p_value);
-    Object *o = gObjectDB().get_instance(obj);
+    Object *o = ObjectDB::get_instance(obj);
     if (!o)
         return;
 
@@ -291,7 +291,7 @@ void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, StringView
 
 Node *ArrayPropertyEdit::get_node() {
 
-    return object_cast<Node>(gObjectDB().get_instance(obj));
+    return object_cast<Node>(ObjectDB::get_instance(obj));
 }
 
 bool ArrayPropertyEdit::_dont_undo_redo() {

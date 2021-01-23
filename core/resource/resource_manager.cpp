@@ -522,9 +522,7 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
         }
 
         //lock first if possible
-        if (ResourceCache::lock) {
-            ResourceCache::lock->read_lock();
-        }
+        ResourceCache::lock.read_lock();
 
         //get ptr
         Resource* rptr = ResourceCache::get_unguarded(local_path);
@@ -537,16 +535,12 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
                 //referencing is fine
                 if (r_error)
                     *r_error = OK;
-                if (ResourceCache::lock) {
-                    ResourceCache::lock->read_unlock();
-                }
+                ResourceCache::lock.read_unlock();
                 D()->_remove_from_loading_map(local_path);
                 return res;
             }
         }
-        if (ResourceCache::lock) {
-            ResourceCache::lock->read_unlock();
-        }
+        ResourceCache::lock.read_unlock();
     }
 
     bool xl_remapped = false;

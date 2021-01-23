@@ -40,7 +40,6 @@ IMPL_GDCLASS(NoiseTexture)
 
 NoiseTexture::NoiseTexture() {
     update_queued = false;
-    noise_thread = nullptr;
     regen_queued = false;
     first_time = true;
 
@@ -59,9 +58,8 @@ NoiseTexture::NoiseTexture() {
 
 NoiseTexture::~NoiseTexture() {
     RenderingServer::get_singleton()->free_rid(texture);
-    if (noise_thread) {
-        Thread::wait_to_finish(noise_thread);
-        memdelete(noise_thread);
+    if (noise_thread.is_started()) {
+        noise_thread.wait_to_finish();
     }
 }
 
@@ -102,7 +100,7 @@ void NoiseTexture::_validate_property(PropertyInfo &property) const {
 void NoiseTexture::_set_texture_data(const Ref<Image> &p_image) {
     data = p_image;
     if (data) {
-        RenderingServer::get_singleton()->texture_allocate(texture, size.x, size.y, 0, Image::FORMAT_RGBA8, RS::TEXTURE_TYPE_2D, flags);
+        RenderingServer::get_singleton()->texture_allocate(texture, size.x, size.y, 0, p_image->get_format(), RS::TEXTURE_TYPE_2D, flags);
         RenderingServer::get_singleton()->texture_set_data(texture, p_image);
     }
     emit_changed();
@@ -111,11 +109,10 @@ void NoiseTexture::_set_texture_data(const Ref<Image> &p_image) {
 void NoiseTexture::_thread_done(const Ref<Image> &p_image) {
 
     _set_texture_data(p_image);
-    Thread::wait_to_finish(noise_thread);
-    memdelete(noise_thread);
-    noise_thread = nullptr;
+
+    noise_thread.wait_to_finish();
     if (regen_queued) {
-        noise_thread = Thread::create(_thread_function, this);
+        noise_thread.start(_thread_function, this);
         regen_queued = false;
     }
 }
@@ -166,8 +163,8 @@ void NoiseTexture::_update_texture() {
     }
     if (use_thread) {
 
-        if (!noise_thread) {
-            noise_thread = Thread::create(_thread_function, this);
+        if (!noise_thread.is_started()) {
+            noise_thread.start(_thread_function, this);
             regen_queued = false;
         } else {
             regen_queued = true;

@@ -940,9 +940,6 @@ static String _make_extname(StringView p_str) {
 
 void ResourceImporterScene::_find_meshes(Node *p_node, Map<Ref<ArrayMesh>, Transform> &meshes) {
 
-    Vector<PropertyInfo> pi;
-    p_node->get_property_list(&pi);
-
     MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
 
     if (mi) {
@@ -954,7 +951,8 @@ void ResourceImporterScene::_find_meshes(Node *p_node, Map<Ref<ArrayMesh>, Trans
             Transform transform;
             while (s) {
                 transform = transform * s->get_transform();
-                s = s->get_parent_spatial();
+                //not using get_parent_spatial, since it's valid only after NOTIFICATION_ENTER_TREE
+                s = object_cast<Node3D>(s->get_parent());
             }
 
             meshes[mesh] = transform;

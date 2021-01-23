@@ -59,7 +59,7 @@ static int __bsr_clz32(uint32_t x) {
 class RandomPCG {
     typedef struct { uint64_t state;  uint64_t inc; } random_state;
     random_state pcg;
-    uint64_t current_seed; // seed with this to get the same state
+    uint64_t current_seed; // The seed the current generator state started from.
     uint64_t current_inc;
 
 public:
@@ -70,6 +70,10 @@ public:
 
     void seed(uint64_t p_seed);
     uint64_t get_seed() const { return current_seed; }
+
+    _FORCE_INLINE_ void set_state(uint64_t p_state) { pcg.state = p_state; }
+    _FORCE_INLINE_ uint64_t get_state() const { return pcg.state; }
+
 
     void randomize();
 

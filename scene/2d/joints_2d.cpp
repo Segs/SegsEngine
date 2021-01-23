@@ -30,18 +30,49 @@
 
 #include "joints_2d.h"
 
-#include "core/engine.h"
 #include "physics_body_2d.h"
-#include "servers/physics_server_2d.h"
+
+#include "core/engine.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
-#include "scene/main/scene_tree.h"
 #include "core/translation_helpers.h"
+#include "scene/main/scene_tree.h"
+#include "scene/scene_string_names.h"
+#include "servers/physics_server_2d.h"
 
 
 IMPL_GDCLASS(Joint2D)
 IMPL_GDCLASS(PinJoint2D)
 IMPL_GDCLASS(GrooveJoint2D)
 IMPL_GDCLASS(DampedSpringJoint2D)
+
+void Joint2D::_disconnect_signals() {
+
+    Node *node_a = get_node_or_null(a);
+    PhysicsBody2D *body_a = object_cast<PhysicsBody2D>(node_a);
+    if (body_a)
+        body_a->disconnect(SceneStringNames::tree_exiting, callable_mp(this, &Joint2D::_body_exit_tree));
+
+    Node *node_b = get_node_or_null(b);
+    PhysicsBody2D *body_b =  object_cast<PhysicsBody2D>(node_b);
+    if (body_b)
+        body_b->disconnect(SceneStringNames::tree_exiting, callable_mp(this, &Joint2D::_body_exit_tree));
+}
+
+void Joint2D::_body_exit_tree(const ObjectID &p_body_id) {
+
+    _disconnect_signals();
+    Object *object = ObjectDB::get_instance(p_body_id);
+    PhysicsBody2D *body =  object_cast<PhysicsBody2D>(object);
+    ERR_FAIL_NULL(body);
+    RID body_rid = body->get_rid();
+    if (ba == body_rid)
+        a = NodePath();
+    if (bb == body_rid)
+        b = NodePath();
+    _update_joint();
+}
+
 
 void Joint2D::_update_joint(bool p_only_free) {
 
@@ -60,8 +91,8 @@ void Joint2D::_update_joint(bool p_only_free) {
         return;
     }
 
-    Node *node_a = has_node(get_node_a()) ? get_node(get_node_a()) : (Node *)nullptr;
-    Node *node_b = has_node(get_node_b()) ? get_node(get_node_b()) : (Node *)nullptr;
+    Node *node_a = get_node_or_null(a);
+    Node *node_b = get_node_or_null(b);
 
     PhysicsBody2D *body_a = object_cast<PhysicsBody2D>(node_a);
     PhysicsBody2D *body_b = object_cast<PhysicsBody2D>(node_b);
@@ -115,6 +146,10 @@ void Joint2D::_update_joint(bool p_only_free) {
     ba = body_a->get_rid();
     bb = body_b->get_rid();
 
+    body_a->connect(SceneStringNames::tree_exiting, callable_mp(this, &ClassName::_body_exit_tree), make_binds(body_a->get_instance_id()));
+    body_b->connect(SceneStringNames::tree_exiting, callable_mp(this, &ClassName::_body_exit_tree), make_binds(body_b->get_instance_id()));
+
+
     PhysicsServer2D::get_singleton()->joint_disable_collisions_between_bodies(joint, exclude_from_collision);
 }
 
@@ -122,6 +157,9 @@ void Joint2D::set_node_a(const NodePath &p_node_a) {
 
     if (a == p_node_a)
         return;
+
+    if (joint.is_valid())
+        _disconnect_signals();
 
     a = p_node_a;
     _update_joint();
@@ -136,6 +174,10 @@ void Joint2D::set_node_b(const NodePath &p_node_b) {
 
     if (b == p_node_b)
         return;
+
+    if (joint.is_valid())
+        _disconnect_signals();
+
     b = p_node_b;
     _update_joint();
 }
@@ -153,6 +195,7 @@ void Joint2D::_notification(int p_what) {
         } break;
         case NOTIFICATION_EXIT_TREE: {
             if (joint.is_valid()) {
+                _disconnect_signals();
                 _update_joint(true);
             }
         } break;

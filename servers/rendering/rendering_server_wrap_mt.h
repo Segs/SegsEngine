@@ -39,7 +39,7 @@ class  RenderingServerWrapMT : public RenderingServer {
     // the real visual server
     mutable CommandQueueMT command_queue;
     Mutex alloc_mutex;
-    Thread *thread;
+    Thread thread;
     uint64_t draw_pending;
     int pool_max_size;
     volatile bool exit;

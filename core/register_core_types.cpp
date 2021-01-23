@@ -104,8 +104,7 @@ extern void unregister_variant_methods();
 
 void register_core_types() {
 
-    gObjectDB().setup();
-    ResourceCache::setup();
+    ObjectDB::setup();
     MemoryPool::setup();
 
     _global_mutex = memnew(Mutex);
@@ -321,7 +320,7 @@ void unregister_core_types() {
 
     gResourceManager().finalize();
     ClassDB::cleanup_defaults();
-    gObjectDB().cleanup();
+    ObjectDB::cleanup();
 
     unregister_variant_methods();
     unregister_global_constants();
