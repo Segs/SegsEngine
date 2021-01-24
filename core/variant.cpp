@@ -3020,11 +3020,6 @@ bool Variant::is_shared() const {
     return false;
 }
 
-void Variant::construct_from_string(
-        const UIString &p_string, Variant &r_value, ObjectConstruct p_obj_construct, void *p_construct_ud) {
-    r_value = Variant();
-}
-
 String Variant::get_construct_string() const {
     String vars;
     VariantWriter::write_to_string(*this, vars);

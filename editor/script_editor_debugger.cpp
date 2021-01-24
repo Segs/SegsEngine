@@ -693,8 +693,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                 new_props_added++;
                 debugObj->prop_values[pinfo.name] = var;
             } else {
-
-                if (Variant::evaluate(Variant::OP_NOT_EQUAL, debugObj->prop_values[pinfo.name], var).as<bool>()) {
+                if(!Variant::evaluate_equal(debugObj->prop_values[pinfo.name], var)) {
                     debugObj->prop_values[pinfo.name] = var;
                     changed.insert(pinfo.name);
                 }

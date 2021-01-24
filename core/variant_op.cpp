@@ -1487,9 +1487,11 @@ Variant Variant::get_named(const StringName &p_index, bool *r_valid) const {
             //scalar name
             if (p_index == CoreStringNames::singleton->position) {
                 return v->position;
-            } else if (p_index == CoreStringNames::singleton->size) {
+            }
+            if (p_index == CoreStringNames::singleton->size) {
                 return v->size;
-            } else if (p_index == CoreStringNames::singleton->end) {
+            }
+            if (p_index == CoreStringNames::singleton->end) {
                 return v->size + v->position;
             }
         } break;
@@ -2508,284 +2510,83 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
     return Variant();
 }
 
-bool Variant::in(const Variant &p_index, bool *r_valid) const {
-
-    if (r_valid)
-        *r_valid = true;
-
-    switch (type) {
-
-        case VariantType::STRING: {
-
-            if (p_index.get_type() == VariantType::STRING) {
-                //string index
-                String idx = p_index.as<String>();
-                const String *str = reinterpret_cast<const String *>(_data._mem);
-
-                return StringUtils::contains(*str,idx);
-            }
-
-        } break;
-        case VariantType::OBJECT: {
-            Object *obj = _OBJ_PTR(*this);
-            if (unlikely(!obj)) {
-#ifdef DEBUG_ENABLED
-                if (r_valid) {
-                    *r_valid = false;
-                }
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
-                    WARN_PRINT("Attempted 'in' on a deleted object.");
-                }
-#endif
-                return false;
-            }
-
-            bool result;
-            if (p_index.get_type() != VariantType::STRING) {
-                obj->getvar(p_index, &result);
-            } else {
-                obj->get(p_index.as<StringName>(), &result);
-            }
-            return result;
-        } break;
-
-        case VariantType::DICTIONARY: {
-
-            const Dictionary *dic = reinterpret_cast<const Dictionary *>(_data._mem);
-            return dic->has(p_index);
-
-        }
-        case VariantType::ARRAY: {
-
-            const Array *arr = reinterpret_cast<const Array *>(_data._mem);
-            int l = arr->size();
-            if (l) {
-                for (int i = 0; i < l; i++) {
-
-                    if (evaluate(OP_EQUAL, (*arr)[i], p_index).as<bool>())
-                        return true;
-                }
-            }
-
-            return false;
-
-        }
-        case VariantType::POOL_BYTE_ARRAY: {
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
-
-                int index = p_index.as<int>();
-                const PoolVector<uint8_t> *arr = reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
-                int l = arr->size();
-                if (l) {
-                    PoolVector<uint8_t>::Read r = arr->read();
-                    for (int i = 0; i < l; i++) {
-                        if (r[i] == index)
-                            return true;
-                    }
-                }
-
-                return false;
-            }
-
-        } break;
-        case VariantType::POOL_INT_ARRAY: {
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
-
-                int index = p_index.as<int>();
-                const PoolVector<int> *arr = reinterpret_cast<const PoolVector<int> *>(_data._mem);
-                int l = arr->size();
-                if (l) {
-                    PoolVector<int>::Read r = arr->read();
-                    for (int i = 0; i < l; i++) {
-                        if (r[i] == index)
-                            return true;
-                    }
-                }
-
-                return false;
-            }
-        } break;
-        case VariantType::POOL_REAL_ARRAY: {
-
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
-
-                real_t index = p_index.as<float>();
-                const PoolVector<real_t> *arr = reinterpret_cast<const PoolVector<real_t> *>(_data._mem);
-                int l = arr->size();
-                if (l) {
-                    PoolVector<real_t>::Read r = arr->read();
-                    for (int i = 0; i < l; i++) {
-                        if (r[i] == index)
-                            return true;
-                    }
-                }
-
-                return false;
-            }
-
-        } break;
-        case VariantType::POOL_STRING_ARRAY: {
-            if (p_index.get_type() == VariantType::STRING) {
-
-                String index = p_index.as<String>();
-                const PoolVector<String> *arr = reinterpret_cast<const PoolVector<String> *>(_data._mem);
-
-                int l = arr->size();
-                if (l) {
-                    PoolVector<String>::Read r = arr->read();
-                    for (int i = 0; i < l; i++) {
-                        if (r[i] == index)
-                            return true;
-                    }
-                }
-
-                return false;
-            }
-
-        } break; //25
-        case VariantType::POOL_VECTOR2_ARRAY: {
-            if (p_index.get_type() == VariantType::VECTOR2) {
-
-                Vector2 index = p_index.as<Vector2>();
-                const PoolVector<Vector2> *arr = reinterpret_cast<const PoolVector<Vector2> *>(_data._mem);
-
-                int l = arr->size();
-                if (l) {
-                    PoolVector<Vector2>::Read r = arr->read();
-                    for (int i = 0; i < l; i++) {
-                        if (r[i] == index)
-                            return true;
-                    }
-                }
-
-                return false;
-            }
-
-        } break;
-        case VariantType::POOL_VECTOR3_ARRAY: {
-            if (p_index.get_type() == VariantType::VECTOR3) {
-
-                Vector3 index = p_index.as<Vector3>();
-                const PoolVector<Vector3> *arr = reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
-
-                int l = arr->size();
-                if (l) {
-                    PoolVector<Vector3>::Read r = arr->read();
-                    for (int i = 0; i < l; i++) {
-                        if (r[i] == index)
-                            return true;
-                    }
-                }
-
-                return false;
-            }
-
-        } break;
-        case VariantType::POOL_COLOR_ARRAY: {
-
-            if (p_index.get_type() == VariantType::COLOR) {
-
-                Color index = p_index.as<Color>();
-                const PoolVector<Color> *arr = reinterpret_cast<const PoolVector<Color> *>(_data._mem);
-
-                int l = arr->size();
-                if (l) {
-                    PoolVector<Color>::Read r = arr->read();
-                    for (int i = 0; i < l; i++) {
-                        if (r[i] == index)
-                            return true;
-                    }
-                }
-
-                return false;
-            }
-        } break;
-        default: {
-        }
-    }
-
-    if (r_valid)
-        *r_valid = false;
-    return false;
-}
-
 void Variant::get_property_list(Vector<PropertyInfo> *p_list) const {
 
     switch (type) {
         case VariantType::VECTOR2: {
 
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "x"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "y"));
+            p_list->emplace_back(VariantType::FLOAT, "x");
+            p_list->emplace_back(VariantType::FLOAT, "y");
 
         } break; // 5
         case VariantType::RECT2: {
 
-            p_list->push_back(PropertyInfo(VariantType::VECTOR2, "position"));
-            p_list->push_back(PropertyInfo(VariantType::VECTOR2, "size"));
-            p_list->push_back(PropertyInfo(VariantType::VECTOR2, "end"));
+            p_list->emplace_back(VariantType::VECTOR2, "position");
+            p_list->emplace_back(VariantType::VECTOR2, "size");
+            p_list->emplace_back(VariantType::VECTOR2, "end");
 
         } break;
         case VariantType::VECTOR3: {
 
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "x"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "y"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "z"));
+            p_list->emplace_back(VariantType::FLOAT, "x");
+            p_list->emplace_back(VariantType::FLOAT, "y");
+            p_list->emplace_back(VariantType::FLOAT, "z");
 
         } break;
         case VariantType::TRANSFORM2D: {
 
-            p_list->push_back(PropertyInfo(VariantType::VECTOR2, "x"));
-            p_list->push_back(PropertyInfo(VariantType::VECTOR2, "y"));
-            p_list->push_back(PropertyInfo(VariantType::VECTOR2, "origin"));
+            p_list->emplace_back(VariantType::VECTOR2, "x");
+            p_list->emplace_back(VariantType::VECTOR2, "y");
+            p_list->emplace_back(VariantType::VECTOR2, "origin");
 
         } break;
         case VariantType::PLANE: {
 
-            p_list->push_back(PropertyInfo(VariantType::VECTOR3, "normal"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "x"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "y"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "z"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "d"));
+            p_list->emplace_back(VariantType::VECTOR3, "normal");
+            p_list->emplace_back(VariantType::FLOAT, "x");
+            p_list->emplace_back(VariantType::FLOAT, "y");
+            p_list->emplace_back(VariantType::FLOAT, "z");
+            p_list->emplace_back(VariantType::FLOAT, "d");
 
         } break;
         case VariantType::QUAT: {
 
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "x"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "y"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "z"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "w"));
+            p_list->emplace_back(VariantType::FLOAT, "x");
+            p_list->emplace_back(VariantType::FLOAT, "y");
+            p_list->emplace_back(VariantType::FLOAT, "z");
+            p_list->emplace_back(VariantType::FLOAT, "w");
 
         } break; // 10
         case VariantType::AABB: {
-            p_list->push_back(PropertyInfo(VariantType::VECTOR3, "position"));
-            p_list->push_back(PropertyInfo(VariantType::VECTOR3, "size"));
-            p_list->push_back(PropertyInfo(VariantType::VECTOR3, "end"));
+            p_list->emplace_back(VariantType::VECTOR3, "position");
+            p_list->emplace_back(VariantType::VECTOR3, "size");
+            p_list->emplace_back(VariantType::VECTOR3, "end");
         } break;
         case VariantType::BASIS: {
 
-            p_list->push_back(PropertyInfo(VariantType::VECTOR3, "x"));
-            p_list->push_back(PropertyInfo(VariantType::VECTOR3, "y"));
-            p_list->push_back(PropertyInfo(VariantType::VECTOR3, "z"));
+            p_list->emplace_back(VariantType::VECTOR3, "x");
+            p_list->emplace_back(VariantType::VECTOR3, "y");
+            p_list->emplace_back(VariantType::VECTOR3, "z");
 
         } break;
         case VariantType::TRANSFORM: {
 
-            p_list->push_back(PropertyInfo(VariantType::BASIS, "basis"));
-            p_list->push_back(PropertyInfo(VariantType::VECTOR3, "origin"));
+            p_list->emplace_back(VariantType::BASIS, "basis");
+            p_list->emplace_back(VariantType::VECTOR3, "origin");
 
         } break;
         case VariantType::COLOR: {
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "r"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "g"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "b"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "a"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "h"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "s"));
-            p_list->push_back(PropertyInfo(VariantType::FLOAT, "v"));
-            p_list->push_back(PropertyInfo(VariantType::INT, "r8"));
-            p_list->push_back(PropertyInfo(VariantType::INT, "g8"));
-            p_list->push_back(PropertyInfo(VariantType::INT, "b8"));
-            p_list->push_back(PropertyInfo(VariantType::INT, "a8"));
+            p_list->emplace_back(VariantType::FLOAT, "r");
+            p_list->emplace_back(VariantType::FLOAT, "g");
+            p_list->emplace_back(VariantType::FLOAT, "b");
+            p_list->emplace_back(VariantType::FLOAT, "a");
+            p_list->emplace_back(VariantType::FLOAT, "h");
+            p_list->emplace_back(VariantType::FLOAT, "s");
+            p_list->emplace_back(VariantType::FLOAT, "v");
+            p_list->emplace_back(VariantType::INT, "r8");
+            p_list->emplace_back(VariantType::INT, "g8");
+            p_list->emplace_back(VariantType::INT, "b8");
+            p_list->emplace_back(VariantType::INT, "a8");
 
         } break;
         case VariantType::NODE_PATH: {
@@ -2812,7 +2613,7 @@ void Variant::get_property_list(Vector<PropertyInfo> *p_list) const {
             Vector<Variant> keys(dic->get_key_list());
             for(Variant &E : keys ) {
                 if (E.get_type() == VariantType::STRING) {
-                    p_list->push_back(PropertyInfo(VariantType::STRING, E.as<StringName>()));
+                    p_list->emplace_back(VariantType::STRING, E.as<StringName>());
                 }
             }
         } break;
@@ -2830,504 +2631,6 @@ void Variant::get_property_list(Vector<PropertyInfo> *p_list) const {
         default: {
         }
     }
-}
-
-bool Variant::iter_init(Variant &r_iter, bool &valid) const {
-
-    valid = true;
-    switch (type) {
-        case VariantType::INT: {
-            r_iter = 0;
-            return _data._int > 0;
-        }
-        case VariantType::FLOAT: {
-            r_iter = 0;
-            return _data._real > 0.0;
-        }
-        case VariantType::VECTOR2: {
-            int64_t from = reinterpret_cast<const Vector2 *>(_data._mem)->x;
-            int64_t to = reinterpret_cast<const Vector2 *>(_data._mem)->y;
-
-            r_iter = from;
-
-            return from < to;
-        }
-        case VariantType::VECTOR3: {
-            int64_t from = reinterpret_cast<const Vector3 *>(_data._mem)->x;
-            int64_t to = reinterpret_cast<const Vector3 *>(_data._mem)->y;
-            int64_t step = reinterpret_cast<const Vector3 *>(_data._mem)->z;
-
-            r_iter = from;
-
-            if (from == to) {
-                return false;
-            } else if (from < to) {
-                return step > 0;
-            } else {
-                return step < 0;
-            }
-            //return true;
-        }
-        case VariantType::OBJECT: {
-
-            Object *obj = _OBJ_PTR(*this);
-#ifdef DEBUG_ENABLED
-            if (unlikely(!obj)) {
-                valid = false;
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
-                    WARN_PRINT("Attempted iteration start on a deleted object.");
-                }
-                return false;
-            }
-#endif
-            Callable::CallError ce;
-            ce.error = Callable::CallError::CALL_OK;
-            Array ref;
-            ref.push_back(r_iter);
-            Variant vref = ref;
-            const Variant *refp[] = { &vref };
-            Variant ret = obj->call(CoreStringNames::get_singleton()->_iter_init, refp, 1, ce);
-
-            if (ref.size() != 1 || ce.error != Callable::CallError::CALL_OK) {
-                valid = false;
-                return false;
-            }
-
-            r_iter = ref[0];
-            return ret.as<bool>();
-        } break;
-
-        case VariantType::STRING: {
-
-            const String *str = reinterpret_cast<const String *>(_data._mem);
-            if (str->empty())
-                return false;
-            r_iter = 0;
-            return true;
-        }
-        case VariantType::DICTIONARY: {
-
-            const Dictionary *dic = reinterpret_cast<const Dictionary *>(_data._mem);
-            if (dic->empty())
-                return false;
-
-            const Variant *next = dic->next(nullptr);
-            r_iter = *next;
-            return true;
-
-        }
-        case VariantType::ARRAY: {
-
-            const Array *arr = reinterpret_cast<const Array *>(_data._mem);
-            if (arr->empty())
-                return false;
-            r_iter = 0;
-            return true;
-        }
-        case VariantType::POOL_BYTE_ARRAY: {
-            const PoolVector<uint8_t> *arr = reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
-            if (arr->empty())
-                return false;
-            r_iter = 0;
-            return true;
-
-        }
-        case VariantType::POOL_INT_ARRAY: {
-            const PoolVector<int> *arr = reinterpret_cast<const PoolVector<int> *>(_data._mem);
-            if (arr->empty())
-                return false;
-            r_iter = 0;
-            return true;
-
-        }
-        case VariantType::POOL_REAL_ARRAY: {
-            const PoolVector<real_t> *arr = reinterpret_cast<const PoolVector<real_t> *>(_data._mem);
-            if (arr->empty())
-                return false;
-            r_iter = 0;
-            return true;
-
-        }
-        case VariantType::POOL_STRING_ARRAY: {
-            const PoolVector<String> *arr = reinterpret_cast<const PoolVector<String> *>(_data._mem);
-            if (arr->empty())
-                return false;
-            r_iter = 0;
-            return true;
-        }
-        case VariantType::POOL_VECTOR2_ARRAY: {
-
-            const PoolVector<Vector2> *arr = reinterpret_cast<const PoolVector<Vector2> *>(_data._mem);
-            if (arr->empty())
-                return false;
-            r_iter = 0;
-            return true;
-        }
-        case VariantType::POOL_VECTOR3_ARRAY: {
-
-            const PoolVector<Vector3> *arr = reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
-            if (arr->empty())
-                return false;
-            r_iter = 0;
-            return true;
-        }
-        case VariantType::POOL_COLOR_ARRAY: {
-
-            const PoolVector<Color> *arr = reinterpret_cast<const PoolVector<Color> *>(_data._mem);
-            if (arr->empty())
-                return false;
-            r_iter = 0;
-            return true;
-
-        }
-        default: {
-        }
-    }
-
-    valid = false;
-    return false;
-}
-bool Variant::iter_next(Variant &r_iter, bool &valid) const {
-
-    valid = true;
-    switch (type) {
-        case VariantType::INT: {
-            int64_t idx = r_iter.as<int64_t>();
-            idx++;
-            if (idx >= _data._int)
-                return false;
-            r_iter = idx;
-            return true;
-        }
-        case VariantType::FLOAT: {
-            int64_t idx = r_iter.as<int64_t>();
-            idx++;
-            if (idx >= _data._real)
-                return false;
-            r_iter = idx;
-            return true;
-        }
-        case VariantType::VECTOR2: {
-            int64_t to = reinterpret_cast<const Vector2 *>(_data._mem)->y;
-
-            int64_t idx = r_iter.as<int64_t>();
-            idx++;
-
-            if (idx >= to)
-                return false;
-
-            r_iter = idx;
-            return true;
-        }
-        case VariantType::VECTOR3: {
-            int64_t to = reinterpret_cast<const Vector3 *>(_data._mem)->y;
-            int64_t step = reinterpret_cast<const Vector3 *>(_data._mem)->z;
-
-            int64_t idx = r_iter.as<int64_t>();
-            idx += step;
-
-            if (step < 0 && idx <= to)
-                return false;
-
-            if (step > 0 && idx >= to)
-                return false;
-
-            r_iter = idx;
-            return true;
-        }
-        case VariantType::OBJECT: {
-
-            Object *obj = _OBJ_PTR(*this);
-#ifdef DEBUG_ENABLED
-            if (unlikely(!obj)) {
-                valid = false;
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
-                    WARN_PRINT("Attempted iteration check next on a deleted object.");
-                }
-                return false;
-            }
-#endif
-            Callable::CallError ce;
-            ce.error = Callable::CallError::CALL_OK;
-            Array ref;
-            ref.push_back(r_iter);
-            Variant vref = ref;
-            const Variant *refp[] = { &vref };
-            Variant ret = obj->call(CoreStringNames::get_singleton()->_iter_next, refp, 1, ce);
-
-            if (ref.size() != 1 || ce.error != Callable::CallError::CALL_OK) {
-                valid = false;
-                return false;
-            }
-
-            r_iter = ref[0];
-
-            return ret.as<bool>();
-        } break;
-
-        case VariantType::STRING: {
-
-            const String *str = reinterpret_cast<const String *>(_data._mem);
-            int idx = r_iter.as<int>();
-            idx++;
-            if (idx >= str->length())
-                return false;
-            r_iter = idx;
-            return true;
-        }
-        case VariantType::DICTIONARY: {
-
-            const Dictionary *dic = reinterpret_cast<const Dictionary *>(_data._mem);
-            const Variant *next = dic->next(&r_iter);
-            if (!next)
-                return false;
-
-            r_iter = *next;
-            return true;
-
-        }
-        case VariantType::ARRAY: {
-
-            const Array *arr = reinterpret_cast<const Array *>(_data._mem);
-            int idx = r_iter.as<int>();
-            idx++;
-            if (idx >= arr->size())
-                return false;
-            r_iter = idx;
-            return true;
-        }
-        case VariantType::POOL_BYTE_ARRAY: {
-            const PoolVector<uint8_t> *arr = reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
-            int idx = r_iter.as<int>();
-            idx++;
-            if (idx >= arr->size())
-                return false;
-            r_iter = idx;
-            return true;
-
-        }
-        case VariantType::POOL_INT_ARRAY: {
-            const PoolVector<int> *arr = reinterpret_cast<const PoolVector<int> *>(_data._mem);
-            int idx = r_iter.as<int>();
-            idx++;
-            if (idx >= arr->size())
-                return false;
-            r_iter = idx;
-            return true;
-
-        }
-        case VariantType::POOL_REAL_ARRAY: {
-            const PoolVector<real_t> *arr = reinterpret_cast<const PoolVector<real_t> *>(_data._mem);
-            int idx = r_iter.as<int>();
-            idx++;
-            if (idx >= arr->size())
-                return false;
-            r_iter = idx;
-            return true;
-
-        }
-        case VariantType::POOL_STRING_ARRAY: {
-            const PoolVector<String> *arr = reinterpret_cast<const PoolVector<String> *>(_data._mem);
-            int idx = r_iter.as<int>();
-            idx++;
-            if (idx >= arr->size())
-                return false;
-            r_iter = idx;
-            return true;
-        }
-        case VariantType::POOL_VECTOR2_ARRAY: {
-
-            const PoolVector<Vector2> *arr = reinterpret_cast<const PoolVector<Vector2> *>(_data._mem);
-            int idx = r_iter.as<int>();
-            idx++;
-            if (idx >= arr->size())
-                return false;
-            r_iter = idx;
-            return true;
-        }
-        case VariantType::POOL_VECTOR3_ARRAY: {
-
-            const PoolVector<Vector3> *arr = reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
-            int idx = r_iter.as<int>();
-            idx++;
-            if (idx >= arr->size())
-                return false;
-            r_iter = idx;
-            return true;
-        }
-        case VariantType::POOL_COLOR_ARRAY: {
-
-            const PoolVector<Color> *arr = reinterpret_cast<const PoolVector<Color> *>(_data._mem);
-            int idx = r_iter.as<int>();
-            idx++;
-            if (idx >= arr->size())
-                return false;
-            r_iter = idx;
-            return true;
-        }
-        default: {
-        }
-    }
-
-    valid = false;
-    return false;
-}
-
-Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
-
-    r_valid = true;
-    switch (type) {
-        case VariantType::INT: {
-
-            return r_iter;
-        }
-        case VariantType::FLOAT: {
-
-            return r_iter;
-        }
-        case VariantType::VECTOR2: {
-
-            return r_iter;
-        }
-        case VariantType::VECTOR3: {
-
-            return r_iter;
-        }
-        case VariantType::OBJECT: {
-
-            Object *obj = _OBJ_PTR(*this);
-#ifdef DEBUG_ENABLED
-            if (unlikely(!obj)) {
-                r_valid = false;
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
-                    WARN_PRINT("Attempted iteration get next on a deleted object.");
-                }
-                return Variant();
-            }
-#endif
-            Callable::CallError ce;
-            ce.error = Callable::CallError::CALL_OK;
-            const Variant *refp[] = { &r_iter };
-            Variant ret = obj->call(CoreStringNames::get_singleton()->_iter_get, refp, 1, ce);
-
-            if (ce.error != Callable::CallError::CALL_OK) {
-                r_valid = false;
-                return Variant();
-            }
-
-            //r_iter=ref[0];
-
-            return ret;
-        } break;
-
-        case VariantType::STRING: {
-
-            const String *str = reinterpret_cast<const String *>(_data._mem);
-            return StringUtils::substr(*str,r_iter.as<int>(), 1);
-        }
-        case VariantType::DICTIONARY: {
-
-            return r_iter; //iterator is the same as the key
-
-        }
-        case VariantType::ARRAY: {
-
-            const Array *arr = reinterpret_cast<const Array *>(_data._mem);
-            int idx = r_iter.as<int>();
-#ifdef DEBUG_ENABLED
-            if (idx < 0 || idx >= arr->size()) {
-                r_valid = false;
-                return Variant();
-            }
-#endif
-            return arr->get(idx);
-        }
-        case VariantType::POOL_BYTE_ARRAY: {
-            const PoolVector<uint8_t> *arr = reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
-            int idx = r_iter.as<int>();
-#ifdef DEBUG_ENABLED
-            if (idx < 0 || idx >= arr->size()) {
-                r_valid = false;
-                return Variant();
-            }
-#endif
-            return arr->get(idx);
-        }
-        case VariantType::POOL_INT_ARRAY: {
-            const PoolVector<int> *arr = reinterpret_cast<const PoolVector<int> *>(_data._mem);
-            int idx = r_iter.as<int>();
-#ifdef DEBUG_ENABLED
-            if (idx < 0 || idx >= arr->size()) {
-                r_valid = false;
-                return Variant();
-            }
-#endif
-            return arr->get(idx);
-        }
-        case VariantType::POOL_REAL_ARRAY: {
-            const PoolVector<real_t> *arr = reinterpret_cast<const PoolVector<real_t> *>(_data._mem);
-            int idx = r_iter.as<int>();
-#ifdef DEBUG_ENABLED
-            if (idx < 0 || idx >= arr->size()) {
-                r_valid = false;
-                return Variant();
-            }
-#endif
-            return arr->get(idx);
-        }
-        case VariantType::POOL_STRING_ARRAY: {
-            const PoolVector<String> *arr = reinterpret_cast<const PoolVector<String> *>(_data._mem);
-            int idx = r_iter.as<int>();
-#ifdef DEBUG_ENABLED
-            if (idx < 0 || idx >= arr->size()) {
-                r_valid = false;
-                return Variant();
-            }
-#endif
-            return arr->get(idx);
-        }
-        case VariantType::POOL_VECTOR2_ARRAY: {
-
-            const PoolVector<Vector2> *arr = reinterpret_cast<const PoolVector<Vector2> *>(_data._mem);
-            int idx = r_iter.as<int>();
-#ifdef DEBUG_ENABLED
-            if (idx < 0 || idx >= arr->size()) {
-                r_valid = false;
-                return Variant();
-            }
-#endif
-            return arr->get(idx);
-        }
-        case VariantType::POOL_VECTOR3_ARRAY: {
-
-            const PoolVector<Vector3> *arr = reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
-            int idx = r_iter.as<int>();
-#ifdef DEBUG_ENABLED
-            if (idx < 0 || idx >= arr->size()) {
-                r_valid = false;
-                return Variant();
-            }
-#endif
-            return arr->get(idx);
-        }
-        case VariantType::POOL_COLOR_ARRAY: {
-
-            const PoolVector<Color> *arr = reinterpret_cast<const PoolVector<Color> *>(_data._mem);
-            int idx = r_iter.as<int>();
-#ifdef DEBUG_ENABLED
-            if (idx < 0 || idx >= arr->size()) {
-                r_valid = false;
-                return Variant();
-            }
-#endif
-            return arr->get(idx);
-        }
-        default: {
-        }
-    }
-
-    r_valid = false;
-    return Variant();
 }
 
 Variant Variant::duplicate(bool deep) const {

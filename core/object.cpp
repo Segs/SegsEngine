@@ -436,7 +436,9 @@ void Object::set_indexed(const Vector<StringName> &p_names, const Variant &p_val
     }
 
     bool valid = false;
-    if (!r_valid) r_valid = &valid;
+    if (!r_valid) {
+        r_valid = &valid;
+    }
 
     Vector<Variant> value_stack;
 

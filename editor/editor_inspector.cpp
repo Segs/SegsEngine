@@ -452,7 +452,7 @@ bool EditorPropertyRevert::is_node_property_different(Node *p_node, const Varian
         return !Math::is_equal_approx(a, b); //this must be done because, as some scenes save as text, there might be a tiny difference in floats due to numerical error
     }
 
-    return Variant::evaluate(Variant::OP_NOT_EQUAL, p_current, p_orig).as<bool>();
+    return !Variant::evaluate_equal(p_current, p_orig);
 }
 
 bool EditorPropertyRevert::can_property_revert(Object *p_object, const StringName &p_property) {

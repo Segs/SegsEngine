@@ -845,11 +845,10 @@ Error ProjectSettings::save_custom(StringView p_path, const CustomMap &p_custom,
 
 Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_restart_if_changed) {
     auto ps = ProjectSettings::get_singleton();
-    Variant ret;
     if (!ps->has_setting(p_var)) {
         ps->set(p_var, p_default);
     }
-    ret = ps->get(p_var);
+    Variant ret = ps->get(p_var);
 
     ps->set_initial_value(p_var, p_default);
     ps->set_builtin_order(p_var);

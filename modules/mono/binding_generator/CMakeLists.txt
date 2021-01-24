@@ -62,3 +62,19 @@ if(WIN32 AND NOT(CMAKE_GENERATOR MATCHES "Visual Studio"))
         COMMAND cmake -E copy ${Qt5_BIN_DIR}/Qt5Cored.dll ${OUTPUT_DIR}
         COMMAND cmake -E copy ${Qt5_BIN_DIR}/Qt5Core.dll ${OUTPUT_DIR})
 endif()
+if(WIN32)
+    install(TARGETS bindings_generator EXPORT SegsEngine
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION bin
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION include
+    )
+else()
+    install(TARGETS bindings_generator EXPORT SegsEngine
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION bin
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION include
+    )
+endif()
+
