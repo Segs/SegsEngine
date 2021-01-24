@@ -154,9 +154,10 @@ bool JoypadWindows::setup_dinput_joypad(const DIDEVICEINSTANCE *instance) {
 
     const DWORD devtype = (instance->dwDevType & 0xFF);
 
-    if ((devtype != DI8DEVTYPE_JOYSTICK) && (devtype != DI8DEVTYPE_GAMEPAD) && (devtype != DI8DEVTYPE_1STPERSON)) {
+    if ((devtype != DI8DEVTYPE_JOYSTICK) && (devtype != DI8DEVTYPE_GAMEPAD) && (devtype != DI8DEVTYPE_1STPERSON) && (devtype != DI8DEVTYPE_DRIVING)) {
         return false;
     }
+
 
     HRESULT hr = dinput->CreateDevice(instance->guidInstance, &joy->di_joy, nullptr);
 
@@ -195,7 +196,7 @@ void JoypadWindows::setup_joypad_object(const DIDEVICEOBJECTINSTANCE *ob, int p_
 
     DIPROPRANGE prop_range;
     DIPROPDWORD dilong;
-    DWORD ofs;
+    LONG ofs;
     if (ob->guidType == GUID_XAxis)
         ofs = DIJOFS_X;
     else if (ob->guidType == GUID_YAxis)
@@ -411,7 +412,7 @@ void JoypadWindows::process_joypads() {
 
         // on mingw, these constants are not constants
         int count = 6;
-        unsigned int axes[] = { DIJOFS_X, DIJOFS_Y, DIJOFS_Z, DIJOFS_RX, DIJOFS_RY, DIJOFS_RZ };
+        LONG axes[] = { DIJOFS_X, DIJOFS_Y, DIJOFS_Z, DIJOFS_RX, DIJOFS_RY, DIJOFS_RZ };
         int values[] = { js.lX, js.lY, js.lZ, js.lRx, js.lRy, js.lRz };
 
         for (int j = 0; j < joy->joy_axis.size(); j++) {

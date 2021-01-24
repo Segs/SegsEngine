@@ -1529,7 +1529,7 @@ String Variant::stringify(Vector<const void *> &stack) const {
             }
 #ifdef DEBUG_ENABLED
             if (ScriptDebugger::get_singleton() && _get_obj().rc &&
-                    !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                    !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
                 return "[Deleted Object]";
             }
 #endif
@@ -1653,7 +1653,7 @@ Variant::operator RID() const {
 #endif
     if (unlikely(!obj)) {
 #ifdef DEBUG_ENABLED
-        if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+        if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
             WARN_PRINT("Attempted get RID on a deleted object.");
         }
 #endif
@@ -2116,16 +2116,23 @@ Variant::Variant(const RID &p_rid) {
 
 Variant::Variant(const Object *p_object) {
     type = VariantType::OBJECT;
-#if DEBUG_VARIANT_OBJECT_CONSTRUCTOR
-    assert(!p_object || !ObjectNS::cast_to<RefCounted>(p_object));
-#endif
+    Object *obj = const_cast<Object *>(p_object);
+
     memnew_placement(_data._mem, ObjData);
+    RefCounted *ref = object_cast<RefCounted>(obj);
+    if (unlikely(ref)) {
+        *reinterpret_cast<Ref<RefCounted> *>(_get_obj().ref.get()) = Ref<RefCounted>(ref);
 #ifdef DEBUG_ENABLED
-    _get_obj().rc = p_object ? const_cast<Object *>(p_object)->_use_rc() : nullptr;
-#else
-    _get_obj().obj = const_cast<Object *>(p_object);
+        _get_obj().rc = nullptr;
+    } else {
+        _get_obj().rc = likely(obj) ? obj->_use_rc() : nullptr;
+#endif
+    }
+#if !defined(DEBUG_ENABLED)
+    _get_obj().obj = obj;
 #endif
 }
+
 
 Variant::Variant(const Callable &p_callable) {
     type = VariantType::CALLABLE;
@@ -3011,11 +3018,6 @@ bool Variant::is_shared() const {
     }
 
     return false;
-}
-
-void Variant::construct_from_string(
-        const UIString &p_string, Variant &r_value, ObjectConstruct p_obj_construct, void *p_construct_ud) {
-    r_value = Variant();
 }
 
 String Variant::get_construct_string() const {

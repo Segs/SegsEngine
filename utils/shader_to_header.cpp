@@ -41,14 +41,17 @@ bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruc
 {
     QTextStream text_input;
     QFile fs(filename);
-    if(!fs.open(QFile::ReadOnly))
+    if(!fs.open(QFile::ReadOnly)) {
         return false;
+    }
     text_input.setDevice(&fs);
     QString line;
     while(text_input.readLineInto(&line))
     {
-        if(line.startsWith("//")) // discard comment lines?
+        if(line.startsWith("//")) {
+            // discard comment lines?
             line.clear();
+        }
 
         if (line.contains("[vertex]"))
         {
@@ -75,14 +78,16 @@ bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruc
             if (not header_data.vertex_included_files.contains(included_file) and header_data.reading == "vertex")
             {
                 header_data.vertex_included_files.insert(included_file);
-                if(!include_file_in_legacygl_header(included_file, header_data, depth + 1))
+                if(!include_file_in_legacygl_header(included_file, header_data, depth + 1)) {
                     qCritical() << QString("Error in file '%1': #include %2 could not be found!").arg(filename,includeline);
+                }
             }
             else if (not header_data.fragment_included_files.contains(included_file) and header_data.reading == "fragment")
             {
                 header_data.fragment_included_files.insert(included_file);
-                if(!include_file_in_legacygl_header(included_file, header_data, depth + 1))
+                if(!include_file_in_legacygl_header(included_file, header_data, depth + 1)) {
                     qCritical() << QString("Error in file '%1': #include %2 could not be found!").arg(filename,includeline);
+                }
             }
             text_input.readLineInto(&line);
         }
@@ -105,22 +110,26 @@ bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruc
                 QString enumbase = ifdefline.mid(0,ifdefline.indexOf("_EN_"));
                 ifdefline = ifdefline.replace("_EN_", "_");
                 line = line.replace("_EN_", "_");
-                if( !header_data.enums[enumbase].contains(ifdefline))
+                if( !header_data.enums[enumbase].contains(ifdefline)) {
                     header_data.enums[enumbase].push_back(ifdefline);
+                }
             }
             else
-                if(!header_data.conditionals.contains(ifdefline))
+                if(!header_data.conditionals.contains(ifdefline)) {
                     header_data.conditionals.push_back(ifdefline);
+                }
         }
         if (line.contains("uniform") && line.contains("texunit:",Qt::CaseInsensitive))
         {
             // texture unit
             QString texunitstr = line.mid(line.indexOf(":") + 1).trimmed();
             QString texunit;
-            if (texunitstr == "auto")
+            if (texunitstr == "auto") {
                 texunit = "-1";
-            else
+            }
+            else {
                 texunit = QString::number(texunitstr.toInt());
+            }
             QString uline;
             uline = line.mid(0,line.toLower().indexOf("//"));
             uline.replace("uniform", "");
@@ -131,9 +140,10 @@ bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruc
             {
                 x = x.trimmed();
                 x = x.mid(x.lastIndexOf(" ") + 1);
-                if (x.indexOf("[") != -1)
+                if (x.indexOf("[") != -1) {
                     // uniform array
                     x = x.mid(0,x.indexOf("["));
+                }
 
                 if (not header_data.texunit_names.contains(x))
                 {
@@ -185,8 +195,9 @@ bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruc
                     x = x.mid(0,x.indexOf("["));
                 }
 
-                if (not header_data.uniforms.contains(x))
+                if (not header_data.uniforms.contains(x)) {
                     header_data.uniforms.push_back(x);
+                }
             }
         }
         if (line.trimmed().startsWith("attribute ") and line.indexOf("attrib:") != -1)
@@ -220,17 +231,20 @@ bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruc
                 QStringList name_bind = uline.split("//");
                 QString name = name_bind[0];
                 QString bind = name_bind[1];
-                if (bind.indexOf("tfb:") != -1)
+                if (bind.contains("tfb:")) {
                     header_data.feedbacks.push_back(QPair<QString,QString>(name.trimmed(),bind.replace("tfb:", "").trimmed()));
+                }
             }
         }
         line.replace("\r", "");
         line.replace("\n", "");
 
-        if (header_data.reading == "vertex")
+        if (header_data.reading == "vertex") {
             header_data.vertex_lines.push_back(line);
-        if (header_data.reading == "fragment")
+        }
+        if (header_data.reading == "fragment") {
             header_data.fragment_lines.push_back(line);
+        }
         header_data.line_offset += 1;
     }
     fs.close();
@@ -251,7 +265,6 @@ static QString capitalized(const QString &inp)
 }
 void build_legacygl_header(const QString &filename, const char *include, bool output_attribs)
 {
-    const char *class_suffix = "GLES3";
     LegacyGLHeaderStruct header_data;
     include_file_in_legacygl_header(filename, header_data, 0);
 
@@ -293,8 +306,9 @@ void build_legacygl_header(const QString &filename, const char *include, bool ou
     }
 
     fd << "\tint get_uniform(Uniforms p_uniform) const { return _get_uniform(p_uniform); }\n\n";
-    if (!header_data.conditionals.isEmpty())
+    if (!header_data.conditionals.isEmpty()) {
         fd << "\tvoid set_conditional(Conditionals p_conditional,bool p_enable)  {  _set_conditional(p_conditional,p_enable); }\n\n";
+    }
     fd << R"raw(
     #ifdef DEBUG_ENABLED
     #define _FU if (get_uniform(p_uniform)<0) return; if (!is_version_valid()) return; ERR_FAIL_COND( get_active()!=this );
@@ -302,33 +316,19 @@ void build_legacygl_header(const QString &filename, const char *include, bool ou
     #define _FU if (get_uniform(p_uniform)<0) return;
     #endif
     void set_uniform(Uniforms p_uniform, float p_value) { _FU glUniform1f(get_uniform(p_uniform),p_value); }
-
     void set_uniform(Uniforms p_uniform, double p_value) { _FU glUniform1f(get_uniform(p_uniform),p_value); }
-
     void set_uniform(Uniforms p_uniform, uint8_t p_value) { _FU glUniform1i(get_uniform(p_uniform),p_value); }
-
     void set_uniform(Uniforms p_uniform, int8_t p_value) { _FU glUniform1i(get_uniform(p_uniform),p_value); }
-
     void set_uniform(Uniforms p_uniform, uint16_t p_value) { _FU glUniform1i(get_uniform(p_uniform),p_value); }
-
     void set_uniform(Uniforms p_uniform, int16_t p_value) { _FU glUniform1i(get_uniform(p_uniform),p_value); }
-
     void set_uniform(Uniforms p_uniform, uint32_t p_value) { _FU glUniform1i(get_uniform(p_uniform),p_value); }
-
     void set_uniform(Uniforms p_uniform, int32_t p_value) { _FU glUniform1i(get_uniform(p_uniform),p_value); }
-
     void set_uniform(Uniforms p_uniform, const Color& p_color) { _FU GLfloat col[4]={p_color.r,p_color.g,p_color.b,p_color.a}; glUniform4fv(get_uniform(p_uniform),1,col); }
-
-    void set_uniform(Uniforms p_uniform, const Vector2& p_vec2) { _FU GLfloat vec2[2]={p_vec2.x,p_vec2.y}; glUniform2fv(get_uniform(p_uniform),1,vec2); }
-
-    void set_uniform(Uniforms p_uniform, const Size2i& p_vec2) { _FU GLint vec2[2]={p_vec2.x,p_vec2.y}; glUniform2iv(get_uniform(p_uniform),1,vec2); }
-
-    void set_uniform(Uniforms p_uniform, const Vector3& p_vec3) { _FU GLfloat vec3[3]={p_vec3.x,p_vec3.y,p_vec3.z}; glUniform3fv(get_uniform(p_uniform),1,vec3); }
-
+    void set_uniform(Uniforms p_uniform, Vector2 p_vec2) { _FU GLfloat vec2[2]={p_vec2.x,p_vec2.y}; glUniform2fv(get_uniform(p_uniform),1,vec2); }
+    void set_uniform(Uniforms p_uniform, Size2i p_vec2) { _FU GLint vec2[2]={p_vec2.x,p_vec2.y}; glUniform2iv(get_uniform(p_uniform),1,vec2); }
+    void set_uniform(Uniforms p_uniform, Vector3 p_vec3) { _FU GLfloat vec3[3]={p_vec3.x,p_vec3.y,p_vec3.z}; glUniform3fv(get_uniform(p_uniform),1,vec3); }
     void set_uniform(Uniforms p_uniform, float p_a, float p_b) { _FU glUniform2f(get_uniform(p_uniform),p_a,p_b); }
-
     void set_uniform(Uniforms p_uniform, float p_a, float p_b, float p_c) { _FU glUniform3f(get_uniform(p_uniform),p_a,p_b,p_c); }
-
     void set_uniform(Uniforms p_uniform, float p_a, float p_b, float p_c, float p_d) { _FU glUniform4f(get_uniform(p_uniform),p_a,p_b,p_c,p_d); }
 
     )raw";

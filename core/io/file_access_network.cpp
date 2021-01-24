@@ -264,7 +264,7 @@ Error FileAccessNetworkClient::connect(const String &p_host, int p_port, const S
         return ERR_INVALID_PARAMETER;
     }
 
-    thread = Thread::create(_thread_func, this);
+    thread.start(_thread_func, this);
 
     return OK;
 }
@@ -273,7 +273,6 @@ FileAccessNetworkClient *FileAccessNetworkClient::singleton = nullptr;
 
 FileAccessNetworkClient::FileAccessNetworkClient() {
     m_priv = memnew(FileAccessNetworkClient_priv);
-    thread = nullptr;
     quit = false;
     singleton = this;
     last_id = 0;
@@ -282,12 +281,9 @@ FileAccessNetworkClient::FileAccessNetworkClient() {
 
 FileAccessNetworkClient::~FileAccessNetworkClient() {
 
-    if (thread) {
-        quit = true;
-        sem.post();
-        Thread::wait_to_finish(thread);
-        memdelete(thread);
-    }
+    quit = true;
+    sem.post();
+    thread.wait_to_finish();
     memdelete((FileAccessNetworkClient_priv *)m_priv);
 }
 void FileAccessNetworkClient::add_block_request(int id,int page_size,int page_offset) {

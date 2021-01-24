@@ -188,7 +188,7 @@ void VideoStreamPlaybackTheora::set_file(const String &p_file) {
     int read = file->get_buffer(read_buffer.ptr(), to_read);
     ring_buffer.write(read_buffer.ptr(), read);
 
-    thread = Thread::create(_streaming_thread, this);
+    thread.start(_streaming_thread, this);
 
 #endif
 
@@ -719,8 +719,8 @@ VideoStreamPlaybackTheora::~VideoStreamPlaybackTheora() {
 
 void VideoStreamTheora::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_file", {"file"}), &VideoStreamTheora::set_file);
-    ClassDB::bind_method(D_METHOD("get_file"), &VideoStreamTheora::get_file);
+    MethodBinder::bind_method(D_METHOD("set_file", {"file"}), &VideoStreamTheora::set_file);
+    MethodBinder::bind_method(D_METHOD("get_file"), &VideoStreamTheora::get_file);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "file", PropertyType::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_file", "get_file");
 }

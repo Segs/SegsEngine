@@ -33,6 +33,8 @@
 #include "core/callable_method_pointer.h"
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
+#include "core/os/input.h"
+#include "core/os/keyboard.h"
 #include "core/project_settings.h"
 #include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
@@ -45,6 +47,7 @@
 #include "scene/gui/item_list.h"
 #include "scene/gui/spin_box.h"
 #include "scene/resources/style_box.h"
+
 
 IMPL_GDCLASS(SpriteFramesEditor)
 IMPL_GDCLASS(SpriteFramesEditorPlugin)
@@ -856,12 +859,15 @@ void SpriteFramesEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
             }
         }
     }
-
-    if (type == "files") {
+    else if (type == "files") {
 
         PoolVector<String> files(d["files"].as<PoolVector<String>>());
 
-        _file_load_request(files, at_pos);
+        if (Input::get_singleton()->is_key_pressed(KEY_CONTROL)) {
+            _prepare_sprite_sheet(files[0]);
+        } else {
+            _file_load_request(files, at_pos);
+        }
     }
 }
 void SpriteFramesEditor::_bind_methods() {

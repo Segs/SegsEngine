@@ -36,6 +36,7 @@
 #include "core/math/vector2.h"
 #include "core/math/vector3.h"
 #include "core/math/basis.h"
+#include "core/node_path.h"
 #include "core/color.h"
 #include "core/math/quat.h"
 #include "core/math/transform.h"
@@ -311,7 +312,7 @@ Variant Tween::_get_initial_val(const InterpolateData &p_data) const {
         case TARGETING_PROPERTY:
         case TARGETING_METHOD: {
             // Get the object that is being targeted
-            Object *object = gObjectDB().get_instance(p_data.target_id);
+            Object *object = ObjectDB::get_instance(p_data.target_id);
             ERR_FAIL_COND_V(object == nullptr, p_data.initial_val);
 
             // Are we targeting a property or a method?
@@ -343,7 +344,7 @@ Variant Tween::_get_final_val(const InterpolateData &p_data) const {
         case FOLLOW_PROPERTY:
         case FOLLOW_METHOD: {
             // Get the object that is being followed
-            Object *target = gObjectDB().get_instance(p_data.target_id);
+            Object *target = ObjectDB::get_instance(p_data.target_id);
             ERR_FAIL_COND_V(target == NULL, p_data.initial_val);
 
             // We want to figure out the final value
@@ -384,7 +385,7 @@ const Variant &Tween::_get_delta_val(InterpolateData &p_data) {
         case FOLLOW_PROPERTY:
         case FOLLOW_METHOD: {
             // We're following an object, so grab that instance
-            Object *target = gObjectDB().get_instance(p_data.target_id);
+            Object *target = ObjectDB::get_instance(p_data.target_id);
             ERR_FAIL_COND_V(target == nullptr, p_data.initial_val);
 
             // We want to figure out the final value
@@ -616,7 +617,7 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
 bool Tween::_apply_tween_value(InterpolateData &p_data, Variant &value) {
 
     // Get the object we want to apply the new value to
-    Object *object = gObjectDB().get_instance(p_data.id);
+    Object *object = ObjectDB::get_instance(p_data.id);
     ERR_FAIL_COND_V(object == nullptr, false);
 
     // What kind of data are we mutating?
@@ -704,7 +705,7 @@ void Tween::_tween_process(float p_delta) {
             continue;
 
         // Get the target object for this interpolation
-        Object *object = gObjectDB().get_instance(data.id);
+        Object *object = ObjectDB::get_instance(data.id);
         if (object == nullptr)
             continue;
 
@@ -862,7 +863,7 @@ bool Tween::reset(Object *p_object, const StringName& p_key) {
     pending_update++;
     for (InterpolateData &data : interpolates) {
         // Get the target object
-        Object *object = gObjectDB().get_instance(data.id);
+        Object *object = ObjectDB::get_instance(data.id);
         if (object == nullptr)
             continue;
 
@@ -903,7 +904,7 @@ bool Tween::stop(Object *p_object, const StringName& p_key) {
     for (InterpolateData &data : interpolates) {
 
         // Get the object the tween is targeting
-        Object *object = gObjectDB().get_instance(data.id);
+        Object *object = ObjectDB::get_instance(data.id);
         if (object == nullptr)
             continue;
 
@@ -939,7 +940,7 @@ bool Tween::resume(Object *p_object, const StringName& p_key) {
     pending_update++;
     for (InterpolateData &data : interpolates) {
         // Grab the object
-        Object *object = gObjectDB().get_instance(data.id);
+        Object *object = ObjectDB::get_instance(data.id);
         if (object == nullptr)
             continue;
 
@@ -978,7 +979,7 @@ bool Tween::remove(Object *p_object, const StringName& p_key) {
     for (List<InterpolateData>::iterator E = interpolates.begin(); E!=interpolates.end(); ++E) {
         // Get the target object
         InterpolateData &data = *E;
-        Object *object = gObjectDB().get_instance(data.id);
+        Object *object = ObjectDB::get_instance(data.id);
         if (object == nullptr)
             continue;
 
@@ -1264,7 +1265,7 @@ bool Tween::_build_interpolation(InterpolateType p_interpolation_type, Object *p
 
     // Give it the object
     ERR_FAIL_COND_V_MSG(p_object == nullptr, false, "Invalid object provided to Tween.");
-    ERR_FAIL_COND_V_MSG(!gObjectDB().instance_validate(p_object), false, "Invalid object provided to Tween.");
+    ERR_FAIL_COND_V_MSG(!ObjectDB::instance_validate(p_object), false, "Invalid object provided to Tween.");
     data.id = p_object->get_instance_id();
 
     // Validate the initial and final values
@@ -1367,7 +1368,7 @@ bool Tween::interpolate_callback(Object *p_object, real_t p_duration, const Stri
 
     // Check that the target object is valid
     ERR_FAIL_COND_V(p_object == nullptr, false);
-    ERR_FAIL_COND_V(!gObjectDB().instance_validate(p_object), false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false);
 
     // Duration cannot be negative
     ERR_FAIL_COND_V(p_duration < 0, false);
@@ -1426,7 +1427,7 @@ bool Tween::interpolate_deferred_callback(Object *p_object, real_t p_duration, c
 
     // Check that the target object is valid
     ERR_FAIL_COND_V(p_object == nullptr, false);
-    ERR_FAIL_COND_V(!gObjectDB().instance_validate(p_object), false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false);
 
     // No negative durations allowed
     ERR_FAIL_COND_V(p_duration < 0, false);
@@ -1496,9 +1497,9 @@ bool Tween::follow_property(Object *p_object, NodePath p_property, Variant p_ini
 
     // Confirm the source and target objects are valid
     ERR_FAIL_COND_V(p_object == nullptr, false);
-    ERR_FAIL_COND_V(!gObjectDB().instance_validate(p_object), false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false);
     ERR_FAIL_COND_V(p_target == nullptr, false);
-    ERR_FAIL_COND_V(!gObjectDB().instance_validate(p_target), false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_target), false);
 
     // No negative durations
     ERR_FAIL_COND_V(p_duration < 0, false);
@@ -1560,9 +1561,9 @@ bool Tween::follow_method(Object *p_object, const StringName& p_method, Variant 
 
     // Verify the source and target objects are valid
     ERR_FAIL_COND_V(p_object == nullptr, false);
-    ERR_FAIL_COND_V(!gObjectDB().instance_validate(p_object), false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false);
     ERR_FAIL_COND_V(p_target == nullptr, false);
-    ERR_FAIL_COND_V(!gObjectDB().instance_validate(p_target), false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_target), false);
 
     // No negative durations
     ERR_FAIL_COND_V(p_duration < 0, false);
@@ -1626,9 +1627,9 @@ bool Tween::targeting_property(Object *p_object, NodePath p_property, Object *p_
 
     // Verify both objects are valid
     ERR_FAIL_COND_V(p_object == nullptr, false);
-    ERR_FAIL_COND_V(!gObjectDB().instance_validate(p_object), false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false);
     ERR_FAIL_COND_V(p_initial == nullptr, false);
-    ERR_FAIL_COND_V(!gObjectDB().instance_validate(p_initial), false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_initial), false);
 
     // No negative durations
     ERR_FAIL_COND_V(p_duration < 0, false);
@@ -1694,9 +1695,9 @@ bool Tween::targeting_method(Object *p_object, const StringName& p_method, Objec
 
     // Make sure the given objects are valid
     ERR_FAIL_COND_V(p_object == nullptr, false);
-    ERR_FAIL_COND_V(!gObjectDB().instance_validate(p_object), false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false);
     ERR_FAIL_COND_V(p_initial == nullptr, false);
-    ERR_FAIL_COND_V(!gObjectDB().instance_validate(p_initial), false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_initial), false);
 
     // No negative durations
     ERR_FAIL_COND_V(p_duration < 0, false);

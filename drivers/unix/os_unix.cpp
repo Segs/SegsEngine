@@ -33,14 +33,12 @@
 #ifdef UNIX_ENABLED
 
 #include "core/debugger/script_debugger.h"
-#include "core/os/thread_dummy.h"
 #include "core/project_settings.h"
 #include "core/script_language.h"
 #include "core/string_utils.inl"
 #include "drivers/unix/dir_access_unix.h"
 #include "drivers/unix/file_access_unix.h"
 #include "drivers/unix/net_socket_posix.h"
-#include "drivers/unix/rw_lock_posix.h"
 
 #include "drivers/unix/thread_posix.h"
 #include "servers/rendering_server.h"
@@ -52,7 +50,7 @@
 #include <mach/mach_time.h>
 #endif
 
-#if defined(__FreeBSD__) || defined(__OpenBSD__)
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
 #include <sys/param.h>
 #include <sys/sysctl.h>
 #endif
@@ -124,13 +122,11 @@ int OS_Unix::unix_initialize_audio(int p_audio_driver) {
 
 void OS_Unix::initialize_core() {
 
-    ThreadPosix::make_default();
-    RWLockPosix::make_default();
+    init_thread_posix();
 
     FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_RESOURCES);
     FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_USERDATA);
     FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_FILESYSTEM);
-    //FileAccessBufferedFA<FileAccessUnix>::make_default();
     DirAccess::make_default<DirAccessUnix>(DirAccess::ACCESS_RESOURCES);
     DirAccess::make_default<DirAccessUnix>(DirAccess::ACCESS_USERDATA);
     DirAccess::make_default<DirAccessUnix>(DirAccess::ACCESS_FILESYSTEM);
@@ -149,8 +145,7 @@ void OS_Unix::finalize_core() {
 }
 
 void OS_Unix::alert(StringView p_alert, StringView p_title) {
-
-    fprintf(stderr, "ERROR: [%.*s] %.*s\n", int(p_title.length()),p_title.data(),int(p_alert.length()),p_alert.data());
+    fprintf(stderr, "ALERT: %.*s: %.*s\n", int(p_title.length()),p_title.data(),int(p_alert.length()),p_alert.data());
 }
 
 String OS_Unix::get_stdin_string(bool p_block) {
@@ -353,7 +348,7 @@ Error OS_Unix::execute(StringView p_path, const Vector<String> &p_arguments, boo
         int status;
         waitpid(pid, &status, 0);
         if (r_exitcode)
-            *r_exitcode = WEXITSTATUS(status);
+            *r_exitcode = WIFEXITED(status) ? WEXITSTATUS(status) : status;
 
     } else {
 

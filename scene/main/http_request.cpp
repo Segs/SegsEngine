@@ -32,6 +32,7 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/os/os.h"
+#include "core/os/thread.h"
 #include "core/method_bind.h"
 #include "core/os/thread.h"
 #include "core/pool_vector.h"
@@ -60,7 +61,7 @@ struct HTTPRequestData
     String download_to_file;
     Ref<HTTPClient> client;
     FileAccess *file;
-    Thread *thread;
+    Thread thread;
     std::atomic<int> downloaded;
     int port;
     int response_code;
@@ -80,8 +81,6 @@ struct HTTPRequestData
     bool got_response;
 };
 void initialize(HTTPRequestData &d) {
-    d.thread = nullptr;
-
     d.port = 80;
     d.redirections = 0;
     d.max_redirects = 8;
@@ -425,7 +424,7 @@ Error HTTPRequest::request(StringView p_url, const Vector<String> &p_custom_head
         IMPLD()->thread_done = false;
         IMPLD()->thread_request_quit = false;
         IMPLD()->client->set_blocking_mode(true);
-        IMPLD()->thread = Thread::create(_thread_func, this);
+        IMPLD()->thread.start(_thread_func, this);
     } else {
         IMPLD()->client->set_blocking_mode(false);
         err = _request(*IMPLD());
@@ -453,9 +452,7 @@ void HTTPRequest::cancel_request() {
         set_process_internal(false);
     } else {
         IMPLD()->thread_request_quit = true;
-        Thread::wait_to_finish(IMPLD()->thread);
-        memdelete(IMPLD()->thread);
-        IMPLD()->thread = nullptr;
+        IMPLD()->thread.wait_to_finish();
     }
 
     memdelete(IMPLD()->file);

@@ -175,7 +175,7 @@ Vector<Face3> Light3D::get_faces(uint32_t p_usage_flags) const {
 
 void Light3D::set_bake_mode(BakeMode p_mode) {
     bake_mode = p_mode;
-    RenderingServer::get_singleton()->light_set_use_gi(light, p_mode != BAKE_DISABLED);
+    RenderingServer::get_singleton()->light_set_bake_mode(light, RS::LightBakeMode(bake_mode));
 }
 
 void Light3D::_update_visibility() {

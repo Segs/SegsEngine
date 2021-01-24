@@ -78,13 +78,13 @@ static Vector<_GlobalConstant> _global_constants;
     _global_constants.emplace_back(__constant_get_enum_name(m_constant, #m_constant), m_custom_name, int(m_constant));
 
 #define BIND_GLOBAL_CONSTANT_NO_VAL(m_constant) \
-	_global_constants.push_back(_GlobalConstant(StringName(), #m_constant, m_constant, true));
+    _global_constants.push_back(_GlobalConstant(StringName(), #m_constant, m_constant, true));
 
 #define BIND_GLOBAL_ENUM_CONSTANT_NO_VAL(m_constant) \
-	_global_constants.push_back(_GlobalConstant(__constant_get_enum_name(m_constant, #m_constant), #m_constant, m_constant, true));
+    _global_constants.push_back(_GlobalConstant(__constant_get_enum_name(m_constant, #m_constant), #m_constant, m_constant, true));
 
 #define BIND_GLOBAL_ENUM_CONSTANT_CUSTOM_NO_VAL(m_custom_name, m_constant) \
-	_global_constants.push_back(_GlobalConstant(__constant_get_enum_name(m_constant, #m_constant), m_custom_name, m_constant, true));
+    _global_constants.push_back(_GlobalConstant(__constant_get_enum_name(m_constant, #m_constant), m_custom_name, m_constant, true));
 
 
 #else
@@ -104,13 +104,13 @@ static Vector<_GlobalConstant> _global_constants;
     _global_constants.emplace_back(#m_constant, int(m_class::m_constant));
 
 #define BIND_GLOBAL_CONSTANT_NO_VAL(m_constant) \
-	_global_constants.push_back(_GlobalConstant(#m_constant, m_constant));
+    _global_constants.push_back(_GlobalConstant(#m_constant, m_constant));
 
 #define BIND_GLOBAL_ENUM_CONSTANT_NO_VAL(m_constant) \
-	_global_constants.push_back(_GlobalConstant(#m_constant, m_constant));
+    _global_constants.push_back(_GlobalConstant(#m_constant, m_constant));
 
 #define BIND_GLOBAL_ENUM_CONSTANT_CUSTOM_NO_VAL(m_custom_name, m_constant) \
-	_global_constants.push_back(_GlobalConstant(m_custom_name, m_constant));
+    _global_constants.push_back(_GlobalConstant(m_custom_name, m_constant));
 #endif
 
 VARIANT_ENUM_CAST(KeyList);
@@ -649,9 +649,7 @@ void register_global_constants() {
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_EQUAL", Variant::OP_EQUAL)
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_NOT_EQUAL", Variant::OP_NOT_EQUAL)
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_LESS", Variant::OP_LESS)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_LESS_EQUAL", Variant::OP_LESS_EQUAL)
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_GREATER", Variant::OP_GREATER)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_GREATER_EQUAL", Variant::OP_GREATER_EQUAL)
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_MAX", Variant::OP_MAX)
 }
 

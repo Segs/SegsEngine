@@ -720,15 +720,18 @@ void EditorNode::_fs_changed() {
             export_error = FormatVE("Invalid export preset name: %s.", preset_name.c_str());
         } else {
             Ref<EditorExportPlatform> platform = preset->get_platform();
-            if (!platform) {
+            const String export_path = export_defer.path.empty() ? preset->get_export_path() : export_defer.path;
+            if (export_path.empty()) {
+                export_error = FormatVE("Export preset '%s' doesn't have a default export path, and none was specified.", preset_name.c_str());
+            } else if (!platform) {
                 export_error = FormatVE("Export preset '%s' doesn't have a matching platform.", preset_name.c_str());
             } else {
                 Error err = OK;
                 if (export_defer.pack_only) { // Only export .pck or .zip data pack.
-                    if (export_defer.path.ends_with(".zip")) {
-                        err = platform->export_zip(preset, export_defer.debug, export_defer.path);
-                    } else if (export_defer.path.ends_with(".pck")) {
-                        err = platform->export_pack(preset, export_defer.debug, export_defer.path);
+                    if (export_path.ends_with(".zip")) {
+                        err = platform->export_zip(preset, export_defer.debug, export_path);
+                    } else if (export_path.ends_with(".pck")) {
+                        err = platform->export_pack(preset, export_defer.debug, export_path);
                     }
                 } else { // Normal project export.
                     String config_error;
@@ -737,7 +740,7 @@ void EditorNode::_fs_changed() {
                         ERR_PRINT(FormatVE("Cannot export project with preset '%s' due to configuration errors:\n%s", preset_name.c_str(), config_error.c_str()));
                         err = missing_templates ? ERR_FILE_NOT_FOUND : ERR_UNCONFIGURED;
                     } else {
-                        err = platform->export_project(preset, export_defer.debug, export_defer.path);
+                        err = platform->export_project(preset, export_defer.debug, export_path);
                     }
                 }
                 switch (err) {
@@ -747,7 +750,7 @@ void EditorNode::_fs_changed() {
                         export_error = FormatVE("Project export failed for preset '%s', the export template appears to be missing.", preset_name.c_str());
                         break;
                     case ERR_FILE_BAD_PATH:
-                        export_error = FormatVE("Project export failed for preset '%s', the target path '%s' appears to be invalid.", preset_name.c_str(), export_defer.path.c_str());
+                        export_error = FormatVE("Project export failed for preset '%s', the target path '%s' appears to be invalid.", preset_name.c_str(), export_path.c_str());
                         break;
                     default:
                         export_error = FormatVE("Project export failed with error code %d for preset '%s'.", (int)err, preset_name.c_str());
@@ -1668,7 +1671,7 @@ void EditorNode::_dialog_action(StringView p_file) {
             save_resource_in_path(saving_resource, p_file);
             saving_resource = Ref<Resource>();
             ObjectID current = editor_history.get_current();
-            Object *current_obj = current.is_valid() ? gObjectDB().get_instance(current) : nullptr;
+            Object *current_obj = current.is_valid() ? ObjectDB::get_instance(current) : nullptr;
             ERR_FAIL_COND(!current_obj);
             Object_change_notify(current_obj);
         } break;
@@ -1682,7 +1685,7 @@ void EditorNode::_dialog_action(StringView p_file) {
             if (err == ERR_FILE_CANT_OPEN || err == ERR_FILE_NOT_FOUND) {
                 config = make_ref_counted<ConfigFile>(); // new config
             } else if (err != OK) {
-                show_warning(TTR("Error trying to save layout!"));
+                show_warning(TTR("An error occurred while trying to save the editor layout.\nMake sure the editor's user data path is writable."));
                 return;
             }
 
@@ -1694,7 +1697,7 @@ void EditorNode::_dialog_action(StringView p_file) {
             _update_layouts_menu();
 
             if (p_file == StringView("Default")) {
-                show_warning(TTR("Default editor layout overridden."));
+                show_warning(TTR("Default editor layout overridden.\nTo restore the Default layout to its base settings, use the Delete Layout option and delete the Default layout."));
             }
 
         } break;
@@ -1722,7 +1725,7 @@ void EditorNode::_dialog_action(StringView p_file) {
             _update_layouts_menu();
 
             if (p_file == StringView("Default")) {
-                show_warning(TTR("Restored default layout to base settings."));
+                show_warning(TTR("Restored the Default layout to its base settings."));
             }
 
         } break;
@@ -1871,7 +1874,7 @@ static bool overrides_external_editor(Object *p_object) {
 void EditorNode::_edit_current() {
 
     ObjectID current = editor_history.get_current();
-    Object *current_obj = current.is_valid() ? gObjectDB().get_instance(current) : nullptr;
+    Object *current_obj = current.is_valid() ? ObjectDB::get_instance(current) : nullptr;
     bool inspector_only = editor_history.is_current_inspector_only();
 
     this->current = current_obj;
@@ -2108,7 +2111,10 @@ void EditorNode::_run(bool p_current, StringView p_custom) {
 
         if (scene->get_filename().empty()) {
             current_option = -1;
-            _menu_option_confirm(FILE_SAVE_BEFORE_RUN, false);
+            _menu_option(FILE_SAVE_AS_SCENE);
+            // Set the option to save and run so when the dialog is accepted, the scene runs.
+            current_option = FILE_SAVE_AND_RUN;
+            file->set_title(TTR("Save scene before running..."));
             return;
         }
 
@@ -2332,12 +2338,14 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
             }
 
             if (!scene->get_filename().empty()) {
-                file->set_current_path(scene->get_filename());
+                StringView path = scene->get_filename();
+                file->set_current_path(path);
+
                 if (!extensions.empty()) {
-                    String ext = StringUtils::to_lower(PathUtils::get_extension(scene->get_filename()));
+                    String ext = StringUtils::to_lower(PathUtils::get_extension(path));
                     if (not extensions.contains(ext)) {
                         file->set_current_path(
-                                StringUtils::replacen(scene->get_filename(), "." + ext, "." + extensions[0]));
+                                StringUtils::replacen(path, "." + ext, "." + extensions[0]));
                     }
                 }
             } else {
@@ -2357,18 +2365,6 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
         case FILE_SAVE_ALL_SCENES: {
 
             _save_all_scenes();
-        } break;
-        case FILE_SAVE_BEFORE_RUN: {
-            if (!p_confirmed) {
-                confirmation->get_cancel()->set_text(TTR("No"));
-                confirmation->get_ok()->set_text(TTR("Yes"));
-                confirmation->set_text(TTR("This scene has never been saved. Save before running?"));
-                confirmation->popup_centered_minsize();
-                break;
-            }
-
-            _menu_option(FILE_SAVE_AS_SCENE);
-            _menu_option_confirm(FILE_SAVE_AND_RUN, false);
         } break;
 
         case FILE_EXPORT_PROJECT: {
@@ -2599,6 +2595,8 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
             }
         } break;
         case RUN_PROJECT_DATA_FOLDER: {
+            // ensure_user_data_dir() to prevent the edge case: "Open Project Data Folder" won't work after the project was renamed in ProjectSettingsEditor unless the project is saved
+            OS::get_singleton()->ensure_user_data_dir();
             OS::get_singleton()->shell_open(String("file://") + OS::get_singleton()->get_user_data_dir());
         } break;
         case FILE_EXPLORE_ANDROID_BUILD_TEMPLATES: {
@@ -2874,7 +2872,7 @@ void EditorNode::_tool_menu_option(int p_idx) {
             if (tool_menu->get_item_submenu(p_idx).empty()) {
                 Array params = tool_menu->get_item_metadata(p_idx).as<Array>();
 
-                Object *handler = gObjectDB().get_instance(params[0].as<ObjectID>());
+                Object *handler = ObjectDB::get_instance(params[0].as<ObjectID>());
                 StringName callback = params[1].as<StringName>();
                 Variant *ud = &params[2];
                 Callable::CallError ce;
@@ -5568,7 +5566,6 @@ void EditorNode::_dropped_files(const Vector<String> &p_files, int p_screen) {
 void EditorNode::_add_dropped_files_recursive(const Vector<String> &p_files, StringView to_path) {
 
     DirAccessRef dir = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-    StringView just_copy[2] = { "ttf", "otf" };
 
     for (const String& from : p_files) {
 
@@ -5600,10 +5597,6 @@ void EditorNode::_add_dropped_files_recursive(const Vector<String> &p_files, Str
             continue;
         }
 
-        if (!ResourceFormatImporter::get_singleton()->can_be_imported(from) &&
-                !ContainerUtils::contains(just_copy, StringUtils::to_lower(PathUtils::get_extension(from)))) {
-            continue;
-        }
         dir->copy(from, to);
     }
 }
@@ -5910,7 +5903,7 @@ static void _execute_thread(void *p_ud) {
 
     EditorNode::ExecuteThreadArgs *eta = (EditorNode::ExecuteThreadArgs *)p_ud;
     Error err = OS::get_singleton()->execute(
-            eta->path, eta->args, true, nullptr, &eta->output, &eta->exitcode, true, eta->execute_output_mutex);
+            eta->path, eta->args, true, nullptr, &eta->output, &eta->exitcode, true, &eta->execute_output_mutex);
     print_verbose("Thread exit status: " + itos(eta->exitcode));
     if (err != OK) {
         eta->exitcode = err;
@@ -5931,31 +5924,27 @@ int EditorNode::execute_and_show_output(const StringName &p_title, StringView p_
     ExecuteThreadArgs eta;
     eta.path = p_path;
     eta.args = p_arguments;
-    eta.execute_output_mutex = memnew(Mutex);
     eta.exitcode = 255;
     eta.done = false;
 
     int prev_len = 0;
 
-    eta.execute_output_thread = Thread::create(_execute_thread, &eta);
-
-    ERR_FAIL_COND_V(!eta.execute_output_thread, 0);
+    eta.execute_output_thread.start(_execute_thread, &eta);
 
     while (!eta.done) {
-        eta.execute_output_mutex->lock();
+        MutexLock lock(eta.execute_output_mutex);
+
         if (prev_len != eta.output.length()) {
             StringView to_add = StringUtils::substr(eta.output, prev_len, eta.output.length());
             prev_len = eta.output.length();
             execute_outputs->add_text(to_add);
             Main::iteration();
         }
-        eta.execute_output_mutex->unlock();
         OS::get_singleton()->delay_usec(1000);
     }
 
-    Thread::wait_to_finish(eta.execute_output_thread);
-    memdelete(eta.execute_output_thread);
-    memdelete(eta.execute_output_mutex);
+    eta.execute_output_thread.wait_to_finish();
+
     execute_outputs->add_text("\nExit Code: " + itos(eta.exitcode));
 
     if (p_close_on_errors && eta.exitcode != 0) {
@@ -6108,34 +6097,51 @@ EditorNode::EditorNode() {
 
     {
         int display_scale = editor_settings->getT<int>("interface/editor/display_scale");
-        float custom_display_scale = editor_settings->getT<float>("interface/editor/custom_display_scale");
-        float selected_scale = custom_display_scale;
         switch (display_scale) {
             case 0: {
-                // Try applying a suitable display scale automatically
+                // Try applying a suitable display scale automatically.
 #ifdef OSX_ENABLED
                 editor_set_scale(OS::get_singleton()->get_screen_max_scale());
 #else
                 const int screen = OS::get_singleton()->get_current_screen();
-                editor_set_scale(OS::get_singleton()->get_screen_dpi(screen) >= 192 && OS::get_singleton()->get_screen_size(screen).x > 2000 ? 2.0 : 1.0);
+                float scale;
+                if (OS::get_singleton()->get_screen_dpi(screen) >= 192 && OS::get_singleton()->get_screen_size(screen).y >= 1400) {
+                    // hiDPI display.
+                    scale = 2.0;
+                } else if (OS::get_singleton()->get_screen_size(screen).y <= 800) {
+                    // Small loDPI display. Use a smaller display scale so that editor elements fit more easily.
+                    // Icons won't look great, but this is better than having editor elements overflow from its window.
+                    scale = 0.75;
+                } else {
+                    scale = 1.0;
+                }
+
+                editor_set_scale(scale);
 #endif
             } break;
 
-            case 1: selected_scale =0.75f; break;
-
-            case 2: selected_scale = 1.0f; break;
-
-            case 3: selected_scale = 1.25f; break;
-
-            case 4: selected_scale = 1.5f; break;
-
-            case 5: selected_scale = 1.75f; break;
-
-            case 6: selected_scale = 2.0f; break;
-
-            default: break;
+            case 1:
+                editor_set_scale(0.75);
+                break;
+            case 2:
+                editor_set_scale(1.0);
+                break;
+            case 3:
+                editor_set_scale(1.25);
+                break;
+            case 4:
+                editor_set_scale(1.5);
+                break;
+            case 5:
+                editor_set_scale(1.75);
+                break;
+            case 6:
+                editor_set_scale(2.0);
+                break;
+            default:
+                editor_set_scale(EditorSettings::get_singleton()->getT<float>("interface/editor/custom_display_scale"));
+                break;
         }
-        editor_set_scale(selected_scale);
 
     }
     // Define a minimum window size to prevent UI elements from overlapping or being cut off
@@ -7293,15 +7299,16 @@ EditorNode::EditorNode() {
     ED_SHORTCUT("editor/editor_2d", TTR("Open 2D Editor"), KEY_MASK_ALT | KEY_1);
     ED_SHORTCUT("editor/editor_3d", TTR("Open 3D Editor"), KEY_MASK_ALT | KEY_2);
     ED_SHORTCUT("editor/editor_script", TTR("Open Script Editor"), KEY_MASK_ALT | KEY_3);
+    ED_SHORTCUT("editor/editor_assetlib", TTR("Open Asset Library"), KEY_MASK_ALT | KEY_4);
     ED_SHORTCUT("editor/editor_help", TTR("Search Help"), KEY_MASK_ALT | KEY_SPACE);
 #else
-    ED_SHORTCUT("editor/editor_2d", TTR("Open 2D Editor"), KEY_F1);
-    ED_SHORTCUT("editor/editor_3d", TTR("Open 3D Editor"), KEY_F2);
-    ED_SHORTCUT("editor/editor_script", TTR("Open Script Editor"),
-            KEY_F3); // hack needed for script editor F3 search to work :) Assign like this or don't use F3
-    ED_SHORTCUT("editor/editor_help", TTR("Search Help"), KEY_MASK_SHIFT | KEY_F1);
+    // Use the Ctrl modifier so F2 can be used to rename nodes in the scene tree dock.
+    ED_SHORTCUT("editor/editor_2d", TTR("Open 2D Editor"), KEY_MASK_CTRL | KEY_F1);
+    ED_SHORTCUT("editor/editor_3d", TTR("Open 3D Editor"), KEY_MASK_CTRL | KEY_F2);
+    ED_SHORTCUT("editor/editor_script", TTR("Open Script Editor"), KEY_MASK_CTRL | KEY_F3);
+    ED_SHORTCUT("editor/editor_assetlib", TTR("Open Asset Library"), KEY_MASK_CTRL | KEY_F4);
+    ED_SHORTCUT("editor/editor_help", TTR("Search Help"), KEY_F1);
 #endif
-    ED_SHORTCUT("editor/editor_assetlib", TTR("Open Asset Library"));
     ED_SHORTCUT("editor/editor_next", TTR("Open the next Editor"));
     ED_SHORTCUT("editor/editor_prev", TTR("Open the previous Editor"));
 

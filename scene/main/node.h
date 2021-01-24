@@ -276,8 +276,6 @@ public:
 
     void set_editable_instance(Node *p_node, bool p_editable);
     bool is_editable_instance(const Node *p_node) const;
-    void set_editable_instances(const HashMap<NodePath, int> &p_editable_instances);
-    const HashMap<NodePath, int> &get_editable_instances() const;
 
     /* NOTIFICATIONS */
 
@@ -406,7 +404,7 @@ public:
     MultiplayerAPI_RPCMode get_node_rset_mode(const StringName &p_property) const;
     MultiplayerAPI_RPCMode get_node_rset_mode_by_id(const uint16_t p_rset_property_id) const;
 #ifdef DEBUG_ENABLED
-    /// Used in gObjectDB().cleanup() warning print
+    /// Used in ObjectDB::cleanup() warning print
     const char *get_dbg_name() const override { return get_name().asCString(); }
 #endif
 

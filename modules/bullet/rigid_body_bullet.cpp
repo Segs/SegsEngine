@@ -343,10 +343,8 @@ void RigidBodyBullet::set_space(SpaceBullet *p_space) {
     if (space) {
         can_integrate_forces = false;
         isScratchedSpaceOverrideModificator = false;
-
-        // Remove all eventual constraints
-        assert_no_constraints();
-
+        // Remove any constraints
+        space->remove_rigid_body_constraints(this);
         // Remove this object form the physics world
         space->remove_rigid_body(this);
     }
@@ -454,17 +452,6 @@ bool RigidBodyBullet::was_colliding(RigidBodyBullet *p_other_object) {
             return true;
     }
     return false;
-}
-
-void RigidBodyBullet::assert_no_constraints() {
-    if (btBody->getNumConstraintRefs()) {
-        WARN_PRINT("A body with a joints is destroyed. Please check the implementation in order to destroy the joint before the body.");
-    }
-    /*for(int i = btBody->getNumConstraintRefs()-1; 0<=i; --i){
-        btTypedConstraint* btConst = btBody->getConstraintRef(i);
-        JointBullet* joint = static_cast<JointBullet*>( btConst->getUserConstraintPtr() );
-        space->removeConstraint(joint);
-    }*/
 }
 
 void RigidBodyBullet::set_activation_state(bool p_active) {
@@ -902,8 +889,7 @@ void RigidBodyBullet::on_exit_area(AreaBullet *p_area) {
 
 void RigidBodyBullet::reload_space_override_modificator() {
 
-    // Make sure that kinematic bodies have their total gravity calculated
-    if (!is_active() && PhysicsServer3D::BODY_MODE_KINEMATIC != mode)
+    if (mode == PhysicsServer3D::BODY_MODE_STATIC)
         return;
 
     Vector3 newGravity(0.0, 0.0, 0.0);

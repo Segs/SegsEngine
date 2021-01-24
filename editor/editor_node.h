@@ -110,8 +110,8 @@ public:
         String path;
         Vector<String> args;
         String output;
-        Thread *execute_output_thread;
-        Mutex *execute_output_mutex;
+        Thread execute_output_thread;
+        Mutex execute_output_mutex;
         int exitcode;
         volatile bool done;
     };
@@ -128,7 +128,6 @@ private:
         FILE_SAVE_SCENE,
         FILE_SAVE_AS_SCENE,
         FILE_SAVE_ALL_SCENES,
-        FILE_SAVE_BEFORE_RUN,
         FILE_SAVE_AND_RUN,
         FILE_SHOW_IN_FILESYSTEM,
         FILE_IMPORT_SUBSCENE,

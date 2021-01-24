@@ -40,11 +40,10 @@ using MutexLock = std::scoped_lock<Mutex>;
 class SpinLock
 {
 private:
-    std::atomic_flag lock_flag;
+    std::atomic_flag lock_flag = ATOMIC_FLAG_INIT;
 
 public:
-    SpinLock() : lock_flag {ATOMIC_FLAG_INIT}
-    { }
+    SpinLock() = default;
 
     void lock()
     {

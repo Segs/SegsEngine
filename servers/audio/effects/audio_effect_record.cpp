@@ -243,13 +243,13 @@ void AudioEffectRecordInstance::init() {
     recording_data.resize(0); //Clear data completely and reset length
     is_recording = true;
 
-    io_thread = Thread::create(_thread_callback, this);
+    io_thread.start(_thread_callback, this);
 }
 
 void AudioEffectRecordInstance::finish() {
 
     if (thread_active) {
-        Thread::wait_to_finish(io_thread);
+        io_thread.wait_to_finish();
     }
 }
 

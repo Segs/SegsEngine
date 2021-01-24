@@ -372,11 +372,11 @@ Error NetSocketPosix::open(Type p_sock_type, IP::Type &ip_type) {
         // recv/recvfrom and an ICMP reply was received from a previous send/sendto.
         unsigned long disable = 0;
         if (ioctlsocket(_sock->sock, SIO_UDP_CONNRESET, &disable) == SOCKET_ERROR) {
-            print_verbose("Unable to turn off UDP WSAECONNRESET behaviour on Windows");
+            print_verbose("Unable to turn off UDP WSAECONNRESET behavior on Windows");
         }
         if (ioctlsocket(_sock->sock, SIO_UDP_NETRESET, &disable) == SOCKET_ERROR) {
             // This feature seems not to be supported on wine.
-            print_verbose("Unable to turn off UDP WSAENETRESET behaviour on Windows");
+            print_verbose("Unable to turn off UDP WSAENETRESET behavior on Windows");
         }
     }
 #endif
@@ -755,7 +755,7 @@ Ref<NetSocket> NetSocketPosix::accept(IP_Address &r_ip, uint16_t &r_port) {
     NetSocketPosix *ns = memnew(NetSocketPosix);
     ns->_set_socket(new SOCKET_HOLDER{fd}, _ip_type, _is_stream);
     ns->set_blocking_enabled(false);
-    return Ref<NetSocket>(ns);
+    return Ref<NetSocket>(ns,DoNotAddRef);
 }
 
 Error NetSocketPosix::join_multicast_group(const IP_Address &p_multi_address, StringView p_if_name) {

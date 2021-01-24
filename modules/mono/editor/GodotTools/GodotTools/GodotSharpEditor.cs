@@ -4,9 +4,9 @@ using GodotTools.Export;
 using GodotTools.Utils;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using GodotTools.Build;
 using GodotTools.Ides;
 using GodotTools.Ides.Rider;
 using GodotTools.Internals;
@@ -19,7 +19,6 @@ using Path = System.IO.Path;
 
 namespace GodotTools
 {
-    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     public class GodotSharpEditor : EditorPlugin, ISerializationListener
     {
         private EditorSettings editorSettings;
@@ -30,14 +29,14 @@ namespace GodotTools
         private AcceptDialog aboutDialog;
         private CheckBox aboutDialogCheckBox;
 
-        private Button bottomPanelBtn;
-        private Button toolBarBuildButton;
+        private ToolButton bottomPanelBtn;
+        private ToolButton toolBarBuildButton;
 
         public GodotIdeManager GodotIdeManager { get; private set; }
 
         private WeakRef exportPluginWeak; // TODO Use WeakReference once we have proper serialization
 
-        public BottomPanel BottomPanel { get; private set; }
+        public MSBuildPanel MSBuildPanel { get; private set; }
 
         public bool SkipBuildBeforePlaying { get; set; }
 
@@ -137,6 +136,12 @@ namespace GodotTools
             aboutDialogCheckBox.Pressed = showOnStart;
             aboutDialog.PopupCenteredMinsize();
         }
+        private void _ToggleAboutDialogOnStart(bool enabled)
+        {
+            bool showOnStart = (bool)editorSettings.GetSetting("mono/editor/show_info_on_start");
+            if (showOnStart != enabled)
+                editorSettings.SetSetting("mono/editor/show_info_on_start", enabled);
+        }
 
         private void _MenuOptionPressed(int id)
         {
@@ -161,24 +166,53 @@ namespace GodotTools
                     return; // Failed to create solution
             }
 
-            Instance.BottomPanel.BuildProjectPressed();
+            Instance.MSBuildPanel.BuildSolution();
+        }
+        private void _FileSystemDockFileMoved(string file, string newFile)
+        {
+            if (Path.GetExtension(file) == Internal.CSharpLanguageExtension)
+            {
+                ProjectUtils.RenameItemInProjectChecked(GodotSharpDirs.ProjectCsProjPath, "Compile",
+                    ProjectSettings.GlobalizePath(file), ProjectSettings.GlobalizePath(newFile));
+            }
         }
 
-        public override void _Notification(int what)
+        private void _FileSystemDockFileRemoved(string file)
         {
-            base._Notification(what);
+            if (Path.GetExtension(file) == Internal.CSharpLanguageExtension)
+                ProjectUtils.RemoveItemFromProjectChecked(GodotSharpDirs.ProjectCsProjPath, "Compile",
+                    ProjectSettings.GlobalizePath(file));
+        }
 
-            if (what == NotificationReady)
+        private void _FileSystemDockFolderMoved(string oldFolder, string newFolder)
+        {
+            ProjectUtils.RenameItemsToNewFolderInProjectChecked(GodotSharpDirs.ProjectCsProjPath, "Compile",
+                ProjectSettings.GlobalizePath(oldFolder), ProjectSettings.GlobalizePath(newFolder));
+        }
+
+        private void _FileSystemDockFolderRemoved(string oldFolder)
+        {
+            ProjectUtils.RemoveItemsInFolderFromProjectChecked(GodotSharpDirs.ProjectCsProjPath, "Compile",
+                ProjectSettings.GlobalizePath(oldFolder));
+        }
+
+        public override void _Ready()
             {
-                bool showInfoDialog = (bool)editorSettings.GetSetting("mono/editor/show_info_on_start");
-                if (showInfoDialog)
-                {
-                    aboutDialog.PopupMode.Exclusive = true;
-                    _ShowAboutDialog();
-                    // Once shown a first time, it can be seen again via the Mono menu - it doesn't have to be exclusive from that time on.
-                    aboutDialog.PopupMode.Exclusive = false;
-                }
+            base._Ready();
+            MSBuildPanel.BuildOutputView.BuildStateChanged +=BuildStateChanged;
+            bool showInfoDialog = (bool)editorSettings.GetSetting("mono/editor/show_info_on_start");
+            if (showInfoDialog)
+            {
+                aboutDialog.PopupMode.Exclusive = true;
+                _ShowAboutDialog();
+                // Once shown a first time, it can be seen again via the Mono menu - it doesn't have to be exclusive from that time on.
+                aboutDialog.PopupMode.Exclusive = false;
             }
+            var fileSystemDock = GetEditorInterface().GetFileSystemDock();
+            fileSystemDock.FilesMoved += _FileSystemDockFileMoved;
+            fileSystemDock.FileRemoved += _FileSystemDockFileRemoved;
+            fileSystemDock.FolderMoved += _FileSystemDockFolderMoved;
+            fileSystemDock.FolderRemoved +=_FileSystemDockFolderRemoved;
         }
 
         private enum MenuOptions
@@ -395,6 +429,12 @@ namespace GodotTools
             }
         }
 
+        private void BuildStateChanged()
+        {
+            if (bottomPanelBtn != null)
+                bottomPanelBtn.Icon = MSBuildPanel.BuildOutputView.BuildStateIcon;
+        }
+
         public override void EnablePlugin()
         {
             base.EnablePlugin();
@@ -411,17 +451,16 @@ namespace GodotTools
             errorDialog = new AcceptDialog();
             editorBaseControl.AddChild(errorDialog);
 
-            BottomPanel = new BottomPanel();
-
-            bottomPanelBtn = AddControlToBottomPanel(BottomPanel, "Mono".TTR());
+            MSBuildPanel = new MSBuildPanel();
+            bottomPanelBtn = AddControlToBottomPanel(MSBuildPanel, "MSBuild".TTR());
 
             AddChild(new HotReloadAssemblyWatcher {Name = "HotReloadAssemblyWatcher"});
 
             menuPopup = new PopupMenu();
             menuPopup.Hide();
-            menuPopup.Visibility.Toplevel = true;
+            menuPopup.SetAsTopLevel(true);
 
-            AddToolSubmenuItem("Mono", menuPopup);
+            AddToolSubmenuItem("C#", menuPopup);
 
             // TODO: Remove or edit this info dialog once Mono support is no longer in alpha
             {
@@ -464,16 +503,11 @@ namespace GodotTools
 
                 // CheckBox in main container
                 aboutDialogCheckBox = new CheckBox {Text = "Show this warning when starting the editor"};
-                aboutDialogCheckBox.Toggled += enabled =>
-                {
-                    bool showOnStart = (bool)editorSettings.GetSetting("mono/editor/show_info_on_start");
-                    if (showOnStart != enabled)
-                        editorSettings.SetSetting("mono/editor/show_info_on_start", enabled);
-                };
+                aboutDialogCheckBox.Toggled += _ToggleAboutDialogOnStart;
                 aboutVBox.AddChild(aboutDialogCheckBox);
             }
 
-            toolBarBuildButton = new Button
+            toolBarBuildButton = new ToolButton
             {
                 Text = "Build",
                 Hint = { Tooltip = "Build solution" },
@@ -572,6 +606,7 @@ namespace GodotTools
 
         public static GodotSharpEditor Instance { get; private set; }
 
+        [UsedImplicitly]
         private GodotSharpEditor()
         {
         }

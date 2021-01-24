@@ -37,13 +37,13 @@
 #include "core/hash_set.h"
 #include "core/list.h"
 #include "core/method_info.h"
-
+#include "core/os/rw_lock.h"
 #include "EASTL/vector.h"
 
 #include <initializer_list>
 
 class MethodBind;
-class RWLock;
+
 template<class T>
 using Vector = eastl::vector<T,wrap_allocator>;
 
@@ -166,7 +166,7 @@ public:
         return memnew(T);
     }
 
-    static RWLock *lock;
+    static RWLock lock;
     static HashMap<StringName, NamespaceInfo> namespaces;
     static HashMap<StringName, ClassInfo> classes;
     static HashMap<StringName, StringName> resource_base_extensions;
@@ -327,7 +327,6 @@ public:
     static void get_extensions_for_type(const StringName &p_class, Vector<String> *p_extensions);
 
     static void add_compatibility_class(const StringName &p_class, const StringName &p_fallback);
-    static void init();
 
     static void set_current_api(APIType p_api);
     static APIType get_current_api();

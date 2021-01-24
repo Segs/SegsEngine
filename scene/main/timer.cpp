@@ -53,7 +53,7 @@ void Timer::_notification(int p_what) {
             }
         } break;
         case NOTIFICATION_INTERNAL_PROCESS: {
-            if (timer_process_mode == TIMER_PROCESS_PHYSICS || !is_processing_internal())
+            if (!processing || timer_process_mode == TIMER_PROCESS_PHYSICS || !is_processing_internal())
                 return;
             time_left -= get_process_delta_time();
 
@@ -68,7 +68,7 @@ void Timer::_notification(int p_what) {
 
         } break;
         case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
-            if (timer_process_mode == TIMER_PROCESS_IDLE || !is_physics_processing_internal())
+            if (!processing || timer_process_mode == TIMER_PROCESS_IDLE || !is_physics_processing_internal())
                 return;
             time_left -= get_physics_process_delta_time();
 
@@ -85,7 +85,7 @@ void Timer::_notification(int p_what) {
 }
 
 void Timer::set_wait_time(float p_time) {
-    ERR_FAIL_COND_MSG(p_time <= 0, "Time should be greater than zero."); 
+    ERR_FAIL_COND_MSG(p_time <= 0, "Time should be greater than zero.");
     wait_time = p_time;
 }
 float Timer::get_wait_time() const {
@@ -112,7 +112,7 @@ bool Timer::has_autostart() const {
 }
 
 void Timer::start(float p_time) {
-    ERR_FAIL_COND_MSG(!is_inside_tree(), "Timer was not added to the SceneTree. Either add it or set autostart to true."); 
+    ERR_FAIL_COND_MSG(!is_inside_tree(), "Timer was not added to the SceneTree. Either add it or set autostart to true.");
 
     if (p_time > 0) {
         set_wait_time(p_time);

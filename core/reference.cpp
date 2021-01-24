@@ -43,9 +43,9 @@ bool RefCounted::init_ref() {
         return false;
     }
 
-        if (!is_referenced() && refcount_init.unref()) {
-            unreference(); // first referencing is already 1, so compensate for the ref above
-        }
+    if (!is_referenced() && refcount_init.unref()) {
+        unreference(); // first referencing is already 1, so compensate for the ref above
+    }
 
     return true;
 }
@@ -120,7 +120,7 @@ Variant WeakRef::get_ref() const {
     if (ref.is_null())
         return Variant();
 
-    Object *obj = gObjectDB().get_instance(ref);
+    Object *obj = ObjectDB::get_instance(ref);
     if (!obj)
         return Variant();
     RefCounted *r = object_cast<RefCounted>(obj);

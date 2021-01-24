@@ -58,8 +58,8 @@ Error MessageQueue::push_call(ObjectID p_id, eastl::function<void()> p_method) {
 
     if ((buffer_end + room_needed) >= buffer_size) {
         String type;
-        if (gObjectDB().get_instance(p_id)) {
-            type = gObjectDB().get_instance(p_id)->get_class();
+        if (ObjectDB::get_instance(p_id)) {
+            type = ObjectDB::get_instance(p_id)->get_class();
         }
         print_line(String("Failed ::function call: ") + type + ": target ID: " + ::to_string(static_cast<uint64_t>(p_id)));
         statistics();
@@ -103,8 +103,8 @@ Error MessageQueue::push_set(ObjectID p_id, const StringName &p_prop, const Vari
 
     if ((buffer_end + room_needed) >= buffer_size) {
         String type;
-        if (gObjectDB().get_instance(p_id)) {
-            type = gObjectDB().get_instance(p_id)->get_class();
+        if (ObjectDB::get_instance(p_id)) {
+            type = ObjectDB::get_instance(p_id)->get_class();
         }
         print_line("Failed set: " + type + ":" + p_prop + " target ID: " + ::to_string(static_cast<uint64_t>(p_id)));
         statistics();
@@ -223,7 +223,7 @@ void MessageQueue::statistics() const {
     while (read_pos < buffer_end) {
         Message *message = (Message *)&buffer[read_pos];
 
-        Object *target = gObjectDB().get_instance(message->callable.get_object_id());
+        Object *target = ObjectDB::get_instance(message->callable.get_object_id());
 
         if (target != nullptr) {
 

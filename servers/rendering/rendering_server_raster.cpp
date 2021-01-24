@@ -132,8 +132,7 @@ void RenderingServerRaster::draw(bool p_swap_buffers, double frame_step) {
         RenderingServer::get_singleton()->emit_signal("frame_post_draw");
     }
 }
-void RenderingServerRaster::sync() {
-}
+
 bool RenderingServerRaster::has_changed() const {
 
     return changes > 0;

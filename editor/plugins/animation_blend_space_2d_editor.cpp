@@ -336,7 +336,7 @@ void AnimationNodeBlendSpace2DEditor::_add_menu_type(int p_index) {
         AnimationNode *an = object_cast<AnimationNode>(obj);
         ERR_FAIL_COND(!an);
 
-        node = dynamic_ref_cast<AnimationRootNode>(Ref<AnimationNode>(an));
+        node = dynamic_ref_cast<AnimationRootNode>(Ref<AnimationNode>(an,DoNotAddRef));
     }
 
     if (not node) {

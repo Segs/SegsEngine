@@ -33,6 +33,7 @@
 #include "scene/main/node.h"
 #include "core/property_info.h"
 #include "core/list.h"
+#include "core/node_path.h"
 
 #include "EASTL/deque.h"
 class MultiNodeEdit : public RefCounted {

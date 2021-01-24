@@ -347,7 +347,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                 }
 
                 if (p_actions.render_mode_values.contains(render_mode)) {
-                    Pair<int *, int> &p = p_actions.render_mode_values[render_mode];
+                    Pair<int8_t *, int> &p = p_actions.render_mode_values[render_mode];
                     *p.first = p.second;
                 }
             }

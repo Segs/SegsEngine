@@ -32,6 +32,7 @@
 
 #include "core/os/file_access.h"
 #include "core/os/semaphore.h"
+#include "core/os/thread.h"
 #include "core/string.h"
 
 class Thread;
@@ -47,7 +48,7 @@ class FileAccessNetworkClient {
     void *m_priv;
     Vector<uint8_t> block;
     Semaphore sem;
-    Thread *thread;
+    Thread thread;
     Mutex mutex;
     Mutex blockrequest_mutex;
     int last_id;

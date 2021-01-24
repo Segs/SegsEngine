@@ -291,7 +291,6 @@ public:
     Variant _get_bind(const StringName &p_name) const;
     void _set_indexed_bind(const NodePath &p_name, const Variant &p_value);
     Variant _get_indexed_bind(const NodePath &p_name) const;
-    void property_list_changed_notify();
 private:
     friend class RefCounted;
 protected:
@@ -324,7 +323,8 @@ protected:
     void (Object::*_get_notification() const)(int) {
         return &Object::_notification;
     }
-
+public: // made public since it's exposed to scripting language side.
+    void property_list_changed_notify();
 public:
     jl::SignalObserver &observer() {
         if(!observer_endpoint)
@@ -354,7 +354,7 @@ public:
 
     void _disconnect(const StringName& p_signal, const Callable& p_callable, bool p_force = false);
 
-public: //should be protected, but bug in clang++
+protected: //should be protected, but bug in clang++
     static bool initialize_class();
     static void register_custom_data_to_otdb() {}
 
@@ -479,7 +479,7 @@ public:
     virtual void get_translatable_strings(List<StringName> *p_strings) const;
     virtual void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const;
 #ifdef DEBUG_ENABLED
-    /// Used in gObjectDB().cleanup() warning print
+    /// Used in ObjectDB::cleanup() warning print
     virtual const char *get_dbg_name() const { return nullptr; }
 #endif
 

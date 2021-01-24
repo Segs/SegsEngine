@@ -57,7 +57,8 @@ FileAccess *FileAccess::create(AccessType p_access) {
 
 bool FileAccess::exists(StringView p_name) {
 
-    if (PackedData::get_singleton() && PackedData::get_singleton()->has_path(p_name))
+    auto *packed_data = PackedData::get_singleton();
+    if (packed_data && !packed_data->is_disabled() && packed_data->has_path(p_name))
         return true;
 
     FileAccess *f = open(p_name, READ);
@@ -328,7 +329,7 @@ Vector<String> FileAccess::get_csv_line(char p_delim) const {
             strings.emplace_back(eastl::move(current));
             current = {};
         } else if (c == '"') {
-            if (l[i + 1] == '"') {
+            if (l[i + 1] == '"' && in_quote ) {
                 current += '"';
                 i++;
             } else {
@@ -435,7 +436,8 @@ void FileAccess::store_double(double p_dest) {
 
 uint64_t FileAccess::get_modified_time(StringView p_file) {
 
-    if (PackedData::get_singleton() && !PackedData::get_singleton()->is_disabled() && PackedData::get_singleton()->has_path(p_file))
+    PackedData *pd=PackedData::get_singleton();
+    if (pd && !pd->is_disabled() && (pd->has_path(p_file) || pd->has_directory(p_file)))
         return 0;
 
     FileAccess *fa = create_for_path(p_file);
@@ -448,7 +450,8 @@ uint64_t FileAccess::get_modified_time(StringView p_file) {
 
 uint32_t FileAccess::get_unix_permissions(StringView p_file) {
 
-    if (PackedData::get_singleton() && !PackedData::get_singleton()->is_disabled() && PackedData::get_singleton()->has_path(p_file))
+    PackedData *pd=PackedData::get_singleton();
+    if (pd && !pd->is_disabled() && (pd->has_path(p_file)|| pd->has_directory(p_file)))
         return 0;
 
     FileAccess *fa = create_for_path(p_file);
@@ -460,6 +463,9 @@ uint32_t FileAccess::get_unix_permissions(StringView p_file) {
 }
 
 Error FileAccess::set_unix_permissions(StringView p_file, uint32_t p_permissions) {
+    auto packed_data = PackedData::get_singleton();
+    if (packed_data && !packed_data->is_disabled() && (packed_data->has_path(p_file) || packed_data->has_directory(p_file)))
+        return ERR_UNAVAILABLE;
 
     FileAccess *fa = create_for_path(p_file);
     ERR_FAIL_COND_V_MSG(!fa, ERR_CANT_CREATE, "Cannot create FileAccess for path '" + String(p_file) + "'.");

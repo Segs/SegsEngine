@@ -1,11 +1,9 @@
 #pragma once
 
-#include "core/hash_map.h"
 #include "core/hashfuncs.h"
-#include "core/os/rw_lock.h"
-#include "core/object_id.h"
 
 class Object;
+class ObjectID;
 
 template<>
 struct Hasher<Object *> {
@@ -21,21 +19,16 @@ struct Hasher<Object *> {
 };
 
 class ObjectDB {
-
-    RWLock *rw_lock=nullptr;
-    HashMap<Object *, ObjectID, Hasher<Object *>> instance_checks;
-
-    void cleanup();
-    void setup();
-
-    ObjectID add_instance(Object *p_object);
-    void remove_instance(Object *p_object);
-
     friend class Object;
     friend void unregister_core_types();
     friend void register_core_types();
-    friend GODOT_EXPORT ObjectDB &gObjectDB();
-    GODOT_EXPORT static ObjectDB *s_instance;
+
+    static void cleanup();
+    static void setup();
+
+    static ObjectID add_instance(Object *p_object);
+    static void remove_instance(Object *p_object);
+
 protected:
     ObjectDB()=default;
     ~ObjectDB()=default;
@@ -45,18 +38,9 @@ public:
     using DebugFunc = void (*)(Object *);
 
     GODOT_EXPORT static Object *get_instance(ObjectID p_instance_id);
-    GODOT_EXPORT void debug_objects(DebugFunc p_func);
-    GODOT_EXPORT int get_object_count();
-
-    _FORCE_INLINE_ bool instance_validate(Object *p_ptr) {
-        rw_lock->read_lock();
-
-        bool exists = instance_checks.contains(p_ptr);
-
-        rw_lock->read_unlock();
-
-        return exists;
-    }
+    GODOT_EXPORT static void debug_objects(DebugFunc p_func);
+    GODOT_EXPORT static int get_object_count();
+    GODOT_EXPORT static bool instance_validate(Object *p_ptr);
 
 };
-inline ObjectDB &gObjectDB()  { return *ObjectDB::s_instance; }
+

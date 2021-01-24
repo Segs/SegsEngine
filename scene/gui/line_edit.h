@@ -126,7 +126,11 @@ private:
     void shift_selection_check_post(bool);
 
     void selection_fill_at_cursor();
-    void set_window_pos(int p_pos);
+
+    void set_scroll_offset(int p_pos);
+public: // made public to allow script language access
+    int get_scroll_offset() const;
+private:
 
     void set_cursor_at_pixel_pos(int p_x);
     int get_cursor_pixel_pos();

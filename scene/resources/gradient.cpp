@@ -59,7 +59,7 @@ Gradient::~Gradient() {
 void Gradient::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_point", {"offset", "color"}), &Gradient::add_point);
-    MethodBinder::bind_method(D_METHOD("remove_point", {"offset"}), &Gradient::remove_point);
+    MethodBinder::bind_method(D_METHOD("remove_point", {"point"}), &Gradient::remove_point);
 
     MethodBinder::bind_method(D_METHOD("set_offset", {"point", "offset"}), &Gradient::set_offset);
     MethodBinder::bind_method(D_METHOD("get_offset", {"point"}), &Gradient::get_offset);

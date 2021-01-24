@@ -190,6 +190,13 @@ enum LightDirectionalShadowDepthRangeMode : int8_t {
     LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED,
 
 };
+
+enum LightBakeMode : int8_t {
+    LIGHT_BAKE_DISABLED,
+    LIGHT_BAKE_INDIRECT,
+    LIGHT_BAKE_ALL
+};
+
 /* PROBE API */
 
 enum ReflectionProbeUpdateMode : int8_t {

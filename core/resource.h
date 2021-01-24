@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/reference.h"
+#include "core/os/rw_lock.h"
 
 namespace eastl {
 template <typename Key, typename T, typename Compare, typename Allocator>
@@ -40,8 +41,6 @@ class Node;
 class wrap_allocator;
 template <class K,class V>
 using DefMap = eastl::map<K,V,eastl::less<K>,wrap_allocator>;
-class RWLock;
-
 
 #define RES_BASE_EXTENSION_IMPL(m_class,m_ext)                                                                      \
                                                                                                                     \
@@ -162,7 +161,7 @@ public:
     int get_id_for_path(StringView p_path) const;
 #endif
 #ifdef DEBUG_ENABLED
-    /// Used in gObjectDB().cleanup() warning print
+    /// Used in ObjectDB::cleanup() warning print
     const char *get_dbg_name() const override;
 #endif
 
@@ -179,9 +178,8 @@ class GODOT_EXPORT ResourceCache {
     friend void unregister_core_types();
     friend void register_core_types();
 
-    static RWLock* lock;
+    static RWLock lock;
     static void clear();
-    static void setup();
     static Resource *get_unguarded(StringView p_path);
 public:
     static void reload_externals();

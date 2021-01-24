@@ -334,16 +334,16 @@ bool EditorPropertyRevert::may_node_be_in_instance(Node *p_node) {
 
     while (node) {
 
-        if (node->get_scene_instance_state()) {
-            might_be = true;
-            break;
-        }
         if (node == edited_scene) {
             if (node->get_scene_inherited_state()) {
                 might_be = true;
                 break;
             }
             might_be = false;
+            break;
+        }
+        if (node->get_scene_instance_state()) {
+            might_be = true;
             break;
         }
         node = node->get_owner();
@@ -394,9 +394,9 @@ bool EditorPropertyRevert::get_instanced_node_original_property(Node *p_node, co
         node = node->get_owner();
     }
 
-    if (!found && node) {
+    if (!found && p_node) {
         //if not found, try default class value
-        Variant attempt = ClassDB::class_get_default_property_value(node->get_class_name(), p_prop);
+        Variant attempt = ClassDB::class_get_default_property_value(p_node->get_class_name(), p_prop);
         if (attempt.get_type() != VariantType::NIL) {
             found = true;
             value = attempt;
@@ -452,7 +452,7 @@ bool EditorPropertyRevert::is_node_property_different(Node *p_node, const Varian
         return !Math::is_equal_approx(a, b); //this must be done because, as some scenes save as text, there might be a tiny difference in floats due to numerical error
     }
 
-    return Variant::evaluate(Variant::OP_NOT_EQUAL, p_current, p_orig).as<bool>();
+    return !Variant::evaluate_equal(p_current, p_orig);
 }
 
 bool EditorPropertyRevert::can_property_revert(Object *p_object, const StringName &p_property) {

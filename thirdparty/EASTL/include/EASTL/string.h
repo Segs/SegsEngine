@@ -685,7 +685,7 @@ namespace eastl
         size_type find(const this_type& x,  size_type position = 0) const EA_NOEXCEPT;
         size_type find(const value_type* p, size_type position = 0) const;
         size_type find(const value_type* p, size_type position, size_type n) const;
-        size_type find(view_type sv, size_type position) const {
+        size_type find(view_type sv, size_type position=0) const {
             return find(sv.data(),position,sv.size());
         }
         size_type find(value_type c, size_type position = 0) const EA_NOEXCEPT;

@@ -39,6 +39,7 @@
 #include "core/math/transform.h"
 #include "core/math/transform_2d.h"
 #include "core/math/quat.h"
+#include "core/node_path.h"
 #include "core/color.h"
 #include "core/rid.h"
 #include "core/pool_vector.h"
@@ -824,7 +825,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
 #ifdef DEBUG_ENABLED
             // Test for potential wrong values sent by the debugger when it breaks.
             Object *obj = p_variant.as<Object *>();
-            if (!obj || !gObjectDB().instance_validate(obj)) {
+            if (!obj || !ObjectDB::instance_validate(obj)) {
                 // Object is invalid, send a NULL instead.
                 if (buf) {
                     encode_uint32((uint32_t)VariantType::NIL, buf);
@@ -1150,7 +1151,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
 
                     Object *obj = p_variant.as<Object *>();
                     ObjectID id {0ULL};
-                    if (obj && gObjectDB().instance_validate(obj)) {
+                    if (obj && ObjectDB::instance_validate(obj)) {
                         id = obj->get_instance_id();
                     }
 

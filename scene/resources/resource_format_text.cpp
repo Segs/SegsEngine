@@ -542,8 +542,8 @@ Error ResourceInteractiveLoaderText::poll_resource()
         error = ERR_FILE_CORRUPT;
         return error;
     }
-
-    resource = Ref<Resource>(r);
+    // we tak over reference
+    resource = Ref<Resource>(r, DoNotAddRef);
 
     resource_current++;
 
@@ -639,7 +639,7 @@ Error ResourceInteractiveLoaderText::poll() {
                 return error;
             }
 
-            res = Ref<Resource>(r);
+            res = Ref<Resource>(r,DoNotAddRef);
             resource_cache.push_back(res);
             res->set_path(path);
         }
@@ -865,6 +865,10 @@ Error ResourceInteractiveLoaderText::rename_dependencies(FileAccess *p_f, String
     f->seek(tag_end);
 
     uint8_t c = f->get_8();
+    if (c == '\n' && !f->eof_reached()) {
+        // Skip first newline character since we added one
+        c = f->get_8();
+    }
     while (!f->eof_reached()) {
         fw->store_8(c);
         c = f->get_8();

@@ -162,7 +162,7 @@ void CSharpLanguage::finalize() {
 #ifdef DEBUG_ENABLED
     for (auto &E : unsafe_object_references) {
         const ObjectID &id = E.first;
-        Object *obj = gObjectDB().get_instance(id);
+        Object *obj = ObjectDB::get_instance(id);
 
         if (obj) {
             ERR_PRINT(String("Leaked unsafe reference to object: ") + obj->to_string());
@@ -339,14 +339,18 @@ Ref<Script> CSharpLanguage::get_template(StringView p_class_name, StringView p_b
                              "//      \n"
                              "//  }\n"
                              "}\n";
+    // Replaces all spaces in p_class_name with underscores to prevent
+    // erronous C# Script templates from being generated when the object name
+    // has spaces in it.
+    String class_name_no_spaces = StringUtils::replace(p_class_name," ", "_");
+    String base_class_name = get_base_class_name(p_base_class_name, class_name_no_spaces);
 
-    String base_class_name = get_base_class_name(p_base_class_name, p_class_name);
     script_template = script_template.replaced("%BASE%", base_class_name)
-                              .replaced("%CLASS%", p_class_name);
+                              .replaced("%CLASS%", class_name_no_spaces);
 
     Ref<CSharpScript> script=make_ref_counted<CSharpScript>();
     script->set_source_code(script_template);
-    script->set_name(p_class_name);
+    script->set_name(class_name_no_spaces);
 
     return script;
 }
@@ -359,10 +363,12 @@ bool CSharpLanguage::is_using_templates() {
 void CSharpLanguage::make_template(StringView p_class_name, StringView p_base_class_name, const Ref<Script> &p_script) {
 
     String src(p_script->get_source_code());
-    String base_class_name = get_base_class_name(p_base_class_name, p_class_name);
+    String class_name_no_spaces = StringUtils::replace(p_class_name," ", "_");
+    String base_class_name = get_base_class_name(p_base_class_name, class_name_no_spaces);
+
     src = src.replaced("%BASE%", base_class_name)
-                  .replaced("%CLASS%", p_class_name)
-                  .replaced("%TS%", _get_indentation());
+              .replaced("%CLASS%", class_name_no_spaces)
+              .replaced("%TS%", _get_indentation());
     p_script->set_source_code(src);
 }
 /* TODO */
@@ -924,7 +930,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
         for (const Ref<CSharpScript> &scr : to_reload) {
 
             for (const auto &F : scr->pending_reload_state) {
-                Object *obj = gObjectDB().get_instance(F.first);
+                Object *obj = ObjectDB::get_instance(F.first);
 
                 if (!obj) {
                     continue;
@@ -1015,7 +1021,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
 
         {
             for (ObjectID obj_id :script->pending_reload_instances) {
-                Object *obj = gObjectDB().get_instance(obj_id);
+                Object *obj = ObjectDB::get_instance(obj_id);
 
                 if (!obj) {
                     script->pending_reload_state.erase(obj_id);
@@ -1068,7 +1074,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
     for (const Ref<CSharpScript> &script : to_reload_state) {
 
         for (ObjectID obj_id : script->pending_reload_instances) {
-            Object *obj = gObjectDB().get_instance(obj_id);
+            Object *obj = ObjectDB::get_instance(obj_id);
 
             if (!obj) {
                 script->pending_reload_state.erase(obj_id);
@@ -2723,7 +2729,7 @@ bool CSharpScript::_get_member_export(IMonoClassMember *p_member, bool p_inspect
         if (!property->has_getter()) {
 #ifdef TOOLS_ENABLED
             if (exported) {
-                ERR_PRINT("Read-only property cannot be exported: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
+                ERR_PRINT("Cannot export a property without a getter: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
             }
 #endif
             return false;
@@ -2731,7 +2737,7 @@ bool CSharpScript::_get_member_export(IMonoClassMember *p_member, bool p_inspect
         if (!property->has_setter()) {
 #ifdef TOOLS_ENABLED
             if (exported) {
-                ERR_PRINT("Write-only property (without getter) cannot be exported: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
+                ERR_PRINT("Cannot export a property without a setter: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
             }
 #endif
             return false;
@@ -2955,7 +2961,7 @@ Ref<CSharpScript> CSharpScript::create_for_managed_type(GDMonoClass *p_class, GD
     CRASH_COND(p_class == nullptr);
 
     // TODO OPTIMIZE: Cache the 'CSharpScript' associated with this 'p_class' instead of allocating a new one every time
-    Ref<CSharpScript> script(memnew(CSharpScript));
+    Ref<CSharpScript> script(memnew(CSharpScript), DoNotAddRef);
 
     initialize_for_managed_type(script, p_class, p_native);
 
@@ -3171,7 +3177,7 @@ Variant CSharpScript::_new(const Variant **p_args, int p_argcount, Callable::Cal
     REF ref;
     RefCounted *r = object_cast<RefCounted>(owner);
     if (r) {
-        ref = REF(r);
+        ref = REF(r, DoNotAddRef);
     }
 
     CSharpInstance *instance = _create_instance(p_args, p_argcount, owner, r != nullptr, r_error);

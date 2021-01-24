@@ -1486,15 +1486,6 @@
                 Returns the Transform set by [method gi_probe_set_to_cell_xform].
             </description>
         </method>
-        <method name="gi_probe_is_compressed" qualifiers="const">
-            <return type="bool">
-            </return>
-            <argument index="0" name="probe" type="RID">
-            </argument>
-            <description>
-                Returns [code]true[/code] if the GI probe data associated with this GI probe is compressed. Equivalent to [member GIProbe.compress].
-            </description>
-        </method>
         <method name="gi_probe_is_interior" qualifiers="const">
             <return type="bool">
             </return>
@@ -1535,17 +1526,6 @@
             </argument>
             <description>
                 Sets the size of individual cells within the GI probe.
-            </description>
-        </method>
-        <method name="gi_probe_set_compress">
-            <return type="void">
-            </return>
-            <argument index="0" name="probe" type="RID">
-            </argument>
-            <argument index="1" name="enable" type="bool">
-            </argument>
-            <description>
-                Sets the compression setting for the GI probe data. Compressed data will take up less space but may look worse. Equivalent to [member GIProbe.compress].
             </description>
         </method>
         <method name="gi_probe_set_dynamic_data">

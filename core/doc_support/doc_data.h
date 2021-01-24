@@ -32,6 +32,7 @@
 
 #include "core/hash_map.h"
 #include "core/string.h"
+#include "core/string_name.h"
 #include <QString>
 
 enum Error : int;

@@ -28,15 +28,16 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef BAKED_INDIRECT_LIGHT_H
-#define BAKED_INDIRECT_LIGHT_H
+#pragma once
 
+#include "core/node_path.h"
 #include "multimesh_instance_3d.h"
 #include "scene/3d/light_3d.h"
 #include "scene/3d/visual_instance_3d.h"
 
 class GODOT_EXPORT BakedLightmapData : public Resource {
     GDCLASS(BakedLightmapData,Resource)
+    RES_BASE_EXTENSION("lmbake")
 
     RID baked_light;
     AABB bounds;
@@ -94,7 +95,8 @@ public:
     enum BakeQuality {
         BAKE_QUALITY_LOW,
         BAKE_QUALITY_MEDIUM,
-        BAKE_QUALITY_HIGH
+        BAKE_QUALITY_HIGH,
+        BAKE_QUALITY_ULTRA
     };
 
     enum BakeMode {
@@ -206,5 +208,3 @@ public:
     BakeError bake(Node *p_from_node, bool p_create_visual_debug = false);
     BakedLightmap();
 };
-
-#endif // BAKED_INDIRECT_LIGHT_H

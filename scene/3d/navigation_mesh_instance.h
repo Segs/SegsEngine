@@ -33,6 +33,7 @@
 #include "scene/3d/node_3d.h"
 #include "scene/resources/mesh.h"
 #include "scene/resources/navigation_mesh.h"
+#include "core/os/thread.h"
 
 class Navigation3D;
 
@@ -46,7 +47,7 @@ class GODOT_EXPORT NavigationMeshInstance : public Node3D {
 
     Navigation3D *navigation;
     Node *debug_view;
-    class Thread *bake_thread;
+    Thread bake_thread;
 
 protected:
     void _notification(int p_what);

@@ -105,7 +105,6 @@ set(core_sources
     math/disjoint_set.h
     #math/expression.cpp
     #math/expression.h
-    math/octree.h
     math/random_number_generator.cpp
     math/random_number_generator.h
     math/triangle_mesh.cpp
@@ -301,14 +300,11 @@ set(generic_core_sources
     os/memory.h
     os/mutex.cpp
     os/mutex.h
-    os/rw_lock.cpp
     os/rw_lock.h
     os/semaphore.cpp
     os/semaphore.h
     os/thread.cpp
     os/thread.h
-    os/thread_dummy.cpp
-    os/thread_dummy.h
     os/thread_safe.cpp
     os/thread_safe.h
     os/threaded_array_processor.h
@@ -409,7 +405,7 @@ list(APPEND core_sources ${source_files} ${headers_files} ${CMAKE_CURRENT_BINARY
 
 add_library(se_core STATIC ${generic_core_sources})
 set_target_properties(se_core PROPERTIES AUTOMOC TRUE)
-#target_precompile_headers(se_core PRIVATE precompiled.h)
+
 if(USE_UNITY_BUILDS)
     set_target_properties(se_core PROPERTIES UNITY_BUILD ON)
     set_target_properties(se_core PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})

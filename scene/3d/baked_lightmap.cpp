@@ -32,6 +32,7 @@
 #include "voxelizer.h"
 
 #include "scene/main/scene_tree.h"
+#include "scene/resources/texture.h"
 #include "core/io/config_file.h"
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
@@ -43,6 +44,8 @@
 #include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
+
+RES_BASE_EXTENSION_IMPL(BakedLightmapData,"lmbake")
 
 IMPL_GDCLASS(BakedLightmapData)
 IMPL_GDCLASS(BakedLightmap)
@@ -833,7 +836,7 @@ void BakedLightmap::_bind_methods() {
 
     ADD_GROUP("Bake", "bake_");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_cell_size", PropertyHint::Range, "0.01,64,0.01"), "set_bake_cell_size", "get_bake_cell_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "bake_quality", PropertyHint::Enum, "Low,Medium,High"), "set_bake_quality", "get_bake_quality");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "bake_quality", PropertyHint::Enum, "Low,Medium,High,Ultra"), "set_bake_quality", "get_bake_quality");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "bake_mode", PropertyHint::Enum, "ConeTrace,RayTrace"), "set_bake_mode", "get_bake_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_propagation", PropertyHint::Range, "0,1,0.01"), "set_propagation", "get_propagation");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_energy", PropertyHint::Range, "0,32,0.01"), "set_energy", "get_energy");
@@ -849,6 +852,7 @@ void BakedLightmap::_bind_methods() {
     BIND_ENUM_CONSTANT(BAKE_QUALITY_LOW);
     BIND_ENUM_CONSTANT(BAKE_QUALITY_MEDIUM);
     BIND_ENUM_CONSTANT(BAKE_QUALITY_HIGH);
+    BIND_ENUM_CONSTANT(BAKE_QUALITY_ULTRA);
     BIND_ENUM_CONSTANT(BAKE_MODE_CONE_TRACE);
     BIND_ENUM_CONSTANT(BAKE_MODE_RAY_TRACE);
 

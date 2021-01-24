@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VIDEO_STREAM_THEORA_H
-#define VIDEO_STREAM_THEORA_H
+#pragma once
 
 #include "core/io/resource_loader.h"
 #include "core/os/file_access.h"
@@ -113,7 +112,7 @@ class VideoStreamPlaybackTheora : public VideoStreamPlayback {
     Vector<uint8_t> read_buffer;
     bool thread_eof;
     SemaphoreOld *thread_sem;
-    Thread *thread;
+    Thread thread;
     volatile bool thread_exit;
 
     static void _streaming_thread(void *ud);
@@ -192,5 +191,3 @@ public:
     virtual bool handles_type(const String &p_type) const;
     virtual String get_resource_type(StringView p_path) const;
 };
-
-#endif

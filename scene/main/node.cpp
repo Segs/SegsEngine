@@ -90,8 +90,6 @@ struct Node::PrivData {
     Ref<SceneState> instance_state;
     Ref<SceneState> inherited_state;
 
-    HashMap<NodePath, int> editable_instances;
-
     Node *parent;
     Node *owner;
     Vector<Node *> children; // list of children
@@ -133,6 +131,7 @@ struct Node::PrivData {
     bool use_placeholder;
 
     bool display_folded;
+    bool editable_instance;
 
     mutable NodePath *path_cache;
     uint16_t get_node_rset_property_id(const StringName &p_property) const {
@@ -2037,37 +2036,23 @@ String Node::get_editor_description() const {
 }
 
 void Node::set_editable_instance(Node *p_node, bool p_editable) {
-
     ERR_FAIL_NULL(p_node);
     ERR_FAIL_COND(!is_a_parent_of(p_node));
-    NodePath p = get_path_to(p_node);
     if (!p_editable) {
-        priv_data->editable_instances.erase(p);
+        p_node->priv_data->editable_instance = false;
         // Avoid this flag being needlessly saved;
         // also give more visual feedback if editable children is re-enabled
         set_display_folded(false);
     } else {
-        priv_data->editable_instances[p] = true;
+        p_node->priv_data->editable_instance = true;
     }
 }
 
 bool Node::is_editable_instance(const Node *p_node) const {
-
     if (!p_node)
         return false; //easier, null is never editable :)
     ERR_FAIL_COND_V(!is_a_parent_of(p_node), false);
-    NodePath p = get_path_to(p_node);
-    return priv_data->editable_instances.contains(p);
-}
-
-void Node::set_editable_instances(const HashMap<NodePath, int> &p_editable_instances) {
-
-    priv_data->editable_instances = p_editable_instances;
-}
-
-const HashMap<NodePath, int> &Node::get_editable_instances() const {
-
-    return priv_data->editable_instances;
+    return p_node->priv_data->editable_instance;
 }
 
 void Node::set_scene_instance_state(const Ref<SceneState> &p_state) {
@@ -2767,7 +2752,7 @@ void Node::_print_stray_nodes() {
 void Node::print_stray_nodes() {
 
 #ifdef DEBUG_ENABLED
-    gObjectDB().debug_objects(_Node_debug_sn);
+    ObjectDB::debug_objects(_Node_debug_sn);
 #endif
 }
 
@@ -3059,7 +3044,6 @@ void Node::_bind_methods() {
     ADD_SIGNAL(MethodInfo("tree_exiting"));
     ADD_SIGNAL(MethodInfo("tree_exited"));
 
-    ADD_GROUP("Pause", "pause_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "pause_mode", PropertyHint::Enum, "Inherit,Stop,Process"), "set_pause_mode", "get_pause_mode");
 
 #ifdef ENABLE_DEPRECATED
@@ -3117,6 +3101,7 @@ Node::Node() {
     priv_data->use_placeholder = false;
     priv_data->display_folded = false;
     priv_data->ready_first = true;
+    priv_data->editable_instance = false;
 
     orphan_node_count++;
 }

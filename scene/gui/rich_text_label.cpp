@@ -33,6 +33,7 @@
 #include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/object.h"
+#include "core/object_tooling.h"
 #include "core/input/input_event.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
@@ -2931,6 +2932,7 @@ void RichTextLabel::set_percent_visible(float p_percent) {
         visible_characters = get_total_character_count() * p_percent;
         percent_visible = p_percent;
     }
+    Object_change_notify(this,"visible_characters");
     update();
 }
 
@@ -3108,6 +3110,16 @@ void RichTextLabel::_bind_methods() {
 void RichTextLabel::set_visible_characters(int p_visible) {
 
     visible_characters = p_visible;
+    if (p_visible == -1) {
+        percent_visible = 1;
+    } else {
+        int total_char_count = get_total_character_count();
+        if (total_char_count > 0) {
+            percent_visible = (float)p_visible / (float)total_char_count;
+        }
+    }
+    Object_change_notify(this,"percent_visible");
+
     update();
 }
 

@@ -45,30 +45,31 @@
 
 class Physics2DServerWrapMT : public PhysicsServer2D {
 
-    mutable PhysicsServer2D *physics_server_2d;
 
     mutable CommandQueueMT command_queue;
+    Thread::ID main_thread;
+    Thread thread;
+    Mutex alloc_mutex;
+    Semaphore *step_sem;
+    mutable PhysicsServer2D *physics_server_2d;
+    int step_pending;
+    int pool_max_size;
+
+    volatile bool exit;
+    volatile bool step_thread_up;
+    bool create_thread;
+    bool first_frame;
+
 
     static void _thread_callback(void *_instance);
     void thread_loop();
 
-    Thread::ID main_thread;
-    volatile bool exit;
-    Thread *thread;
-    volatile bool step_thread_up;
-    bool create_thread;
 
-    Semaphore *step_sem;
-    int step_pending;
     void thread_step(real_t p_delta);
     void thread_flush();
 
     void thread_exit();
 
-    bool first_frame;
-
-    Mutex alloc_mutex;
-    int pool_max_size;
 
 public:
 #define ServerName PhysicsServer2D

@@ -693,8 +693,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                 new_props_added++;
                 debugObj->prop_values[pinfo.name] = var;
             } else {
-
-                if (Variant::evaluate(Variant::OP_NOT_EQUAL, debugObj->prop_values[pinfo.name], var).as<bool>()) {
+                if(!Variant::evaluate_equal(debugObj->prop_values[pinfo.name], var)) {
                     debugObj->prop_values[pinfo.name] = var;
                     changed.insert(pinfo.name);
                 }
@@ -1298,7 +1297,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
                 if (inspect_edited_object_timeout < 0) {
                     inspect_edited_object_timeout = EditorSettings::get_singleton()->getT<float>("debugger/remote_inspect_refresh_interval");
                     if (inspected_object_id.is_valid()) {
-                        if (ScriptEditorDebuggerInspectedObject *obj = object_cast<ScriptEditorDebuggerInspectedObject>(gObjectDB().get_instance(editor->get_editor_history()->get_current()))) {
+                        if (ScriptEditorDebuggerInspectedObject *obj = object_cast<ScriptEditorDebuggerInspectedObject>(ObjectDB::get_instance(editor->get_editor_history()->get_current()))) {
                             if (obj->remote_object_id == inspected_object_id) {
                                 //take the chance and re-inspect selected object
                                 Array msg;
@@ -2263,7 +2262,7 @@ void ScriptEditorDebugger::_item_menu_id_pressed(int p_option) {
 }
 void ScriptEditorDebugger::_tab_changed(int p_tab) {
     if (tabs->get_tab_title(p_tab) == TTR("Video RAM")) {
-        // "Video RAM" tab was clicked, refresh the data it's dislaying when entering the tab.
+        // "Video RAM" tab was clicked, refresh the data it's displaying when entering the tab.
         _video_mem_request();
     }
 }

@@ -44,6 +44,7 @@
 
 #define OBJTYPE_RLOCK RWLockRead _rw_lockr_(lock);
 #define OBJTYPE_WLOCK RWLockWrite _rw_lockw_(lock);
+RWLock ClassDB::lock;
 
 #ifdef DEBUG_METHODS_ENABLED
 
@@ -63,6 +64,27 @@
 //}
 
 #endif
+// Non-locking variants of get_parent_class and is_parent_class.
+static StringName _get_parent_class(const StringName &p_class) {
+    auto ti = ClassDB::classes.find(p_class);
+    ERR_FAIL_COND_V_MSG(ti==ClassDB::classes.end(), StringName(), "Cannot get class '" + String(p_class) + "'.");
+    return ti->second.inherits;
+}
+static bool _is_parent_class(const StringName &p_class, const StringName &p_inherits) {
+
+    StringName inherits = p_class;
+
+    while (!inherits.empty()) {
+
+        if (inherits == p_inherits)
+
+            return true;
+        inherits = _get_parent_class(inherits);
+    }
+
+    return false;
+}
+
 struct ClassInfoImpl {
     HashMap<StringName, MethodInfo> signal_map;
 };
@@ -101,7 +123,7 @@ bool ClassDB::is_parent_class(const StringName &p_class, const StringName &p_inh
         if (inherits == p_inherits) {
             return true;
         }
-        inherits = get_parent_class(inherits);
+        inherits = _get_parent_class(inherits);
     }
 
     return false;
@@ -119,7 +141,7 @@ void ClassDB::get_inheriters_from_class(const StringName &p_class, Vector<String
     RWLockRead _rw_lockr_(lock);
 
     for (const auto &k : classes) {
-        if (k.first != p_class && is_parent_class(k.first, p_class)) {
+        if (k.first != p_class && _is_parent_class(k.first, p_class)) {
             p_classes->push_back(k.first);
         }
     }
@@ -129,7 +151,7 @@ void ClassDB::get_direct_inheriters_from_class(const StringName &p_class, Vector
     RWLockRead _rw_lockr_(lock);
 
     for (const auto &k : classes) {
-        if (k.first != p_class && get_parent_class(k.first) == p_class) {
+        if (k.first != p_class && _get_parent_class(k.first) == p_class) {
             p_classes->push_back(k.first);
         }
     }
@@ -159,19 +181,8 @@ StringName ClassDB::get_parent_class_nocheck(const StringName &p_class) {
 StringName ClassDB::get_parent_class(const StringName &p_class) {
     RWLockRead _rw_lockr_(lock);
 
-    const auto iter = classes.find(p_class);
-    if (iter == classes.end()) {
-        return StringName();
-    }
+    return _get_parent_class(p_class);
 
-    if (unlikely(iter == classes.end())) {
-        _err_print_error(FUNCTION_STR, __FILE__, __LINE__,
-                "Condition 'iter==classes.end()' is true. returned: StringName(). Cannot get class '" +
-                        String(p_class) + "'.");
-        return StringName();
-    }
-
-    return iter->second.inherits;
 }
 
 ClassDB::APIType ClassDB::get_api_type(const StringName &p_class) {
@@ -739,10 +750,10 @@ void ClassDB::add_property_array(StringName p_class, const char *p_name, int ele
 
 void ClassDB::add_property(StringName p_class, const PropertyInfo &p_pinfo, const StringName &p_setter,
         const StringName &p_getter, int p_index) {
-    lock->read_lock();
+    lock.read_lock();
     auto iter = classes.find(p_class);
     ClassInfo *type = iter != classes.end() ? &iter->second : nullptr;
-    lock->read_unlock();
+    lock.read_unlock();
 
     ERR_FAIL_COND(!type);
 
@@ -1275,12 +1286,6 @@ Variant ClassDB::class_get_default_property_value(
     return default_values[p_class][p_property];
 }
 
-RWLock *ClassDB::lock = nullptr;
-
-void ClassDB::init() {
-    lock = RWLock::create();
-}
-
 void ClassDB::cleanup_defaults() {
     default_values.clear();
     default_values_cached.clear();
@@ -1291,8 +1296,6 @@ void ClassDB::cleanup() {
     classes.clear();
     resource_base_extensions.clear();
     compat_classes.clear();
-
-    memdelete(lock);
 }
 
 //

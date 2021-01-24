@@ -141,7 +141,6 @@ protected:
 
     virtual void set_cmdline(StringView p_execpath, Vector<String> &&p_args);
 
-    void _ensure_user_data_dir();
     virtual bool _check_internal_feature_support(StringView p_feature) = 0;
 
 public:
@@ -155,6 +154,7 @@ public:
     virtual void global_menu_remove_item(const StringName &/*p_menu*/, int /*p_idx*/){}
     virtual void global_menu_clear(const StringName &/*p_menu*/){}
 
+    void ensure_user_data_dir();
     void print_error(StringView p_function, StringView p_file, int p_line, StringView p_code,
             StringView p_rationale, Logger::ErrorType p_type = Logger::ERR_ERROR);
     void print(StringView p_msg);
@@ -177,6 +177,7 @@ public:
     virtual Point2 get_mouse_position() const = 0;
     virtual int get_mouse_button_state() const = 0;
     virtual void set_window_title(StringView p_title) = 0;
+    virtual void set_window_mouse_passthrough(const PoolVector<Vector2> &/*p_region*/){};
 
     virtual void set_clipboard(StringView p_text);
     virtual String get_clipboard() const;
@@ -234,6 +235,22 @@ public:
     virtual bool is_console_visible() const { return false; }
     virtual void request_attention() {}
     virtual void center_window();
+
+    // Returns internal pointers and handles.
+    // While exposed to GDScript this is mostly to give GDNative plugins access to this information.
+    // Note that whether a valid handle is returned depends on whether it applies to the given
+    // platform and often to the chosen render driver.
+    // NULL will be returned if a handle is not available.
+
+    enum HandleType {
+        APPLICATION_HANDLE, // HINSTANCE, NSApplication*, UIApplication*, JNIEnv* ...
+        DISPLAY_HANDLE, // X11::Display* ...
+        WINDOW_HANDLE, // HWND, X11::Window*, NSWindow*, UIWindow*, Android activity ...
+        WINDOW_VIEW, // HDC, NSView*, UIView*, Android surface ...
+        OPENGL_CONTEXT, // HGLRC, X11::GLXContext, NSOpenGLContext*, EGLContext* ...
+    };
+
+    virtual void *get_native_handle(int p_handle_type) { return NULL; };
 
     // Returns window area free of hardware controls and other obstacles.
     // The application should use this to determine where to place UI elements.
@@ -452,7 +469,7 @@ public:
     };
 
     virtual void set_screen_orientation(ScreenOrientation p_orientation);
-    ScreenOrientation get_screen_orientation() const;
+    virtual ScreenOrientation get_screen_orientation() const;
 
     virtual void enable_for_stealing_focus(ProcessID /*pid*/) {}
     virtual void move_window_to_foreground() {}

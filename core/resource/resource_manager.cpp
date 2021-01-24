@@ -402,9 +402,9 @@ bool ResourceManager::add_custom_resource_format_saver(StringView script_path) {
 
     ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource saver, expected 'ResourceFormatSaver' inheritance, got: " + String(ibt) + ".");
 
-    auto* crl = object_cast<ResourceFormatSaver>(obj);
+    Ref<ResourceFormatSaver> crl(object_cast<ResourceFormatSaver>(obj),DoNotAddRef);
     crl->set_script(s.get_ref_ptr());
-    add_resource_format_saver(Ref<ResourceFormatSaver>(crl));
+    add_resource_format_saver(crl);
 
     return true;
 }
@@ -454,9 +454,9 @@ bool ResourceManager::add_custom_resource_format_loader(StringView script_path) 
 
     ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource loader, expected 'ResourceFormatLoader' inheritance, got: " + String(ibt) + ".");
 
-    auto* crl = object_cast<ResourceFormatLoader>(obj);
+    Ref<ResourceFormatLoader> crl(object_cast<ResourceFormatLoader>(obj), DoNotAddRef);
     crl->set_script(s.get_ref_ptr());
-    add_resource_format_loader(Ref<ResourceFormatLoader>(crl));
+    add_resource_format_loader(crl);
 
     return true;
 }
@@ -522,9 +522,7 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
         }
 
         //lock first if possible
-        if (ResourceCache::lock) {
-            ResourceCache::lock->read_lock();
-        }
+        ResourceCache::lock.read_lock();
 
         //get ptr
         Resource* rptr = ResourceCache::get_unguarded(local_path);
@@ -537,16 +535,12 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
                 //referencing is fine
                 if (r_error)
                     *r_error = OK;
-                if (ResourceCache::lock) {
-                    ResourceCache::lock->read_unlock();
-                }
+                ResourceCache::lock.read_unlock();
                 D()->_remove_from_loading_map(local_path);
                 return res;
             }
         }
-        if (ResourceCache::lock) {
-            ResourceCache::lock->read_unlock();
-        }
+        ResourceCache::lock.read_unlock();
     }
 
     bool xl_remapped = false;

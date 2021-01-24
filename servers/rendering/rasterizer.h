@@ -384,6 +384,7 @@ public:
     virtual void light_set_cull_mask(RID p_light, uint32_t p_mask) = 0;
     virtual void light_set_reverse_cull_face_mode(RID p_light, bool p_enabled) = 0;
     virtual void light_set_use_gi(RID p_light, bool p_enable) = 0;
+    virtual void light_set_bake_mode(RID p_light, RS::LightBakeMode p_bake_mode) = 0;
 
     virtual void light_omni_set_shadow_mode(RID p_light, RS::LightOmniShadowMode p_mode) = 0;
     virtual void light_omni_set_shadow_detail(RID p_light, RS::LightOmniShadowDetail p_detail) = 0;
@@ -404,6 +405,7 @@ public:
     virtual float light_get_param(RID p_light, RS::LightParam p_param) = 0;
     virtual Color light_get_color(RID p_light) = 0;
     virtual bool light_get_use_gi(RID p_light) = 0;
+    virtual RS::LightBakeMode light_get_bake_mode(RID p_light) = 0;
     virtual uint64_t light_get_version(RID p_light) const = 0;
 
     /* PROBE API */
@@ -472,19 +474,9 @@ public:
     virtual void gi_probe_set_interior(RID p_probe, bool p_enable) = 0;
     virtual bool gi_probe_is_interior(RID p_probe) const = 0;
 
-    virtual void gi_probe_set_compress(RID p_probe, bool p_enable) = 0;
-    virtual bool gi_probe_is_compressed(RID p_probe) const = 0;
-
     virtual uint32_t gi_probe_get_version(RID p_probe) = 0;
 
-    enum GIProbeCompression : uint8_t {
-        GI_PROBE_UNCOMPRESSED,
-        GI_PROBE_S3TC,
-        GI_PROBE_ETC2
-    };
-
-    virtual GIProbeCompression gi_probe_get_dynamic_data_get_preferred_compression() const = 0;
-    virtual RID gi_probe_dynamic_data_create(int p_width, int p_height, int p_depth, GIProbeCompression p_compression) = 0;
+    virtual RID gi_probe_dynamic_data_create(int p_width, int p_height, int p_depth) = 0;
     virtual void gi_probe_dynamic_data_update(RID p_gi_probe_data, int p_depth_slice, int p_slice_count, int p_mipmap, const void *p_data) = 0;
 
     /* LIGHTMAP CAPTURE */
@@ -573,6 +565,8 @@ public:
     virtual bool render_target_was_used(RID p_render_target) = 0;
     virtual void render_target_clear_used(RID p_render_target) = 0;
     virtual void render_target_set_msaa(RID p_render_target, RS::ViewportMSAA p_msaa) = 0;
+    virtual void render_target_set_use_fxaa(RID p_render_target, bool p_fxaa) = 0;
+    virtual void render_target_set_use_debanding(RID p_render_target, bool p_debanding) = 0;
 
     /* CANVAS SHADOW */
 
@@ -1133,6 +1127,7 @@ public:
     virtual void finalize() = 0;
 
     //virtual bool is_low_end() const = 0;
+    virtual const char *gl_check_for_error(bool p_print_error = true) = 0;
 
     virtual ~Rasterizer() {}
 };

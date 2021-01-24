@@ -110,7 +110,7 @@ void Physics2DServerWrapMT::init() {
         step_sem = memnew(Semaphore);
         //OS::get_singleton()->release_rendering_thread();
         if (create_thread) {
-            thread = Thread::create(_thread_callback, this);
+            thread.start(_thread_callback, this);
         }
         while (!step_thread_up) {
             OS::get_singleton()->delay_usec(1000);
@@ -123,7 +123,7 @@ void Physics2DServerWrapMT::init() {
 
 void Physics2DServerWrapMT::finish() {
 
-    if (thread) {
+    if (thread.is_started()) {
         line_shape_free_cached_ids();
         ray_shape_free_cached_ids();
         segment_shape_free_cached_ids();
@@ -138,10 +138,7 @@ void Physics2DServerWrapMT::finish() {
         body_free_cached_ids();
 
         command_queue.push([this]() {thread_exit(); });
-        Thread::wait_to_finish(thread);
-        memdelete(thread);
-
-        thread = nullptr;
+        thread.wait_to_finish();
     } else {
         for (auto v : line_shape_id_pool) {
             submission_thread_singleton->free_rid(v);
@@ -213,7 +210,6 @@ Physics2DServerWrapMT::Physics2DServerWrapMT(PhysicsServer2D *p_contained, bool 
     queueing_thread_singleton = this;
     physics_server_2d = p_contained;
     create_thread = p_create_thread;
-    thread = nullptr;
     step_sem = nullptr;
     step_pending = 0;
     step_thread_up = false;

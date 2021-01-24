@@ -584,6 +584,7 @@ public:
             MAX_DIRECTIONAL_LIGHTS = 16,
             DEFAULT_MAX_LIGHTS = 4096,
             DEFAULT_MAX_REFLECTIONS = 1024,
+            DEFAULT_MAX_LIGHTS_PER_OBJECT = 32,
 
             SORT_KEY_PRIORITY_SHIFT = 56,
             SORT_KEY_PRIORITY_MASK = 0xFF,
@@ -616,6 +617,7 @@ public:
         int max_elements;
         int max_lights;
         int max_reflections;
+        int max_lights_per_object;
 
         struct Element {
 

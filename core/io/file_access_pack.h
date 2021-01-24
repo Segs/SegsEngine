@@ -127,6 +127,9 @@ public:
     _FORCE_INLINE_ FileAccess *try_open_path(StringView p_path);
     _FORCE_INLINE_ bool has_path(StringView p_path);
 
+    _FORCE_INLINE_ DirAccess *try_open_directory(StringView p_path);
+    _FORCE_INLINE_ bool has_directory(StringView p_path);
+
     PackedData();
     ~PackedData();
 };
@@ -148,7 +151,11 @@ bool PackedData::has_path(StringView p_path) {
 
     return files.contains(PathMD5(StringUtils::md5_buffer(p_path)));
 }
+bool PackedData::has_directory(StringView p_path) {
 
+    DirAccessRef da = try_open_directory(p_path);
+    return da==true;
+}
 class DirAccessPack : public DirAccess {
 
     PackedData::PackedDir *current;
@@ -158,6 +165,8 @@ class DirAccessPack : public DirAccess {
     int m_dir_offset=0;
     int m_file_offset=0;
     bool cdir;
+
+    PackedData::PackedDir *_find_dir(StringView p_dir) const;
 
 public:
     Error list_dir_begin() override;
@@ -187,3 +196,13 @@ public:
     DirAccessPack();
     ~DirAccessPack() override;
 };
+
+DirAccess *PackedData::try_open_directory(StringView p_path) {
+
+    DirAccess *da = memnew(DirAccessPack());
+    if (da->change_dir(p_path) != OK) {
+        memdelete(da);
+        da = nullptr;
+    }
+    return da;
+}

@@ -41,7 +41,7 @@ const Vector<StringName> g_null_stringname_vec; //!< Can be used wherever user n
 
 namespace
 {
-static Mutex *lock=nullptr;
+static Mutex lock;
 
 template <typename L, typename R>
 _FORCE_INLINE_ bool is_str_less(const L *l_ptr, const R *r_ptr) {
@@ -107,8 +107,6 @@ bool StringName::configured = false;
 
 void StringName::setup() {
 
-    lock = memnew(Mutex);
-
     ERR_FAIL_COND(configured);
     for (auto &entry : _table) {
         entry = nullptr;
@@ -119,7 +117,7 @@ void StringName::setup() {
 void StringName::cleanup(bool log_orphans) {
 
     { // this block is done under lock, exiting the block will release the block automatically.
-        MutexLock mlocker(*lock);
+        MutexLock mlocker(lock);
 
         int lost_strings = 0;
         for (auto &entry : _table) {
@@ -141,8 +139,6 @@ void StringName::cleanup(bool log_orphans) {
         }
     }
 
-    memdelete(lock);
-    lock = nullptr;
     configured = false;
 }
 
@@ -151,7 +147,7 @@ void StringName::unref() noexcept {
     ERR_FAIL_COND(!configured);
     assert(_data);
     if (_data->refcount.unref()) {
-        MutexLock mlocker(*lock);
+        MutexLock mlocker(lock);
 
         if (_data->prev) {
             _data->prev->next = _data->next;
@@ -235,13 +231,9 @@ StringName::StringName(const char *p_name) {
     if (!p_name || p_name[0] == 0)
         return; //empty, ignore
 
-    MutexLock mlocker(*lock);
+    MutexLock mlocker(lock);
 
     uint32_t hash = StringUtils::hash(p_name);
-    if(hash==2304634407)
-    {
-        printf("in\n");
-    }
     uint32_t idx = hash & STRING_TABLE_MASK;
 
     _data = _table[idx];
@@ -276,7 +268,7 @@ StringName::StringName(const char *p_name) {
 
 void StringName::setupFromCString(const StaticCString &p_static_string) {
 
-    MutexLock mlocker(*lock);
+    MutexLock mlocker(lock);
 
     uint32_t hash = StringUtils::hash(p_static_string.ptr);
     if(hash==2304634407)
@@ -326,7 +318,7 @@ StringName::StringName(StringView p_name) {
     if (p_name.empty())
         return;
 
-    MutexLock mlocker(*lock);
+    MutexLock mlocker(lock);
 
     uint32_t hash = StringUtils::hash(p_name);
     if(hash==2304634407)
@@ -374,7 +366,7 @@ StringName StringName::search(const char *p_name) {
     if (!p_name[0])
         return StringName();
 
-    MutexLock mlocker(*lock);
+    MutexLock mlocker(lock);
 
     uint32_t hash = StringUtils::hash(p_name);
 

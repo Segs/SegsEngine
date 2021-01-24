@@ -104,10 +104,6 @@ Variant Object_get_fallback(const Object *self, const StringName &p_name, bool &
     return ret;
 }
 
-void Object_add_tool_properties(Vector<PropertyInfo> *p_list) {
-    p_list->push_back(PropertyInfo(VariantType::NIL, "Script", PropertyHint::None, "", PROPERTY_USAGE_GROUP));
-}
-
 bool Object_script_signal_validate(const RefPtr &script) {
     // allow connecting signals anyway if script is invalid, see issue #17070
     if (!refFromRefPtr<Script>(script)->is_valid()) {

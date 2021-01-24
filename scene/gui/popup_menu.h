@@ -190,7 +190,7 @@ public:
 
     void remove_item(int p_idx);
 
-    void add_separator(const StringName &p_text = StringName());
+    void add_separator(const StringName &p_text = StringName(), int p_id = -1);
 
     void clear();
 

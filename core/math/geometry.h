@@ -498,6 +498,26 @@ public:
         return (cn.cross(an) > 0) == orientation;
     }
 
+    static Vector3 barycentric_coordinates_2d(Vector2 s, Vector2 a, Vector2 b, Vector2 c) {
+        // http://www.blackpawn.com/texts/pointinpoly/
+        const Vector2 v0 = c - a;
+        const Vector2 v1 = b - a;
+        const Vector2 v2 = s - a;
+
+        // Compute dot products
+        const auto dot00 = v0.dot(v0);
+        const auto dot01 = v0.dot(v1);
+        const auto dot02 = v0.dot(v2);
+        const auto dot11 = v1.dot(v1);
+        const auto dot12 = v1.dot(v2);
+
+        // Compute barycentric coordinates
+        const auto invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
+        const auto b2 = (dot11 * dot02 - dot01 * dot12) * invDenom;
+        const auto b1 = (dot00 * dot12 - dot01 * dot02) * invDenom;
+        const auto b0 = 1.0f - b2 - b1;
+        return Vector3(b0, b1, b2);
+    }
 
     static Vector2 get_closest_point_to_segment_uncapped_2d(const Vector2 &p_point, const Vector2 *p_segment) {
 
@@ -976,6 +996,12 @@ public:
     static PoolVector<Plane> build_capsule_planes(real_t p_radius, real_t p_height, int p_sides, int p_lats, Vector3::Axis p_axis = Vector3::AXIS_Z);
 
     static void make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_result, Size2i &r_size);
+    struct PackRectsResult {
+        int x;
+        int y;
+        bool packed;
+    };
+
     static FixedVector<Vector3,8,false> compute_convex_mesh_points(Span<const Plane,6> p_planes);
 private:
     static Vector<Vector<Point2> > _polypaths_do_operation(PolyBooleanOperation p_op, const Vector<Point2> &p_polypath_a, const Vector<Point2> &p_polypath_b, bool is_a_open = false);

@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AUDIO_DRIVER_DUMMY_H
-#define AUDIO_DRIVER_DUMMY_H
+#pragma once
 
 #include "servers/audio_server.h"
 
@@ -37,7 +36,7 @@
 
 class AudioDriverDummy : public AudioDriver {
 
-    Thread *thread;
+    Thread thread;
     Mutex mutex;
 
     int32_t *samples_in;
@@ -70,5 +69,3 @@ public:
     AudioDriverDummy();
     ~AudioDriverDummy() override;
 };
-
-#endif

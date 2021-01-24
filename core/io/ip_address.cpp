@@ -32,6 +32,7 @@
 
 #include "core/string.h"
 #include "core/string_utils.h"
+#include "core/error_macros.h"
 /*
 IP_Address::operator Variant() const {
 

@@ -51,6 +51,7 @@ public:
         Color ysort_modulate;
         Transform2D ysort_xform;
         Vector2 ysort_pos;
+        int ysort_index;
 
         Vector<Item *> child_items;
 
@@ -67,6 +68,7 @@ public:
             ysort_children_count = -1;
             ysort_xform = Transform2D();
             ysort_pos = Vector2();
+            ysort_index = 0;
         }
     };
 
@@ -82,8 +84,9 @@ public:
 
         _FORCE_INLINE_ bool operator()(const Item *p_left, const Item *p_right) const {
 
-            if (Math::is_equal_approx(p_left->ysort_pos.y, p_right->ysort_pos.y))
-                return p_left->ysort_pos.x < p_right->ysort_pos.x;
+            if (Math::is_equal_approx(p_left->ysort_pos.y, p_right->ysort_pos.y)) {
+                return p_left->ysort_index < p_right->ysort_index;
+            }
 
             return p_left->ysort_pos.y < p_right->ysort_pos.y;
         }
@@ -152,6 +155,7 @@ public:
     RID_Owner<RasterizerCanvas::Light3D> canvas_light_owner;
 
     bool disable_scale;
+    bool snap_2d_transforms;
 
 private:
     void _render_canvas_item_tree(Item *p_canvas_item, const Transform2D &p_transform, const Rect2 &p_clip_rect, const Color &p_modulate, RasterizerCanvas::Light3D *p_lights);

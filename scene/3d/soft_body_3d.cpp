@@ -585,7 +585,7 @@ Array SoftBody3D::get_collision_exceptions() {
     Array ret;
     for (RID body : exceptions) {
         ObjectID instance_id = PhysicsServer3D::get_singleton()->body_get_object_instance_id(body);
-        Object *obj = gObjectDB().get_instance(instance_id);
+        Object *obj = ObjectDB::get_instance(instance_id);
         PhysicsBody3D *physics_body = object_cast<PhysicsBody3D>(obj);
         ret.append(Variant(physics_body));
     }
@@ -751,7 +751,7 @@ void SoftBody3D::_update_cache_pin_points_datas() {
             w[i].spatial_attachment = object_cast<Node3D>(get_node(w[i].spatial_attachment_path));
         }
         if (!w[i].spatial_attachment) {
-            ERR_PRINT("Node3D node not defined in the pinned point, Softbody undefined behaviour!");
+            ERR_PRINT("Spatial node not defined in the pinned point, this is undefined behavior for SoftBody!");
         }
     }
 }

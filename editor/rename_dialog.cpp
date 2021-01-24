@@ -304,7 +304,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
     cbut_collapse_features->connect("toggled",callable_mp(this, &ClassName::_features_toggled));
 
-    // Substitite Buttons
+    // Substitute Buttons
 
     lne_search->connect("focus_entered",callable_mp(this, &ClassName::_update_substitute));
     lne_search->connect("focus_exited",callable_mp(this, &ClassName::_update_substitute));

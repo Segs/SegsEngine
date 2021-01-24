@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/math/transform_2d.h"
+#include "core/node_path.h"
 #include "scene/main/node.h"
 #include "scene/resources/texture.h"
 #include "scene/resources/world_2d.h"
@@ -283,6 +284,8 @@ private:
     ShadowAtlasQuadrantSubdiv shadow_atlas_quadrant_subdiv[4];
 
     MSAA msaa;
+    bool use_fxaa;
+    bool use_debanding;
     bool hdr;
 
     Ref<ViewportTexture> default_texture;
@@ -302,7 +305,7 @@ private:
         Control *mouse_click_grabber;
         Control *key_focus;
         Control *mouse_over;
-        Control *tooltip;
+        Control *tooltip_control;
         Control *tooltip_popup;
         Label *tooltip_label;
         Variant drag_data;
@@ -358,7 +361,7 @@ protected:
     void _gui_remove_root_control(Control *RI);
     void _gui_remove_subwindow_control(Control *SI);
 
-    String _gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Control **r_which = nullptr);
+    String _gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Control **r_tooltip_owner = nullptr);
     void _gui_cancel_tooltip();
     void _gui_show_tooltip();
 
@@ -493,6 +496,12 @@ public:
 
     void set_msaa(MSAA p_msaa);
     MSAA get_msaa() const;
+
+    void set_use_fxaa(bool p_fxaa);
+    bool get_use_fxaa() const;
+
+    void set_use_debanding(bool p_debanding);
+    bool get_use_debanding() const;
 
     void set_hdr(bool p_hdr);
     bool get_hdr() const;

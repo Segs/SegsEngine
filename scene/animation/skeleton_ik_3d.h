@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SKELETON_IK_H
-#define SKELETON_IK_H
+#pragma once
 
 #ifndef _3D_DISABLED
 
@@ -37,6 +36,7 @@
  * @author AndreaCatania
  */
 
+#include "core/node_path.h"
 #include "core/math/transform.h"
 #include "scene/3d/skeleton_3d.h"
 
@@ -82,9 +82,6 @@ class FabrikInverseKinematic {
                 chain_item(p_chain_item),
                 end_effector(p_end_effector) {}
 
-        ChainTip(const ChainTip &p_other_ct) :
-                chain_item(p_other_ct.chain_item),
-                end_effector(p_other_ct.end_effector) {}
     };
 
     struct Chain {
@@ -213,5 +210,3 @@ private:
 };
 
 #endif // _3D_DISABLED
-
-#endif // SKELETON_IK_H

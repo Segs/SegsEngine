@@ -137,16 +137,6 @@ bool GIProbeData::is_interior() const {
     return RenderingServer::get_singleton()->gi_probe_is_interior(probe);
 }
 
-bool GIProbeData::is_compressed() const {
-
-    return RenderingServer::get_singleton()->gi_probe_is_compressed(probe);
-}
-
-void GIProbeData::set_compress(bool p_enable) {
-
-    RenderingServer::get_singleton()->gi_probe_set_compress(probe, p_enable);
-}
-
 int GIProbeData::get_dynamic_range() const {
 
     return RenderingServer::get_singleton()->gi_probe_get_dynamic_range(probe);
@@ -189,9 +179,6 @@ void GIProbeData::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_interior", {"interior"}), &GIProbeData::set_interior);
     MethodBinder::bind_method(D_METHOD("is_interior"), &GIProbeData::is_interior);
 
-    MethodBinder::bind_method(D_METHOD("set_compress", {"compress"}), &GIProbeData::set_compress);
-    MethodBinder::bind_method(D_METHOD("is_compressed"), &GIProbeData::is_compressed);
-
     ADD_PROPERTY(PropertyInfo(VariantType::AABB, "bounds", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_bounds", "get_bounds");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "cell_size", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_cell_size", "get_cell_size");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "to_cell_xform", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_to_cell_xform", "get_to_cell_xform");
@@ -203,7 +190,6 @@ void GIProbeData::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "normal_bias", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_normal_bias", "get_normal_bias");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "propagation", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_propagation", "get_propagation");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "interior", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_interior", "is_interior");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "compress", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_compress", "is_compressed");
 }
 
 GIProbeData::GIProbeData() {
@@ -327,19 +313,6 @@ void GIProbe::set_interior(bool p_enable) {
 bool GIProbe::is_interior() const {
 
     return interior;
-}
-
-void GIProbe::set_compress(bool p_enable) {
-
-    compress = p_enable;
-    if (probe_data) {
-        probe_data->set_compress(p_enable);
-    }
-}
-
-bool GIProbe::is_compressed() const {
-
-    return compress;
 }
 
 void GIProbe::_find_meshes(Node *p_at_node, Vector<GIProbe::PlotMesh> &plot_meshes) const {
@@ -472,7 +445,6 @@ void GIProbe::bake(Node *p_from_node, bool p_create_visual_debug) {
         probe_data->set_normal_bias(normal_bias);
         probe_data->set_propagation(propagation);
         probe_data->set_interior(interior);
-        probe_data->set_compress(compress);
         probe_data->set_to_cell_xform(baker.get_to_cell_space_xform());
 
         set_probe_data(probe_data);
@@ -531,9 +503,6 @@ void GIProbe::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_interior", {"enable"}), &GIProbe::set_interior);
     MethodBinder::bind_method(D_METHOD("is_interior"), &GIProbe::is_interior);
 
-    MethodBinder::bind_method(D_METHOD("set_compress", {"enable"}), &GIProbe::set_compress);
-    MethodBinder::bind_method(D_METHOD("is_compressed"), &GIProbe::is_compressed);
-
     MethodBinder::bind_method(D_METHOD("bake", {"from_node", "create_visual_debug"}), &GIProbe::bake, {DEFVAL(Variant()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("debug_bake"), &GIProbe::debug_bake,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
@@ -545,7 +514,6 @@ void GIProbe::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bias", PropertyHint::Range, "0,4,0.001"), "set_bias", "get_bias");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "normal_bias", PropertyHint::Range, "0,4,0.001"), "set_normal_bias", "get_normal_bias");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "interior"), "set_interior", "is_interior");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "compress"), "set_compress", "is_compressed");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "data", PropertyHint::ResourceType, "GIProbeData", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE), "set_probe_data", "get_probe_data");
 
     BIND_ENUM_CONSTANT(SUBDIV_64);
@@ -565,7 +533,6 @@ GIProbe::GIProbe() {
     propagation = 0.7;
     extents = Vector3(10, 10, 10);
     interior = false;
-    compress = false;
 
     gi_probe = RenderingServer::get_singleton()->gi_probe_create();
     set_disable_scale(true);

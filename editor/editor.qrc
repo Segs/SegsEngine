@@ -226,6 +226,7 @@
         <file>icons/GraphNode.svg</file>
         <file>icons/Grid.svg</file>
         <file>icons/GridContainer.svg</file>
+        <file>icons/GridMinimap.svg</file>
         <file>icons/Group.svg</file>
         <file>icons/GroupViewport.svg</file>
         <file>icons/Groups.svg</file>
@@ -354,7 +355,6 @@
         <file>icons/Override.svg</file>
         <file>icons/PackedDataContainer.svg</file>
         <file>icons/PackedScene.svg</file>
-        <file>icons/PaintVertex.svg</file>
         <file>icons/Panel.svg</file>
         <file>icons/PanelContainer.svg</file>
         <file>icons/Panels1.svg</file>
@@ -543,7 +543,6 @@
         <file>icons/Unbone.svg</file>
         <file>icons/Ungroup.svg</file>
         <file>icons/Unlock.svg</file>
-        <file>icons/UnpaintVertex.svg</file>
         <file>icons/Uv.svg</file>
         <file>icons/VBoxContainer.svg</file>
         <file>icons/VScrollBar.svg</file>

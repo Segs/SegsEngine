@@ -57,9 +57,6 @@ IMPL_GDCLASS(DynamicFont)
 VARIANT_ENUM_CAST(DynamicFontData::Hinting);
 VARIANT_ENUM_CAST(DynamicFont::SpacingType);
 
-static unsigned long _ft_stream_io(FT_Stream stream, unsigned long offset, unsigned char *buffer, unsigned long count);
-static void _ft_stream_close(FT_Stream stream);
-static HashMap<String, Vector<uint8_t> > s_df_fontdata;
 static Vector<DynamicFont *> dynamic_fonts;
 
 struct DynamicFontAtSize::ImplData
@@ -100,6 +97,7 @@ struct DynamicFontAtSize::ImplData
         int y;
     };
     _THREAD_SAFE_CLASS_
+    Vector<uint8_t> s_df_fontdata;
     HashMap<CharType, Character> char_map;
     Vector<CharTexture> textures;
     FT_Library library; /* handle to library     */
@@ -379,11 +377,23 @@ struct DynamicFontAtSize::ImplData
             tex.imgdata.resize(texsize * texsize * p_color_size); //grayscale alpha
 
             {
-                //zero texture
+                // zero texture
                 PoolVector<uint8_t>::Write w = tex.imgdata.write();
                 ERR_FAIL_COND_V(texsize * texsize * p_color_size > tex.imgdata.size(), ret);
-                for (int i = 0; i < texsize * texsize * p_color_size; i++) {
-                    w[i] = 0;
+                // Initialize the texture to all-white pixels to prevent artifacts when the
+                // font is displayed at a non-default scale with filtering enabled.
+                if (p_color_size == 2) {
+                    for (int i = 0; i < texsize * texsize * p_color_size; i += 2) {
+                        w[i + 0] = 255;
+                        w[i + 1] = 0;
+                    }
+                } else {
+                    for (int i = 0; i < texsize * texsize * p_color_size; i += 4) {
+                        w[i + 0] = 255;
+                        w[i + 1] = 255;
+                        w[i + 2] = 255;
+                        w[i + 3] = 0;
+                    }
                 }
             }
             tex.offsets.resize(texsize,0); //zero offsets
@@ -400,54 +410,22 @@ struct DynamicFontAtSize::ImplData
 
         ERR_FAIL_COND_V_MSG(error != 0, ERR_CANT_CREATE, "Error initializing FreeType.");
 
-        // FT_OPEN_STREAM is extremely slow only on Android.
-        if (OS::get_singleton()->get_name() == "Android" && font->font_mem == nullptr && !font->font_path.empty()) {
-            // cache font only once for each font->font_path
-            if (s_df_fontdata.contains(font->font_path)) {
-
-                font->set_font_ptr(s_df_fontdata[font->font_path].data(), s_df_fontdata[font->font_path].size());
-
-            } else {
-
-                FileAccess *f = FileAccess::open(font->font_path, FileAccess::READ);
-                if (!f) {
-                    FT_Done_FreeType(library);
-                    ERR_FAIL_V_MSG(ERR_CANT_OPEN, "Cannot open font file '" + font->font_path + "'.");
-                }
-
-                size_t len = f->get_len();
-                Vector<uint8_t> &fontdata = s_df_fontdata[font->font_path];
-                fontdata.clear();
-                fontdata.resize(len);
-                fontdata.shrink_to_fit();
-                f->get_buffer(fontdata.data(), len);
-                font->set_font_ptr(fontdata.data(), len);
-                f->close();
-            }
-        }
-
-        if (font->font_mem == nullptr && !font->font_path.empty()) {
-
-            FileAccess *f = FileAccess::open(font->font_path, FileAccess::READ);
+        if (font->font_mem == NULL && !font->font_path.empty()) {
+            FileAccessRef f(FileAccess::open(font->font_path, FileAccess::READ));
             if (!f) {
                 FT_Done_FreeType(library);
                 ERR_FAIL_V_MSG(ERR_CANT_OPEN, "Cannot open font file '" + font->font_path + "'.");
             }
-            memset(&stream, 0, sizeof(FT_StreamRec));
-            stream.base = nullptr;
-            stream.size = f->get_len();
-            stream.pos = 0;
-            stream.descriptor.pointer = f;
-            stream.read = _ft_stream_io;
-            stream.close = _ft_stream_close;
 
-            FT_Open_Args fargs;
-            memset(&fargs, 0, sizeof(FT_Open_Args));
-            fargs.flags = FT_OPEN_STREAM;
-            fargs.stream = &stream;
-            error = FT_Open_Face(library, &fargs, 0, &face);
-        } else if (font->font_mem) {
+            size_t len = f->get_len();
+            font->_fontdata = Vector<uint8_t>();
+            font->_fontdata.resize(len);
+            f->get_buffer(font->_fontdata.data(), len);
+            font->set_font_ptr(font->_fontdata.data(), len);
+            f->close();
+        }
 
+        if (font->font_mem) {
             memset(&stream, 0, sizeof(FT_StreamRec));
             stream.base = (unsigned char *)font->font_mem;
             stream.size = font->font_mem_size;
@@ -722,27 +700,6 @@ float DynamicFontAtSize::draw_char(RID p_canvas_item, const Point2 &p_pos, CharT
     return advance;
 }
 
-static unsigned long _ft_stream_io(FT_Stream stream, unsigned long offset, unsigned char *buffer, unsigned long count) {
-
-    FileAccess *f = (FileAccess *)stream->descriptor.pointer;
-
-    if (f->get_position() != offset) {
-        f->seek(offset);
-    }
-
-    if (count == 0)
-        return 0;
-
-    return f->get_buffer(buffer, count);
-}
-static void _ft_stream_close(FT_Stream stream) {
-
-    FileAccess *f = (FileAccess *)stream->descriptor.pointer;
-    f->close();
-    memdelete(f);
-}
-
-
 void DynamicFontAtSize::update_oversampling() {
     m_impl->update_oversampling();
 }
@@ -989,17 +946,17 @@ bool DynamicFont::has_outline() const {
 }
 
 float DynamicFont::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next, const Color &p_modulate, bool p_outline) const {
-    const Ref<DynamicFontAtSize> &font_at_size = p_outline && outline_cache_id.outline_size > 0 ? outline_data_at_size : data_at_size;
-
-    if (not font_at_size)
+    if (!data_at_size)
         return 0;
 
-    const Vector<Ref<DynamicFontAtSize> > &fallbacks = p_outline && outline_cache_id.outline_size > 0 ? fallback_outline_data_at_size : fallback_data_at_size;
-    Color color = p_outline && outline_cache_id.outline_size > 0 ? p_modulate * outline_color : p_modulate;
-
-    // If requested outline draw, but no outline is present, simply return advance without drawing anything
-    bool advance_only = p_outline && outline_cache_id.outline_size == 0;
-    return font_at_size->draw_char(p_canvas_item, p_pos, p_char, color, fallbacks, advance_only,p_outline) + spacing_char;
+    if (p_outline) {
+        if (outline_data_at_size && outline_cache_id.outline_size > 0) {
+            outline_data_at_size->draw_char(p_canvas_item, p_pos, p_char, p_modulate * outline_color, fallback_outline_data_at_size, false, true); // Draw glpyh outline.
+        }
+        return data_at_size->draw_char(p_canvas_item, p_pos, p_char, p_modulate, fallback_data_at_size, true, false) + spacing_char; // Return advance of the base glyph.
+    } else {
+        return data_at_size->draw_char(p_canvas_item, p_pos, p_char, p_modulate, fallback_data_at_size, false, false) + spacing_char; // Draw base glyph and return advance.
+    }
 }
 
 void DynamicFont::set_fallback(int p_idx, const Ref<DynamicFontData> &p_data) {

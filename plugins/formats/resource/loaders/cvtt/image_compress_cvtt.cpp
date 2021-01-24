@@ -31,10 +31,10 @@
 #include "image_compress_cvtt.h"
 
 #include "core/os/os.h"
-#include "core/os/thread.h"
 #include "core/print_string.h"
 
 #include <ConvectionKernels.h>
+#include <thread>
 
 struct CVTTCompressionJobParams {
     bool is_hdr;
@@ -170,6 +170,7 @@ void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageUsedChannel
     if (p_source == ImageUsedChannels::USED_CHANNELS_RG) {
         flags |= cvtt::Flags::Uniform;
     }
+    options.flags = flags;
 
     Image::Format target_format = Image::FORMAT_BPTC_RGBA;
 
@@ -250,10 +251,8 @@ void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageUsedChannel
     }
 
     if (num_job_threads > 0) {
-        PoolVector<Thread *> threads;
+        Vector<std::thread *> threads;
         threads.resize(num_job_threads);
-
-        PoolVector<Thread *>::Write threads_wb = threads.write();
 
         PoolVector<CVTTCompressionRowTask>::Read tasks_rb = tasks.read();
 
@@ -262,13 +261,13 @@ void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageUsedChannel
         job_queue.num_tasks = static_cast<uint32_t>(tasks.size());
 
         for (int i = 0; i < num_job_threads; i++) {
-            threads_wb[i] = Thread::create(_digest_job_queue, &job_queue);
+            threads[i] = memnew(std::thread(_digest_job_queue, &job_queue));
         }
         _digest_job_queue(&job_queue);
 
         for (int i = 0; i < num_job_threads; i++) {
-            Thread::wait_to_finish(threads_wb[i]);
-            memdelete(threads_wb[i]);
+            threads[i]->join();
+            memdelete(threads[i]);
         }
     }
 

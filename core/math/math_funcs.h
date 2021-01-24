@@ -44,7 +44,8 @@ class Math {
 public:
     Math() = delete;
 
-    static const uint64_t RANDOM_32BIT_MAX = 0xFFFFFFFF;
+    // Not using 'RANDOM_MAX' to avoid conflict with system headers on some OSes (at least NetBSD).
+    static constexpr uint64_t RANDOM_32BIT_MAX = 0xFFFFFFFF;
 
     static _ALWAYS_INLINE_ double sin(double p_x) { return ::sin(p_x); }
     static _ALWAYS_INLINE_ float sin(float p_x) { return ::sinf(p_x); }

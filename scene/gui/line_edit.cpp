@@ -59,12 +59,12 @@ struct LineEdit::PrivateData {
     UIString text;
     UIString ime_text;
     int cached_width=0;
-    int window_pos=0;
+    int scroll_offset=0;
 
 
     struct TextOperation {
         int cursor_pos;
-        int window_pos;
+        int scroll_offset;
         int cached_width;
         UIString text;
     };
@@ -74,7 +74,7 @@ struct LineEdit::PrivateData {
         TextOperation op;
         op.text = text;
         op.cursor_pos = cursor_pos;
-        op.window_pos = window_pos;
+        op.scroll_offset = scroll_offset;
         op.cached_width = cached_width;
         undo_stack.push_back(op);
     }
@@ -107,7 +107,7 @@ struct LineEdit::PrivateData {
         TextOperation op = undo_stack[undo_stack_pos];
         text = op.text;
         cached_width = op.cached_width;
-        window_pos = op.window_pos;
+        scroll_offset = op.scroll_offset;
         return op.cursor_pos;
     }
     int do_redo() {
@@ -121,7 +121,7 @@ struct LineEdit::PrivateData {
         TextOperation op = undo_stack[undo_stack_pos];
         text = op.text;
         cached_width = op.cached_width;
-        window_pos = op.window_pos;
+        scroll_offset = op.scroll_offset;
         return op.cursor_pos;
     }
 };
@@ -157,6 +157,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
             if (!m_priv->text.isEmpty() && is_editable() && _is_over_clear_button(b->get_position())) {
                 clear_button_status.press_attempt = true;
                 clear_button_status.pressing_inside = true;
+                update();
                 return;
             }
 
@@ -631,7 +632,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
 
             if (handled) {
                 accept_event();
-            } else if (!k->get_command() || (k->get_command() && k->get_alt())) {
+            } else if (!k->get_command()) {
                 if (k->get_unicode() >= 32 && k->get_keycode() != KEY_DELETE) {
 
                     if (editable) {
@@ -737,7 +738,7 @@ void LineEdit::_notification(int p_what) {
 #endif
         case NOTIFICATION_RESIZED: {
 
-            m_priv->window_pos = 0;
+            m_priv->scroll_offset = 0;
             set_cursor_position(get_cursor_position());
 
         } break;
@@ -798,7 +799,7 @@ void LineEdit::_notification(int p_what) {
                 } break;
                 case ALIGN_CENTER: {
 
-                    if (m_priv->window_pos != 0)
+                    if (m_priv->scroll_offset != 0)
                         x_ofs = style->get_offset().x;
                     else
                         x_ofs = M_MAX(style->get_margin(Margin::Left), int(size.width - (cached_text_width)) / 2);
@@ -810,7 +811,7 @@ void LineEdit::_notification(int p_what) {
             }
 
             int ofs_max = width - style->get_margin(Margin::Right);
-            int char_ofs = m_priv->window_pos;
+            int char_ofs = m_priv->scroll_offset;
 
             int y_area = height - style->get_minimum_size().height;
             int y_ofs = style->get_offset().y + (y_area - font->get_height()) / 2;
@@ -841,7 +842,7 @@ void LineEdit::_notification(int p_what) {
                 r_icon->draw(ci, Point2(width - r_icon->get_width() - style->get_margin(Margin::Right), height / 2 - r_icon->get_height() / 2), color_icon);
 
                 if (align == ALIGN_CENTER) {
-                    if (m_priv->window_pos == 0) {
+                    if (m_priv->scroll_offset == 0) {
                         x_ofs = M_MAX(style->get_margin(Margin::Left), int(size.width - cached_text_width - r_icon->get_width() - style->get_margin(Margin::Right) * 2) / 2);
                     }
                 } else {
@@ -1101,7 +1102,7 @@ void LineEdit::shift_selection_check_post(bool p_shift) {
 void LineEdit::set_cursor_at_pixel_pos(int p_x) {
 
     Ref<Font> font = get_theme_font("font");
-    int ofs = m_priv->window_pos;
+    int ofs = m_priv->scroll_offset;
     Ref<StyleBox> style = get_theme_stylebox("normal");
     int pixel_ofs = 0;
     Size2 size = get_size();
@@ -1117,7 +1118,7 @@ void LineEdit::set_cursor_at_pixel_pos(int p_x) {
         } break;
         case ALIGN_CENTER: {
 
-            if (m_priv->window_pos != 0)
+            if (m_priv->scroll_offset != 0)
                 pixel_ofs = int(style->get_offset().x);
             else
                 pixel_ofs = int(size.width - (m_priv->cached_width)) / 2;
@@ -1155,7 +1156,7 @@ void LineEdit::set_cursor_at_pixel_pos(int p_x) {
 int LineEdit::get_cursor_pixel_pos() {
 
     Ref<Font> font = get_theme_font("font");
-    int ofs = m_priv->window_pos;
+    int ofs = m_priv->scroll_offset;
     Ref<StyleBox> style = get_theme_stylebox("normal");
     int pixel_ofs = 0;
     Size2 size = get_size();
@@ -1171,7 +1172,7 @@ int LineEdit::get_cursor_pixel_pos() {
         } break;
         case ALIGN_CENTER: {
 
-            if (m_priv->window_pos != 0)
+            if (m_priv->scroll_offset != 0)
                 pixel_ofs = int(style->get_offset().x);
             else
                 pixel_ofs = int(size.width - (m_priv->cached_width)) / 2;
@@ -1254,7 +1255,7 @@ void LineEdit::delete_char() {
 
     set_cursor_position(get_cursor_position() - 1);
     if (align == ALIGN_CENTER || align == ALIGN_RIGHT) {
-        m_priv->window_pos = CLAMP(m_priv->window_pos - 1, 0, M_MAX(0,m_priv->text.length() - 1));
+        m_priv->scroll_offset = CLAMP(m_priv->scroll_offset - 1, 0, M_MAX(0,m_priv->text.length() - 1));
     }
     _text_changed();
 }
@@ -1278,12 +1279,12 @@ void LineEdit::delete_text(int p_from_column, int p_to_column) {
 
         cursor_pos = m_priv->text.length();
     }
-    if (m_priv->window_pos > cursor_pos) {
+    if (m_priv->scroll_offset > cursor_pos) {
 
-        m_priv->window_pos = cursor_pos;
+        m_priv->scroll_offset = cursor_pos;
     }
     if (align == ALIGN_CENTER || align == ALIGN_RIGHT) {
-        m_priv->window_pos = CLAMP(m_priv->window_pos - (p_to_column - p_from_column), 0, M_MAX(0,m_priv->text.length() - 1));
+        m_priv->scroll_offset = CLAMP(m_priv->scroll_offset - (p_to_column - p_from_column), 0, M_MAX(0,m_priv->text.length() - 1));
     }
     if (!text_changed_dirty) {
         if (is_inside_tree()) {
@@ -1304,7 +1305,7 @@ void LineEdit::set_text_uistring(const UIString& p_text) {
 
     update();
     cursor_pos = 0;
-    m_priv->window_pos = 0;
+    m_priv->scroll_offset = 0;
 }
 void LineEdit::set_text(StringView p_text) {
 
@@ -1316,7 +1317,7 @@ void LineEdit::set_text(StringView p_text) {
 
     update();
     cursor_pos = 0;
-    m_priv->window_pos = 0;
+    m_priv->scroll_offset = 0;
 }
 void LineEdit::clear() {
 
@@ -1370,16 +1371,16 @@ void LineEdit::set_cursor_position(int p_pos) {
 
     if (!is_inside_tree()) {
 
-        m_priv->window_pos = cursor_pos;
+        m_priv->scroll_offset = cursor_pos;
         return;
     }
 
     Ref<StyleBox> style = get_theme_stylebox("normal");
     Ref<Font> font = get_theme_font("font");
 
-    if (cursor_pos <= m_priv->window_pos) {
+    if (cursor_pos <= m_priv->scroll_offset) {
         // Adjust window if cursor goes too much to the left.
-        set_window_pos(M_MAX(0, cursor_pos - 1));
+        set_scroll_offset(M_MAX(0, cursor_pos - 1));
     } else {
         // Adjust window if cursor goes too much to the right.
         int window_width = get_size().width - style->get_minimum_size().width;
@@ -1391,13 +1392,13 @@ void LineEdit::set_cursor_position(int p_pos) {
 
         if (window_width < 0)
             return;
-        int wp = m_priv->window_pos;
+        int wp = m_priv->scroll_offset;
 
         if (font) {
 
             int accum_width = 0;
 
-            for (int i = cursor_pos; i >= m_priv->window_pos; i--) {
+            for (int i = cursor_pos; i >= m_priv->scroll_offset; i--) {
 
                 if (i >= m_priv->text.length()) {
                     // Do not do this, because if the cursor is at the end, its just fine that it takes no space.
@@ -1416,8 +1417,8 @@ void LineEdit::set_cursor_position(int p_pos) {
             }
         }
 
-        if (wp != m_priv->window_pos)
-            set_window_pos(wp);
+        if (wp != m_priv->scroll_offset)
+            set_scroll_offset(wp);
     }
     update();
 }
@@ -1427,10 +1428,17 @@ int LineEdit::get_cursor_position() const {
     return cursor_pos;
 }
 
-void LineEdit::set_window_pos(int p_pos) {
+void LineEdit::set_scroll_offset(int p_pos) {
 
-    m_priv->window_pos = p_pos;
-    if (m_priv->window_pos < 0) m_priv->window_pos = 0;
+    m_priv->scroll_offset = p_pos;
+    if (m_priv->scroll_offset < 0) {
+        m_priv->scroll_offset = 0;
+    }
+}
+
+int LineEdit::get_scroll_offset() const
+{
+    return m_priv->scroll_offset;
 }
 
 void LineEdit::append_at_cursor(StringView _text) {
@@ -1454,7 +1462,7 @@ void LineEdit::clear_internal() {
     m_priv->_clear_undo_stack(cursor_pos);
     m_priv->cached_width = 0;
     cursor_pos = 0;
-    m_priv->window_pos = 0;
+    m_priv->scroll_offset = 0;
     m_priv->undo_text = "";
     m_priv->text = "";
     update();
@@ -1690,7 +1698,7 @@ void LineEdit::set_expand_to_text_length(bool p_enabled) {
 
     expand_to_text_length = p_enabled;
     minimum_size_changed();
-    set_window_pos(0);
+    set_scroll_offset(0);
 }
 
 bool LineEdit::get_expand_to_text_length() const {
@@ -1817,6 +1825,7 @@ void LineEdit::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_placeholder_alpha"), &LineEdit::get_placeholder_alpha);
     MethodBinder::bind_method(D_METHOD("set_cursor_position", {"position"}), &LineEdit::set_cursor_position);
     MethodBinder::bind_method(D_METHOD("get_cursor_position"), &LineEdit::get_cursor_position);
+    MethodBinder::bind_method(D_METHOD("get_scroll_offset"), &LineEdit::get_scroll_offset);
     MethodBinder::bind_method(D_METHOD("set_expand_to_text_length", {"enabled"}), &LineEdit::set_expand_to_text_length);
     MethodBinder::bind_method(D_METHOD("get_expand_to_text_length"), &LineEdit::get_expand_to_text_length);
     MethodBinder::bind_method(D_METHOD("cursor_set_blink_enabled", {"enabled"}), &LineEdit::cursor_set_blink_enabled);
@@ -1892,7 +1901,7 @@ LineEdit::LineEdit() {
     m_priv->cached_width = 0;
     cached_placeholder_width = 0;
     cursor_pos = 0;
-    m_priv->window_pos = 0;
+    m_priv->scroll_offset = 0;
     window_has_focus = true;
     max_length = 0;
     pass = false;

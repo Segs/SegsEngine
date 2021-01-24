@@ -31,6 +31,7 @@
 #include "color.h"
 
 #include "core/color_names.inc"
+#include "core/error_macros.h"
 #include "core/map.h"
 #include "core/math/math_funcs.h"
 #include "core/string.h"

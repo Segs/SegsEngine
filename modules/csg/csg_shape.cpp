@@ -724,8 +724,9 @@ CSGPrimitive::CSGPrimitive() {
 
 CSGBrush *CSGMesh::_build_brush() {
 
-    if (not mesh)
-        return nullptr;
+    if (!mesh) {
+        return memnew(CSGBrush);
+    }
 
     PoolVector<Vector3> vertices;
     PoolVector<bool> smooth;
@@ -743,7 +744,7 @@ CSGBrush *CSGMesh::_build_brush() {
 
         if (arrays.empty()) {
             _make_dirty();
-            ERR_FAIL_COND_V(arrays.empty(), nullptr);
+            ERR_FAIL_COND_V(arrays.empty(), memnew(CSGBrush));
         }
 
         Span<const Vector3> avertices = arrays.positions3();
@@ -854,8 +855,9 @@ CSGBrush *CSGMesh::_build_brush() {
         }
     }
 
-    if (vertices.size() == 0)
-        return nullptr;
+    if (vertices.empty()) {
+        return memnew(CSGBrush);
+    }
 
     return _create_brush_from_arrays(vertices, uvs, smooth, materials);
 }
@@ -1536,8 +1538,9 @@ CSGBrush *CSGTorus::_build_brush() {
     float min_radius = inner_radius;
     float max_radius = outer_radius;
 
-    if (min_radius == max_radius)
-        return nullptr; //sorry, can't
+    if (min_radius == max_radius) {
+        return memnew(CSGBrush); //sorry, can't
+    }
 
     if (min_radius > max_radius) {
         SWAP(min_radius, max_radius);
@@ -1761,8 +1764,9 @@ CSGBrush *CSGPolygon::_build_brush() {
 
     // set our bounding box
 
-    if (polygon.size() < 3)
-        return nullptr;
+    if (polygon.size() < 3) {
+        return memnew(CSGBrush);
+    }
 
     Vector<Point2> final_polygon = polygon;
 
@@ -1772,8 +1776,9 @@ CSGBrush *CSGPolygon::_build_brush() {
 
     Vector<int> triangles(Geometry::triangulate_polygon(final_polygon));
 
-    if (triangles.size() < 3)
-        return nullptr;
+    if (triangles.size() < 3) {
+        return memnew(CSGBrush);
+    }
 
     Path3D *path = nullptr;
     Ref<Curve3D> curve;
@@ -1797,14 +1802,17 @@ CSGBrush *CSGPolygon::_build_brush() {
     Vector2 final_polygon_size = final_polygon_max - final_polygon_min;
 
     if (mode == MODE_PATH) {
-        if (!has_node(path_node))
-            return nullptr;
+        if (!has_node(path_node)) {
+            return memnew(CSGBrush);
+        }
         Node *n = get_node(path_node);
-        if (!n)
-            return nullptr;
+        if (!n) {
+            return memnew(CSGBrush);
+        }
         path = object_cast<Path3D>(n);
-        if (!path)
-            return nullptr;
+        if (!path) {
+            return memnew(CSGBrush);
+        }
 
         if (path != path_cache) {
             if (path_cache) {
@@ -1820,10 +1828,9 @@ CSGBrush *CSGPolygon::_build_brush() {
             path_cache = nullptr;
         }
         curve = path->get_curve();
-        if (not curve)
-            return nullptr;
-        if (curve->get_baked_length() <= 0)
-            return nullptr;
+        if (!curve || curve->get_baked_length() <= 0) {
+            return memnew(CSGBrush);
+        }
     }
     CSGBrush *brush = memnew(CSGBrush);
 

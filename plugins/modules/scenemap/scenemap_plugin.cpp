@@ -30,6 +30,9 @@ bool SceneMapModule::register_module()
 
 void SceneMapModule::unregister_module()
 {
+#ifdef TOOLS_ENABLED
+    Q_CLEANUP_RESOURCE(scenemap);
+#endif
 
 }
 

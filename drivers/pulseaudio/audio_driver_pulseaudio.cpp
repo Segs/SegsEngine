@@ -292,7 +292,7 @@ Error AudioDriverPulseAudio::init() {
 
     Error err = init_device();
     if (err == OK) {
-        thread = Thread::create(AudioDriverPulseAudio::thread_func, this);
+        thread.start(AudioDriverPulseAudio::thread_func, this);
     }
 
     return OK;
@@ -596,17 +596,11 @@ void AudioDriverPulseAudio::set_device(StringView device) {
 
 void AudioDriverPulseAudio::lock() {
 
-    if (!thread) {
-        return;
-    }
     mutex.lock();
 }
 
 void AudioDriverPulseAudio::unlock() {
 
-    if (!thread) {
-        return;
-    }
     mutex.unlock();
 }
 
@@ -621,12 +615,10 @@ void AudioDriverPulseAudio::finish_device() {
 
 void AudioDriverPulseAudio::finish() {
 
-    if (!thread) {
-        return;
+    if (thread.is_started()) {
+        exit_thread = true;
+        thread.wait_to_finish();
     }
-
-    exit_thread = true;
-    Thread::wait_to_finish(thread);
 
     finish_device();
 
@@ -641,9 +633,6 @@ void AudioDriverPulseAudio::finish() {
         pa_ml = nullptr;
     }
 
-    memdelete(thread);
-
-    thread = nullptr;
 }
 
 Error AudioDriverPulseAudio::capture_init_device() {

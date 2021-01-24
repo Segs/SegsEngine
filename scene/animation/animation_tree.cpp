@@ -517,7 +517,7 @@ void AnimationTree::set_active(bool p_active) {
     if (!active && is_inside_tree()) {
         for (TrackCache * E : playing_caches) {
 
-            if (gObjectDB().get_instance(E->object_id)) {
+            if (ObjectDB::get_instance(E->object_id)) {
                 E->object->call_va("stop");
             }
         }
@@ -581,7 +581,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
             }
 
             //if not valid, delete track
-            if (track && (track->type != track_type || gObjectDB().get_instance(track->object_id) == nullptr)) {
+            if (track && (track->type != track_type || ObjectDB::get_instance(track->object_id) == nullptr)) {
                 playing_caches.erase(track);
                 memdelete(track);
                 track_cache.erase(path);
@@ -791,7 +791,7 @@ void AnimationTree::_process_graph(float p_delta) {
     if (last_animation_player != current_animation_player) {
 
         if (last_animation_player.is_valid()) {
-            Object *old_player = gObjectDB().get_instance(last_animation_player);
+            Object *old_player = ObjectDB::get_instance(last_animation_player);
             if (old_player) {
                 old_player->disconnect("caches_cleared",callable_mp(this, &ClassName::_clear_caches));
             }
@@ -1310,7 +1310,7 @@ void AnimationTree::_notification(int p_what) {
         _clear_caches();
         if (last_animation_player.is_valid()) {
 
-            Object *player = gObjectDB().get_instance(last_animation_player);
+            Object *player = ObjectDB::get_instance(last_animation_player);
             if (player) {
                 player->disconnect("caches_cleared",callable_mp(this, &ClassName::_clear_caches));
             }
@@ -1318,7 +1318,7 @@ void AnimationTree::_notification(int p_what) {
     } else if (p_what == NOTIFICATION_ENTER_TREE) {
         if (last_animation_player.is_valid()) {
 
-            Object *player = gObjectDB().get_instance(last_animation_player);
+            Object *player = ObjectDB::get_instance(last_animation_player);
             if (player) {
                 player->connect("caches_cleared",callable_mp(this, &ClassName::_clear_caches));
             }

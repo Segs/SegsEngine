@@ -293,7 +293,7 @@ public:
 
         Write w;
         if (alloc) {
-            _copy_on_write(); //make sure there is only one being acessed
+            _copy_on_write(); //make sure there is only one being accessed
             w._ref(alloc);
         }
         return w;

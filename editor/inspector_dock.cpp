@@ -177,7 +177,7 @@ void InspectorDock::_resource_file_selected(StringView p_file) {
 
 void InspectorDock::_save_resource(bool save_as) const {
     auto current = EditorNode::get_singleton()->get_editor_history()->get_current();
-    Object *current_obj = current.is_valid() ? gObjectDB().get_instance(current) : nullptr;
+    Object *current_obj = current.is_valid() ? ObjectDB::get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
     ERR_FAIL_COND(not current_res);
@@ -191,7 +191,7 @@ void InspectorDock::_save_resource(bool save_as) const {
 
 void InspectorDock::_unref_resource() const {
     auto current = EditorNode::get_singleton()->get_editor_history()->get_current();
-    Object *current_obj = current.is_valid() ? gObjectDB().get_instance(current) : nullptr;
+    Object *current_obj = current.is_valid() ? ObjectDB::get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
     ERR_FAIL_COND(not current_res);
@@ -202,7 +202,7 @@ void InspectorDock::_unref_resource() const {
 
 void InspectorDock::_copy_resource() const {
     auto current = EditorNode::get_singleton()->get_editor_history()->get_current();
-    Object *current_obj = current.is_valid() ? gObjectDB().get_instance(current) : nullptr;
+    Object *current_obj = current.is_valid() ? ObjectDB::get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
     ERR_FAIL_COND(not current_res);
@@ -230,7 +230,7 @@ void InspectorDock::_prepare_history() {
     for (int i = editor_history->get_history_len() - 1; i >= history_to; i--) {
 
         ObjectID id = editor_history->get_history_obj(i);
-        Object *obj = gObjectDB().get_instance(id);
+        Object *obj = ObjectDB::get_instance(id);
         if (!obj || already.contains(id)) {
             if (history_to > 0) {
                 history_to--;
@@ -273,7 +273,7 @@ void InspectorDock::_prepare_history() {
 void InspectorDock::_select_history(int p_idx) {
     //push it to the top, it is not correct, but it's more useful
     ObjectID id = EditorNode::get_singleton()->get_editor_history()->get_history_obj(p_idx);
-    Object *obj = gObjectDB().get_instance(id);
+    Object *obj = ObjectDB::get_instance(id);
     if (!obj)
         return;
     editor->push_item(obj);
@@ -283,10 +283,9 @@ void InspectorDock::_resource_created() {
     Object *c = new_resource_dialog->instance_selected();
 
     ERR_FAIL_COND(!c);
-    Resource *r = object_cast<Resource>(c);
+    RES r(object_cast<Resource>(c));
     ERR_FAIL_COND(!r);
 
-    REF res(r);
     editor->push_item(c);
 }
 
@@ -474,7 +473,7 @@ void InspectorDock::update_keying() {
         EditorHistory *editor_history = EditorNode::get_singleton()->get_editor_history();
         if (editor_history->get_path_size() >= 1) {
 
-            Object *obj = gObjectDB().get_instance(editor_history->get_path_object(0));
+            Object *obj = ObjectDB::get_instance(editor_history->get_path_object(0));
             if (object_cast<Node>(obj)) {
 
                 valid = true;

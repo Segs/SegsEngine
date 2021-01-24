@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/self_list.h"
+#include "rasterizer_asserts.h"
 #include "servers/rendering/rasterizer.h"
 #include "servers/rendering/shader_language.h"
 #include "shader_compiler_gles3.h"
@@ -65,11 +66,15 @@ public:
     };
 
     struct Config {
+        Set<String> extensions;
+        float anisotropic_level;
+
+        int max_texture_image_units;
+        int max_texture_size;
 
         bool shrink_textures_x2;
         bool use_fast_texture_filter;
         bool use_anisotropic_filter;
-
         bool s3tc_supported;
         bool latc_supported;
         bool rgtc_supported;
@@ -77,30 +82,20 @@ public:
         bool etc_supported;
         bool etc2_supported;
         bool pvrtc_supported;
-
         bool srgb_decode_supported;
-
+        bool support_npot_repeat_mipmap;
         bool texture_float_linear_supported;
         bool framebuffer_float_supported;
         bool framebuffer_half_float_supported;
-
         bool use_rgba_2d_shadows;
-
-        float anisotropic_level;
-
-        int max_texture_image_units;
-        int max_texture_size;
-
         bool generate_wireframes;
-
         bool use_texture_array_environment;
-
-        Set<String> extensions;
-
         bool keep_original_textures;
-
         bool use_depth_prepass;
         bool force_vertex_shading;
+        // in some cases the legacy render didn't orphan. We will mark these
+        // so the user can switch orphaning off for them.
+        bool should_orphan;
     } config;
 
     mutable struct Shaders {
@@ -291,7 +286,6 @@ public:
         ~Texture() override {
 
             if (tex_id != 0) {
-
                 glDeleteTextures(1, &tex_id);
             }
 
@@ -386,9 +380,6 @@ public:
 
 
         struct CanvasItem {
-            bool uses_screen_texture;
-            bool uses_screen_uv;
-            bool uses_time;
             enum BlendMode : int8_t {
                 BLEND_MODE_MIX,
                 BLEND_MODE_ADD,
@@ -397,47 +388,61 @@ public:
                 BLEND_MODE_PMALPHA,
                 BLEND_MODE_DISABLED,
             };
-
-            int blend_mode;
-
             enum LightMode : int8_t {
                 LIGHT_MODE_NORMAL,
                 LIGHT_MODE_UNSHADED,
                 LIGHT_MODE_LIGHT_ONLY
             };
+            // these flags are specifically for batching
+            // some of the logic is thus in rasterizer_storage.cpp
+            // we could alternatively set bitflags for each 'uses' and test on the fly
+            // defined in RasterizerStorageCommon::BatchFlags
+            uint32_t batch_flags;
 
-            int light_mode;
+            BlendMode blend_mode;
+            LightMode light_mode;
 
+            bool uses_screen_uv;
+            bool uses_time;
+            bool uses_screen_texture;
+            bool uses_modulate ;
+            bool uses_color ;
+            bool uses_vertex ;
 
+            // all these should disable item joining if used in a custom shader
+            bool uses_world_matrix;
+            bool uses_extra_matrix;
+            bool uses_projection_matrix;
+            bool uses_instance_custom;
         } canvas_item;
 
         struct Node3D {
 
-            enum BlendMode {
+            enum BlendMode : int8_t {
                 BLEND_MODE_MIX,
                 BLEND_MODE_ADD,
                 BLEND_MODE_SUB,
                 BLEND_MODE_MUL,
             };
 
-            int blend_mode;
+            int8_t blend_mode;
 
-            enum DepthDrawMode {
+            enum DepthDrawMode : int8_t {
                 DEPTH_DRAW_OPAQUE,
                 DEPTH_DRAW_ALWAYS,
                 DEPTH_DRAW_NEVER,
                 DEPTH_DRAW_ALPHA_PREPASS,
             };
 
-            int depth_draw_mode;
+            int8_t depth_draw_mode;
 
-            enum CullMode {
+            enum CullMode : int8_t {
                 CULL_MODE_FRONT,
                 CULL_MODE_BACK,
                 CULL_MODE_DISABLED,
             };
 
-            int cull_mode;
+            int8_t cull_mode;
 
             bool uses_alpha;
             bool uses_alpha_scissor;
@@ -879,10 +884,10 @@ public:
         RS::LightOmniShadowDetail omni_shadow_detail;
         RS::LightDirectionalShadowMode directional_shadow_mode;
         RS::LightDirectionalShadowDepthRangeMode directional_range_mode;
+        RS::LightBakeMode bake_mode;
         bool shadow : 1;
         bool negative : 1;
         bool reverse_cull : 1;
-        bool use_gi : 1;
         bool directional_blend_splits : 1;
     };
 
@@ -899,6 +904,7 @@ public:
     void light_set_cull_mask(RID p_light, uint32_t p_mask) override;
     void light_set_reverse_cull_face_mode(RID p_light, bool p_enabled) override;
     void light_set_use_gi(RID p_light, bool p_enabled) override;
+    void light_set_bake_mode(RID p_light, RS::LightBakeMode p_bake_mode) override;
 
     void light_omni_set_shadow_mode(RID p_light, RS::LightOmniShadowMode p_mode) override;
     void light_omni_set_shadow_detail(RID p_light, RS::LightOmniShadowDetail p_detail) override;
@@ -919,6 +925,7 @@ public:
     float light_get_param(RID p_light, RS::LightParam p_param) override;
     Color light_get_color(RID p_light) override;
     bool light_get_use_gi(RID p_light) override;
+    RS::LightBakeMode light_get_bake_mode(RID p_light);
 
     AABB light_get_aabb(RID p_light) const override;
     uint64_t light_get_version(RID p_light) const override;
@@ -1023,9 +1030,6 @@ public:
     void gi_probe_set_interior(RID p_probe, bool p_enable) override;
     bool gi_probe_is_interior(RID p_probe) const override;
 
-    void gi_probe_set_compress(RID p_probe, bool p_enable) override;
-    bool gi_probe_is_compressed(RID p_probe) const override;
-
     uint32_t gi_probe_get_version(RID p_probe) override;
 
     struct GIProbeData : public RID_Data {
@@ -1035,7 +1039,6 @@ public:
         int depth;
         int levels;
         GLuint tex_id;
-        GIProbeCompression compression;
 
         GIProbeData() {
         }
@@ -1043,8 +1046,7 @@ public:
 
     mutable RID_Owner<GIProbeData> gi_probe_data_owner;
 
-    GIProbeCompression gi_probe_get_dynamic_data_get_preferred_compression() const override;
-    RID gi_probe_dynamic_data_create(int p_width, int p_height, int p_depth, GIProbeCompression p_compression) override;
+    RID gi_probe_dynamic_data_create(int p_width, int p_height, int p_depth) override;
     void gi_probe_dynamic_data_update(RID p_gi_probe_data, int p_depth_slice, int p_slice_count, int p_mipmap, const void *p_data) override;
 
     /* LIGHTMAP CAPTURE */
@@ -1278,10 +1280,12 @@ public:
 
         bool flags[RENDER_TARGET_FLAG_MAX];
 
-        bool used_in_frame;
-        RS::ViewportMSAA msaa;
-
         RID texture;
+        RS::ViewportMSAA msaa;
+        uint8_t used_in_frame:1;
+        uint8_t use_fxaa:1;
+        uint8_t use_debanding:1;
+
 
         RenderTarget() :
                 fbo(0),
@@ -1290,7 +1294,9 @@ public:
                 width(0),
                 height(0),
                 used_in_frame(false),
-                msaa(RS::VIEWPORT_MSAA_DISABLED) {
+                msaa(RS::VIEWPORT_MSAA_DISABLED),
+                use_fxaa(false),
+                use_debanding(false)  {
             exposure.fbo = 0;
             buffers.fbo = 0;
             external.fbo = 0;
@@ -1318,7 +1324,8 @@ public:
     bool render_target_was_used(RID p_render_target) override;
     void render_target_clear_used(RID p_render_target) override;
     void render_target_set_msaa(RID p_render_target, RS::ViewportMSAA p_msaa) override;
-
+    void render_target_set_use_fxaa(RID p_render_target, bool p_fxaa) override;
+    void render_target_set_use_debanding(RID p_render_target, bool p_debanding) override;
     /* CANVAS SHADOW */
 
     struct CanvasLightShadow : public RID_Data {
@@ -1382,5 +1389,46 @@ public:
     int get_render_info(RS::RenderInfo p_info) override;
     const char *get_video_adapter_name() const override;
     const char *get_video_adapter_vendor() const override;
+
+    void buffer_orphan_and_upload(unsigned int p_buffer_size, unsigned int p_offset, unsigned int p_data_size, const void *p_data, GLenum p_target = GL_ARRAY_BUFFER, GLenum p_usage = GL_DYNAMIC_DRAW, bool p_optional_orphan = false) const;
+    bool safe_buffer_sub_data(unsigned int p_total_buffer_size, GLenum p_target, unsigned int p_offset, unsigned int p_data_size, const void *p_data, unsigned int &r_offset_after) const;
+
     RasterizerStorageGLES3();
 };
+
+inline bool RasterizerStorageGLES3::safe_buffer_sub_data(unsigned int p_total_buffer_size, GLenum p_target, unsigned int p_offset, unsigned int p_data_size, const void *p_data, unsigned int &r_offset_after) const {
+    r_offset_after = p_offset + p_data_size;
+#ifdef DEBUG_ENABLED
+    // we are trying to write across the edge of the buffer
+    if (r_offset_after > p_total_buffer_size)
+        return false;
+#endif
+    glBufferSubData(p_target, p_offset, p_data_size, p_data);
+    return true;
+}
+
+// standardize the orphan / upload in one place so it can be changed per platform as necessary, and avoid future
+// bugs causing pipeline stalls
+inline void RasterizerStorageGLES3::buffer_orphan_and_upload(unsigned int p_buffer_size, unsigned int p_offset, unsigned int p_data_size, const void *p_data, GLenum p_target, GLenum p_usage, bool p_optional_orphan) const {
+    // Orphan the buffer to avoid CPU/GPU sync points caused by glBufferSubData
+    // Was previously #ifndef GLES_OVER_GL however this causes stalls on desktop mac also (and possibly other)
+    if (!p_optional_orphan || (config.should_orphan)) {
+        glBufferData(p_target, p_buffer_size, NULL, p_usage);
+#ifdef RASTERIZER_EXTRA_CHECKS
+        // fill with garbage off the end of the array
+        if (p_buffer_size) {
+            unsigned int start = p_offset + p_data_size;
+            unsigned int end = start + 1024;
+            if (end < p_buffer_size) {
+                uint8_t *garbage = (uint8_t *)alloca(1024);
+                for (int n = 0; n < 1024; n++) {
+                    garbage[n] = Math::random(0, 255);
+                }
+                glBufferSubData(p_target, start, 1024, garbage);
+            }
+        }
+#endif
+    }
+    RAST_DEV_DEBUG_ASSERT((p_offset + p_data_size) <= p_buffer_size);
+    glBufferSubData(p_target, p_offset, p_data_size, p_data);
+}

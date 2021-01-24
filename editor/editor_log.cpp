@@ -103,7 +103,6 @@ void EditorLog::copy() {
     _copy_request();
 }
 void EditorLog::add_message_utf8(StringView p_msg, MessageType p_type) {
-    log->add_newline();
 
     bool restore = p_type != MSG_TYPE_STD;
     switch (p_type) {
@@ -130,42 +129,15 @@ void EditorLog::add_message_utf8(StringView p_msg, MessageType p_type) {
     }
 
     log->add_text(p_msg);
+    log->add_newline();
 
     if (restore)
         log->pop();
 }
+
 void EditorLog::add_message(const UIString &p_msg, MessageType p_type) {
 
-    log->add_newline();
-
-    bool restore = p_type != MSG_TYPE_STD;
-    switch (p_type) {
-        case MSG_TYPE_STD: {
-        } break;
-        case MSG_TYPE_ERROR: {
-            log->push_color(get_theme_color("error_color", "Editor"));
-            Ref<Texture> icon = get_theme_icon("Error", "EditorIcons");
-            log->add_image(icon);
-            log->add_text(" ");
-            tool_button->set_button_icon(icon);
-        } break;
-        case MSG_TYPE_WARNING: {
-            log->push_color(get_theme_color("warning_color", "Editor"));
-            Ref<Texture> icon = get_theme_icon("Warning", "EditorIcons");
-            log->add_image(icon);
-            log->add_text(" ");
-            tool_button->set_button_icon(icon);
-        } break;
-        case MSG_TYPE_EDITOR: {
-            // Distinguish editor messages from messages printed by the project
-            log->push_color(get_theme_color("font_color", "Editor") * Color(1, 1, 1, 0.6f));
-        } break;
-    }
-
-    log->add_text_uistring(p_msg);
-
-    if (restore)
-        log->pop();
+    add_message_utf8(StringUtils::to_utf8(p_msg),p_type);
 }
 
 void EditorLog::set_tool_button(ToolButton *p_tool_button) {

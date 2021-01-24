@@ -1,0 +1,63 @@
+public:
+// note .. maybe this can be attached to another node structure?
+// depends which works best for cache.
+struct ItemPairs {
+    struct Link {
+        void set(BVHHandle h, void *ud) {
+            handle = h;
+            userdata = ud;
+        }
+        BVHHandle handle;
+        void *userdata;
+    };
+
+    void clear() {
+        num_pairs = 0;
+        extended_pairs.clear();
+        extended_pairs.shrink_to_fit();
+    }
+
+    AABB expanded_aabb;
+
+    // maybe we can just use the number in the vector TODO
+    int32_t num_pairs;
+    Vector<Link> extended_pairs;
+
+    void add_pair_to(BVHHandle h, void *p_userdata) {
+        Link temp;
+        temp.set(h, p_userdata);
+
+        extended_pairs.push_back(temp);
+        num_pairs++;
+    }
+
+    uint32_t find_pair_to(BVHHandle h) const {
+        for (int n = 0; n < num_pairs; n++) {
+            if (extended_pairs[n].handle == h) {
+                return n;
+            }
+        }
+        return -1;
+    }
+
+    bool contains_pair_to(BVHHandle h) const {
+        return find_pair_to(h) != BVHCommon::INVALID;
+    }
+
+    // return success
+    void *remove_pair_to(BVHHandle h) {
+        void *userdata = nullptr;
+
+        for (int n = 0; n < num_pairs; n++) {
+            if (extended_pairs[n].handle == h) {
+                userdata = extended_pairs[n].userdata;
+                extended_pairs.erase_unsorted(extended_pairs.begin()+n);
+                num_pairs--;
+                break;
+            }
+        }
+
+        return userdata;
+    }
+
+};

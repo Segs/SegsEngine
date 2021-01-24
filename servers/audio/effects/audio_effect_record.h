@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AUDIOEFFECTRECORD_H
-#define AUDIOEFFECTRECORD_H
+#pragma once
 
 #include "core/io/marshalls.h"
 #include "core/os/file_access.h"
@@ -49,7 +48,7 @@ class AudioEffectRecordInstance : public AudioEffectInstance {
     Ref<AudioEffectRecord> base;
 
     bool is_recording;
-    Thread *io_thread;
+    Thread io_thread;
     bool thread_active;
 
     Vector<AudioFrame> ring_buffer;
@@ -107,5 +106,3 @@ public:
 
     AudioEffectRecord();
 };
-
-#endif // AUDIOEFFECTRECORD_H

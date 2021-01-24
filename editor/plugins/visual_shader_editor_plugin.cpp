@@ -1462,7 +1462,7 @@ VisualShaderNode *VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
             }
         }
 
-        vsnode = Ref<VisualShaderNode>(vsn);
+        vsnode = Ref<VisualShaderNode>(vsn,DoNotAddRef);
     } else {
         ERR_FAIL_COND_V(not add_options[p_idx].script,nullptr);
         StringName base_type = add_options[p_idx].script->get_instance_base_type();
@@ -3405,7 +3405,7 @@ void VisualShaderNodePortPreview::_shader_changed() {
     //find if a material is also being edited and copy parameters to this one
 
     for (int i = EditorNode::get_singleton()->get_editor_history()->get_path_size() - 1; i >= 0; i--) {
-        Object *object = gObjectDB().get_instance(EditorNode::get_singleton()->get_editor_history()->get_path_object(i));
+        Object *object = ObjectDB::get_instance(EditorNode::get_singleton()->get_editor_history()->get_path_object(i));
         if (!object)
             continue;
         ShaderMaterial *src_mat = object_cast<ShaderMaterial>(object);

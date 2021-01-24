@@ -305,14 +305,14 @@ void AnimationNodeBlendTreeEditor::_add_node(int p_idx) {
     } else if (!add_options[p_idx].type.empty()) {
         AnimationNode *an = object_cast<AnimationNode>(ClassDB::instance(StringName(add_options[p_idx].type)));
         ERR_FAIL_COND(!an);
-        anode = Ref<AnimationNode>(an);
+        anode = Ref<AnimationNode>(an,DoNotAddRef);
         base_name = add_options[p_idx].name;
     } else {
         ERR_FAIL_COND(not add_options[p_idx].script);
         StringName base_type(add_options[p_idx].script->get_instance_base_type());
         AnimationNode *an = object_cast<AnimationNode>(ClassDB::instance(base_type));
         ERR_FAIL_COND(!an);
-        anode = Ref<AnimationNode>(an);
+        anode = Ref<AnimationNode>(an,DoNotAddRef);
         anode->set_script(add_options[p_idx].script.get_ref_ptr());
         base_name = add_options[p_idx].name;
     }

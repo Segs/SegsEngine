@@ -69,4 +69,14 @@ String DirAccessOSX::get_drive(int p_drive) {
     return volname;
 }
 
+bool DirAccessOSX::is_hidden(StringView p_name) {
+    String f = PathUtils::plus_file(get_current_dir(),p_name);
+    NSURL *url = [NSURL fileURLWithPath:@(f.data())];
+    NSNumber *hidden = nil;
+    if (![url getResourceValue:&hidden forKey:NSURLIsHiddenKey error:nil]) {
+        return DirAccessUnix::is_hidden(p_name);
+    }
+    return [hidden boolValue];
+}
+
 #endif //posix_enabled

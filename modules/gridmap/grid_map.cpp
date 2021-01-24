@@ -741,7 +741,7 @@ void GridMap::_update_visibility() {
         Octant *octant = e.second;
         for (int i = 0; i < octant->multimesh_instances.size(); i++) {
             const Octant::MultimeshInstance &mi = octant->multimesh_instances[i];
-            RenderingServer::get_singleton()->instance_set_visible(mi.instance, is_visible());
+            RenderingServer::get_singleton()->instance_set_visible(mi.instance, is_visible_in_tree());
         }
     }
 }

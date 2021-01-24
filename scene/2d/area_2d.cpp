@@ -123,7 +123,7 @@ real_t Area2D::get_priority() const {
 
 void Area2D::_body_enter_tree(ObjectID p_id) {
 
-    Object *obj = gObjectDB().get_instance(p_id);
+    Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
 
@@ -141,7 +141,7 @@ void Area2D::_body_enter_tree(ObjectID p_id) {
 
 void Area2D::_body_exit_tree(ObjectID p_id) {
 
-    Object *obj = gObjectDB().get_instance(p_id);
+    Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
     auto E = body_map.find(p_id);
@@ -160,7 +160,7 @@ void Area2D::_body_inout(int p_status, const RID &p_body, ObjectID p_instance, i
     bool body_in = p_status == PhysicsServer2D::AREA_BODY_ADDED;
     ObjectID objid = p_instance;
 
-    Object *obj = gObjectDB().get_instance(objid);
+    Object *obj = ObjectDB::get_instance(objid);
     Node *node = object_cast<Node>(obj);
 
     auto E = body_map.find(objid);
@@ -220,7 +220,7 @@ void Area2D::_body_inout(int p_status, const RID &p_body, ObjectID p_instance, i
 
 void Area2D::_area_enter_tree(ObjectID p_id) {
 
-    Object *obj = gObjectDB().get_instance(p_id);
+    Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
 
@@ -238,7 +238,7 @@ void Area2D::_area_enter_tree(ObjectID p_id) {
 
 void Area2D::_area_exit_tree(ObjectID p_id) {
 
-    Object *obj = gObjectDB().get_instance(p_id);
+    Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
     auto E = area_map.find(p_id);
@@ -257,7 +257,7 @@ void Area2D::_area_inout(int p_status, const RID &p_area, ObjectID p_instance, i
     bool area_in = p_status == PhysicsServer2D::AREA_BODY_ADDED;
     ObjectID objid = p_instance;
 
-    Object *obj = gObjectDB().get_instance(objid);
+    Object *obj = ObjectDB::get_instance(objid);
     Node *node = object_cast<Node>(obj);
 
     auto E = area_map.find(objid);
@@ -326,7 +326,7 @@ void Area2D::_clear_monitoring() {
 
         for (eastl::pair<const ObjectID,BodyState> &E : bmcopy) {
 
-            Object *obj = gObjectDB().get_instance(E.first);
+            Object *obj = ObjectDB::get_instance(E.first);
             Node *node = object_cast<Node>(obj);
 
             if (!node) //node may have been deleted in previous frame or at other legiminate point
@@ -356,7 +356,7 @@ void Area2D::_clear_monitoring() {
 
         for (eastl::pair<const ObjectID,AreaState> &E : bmcopy) {
 
-            Object *obj = gObjectDB().get_instance(E.first);
+            Object *obj = ObjectDB::get_instance(E.first);
             Node *node = object_cast<Node>(obj);
 
             if (!node) //node may have been deleted in previous frame or at other legiminate point
@@ -439,7 +439,7 @@ Array Area2D::get_overlapping_bodies() const {
     ret.resize(body_map.size());
     int idx = 0;
     for (const eastl::pair<const ObjectID,BodyState> &E : body_map) {
-        Object *obj = gObjectDB().get_instance(E.first);
+        Object *obj = ObjectDB::get_instance(E.first);
         if (!obj) {
             ret.resize(ret.size() - 1); //ops
         } else {
@@ -457,7 +457,7 @@ Array Area2D::get_overlapping_areas() const {
     ret.resize(area_map.size());
     int idx = 0;
     for (const eastl::pair<const ObjectID,AreaState> &E : area_map) {
-        Object *obj = gObjectDB().get_instance(E.first);
+        Object *obj = ObjectDB::get_instance(E.first);
         if (!obj) {
             ret.resize(ret.size() - 1); //ops
         } else {
@@ -635,13 +635,13 @@ void Area2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_audio_bus_override", {"enable"}), &Area2D::set_audio_bus_override);
     MethodBinder::bind_method(D_METHOD("is_overriding_audio_bus"), &Area2D::is_overriding_audio_bus);
 
-    ADD_SIGNAL(MethodInfo("body_shape_entered", PropertyInfo(VariantType::INT, "body_id"), PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node"), PropertyInfo(VariantType::INT, "body_shape"), PropertyInfo(VariantType::INT, "area_shape")));
-    ADD_SIGNAL(MethodInfo("body_shape_exited", PropertyInfo(VariantType::INT, "body_id"), PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node"), PropertyInfo(VariantType::INT, "body_shape"), PropertyInfo(VariantType::INT, "area_shape")));
+    ADD_SIGNAL(MethodInfo("body_shape_entered", PropertyInfo(VariantType::INT, "body_id"), PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node"), PropertyInfo(VariantType::INT, "body_shape"), PropertyInfo(VariantType::INT, "local_shape")));
+    ADD_SIGNAL(MethodInfo("body_shape_exited", PropertyInfo(VariantType::INT, "body_id"), PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node"), PropertyInfo(VariantType::INT, "body_shape"), PropertyInfo(VariantType::INT, "local_shape")));
     ADD_SIGNAL(MethodInfo("body_entered", PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node")));
     ADD_SIGNAL(MethodInfo("body_exited", PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node")));
 
-    ADD_SIGNAL(MethodInfo("area_shape_entered", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area2D"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "self_shape")));
-    ADD_SIGNAL(MethodInfo("area_shape_exited", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area2D"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "self_shape")));
+    ADD_SIGNAL(MethodInfo("area_shape_entered", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area2D"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "local_shape")));
+    ADD_SIGNAL(MethodInfo("area_shape_exited", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area2D"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "local_shape")));
     ADD_SIGNAL(MethodInfo("area_entered", PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area2D")));
     ADD_SIGNAL(MethodInfo("area_exited", PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area2D")));
 

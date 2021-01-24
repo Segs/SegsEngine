@@ -263,6 +263,7 @@ void SceneTreeDock::_perform_instance_scenes(Span<const String> p_files, Node *p
     }
 
     undo_redo.commit_action();
+    editor->push_item(instances.back());
 }
 
 void SceneTreeDock::_replace_with_branch_scene(StringView p_file, Node *base) {
@@ -1086,7 +1087,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
                 ERR_FAIL_INDEX(idx, subresources.size());
 
-                Object *obj = gObjectDB().get_instance(subresources[idx]);
+                Object *obj = ObjectDB::get_instance(subresources[idx]);
                 ERR_FAIL_COND(!obj);
 
                 editor->push_item(obj);
@@ -1326,9 +1327,6 @@ void SceneTreeDock::_fill_path_renames(Vector<StringName> base_path, Vector<Stri
 
 void SceneTreeDock::fill_path_renames(Node *p_node, Node *p_new_parent, Vector<Pair<NodePath, NodePath> > &p_renames) {
 
-    if (!EDITOR_DEF_T<bool>("editors/animation/autorename_animation_tracks", true))
-        return;
-
     Vector<StringName> base_path;
     Node *n = p_node->get_parent();
     while (n) {
@@ -1365,35 +1363,50 @@ static void perform_script_node_renames(Node *p_base,Vector<Pair<NodePath, NodeP
         return;
 
     si->get_property_list(&properties);
+    NodePath root_path = p_base->get_path();
 
     for (const PropertyInfo &E : properties) {
 
         StringName propertyname = E.name;
         Variant p = p_base->get(propertyname);
         if (p.get_type() == VariantType::NODE_PATH) {
+            NodePath root_path_new = root_path;
+            for (const auto &F : p_renames) {
+                if (root_path == F.first) {
+                    root_path_new = F.second;
+                    break;
+                }
+            }
 
             // Goes through all paths to check if its matching
             for (const Pair<NodePath, NodePath> &F : p_renames) {
-
-                NodePath root_path = p_base->get_path();
-
                 NodePath rel_path_old = root_path.rel_path_to(F.first);
-
-                NodePath rel_path_new = F.second;
-
-                // if not empty, get new relative path
-                if (not F.second.empty()) {
-                    rel_path_new = root_path.rel_path_to(F.second);
-                }
 
                 // if old path detected, then it needs to be replaced with the new one
                 if (p == rel_path_old) {
+                    NodePath rel_path_new = F.second;
+
+                    // if not empty, get new relative path
+                    if (!rel_path_new.is_empty()) {
+                        rel_path_new = root_path_new.rel_path_to(F.second);
+                    }
 
                     undo_redo.add_do_property(p_base, propertyname, rel_path_new);
                     undo_redo.add_undo_property(p_base, propertyname, rel_path_old);
 
                     p_base->set(propertyname, rel_path_new);
                     break;
+                }
+
+                // update the node itself if it has a valid node path and has not been deleted
+                if (root_path == F.first && p != NodePath() && F.second != NodePath()) {
+                    NodePath abs_path = NodePath(PathUtils::plus_file((String)root_path,p.as<String>())).simplified();
+                    NodePath rel_path_new = F.second.rel_path_to(abs_path);
+
+                    undo_redo.add_do_property(p_base, propertyname, rel_path_new);
+                    undo_redo.add_undo_property(p_base, propertyname, p);
+
+                    p_base->set(propertyname, rel_path_new);
                 }
             }
         }
@@ -2158,7 +2171,11 @@ void SceneTreeDock::replace_node(Node *p_node, Node *p_by_node, bool p_keep_prop
             if (!(E.usage & PROPERTY_USAGE_STORAGE))
                 continue;
             if (E.name == "__meta__") {
-                if (object_cast<CanvasItem>(newnode)) {
+                if (has_meta("_editor_description_")) {
+                    newnode->set_meta("_editor_description_", get_meta("_editor_description_"));
+                }
+
+                if (object_cast<CanvasItem>(newnode) || object_cast<Node3D>(newnode)) {
                     Dictionary metadata = n->getT<Dictionary>(E.name);
                     if (metadata.has("_edit_group_") && metadata["_edit_group_"].as<bool>()) {
                         newnode->set_meta("_edit_group_", true);
@@ -2210,7 +2227,6 @@ void SceneTreeDock::replace_node(Node *p_node, Node *p_by_node, bool p_keep_prop
     if (n == edited_scene) {
         edited_scene = newnode;
         editor->set_edited_scene(newnode);
-        newnode->set_editable_instances(n->get_editable_instances());
     }
     //TODO: SEGS: un-hack this?
     //small hack to make collisionshapes and other kind of nodes to work
@@ -2881,8 +2897,8 @@ SceneTreeDock::SceneTreeDock(EditorNode *p_editor, Node *p_scene_root, EditorSel
     HBoxContainer *filter_hbc = memnew(HBoxContainer);
     filter_hbc->add_constant_override("separate", 0);
 
-    ED_SHORTCUT("scene_tree/rename", TTR("Rename"));
-    ED_SHORTCUT("scene_tree/batch_rename", TTR("Batch Rename"), KEY_MASK_CMD | KEY_F2);
+    ED_SHORTCUT("scene_tree/rename", TTR("Rename"),KEY_F2);
+    ED_SHORTCUT("scene_tree/batch_rename", TTR("Batch Rename"), KEY_MASK_SHIFT | KEY_F2);
     ED_SHORTCUT("scene_tree/add_child_node", TTR("Add Child Node"), KEY_MASK_CMD | KEY_A);
     ED_SHORTCUT("scene_tree/instance_scene", TTR("Instance Child Scene"));
     ED_SHORTCUT("scene_tree/expand_collapse_all", TTR("Expand/Collapse All"));

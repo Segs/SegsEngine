@@ -21,7 +21,6 @@ class RefPtr;
     GODOT_EXPORT bool Object_set_fallback(Object *self,const StringName &p_name,const Variant &p_value);
     // TODO: SEGS: consider using eastl::optional<Variant> as return type ?
     GODOT_EXPORT Variant Object_get_fallback(const Object *self, const StringName &p_name, bool &r_valid);
-    GODOT_EXPORT void Object_add_tool_properties(Vector<PropertyInfo> *p_list);
     GODOT_EXPORT IObjectTooling * create_tooling_for(Object *self);
     GODOT_EXPORT void relase_tooling(IObjectTooling *);
     GODOT_EXPORT bool Object_script_signal_validate(const RefPtr &self);

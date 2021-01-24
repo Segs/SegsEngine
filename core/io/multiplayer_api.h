@@ -36,6 +36,7 @@
 #include "core/hash_map.h"
 #include "core/set.h"
 #include "core/string.h"
+#include "core/node_path.h"
 
 class Node;
 
@@ -119,7 +120,9 @@ public:
 
     void poll();
     void clear();
-    void set_root_node(Node *p_node);
+    void set_root_node(Node *p_node) { root_node = p_node; }
+    Node *get_root_node() const { return root_node; }
+
     void set_network_peer(const Ref<NetworkedMultiplayerPeer> &p_peer);
     Ref<NetworkedMultiplayerPeer> get_network_peer() const;
     Error send_bytes(const PoolVector<uint8_t>& p_data, int p_to = NetworkedMultiplayerPeer::TARGET_PEER_BROADCAST, NetworkedMultiplayerPeer::TransferMode p_mode = NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE);

@@ -32,11 +32,10 @@
 
 #include "core/math/math_defs.h"
 #include "core/math/math_funcs.h"
-#include "core/node_path.h"
-#include "core/string_name.h"
 #include "core/typedefs.h"
 
 #include "EASTL/type_traits.h"
+#include "EASTL/functional.h"
 
 using UIString = class QString;
 
@@ -192,7 +191,7 @@ using HashType = typename std::conditional<std::is_enum<Key>::value, Hasher<type
         Hasher<Key>>::type;
 
 template <> struct Hasher<const char *> {
-    uint32_t operator()(const char *p_cstr) const { return uint32_t(eastl::hash<StringView>()(StringView(p_cstr))); }
+    uint32_t operator()(const char *p_cstr) const { return uint32_t(eastl::hash<const char *>()(p_cstr)); }
 };
 template <> struct Hasher<uint64_t> {
     uint32_t operator()(const uint64_t p_int) const { return hash_one_uint64(p_int); }
@@ -227,10 +226,4 @@ template <> struct Hasher<int8_t> {
 };
 template <> struct Hasher<char16_t> {
     uint32_t operator()(const char16_t p_wchar) const { return (uint32_t)p_wchar; }
-};
-template <> struct Hasher<StringName> {
-    uint32_t operator()(const StringName &p_string_name) const { return p_string_name.hash(); }
-};
-template <> struct Hasher<NodePath> {
-    uint32_t operator()(const NodePath &p_path) const { return p_path.hash(); }
 };

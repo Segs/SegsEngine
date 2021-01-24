@@ -33,15 +33,20 @@
 #include "open_simplex_noise.h"
 #include "core/class_db.h"
 
+#ifdef TOOLS_ENABLED
 #include <QResource>
+#endif
 
 void register_opensimplex_types() {
 #ifdef TOOLS_ENABLED
-    Q_INIT_RESOURCE(opensimplex); 
+    Q_INIT_RESOURCE(opensimplex);
 #endif
-	ClassDB::register_class<OpenSimplexNoise>();
-	ClassDB::register_class<NoiseTexture>();
+    ClassDB::register_class<OpenSimplexNoise>();
+    ClassDB::register_class<NoiseTexture>();
 }
 
 void unregister_opensimplex_types() {
+#ifdef TOOLS_ENABLED
+    Q_CLEANUP_RESOURCE(opensimplex);
+#endif
 }

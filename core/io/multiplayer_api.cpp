@@ -97,7 +97,7 @@ public:
             return;
         profiler_frame_data.emplace(p_node, ProfilingInfo());
         profiler_frame_data[p_node].node = p_node;
-        profiler_frame_data[p_node].node_path = (String)object_cast<Node>(gObjectDB().get_instance(p_node))->get_path();
+        profiler_frame_data[p_node].node_path = (String)object_cast<Node>(ObjectDB::get_instance(p_node))->get_path();
         profiler_frame_data[p_node].incoming_rpc = 0;
         profiler_frame_data[p_node].incoming_rset = 0;
         profiler_frame_data[p_node].outgoing_rpc = 0;
@@ -298,9 +298,7 @@ void MultiplayerAPI::clear() {
     last_send_cache_id = 1;
 }
 
-void MultiplayerAPI::set_root_node(Node *p_node) {
-    root_node = p_node;
-}
+
 
 void MultiplayerAPI::set_network_peer(const Ref<NetworkedMultiplayerPeer> &p_peer) {
 
@@ -1006,6 +1004,8 @@ int MultiplayerAPI::get_outgoing_bandwidth_usage() {
 
 void MultiplayerAPI::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_root_node", {"node"}), &MultiplayerAPI::set_root_node);
+    MethodBinder::bind_method(D_METHOD("get_root_node"), &MultiplayerAPI::get_root_node);
+
     MethodBinder::bind_method(D_METHOD("send_bytes", {"bytes", "id", "mode"}), &MultiplayerAPI::send_bytes, {DEFVAL(NetworkedMultiplayerPeer::TARGET_PEER_BROADCAST), DEFVAL(NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE)});
     MethodBinder::bind_method(D_METHOD("has_network_peer"), &MultiplayerAPI::has_network_peer);
     MethodBinder::bind_method(D_METHOD("get_network_peer"), &MultiplayerAPI::get_network_peer);
@@ -1030,6 +1030,8 @@ void MultiplayerAPI::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_object_decoding"), "set_allow_object_decoding", "is_object_decoding_allowed");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "refuse_new_network_connections"), "set_refuse_new_network_connections", "is_refusing_new_network_connections");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "network_peer", PropertyHint::ResourceType, "NetworkedMultiplayerPeer", 0), "set_network_peer", "get_network_peer");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "root_node", PropertyHint::ResourceType, "Node", 0), "set_root_node", "get_root_node");
+
     ADD_PROPERTY_DEFAULT("refuse_new_network_connections", false);
 
     ADD_SIGNAL(MethodInfo("network_peer_connected", PropertyInfo(VariantType::INT, "id")));

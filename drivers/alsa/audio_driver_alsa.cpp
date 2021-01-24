@@ -156,8 +156,7 @@ Error AudioDriverALSA::init() {
 
     Error err = init_device();
     if (err == OK) {
-        mutex = memnew(Mutex);
-        thread = Thread::create(AudioDriverALSA::thread_func, this);
+        thread.start(AudioDriverALSA::thread_func, this);
     }
 
     return err;
@@ -189,7 +188,7 @@ void AudioDriverALSA::thread_func(void *p_udata) {
         int total = 0;
 
         while (todo && !ad->exit_thread) {
-            uint8_t *src = (uint8_t *)ad->samples_out.data();
+            int16_t *src = (int16_t *)ad->samples_out.data();
             int wrote = snd_pcm_writei(ad->pcm_handle, (void *)(src + (total * ad->channels)), todo);
 
             if (wrote > 0) {
@@ -301,16 +300,12 @@ void AudioDriverALSA::set_device(StringView device) {
 
 void AudioDriverALSA::lock() {
 
-    if (!thread || !mutex)
-        return;
-    mutex->lock();
+    mutex.lock();
 }
 
 void AudioDriverALSA::unlock() {
 
-    if (!thread || !mutex)
-        return;
-    mutex->unlock();
+    mutex.unlock();
 }
 
 void AudioDriverALSA::finish_device() {
@@ -322,18 +317,9 @@ void AudioDriverALSA::finish_device() {
 }
 
 void AudioDriverALSA::finish() {
-
-    if (thread) {
+    if(thread.is_started()) {
         exit_thread = true;
-        Thread::wait_to_finish(thread);
-
-        memdelete(thread);
-        thread = nullptr;
-
-        if (mutex) {
-            memdelete(mutex);
-            mutex = nullptr;
-        }
+        thread.wait_to_finish();
     }
 
     finish_device();

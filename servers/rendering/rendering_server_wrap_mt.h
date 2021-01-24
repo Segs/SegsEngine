@@ -39,7 +39,7 @@ class  RenderingServerWrapMT : public RenderingServer {
     // the real visual server
     mutable CommandQueueMT command_queue;
     Mutex alloc_mutex;
-    Thread *thread;
+    Thread thread;
     uint64_t draw_pending;
     int pool_max_size;
     volatile bool exit;
@@ -256,6 +256,7 @@ public:
     FUNC2(light_set_cull_mask, RID, uint32_t)
     FUNC2(light_set_reverse_cull_face_mode, RID, bool)
     FUNC2(light_set_use_gi, RID, bool)
+    FUNC2(light_set_bake_mode, RID, RS::LightBakeMode)
 
     FUNC2(light_omni_set_shadow_mode, RID, RS::LightOmniShadowMode)
     FUNC2(light_omni_set_shadow_detail, RID, RS::LightOmniShadowDetail)
@@ -312,9 +313,6 @@ public:
 
     FUNC2(gi_probe_set_interior, RID, bool)
     FUNC1RC(bool, gi_probe_is_interior, RID)
-
-    FUNC2(gi_probe_set_compress, RID, bool)
-    FUNC1RC(bool, gi_probe_is_compressed, RID)
 
     FUNC2(gi_probe_set_dynamic_data, RID, const PoolVector<int> &)
     FUNC1RC(PoolVector<int>, gi_probe_get_dynamic_data, RID)
@@ -417,6 +415,8 @@ public:
     FUNC2(viewport_set_shadow_atlas_size, RID, int)
     FUNC3(viewport_set_shadow_atlas_quadrant_subdivision, RID, int, int)
     FUNC2(viewport_set_msaa, RID, RS::ViewportMSAA)
+    FUNC2(viewport_set_use_fxaa, RID, bool)
+    FUNC2(viewport_set_use_debanding, RID, bool)
     FUNC2(viewport_set_hdr, RID, bool)
     FUNC2(viewport_set_usage, RID, RS::ViewportUsage)
 
@@ -596,16 +596,17 @@ public:
 
     /* EVENT QUEUING */
 
-    void request_frame_drawn_callback(Callable && p1) override
-    {
+    void request_frame_drawn_callback(Callable &&p1) override {
         assert (Thread::get_caller_id() != server_thread);
-        command_queue.push( [this,p1=eastl::move(p1)]() mutable { submission_thread_singleton->request_frame_drawn_callback(eastl::move(p1)); });
+        command_queue.push([this, p1 = eastl::move(p1)]() mutable {
+            submission_thread_singleton->request_frame_drawn_callback(eastl::move(p1));
+        });
     }
 
     void init() override;
     void finish() override;
     void draw(bool p_swap_buffers, double frame_step) override;
-    void sync() override;
+    void sync();
     FUNC0RC(bool, has_changed)
 
     /* RENDER INFO */

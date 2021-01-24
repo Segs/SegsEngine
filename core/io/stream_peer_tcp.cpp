@@ -364,7 +364,7 @@ void StreamPeerTCP::_bind_methods() {
 }
 
 StreamPeerTCP::StreamPeerTCP() :
-        _sock(Ref<NetSocket>(NetSocket::create())) {
+        _sock(NetSocket::create(),DoNotAddRef) {
 }
 
 StreamPeerTCP::~StreamPeerTCP() {

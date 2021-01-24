@@ -126,7 +126,7 @@ public:
     StringName get_current_node() const;
     StringName get_blend_from_node() const;
     const Vector<StringName> &get_travel_path() const;
-    float get_current_play_pos() const;
+    float get_current_play_position() const;
     float get_current_length() const;
 
     AnimationNodeStateMachinePlayback();

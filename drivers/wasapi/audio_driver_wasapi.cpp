@@ -172,21 +172,21 @@ Error AudioDriverWASAPI::audio_device_init(AudioDeviceWASAPI *p_device, bool p_c
             IMMDevice *tmp_device = nullptr;
 
             hr = devices->Item(i, &tmp_device);
-            ERR_BREAK(hr != S_OK); 
+            ERR_BREAK(hr != S_OK);
 
             IPropertyStore *props = nullptr;
             hr = tmp_device->OpenPropertyStore(STGM_READ, &props);
-            ERR_BREAK(hr != S_OK); 
+            ERR_BREAK(hr != S_OK);
 
             PROPVARIANT propvar;
             PropVariantInit(&propvar);
 
             hr = props->GetValue(PKEY_Device_FriendlyName, &propvar);
-            ERR_BREAK(hr != S_OK); 
+            ERR_BREAK(hr != S_OK);
 
             if (StringUtils::from_utf8(p_device->device_name) == StringUtils::from_wchar(propvar.pwszVal)) {
                 hr = tmp_device->GetId(&strId);
-                ERR_BREAK(hr != S_OK); 
+                ERR_BREAK(hr != S_OK);
 
                 found = true;
             }
@@ -408,8 +408,7 @@ Error AudioDriverWASAPI::init() {
     exit_thread = false;
     thread_exited = false;
 
-    mutex = memnew(Mutex);
-    thread = Thread::create(thread_func, this);
+    thread.start(thread_func, this);
 
     return OK;
 }
@@ -448,17 +447,17 @@ Array AudioDriverWASAPI::audio_device_get_list(bool p_capture) {
         IMMDevice *device = nullptr;
 
         hr = devices->Item(i, &device);
-        ERR_BREAK(hr != S_OK); 
+        ERR_BREAK(hr != S_OK);
 
         IPropertyStore *props = nullptr;
         hr = device->OpenPropertyStore(STGM_READ, &props);
-        ERR_BREAK(hr != S_OK); 
+        ERR_BREAK(hr != S_OK);
 
         PROPVARIANT propvar;
         PropVariantInit(&propvar);
 
         hr = props->GetValue(PKEY_Device_FriendlyName, &propvar);
-        ERR_BREAK(hr != S_OK); 
+        ERR_BREAK(hr != S_OK);
 
         list.push_back(StringUtils::to_utf8(StringUtils::from_wchar(propvar.pwszVal)));
 
@@ -724,10 +723,10 @@ void AudioDriverWASAPI::thread_func(void *p_udata) {
                     read_frames += num_frames_available;
 
                     hr = ad->audio_input.capture_client->ReleaseBuffer(num_frames_available);
-                    ERR_BREAK(hr != S_OK); 
+                    ERR_BREAK(hr != S_OK);
 
                     hr = ad->audio_input.capture_client->GetNextPacketSize(&packet_length);
-                    ERR_BREAK(hr != S_OK); 
+                    ERR_BREAK(hr != S_OK);
                 }
             }
 
@@ -783,34 +782,23 @@ void AudioDriverWASAPI::start() {
 }
 
 void AudioDriverWASAPI::lock() {
-
-    if (mutex)
-        mutex->lock();
+    mutex.lock();
 }
 
 void AudioDriverWASAPI::unlock() {
-
-    if (mutex)
-        mutex->unlock();
+    mutex.unlock();
 }
 
 void AudioDriverWASAPI::finish() {
 
-    if (thread) {
+    if (thread.is_started()) {
         exit_thread = true;
-        Thread::wait_to_finish(thread);
-
-        memdelete(thread);
-        thread = nullptr;
+        thread.wait_to_finish();
     }
 
     finish_capture_device();
     finish_render_device();
 
-    if (mutex) {
-        memdelete(mutex);
-        mutex = nullptr;
-    }
 }
 
 Error AudioDriverWASAPI::capture_start() {
@@ -864,9 +852,6 @@ String AudioDriverWASAPI::capture_get_device() {
 }
 
 AudioDriverWASAPI::AudioDriverWASAPI() {
-
-    mutex = nullptr;
-    thread = nullptr;
 
     samples_in.clear();
 

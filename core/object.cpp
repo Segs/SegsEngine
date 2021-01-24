@@ -31,21 +31,22 @@
 #include "object.h"
 
 #include "core/class_db.h"
-#include "core/object_db.h"
 #include "core/core_string_names.h"
+#include "core/hash_map.h"
 #include "core/message_queue.h"
-#include "core/os/os.h"
+#include "core/method_bind.h"
+#include "core/node_path.h"
+#include "core/object_db.h"
 #include "core/object_rc.h"
+#include "core/object_tooling.h"
+#include "core/os/os.h"
+#include "core/pool_vector.h"
 #include "core/print_string.h"
 #include "core/resource.h"
 #include "core/script_language.h"
 #include "core/string.h"
 #include "core/string_formatter.h"
 #include "core/translation.h"
-#include "core/hash_map.h"
-#include "core/pool_vector.h"
-#include "core/method_bind.h"
-#include "core/object_tooling.h"
 
 #include <EASTL/vector_map.h>
 
@@ -435,7 +436,9 @@ void Object::set_indexed(const Vector<StringName> &p_names, const Variant &p_val
     }
 
     bool valid = false;
-    if (!r_valid) r_valid = &valid;
+    if (!r_valid) {
+        r_valid = &valid;
+    }
 
     Vector<Variant> value_stack;
 
@@ -508,7 +511,6 @@ void Object::get_property_list(Vector<PropertyInfo> *p_list, bool p_reversed) co
     _get_property_listv(p_list, p_reversed);
 
     if (!is_class("Script")) { // can still be set, but this is for userfriendliness
-        Object_add_tool_properties(p_list);
         p_list->push_back(PropertyInfo(VariantType::OBJECT, "script", PropertyHint::ResourceType, "Script", PROPERTY_USAGE_DEFAULT));
     }
     if (metadata && !metadata->empty()) {
@@ -1693,7 +1695,7 @@ Object::Object() {
     private_data = memnew_args_basic(ObjectPrivate,this);
     _class_ptr = nullptr;
     _block_signals = false;
-    _instance_id = gObjectDB().add_instance(this);
+    _instance_id = ObjectDB::add_instance(this);
     _can_translate = true;
     _is_queued_for_deletion = false;
     _emitting = false;
@@ -1726,7 +1728,7 @@ Object::~Object() {
     }
     memdelete(private_data);
 
-    gObjectDB().remove_instance(this);
+    ObjectDB::remove_instance(this);
     _instance_id = ObjectID(0ULL);
 
     if (ScriptServer::are_languages_finished() || !_script_instance_bindings) {

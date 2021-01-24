@@ -483,6 +483,17 @@ install(TARGETS concurrent_queue EXPORT SegsEngine
     INCLUDES DESTINATION include/concurrentqueue
 )
 
+set(minimp3_SRC
+    ${PROJECT_SOURCE_DIR}/thirdparty/minimp3/minimp3.h
+    ${PROJECT_SOURCE_DIR}/thirdparty/minimp3/minimp3_ex.h
+)
+add_library(minimp3 INTERFACE)
+
+target_include_directories(minimp3 INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
+
 set_3rdparty_properties(bullet)
 set_3rdparty_properties(assimp_lib)
 set_3rdparty_properties(zlib)

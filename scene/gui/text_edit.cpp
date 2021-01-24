@@ -1447,7 +1447,7 @@ struct PrivateData {
     }
     void set_line(int line,StringView _new_text) {
         UIString new_text(StringUtils::from_utf8(_new_text));
-        if (line < 0 || line > text.size())
+        if (line < 0 || line >= text.size())
             return;
         _remove_text(line, 0, line, text[line].length());
         _insert_text(line, 0, new_text);
@@ -3022,6 +3022,17 @@ void TextEdit::_notification(int p_what) {
                 Size2 icon_area_size(get_row_height(), get_row_height());
                 w += icon_area_size.width + icon_hsep;
 
+                int line_from = CLAMP(D()->completion_index - lines / 2, 0, completion_options_size - lines);
+
+                for (int i = 0; i < lines; i++) {
+                    int l = line_from + i;
+                    ERR_CONTINUE(l < 0 || l >= completion_options_size);
+                    if (D()->completion_options[l].default_value.get_type() == VariantType::COLOR) {
+                        w += icon_area_size.width;
+                        break;
+                    }
+                }
+
                 int th = h + csb->get_minimum_size().y;
 
                 if (cursor_pos.y + get_row_height() + th > get_size().height) {
@@ -3047,7 +3058,7 @@ void TextEdit::_notification(int p_what) {
                 if (D()->cache.completion_background_color.a > 0.01f) {
                     RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(D()->completion_rect.position, D()->completion_rect.size + Size2(scrollw, 0)), D()->cache.completion_background_color);
                 }
-                int line_from = CLAMP(D()->completion_index - lines / 2, 0, completion_options_size - lines);
+
                 RenderingServer::get_singleton()->canvas_item_add_rect(ci,
                         Rect2(Point2(D()->completion_rect.position.x,
                                       D()->completion_rect.position.y + (D()->completion_index - line_from) * get_row_height()),
@@ -3080,6 +3091,9 @@ void TextEdit::_notification(int p_what) {
                     }
 
                     title_pos.x = icon_area.position.x + icon_area.size.width + icon_hsep;
+                    if (D()->completion_options[l].default_value.get_type() == VariantType::COLOR) {
+                        draw_rect(Rect2(Point2(D()->completion_rect.position.x + D()->completion_rect.size.width - icon_area_size.x, icon_area.position.y), icon_area_size), (Color)D()->completion_options[l].default_value);
+                    }
                     draw_string(D()->cache.font, title_pos, D()->completion_options[l].display, text_color, D()->completion_rect.size.width - (icon_area_size.x + icon_hsep));
                 }
 

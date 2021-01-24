@@ -158,7 +158,7 @@ public:
         return texture_owner.make_rid(texture);
     }
 
-    void texture_allocate(RID p_texture, int p_width, int p_height, int p_depth_3d, Image::Format p_format, RenderingServer::TextureType p_type = RS::TEXTURE_TYPE_2D, uint32_t p_flags = RS::TEXTURE_FLAGS_DEFAULT) {
+    void texture_allocate(RID p_texture, int p_width, int p_height, int p_depth_3d, Image::Format p_format, RenderingServerEnums::TextureType p_type = RS::TEXTURE_TYPE_2D, uint32_t p_flags = RS::TEXTURE_FLAGS_DEFAULT) {
         DummyTexture *t = texture_owner.getornull(p_texture);
         ERR_FAIL_COND(!t);
         t->width = p_width;
@@ -490,7 +490,8 @@ public:
     void light_set_negative(RID p_light, bool p_enable) {}
     void light_set_cull_mask(RID p_light, uint32_t p_mask) {}
     void light_set_reverse_cull_face_mode(RID p_light, bool p_enabled) {}
-    void light_set_use_gi(RID p_light, bool p_enabled) {}
+    void light_set_use_gi(RID p_light, bool p_enabled) override {}
+    void light_set_bake_mode(RID p_light, RS::LightBakeMode p_bake_mode) override {}
 
     void light_omni_set_shadow_mode(RID p_light, RS::LightOmniShadowMode p_mode) {}
     void light_omni_set_shadow_detail(RID p_light, RS::LightOmniShadowDetail p_detail) {}
@@ -511,6 +512,7 @@ public:
     float light_get_param(RID p_light, RS::LightParam p_param) { return 0.0; }
     Color light_get_color(RID p_light) { return Color(); }
     bool light_get_use_gi(RID p_light) { return false; }
+    RS::LightBakeMode light_get_bake_mode(RID p_light) override { return RS::LightBakeMode::LIGHT_BAKE_DISABLED; }
     uint64_t light_get_version(RID p_light) const { return 0; }
 
     /* PROBE API */
@@ -582,13 +584,10 @@ public:
     void gi_probe_set_interior(RID p_probe, bool p_enable) {}
     bool gi_probe_is_interior(RID p_probe) const { return false; }
 
-    void gi_probe_set_compress(RID p_probe, bool p_enable) {}
-    bool gi_probe_is_compressed(RID p_probe) const { return false; }
 
     uint32_t gi_probe_get_version(RID p_probe) { return 0; }
 
-    GIProbeCompression gi_probe_get_dynamic_data_get_preferred_compression() const { return GI_PROBE_UNCOMPRESSED; }
-    RID gi_probe_dynamic_data_create(int p_width, int p_height, int p_depth, GIProbeCompression p_compression) { return RID(); }
+    RID gi_probe_dynamic_data_create(int p_width, int p_height, int p_depth) { return RID(); }
     void gi_probe_dynamic_data_update(RID p_gi_probe_data, int p_depth_slice, int p_slice_count, int p_mipmap, const void *p_data) {}
 
     /* LIGHTMAP CAPTURE */
@@ -706,6 +705,8 @@ public:
     bool render_target_was_used(RID p_render_target) { return false; }
     void render_target_clear_used(RID p_render_target) {}
     void render_target_set_msaa(RID p_render_target, RS::ViewportMSAA p_msaa) {}
+    void render_target_set_use_fxaa(RID p_render_target, bool p_fxaa) override {}
+    void render_target_set_use_debanding(RID p_render_target, bool p_debanding) override {}
 
     /* CANVAS SHADOW */
 
@@ -814,6 +815,7 @@ public:
     }
 
     virtual bool is_low_end() const { return true; }
+    const char *gl_check_for_error(bool p_print_error = true) override { return nullptr; }
 
     RasterizerDummy() {}
     ~RasterizerDummy() {}

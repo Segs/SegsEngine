@@ -376,9 +376,6 @@ public:
     void generic_6dof_joint_set_flag(RID p_joint, Vector3::Axis p_axis, G6DOFJointAxisFlag p_flag, bool p_enable) override;
     bool generic_6dof_joint_get_flag(RID p_joint, Vector3::Axis p_axis, G6DOFJointAxisFlag p_flag) override;
 
-    void generic_6dof_joint_set_precision(RID p_joint, int precision) override;
-    int generic_6dof_joint_get_precision(RID p_joint) override;
-
     /* MISC */
 
     void free_rid(RID p_rid) override;
@@ -397,7 +394,6 @@ public:
 
     void init() override;
     void step(float p_deltaTime) override;
-    void sync() override;
     void flush_queries() override;
     void finish() override;
 

@@ -548,7 +548,7 @@ void Sprite3D::_draw() {
 
     AABB aabb;
 
-    // Buffer is using default compression, so everything except position is compressed
+    // Everything except position and UV is compressed
     PoolVector<uint8_t>::Write write_buffer = mesh_buffer.write();
 
     int8_t v_normal[4] = {
@@ -910,7 +910,7 @@ void AnimatedSprite3D::_draw() {
 
     AABB aabb;
 
-    // Buffer is using default compression, so everything except position is compressed
+    // Everything except position and UV is compressed
     PoolVector<uint8_t>::Write write_buffer = mesh_buffer.write();
 
     int8_t v_normal[4] = {

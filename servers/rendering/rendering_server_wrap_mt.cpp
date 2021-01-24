@@ -88,6 +88,7 @@ void RenderingServerWrapMT::sync() {
         atomic_increment(&draw_pending);
         command_queue.push_and_sync([this]() {thread_flush(); });
     } else {
+        assert(Thread::get_caller_id() == server_thread);
 
         command_queue.flush_all(); //flush all pending from other threads
     }
@@ -115,7 +116,7 @@ void RenderingServerWrapMT::init() {
     print_verbose("VisualServerWrapMT: Creating render thread");
     OS::get_singleton()->release_rendering_thread();
     if (create_thread) {
-        thread = Thread::create(_thread_callback, this);
+        thread.start(_thread_callback, this);
         print_verbose("VisualServerWrapMT: Starting render thread");
     }
     while (!draw_thread_up) {
@@ -128,7 +129,7 @@ void RenderingServerWrapMT::init() {
 void RenderingServerWrapMT::finish() {
 
 
-    if (thread) {
+    if (thread.is_started()) {
         texture_free_cached_ids();
         sky_free_cached_ids();
         shader_free_cached_ids();
@@ -155,10 +156,7 @@ void RenderingServerWrapMT::finish() {
         canvas_occluder_polygon_free_cached_ids();
 
         command_queue.push([this]() {thread_exit(); });
-        Thread::wait_to_finish(thread);
-        memdelete(thread);
-
-        thread = nullptr;
+        thread.wait_to_finish();
     } else {
         assert(Thread::get_caller_id() == server_thread);
         for (auto v : texture_id_pool) {
@@ -299,7 +297,6 @@ RenderingServerWrapMT::RenderingServerWrapMT(bool p_create_thread) :
 
     memnew(RenderingServerRaster);
     create_thread = p_create_thread;
-    thread = nullptr;
     draw_pending = 0;
     draw_thread_up = false;
     pool_max_size = T_GLOBAL_GET<int>("memory/limits/multithreaded_server/rid_pool_prealloc");

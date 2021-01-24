@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "core/math/octree.h"
 #include "servers/rendering/rasterizer.h"
 #include "servers/rendering_server.h"
 #include "rendering_server_canvas.h"
@@ -313,6 +312,7 @@ public:
     BIND2(light_set_cull_mask, RID, uint32_t)
     BIND2(light_set_reverse_cull_face_mode, RID, bool)
     BIND2(light_set_use_gi, RID, bool)
+    BIND2(light_set_bake_mode, RID, RS::LightBakeMode)
 
     BIND2(light_omni_set_shadow_mode, RID, RS::LightOmniShadowMode)
     BIND2(light_omni_set_shadow_detail, RID, RS::LightOmniShadowDetail)
@@ -369,9 +369,6 @@ public:
 
     BIND2(gi_probe_set_interior, RID, bool)
     BIND1RC(bool, gi_probe_is_interior, RID)
-
-    BIND2(gi_probe_set_compress, RID, bool)
-    BIND1RC(bool, gi_probe_is_compressed, RID)
 
     BIND2(gi_probe_set_dynamic_data, RID, const PoolVector<int> &)
     BIND1RC(PoolVector<int>, gi_probe_get_dynamic_data, RID)
@@ -469,6 +466,8 @@ public:
     BIND2(viewport_set_shadow_atlas_size, RID, int)
     BIND3(viewport_set_shadow_atlas_quadrant_subdivision, RID, int, int)
     BIND2(viewport_set_msaa, RID, RS::ViewportMSAA)
+    BIND2(viewport_set_use_fxaa, RID, bool)
+    BIND2(viewport_set_use_debanding, RID, bool)
     BIND2(viewport_set_hdr, RID, bool)
     BIND2(viewport_set_usage, RID, RS::ViewportUsage)
 
@@ -673,7 +672,6 @@ public:
     void request_frame_drawn_callback(Callable &&cb) override;
 
     void draw(bool p_swap_buffers, double frame_step) override;
-    void sync() override;
     bool has_changed() const override;
     void init() override;
     void finish() override;
@@ -700,7 +698,7 @@ public:
 
     GODOT_EXPORT RenderingServerRaster();
     GODOT_EXPORT ~RenderingServerRaster() override;
-    static RenderingServerRaster *get() { (RenderingServerRaster*)submission_thread_singleton;}
+    static RenderingServerRaster *get() { return (RenderingServerRaster*)submission_thread_singleton;}
 
 #undef DISPLAY_CHANGED
 #undef BIND0R

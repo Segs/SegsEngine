@@ -13,12 +13,6 @@ public:
 
 class ResourceFormatLoaderTextureLayered : public ResourceFormatLoader {
 public:
-    enum Compression {
-        COMPRESSION_LOSSLESS,
-        COMPRESSION_VRAM,
-        COMPRESSION_UNCOMPRESSED
-    };
-
     RES load(StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr) override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool handles_type(StringView p_type) const override;

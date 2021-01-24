@@ -706,7 +706,7 @@ void EditorAssetLibrary::_select_asset(int p_id) {
 }
 
 void EditorAssetLibrary::_image_update(bool use_cache, bool final, const PoolByteArray &p_data, int p_queue_id) {
-    Object *obj = gObjectDB().get_instance(image_queue[p_queue_id].target);
+    Object *obj = ObjectDB::get_instance(image_queue[p_queue_id].target);
 
     if (obj) {
         bool image_set = false;
@@ -827,7 +827,7 @@ void EditorAssetLibrary::_image_request_completed(
 
     } else {
         WARN_PRINT("Error getting image file from URL: " + image_queue[p_queue_id].image_url);
-        Object *obj = gObjectDB().get_instance(image_queue[p_queue_id].target);
+        Object *obj = ObjectDB::get_instance(image_queue[p_queue_id].target);
         if (obj) {
             obj->call_va("set_image", image_queue[p_queue_id].image_type, image_queue[p_queue_id].image_index, get_theme_icon("FileBrokenBigThumb", "EditorIcons"));
         }
@@ -1230,6 +1230,9 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
                 if (r.has("icon_url") && r["icon_url"] != "") {
                     _request_image(item->get_instance_id(), r["icon_url"].as<String>(), IMAGE_QUEUE_ICON, 0);
                 }
+            }
+            if (!result.empty()) {
+                library_scroll->set_v_scroll(0);
             }
         } break;
         case REQUESTING_ASSET: {

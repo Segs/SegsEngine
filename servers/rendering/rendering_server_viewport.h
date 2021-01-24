@@ -180,6 +180,8 @@ public:
     void viewport_set_shadow_atlas_quadrant_subdivision(RID p_viewport, int p_quadrant, int p_subdiv);
 
     void viewport_set_msaa(RID p_viewport, RS::ViewportMSAA p_msaa);
+    void viewport_set_use_fxaa(RID p_viewport, bool p_fxaa);
+    void viewport_set_use_debanding(RID p_viewport, bool p_debanding);
     void viewport_set_hdr(RID p_viewport, bool p_enabled);
     void viewport_set_usage(RID p_viewport, RS::ViewportUsage p_usage);
 

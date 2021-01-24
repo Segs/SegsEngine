@@ -47,7 +47,7 @@ VARIANT_ENUM_CAST(VersionControlEditorPlugin::ChangeType);
 
 void VersionControlEditorPlugin::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("popup_vcs_set_up_dialog"), &VersionControlEditorPlugin::popup_vcs_set_up_dialog);
+//    MethodBinder::bind_method(D_METHOD("popup_vcs_set_up_dialog"), &VersionControlEditorPlugin::popup_vcs_set_up_dialog);
 
     // Used to track the status of files in the staging area
     BIND_ENUM_CONSTANT(CHANGE_TYPE_NEW);
@@ -134,13 +134,6 @@ void VersionControlEditorPlugin::_initialize_vcs() {
 
 void VersionControlEditorPlugin::_send_commit_msg() {
 
-    String msg = commit_message->get_text_utf8();
-    if (msg.empty()) {
-
-        commit_status->set_text(TTR("No commit message was provided"));
-        return;
-    }
-
     if (EditorVCSInterface::get_singleton()) {
 
         if (staged_files_count == 0) {
@@ -149,7 +142,7 @@ void VersionControlEditorPlugin::_send_commit_msg() {
             return;
         }
 
-        EditorVCSInterface::get_singleton()->commit(msg);
+        EditorVCSInterface::get_singleton()->commit(commit_message->get_text_utf8());
 
         commit_message->set_text_ui(UIString());
         version_control_dock_button->set_pressed(false);
@@ -344,6 +337,10 @@ void VersionControlEditorPlugin::_update_commit_status() {
     staged_files_count = 0;
 }
 
+void VersionControlEditorPlugin::_update_commit_button() {
+    commit_button->set_disabled(StringUtils::strip_edges(commit_message->get_text()).empty());
+}
+
 void VersionControlEditorPlugin::register_editor() {
 
     if (!EditorVCSInterface::get_singleton()) {
@@ -526,11 +523,13 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
     commit_message->set_v_grow_direction(Control::GrowDirection::GROW_DIRECTION_END);
     commit_message->set_custom_minimum_size(Size2(200, 100));
     commit_message->set_wrap_enabled(true);
+    commit_message->connect("text_changed", callable_mp(this, &VersionControlEditorPlugin::_update_commit_button));
     commit_message->set_text_ui(TTR("Add a commit message").asString());
     commit_box_vbc->add_child(commit_message);
 
     commit_button = memnew(Button);
     commit_button->set_text(TTR("Commit Changes"));
+    commit_button->set_disabled(true);
     commit_button->connect("pressed",callable_mp(this, &ClassName::_send_commit_msg));
     commit_box_vbc->add_child(commit_button);
 

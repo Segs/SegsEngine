@@ -29,11 +29,11 @@
 /*************************************************************************/
 
 //author: Andreas Haas <hondres,  liugam3@gmail.com>
-#ifndef JOYPAD_LINUX_H
-#define JOYPAD_LINUX_H
+#pragma once
 
 #ifdef JOYDEV_ENABLED
 #include "core/os/thread.h"
+#include "core/os/mutex.h"
 #include "core/string.h"
 #include "core/input/input_default.h"
 
@@ -72,8 +72,8 @@ private:
     };
 
     bool exit_udev;
-    Mutex *joy_mutex;
-    Thread *joy_thread;
+    Mutex joy_mutex;
+    Thread joy_thread;
     InputDefault *input;
     Joypad joypads[JOYPADS_MAX];
     Vector<String> attached_devices;
@@ -99,4 +99,3 @@ private:
 };
 
 #endif
-#endif // JOYPAD_LINUX_H

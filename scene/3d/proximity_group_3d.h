@@ -37,20 +37,13 @@ class GODOT_EXPORT ProximityGroup3D : public Node3D {
 
     GDCLASS(ProximityGroup3D,Node3D)
 
-    OBJ_CATEGORY("3D")
-
 public:
     enum DispatchMode {
         MODE_PROXY,
         MODE_SIGNAL,
     };
 
-public:
-    void clear_groups();
-    void update_groups();
-
-    void _notification(int p_what);
-
+private:
     DispatchMode dispatch_mode;
 
     HashMap<StringName, uint32_t> groups;
@@ -60,11 +53,14 @@ public:
     Vector3 grid_radius;
     uint32_t group_version;
 
-    void add_groups(int *p_cell, StringName p_base, int p_depth);
+    void _clear_groups();
+    void _update_groups();
+    void _add_groups(int *p_cell, StringName p_base, int p_depth);
     void _new_group(const StringName& p_name);
 
-    void _proximity_group_broadcast(const StringName &p_name, const Variant& p_params);
-
+    void _proximity_group_broadcast(const StringName &p_method, const Variant& p_parameters);
+protected:
+    void _notification(int p_what);
     static void _bind_methods();
 
 public:
@@ -77,8 +73,8 @@ public:
     void set_grid_radius(const Vector3 &p_radius);
     Vector3 get_grid_radius() const;
 
-    void broadcast(StringView p_name, const Variant& p_params);
+    void broadcast(StringView p_method, const Variant& p_parameters);
 
     ProximityGroup3D();
-    ~ProximityGroup3D() override;
+    ~ProximityGroup3D() override {};
 };

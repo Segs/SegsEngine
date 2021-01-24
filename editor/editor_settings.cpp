@@ -345,8 +345,8 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     _initial_set("interface/editor/separate_distraction_mode", false);
 
     _initial_set("interface/editor/automatically_open_screenshots", true);
-	_initial_set("interface/editor/single_window_mode", false);
-	hints["interface/editor/single_window_mode"] = PropertyInfo(VariantType::BOOL, "interface/editor/single_window_mode", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
+    _initial_set("interface/editor/single_window_mode", false);
+    hints["interface/editor/single_window_mode"] = PropertyInfo(VariantType::BOOL, "interface/editor/single_window_mode", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
     _initial_set("interface/editor/hide_console_window", false);
     _initial_set("interface/editor/save_each_scene_on_quit", true); // Regression
     _initial_set("interface/editor/quit_confirmation", true);
@@ -399,15 +399,6 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     hints["filesystem/file_dialog/display_mode"] = PropertyInfo(VariantType::INT, "filesystem/file_dialog/display_mode", PropertyHint::Enum, "Thumbnails,List");
     _initial_set("filesystem/file_dialog/thumbnail_size", 64);
     hints["filesystem/file_dialog/thumbnail_size"] = PropertyInfo(VariantType::INT, "filesystem/file_dialog/thumbnail_size", PropertyHint::Range, "32,128,16");
-
-    // Import
-    _initial_set("filesystem/import/pvrtc_texture_tool", "");
-#ifdef WINDOWS_ENABLED
-    hints["filesystem/import/pvrtc_texture_tool"] = PropertyInfo(VariantType::STRING, "filesystem/import/pvrtc_texture_tool", PropertyHint::GlobalFile, "*.exe");
-#else
-    hints["filesystem/import/pvrtc_texture_tool"] = PropertyInfo(VariantType::STRING, "filesystem/import/pvrtc_texture_tool", PropertyHint::GlobalFile, "");
-#endif
-    _initial_set("filesystem/import/pvrtc_fast_conversion", false);
 
     /* Docks */
 
@@ -508,8 +499,8 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     hints["text_editor/help/help_source_font_size"] = PropertyInfo(VariantType::INT, "text_editor/help/help_source_font_size", PropertyHint::Range, "8,48,1");
     _initial_set("text_editor/help/help_title_font_size", 23);
     hints["text_editor/help/help_title_font_size"] = PropertyInfo(VariantType::INT, "text_editor/help/help_title_font_size", PropertyHint::Range, "8,48,1");
-	_initial_set("text_editor/help/class_reference_examples", 0);
-	hints["text_editor/help/class_reference_examples"] = PropertyInfo(VariantType::INT, "text_editor/help/class_reference_examples", PropertyHint::Enum, "GDScript,C#,GDScript and C#");
+    _initial_set("text_editor/help/class_reference_examples", 0);
+    hints["text_editor/help/class_reference_examples"] = PropertyInfo(VariantType::INT, "text_editor/help/class_reference_examples", PropertyHint::Enum, "GDScript,C#,GDScript and C#");
 
     /* Editors */
 
@@ -517,37 +508,41 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     _initial_set("editors/grid_map/pick_distance", 5000.0);
 
     // 3D
-	_initial_set("editors/3d/primary_grid_color", Color(0.56, 0.56, 0.56, 0.5));
-	hints["editors/3d/primary_grid_color"] = PropertyInfo(VariantType::COLOR, "editors/3d/primary_grid_color", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT);
+    _initial_set("editors/3d/primary_grid_color", Color(0.56, 0.56, 0.56, 0.5));
+    hints["editors/3d/primary_grid_color"] = PropertyInfo(VariantType::COLOR, "editors/3d/primary_grid_color", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT);
 
-	_initial_set("editors/3d/secondary_grid_color", Color(0.38f, 0.38f, 0.38f, 0.5f));
-	hints["editors/3d/secondary_grid_color"] = PropertyInfo(VariantType::COLOR, "editors/3d/secondary_grid_color", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT);
+    _initial_set("editors/3d/secondary_grid_color", Color(0.38f, 0.38f, 0.38f, 0.5f));
+    hints["editors/3d/secondary_grid_color"] = PropertyInfo(VariantType::COLOR, "editors/3d/secondary_grid_color", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT);
 
     _initial_set("editors/3d/primary_grid_steps", 10);
-	hints["editors/3d/primary_grid_steps"] = PropertyInfo(VariantType::INT, "editors/3d/primary_grid_steps", PropertyHint::Range, "1,100,1", PROPERTY_USAGE_DEFAULT);
+    hints["editors/3d/primary_grid_steps"] = PropertyInfo(VariantType::INT, "editors/3d/primary_grid_steps", PropertyHint::Range, "1,100,1", PROPERTY_USAGE_DEFAULT);
 
-	// At 1000, the grid mostly looks like it has no edge.
-	_initial_set("editors/3d/grid_size", 200);
-	hints["editors/3d/grid_size"] = PropertyInfo(VariantType::INT, "editors/3d/grid_size", PropertyHint::Range, "1,2000,1", PROPERTY_USAGE_DEFAULT);
+    // Use a similar color to the 2D editor selection.
+    _initial_set("editors/3d/selection_box_color", Color(1.0, 0.5, 0));
+    hints["editors/3d/selection_box_color"] = PropertyInfo(VariantType::COLOR, "editors/3d/selection_box_color", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
 
-	// Default largest grid size is 100m, 10^2 (primary grid lines are 1km apart when primary_grid_steps is 10).
-	_initial_set("editors/3d/grid_division_level_max", 2);
-	// Higher values produce graphical artifacts when far away unless View Z-Far
-	// is increased significantly more than it really should need to be.
-	hints["editors/3d/grid_division_level_max"] = PropertyInfo(VariantType::INT, "editors/3d/grid_division_level_max", PropertyHint::Range, "-1,3,1", PROPERTY_USAGE_DEFAULT);
+    // At 1000, the grid mostly looks like it has no edge.
+    _initial_set("editors/3d/grid_size", 200);
+    hints["editors/3d/grid_size"] = PropertyInfo(VariantType::INT, "editors/3d/grid_size", PropertyHint::Range, "1,2000,1", PROPERTY_USAGE_DEFAULT);
 
-	// Default smallest grid size is 1cm, 10^-2.
-	_initial_set("editors/3d/grid_division_level_min", -2);
-	// Lower values produce graphical artifacts regardless of view clipping planes, so limit to -2 as a lower bound.
-	hints["editors/3d/grid_division_level_min"] = PropertyInfo(VariantType::INT, "editors/3d/grid_division_level_min", PropertyHint::Range, "-2,2,1", PROPERTY_USAGE_DEFAULT);
+    // Default largest grid size is 100m, 10^2 (primary grid lines are 1km apart when primary_grid_steps is 10).
+    _initial_set("editors/3d/grid_division_level_max", 2);
+    // Higher values produce graphical artifacts when far away unless View Z-Far
+    // is increased significantly more than it really should need to be.
+    hints["editors/3d/grid_division_level_max"] = PropertyInfo(VariantType::INT, "editors/3d/grid_division_level_max", PropertyHint::Range, "-1,3,1", PROPERTY_USAGE_DEFAULT);
 
-	// -0.2 seems like a sensible default. -1.0 gives Blender-like behavior, 0.5 gives huge grids.
-	_initial_set("editors/3d/grid_division_level_bias", -0.2);
-	hints["editors/3d/grid_division_level_bias"] = PropertyInfo(VariantType::FLOAT, "editors/3d/grid_division_level_bias", PropertyHint::Range, "-1.0,0.5,0.1", PROPERTY_USAGE_DEFAULT);
+    // Default smallest grid size is 1cm, 10^-2.
+    _initial_set("editors/3d/grid_division_level_min", -2);
+    // Lower values produce graphical artifacts regardless of view clipping planes, so limit to -2 as a lower bound.
+    hints["editors/3d/grid_division_level_min"] = PropertyInfo(VariantType::INT, "editors/3d/grid_division_level_min", PropertyHint::Range, "-2,2,1", PROPERTY_USAGE_DEFAULT);
 
-	_initial_set("editors/3d/grid_xz_plane", true);
-	_initial_set("editors/3d/grid_xy_plane", false);
-	_initial_set("editors/3d/grid_yz_plane", false);
+    // -0.2 seems like a sensible default. -1.0 gives Blender-like behavior, 0.5 gives huge grids.
+    _initial_set("editors/3d/grid_division_level_bias", -0.2);
+    hints["editors/3d/grid_division_level_bias"] = PropertyInfo(VariantType::FLOAT, "editors/3d/grid_division_level_bias", PropertyHint::Range, "-1.0,0.5,0.1", PROPERTY_USAGE_DEFAULT);
+
+    _initial_set("editors/3d/grid_xz_plane", true);
+    _initial_set("editors/3d/grid_xy_plane", false);
+    _initial_set("editors/3d/grid_yz_plane", false);
 
     _initial_set("editors/3d/default_fov", 70.0);
     _initial_set("editors/3d/default_z_near", 0.05);
@@ -590,8 +585,8 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     // 3D: Freelook
     _initial_set("editors/3d/freelook/freelook_navigation_scheme", false);
     hints["editors/3d/freelook/freelook_navigation_scheme"] = PropertyInfo(VariantType::INT, "editors/3d/freelook/freelook_navigation_scheme", PropertyHint::Enum, "Default,Partially Axis-Locked (id Tech),Fully Axis-Locked (Minecraft)");
-	_initial_set("editors/3d/freelook/freelook_sensitivity", 0.4f);
-	hints["editors/3d/freelook/freelook_sensitivity"] = PropertyInfo(VariantType::FLOAT, "editors/3d/freelook/freelook_sensitivity", PropertyHint::Range, "0.0, 2, 0.01");
+    _initial_set("editors/3d/freelook/freelook_sensitivity", 0.4f);
+    hints["editors/3d/freelook/freelook_sensitivity"] = PropertyInfo(VariantType::FLOAT, "editors/3d/freelook/freelook_sensitivity", PropertyHint::Range, "0.0, 2, 0.01");
     _initial_set("editors/3d/freelook/freelook_inertia", 0.1f);
     hints["editors/3d/freelook/freelook_inertia"] = PropertyInfo(VariantType::FLOAT, "editors/3d/freelook/freelook_inertia", PropertyHint::Range, "0.0, 1, 0.01");
     _initial_set("editors/3d/freelook/freelook_base_speed", 5.0f);
@@ -696,40 +691,40 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
 void EditorSettings::_load_default_text_editor_theme() {
     bool dark_theme = is_dark_theme();
 
-	_initial_set("text_editor/highlighting/symbol_color", Color(0.73, 0.87, 1.0));
-	_initial_set("text_editor/highlighting/keyword_color", Color(1.0, 1.0, 0.7));
-	_initial_set("text_editor/highlighting/base_type_color", Color(0.64, 1.0, 0.83));
-	_initial_set("text_editor/highlighting/engine_type_color", Color(0.51, 0.83, 1.0));
-	_initial_set("text_editor/highlighting/user_type_color", Color(0.42, 0.67, 0.93));
-	_initial_set("text_editor/highlighting/comment_color", Color(0.4, 0.4, 0.4));
-	_initial_set("text_editor/highlighting/string_color", Color(0.94, 0.43, 0.75));
-	_initial_set("text_editor/highlighting/background_color", dark_theme ? Color(0.0, 0.0, 0.0, 0.23) : Color(0.2, 0.23, 0.31));
-	_initial_set("text_editor/highlighting/completion_background_color", Color(0.17, 0.16, 0.2));
-	_initial_set("text_editor/highlighting/completion_selected_color", Color(0.26, 0.26, 0.27));
-	_initial_set("text_editor/highlighting/completion_existing_color", Color(0.13, 0.87, 0.87, 0.87));
+    _initial_set("text_editor/highlighting/symbol_color", Color(0.73, 0.87, 1.0));
+    _initial_set("text_editor/highlighting/keyword_color", Color(1.0, 1.0, 0.7));
+    _initial_set("text_editor/highlighting/base_type_color", Color(0.64, 1.0, 0.83));
+    _initial_set("text_editor/highlighting/engine_type_color", Color(0.51, 0.83, 1.0));
+    _initial_set("text_editor/highlighting/user_type_color", Color(0.42, 0.67, 0.93));
+    _initial_set("text_editor/highlighting/comment_color", Color(0.4, 0.4, 0.4));
+    _initial_set("text_editor/highlighting/string_color", Color(0.94, 0.43, 0.75));
+    _initial_set("text_editor/highlighting/background_color", dark_theme ? Color(0.0, 0.0, 0.0, 0.23) : Color(0.2, 0.23, 0.31));
+    _initial_set("text_editor/highlighting/completion_background_color", Color(0.17, 0.16, 0.2));
+    _initial_set("text_editor/highlighting/completion_selected_color", Color(0.26, 0.26, 0.27));
+    _initial_set("text_editor/highlighting/completion_existing_color", Color(0.13, 0.87, 0.87, 0.87));
     _initial_set("text_editor/highlighting/completion_scroll_color", Color(1, 1, 1));
-	_initial_set("text_editor/highlighting/completion_font_color", Color(0.67, 0.67, 0.67));
-	_initial_set("text_editor/highlighting/text_color", Color(0.67, 0.67, 0.67));
-	_initial_set("text_editor/highlighting/line_number_color", Color(0.67, 0.67, 0.67, 0.4));
-	_initial_set("text_editor/highlighting/safe_line_number_color", Color(0.67, 0.78, 0.67, 0.6));
-	_initial_set("text_editor/highlighting/caret_color", Color(0.67, 0.67, 0.67));
+    _initial_set("text_editor/highlighting/completion_font_color", Color(0.67, 0.67, 0.67));
+    _initial_set("text_editor/highlighting/text_color", Color(0.67, 0.67, 0.67));
+    _initial_set("text_editor/highlighting/line_number_color", Color(0.67, 0.67, 0.67, 0.4));
+    _initial_set("text_editor/highlighting/safe_line_number_color", Color(0.67, 0.78, 0.67, 0.6));
+    _initial_set("text_editor/highlighting/caret_color", Color(0.67, 0.67, 0.67));
     _initial_set("text_editor/highlighting/caret_background_color", Color(0, 0, 0));
     _initial_set("text_editor/highlighting/text_selected_color", Color(0, 0, 0));
-	_initial_set("text_editor/highlighting/selection_color", Color(0.41, 0.61, 0.91, 0.35));
-	_initial_set("text_editor/highlighting/brace_mismatch_color", Color(1, 0.2, 0.2));
-	_initial_set("text_editor/highlighting/current_line_color", Color(0.3, 0.5, 0.8, 0.15));
-	_initial_set("text_editor/highlighting/line_length_guideline_color", Color(0.3, 0.5, 0.8, 0.1));
-	_initial_set("text_editor/highlighting/word_highlighted_color", Color(0.8, 0.9, 0.9, 0.15));
-	_initial_set("text_editor/highlighting/number_color", Color(0.92, 0.58, 0.2));
-	_initial_set("text_editor/highlighting/function_color", Color(0.4, 0.64, 0.81));
-	_initial_set("text_editor/highlighting/member_variable_color", Color(0.9, 0.31, 0.35));
-	_initial_set("text_editor/highlighting/mark_color", Color(1.0, 0.4, 0.4, 0.4));
-	_initial_set("text_editor/highlighting/bookmark_color", Color(0.08, 0.49, 0.98));
-	_initial_set("text_editor/highlighting/breakpoint_color", Color(0.9, 0.29, 0.3));
-	_initial_set("text_editor/highlighting/executing_line_color", Color(0.98, 0.89, 0.27));
-	_initial_set("text_editor/highlighting/code_folding_color", Color(0.8, 0.8, 0.8, 0.8));
-	_initial_set("text_editor/highlighting/search_result_color", Color(0.05, 0.25, 0.05, 1));
-	_initial_set("text_editor/highlighting/search_result_border_color", Color(0.41, 0.61, 0.91, 0.38));
+    _initial_set("text_editor/highlighting/selection_color", Color(0.41, 0.61, 0.91, 0.35));
+    _initial_set("text_editor/highlighting/brace_mismatch_color", Color(1, 0.2, 0.2));
+    _initial_set("text_editor/highlighting/current_line_color", Color(0.3, 0.5, 0.8, 0.15));
+    _initial_set("text_editor/highlighting/line_length_guideline_color", Color(0.3, 0.5, 0.8, 0.1));
+    _initial_set("text_editor/highlighting/word_highlighted_color", Color(0.8, 0.9, 0.9, 0.15));
+    _initial_set("text_editor/highlighting/number_color", Color(0.92, 0.58, 0.2));
+    _initial_set("text_editor/highlighting/function_color", Color(0.4, 0.64, 0.81));
+    _initial_set("text_editor/highlighting/member_variable_color", Color(0.9, 0.31, 0.35));
+    _initial_set("text_editor/highlighting/mark_color", Color(1.0, 0.4, 0.4, 0.4));
+    _initial_set("text_editor/highlighting/bookmark_color", Color(0.08, 0.49, 0.98));
+    _initial_set("text_editor/highlighting/breakpoint_color", Color(0.9, 0.29, 0.3));
+    _initial_set("text_editor/highlighting/executing_line_color", Color(0.98, 0.89, 0.27));
+    _initial_set("text_editor/highlighting/code_folding_color", Color(0.8, 0.8, 0.8, 0.8));
+    _initial_set("text_editor/highlighting/search_result_color", Color(0.05, 0.25, 0.05, 1));
+    _initial_set("text_editor/highlighting/search_result_border_color", Color(0.41, 0.61, 0.91, 0.38));
 
 }
 
@@ -1081,7 +1076,7 @@ void EditorSettings::save() {
 
     if (!singleton.get()) {
         return;
-	}
+    }
 
     if (singleton->config_file_path.empty()) {
         ERR_PRINT("Cannot save EditorSettings config, no valid path");
@@ -1101,7 +1096,7 @@ void EditorSettings::destroy() {
 
     if (!singleton.get()) {
         return;
-	}
+    }
     save();
     singleton = Ref<EditorSettings>();
 }
@@ -1148,7 +1143,7 @@ void EditorSettings::set_restart_if_changed(const StringName &p_setting, bool p_
 
     if (!props.contains(p_setting)) {
         return;
-	}
+    }
     props[p_setting].restart_if_changed = p_restart;
 }
 
@@ -1158,7 +1153,7 @@ void EditorSettings::set_initial_value(const StringName &p_setting, const Varian
 
     if (!props.contains(p_setting)) {
         return;
-	}
+    }
     props[p_setting].initial = p_value;
     props[p_setting].has_default_value = true;
     if (p_update_current) {
@@ -1193,11 +1188,11 @@ bool EditorSettings::property_can_revert(const StringName &p_setting) {
 
     if (!props.contains(p_setting)) {
         return false;
-	}
+    }
 
     if (!props[p_setting].has_default_value) {
         return false;
-	}
+    }
 
     return props[p_setting].initial != props[p_setting].variant;
 }
@@ -1206,7 +1201,7 @@ Variant EditorSettings::property_get_revert(const StringName &p_setting) {
 
     if (!props.contains(p_setting) || !props[p_setting].has_default_value) {
         return Variant();
-	}
+    }
 
     return props[p_setting].initial;
 }
@@ -1299,7 +1294,7 @@ void EditorSettings::set_favorites(const Vector<String> &p_favorites) {
     if (f) {
         for (int i = 0; i < favorites.size(); i++) {
             f->store_line(favorites[i]);
-		}
+        }
         memdelete(f);
     }
 }
@@ -1316,7 +1311,7 @@ void EditorSettings::set_recent_dirs(const Vector<String> &p_recent_dirs) {
     if (f) {
         for (int i = 0; i < recent_dirs.size(); i++) {
             f->store_line(recent_dirs[i]);
-		}
+        }
         memdelete(f);
     }
 }

@@ -32,6 +32,7 @@
 
 #include "core/dictionary.h"
 #include "core/list.h"
+#include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
 #include "core/method_bind.h"
@@ -152,8 +153,12 @@ void InputMap::action_erase_event(const StringName &p_action, const Ref<InputEve
     ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.");
 
     auto iter = _find_event(input_map[p_action], p_event);
-    if (input_map[p_action].inputs.end()!=iter)
+    if (input_map[p_action].inputs.end()!=iter) {
         input_map[p_action].inputs.erase(iter);
+        if (Input::get_singleton()->is_action_pressed(p_action)) {
+            Input::get_singleton()->action_release(p_action);
+        }
+    }
 }
 
 void InputMap::action_erase_events(const StringName &p_action) {

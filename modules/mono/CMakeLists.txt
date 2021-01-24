@@ -182,6 +182,7 @@ foreach(tgt ${global_targets})
         DEPENDS ${tgt}_engine
         COMMENT "Generating reflection data"
     )
+    set_source_files_properties( ${CMAKE_CURRENT_BINARY_DIR}/GodotCore.json PROPERTIES GENERATED TRUE )
     add_custom_target(reflection_${tgt}_gen
         # If the file exists, then commands related to that file won't be executed
         # DONOT let other target depends on the same OUTPUT as current target,

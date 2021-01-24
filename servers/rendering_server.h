@@ -233,10 +233,9 @@ public: // scripting glue helpers
     {
         return (Thread::get_caller_id()==server_thread) ? submission_thread_singleton : queueing_thread_singleton;
     }
-    static void sync_thread()
-    {
-        queueing_thread_singleton->sync();
-    }
+    static void sync_thread();
+    // TODO: this is here only because MethodBinder::bind_method does not support binding static/free functions
+    void force_sync() { sync_thread(); }
 
     virtual RID texture_create() = 0;
     RID texture_create_from_image(const Ref<Image> &p_image, uint32_t p_flags = RS::TEXTURE_FLAGS_DEFAULT); // helper
@@ -450,6 +449,9 @@ public: // scripting glue helpers
     virtual void light_set_reverse_cull_face_mode(RID p_light, bool p_enabled) = 0;
     virtual void light_set_use_gi(RID p_light, bool p_enable) = 0;
 
+    // bake mode
+    virtual void light_set_bake_mode(RID p_light, RS::LightBakeMode p_bake_mode) = 0;
+
     // omni light
     virtual void light_omni_set_shadow_mode(RID p_light, RS::LightOmniShadowMode p_mode) = 0;
     virtual void light_omni_set_shadow_detail(RID p_light, RS::LightOmniShadowDetail p_detail) = 0;
@@ -507,9 +509,6 @@ public: // scripting glue helpers
 
     virtual void gi_probe_set_interior(RID p_probe, bool p_enable) = 0;
     virtual bool gi_probe_is_interior(RID p_probe) const = 0;
-
-    virtual void gi_probe_set_compress(RID p_probe, bool p_enable) = 0;
-    virtual bool gi_probe_is_compressed(RID p_probe) const = 0;
 
     /* LIGHTMAP CAPTURE */
 
@@ -616,6 +615,8 @@ public: // scripting glue helpers
     virtual void viewport_set_shadow_atlas_quadrant_subdivision(RID p_viewport, int p_quadrant, int p_subdiv) = 0;
 
     virtual void viewport_set_msaa(RID p_viewport, RS::ViewportMSAA p_msaa) = 0;
+    virtual void viewport_set_use_fxaa(RID p_viewport, bool p_fxaa) = 0;
+    virtual void viewport_set_use_debanding(RID p_viewport, bool p_debanding) = 0;
 
     virtual void viewport_set_hdr(RID p_viewport, bool p_enabled) = 0;
     virtual void viewport_set_usage(RID p_viewport, RS::ViewportUsage p_usage) = 0;
@@ -809,7 +810,6 @@ public: // scripting glue helpers
     /* EVENT QUEUING */
 
     virtual void draw(bool p_swap_buffers = true, double frame_step = 0.0) = 0;
-    virtual void sync() = 0;
     virtual bool has_changed() const = 0;
     virtual void init() = 0;
     virtual void finish() = 0;

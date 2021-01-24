@@ -97,7 +97,7 @@ struct UndoRedo::PrivateData
 
         for (Operation &op : actions[0].undo_ops) {
             if (op.type == Operation::TYPE_REFERENCE) {
-                Object *obj = gObjectDB().get_instance(op.object);
+                Object *obj = ObjectDB::get_instance(op.object);
                 memdelete(obj);
             }
         }
@@ -118,7 +118,7 @@ struct UndoRedo::PrivateData
 
                 if (E.type == Operation::TYPE_REFERENCE) {
 
-                    Object *obj = gObjectDB().get_instance(E.object);
+                    Object *obj = ObjectDB::get_instance(E.object);
                     memdelete(obj);
                 }
             }
@@ -131,7 +131,7 @@ struct UndoRedo::PrivateData
 
         for (auto & op : E) {
 
-            Object *obj = gObjectDB().get_instance(op.object);
+            Object *obj = ObjectDB::get_instance(op.object);
             if (!obj) //may have been deleted and this is fine
                 continue;
 
@@ -208,7 +208,7 @@ struct UndoRedo::PrivateData
                         const Operation &op(actions[current_action + 1].do_ops.front());
                         if(op.type==Operation::TYPE_REFERENCE)
                         {
-                            Object *obj = gObjectDB().get_instance(op.object);
+                            Object *obj = ObjectDB::get_instance(op.object);
                             memdelete(obj);
                         }
                         actions[current_action + 1].do_ops.pop_front();

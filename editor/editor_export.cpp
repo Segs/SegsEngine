@@ -640,6 +640,23 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
 
             _export_find_dependencies(files[i], paths);
         }
+        // Add autoload resources and their dependencies
+        Vector<PropertyInfo> props;
+        ProjectSettings::get_singleton()->get_property_list(&props);
+
+        for (const PropertyInfo &pi :props) {
+            if (!StringView(pi.name).starts_with("autoload/")) {
+                continue;
+            }
+
+            String autoload_path = ProjectSettings::get_singleton()->getT<String>(pi.name);
+
+            if (autoload_path.starts_with("*")) {
+                autoload_path = autoload_path.substr(1);
+            }
+
+            _export_find_dependencies(autoload_path, paths);
+        }
     }
 
     // add native icons to non-resource include list
@@ -648,6 +665,9 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
 
     _edit_filter_list(paths, p_preset->get_include_filter(), false);
     _edit_filter_list(paths, p_preset->get_exclude_filter(), true);
+
+    // Ignore import files, since these are automatically added to the jar later with the resources
+    _edit_filter_list(paths, String("*.import"), true);
 
     const Vector<Ref<EditorExportPlugin>> &export_plugins = EditorExport::get_singleton()->get_export_plugins();
     for (int i = 0; i < export_plugins.size(); i++) {
@@ -1400,6 +1420,15 @@ void EditorExportPlatformPC::get_preset_features(const Ref<EditorExportPreset> &
 }
 
 void EditorExportPlatformPC::get_export_options(Vector<EditorExportPlatform::ExportOption> *r_options) {
+    r_options->push_back(
+            ExportOption(PropertyInfo(VariantType::STRING, "custom_template/release", PropertyHint::GlobalFile), ""));
+    r_options->push_back(
+            ExportOption(PropertyInfo(VariantType::STRING, "custom_template/debug", PropertyHint::GlobalFile), ""));
+
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "binary_format/64_bits"), true));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "binary_format/embed_pck"), false));
+
+
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "texture_format/bptc"), false));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "texture_format/s3tc"), true));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "texture_format/etc"), false));
@@ -1407,10 +1436,6 @@ void EditorExportPlatformPC::get_export_options(Vector<EditorExportPlatform::Exp
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "texture_format/no_bptc_fallbacks"), true));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "binary_format/64_bits"), true));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "binary_format/embed_pck"), false));
-    r_options->push_back(
-            ExportOption(PropertyInfo(VariantType::STRING, "custom_template/release", PropertyHint::GlobalFile), ""));
-    r_options->push_back(
-            ExportOption(PropertyInfo(VariantType::STRING, "custom_template/debug", PropertyHint::GlobalFile), ""));
 }
 
 const String &EditorExportPlatformPC::get_name() const {

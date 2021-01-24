@@ -322,7 +322,7 @@ Image::Format ImageTexture::get_format() const {
 
 void ImageTexture::set_data(const Ref<Image> &p_image) {
 
-    ERR_FAIL_COND(not p_image);
+    ERR_FAIL_COND_MSG(not p_image,"Invalid image");
 
     RenderingServer::get_singleton()->texture_set_data(texture, p_image);
 
@@ -2191,14 +2191,10 @@ AnimatedTexture::AnimatedTexture() {
     pause = false;
     oneshot = false;
     RenderingServer::get_singleton()->connect("frame_pre_draw",callable_mp(this, &ClassName::_update_proxy));
-
-    rw_lock = RWLock::create();
-
 }
 
 AnimatedTexture::~AnimatedTexture() {
     RenderingServer::get_singleton()->free_rid(proxy);
-    memdelete(rw_lock);
 }
 ///////////////////////////////
 
@@ -2415,7 +2411,7 @@ RES ResourceFormatLoaderTextureLayered::load(StringView p_path, StringView p_ori
 
         Ref<Image> image(make_ref_counted<Image>());
 
-        if (compression == COMPRESSION_LOSSLESS) {
+        if (compression == TextureLayered::COMPRESSION_LOSSLESS) {
             //look for a PNG file inside
 
             int mipmaps = f->get_32();

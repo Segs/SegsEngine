@@ -30,6 +30,7 @@
 
 #include "physics_joint_3d.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(Joint3D)
 IMPL_GDCLASS(PinJoint3D)
@@ -57,8 +58,10 @@ void Joint3D::_update_joint(bool p_only_free) {
         bb = RID();
     }
 
-    if (p_only_free || !is_inside_tree())
+    if (p_only_free || !is_inside_tree()) {
+        warning.clear();
         return;
+    }
 
     Node *node_a = has_node(get_node_a()) ? get_node(get_node_a()) : (Node *)nullptr;
     Node *node_b = has_node(get_node_b()) ? get_node(get_node_b()) : (Node *)nullptr;
@@ -66,16 +69,46 @@ void Joint3D::_update_joint(bool p_only_free) {
     PhysicsBody3D *body_a = object_cast<PhysicsBody3D>(node_a);
     PhysicsBody3D *body_b = object_cast<PhysicsBody3D>(node_b);
 
-    if (!body_a && body_b)
-        SWAP(body_a, body_b);
-
-    if (!body_a)
+    if (node_a && !body_a && node_b && !body_b) {
+        warning = TTR("Node A and Node B must be PhysicsBodies");
+        update_configuration_warning();
         return;
+    }
+
+    if (node_a && !body_a) {
+        warning = TTR("Node A must be a PhysicsBody");
+        update_configuration_warning();
+        return;
+    }
+
+    if (node_b && !body_b) {
+        warning = TTR("Node B must be a PhysicsBody");
+        update_configuration_warning();
+        return;
+    }
+
+    if (!body_a && !body_b) {
+        warning = TTR("Joint is not connected to any PhysicsBodies");
+        update_configuration_warning();
+        return;
+    }
+
+    if (body_a == body_b) {
+        warning = TTR("Node A and Node B must be different PhysicsBodies");
+        update_configuration_warning();
+        return;
+    }
+
+    if (!body_a) {
+        SWAP(body_a, body_b);
+    }
+
+    warning = String();
+    update_configuration_warning();
 
     joint = _configure_joint(body_a, body_b);
 
-    if (!joint.is_valid())
-        return;
+    ERR_FAIL_COND_MSG(!joint.is_valid(), "Failed to configure the joint.");
 
     PhysicsServer3D::get_singleton()->joint_set_solver_priority(joint, solver_priority);
 
@@ -166,11 +199,25 @@ void Joint3D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_exclude_nodes_from_collision", {"enable"}), &Joint3D::set_exclude_nodes_from_collision);
     MethodBinder::bind_method(D_METHOD("get_exclude_nodes_from_collision"), &Joint3D::get_exclude_nodes_from_collision);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "nodes/node_a", PropertyHint::NodePathValidTypes, "CollisionObject3D"), "set_node_a", "get_node_a");
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "nodes/node_b", PropertyHint::NodePathValidTypes, "CollisionObject3D"), "set_node_b", "get_node_b");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "nodes/node_a", PropertyHint::NodePathValidTypes, "PhysicsBody3D"), "set_node_a", "get_node_a");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "nodes/node_b", PropertyHint::NodePathValidTypes, "PhysicsBody3D"), "set_node_b", "get_node_b");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "solver/priority", PropertyHint::Range, "1,8,1"), "set_solver_priority", "get_solver_priority");
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision/exclude_nodes"), "set_exclude_nodes_from_collision", "get_exclude_nodes_from_collision");
+}
+
+String Joint3D::get_configuration_warning() const
+{
+    String node_warning = Node::get_configuration_warning();
+
+    if (!warning.empty()) {
+        if (!node_warning.empty()) {
+            node_warning += "\n\n";
+        }
+        node_warning += warning;
+    }
+
+    return node_warning;
 }
 
 Joint3D::Joint3D() {
@@ -722,9 +769,6 @@ void Generic6DOFJoint3D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_flag_z", {"flag", "value"}), &Generic6DOFJoint3D::set_flag_z);
     MethodBinder::bind_method(D_METHOD("get_flag_z", {"flag"}), &Generic6DOFJoint3D::get_flag_z);
 
-    MethodBinder::bind_method(D_METHOD("set_precision", {"precision"}), &Generic6DOFJoint3D::set_precision);
-    MethodBinder::bind_method(D_METHOD("get_precision"), &Generic6DOFJoint3D::get_precision);
-
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "linear_limit_x/enabled"), "set_flag_x", "get_flag_x", FLAG_ENABLE_LINEAR_LIMIT);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit_x/upper_distance"), "set_param_x", "get_param_x", PARAM_LINEAR_UPPER_LIMIT);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit_x/lower_distance"), "set_param_x", "get_param_x", PARAM_LINEAR_LOWER_LIMIT);
@@ -814,8 +858,6 @@ void Generic6DOFJoint3D::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angular_spring_z/stiffness"), "set_param_z", "get_param_z", PARAM_ANGULAR_SPRING_STIFFNESS);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angular_spring_z/damping"), "set_param_z", "get_param_z", PARAM_ANGULAR_SPRING_DAMPING);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angular_spring_z/equilibrium_point"), "set_param_z", "get_param_z", PARAM_ANGULAR_SPRING_EQUILIBRIUM_POINT);
-
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "precision", PropertyHint::Range, "1,99999,1"), "set_precision", "get_precision");
 
     BIND_ENUM_CONSTANT(PARAM_LINEAR_LOWER_LIMIT);
     BIND_ENUM_CONSTANT(PARAM_LINEAR_UPPER_LIMIT);
@@ -935,14 +977,6 @@ bool Generic6DOFJoint3D::get_flag_z(Flag p_flag) const {
     return flags_z[p_flag];
 }
 
-void Generic6DOFJoint3D::set_precision(int p_precision) {
-    precision = p_precision;
-
-    PhysicsServer3D::get_singleton()->generic_6dof_joint_set_precision(
-            get_joint(),
-            precision);
-}
-
 RID Generic6DOFJoint3D::_configure_joint(PhysicsBody3D *body_a, PhysicsBody3D *body_b) {
 
     Transform gt = get_global_transform();
@@ -977,8 +1011,7 @@ RID Generic6DOFJoint3D::_configure_joint(PhysicsBody3D *body_a, PhysicsBody3D *b
     return j;
 }
 
-Generic6DOFJoint3D::Generic6DOFJoint3D() :
-        precision(1) {
+Generic6DOFJoint3D::Generic6DOFJoint3D() {
 
     set_param_x(PARAM_LINEAR_LOWER_LIMIT, 0);
     set_param_x(PARAM_LINEAR_UPPER_LIMIT, 0);

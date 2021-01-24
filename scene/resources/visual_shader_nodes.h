@@ -307,6 +307,7 @@ public:
     TextureType get_texture_type() const;
 
     Vector<StringName> get_editable_properties() const override;
+    StringName get_warning(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type) const override;
 
     VisualShaderNodeCubeMap();
 };

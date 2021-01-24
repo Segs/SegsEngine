@@ -458,24 +458,23 @@ Node *ResourceImporterScene::_fix_node(
             p_node = nullptr;
             CollisionShape3D *colshape = memnew(CollisionShape3D);
             if (empty_draw_type == "CUBE") {
-                BoxShape3D *boxShape = memnew(BoxShape3D);
+                auto boxShape = make_ref_counted<BoxShape3D>();
                 boxShape->set_extents(Vector3(1, 1, 1));
-                colshape->set_shape(Ref<Shape>(boxShape));
+                colshape->set_shape(boxShape);
                 colshape->set_name("BoxShape3D");
             } else if (empty_draw_type == "SINGLE_ARROW") {
-                RayShape3D *rayShape = memnew(RayShape3D);
+                auto rayShape = make_ref_counted<RayShape3D>();
                 rayShape->set_length(1);
-                colshape->set_shape(Ref<Shape>(rayShape));
+                colshape->set_shape(rayShape);
                 colshape->set_name("RayShape3D");
                 object_cast<Node3D>(sb)->rotate_x(Math_PI / 2);
             } else if (empty_draw_type == "IMAGE") {
-                PlaneShape *planeShape = memnew(PlaneShape);
-                colshape->set_shape(Ref<Shape>(planeShape));
+                colshape->set_shape(make_ref_counted<PlaneShape>());
                 colshape->set_name("PlaneShape");
             } else {
                 SphereShape3D *sphereShape = memnew(SphereShape3D);
                 sphereShape->set_radius(1);
-                colshape->set_shape(Ref<Shape>(sphereShape));
+                colshape->set_shape(Ref<Shape>(sphereShape, DoNotAddRef));
                 colshape->set_name("SphereShape3D");
             }
             sb->add_child(colshape);
@@ -940,9 +939,6 @@ static String _make_extname(StringView p_str) {
 
 void ResourceImporterScene::_find_meshes(Node *p_node, Map<Ref<ArrayMesh>, Transform> &meshes) {
 
-    Vector<PropertyInfo> pi;
-    p_node->get_property_list(&pi);
-
     MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
 
     if (mi) {
@@ -954,7 +950,8 @@ void ResourceImporterScene::_find_meshes(Node *p_node, Map<Ref<ArrayMesh>, Trans
             Transform transform;
             while (s) {
                 transform = transform * s->get_transform();
-                s = s->get_parent_spatial();
+                //not using get_parent_spatial, since it's valid only after NOTIFICATION_ENTER_TREE
+                s = object_cast<Node3D>(s->get_parent());
             }
 
             meshes[mesh] = transform;

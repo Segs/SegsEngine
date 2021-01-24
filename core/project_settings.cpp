@@ -67,7 +67,7 @@ String ProjectSettings::localize_path(StringView p_path) const {
         return String(p_path); // not initialized yet
 
     if (StringUtils::begins_with(p_path, "res://") || StringUtils::begins_with(p_path, "user://") ||
-            (PathUtils::is_abs_path(p_path) && !StringUtils::begins_with(p_path, resource_path)))
+            PathUtils::is_abs_path(p_path) && !StringUtils::begins_with(p_path, resource_path))
         return PathUtils::simplify_path(p_path);
 
     DirAccess *dir = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
@@ -578,7 +578,7 @@ Error ProjectSettings::_load_settings_text(StringView p_path) {
                 if (section.empty()) {
                     set(StringName(assign), value);
                 } else {
-                    set(StringName((section) + "/" + assign), value);
+                    set(StringName(section + "/" + assign), value);
                 }
             }
         } else if (!next_tag.name.empty()) {
@@ -719,19 +719,19 @@ Error ProjectSettings::_save_settings_text(StringView p_file, const HashMap<Stri
 
     ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.godot - " + String(p_file) + ".");
 
-    file->store_line(("; Engine configuration file."));
-    file->store_line(("; It's best edited using the editor UI and not directly,"));
-    file->store_line(("; since the parameters that go here are not all obvious."));
-    file->store_line((";"));
-    file->store_line(("; Format:"));
-    file->store_line((";   [section] ; section goes between []"));
-    file->store_line((";   param=value ; assign values to parameters"));
-    file->store_line((""));
+    file->store_line("; Engine configuration file.");
+    file->store_line("; It's best edited using the editor UI and not directly,");
+    file->store_line("; since the parameters that go here are not all obvious.");
+    file->store_line(";");
+    file->store_line("; Format:");
+    file->store_line(";   [section] ; section goes between []");
+    file->store_line(";   param=value ; assign values to parameters");
+    file->store_line("");
 
     file->store_string("config_version=" + itos(CONFIG_VERSION) + "\n");
     if (!p_custom_features.empty())
         file->store_string("custom_features=\"" + p_custom_features + "\"\n");
-    file->store_string(("\n"));
+    file->store_string("\n");
 
     for (HashMap<String, List<String>>::const_iterator E = props.begin(); E != props.end(); ++E) {
         if (E != props.begin())
@@ -845,11 +845,10 @@ Error ProjectSettings::save_custom(StringView p_path, const CustomMap &p_custom,
 
 Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_restart_if_changed) {
     auto ps = ProjectSettings::get_singleton();
-    Variant ret;
     if (!ps->has_setting(p_var)) {
         ps->set(p_var, p_default);
     }
-    ret = ps->get(p_var);
+    Variant ret = ps->get(p_var);
 
     ps->set_initial_value(p_var, p_default);
     ps->set_builtin_order(p_var);
@@ -974,11 +973,6 @@ ProjectSettings::ProjectSettings() {
     disable_feature_overrides = false;
     registering_order = true;
 
-    Array events;
-    Dictionary action;
-    Ref<InputEventKey> key;
-    Ref<InputEventJoypadButton> joyb;
-
     GLOBAL_DEF("application/config/name", "");
     GLOBAL_DEF("application/config/description", "");
     custom_prop_info[StaticCString("application/config/description")] =
@@ -1009,15 +1003,16 @@ ProjectSettings::ProjectSettings() {
     custom_prop_info[StaticCString("editor/script_templates_search_path")] =
             PropertyInfo(VariantType::STRING, "editor/script_templates_search_path", PropertyHint::Dir);
 
-    action = Dictionary();
+    Dictionary action;
     action["deadzone"] = Variant(0.5f);
-    events = Array();
+    Array events;
     add_key_event(events, KEY_ENTER);
     add_key_event(events, KEY_KP_ENTER);
     add_key_event(events, KEY_SPACE);
-    joyb = make_ref_counted<InputEventJoypadButton>();
+
+    Ref<InputEventJoypadButton> joyb(make_ref_counted<InputEventJoypadButton>());
     joyb->set_button_index(JOY_BUTTON_0);
-    events.push_back(joyb);
+    events.emplace_back(joyb);
     action["events"] = events;
     GLOBAL_DEF("input/ui_accept", action);
     input_presets.emplace_back("input/ui_accept");
@@ -1031,7 +1026,7 @@ ProjectSettings::ProjectSettings() {
     events.push_back(joyb);
     action["events"] = events;
     GLOBAL_DEF("input/ui_select", action);
-    input_presets.emplace_back(("input/ui_select"));
+    input_presets.emplace_back("input/ui_select");
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1042,7 +1037,7 @@ ProjectSettings::ProjectSettings() {
     events.push_back(joyb);
     action["events"] = events;
     GLOBAL_DEF("input/ui_cancel", action);
-    input_presets.emplace_back(("input/ui_cancel"));
+    input_presets.emplace_back("input/ui_cancel");
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1050,18 +1045,18 @@ ProjectSettings::ProjectSettings() {
     add_key_event(events, KEY_TAB);
     action["events"] = events;
     GLOBAL_DEF("input/ui_focus_next", action);
-    input_presets.emplace_back(("input/ui_focus_next"));
+    input_presets.emplace_back("input/ui_focus_next");
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key = make_ref_counted<InputEventKey>();
+    Ref<InputEventKey> key = make_ref_counted<InputEventKey>();
     key->set_keycode(KEY_TAB);
     key->set_shift(true);
     events.push_back(key);
     action["events"] = events;
     GLOBAL_DEF("input/ui_focus_prev", action);
-    input_presets.emplace_back(("input/ui_focus_prev"));
+    input_presets.emplace_back("input/ui_focus_prev");
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1072,7 +1067,7 @@ ProjectSettings::ProjectSettings() {
     events.push_back(joyb);
     action["events"] = events;
     GLOBAL_DEF("input/ui_left", action);
-    input_presets.emplace_back(("input/ui_left"));
+    input_presets.emplace_back("input/ui_left");
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1083,7 +1078,7 @@ ProjectSettings::ProjectSettings() {
     events.push_back(joyb);
     action["events"] = events;
     GLOBAL_DEF("input/ui_right", action);
-    input_presets.emplace_back(("input/ui_right"));
+    input_presets.emplace_back("input/ui_right");
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1094,7 +1089,7 @@ ProjectSettings::ProjectSettings() {
     events.push_back(joyb);
     action["events"] = events;
     GLOBAL_DEF("input/ui_up", action);
-    input_presets.emplace_back(("input/ui_up"));
+    input_presets.emplace_back("input/ui_up");
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1105,7 +1100,7 @@ ProjectSettings::ProjectSettings() {
     events.push_back(joyb);
     action["events"] = events;
     GLOBAL_DEF("input/ui_down", action);
-    input_presets.emplace_back(("input/ui_down"));
+    input_presets.emplace_back("input/ui_down");
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1113,7 +1108,7 @@ ProjectSettings::ProjectSettings() {
     add_key_event(events, KEY_PAGEUP);
     action["events"] = events;
     GLOBAL_DEF("input/ui_page_up", action);
-    input_presets.emplace_back(("input/ui_page_up"));
+    input_presets.emplace_back("input/ui_page_up");
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1121,7 +1116,7 @@ ProjectSettings::ProjectSettings() {
     add_key_event(events, KEY_PAGEDOWN);
     action["events"] = events;
     GLOBAL_DEF("input/ui_page_down", action);
-    input_presets.emplace_back(("input/ui_page_down"));
+    input_presets.emplace_back("input/ui_page_down");
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1129,7 +1124,7 @@ ProjectSettings::ProjectSettings() {
     add_key_event(events, KEY_HOME);
     action["events"] = events;
     GLOBAL_DEF("input/ui_home", action);
-    input_presets.emplace_back(("input/ui_home"));
+    input_presets.emplace_back("input/ui_home");
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1137,7 +1132,7 @@ ProjectSettings::ProjectSettings() {
     add_key_event(events, KEY_END);
     action["events"] = events;
     GLOBAL_DEF("input/ui_end", action);
-    input_presets.emplace_back(("input/ui_end"));
+    input_presets.emplace_back("input/ui_end");
 
     custom_prop_info[StaticCString("rendering/threads/thread_model")] = PropertyInfo(VariantType::INT,
             "rendering/threads/thread_model", PropertyHint::Enum, "Single-Unsafe,Single-Safe,Multi-Threaded");

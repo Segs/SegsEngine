@@ -354,29 +354,17 @@ public:
 
     // If this changes the table in variant_op must be updated
     enum Operator {
-
         //comparison
         OP_EQUAL,
         OP_NOT_EQUAL,
         OP_LESS,
-        OP_LESS_EQUAL,
         OP_GREATER,
-        OP_GREATER_EQUAL,
         OP_MAX
-
     };
 
     //static const char * get_operator_name(Operator p_op);
     static void evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Variant &r_ret, bool &r_valid);
     static bool evaluate_equal(const Variant &p_a, const Variant &p_b);
-
-    static _FORCE_INLINE_ Variant evaluate(Operator p_op, const Variant &p_a, const Variant &p_b) {
-
-        bool valid = true;
-        Variant res;
-        evaluate(p_op, p_a, p_b, res, valid);
-        return res;
-    }
 
     void zero();
     [[nodiscard]] Variant duplicate(bool deep = false) const;
@@ -394,24 +382,11 @@ public:
     static Variant construct_default(VariantType p_type);
     static Variant construct(const VariantType, const Variant &p_arg, Callable::CallError &r_error);
 
-    //void get_method_list(Vector<MethodInfo> *p_list) const;
-    //bool has_method(const StringName &p_method) const;
-    //static Span<const VariantType> get_method_argument_types(VariantType p_type, const StringName &p_method);
-    //static Span<const Variant> get_method_default_arguments(VariantType p_type, const StringName &p_method);
-    //static VariantType get_method_return_type(VariantType p_type, const StringName &p_method, bool *r_has_return = nullptr);
-    //static Span<const StringView> get_method_argument_names(VariantType p_type, const StringName &p_method);
-    //static bool is_method_const(VariantType p_type, const StringName &p_method);
-
     void set_named(const StringName &p_index, const Variant &p_value, bool *r_valid = nullptr);
     Variant get_named(const StringName &p_index, bool *r_valid = nullptr) const;
 
     void set(const Variant &p_index, const Variant &p_value, bool *r_valid = nullptr);
     Variant get(const Variant &p_index, bool *r_valid = nullptr) const;
-    bool in(const Variant &p_index, bool *r_valid = nullptr) const;
-
-    bool iter_init(Variant &r_iter, bool &r_valid) const;
-    bool iter_next(Variant &r_iter, bool &r_valid) const;
-    Variant iter_get(const Variant &r_iter, bool &r_valid) const;
 
     void get_property_list(Vector<PropertyInfo> *p_list) const;
 
@@ -430,11 +405,9 @@ public:
     static bool has_constant(VariantType p_type, const StringName &p_value);
     static Variant get_constant_value(VariantType p_type, const StringName &p_value, bool *r_valid = nullptr);
 
-    using ObjectDeConstruct = UIString (*)(const Variant &, void *);
     using ObjectConstruct = void (*)(const UIString &, void *, Variant &);
 
     [[nodiscard]] String get_construct_string() const;
-    static void construct_from_string(const UIString &p_string, Variant &r_value, ObjectConstruct p_obj_construct = nullptr, void *p_construct_ud = nullptr);
 
     Variant &operator=(const Variant &p_variant); // only this is enough for all the other types
     Variant(const Variant &p_variant);

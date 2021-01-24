@@ -66,9 +66,9 @@ struct Resource::Data {
     Node *local_scene = nullptr;
     int subindex=0;
     bool local_to_scene=false;
-    static RWLock* path_cache_lock;
+    static RWLock path_cache_lock;
 };
-RWLock *Resource::Data::path_cache_lock;
+RWLock Resource::Data::path_cache_lock;
 #ifdef TOOLS_ENABLED
 HashMap<String, HashMap<String, int> > Resource::Data::resource_path_cache;
 #endif
@@ -123,10 +123,9 @@ void Resource::set_path(StringView p_path, bool p_take_over) {
     impl_data->path_cache = p_path;
 
     if (!impl_data->path_cache.empty()) {
+        RWLockWrite guard(ResourceCache::lock);
 
-        ResourceCache::lock->write_lock();
         cached_resources[impl_data->path_cache] = this;
-        ResourceCache::lock->write_unlock();
     }
 
     Object_change_notify(this,"resource_path");
@@ -226,7 +225,7 @@ Ref<Resource> Resource::duplicate_for_local_scene(Node *p_for_scene, Map<Ref<Res
         r->set(E.name, p);
     }
 
-    RES res(r);
+    RES res(r,DoNotAddRef);
 
     return res;
 }
@@ -283,7 +282,7 @@ Ref<Resource> Resource::duplicate(bool p_subresources) const {
         }
     }
 
-    return Ref<Resource>(r);
+    return Ref<Resource>(r,DoNotAddRef);
 }
 
 void Resource::_set_path(StringView p_path) {
@@ -315,7 +314,7 @@ void Resource::notify_change_to_owners() {
 
     for (const ObjectID E : impl_data->owners) {
 
-        Object *obj = gObjectDB().get_instance(E);
+        Object *obj = ObjectDB::get_instance(E);
         ERR_CONTINUE_MSG(!obj, "Object was deleted, while still owning a resource."); //wtf
         //TODO store string
         obj->call_va("resource_changed", RES(this));
@@ -513,12 +512,7 @@ Resource::~Resource() {
     impl_data = nullptr;
 }
 
-RWLock *ResourceCache::lock = nullptr;
-
-void ResourceCache::setup() {
-
-    lock = RWLock::create();
-}
+RWLock ResourceCache::lock;
 
 void ResourceCache::clear() {
     if (!cached_resources.empty()) {
@@ -526,7 +520,6 @@ void ResourceCache::clear() {
     }
 
     cached_resources.clear();
-    memdelete(lock);
 }
 
 void ResourceCache::reload_externals() {
@@ -541,9 +534,10 @@ void ResourceCache::reload_externals() {
 
 bool ResourceCache::has(StringView p_path) {
 
-    lock->read_lock();
+
+    lock.read_lock();
     bool b = cached_resources.find_as(p_path)!=cached_resources.end();
-    lock->read_unlock();
+    lock.read_unlock();
 
     return b;
 }
@@ -554,37 +548,34 @@ Resource * ResourceCache::get_unguarded(StringView p_path) {
 
 Resource *ResourceCache::get(StringView p_path) {
 
-    lock->read_lock();
+    RWLockRead guard(lock);
 
     Resource *res = cached_resources.at(String(p_path),nullptr);
-
-    lock->read_unlock();
 
     return res;
 }
 
 void ResourceCache::get_cached_resources(Vector<Ref<Resource>> &p_resources) {
 
-    lock->read_lock();
+    RWLockRead guard(lock);
     p_resources.reserve(cached_resources.size());
     for(eastl::pair<const String,Resource *> & e : cached_resources) {
         p_resources.emplace_back(e.second);
     }
-    lock->read_unlock();
 }
 
 int ResourceCache::get_cached_resource_count() {
 
-    lock->read_lock();
+    RWLockRead guard(lock);
+
     int rc = cached_resources.size();
-    lock->read_unlock();
 
     return rc;
 }
 
 void ResourceCache::dump(StringView p_file, bool p_short) {
 #ifdef DEBUG_ENABLED
-    lock->read_lock();
+    RWLockRead guard(lock);
 
     Map<String, int> type_count;
 
@@ -619,8 +610,6 @@ void ResourceCache::dump(StringView p_file, bool p_short) {
         f->close();
         memdelete(f);
     }
-
-    lock->read_unlock();
 
 #endif
 }

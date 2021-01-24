@@ -50,9 +50,6 @@ class GIProbeEditorPlugin : public EditorPlugin {
 
     void _bake();
 
-protected:
-    static void _bind_methods();
-
 public:
     StringView get_name() const override { return "GIProbe"; }
     bool has_main_screen() const override { return false; }
