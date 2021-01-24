@@ -130,9 +130,7 @@
     TYPES(PREFIX, OP_EQUAL),                                               \
     TYPES(PREFIX, OP_NOT_EQUAL),                                           \
     TYPES(PREFIX, OP_LESS),                                                \
-    TYPES(PREFIX, OP_LESS_EQUAL),                                          \
     TYPES(PREFIX, OP_GREATER),                                             \
-    TYPES(PREFIX, OP_GREATER_EQUAL),                                       \
 }
 
 #define SWITCH(PREFIX, op, val) goto *switch_table_##PREFIX[op][int(val)];
@@ -622,63 +620,6 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             _RETURN_FAIL
         }
 
-        SWITCH_OP(math, OP_LESS_EQUAL, p_a.type) {
-            CASE_TYPE(math, OP_LESS_EQUAL, OBJECT) {
-                if (p_b.type != VariantType::OBJECT)
-                    _RETURN_FAIL
-                _RETURN((_UNSAFE_OBJ_PROXY_PTR(p_a) <= _UNSAFE_OBJ_PROXY_PTR(p_b)))
-            }
-
-            DEFAULT_OP_NUM(math, OP_LESS_EQUAL, INT, <=, _int)
-            DEFAULT_OP_NUM(math, OP_LESS_EQUAL, FLOAT, <=, _real)
-            CASE_TYPE(math, OP_LESS_EQUAL, STRING) {
-                StringView self(*reinterpret_cast<const String *>(p_a._data._mem));
-
-                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))<=0);
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))<=0)
-                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())<=0)
-
-                _RETURN_FAIL
-            }
-            CASE_TYPE(math, OP_LESS_EQUAL, STRING_NAME) {
-                StringView self(*reinterpret_cast<const StringName *>(p_a._data._mem));
-
-                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))<=0);
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))<=0)
-                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())<=0)
-
-                _RETURN_FAIL
-            }
-
-            DEFAULT_OP_LOCALMEM(math, OP_LESS_EQUAL, VECTOR2, <=, Vector2)
-            DEFAULT_OP_LOCALMEM(math, OP_LESS_EQUAL, VECTOR3, <=, Vector3)
-            DEFAULT_OP_LOCALMEM(math, OP_LESS_EQUAL, _RID, <=, RID)
-
-            CASE_TYPE(math, OP_LESS_EQUAL, NIL)
-            CASE_TYPE(math, OP_LESS_EQUAL, BOOL)
-            CASE_TYPE(math, OP_LESS_EQUAL, RECT2)
-            CASE_TYPE(math, OP_LESS_EQUAL, TRANSFORM2D)
-            CASE_TYPE(math, OP_LESS_EQUAL, PLANE)
-            CASE_TYPE(math, OP_LESS_EQUAL, QUAT)
-            CASE_TYPE(math, OP_LESS_EQUAL, AABB)
-            CASE_TYPE(math, OP_LESS_EQUAL, BASIS)
-            CASE_TYPE(math, OP_LESS_EQUAL, TRANSFORM)
-            CASE_TYPE(math, OP_LESS_EQUAL, COLOR)
-            CASE_TYPE(math, OP_LESS_EQUAL, NODE_PATH)
-            CASE_TYPE(math, OP_LESS_EQUAL, CALLABLE)
-            CASE_TYPE(math, OP_LESS_EQUAL, SIGNAL)
-            CASE_TYPE(math, OP_LESS_EQUAL, DICTIONARY)
-            CASE_TYPE(math, OP_LESS_EQUAL, ARRAY)
-            CASE_TYPE(math, OP_LESS_EQUAL, POOL_BYTE_ARRAY);
-            CASE_TYPE(math, OP_LESS_EQUAL, POOL_INT_ARRAY);
-            CASE_TYPE(math, OP_LESS_EQUAL, POOL_REAL_ARRAY);
-            CASE_TYPE(math, OP_LESS_EQUAL, POOL_STRING_ARRAY);
-            CASE_TYPE(math, OP_LESS_EQUAL, POOL_VECTOR2_ARRAY);
-            CASE_TYPE(math, OP_LESS_EQUAL, POOL_VECTOR3_ARRAY);
-            CASE_TYPE(math, OP_LESS_EQUAL, POOL_COLOR_ARRAY);
-            _RETURN_FAIL;
-        }
-
         SWITCH_OP(math, OP_GREATER, p_a.type) {
             CASE_TYPE(math, OP_GREATER, BOOL) {
                 if (p_b.type != VariantType::BOOL)
@@ -764,64 +705,6 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_GREATER, SIGNAL)
             _RETURN_FAIL;
         }
-
-        SWITCH_OP(math, OP_GREATER_EQUAL, p_a.type) {
-            CASE_TYPE(math, OP_GREATER_EQUAL, OBJECT) {
-                if (p_b.type != VariantType::OBJECT)
-                    _RETURN_FAIL;
-                _RETURN((_UNSAFE_OBJ_PROXY_PTR(p_a) >= _UNSAFE_OBJ_PROXY_PTR(p_b)));
-            }
-
-            DEFAULT_OP_NUM(math, OP_GREATER_EQUAL, INT, >=, _int);
-            DEFAULT_OP_NUM(math, OP_GREATER_EQUAL, FLOAT, >=, _real);
-            CASE_TYPE(math, OP_GREATER_EQUAL, STRING) {
-                StringView self(*reinterpret_cast<const String *>(p_a._data._mem));
-
-                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))>=0);
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))>=0)
-                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())>=0)
-
-                _RETURN_FAIL
-            }
-            CASE_TYPE(math, OP_GREATER_EQUAL, STRING_NAME) {
-                StringView self(*reinterpret_cast<const StringName *>(p_a._data._mem));
-
-                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))>=0);
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))>=0)
-                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())>=0)
-
-                _RETURN_FAIL
-            }
-            DEFAULT_OP_LOCALMEM_REV(math, OP_GREATER_EQUAL, VECTOR2, <=, Vector2)
-            DEFAULT_OP_LOCALMEM_REV(math, OP_GREATER_EQUAL, VECTOR3, <=, Vector3)
-            DEFAULT_OP_LOCALMEM_REV(math, OP_GREATER_EQUAL, _RID, <=, RID)
-
-            CASE_TYPE(math, OP_GREATER_EQUAL, NIL)
-            CASE_TYPE(math, OP_GREATER_EQUAL, BOOL)
-            CASE_TYPE(math, OP_GREATER_EQUAL, RECT2)
-            CASE_TYPE(math, OP_GREATER_EQUAL, TRANSFORM2D)
-            CASE_TYPE(math, OP_GREATER_EQUAL, PLANE)
-            CASE_TYPE(math, OP_GREATER_EQUAL, QUAT)
-            CASE_TYPE(math, OP_GREATER_EQUAL, AABB)
-            CASE_TYPE(math, OP_GREATER_EQUAL, BASIS)
-            CASE_TYPE(math, OP_GREATER_EQUAL, TRANSFORM)
-            CASE_TYPE(math, OP_GREATER_EQUAL, COLOR)
-            CASE_TYPE(math, OP_GREATER_EQUAL, NODE_PATH)
-            CASE_TYPE(math, OP_GREATER_EQUAL, CALLABLE)
-            CASE_TYPE(math, OP_GREATER_EQUAL, SIGNAL)
-            CASE_TYPE(math, OP_GREATER_EQUAL, DICTIONARY)
-            CASE_TYPE(math, OP_GREATER_EQUAL, ARRAY)
-
-            CASE_TYPE(math, OP_GREATER_EQUAL, POOL_BYTE_ARRAY);
-            CASE_TYPE(math, OP_GREATER_EQUAL, POOL_INT_ARRAY);
-            CASE_TYPE(math, OP_GREATER_EQUAL, POOL_REAL_ARRAY);
-            CASE_TYPE(math, OP_GREATER_EQUAL, POOL_STRING_ARRAY);
-            CASE_TYPE(math, OP_GREATER_EQUAL, POOL_VECTOR2_ARRAY);
-            CASE_TYPE(math, OP_GREATER_EQUAL, POOL_VECTOR3_ARRAY);
-            CASE_TYPE(math, OP_GREATER_EQUAL, POOL_COLOR_ARRAY);
-            _RETURN_FAIL
-        }
-
     }
 }
 namespace
