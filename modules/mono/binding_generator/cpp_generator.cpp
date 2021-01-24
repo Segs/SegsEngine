@@ -270,7 +270,6 @@ StringView replaceFunctionName(const TS_Function *finfo, bool in_godot_ns) {
         {"collide_shape","_collide_shape"},
 //        {"emit_signal","_emit_signal"},
         {"force_draw","draw"},
-        {"force_sync","sync"},
         {"get_bound_child_nodes_to_bone","_get_bound_child_nodes_to_bone"},
         {"get_breakpoints","get_breakpoints_array"},
         {"get_color_list","_get_color_list"},

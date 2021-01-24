@@ -88,6 +88,7 @@ void RenderingServerWrapMT::sync() {
         atomic_increment(&draw_pending);
         command_queue.push_and_sync([this]() {thread_flush(); });
     } else {
+        assert(Thread::get_caller_id() == server_thread);
 
         command_queue.flush_all(); //flush all pending from other threads
     }

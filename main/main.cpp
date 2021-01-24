@@ -2161,7 +2161,7 @@ bool Main::iteration() {
     }
     message_queue->flush();
 
-    RenderingServer::get_singleton()->sync(); //sync if still drawing from previous frames.
+    RenderingServer::get_singleton()->sync_thread(); //sync if still drawing from previous frames.
 
     if (OS::get_singleton()->can_draw() && !disable_render_loop) {
 
@@ -2285,7 +2285,7 @@ void Main::cleanup() {
     ScriptServer::finish_languages();
 
     // Sync pending commands that may have been queued from a different thread during ScriptServer finalization
-    RenderingServer::get_singleton()->sync();
+    RenderingServer::get_singleton()->sync_thread();
 
 #ifdef TOOLS_ENABLED
     EditorNode::unregister_editor_types();

@@ -185,10 +185,10 @@ private:
     String fragment_code3;
     String fragment_code4;
 
-    String vertex_code0;
-    String vertex_code1;
-    String vertex_code2;
-    String vertex_code3;
+    String vertex_code_before_mats;
+    String vertex_code_before_globals;
+    String vertex_code_before_custom;
+    String vertex_code_after_custom;
 
     Vector<String> custom_defines;
 
@@ -247,22 +247,10 @@ private:
 
                 Transform2D tr = p_value.as<Transform2D>();
                 GLfloat matrix[16] = { /* build a 16x16 matrix */
-                    tr.elements[0][0],
-                    tr.elements[0][1],
-                    0,
-                    0,
-                    tr.elements[1][0],
-                    tr.elements[1][1],
-                    0,
-                    0,
-                    0,
-                    0,
-                    1,
-                    0,
-                    tr.elements[2][0],
-                    tr.elements[2][1],
-                    0,
-                    1
+                    tr.elements[0][0], tr.elements[0][1], 0, 0,
+                    tr.elements[1][0], tr.elements[1][1], 0, 0,
+                    0                , 0                , 1, 0,
+                    tr.elements[2][0], tr.elements[2][1], 0, 1
                 };
 
                 glUniformMatrix4fv(p_uniform, 1, false, matrix);
@@ -273,22 +261,10 @@ private:
 
                 Transform tr = p_value.as<Transform>();
                 GLfloat matrix[16] = { /* build a 16x16 matrix */
-                    tr.basis.elements[0][0],
-                    tr.basis.elements[1][0],
-                    tr.basis.elements[2][0],
-                    0,
-                    tr.basis.elements[0][1],
-                    tr.basis.elements[1][1],
-                    tr.basis.elements[2][1],
-                    0,
-                    tr.basis.elements[0][2],
-                    tr.basis.elements[1][2],
-                    tr.basis.elements[2][2],
-                    0,
-                    tr.origin.x,
-                    tr.origin.y,
-                    tr.origin.z,
-                    1
+                    tr.basis.elements[0][0], tr.basis.elements[1][0], tr.basis.elements[2][0], 0,
+                    tr.basis.elements[0][1], tr.basis.elements[1][1], tr.basis.elements[2][1], 0,
+                    tr.basis.elements[0][2], tr.basis.elements[1][2], tr.basis.elements[2][2], 0,
+                    tr.origin.x            , tr.origin.y            , tr.origin.z            , 1
                 };
 
                 glUniformMatrix4fv(p_uniform, 1, false, matrix);

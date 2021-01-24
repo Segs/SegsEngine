@@ -314,9 +314,6 @@ public:
     FUNC2(gi_probe_set_interior, RID, bool)
     FUNC1RC(bool, gi_probe_is_interior, RID)
 
-    FUNC2(gi_probe_set_compress, RID, bool)
-    FUNC1RC(bool, gi_probe_is_compressed, RID)
-
     FUNC2(gi_probe_set_dynamic_data, RID, const PoolVector<int> &)
     FUNC1RC(PoolVector<int>, gi_probe_get_dynamic_data, RID)
 
@@ -599,16 +596,17 @@ public:
 
     /* EVENT QUEUING */
 
-    void request_frame_drawn_callback(Callable && p1) override
-    {
+    void request_frame_drawn_callback(Callable &&p1) override {
         assert (Thread::get_caller_id() != server_thread);
-        command_queue.push( [this,p1=eastl::move(p1)]() mutable { submission_thread_singleton->request_frame_drawn_callback(eastl::move(p1)); });
+        command_queue.push([this, p1 = eastl::move(p1)]() mutable {
+            submission_thread_singleton->request_frame_drawn_callback(eastl::move(p1));
+        });
     }
 
     void init() override;
     void finish() override;
     void draw(bool p_swap_buffers, double frame_step) override;
-    void sync() override;
+    void sync();
     FUNC0RC(bool, has_changed)
 
     /* RENDER INFO */

@@ -15,8 +15,6 @@
 		</member>
 		<member name="cell_size" type="float" setter="set_cell_size" getter="get_cell_size" default="1.0">
 		</member>
-		<member name="compress" type="bool" setter="set_compress" getter="is_compressed" default="false">
-		</member>
 		<member name="dynamic_data" type="PoolIntArray" setter="set_dynamic_data" getter="get_dynamic_data" default="PoolIntArray(  )">
 		</member>
 		<member name="dynamic_range" type="int" setter="set_dynamic_range" getter="get_dynamic_range" default="1">

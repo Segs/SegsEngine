@@ -30,6 +30,7 @@
 
 #include "rendering_server.h"
 #include "rendering_server_enum_casters.h"
+#include "rendering/rendering_server_wrap_mt.h"
 
 #include "core/image_enum_casters.h"
 #include "core/method_bind.h"
@@ -1201,6 +1202,12 @@ Array RenderingServer::_mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_su
     }
     return res;
 }
+
+void RenderingServer::sync_thread()
+{
+    ((RenderingServerWrapMT *)queueing_thread_singleton)->sync();
+}
+
 Vector<SurfaceArrays> RenderingServer::mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const {
     const Vector<Vector<uint8_t>> &blend_shape_data(mesh_surface_get_blend_shapes(p_mesh, p_surface));
     if (blend_shape_data.empty()) {
@@ -1234,7 +1241,7 @@ Array RenderingServer::_mesh_surface_get_skeleton_aabb_bind(RID p_mesh, int p_su
 }
 
 void RenderingServer::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("force_sync"), &RenderingServer::sync);
+    MethodBinder::bind_method(D_METHOD("force_sync"), &RenderingServer::force_sync);
     MethodBinder::bind_method(D_METHOD("force_draw", { "swap_buffers", "frame_step" }), &RenderingServer::draw,
             { DEFVAL(true), DEFVAL(0.0) });
 
@@ -1522,10 +1529,6 @@ void RenderingServer::_bind_methods() {
     MethodBinder::bind_method(
             D_METHOD("gi_probe_set_interior", { "probe", "enable" }), &RenderingServer::gi_probe_set_interior);
     MethodBinder::bind_method(D_METHOD("gi_probe_is_interior", { "probe" }), &RenderingServer::gi_probe_is_interior);
-    MethodBinder::bind_method(
-            D_METHOD("gi_probe_set_compress", { "probe", "enable" }), &RenderingServer::gi_probe_set_compress);
-    MethodBinder::bind_method(
-            D_METHOD("gi_probe_is_compressed", { "probe" }), &RenderingServer::gi_probe_is_compressed);
 
     MethodBinder::bind_method(D_METHOD("lightmap_capture_create"), &RenderingServer::lightmap_capture_create);
     MethodBinder::bind_method(D_METHOD("lightmap_capture_set_bounds", { "capture", "bounds" }),

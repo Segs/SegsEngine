@@ -35,9 +35,6 @@
 			Offsets the lookup of the light contribution from the [GIProbe]. This can be used to avoid self-shadowing, but may introduce light leaking at higher values. This and [member normal_bias] should be played around with to minimize self-shadowing and light leaking.
 			[b]Note:[/b] [code]bias[/code] should usually be above 1.0 as that is the size of the voxels.
 		</member>
-		<member name="compress" type="bool" setter="set_compress" getter="is_compressed" default="false">
-			If [code]true[/code], the data for this [GIProbe] will be compressed. Compression saves space, but results in far worse visual quality.
-		</member>
 		<member name="data" type="GIProbeData" setter="set_probe_data" getter="get_probe_data">
 			The [GIProbeData] resource that holds the data for this [GIProbe].
 		</member>

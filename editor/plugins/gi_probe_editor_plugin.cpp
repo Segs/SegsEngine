@@ -88,11 +88,6 @@ void GIProbeEditorPlugin::bake_func_end() {
     tmp_progress = nullptr;
 }
 
-void GIProbeEditorPlugin::_bind_methods() {
-
-    MethodBinder::bind_method("_bake", &GIProbeEditorPlugin::_bake);
-}
-
 GIProbeEditorPlugin::GIProbeEditorPlugin(EditorNode *p_node) {
 
     editor = p_node;

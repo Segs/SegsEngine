@@ -109,11 +109,6 @@ void BakedLightmapEditorPlugin::bake_func_end() {
     tmp_progress = nullptr;
 }
 
-void BakedLightmapEditorPlugin::_bind_methods() {
-
-    MethodBinder::bind_method("_bake", &BakedLightmapEditorPlugin::_bake);
-}
-
 BakedLightmapEditorPlugin::BakedLightmapEditorPlugin(EditorNode *p_node) {
 
     editor = p_node;

@@ -233,10 +233,9 @@ public: // scripting glue helpers
     {
         return (Thread::get_caller_id()==server_thread) ? submission_thread_singleton : queueing_thread_singleton;
     }
-    static void sync_thread()
-    {
-        queueing_thread_singleton->sync();
-    }
+    static void sync_thread();
+    // TODO: this is here only because MethodBinder::bind_method does not support binding static/free functions
+    void force_sync() { sync_thread(); }
 
     virtual RID texture_create() = 0;
     RID texture_create_from_image(const Ref<Image> &p_image, uint32_t p_flags = RS::TEXTURE_FLAGS_DEFAULT); // helper
@@ -510,9 +509,6 @@ public: // scripting glue helpers
 
     virtual void gi_probe_set_interior(RID p_probe, bool p_enable) = 0;
     virtual bool gi_probe_is_interior(RID p_probe) const = 0;
-
-    virtual void gi_probe_set_compress(RID p_probe, bool p_enable) = 0;
-    virtual bool gi_probe_is_compressed(RID p_probe) const = 0;
 
     /* LIGHTMAP CAPTURE */
 
@@ -814,7 +810,6 @@ public: // scripting glue helpers
     /* EVENT QUEUING */
 
     virtual void draw(bool p_swap_buffers = true, double frame_step = 0.0) = 0;
-    virtual void sync() = 0;
     virtual bool has_changed() const = 0;
     virtual void init() = 0;
     virtual void finish() = 0;

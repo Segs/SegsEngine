@@ -44,6 +44,12 @@ struct NewOctree {};
 enum ARVREyes : int8_t;
 class ARVRInterface;
 
+enum class GIUpdateStage : int8_t {
+    CHECK,
+    LIGHTING,
+    UPLOADING,
+};
+
 class VisualServerScene {
     /* CAMERA API */
 
@@ -350,21 +356,16 @@ public:
             PoolVector<int> light_data;
             Vector<LocalData> local_data;
             Vector<Vector<uint32_t> > level_cell_lists;
-            RID probe_data;
-            int bake_dynamic_range;
-            bool enabled;
-            RasterizerStorage::GIProbeCompression compression;
-
             Vector<Vector<uint8_t> > mipmaps_3d;
             Vector<PoolVector<CompBlockS3TC> > mipmaps_s3tc; //for s3tc
 
-            int updating_stage;
-            float propagate;
-
-            int grid_size[3];
-
             Transform light_to_cell_xform;
-
+            RID probe_data;
+            int bake_dynamic_range;
+            int grid_size[3];
+            float propagate;
+            bool enabled;
+            GIUpdateStage updating_stage;
         } dynamic;
 
         RID probe_instance;
@@ -378,7 +379,7 @@ public:
                 update_element(this) {
             invalid = true;
             base_version = 0;
-            dynamic.updating_stage = GI_UPDATE_STAGE_CHECK;
+            dynamic.updating_stage = GIUpdateStage::CHECK;
         }
     };
 
@@ -480,12 +481,6 @@ public:
         uint32_t emission;
         uint32_t normal;
         uint32_t level_alpha;
-    };
-
-    enum {
-        GI_UPDATE_STAGE_CHECK,
-        GI_UPDATE_STAGE_LIGHTING,
-        GI_UPDATE_STAGE_UPLOADING,
     };
 
     void _gi_probe_bake_thread();

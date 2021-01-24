@@ -194,19 +194,19 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     v.ok = false;
     /* SETUP CONDITIONALS */
 
-    FixedVector<const char *,128,true> strings;
-    strings.emplace_back("#version 330\n");
+    FixedVector<const char *,128,true> vs_parts;
+    vs_parts.emplace_back("#version 330\n");
 
     for (auto & custom_define : custom_defines) {
 
-        strings.emplace_back(custom_define.data());
-        strings.emplace_back("\n");
+        vs_parts.emplace_back(custom_define.data());
+        vs_parts.emplace_back("\n");
     }
 
     for (int j = 0; j < conditional_count; j++) {
 
         bool enable = ((1 << j) & conditional_version.version);
-        strings.emplace_back(enable ? conditional_defines[j] : "");
+        vs_parts.emplace_back(enable ? conditional_defines[j] : "");
 
         if (enable) {
             DEBUG_PRINT(conditional_defines[j]);
@@ -245,39 +245,39 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     if (cc) {
         for (int i = 0; i < cc->custom_defines.size(); i++) {
 
-            strings.push_back(cc->custom_defines[i].data());
+            vs_parts.emplace_back(cc->custom_defines[i].data());
             DEBUG_PRINT("CD #" + itos(i) + ": " + String(cc->custom_defines[i]));
         }
     }
 
-    int strings_base_size = strings.size();
+    int strings_base_size = vs_parts.size();
 
     //vertex precision is high
-    strings.push_back("precision highp float;\n");
-    strings.push_back("precision highp int;\n");
+    vs_parts.emplace_back("precision highp float;\n");
+    vs_parts.emplace_back("precision highp int;\n");
 
-    strings.push_back(vertex_code0.data());
+    vs_parts.emplace_back(vertex_code_before_mats.data());
 
     if (cc) {
         material_string = cc->uniforms;
-        strings.push_back(material_string.data());
+        vs_parts.emplace_back(material_string.data());
     }
 
-    strings.push_back(vertex_code1.data());
+    vs_parts.emplace_back(vertex_code_before_globals.data());
 
     if (cc) {
         code_globals = cc->vertex_globals;
-        strings.push_back(code_globals.data());
+        vs_parts.emplace_back(code_globals.data());
     }
 
-    strings.push_back(vertex_code2.data());
+    vs_parts.emplace_back(vertex_code_before_custom.data());
 
     if (cc) {
         code_string = cc->vertex;
-        strings.push_back(code_string.data());
+        vs_parts.emplace_back(code_string.data());
     }
 
-    strings.push_back(vertex_code3.data());
+    vs_parts.emplace_back(vertex_code_after_custom.data());
 #ifdef DEBUG_SHADER
 
     DEBUG_PRINT("\nVertex Code:\n\n" + String(code_string.data()));
@@ -288,7 +288,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 #endif
 
     v.vert_id = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(v.vert_id, strings.size(), &strings[0], nullptr);
+    glShaderSource(v.vert_id, vs_parts.size(), vs_parts.data(), nullptr);
     glCompileShader(v.vert_id);
 #ifdef DEBUG_ENABLED
     namebuf[0]=0;
@@ -325,7 +325,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             String err_string = String(get_shader_name()) + ": Vertex Program Compilation Failed:\n";
 
             err_string += ilogmem;
-            _display_error_with_code(err_string, strings);
+            _display_error_with_code(err_string, vs_parts);
             memfree(ilogmem);
             glDeleteShader(v.vert_id);
             glDeleteProgram(v.id);
@@ -339,39 +339,39 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 
     /* FRAGMENT SHADER */
 
-    strings.resize(strings_base_size);
+    vs_parts.resize(strings_base_size);
     //fragment precision is medium
-    strings.push_back("precision highp float;\n");
-    strings.push_back("precision highp int;\n");
+    vs_parts.emplace_back("precision highp float;\n");
+    vs_parts.emplace_back("precision highp int;\n");
 
-    strings.push_back(fragment_code0.data());
+    vs_parts.emplace_back(fragment_code0.data());
     if (cc) {
         material_string = cc->uniforms;
-        strings.push_back(material_string.data());
+        vs_parts.emplace_back(material_string.data());
     }
 
-    strings.push_back(fragment_code1.data());
+    vs_parts.emplace_back(fragment_code1.data());
 
     if (cc) {
         code_globals = cc->fragment_globals;
-        strings.push_back(code_globals.data());
+        vs_parts.emplace_back(code_globals.data());
     }
 
-    strings.push_back(fragment_code2.data());
+    vs_parts.emplace_back(fragment_code2.data());
 
     if (cc) {
         code_string = cc->light;
-        strings.push_back(code_string.data());
+        vs_parts.emplace_back(code_string.data());
     }
 
-    strings.push_back(fragment_code3.data());
+    vs_parts.emplace_back(fragment_code3.data());
 
     if (cc) {
         code_string2 = cc->fragment;
-        strings.push_back(code_string2.data());
+        vs_parts.emplace_back(code_string2.data());
     }
 
-    strings.push_back(fragment_code4.data());
+    vs_parts.emplace_back(fragment_code4.data());
 
 #ifdef DEBUG_SHADER
     DEBUG_PRINT("\nFragment Globals:\n\n" + String(code_globals.data()));
@@ -383,7 +383,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 #endif
 
     v.frag_id = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(v.frag_id, strings.size(), &strings[0], nullptr);
+    glShaderSource(v.frag_id, vs_parts.size(), &vs_parts[0], nullptr);
     glCompileShader(v.frag_id);
 #ifdef DEBUG_ENABLED
     namebuf[0]=0;
@@ -419,7 +419,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             String err_string = String(get_shader_name()) + ": Fragment Program Compilation Failed:\n";
 
             err_string += ilogmem;
-            _display_error_with_code(err_string, strings);
+            _display_error_with_code(err_string, vs_parts);
             ERR_PRINT(err_string.c_str());
             memfree(ilogmem);
             glDeleteShader(v.frag_id);
@@ -444,11 +444,12 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 
     if (feedback_count) {
         Vector<const char *> feedback;
+        feedback.reserve(feedback_count);
         for (int i = 0; i < feedback_count; i++) {
 
             if (feedbacks[i].conditional == -1 || (1 << feedbacks[i].conditional) & conditional_version.version) {
                 //conditional for this feedback is enabled
-                feedback.push_back(feedbacks[i].name);
+                feedback.emplace_back(feedbacks[i].name);
             }
         }
 
@@ -487,7 +488,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
         String err_string = String(get_shader_name()) + ": Program LINK FAILED:\n";
 
         err_string += ilogmem;
-        _display_error_with_code(err_string, strings);
+        _display_error_with_code(err_string, vs_parts);
         ERR_PRINT(err_string.c_str());
         Memory::free_static(ilogmem);
         glDeleteShader(v.frag_id);
@@ -534,7 +535,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     if (cc) {
 
         v.texture_uniform_locations.resize(cc->texture_uniforms.size());
-        for (int i = 0; i < cc->texture_uniforms.size(); i++) {
+        for (size_t i = 0; i < cc->texture_uniforms.size(); i++) {
 
             v.texture_uniform_locations[i] = glGetUniformLocation(v.id, cc->texture_uniforms[i].asCString());
             glUniform1i(v.texture_uniform_locations[i], i + base_material_tex_index);
@@ -581,33 +582,33 @@ void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_co
 
     //split vertex and shader code (thank you, shader compiler programmers from you know what company).
     {
-        String globals_tag("\nVERTEX_SHADER_GLOBALS");
-        String material_tag("\nMATERIAL_UNIFORMS");
-        String code_tag("\nVERTEX_SHADER_CODE");
-        String code(vertex_code);
+        StringView globals_tag("\nVERTEX_SHADER_GLOBALS");
+        StringView material_tag("\nMATERIAL_UNIFORMS");
+        StringView code_tag("\nVERTEX_SHADER_CODE");
+        StringView code(vertex_code);
         auto cpos = code.find(material_tag);
         if (cpos == String::npos) {
-            vertex_code0 = code;
+            vertex_code_before_mats = code;
         } else {
-            vertex_code0 = code.substr(0, cpos);
+            vertex_code_before_mats = code.substr(0, cpos);
             code = code.substr(cpos + material_tag.length());
 
             cpos = code.find(globals_tag);
 
             if (cpos == String::npos) {
-                vertex_code1 = code;
+                vertex_code_before_globals = code;
             } else {
 
-                vertex_code1 = code.substr(0, cpos);
+                vertex_code_before_globals = code.substr(0, cpos);
                 StringView code2 = StringView(code).substr(cpos + globals_tag.length());
 
                 cpos = code2.find(code_tag);
                 if (cpos == code2.npos) {
-                    vertex_code2 = code2;
+                    vertex_code_before_custom = code2;
                 } else {
 
-                    vertex_code2 = code2.substr(0, cpos);
-                    vertex_code3 = code2.substr(cpos + code_tag.length());
+                    vertex_code_before_custom = code2.substr(0, cpos);
+                    vertex_code_after_custom = code2.substr(cpos + code_tag.length());
                 }
             }
         }
@@ -615,10 +616,10 @@ void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_co
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_image_units);
 
     {
-        String globals_tag("\nFRAGMENT_SHADER_GLOBALS");
-        String material_tag("\nMATERIAL_UNIFORMS");
-        String code_tag("\nFRAGMENT_SHADER_CODE");
-        String light_code_tag("\nLIGHT_SHADER_CODE");
+        StringView globals_tag("\nFRAGMENT_SHADER_GLOBALS");
+        StringView material_tag("\nMATERIAL_UNIFORMS");
+        StringView code_tag("\nFRAGMENT_SHADER_CODE");
+        StringView light_code_tag("\nLIGHT_SHADER_CODE");
         StringView code(fragment_code);
         auto cpos = code.find(material_tag);
         if (cpos == code.npos) {
@@ -639,7 +640,7 @@ void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_co
         fragment_code1 = code.substr(0, cpos);
         //print_line("CODE1:\n"+String(fragment_code1.data()));
 
-        StringView code2 = StringView(code).substr(cpos + globals_tag.length());
+        StringView code2 = code.substr(cpos + globals_tag.length());
         cpos = code2.find(light_code_tag);
 
         if (cpos == code2.npos) {

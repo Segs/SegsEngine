@@ -346,7 +346,7 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
         }
         // This is for the camera override to stay live even when the game is paused from the editor
         loop_time_sec = (OS::get_singleton()->get_ticks_usec() - loop_begin_usec) / 1000000.0f;
-        RenderingServer::get_singleton()->sync();
+        RenderingServer::get_singleton()->sync_thread();
         if (RenderingServer::get_singleton()->has_changed()) {
             RenderingServer::get_singleton()->draw(true, loop_time_sec * Engine::get_singleton()->get_time_scale());
         }
