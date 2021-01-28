@@ -939,6 +939,9 @@ void VisualShaderEditor::_update_graph() {
 
         graph->connect_node(StringName(itos(from)), from_idx, StringName(itos(to)), to_idx);
     }
+    float graph_minimap_opacity = EditorSettings::get_singleton()->getT<float>("editors/visual_editors/minimap_opacity");
+    graph->set_minimap_opacity(graph_minimap_opacity);
+
 }
 
 void VisualShaderEditor::_add_input_port(int p_node, int p_port, int p_port_type, StringView p_name) {
@@ -2663,6 +2666,8 @@ VisualShaderEditor::VisualShaderEditor() {
     graph->set_h_size_flags(SIZE_EXPAND_FILL);
     main_box->add_child(graph);
     graph->set_drag_forwarding(this);
+    float graph_minimap_opacity = EditorSettings::get_singleton()->getT<float>("editors/visual_editors/minimap_opacity");
+    graph->set_minimap_opacity(graph_minimap_opacity);
     graph->add_valid_right_disconnect_type(VisualShaderNode::PORT_TYPE_SCALAR);
     graph->add_valid_right_disconnect_type(VisualShaderNode::PORT_TYPE_BOOLEAN);
     graph->add_valid_right_disconnect_type(VisualShaderNode::PORT_TYPE_VECTOR);

@@ -221,12 +221,15 @@ NetSocketPosix::NetError NetSocketPosix::_get_socket_error() const {
     print_verbose("Socket error: " + itos(err));
     return ERR_NET_OTHER;
 #else
-    if (errno == EISCONN)
+    if (errno == EISCONN) {
         return ERR_NET_IS_CONNECTED;
-    if (errno == EINPROGRESS || errno == EALREADY)
+    }
+    if (errno == EINPROGRESS || errno == EALREADY) {
         return ERR_NET_IN_PROGRESS;
-    if (errno == EAGAIN || errno == EWOULDBLOCK)
+    }
+    if (errno == EAGAIN || errno == EWOULDBLOCK) {
         return ERR_NET_WOULD_BLOCK;
+    }
     print_verbose("Socket error: " + ::to_string(errno));
     return ERR_NET_OTHER;
 #endif

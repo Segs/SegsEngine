@@ -932,6 +932,11 @@ void ProjectExportDialog::_tree_changed() {
 }
 
 void ProjectExportDialog::_export_pck_zip() {
+    Ref<EditorExportPreset> current = get_current_preset();
+    ERR_FAIL_COND(!current);
+
+    String dir = PathUtils::get_base_dir(current->get_export_path());
+    export_pck_zip->set_current_dir(dir);
 
     export_pck_zip->popup_centered_ratio();
 }

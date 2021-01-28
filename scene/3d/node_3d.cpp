@@ -111,8 +111,9 @@ void Node3D::_propagate_transform_changed(Node3D *p_origin) {
 
     for (Node3D * E : data.children) {
 
-        if (E->data.toplevel_active)
+        if (E->data.toplevel_active) {
             continue; //don't propagate to a toplevel
+        }
         E->_propagate_transform_changed(p_origin);
     }
 #ifdef TOOLS_ENABLED
@@ -255,7 +256,7 @@ void Node3D::set_global_transform(const Transform &p_transform) {
     set_transform(xform);
 }
 
-Transform Node3D::get_transform() const {
+const Transform &Node3D::get_transform() const {
 
     if (data.dirty & DIRTY_LOCAL) {
 
@@ -537,8 +538,9 @@ void Node3D::_propagate_visibility_changed() {
 
 void Node3D::show() {
 
-    if (data.visible)
+    if (data.visible) {
         return;
+    }
 
     data.visible = true;
 
@@ -550,13 +552,15 @@ void Node3D::show() {
 
 void Node3D::hide() {
 
-    if (!data.visible)
+    if (!data.visible) {
         return;
+    }
 
     data.visible = false;
 
-    if (!is_inside_tree())
+    if (!is_inside_tree()) {
         return;
+    }
 
     _propagate_visibility_changed();
 }
@@ -577,14 +581,15 @@ bool Node3D::is_visible_in_tree() const {
 
 void Node3D::set_visible(bool p_visible) {
 
-    if (p_visible)
+    if (p_visible) {
         show();
-    else
+    }
+    else {
         hide();
+    }
 }
 
 bool Node3D::is_visible() const {
-
     return data.visible;
 }
 

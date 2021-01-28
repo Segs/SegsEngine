@@ -682,10 +682,14 @@ Variant LineEdit::get_drag_data(const Point2 &p_point) {
     return Variant();
 }
 bool LineEdit::can_drop_data(const Point2 &p_point, const Variant &p_data) const {
-
+    bool drop_override = Control::can_drop_data(p_point, p_data); // In case user wants to drop custom data.
+    if (drop_override) {
+        return drop_override;
+    }
     return p_data.get_type() == VariantType::STRING;
 }
 void LineEdit::drop_data(const Point2 &p_point, const Variant &p_data) {
+    Control::drop_data(p_point, p_data);
 
     if (p_data.get_type() == VariantType::STRING) {
         set_cursor_at_pixel_pos(p_point.x);

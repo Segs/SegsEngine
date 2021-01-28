@@ -126,7 +126,6 @@ void MeshInstance3D::set_mesh(const Ref<Mesh> &p_mesh) {
 
     if (mesh) {
         mesh->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &MeshInstance3D::_mesh_changed));
-        materials.clear();
     }
 
     if (skin_ref && mesh && _is_software_skinning_enabled() && is_visible_in_tree()) {

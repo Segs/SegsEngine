@@ -69,8 +69,9 @@ int Face3::split_by_plane(const Plane &p_plane, Face3 p_res[3], bool p_is_point_
             /* Check for Intersection between this and the next vertex*/
 
             Vector3 inters;
-            if (!p_plane.intersects_segment(vertex[i], vertex[(i + 1) % 3], &inters))
+            if (!p_plane.intersects_segment(vertex[i], vertex[(i + 1) % 3], &inters)) {
                 continue;
+            }
 
             /* Intersection goes to both */
             ERR_FAIL_COND_V(above_count >= 4, 0);
@@ -239,8 +240,9 @@ bool Face3::intersects_aabb(const AABB &p_aabb) const {
 
             Vector3 axis = vec3_cross(e1, e2);
 
-            if (axis.length_squared() < 0.0001)
+            if (axis.length_squared() < 0.0001f) {
                 continue; // coplanar
+            }
             axis.normalize();
 
             real_t minA, maxA, minB, maxB;
@@ -266,11 +268,13 @@ void Face3::project_range(const Vector3 &p_normal, const Transform &p_transform,
         Vector3 v = p_transform.xform(vertex[i]);
         real_t d = p_normal.dot(v);
 
-        if (i == 0 || d > r_max)
+        if (i == 0 || d > r_max) {
             r_max = d;
+        }
 
-        if (i == 0 || d < r_min)
+        if (i == 0 || d < r_min) {
             r_min = d;
+        }
     }
 }
 

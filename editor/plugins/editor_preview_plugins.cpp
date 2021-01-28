@@ -55,10 +55,11 @@ IMPL_GDCLASS(EditorMaterialPreviewPlugin)
 IMPL_GDCLASS(EditorMeshPreviewPlugin)
 IMPL_GDCLASS(EditorFontPreviewPlugin)
 
-void post_process_preview(Ref<Image> p_image) {
+void post_process_preview(const Ref<Image> &p_image) {
 
-    if (p_image->get_format() != Image::FORMAT_RGBA8)
+    if (p_image->get_format() != Image::FORMAT_RGBA8) {
         p_image->convert(Image::FORMAT_RGBA8);
+    }
 
     p_image->lock();
 
@@ -125,14 +126,16 @@ Ref<Texture> EditorTexturePreviewPlugin::generate(const RES &p_from, const Size2
         }
     }
 
-    if (not img || img->is_empty())
+    if (not img || img->is_empty()) {
         return Ref<Texture>();
+    }
 
     img->clear_mipmaps();
 
     if (img->is_compressed()) {
-        if (img->decompress() != OK)
+        if (img->decompress() != OK) {
             return Ref<Texture>();
+        }
     } else if (img->get_format() != Image::FORMAT_RGB8 && img->get_format() != Image::FORMAT_RGBA8) {
         img->convert(Image::FORMAT_RGBA8);
     }

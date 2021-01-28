@@ -186,18 +186,18 @@ void TileSetEditor::_undo_redo_import_scene(Node *p_scene, bool p_merge) {
     _import_scene(p_scene, tileset, p_merge);
 }
 
-Error TileSetEditor::update_library_file(Node *p_base_scene, Ref<TileSet> ml, bool p_merge) {
+Error TileSetEditor::update_library_file(Node *p_base_scene, const Ref<TileSet> &ml, bool p_merge) {
 
     _import_scene(p_base_scene, ml, p_merge);
     return OK;
 }
 
-Variant TileSetEditor::get_drag_data_fw(const Point2 &p_point, Control *p_from) {
+Variant TileSetEditor::get_drag_data_fw(const Point2 &/*p_point*/, Control */*p_from*/) {
 
     return false;
 }
 
-bool TileSetEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
+bool TileSetEditor::can_drop_data_fw(const Point2 &/*p_point*/, const Variant &p_data, Control * /*p_from*/) const {
 
     Dictionary d = p_data.as<Dictionary>();
 
@@ -2445,42 +2445,47 @@ void TileSetEditor::draw_highlight_subtile(Vector2 coord, const Vector<Vector2> 
 
     coord += Vector2(1, 1) / workspace->get_scale().x;
     workspace->draw_rect(Rect2(coord, size - Vector2(2, 2) / workspace->get_scale().x), Color(1, 0, 0), false);
-    for (int i = 0; i < other_highlighted.size(); i++) {
-        coord = other_highlighted[i];
-        coord.x *= size.x + spacing;
-        coord.y *= size.y + spacing;
-        coord += region.position;
-        coord += WORKSPACE_MARGIN;
-        coord += Vector2(1, 1) / workspace->get_scale().x;
-        workspace->draw_rect(Rect2(coord, size - Vector2(2, 2) / workspace->get_scale().x), Color(1, 0.5, 0.5), false);
+    for (Vector2 hl_coord : other_highlighted) {
+        hl_coord.x *= size.x + spacing;
+        hl_coord.y *= size.y + spacing;
+        hl_coord += region.position;
+        hl_coord += WORKSPACE_MARGIN;
+        hl_coord += Vector2(1, 1) / workspace->get_scale().x;
+        workspace->draw_rect(Rect2(hl_coord, size - Vector2(2, 2) / workspace->get_scale().x), Color(1, 0.5, 0.5), false);
     }
 }
 
 void TileSetEditor::draw_tile_subdivision(int p_id, Color p_color) const {
     Color c = p_color;
-    if (tileset->tile_get_tile_mode(p_id) == TileSet::AUTO_TILE || tileset->tile_get_tile_mode(p_id) == TileSet::ATLAS_TILE) {
-        Rect2 region = tileset->tile_get_region(p_id);
-        Size2 size = tileset->autotile_get_size(p_id);
-        int spacing = tileset->autotile_get_spacing(p_id);
-        float j = size.x;
+    if (tileset->tile_get_tile_mode(p_id) != TileSet::AUTO_TILE &&
+            tileset->tile_get_tile_mode(p_id) != TileSet::ATLAS_TILE) {
+        return;
+    }
+    Rect2 region = tileset->tile_get_region(p_id);
+    Size2 size = tileset->autotile_get_size(p_id);
+    int spacing = tileset->autotile_get_spacing(p_id);
+    float j = size.x;
 
-        while (j < region.size.x) {
-            if (spacing <= 0) {
-                workspace->draw_line(region.position + WORKSPACE_MARGIN + Point2(j, 0), region.position + WORKSPACE_MARGIN + Point2(j, region.size.y), c);
-            } else {
-                workspace->draw_rect(Rect2(region.position + WORKSPACE_MARGIN + Point2(j, 0), Size2(spacing, region.size.y)), c);
-            }
-            j += spacing + size.x;
+    while (j < region.size.x) {
+        if (spacing <= 0) {
+            workspace->draw_line(region.position + WORKSPACE_MARGIN + Point2(j, 0),
+                    region.position + WORKSPACE_MARGIN + Point2(j, region.size.y), c);
+        } else {
+            workspace->draw_rect(
+                    Rect2(region.position + WORKSPACE_MARGIN + Point2(j, 0), Size2(spacing, region.size.y)), c);
         }
-        j = size.y;
-        while (j < region.size.y) {
-            if (spacing <= 0) {
-                workspace->draw_line(region.position + WORKSPACE_MARGIN + Point2(0, j), region.position + WORKSPACE_MARGIN + Point2(region.size.x, j), c);
-            } else {
-                workspace->draw_rect(Rect2(region.position + WORKSPACE_MARGIN + Point2(0, j), Size2(region.size.x, spacing)), c);
-            }
-            j += spacing + size.y;
+        j += spacing + size.x;
+    }
+    j = size.y;
+    while (j < region.size.y) {
+        if (spacing <= 0) {
+            workspace->draw_line(region.position + WORKSPACE_MARGIN + Point2(0, j),
+                    region.position + WORKSPACE_MARGIN + Point2(region.size.x, j), c);
+        } else {
+            workspace->draw_rect(
+                    Rect2(region.position + WORKSPACE_MARGIN + Point2(0, j), Size2(region.size.x, spacing)), c);
         }
+        j += spacing + size.y;
     }
 }
 

@@ -33,7 +33,7 @@
 
 #include "editor/editor_resource_preview.h"
 
-void post_process_preview(Ref<Image> p_image);
+void post_process_preview(const Ref<Image> &p_image);
 
 class EditorTexturePreviewPlugin : public EditorResourcePreviewGenerator {
     GDCLASS(EditorTexturePreviewPlugin,EditorResourcePreviewGenerator)

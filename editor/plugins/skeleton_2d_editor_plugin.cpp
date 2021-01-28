@@ -149,7 +149,7 @@ Skeleton2DEditorPlugin::Skeleton2DEditorPlugin(EditorNode *p_node) {
     editor = p_node;
     sprite_editor = memnew(Skeleton2DEditor);
     editor->get_viewport()->add_child(sprite_editor);
-    make_visible(false);
+    Skeleton2DEditorPlugin::make_visible(false);
 
     //sprite_editor->options->hide();
 }

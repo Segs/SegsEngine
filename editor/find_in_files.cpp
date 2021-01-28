@@ -167,8 +167,9 @@ void FindInFiles::_process() {
     while (is_processing()) {
         _iterate();
         float elapsed = os.get_ticks_msec() - time_before;
-        if (elapsed > 1000.0f / 120.0f)
+        if (elapsed > 1000.0f / 120.0f) {
             break;
+        }
     }
 }
 

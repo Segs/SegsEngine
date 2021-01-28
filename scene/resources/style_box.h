@@ -101,7 +101,7 @@ private:
     AxisStretchMode axis_v;
 
 protected:
-	float get_style_margin(Margin p_margin) const override;
+    float get_style_margin(Margin p_margin) const override;
     static void _bind_methods();
 
 public:
@@ -124,7 +124,7 @@ public:
 
     void set_draw_center(bool p_enabled);
     bool is_draw_center_enabled() const;
-	Size2 get_center_size() const override;
+    Size2 get_center_size() const override;
 
     void set_h_axis_stretch_mode(AxisStretchMode p_mode);
     AxisStretchMode get_h_axis_stretch_mode() const;
@@ -136,10 +136,10 @@ public:
     Color get_modulate() const;
 
     Rect2 get_draw_rect(const Rect2 &p_rect) const override;
-	void draw(RID p_canvas_item, const Rect2 &p_rect) const override;
+    void draw(RID p_canvas_item, const Rect2 &p_rect) const override;
 
     StyleBoxTexture();
-	~StyleBoxTexture() override;
+    ~StyleBoxTexture() override;
 };
 
 
@@ -165,7 +165,7 @@ class GODOT_EXPORT StyleBoxFlat : public StyleBox {
     int aa_size;
 
 protected:
-	float get_style_margin(Margin p_margin) const override;
+    float get_style_margin(Margin p_margin) const override;
     static void _bind_methods();
 
 public:
@@ -191,7 +191,7 @@ public:
 
     //CORNER
     void set_corner_radius_all(int radius);
-    void set_corner_radius_individual(const int radius_top_left, const int radius_top_right, const int radius_botton_right, const int radius_bottom_left);
+    void set_corner_radius_individual(const int radius_top_left, const int radius_top_right, const int radius_bottom_right, const int radius_bottom_left);
     int get_corner_radius_min() const;
 
     void set_corner_radius(Corner p_corner, const int radius);
@@ -227,13 +227,13 @@ public:
     void set_aa_size(const int &p_aa_size);
     int get_aa_size() const;
 
-	Size2 get_center_size() const override;
+    Size2 get_center_size() const override;
 
     Rect2 get_draw_rect(const Rect2 &p_rect) const override;
-	void draw(RID p_canvas_item, const Rect2 &p_rect) const override;
+    void draw(RID p_canvas_item, const Rect2 &p_rect) const override;
 
     StyleBoxFlat();
-	~StyleBoxFlat() override;
+    ~StyleBoxFlat() override;
 };
 
 // just used to draw lines.
@@ -248,7 +248,7 @@ class GODOT_EXPORT StyleBoxLine : public StyleBox {
     float grow_end;
 
 protected:
-	float get_style_margin(Margin p_margin) const override;
+    float get_style_margin(Margin p_margin) const override;
     static void _bind_methods();
 
 public:
@@ -267,9 +267,9 @@ public:
     void set_grow_end(float p_grow);
     float get_grow_end() const;
 
-	Size2 get_center_size() const override;
+    Size2 get_center_size() const override;
 
-	void draw(RID p_canvas_item, const Rect2 &p_rect) const override;
+    void draw(RID p_canvas_item, const Rect2 &p_rect) const override;
 
     StyleBoxLine();
     ~StyleBoxLine() override;

@@ -38,14 +38,14 @@ class GODOT_EXPORT Light2D : public Node2D {
     GDCLASS(Light2D,Node2D)
 
 public:
-    enum Mode {
+    enum Mode : int8_t {
         MODE_ADD,
         MODE_SUB,
         MODE_MIX,
         MODE_MASK,
     };
 
-    enum ShadowFilter {
+    enum ShadowFilter : int8_t {
         SHADOW_FILTER_NONE,
         SHADOW_FILTER_PCF3,
         SHADOW_FILTER_PCF5,
@@ -56,14 +56,16 @@ public:
 
 private:
     RID canvas_light;
-    bool enabled;
-    bool editor_only;
-    bool shadow;
     Color color;
     Color shadow_color;
+    Vector2 texture_offset;
+    Ref<Texture> texture;
+
     float height;
     float _scale;
     float energy;
+    float shadow_smooth;
+    float shadow_gradient_length;
     int z_min;
     int z_max;
     int layer_min;
@@ -71,12 +73,11 @@ private:
     int item_mask;
     int item_shadow_mask;
     int shadow_buffer_size;
-    float shadow_smooth;
-    float shadow_gradient_length;
     Mode mode;
-    Ref<Texture> texture;
-    Vector2 texture_offset;
     ShadowFilter shadow_filter;
+    bool enabled;
+    bool editor_only;
+    bool shadow;
 
     void _update_light_visibility();
 

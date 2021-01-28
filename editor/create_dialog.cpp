@@ -392,16 +392,21 @@ void CreateDialog::_update_search() {
                 bool show = StringUtils::is_subsequence_of(
                         search_box->get_text(), ct[idx_c].name, StringUtils::CaseInsensitive);
 
-                if (!show)
+                if (!show) {
                     continue;
+                }
 
-                if (!search_options_types.contains(type)) add_type(type, search_options_types, root, &to_select);
+                if (!search_options_types.contains(type)) {
+                    add_type(type, search_options_types, root, &to_select);
+                }
 
                 TreeItem *ti;
-                if (search_options_types.contains(type))
+                if (search_options_types.contains(type)) {
                     ti = search_options_types[type];
-                else
+                }
+                else {
                     ti = search_options->get_root();
+                }
 
                 TreeItem *item = search_options->create_item(ti);
                 item->set_metadata(0, type);
@@ -688,20 +693,24 @@ void CreateDialog::drop_data_fw(const Point2 &p_point, const Variant &p_data, Co
     Dictionary d = p_data.as<Dictionary>();
 
     TreeItem *ti = favorites->get_item_at_position(p_point);
-    if (!ti) return;
+    if (!ti) {
+        return;
+    }
 
     String drop_at = ti->get_text(0);
     int ds = favorites->get_drop_section_at_position(p_point);
 
     auto drop_idx = favorite_list.index_of(drop_at);
-    if (drop_idx >= favorite_list.size())
+    if (drop_idx >= favorite_list.size()) {
         return;
+    }
 
     String type = d["class"].as<String>();
 
     auto from_idx = favorite_list.index_of(type);
-    if (from_idx >= favorite_list.size())
+    if (from_idx >= favorite_list.size()) {
         return;
+    }
 
     if (drop_idx == from_idx) {
         ds = -1; // cause it will be gone

@@ -66,10 +66,10 @@ btVector3 btRayShape::localGetSupportingVertex(const btVector3 &vec) const {
 }
 
 btVector3 btRayShape::localGetSupportingVertexWithoutMargin(const btVector3 &vec) const {
-    if (vec.z() > 0)
+    if (vec.z() > 0) {
         return m_shapeAxis * m_cacheScaledLength;
-    else
-        return btVector3(0, 0, 0);
+    }
+    return btVector3(0, 0, 0);
 }
 
 void btRayShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3 *vectors, btVector3 *supportVerticesOut, int numVectors) const {
@@ -86,10 +86,6 @@ void btRayShape::getAabb(const btTransform &t, btVector3 &aabbMin, btVector3 &aa
 
 void btRayShape::calculateLocalInertia(btScalar mass, btVector3 &inertia) const {
     inertia.setZero();
-}
-
-int btRayShape::getNumPreferredPenetrationDirections() const {
-    return 0;
 }
 
 void btRayShape::getPreferredPenetrationDirection(int index, btVector3 &penetrationVector) const {
