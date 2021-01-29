@@ -1122,13 +1122,19 @@ MethodBind *ClassDB::bind_methodfi(
 }
 #ifdef DEBUG_METHODS_ENABLED
 void ClassDB::_set_class_header(const StringName &p_class, StringView header_file) {
-    // TODO: SEGS: fragile piece of code, assumes this file is always at `core/class_db.cpp` path.
+    // 2 ways this functions is called:
+    //  - during engine compilation -> all paths are under same prefix.
+    //  - during external exe/plugin compilation -> paths are 'rooted' under the specific project
     StringView current_path = __FILE__;
     int prefix_len = current_path.length() - strlen("core/class_db.cpp");
-    String hdr_path = PathUtils::from_native_path(header_file);
-    assert(hdr_path.size() >= prefix_len);
-    String hdr(hdr_path.substr(prefix_len));
-    classes[p_class].usage_header = hdr.replaced(".cpp", ".h");
+    String hdr_path = PathUtils::from_native_path(header_file).replaced(".cpp", ".h");
+    if(header_file.starts_with(hdr_path.substr(prefix_len))) {
+        // chop the prefix, the bindings are compiled with correct include paths.
+        classes[p_class].usage_header = String(hdr_path.substr(prefix_len));
+    }
+    else {
+        classes[p_class].usage_header = hdr_path;
+    }
 }
 #endif
 
