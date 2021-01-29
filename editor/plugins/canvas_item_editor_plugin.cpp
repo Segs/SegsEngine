@@ -4172,7 +4172,6 @@ void CanvasItemEditor::_update_bone_list() {
     }
     for(Map<BoneKey, BoneList>::iterator i : bone_to_erase) {
         bone_list.erase(i);
-        bone_to_erase.pop_front();
     }
     bone_list_dirty = false;
 }

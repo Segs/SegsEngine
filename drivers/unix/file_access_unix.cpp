@@ -350,12 +350,10 @@ FileAccess *FileAccessUnix::create_libc() {
 
 CloseNotificationFunc FileAccessUnix::close_notification_func = nullptr;
 
-FileAccessUnix::FileAccessUnix() {
-}
+FileAccessUnix::FileAccessUnix() = default;
 
 FileAccessUnix::~FileAccessUnix() {
-
-    close();
+    FileAccessUnix::close();
 }
 
 #endif

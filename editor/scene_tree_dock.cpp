@@ -87,10 +87,7 @@ void SceneTreeDock::_nodes_drag_begin() {
 }
 
 void SceneTreeDock::_quick_open() {
-    Vector<String> files(quick_open->get_selected_files());
-    for (const String & file : files) {
-        instance(file);
-    }
+    instance_scenes(quick_open->get_selected_files(), scene_tree->get_selected());
 }
 
 void SceneTreeDock::_input(const Ref<InputEvent>& p_event) {
@@ -152,24 +149,10 @@ void SceneTreeDock::_unhandled_key_input(const Ref<InputEvent>& p_event) {
 
 void SceneTreeDock::instance(StringView p_file) {
 
-    Node *parent = scene_tree->get_selected();
+    Vector<String> scenes;
+    scenes.emplace_back(p_file);
+    instance_scenes(scenes, scene_tree->get_selected());
 
-    if (!parent) {
-        parent = edited_scene;
-    }
-
-    if (!edited_scene) {
-
-        current_option = -1;
-        accept->set_text(TTR("No parent to instance a child at."));
-        accept->popup_centered_minsize();
-        return;
-    }
-
-    ERR_FAIL_COND(!parent);
-
-    String scenes[1] {String(p_file)};
-    _perform_instance_scenes(scenes, parent, -1);
 }
 
 void SceneTreeDock::instance_scenes(const Vector<String> &p_files, Node *p_parent) {
@@ -181,8 +164,11 @@ void SceneTreeDock::instance_scenes(const Vector<String> &p_files, Node *p_paren
     }
 
     if (!parent || !edited_scene) {
-
-        accept->set_text(TTR("No parent to instance the scenes at."));
+        if (p_files.size() == 1) {
+            accept->set_text(TTR("No parent to instance a child at."));
+        } else {
+            accept->set_text(TTR("No parent to instance the scenes at."));
+        }
         accept->popup_centered_minsize();
         return;
     }

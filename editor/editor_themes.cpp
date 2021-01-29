@@ -47,16 +47,16 @@
 #include <QResource>
 #include <ctime>
 
-static Ref<StyleBoxTexture> make_stylebox(const Ref<Texture>& p_texture, float p_left, float p_top, float p_right, float p_botton, float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_botton = -1, bool p_draw_center = true) {
+static Ref<StyleBoxTexture> make_stylebox(const Ref<Texture>& p_texture, float p_left, float p_top, float p_right, float p_bottom, float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_bottom = -1, bool p_draw_center = true) {
     Ref<StyleBoxTexture> style(make_ref_counted<StyleBoxTexture>());
     style->set_texture(p_texture);
     style->set_margin_size(Margin::Left, p_left * EDSCALE);
     style->set_margin_size(Margin::Right, p_right * EDSCALE);
-    style->set_margin_size(Margin::Bottom, p_botton * EDSCALE);
+    style->set_margin_size(Margin::Bottom, p_bottom * EDSCALE);
     style->set_margin_size(Margin::Top, p_top * EDSCALE);
     style->set_default_margin(Margin::Left, p_margin_left * EDSCALE);
     style->set_default_margin(Margin::Right, p_margin_right * EDSCALE);
-    style->set_default_margin(Margin::Bottom, p_margin_botton * EDSCALE);
+    style->set_default_margin(Margin::Bottom, p_margin_bottom * EDSCALE);
     style->set_default_margin(Margin::Top, p_margin_top * EDSCALE);
     style->set_draw_center(p_draw_center);
     return style;
@@ -97,7 +97,7 @@ static Ref<Texture> flip_icon(Ref<Texture> p_texture, bool p_flip_y = false, boo
     }
 
     Ref<ImageTexture> texture(memnew(ImageTexture), DoNotAddRef);
-    Ref<Image> img = p_texture->get_data();
+    Ref<Image> img(dynamic_ref_cast<Image>(p_texture->get_data()->duplicate()));
 
     if (p_flip_y) {
         img->flip_y();
@@ -1127,7 +1127,11 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     theme->set_constant("bezier_len_neg", "GraphEdit", 160 * EDSCALE);
 
     // GraphEditMinimap
-    theme->set_stylebox("bg", "GraphEditMinimap", make_flat_stylebox(dark_color_1, 0, 0, 0, 0));
+    Ref<StyleBoxFlat> style_minimap_bg = make_flat_stylebox(dark_color_1, 0, 0, 0, 0);
+    style_minimap_bg->set_border_color(dark_color_3);
+    style_minimap_bg->set_border_width_all(1);
+    theme->set_stylebox("bg", "GraphEditMinimap", style_minimap_bg);
+
     Ref<StyleBoxFlat> style_minimap_camera;
     Ref<StyleBoxFlat> style_minimap_node;
     if (dark_theme) {
@@ -1144,9 +1148,16 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     theme->set_stylebox("camera", "GraphEditMinimap", style_minimap_camera);
     theme->set_stylebox("node", "GraphEditMinimap", style_minimap_node);
 
-    Ref<Texture> resizer_icon = theme->get_icon("GuiResizer", "EditorIcons");
-    theme->set_icon("resizer", "GraphEditMinimap", flip_icon(resizer_icon, true, true));
-    theme->set_color("resizer_color", "GraphEditMinimap", Color(1, 1, 1, 0.65));
+    Ref<Texture> minimap_resizer_icon(theme->get_icon("GuiResizer", "EditorIcons"));
+    Color minimap_resizer_color;
+    if (dark_theme) {
+        minimap_resizer_color = Color(1, 1, 1, 0.65);
+    } else {
+        minimap_resizer_color = Color(0, 0, 0, 0.65);
+    }
+    theme->set_icon("resizer", "GraphEditMinimap", flip_icon(minimap_resizer_icon, true, true));
+    theme->set_color("resizer_color", "GraphEditMinimap", minimap_resizer_color);
+
 
     // GraphNode
 

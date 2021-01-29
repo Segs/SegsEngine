@@ -291,5 +291,4 @@ AudioStreamEditorPlugin::AudioStreamEditorPlugin(EditorNode *p_node) {
     audio_editor->hide();
 }
 
-AudioStreamEditorPlugin::~AudioStreamEditorPlugin() {
-}
+AudioStreamEditorPlugin::~AudioStreamEditorPlugin() = default;

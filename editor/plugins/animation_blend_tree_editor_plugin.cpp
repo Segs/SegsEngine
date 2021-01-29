@@ -267,6 +267,9 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
 
         graph->connect_node(E.output_node, 0, E.input_node, E.input_index);
     }
+    float graph_minimap_opacity = EditorSettings::get_singleton()->getT<float>("editors/visual_editors/minimap_opacity");
+    graph->set_minimap_opacity(graph_minimap_opacity);
+
 }
 
 void AnimationNodeBlendTreeEditor::_file_opened(StringView p_file) {
@@ -917,6 +920,9 @@ AnimationNodeBlendTreeEditor::AnimationNodeBlendTreeEditor() {
     graph->connect("scroll_offset_changed",callable_mp(this, &ClassName::_scroll_changed));
     graph->connect("delete_nodes_request",callable_mp(this, &ClassName::_delete_nodes_request));
     graph->connect("popup_request",callable_mp(this, &ClassName::_popup_request));
+
+    float graph_minimap_opacity = EditorSettings::get_singleton()->getT<float>("editors/visual_editors/minimap_opacity");
+    graph->set_minimap_opacity(graph_minimap_opacity);
 
     VSeparator *vs = memnew(VSeparator);
     graph->get_zoom_hbox()->add_child(vs);

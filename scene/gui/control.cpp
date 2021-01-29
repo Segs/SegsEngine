@@ -2894,6 +2894,9 @@ void Control::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("grab_focus"), &Control::grab_focus);
     MethodBinder::bind_method(D_METHOD("release_focus"), &Control::release_focus);
     MethodBinder::bind_method(D_METHOD("get_focus_owner"), &Control::get_focus_owner);
+    MethodBinder::bind_method(D_METHOD("find_prev_valid_focus"), &Control::find_prev_valid_focus);
+    MethodBinder::bind_method(D_METHOD("find_next_valid_focus"), &Control::find_next_valid_focus);
+
 
     MethodBinder::bind_method(D_METHOD("set_h_size_flags", {"flags"}), &Control::set_h_size_flags);
     MethodBinder::bind_method(D_METHOD("get_h_size_flags"), &Control::get_h_size_flags);

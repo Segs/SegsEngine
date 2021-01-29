@@ -186,7 +186,7 @@ protected:
 
 public:
     void edit(const Ref<TileSet> &p_tileset);
-    static Error update_library_file(Node *p_base_scene, Ref<TileSet> ml, bool p_merge = true);
+    static Error update_library_file(Node *p_base_scene, const Ref<TileSet> &ml, bool p_merge = true);
 
     TileSetEditor(EditorNode *p_editor);
     ~TileSetEditor() override;

@@ -51,6 +51,7 @@
 #include "scene/main/node.h"
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
+#include "core/string_formatter.h"
 
 #include "EASTL/sort.h"
 #include <QtCore/QResource>
@@ -145,8 +146,9 @@ bool EditorSettings::_get(const StringName &p_name, Variant &r_ret) const {
                 }
 
                 Ref<InputEvent> original(sc->get_meta("original"));
-                if ((not original && not sc->get_shortcut()) || sc->is_shortcut(original))
+                if ((not original && not sc->get_shortcut()) || sc->is_shortcut(original)) {
                     continue; //not changed from default, don't save
+                }
             }
 
             arr.push_back(E.first);
@@ -320,7 +322,26 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
 
     // Editor
     _initial_set("interface/editor/display_scale", 0);
-    hints["interface/editor/display_scale"] = PropertyInfo(VariantType::INT, "interface/editor/display_scale", PropertyHint::Enum, "Auto,75%,100%,125%,150%,175%,200%,Custom", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
+    // Display what the Auto display scale setting effectively corresponds to.
+    // The code below is adapted in `editor/editor_node.cpp` and `editor/project_manager.cpp`.
+    // Make sure to update those when modifying the code below.
+#ifdef OSX_ENABLED
+    float scale = OS::get_singleton()->get_screen_max_scale();
+#else
+    const int screen = OS::get_singleton()->get_current_screen();
+    float scale;
+    if (OS::get_singleton()->get_screen_dpi(screen) >= 192 && OS::get_singleton()->get_screen_size(screen).y >= 1400) {
+        // hiDPI display.
+        scale = 2.0;
+    } else if (OS::get_singleton()->get_screen_size(screen).y <= 800) {
+        // Small loDPI display. Use a smaller display scale so that editor elements fit more easily.
+        // Icons won't look great, but this is better than having editor elements overflow from its window.
+        scale = 0.75;
+    } else {
+        scale = 1.0;
+    }
+#endif
+    hints["interface/editor/display_scale"] = PropertyInfo(VariantType::INT, "interface/editor/display_scale", PropertyHint::Enum, FormatVE("Auto (%d%%),75%%,100%%,125%%,150%%,175%%,200%%,Custom", Math::round(scale * 100)), PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
     _initial_set("interface/editor/custom_display_scale", 1.0f);
     hints["interface/editor/custom_display_scale"] = PropertyInfo(VariantType::FLOAT, "interface/editor/custom_display_scale", PropertyHint::Range, "0.5,3,0.01", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
     _initial_set("interface/editor/main_font_size", 14);
@@ -329,6 +350,11 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     hints["interface/editor/code_font_size"] = PropertyInfo(VariantType::INT, "interface/editor/code_font_size", PropertyHint::Range, "8,48,1", PROPERTY_USAGE_DEFAULT);
     _initial_set("interface/editor/font_antialiased", true);
     _initial_set("interface/editor/font_hinting", 0);
+#ifdef OSX_ENABLED
+    hints["interface/editor/font_hinting"] = PropertyInfo(VariantType::INT, "interface/editor/font_hinting", PropertyHint::Enum, "Auto (None),None,Light,Normal", PROPERTY_USAGE_DEFAULT);
+#else
+    hints["interface/editor/font_hinting"] = PropertyInfo(VariantType::INT, "interface/editor/font_hinting", PropertyHint::Enum, "Auto (Light),None,Light,Normal", PROPERTY_USAGE_DEFAULT);
+#endif
     hints["interface/editor/font_hinting"] = PropertyInfo(VariantType::INT, "interface/editor/font_hinting", PropertyHint::Enum, "Auto,None,Light,Normal", PROPERTY_USAGE_DEFAULT);
     _initial_set("interface/editor/main_font", "");
     hints["interface/editor/main_font"] = PropertyInfo(VariantType::STRING, "interface/editor/main_font", PropertyHint::GlobalFile, "*.ttf,*.otf", PROPERTY_USAGE_DEFAULT);
@@ -622,6 +648,12 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     _initial_set("editors/animation/confirm_insert_track", true);
     _initial_set("editors/animation/onion_layers_past_color", Color(1, 0, 0));
     _initial_set("editors/animation/onion_layers_future_color", Color(0, 1, 0));
+
+    // Visual editors
+    _initial_set("editors/visual_editors/minimap_opacity", 0.85f);
+    hints["editors/visual_editors/minimap_opacity"] = PropertyInfo(VariantType::FLOAT, "editors/visual_editors/minimap_opacity", PropertyHint::Range, "0.0,1.0,0.01", PROPERTY_USAGE_DEFAULT);
+
+
 
     /* Run */
 
@@ -1559,7 +1591,7 @@ Ref<ShortCut> ED_SHORTCUT(StringView p_path, const StringName &p_name, uint32_t 
 #endif
 
     Ref<InputEventKey> ie;
-    auto name(p_name);
+
     if (p_keycode) {
         ie = make_ref_counted<InputEventKey>();
 
@@ -1573,7 +1605,7 @@ Ref<ShortCut> ED_SHORTCUT(StringView p_path, const StringName &p_name, uint32_t 
 
     if (!EditorSettings::get_singleton()) {
         Ref<ShortCut> sc(make_ref_counted<ShortCut>());
-        sc->set_name(name);
+        sc->set_name(p_name);
         sc->set_shortcut(ie);
         sc->set_meta("original", ie);
         return sc;
@@ -1581,13 +1613,13 @@ Ref<ShortCut> ED_SHORTCUT(StringView p_path, const StringName &p_name, uint32_t 
     Ref<ShortCut> sc = EditorSettings::get_singleton()->get_shortcut(p_path);
     if (sc) {
 
-        sc->set_name(name); //keep name (the ones that come from disk have no name)
+        sc->set_name(p_name); //keep name (the ones that come from disk have no name)
         sc->set_meta("original", ie); //to compare against changes
         return sc;
     }
 
     sc = make_ref_counted<ShortCut>();
-    sc->set_name(name);
+    sc->set_name(p_name);
     sc->set_shortcut(ie);
     sc->set_meta("original", ie); //to compare against changes
     EditorSettings::get_singleton()->add_shortcut(p_path, sc);

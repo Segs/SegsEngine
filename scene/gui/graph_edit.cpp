@@ -163,6 +163,10 @@ Vector2 GraphEditMinimap::_convert_to_graph_position(const Vector2 &p_position) 
 }
 
 void GraphEditMinimap::_gui_input(const Ref<InputEvent> &p_ev) {
+    if (!ge->is_minimap_enabled()) {
+        return;
+    }
+
     Ref<InputEventMouseButton> mb(dynamic_ref_cast<InputEventMouseButton>(p_ev));
     Ref<InputEventMouseMotion> mm(dynamic_ref_cast<InputEventMouseMotion>(p_ev));
 
@@ -1798,7 +1802,7 @@ GraphEdit::GraphEdit() {
     top_layer->add_child(minimap);
     minimap->set_name("_minimap");
     minimap->set_modulate(Color(1, 1, 1, minimap_opacity));
-    minimap->set_mouse_filter(MOUSE_FILTER_STOP);
+    minimap->set_mouse_filter(MOUSE_FILTER_PASS);
     minimap->set_custom_minimum_size(Vector2(50, 50));
     minimap->set_size(minimap_size);
     minimap->set_anchors_preset(Control::PRESET_BOTTOM_RIGHT);

@@ -259,6 +259,8 @@ private:
     void _search(EditorFileSystemDirectory *p_path, List<FileInfo> *matches, int p_max_items);
 
     void _set_current_path_text(StringView p_path);
+
+    void _reset_path();
 public: // made public for scripting API
     Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
     bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;

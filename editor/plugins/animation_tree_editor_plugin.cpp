@@ -296,5 +296,4 @@ AnimationTreeEditorPlugin::AnimationTreeEditorPlugin(EditorNode *p_node) {
     button->hide();
 }
 
-AnimationTreeEditorPlugin::~AnimationTreeEditorPlugin() {
-}
+AnimationTreeEditorPlugin::~AnimationTreeEditorPlugin() = default;

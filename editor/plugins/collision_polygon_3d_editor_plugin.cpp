@@ -614,5 +614,4 @@ CollisionPolygon3DEditorPlugin::CollisionPolygon3DEditorPlugin(EditorNode *p_nod
     collision_polygon_editor->hide();
 }
 
-CollisionPolygon3DEditorPlugin::~CollisionPolygon3DEditorPlugin() {
-}
+CollisionPolygon3DEditorPlugin::~CollisionPolygon3DEditorPlugin() = default;

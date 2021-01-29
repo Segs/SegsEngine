@@ -20,9 +20,9 @@
         var array2 = [3, "Four"]
         print(array1 + array2) # ["One", 2, 3, "Four"]
         [/codeblock]
-		[b]Note:[/b] Concatenating with the [code]+=[/code] operator will create a new array, which has a cost. If you want to append another array to an existing array, [method append_array] is more efficient.
+        [b]Note:[/b] Concatenating with the [code]+=[/code] operator will create a new array, which has a cost. If you want to append another array to an existing array, [method append_array] is more efficient.
         [b]Note:[/b] Arrays are always passed by reference. To get a copy of an array which can be modified independently of the original array, use [method duplicate].
-		[b]Note:[/b] When declaring an array with [code]const[/code], the array itself can still be mutated by defining the values at individual indices or pushing/removing elements. Using [code]const[/code] will only prevent assigning the constant with another value after it was initialized.
+        [b]Note:[/b] When declaring an array with [code]const[/code], the array itself can still be mutated by defining the values at individual indices or pushing/removing elements. Using [code]const[/code] will only prevent assigning the constant with another value after it was initialized.
     </description>
     <tutorials>
     </tutorials>
@@ -168,7 +168,9 @@
             <argument index="0" name="value" type="Variant">
             </argument>
             <description>
-                Removes the first occurrence of a value from the array.
+                Removes the first occurrence of a value from the array. To remove an element by index, use [method remove] instead.
+                [b]Note:[/b] This method acts in-place and doesn't return a value.
+                [b]Note:[/b] On large arrays, this method will be slower if the removed element is close to the beginning of the array (index 0). This is because all elements placed after the removed element have to be reindexed.
             </description>
         </method>
         <method name="find">
@@ -224,7 +226,8 @@
             <return type="int">
             </return>
             <description>
-                Returns a hashed integer value representing the array contents.
+                Returns a hashed integer value representing the array and its contents.
+                [b]Note:[/b] Arrays with equal contents can still produce different hashes. Only the exact same arrays will produce the same hashed integer value.
             </description>
         </method>
         <method name="insert">
@@ -234,6 +237,8 @@
             </argument>
             <description>
                 Inserts a new element at a given position in the array. The position must be valid, or at the end of the array ([code]pos == size()[/code]).
+                [b]Note:[/b] This method acts in-place and doesn't return a value.
+                [b]Note:[/b] On large arrays, this method will be slower if the inserted element is close to the beginning of the array (index 0). This is because all elements placed after the newly inserted element have to be reindexed.
             </description>
         </method>
         <method name="invert">
@@ -259,35 +264,39 @@
             <return type="Variant">
             </return>
             <description>
-                Removes and returns the last element of the array. Returns [code]null[/code] if the array is empty, without printing an error message.
+            Removes and returns the last element of the array. Returns [code]null[/code] if the array is empty, without printing an error message. See also [method pop_front].
             </description>
         </method>
         <method name="pop_front">
             <return type="Variant">
             </return>
             <description>
-                Removes and returns the first element of the array. Returns [code]null[/code] if the array is empty, without printing an error message.
+                Removes and returns the first element of the array. Returns [code]null[/code] if the array is empty, without printing an error message. See also [method pop_back].
+                [b]Note:[/b] On large arrays, this method is much slower than [method pop_back] as it will reindex all the array's elements every time it's called. The larger the array, the slower [method pop_front] will be.
             </description>
         </method>
         <method name="push_back">
             <argument index="0" name="value" type="Variant">
             </argument>
             <description>
-                Appends an element at the end of the array.
+                Appends an element at the end of the array. See also [method push_front].
             </description>
         </method>
         <method name="push_front">
             <argument index="0" name="value" type="Variant">
             </argument>
             <description>
-                Adds an element at the beginning of the array.
+                Adds an element at the beginning of the array. See also [method push_back].
+                [b]Note:[/b] On large arrays, this method is much slower than [method push_back] as it will reindex all the array's elements every time it's called. The larger the array, the slower [method push_front] will be.
             </description>
         </method>
         <method name="remove">
             <argument index="0" name="position" type="int">
             </argument>
             <description>
-                Removes an element from the array by index. If the index does not exist in the array, nothing happens.
+                Removes an element from the array by index. If the index does not exist in the array, nothing happens. To remove an element by searching for its value, use [method erase] instead.
+                [b]Note:[/b] This method acts in-place and doesn't return a value.
+                [b]Note:[/b] On large arrays, this method will be slower if the removed element is close to the beginning of the array (index 0). This is because all elements placed after the removed element have to be reindexed.
             </description>
         </method>
         <method name="resize">

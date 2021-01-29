@@ -35,59 +35,59 @@
 #include <BulletCollision/CollisionShapes/btConvexInternalShape.h>
 
 /**
-	@author AndreaCatania
+    @author AndreaCatania
 */
 
 /// Ray shape around z axis
 ATTRIBUTE_ALIGNED16(class)
 btRayShape : public btConvexInternalShape {
 
-	btScalar m_length;
-	bool slipsOnSlope;
-	/// The default axis is the z
-	btVector3 m_shapeAxis;
+    btScalar m_length;
+    bool slipsOnSlope;
+    /// The default axis is the z
+    btVector3 m_shapeAxis;
 
-	btTransform m_cacheSupportPoint;
-	btScalar m_cacheScaledLength;
+    btTransform m_cacheSupportPoint;
+    btScalar m_cacheScaledLength;
 
 public:
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+    BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	btRayShape(btScalar length);
-	~btRayShape() override;
+    btRayShape(btScalar length);
+    ~btRayShape() override;
 
-	void setLength(btScalar p_length);
-	btScalar getLength() const { return m_length; }
+    void setLength(btScalar p_length);
+    btScalar getLength() const { return m_length; }
 
-	void setMargin(btScalar margin) override;
+    void setMargin(btScalar margin) override;
 
     void setSlipsOnSlope(bool p_slipsOnSlope);
-	bool getSlipsOnSlope() const { return slipsOnSlope; }
+    bool getSlipsOnSlope() const { return slipsOnSlope; }
 
-	const btTransform &getSupportPoint() const { return m_cacheSupportPoint; }
-	const btScalar &getScaledLength() const { return m_cacheScaledLength; }
+    const btTransform &getSupportPoint() const { return m_cacheSupportPoint; }
+    const btScalar &getScaledLength() const { return m_cacheScaledLength; }
 
-	btVector3 localGetSupportingVertex(const btVector3 &vec) const override;
+    btVector3 localGetSupportingVertex(const btVector3 &vec) const override;
 #ifndef __SPU__
-	btVector3 localGetSupportingVertexWithoutMargin(const btVector3 &vec) const override;
+    btVector3 localGetSupportingVertexWithoutMargin(const btVector3 &vec) const override;
 #endif //#ifndef __SPU__
 
-	void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3 *vectors, btVector3 *supportVerticesOut, int numVectors) const override;
+    void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3 *vectors, btVector3 *supportVerticesOut, int numVectors) const override;
 
-	///getAabb returns the axis aligned bounding box in the coordinate frame of the given transform t.
-	void getAabb(const btTransform &t, btVector3 &aabbMin, btVector3 &aabbMax) const override;
+    ///getAabb returns the axis aligned bounding box in the coordinate frame of the given transform t.
+    void getAabb(const btTransform &t, btVector3 &aabbMin, btVector3 &aabbMax) const override;
 
 #ifndef __SPU__
-	void calculateLocalInertia(btScalar mass, btVector3 & inertia) const override;
+    void calculateLocalInertia(btScalar mass, btVector3 & inertia) const override;
 
-	const char *getName() const override {
-		return "RayZ";
-	}
+    const char *getName() const override {
+        return "RayZ";
+    }
 #endif //__SPU__
 
-	int getNumPreferredPenetrationDirections() const override;
-	void getPreferredPenetrationDirection(int index, btVector3 &penetrationVector) const override;
+    int getNumPreferredPenetrationDirections() const override { return 0; }
+    void getPreferredPenetrationDirection(int index, btVector3 &penetrationVector) const override;
 
 private:
-	void reload_cache();
+    void reload_cache();
 };

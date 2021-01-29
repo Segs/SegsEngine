@@ -45,7 +45,7 @@ static TexCacheMap *tex_cache;
 static float scale = 1;
 
 template <class T>
-static Ref<StyleBoxTexture> make_stylebox(T p_src, float p_left, float p_top, float p_right, float p_botton, float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_botton = -1, bool p_draw_center = true) {
+static Ref<StyleBoxTexture> make_stylebox(T p_src, float p_left, float p_top, float p_right, float p_bottom, float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_bottom = -1, bool p_draw_center = true) {
 
     Ref<ImageTexture> texture;
 
@@ -78,11 +78,11 @@ static Ref<StyleBoxTexture> make_stylebox(T p_src, float p_left, float p_top, fl
     style->set_texture(texture);
     style->set_margin_size(Margin::Left, p_left * scale);
     style->set_margin_size(Margin::Right, p_right * scale);
-    style->set_margin_size(Margin::Bottom, p_botton * scale);
+    style->set_margin_size(Margin::Bottom, p_bottom * scale);
     style->set_margin_size(Margin::Top, p_top * scale);
     style->set_default_margin(Margin::Left, p_margin_left * scale);
     style->set_default_margin(Margin::Right, p_margin_right * scale);
-    style->set_default_margin(Margin::Bottom, p_margin_botton * scale);
+    style->set_default_margin(Margin::Bottom, p_margin_bottom * scale);
     style->set_default_margin(Margin::Top, p_margin_top * scale);
     style->set_draw_center(p_draw_center);
 
@@ -100,12 +100,12 @@ static Ref<StyleBoxFlat> make_flat_stylebox(Color p_color, float p_margin_left =
     return style;
 }
 
-static Ref<StyleBoxTexture> sb_expand(Ref<StyleBoxTexture> p_sbox, float p_left, float p_top, float p_right, float p_botton) {
+static Ref<StyleBoxTexture> sb_expand(Ref<StyleBoxTexture> p_sbox, float p_left, float p_top, float p_right, float p_bottom) {
 
     p_sbox->set_expand_margin_size(Margin::Left, p_left * scale);
     p_sbox->set_expand_margin_size(Margin::Top, p_top * scale);
     p_sbox->set_expand_margin_size(Margin::Right, p_right * scale);
-    p_sbox->set_expand_margin_size(Margin::Bottom, p_botton * scale);
+    p_sbox->set_expand_margin_size(Margin::Bottom, p_bottom * scale);
     return p_sbox;
 }
 
@@ -188,13 +188,13 @@ static Ref<BitmapFont> make_font(int p_height, int p_ascent, int p_charcount, co
     return font;
 }
 
-static Ref<StyleBox> make_empty_stylebox(float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_botton = -1) {
+static Ref<StyleBox> make_empty_stylebox(float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_bottom = -1) {
 
     Ref<StyleBox> style(make_ref_counted<StyleBoxEmpty>());
 
     style->set_default_margin(Margin::Left, p_margin_left * scale);
     style->set_default_margin(Margin::Right, p_margin_right * scale);
-    style->set_default_margin(Margin::Bottom, p_margin_botton * scale);
+    style->set_default_margin(Margin::Bottom, p_margin_bottom * scale);
     style->set_default_margin(Margin::Top, p_margin_top * scale);
 
     return style;

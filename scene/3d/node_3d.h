@@ -150,7 +150,7 @@ public:
     void set_transform(const Transform &p_transform);
     void set_global_transform(const Transform &p_transform);
 
-    Transform get_transform() const;
+    const Transform &get_transform() const;
     Transform get_global_transform() const;
 
 #ifdef TOOLS_ENABLED

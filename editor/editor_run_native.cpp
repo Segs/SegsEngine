@@ -141,14 +141,18 @@ void EditorRunNative::_run_native(int p_idx, int p_platform) {
     emit_signal("native_run");
 
     int flags = 0;
-    if (deploy_debug_remote)
+    if (deploy_debug_remote) {
         flags |= EditorExportPlatform::DEBUG_FLAG_REMOTE_DEBUG;
-    if (deploy_dumb)
+    }
+    if (deploy_dumb) {
         flags |= EditorExportPlatform::DEBUG_FLAG_DUMB_CLIENT;
-    if (debug_collisions)
+    }
+    if (debug_collisions) {
         flags |= EditorExportPlatform::DEBUG_FLAG_VIEW_COLLISONS;
-    if (debug_navigation)
+    }
+    if (debug_navigation) {
         flags |= EditorExportPlatform::DEBUG_FLAG_VIEW_NAVIGATION;
+    }
 
     eep->run(preset, p_idx, flags);
 }

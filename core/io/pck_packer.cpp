@@ -39,14 +39,17 @@ IMPL_GDCLASS(PCKPacker)
 
 static uint64_t _align(uint64_t p_n, int p_alignment) {
 
-    if (p_alignment == 0)
+    if (p_alignment == 0) {
         return p_n;
+    }
 
     uint64_t rest = p_n % p_alignment;
-    if (rest == 0)
+    if (rest == 0) {
         return p_n;
-    else
+    }
+    else {
         return p_n + (p_alignment - rest);
+    }
 }
 
 static void _pad(FileAccess *p_file, int p_bytes) {
@@ -171,8 +174,9 @@ Error PCKPacker::flush(bool p_verbose) {
         }
     }
 
-    if (p_verbose)
+    if (p_verbose) {
         printf("\n");
+    }
 
     file->close();
     memdelete_arr(buf);

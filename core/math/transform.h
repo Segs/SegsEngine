@@ -64,7 +64,7 @@ public:
             origin[i] += basis[i].dot(p_translation);
         }
     }
-    constexpr Transform translated(const Vector3 &p_translation) const {
+    constexpr Transform translated(Vector3 p_translation) const {
         Transform t(*this);
         t.translate(p_translation);
         return t;
