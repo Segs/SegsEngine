@@ -1128,7 +1128,7 @@ void ClassDB::_set_class_header(const StringName &p_class, StringView header_fil
     StringView current_path = __FILE__;
     int prefix_len = current_path.length() - strlen("core/class_db.cpp");
     String hdr_path = PathUtils::from_native_path(header_file).replaced(".cpp", ".h");
-    if(header_file.starts_with(hdr_path.substr(prefix_len))) {
+    if(header_file.starts_with(hdr_path.substr(0,prefix_len))) {
         // chop the prefix, the bindings are compiled with correct include paths.
         classes[p_class].usage_header = String(hdr_path.substr(prefix_len));
     }
