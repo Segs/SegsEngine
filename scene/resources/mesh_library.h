@@ -56,6 +56,7 @@ public:
         PoolVector<ShapeData> shapes;
         Ref<Texture> preview;
         Transform navmesh_transform;
+        Transform mesh_transform;
         Ref<NavigationMesh> navmesh;
     };
 
@@ -75,12 +76,14 @@ public:
     void create_item(int p_item);
     void set_item_name(int p_item, StringView p_name);
     void set_item_mesh(int p_item, const Ref<Mesh> &p_mesh);
+    void set_item_mesh_transform(int p_item, const Transform &p_transform);
     void set_item_navmesh(int p_item, const Ref<NavigationMesh> &p_navmesh);
     void set_item_navmesh_transform(int p_item, const Transform &p_transform);
     void set_item_shapes(int p_item, const PoolVector<ShapeData> &p_shapes);
     void set_item_preview(int p_item, const Ref<Texture> &p_preview);
     const String &get_item_name(int p_item) const;
     Ref<Mesh> get_item_mesh(int p_item) const;
+    Transform get_item_mesh_transform(int p_item) const;
     Ref<NavigationMesh> get_item_navmesh(int p_item) const;
     Transform get_item_navmesh_transform(int p_item) const;
     PoolVector<ShapeData> get_item_shapes(int p_item) const;

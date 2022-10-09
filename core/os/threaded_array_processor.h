@@ -39,7 +39,7 @@
 template <class C, class U>
 struct ThreadArrayProcessData {
     uint32_t elements;
-    uint32_t index;
+    SafeNumeric<uint32_t> index;
     C *instance;
     U userdata;
     void (C::*method)(uint32_t, U);
@@ -54,27 +54,36 @@ void process_array_thread(void *ud) {
 
     T &data = *(T *)ud;
     while (true) {
-        uint32_t index = atomic_increment(&data.index);
+        uint32_t index = data.index.increment();
         if (index >= data.elements)
             break;
         data.process(index);
     }
 }
 
+// p_num_threads is the number of logical CPU cores to use (0 = use all logical CPU cores available).
+// Negative values subtract from the total number of logical CPU cores available.
 template <class C, class M, class U>
-void thread_process_array(uint32_t p_elements, C *p_instance, M p_method, U p_userdata) {
+void thread_process_array(uint32_t p_elements, C *p_instance, M p_method, U p_userdata, int p_num_threads = 0) {
 
     ThreadArrayProcessData<C, U> data;
     data.method = p_method;
     data.instance = p_instance;
     data.userdata = p_userdata;
-    data.index = 0;
+    data.index.set(0);
     data.elements = p_elements;
-    data.process(data.index); //process first, let threads increment for next
+    data.process(0); //process first, let threads increment for next
+
+    int thread_count;
+    if (p_num_threads <= 0) {
+        thread_count = eastl::max(1, OS::get_singleton()->get_processor_count() + p_num_threads);
+    } else {
+        thread_count = p_num_threads;
+    }
 
     FixedVector<Thread ,16,true> threads; // allow for more than 16 processors, but will heap alloc in that case
 
-    //threads.reserve(OS::get_singleton()->get_processor_count());
+    threads.resize(thread_count);
 
     for (int i = 0; i < threads.size(); i++) {
         threads.emplace_back().start(process_array_thread<ThreadArrayProcessData<C, U> >, &data);

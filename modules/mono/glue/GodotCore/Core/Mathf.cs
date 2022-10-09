@@ -2,6 +2,9 @@ using System;
 
 namespace Godot
 {
+    /// <summary>
+    /// Provides constants and static methods for common mathematical functions.
+    /// </summary>
     public static partial class Mathf
     {
         // Define constants with Decimal precision and cast down to double or float.

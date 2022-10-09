@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  file_access_compressed.h                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -39,25 +39,25 @@ class FileAccessCompressed : public FileAccess {
 
     Compression::Mode cmode=Compression::MODE_ZSTD;
     bool writing=false;
-    uint32_t write_pos;
+    uint64_t write_pos;
     uint8_t *write_ptr=nullptr;
     uint32_t write_buffer_size=0;
-    uint32_t write_max=0;
+    uint64_t write_max=0;
     uint32_t block_size=0;
     mutable bool read_eof=false;
     mutable bool at_end=false;
 
     struct ReadBlock {
-        int csize;
-        int offset;
+        uint32_t csize;
+        uint64_t offset;
     };
 
     mutable Vector<uint8_t> comp_buffer;
     uint8_t *read_ptr=nullptr;
     mutable int read_block=0;
     int read_block_count=0;
-    mutable int read_block_size=0;
-    mutable int read_pos=0;
+    mutable uint32_t read_block_size=0;
+    mutable uint64_t read_pos=0;
     Vector<ReadBlock> read_blocks;
     uint32_t read_total=0;
 
@@ -66,7 +66,7 @@ class FileAccessCompressed : public FileAccess {
     FileAccess *f = nullptr;
 
 public:
-    void configure(StringView p_magic, Compression::Mode p_mode = Compression::MODE_ZSTD, int p_block_size = 4096);
+    void configure(StringView p_magic, Compression::Mode p_mode = Compression::MODE_ZSTD, uint32_t p_block_size = 4096);
 
     Error open_after_magic(FileAccess *p_base);
 
@@ -82,7 +82,7 @@ public:
     bool eof_reached() const override; ///< reading passed EOF
 
     uint8_t get_8() const override; ///< get a byte
-    int get_buffer(uint8_t *p_dst, int p_length) const override;
+    uint64_t get_buffer(uint8_t *p_dst, uint64_t p_length) const override;
 
     Error get_error() const override; ///< get last error
 

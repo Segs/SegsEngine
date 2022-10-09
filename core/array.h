@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  array.h                                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -61,14 +61,15 @@ public:
     bool empty() const;
     void clear();
 
+    bool deep_equal(const Array &p_array, int p_recursion_count = 0) const;
     bool operator==(const Array &p_array) const;
 
     uint32_t hash() const;
     Array &operator=(const Array &p_array);
     Array &operator=(Array && from) noexcept {
-        if(this == &from)
-            return *this;
         _unref();
+        // NOTE: no need to check if this == &from,
+        // since in that case _p is nullptr, the code below will just cost a 2 assignemnts, instead of conditional
         _p = from._p;
         from._p = nullptr;
         return *this;
@@ -88,15 +89,11 @@ public:
     const Variant &back() const;
 
     Array &sort();
-    Array &sort_custom(Object *p_obj, const StringName &p_function);
     void shuffle();
-    int bsearch(const Variant &p_value, bool p_before = true);
-    int bsearch_custom(const Variant &p_value, Object *p_obj, const StringName &p_function, bool p_before = true);
     Array &invert();
 
     int find(const Variant &p_value, int p_from = 0) const;
     int rfind(const Variant &p_value, int p_from = -1) const;
-    int find_last(const Variant &p_value) const;
     int count(const Variant &p_value) const;
     bool contains(const Variant &p_value) const;
 
@@ -111,7 +108,6 @@ public:
     Array slice(int p_begin, int p_end, int p_step = 1, bool p_deep = false) const;
 
     Variant min() const;
-    Variant max() const;
     const void *id() const;
     template<class T>
     explicit Array(Span<T> from) {

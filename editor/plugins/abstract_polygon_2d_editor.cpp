@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  abstract_polygon_2d_editor.cpp                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,18 +31,23 @@
 #include "abstract_polygon_2d_editor.h"
 
 #include "canvas_item_editor_plugin.h"
+
+#include "core/callable_method_pointer.h"
+#include "core/math/geometry.h"
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
+#include "editor/editor_settings.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
+#include "scene/gui/dialogs.h"
+#include "scene/gui/separator.h"
+#include "scene/gui/tool_button.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/font.h"
 
-#include "scene/main/scene_tree.h"
-
 #include <utility>
-#include <core/callable_method_pointer.h>
 
 IMPL_GDCLASS(AbstractPolygon2DEditor)
 IMPL_GDCLASS(AbstractPolygon2DEditorPlugin)
@@ -314,8 +319,13 @@ void AbstractPolygon2DEditor::disable_polygon_editing(bool p_disable, const Stri
 
 bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
-    if (!_get_node() || !_polygon_editing_enabled)
+    if (!_get_node() || !_polygon_editing_enabled) {
         return false;
+    }
+
+    if (!_get_node()->is_visible_in_tree()) {
+        return false;
+    }
 
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
@@ -359,12 +369,12 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                             _action_set_polygon(insert.polygon, vertices);
                             _commit_action();
                             return true;
-                        } else {
+                        }
 
                             PoolVector<Vector2> vertices2 = _get_polygon(insert.polygon).as<PoolVector<Vector2>>();
-                            pre_move_edit = vertices2;
                             edited_point = PosVertex(insert.polygon, insert.vertex + 1, xform.affine_inverse().xform(insert.pos));
                             vertices2.insert(edited_point.vertex, edited_point.pos);
+                            pre_move_edit = vertices2;
                             selected_point = edited_point;
                             edge_point = PosVertex();
 
@@ -372,7 +382,6 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                             _action_set_polygon(insert.polygon, Variant::from(vertices2));
                             _commit_action();
                             return true;
-                        }
                     } else {
 
                         //look for points to move
@@ -581,8 +590,9 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
 
 void AbstractPolygon2DEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
 
-    if (!_get_node())
+    if (!_get_node() || !_get_node()->is_visible_in_tree()) {
         return;
+    }
 
     Transform2D xform = canvas_item_editor->get_canvas_transform() * _get_node()->get_global_transform();
     // All polygon points are sharp, so use the sharp handle icon
@@ -682,8 +692,9 @@ void AbstractPolygon2DEditor::forward_canvas_draw_over_viewport(Control *p_overl
 
 void AbstractPolygon2DEditor::edit(Node *p_polygon) {
 
-    if (!canvas_item_editor)
+    if (!canvas_item_editor) {
         canvas_item_editor = CanvasItemEditor::get_singleton();
+    }
 
     if (p_polygon) {
 
@@ -701,16 +712,16 @@ void AbstractPolygon2DEditor::edit(Node *p_polygon) {
         hover_point = Vertex();
         selected_point = Vertex();
 
-        canvas_item_editor->update_viewport();
     } else {
 
         _set_node(nullptr);
     }
+    canvas_item_editor->update_viewport();
 }
 
 void AbstractPolygon2DEditor::_bind_methods() {
 
-    //MethodBinder::bind_method(D_METHOD("_create_resource"), &AbstractPolygon2DEditor::_create_resource);
+    //BIND_METHOD(AbstractPolygon2DEditor,_create_resource);
 }
 
 void AbstractPolygon2DEditor::remove_point(const Vertex &p_vertex) {
@@ -832,17 +843,17 @@ AbstractPolygon2DEditor::AbstractPolygon2DEditor(EditorNode *p_editor, bool p_wi
     add_child(memnew(VSeparator));
     button_create = memnew(ToolButton);
     add_child(button_create);
-    button_create->connect("pressed",callable_mp(this, &ClassName::_menu_option), varray(MODE_CREATE));
+    button_create->connectF("pressed", this, [this]() { _menu_option(MODE_CREATE); });
     button_create->set_toggle_mode(true);
 
     button_edit = memnew(ToolButton);
     add_child(button_edit);
-    button_edit->connect("pressed",callable_mp(this, &ClassName::_menu_option), varray(MODE_EDIT));
+    button_edit->connectF("pressed", this, [this]() { _menu_option(MODE_EDIT); });
     button_edit->set_toggle_mode(true);
 
     button_delete = memnew(ToolButton);
     add_child(button_delete);
-    button_delete->connect("pressed",callable_mp(this, &ClassName::_menu_option), varray(MODE_DELETE));
+    button_delete->connectF("pressed",this, [this]() { _menu_option(MODE_DELETE); });
     button_delete->set_toggle_mode(true);
 
     create_resource = memnew(ConfirmationDialog);

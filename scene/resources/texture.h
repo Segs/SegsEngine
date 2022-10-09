@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  texture.h                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,11 +30,11 @@
 
 #pragma once
 
-#include "core/math/rect2.h"
 #include "core/image.h"
-#include "core/rid.h"
-#include "core/resource.h"
+#include "core/math/rect2.h"
 #include "core/os/rw_lock.h"
+#include "core/resource.h"
+#include "core/rid.h"
 #include "scene/resources/gradient.h"
 //
 #include "servers/rendering_server_enums.h"
@@ -64,7 +64,7 @@ public:
     virtual int get_width() const = 0;
     virtual int get_height() const = 0;
     virtual Size2 get_size() const;
-    RID get_rid() const override = 0;
+    RenderingEntity get_rid() const override = 0;
 
     virtual bool is_pixel_opaque(int p_x, int p_y) const;
 
@@ -73,9 +73,14 @@ public:
     virtual void set_flags(uint32_t p_flags) = 0;
     virtual uint32_t get_flags() const = 0;
 
-    virtual void draw(RID p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const;
-    virtual void draw_rect(RID p_canvas_item, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const;
-    virtual void draw_rect_region(RID p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = true) const;
+    virtual void draw(RenderingEntity p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1),
+            bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const;
+    virtual void draw_rect(RenderingEntity p_canvas_item, const Rect2 &p_rect, bool p_tile = false,
+            const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false,
+            const Ref<Texture> &p_normal_map = Ref<Texture>()) const;
+    virtual void draw_rect_region(RenderingEntity p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect,
+            const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false,
+            const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = true) const;
     virtual bool get_rect_region(const Rect2 &p_rect, const Rect2 &p_src_rect, Rect2 &r_rect, Rect2 &r_src_rect) const;
 
     virtual Ref<Image> get_data() const { return Ref<Image>(); }
@@ -100,7 +105,7 @@ public:
     };
 
 private:
-    RID texture;
+    RenderingEntity texture;
     Image::Format format;
     uint32_t flags;
     int w, h;
@@ -117,7 +122,7 @@ protected:
     bool _get(const StringName &p_name, Variant &r_ret) const;
     void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
-    void _reload_hook(const RID &p_hook);
+    void _reload_hook(RenderingEntity p_hook);
     void _resource_path_changed() override;
     static void _bind_methods();
 
@@ -136,12 +141,17 @@ public:
     int get_width() const override;
     int get_height() const override;
 
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     bool has_alpha() const override;
-    void draw(RID p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
-    void draw_rect(RID p_canvas_item, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
-    void draw_rect_region(RID p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = true) const override;
+    void draw(RenderingEntity p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1),
+            bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
+    void draw_rect(RenderingEntity p_canvas_item, const Rect2 &p_rect, bool p_tile = false,
+            const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false,
+            const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
+    void draw_rect_region(RenderingEntity p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect,
+            const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false,
+            const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = true) const override;
     void set_storage(Storage p_storage);
     Storage get_storage() const;
 
@@ -163,16 +173,11 @@ class GODOT_EXPORT StreamTexture : public Texture {
     GDCLASS(StreamTexture,Texture)
 
 public:
-    enum DataFormat {
-        DATA_FORMAT_IMAGE,
-        DATA_FORMAT_LOSSLESS,
-        DATA_FORMAT_LOSSY
-    };
 
     enum FormatBits {
         FORMAT_MASK_IMAGE_FORMAT = (1 << 20) - 1,
-        FORMAT_BIT_LOSSLESS = 1 << 20,
-        FORMAT_BIT_LOSSY = 1 << 21,
+        FORMAT_BIT_PNG = 1 << 20,
+        FORMAT_BIT_WEBP = 1 << 21,
         FORMAT_BIT_STREAM = 1 << 22,
         FORMAT_BIT_HAS_MIPMAPS = 1 << 23,
         FORMAT_BIT_DETECT_3D = 1 << 24,
@@ -181,7 +186,8 @@ public:
     };
 
 private:
-    Error _load_data(StringView p_path, int &tw, int &th, int &tw_custom, int &th_custom, int &flags, Ref<Image> &image, int p_size_limit = 0);
+    Error _load_data(StringView p_path, int &tw, int &th, int &tw_custom, int &th_custom, int &flags, Ref<Image> &image,
+            int p_size_limit = 0);
     struct StreamTextureData;
     StreamTextureData *m_impl_data;
 
@@ -209,13 +215,18 @@ public:
 
     int get_width() const override;
     int get_height() const override;
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     void set_path(StringView p_path, bool p_take_over) override;
 
-    void draw(RID p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
-    void draw_rect(RID p_canvas_item, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
-    void draw_rect_region(RID p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = true) const override;
+    void draw(RenderingEntity p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1),
+            bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
+    void draw_rect(RenderingEntity p_canvas_item, const Rect2 &p_rect, bool p_tile = false,
+            const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false,
+            const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
+    void draw_rect_region(RenderingEntity p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect,
+            const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false,
+            const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = true) const override;
 
     bool has_alpha() const override;
     void set_flags(uint32_t p_flags) override;
@@ -244,7 +255,7 @@ protected:
 public:
     int get_width() const override;
     int get_height() const override;
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     bool has_alpha() const override;
 
@@ -263,9 +274,16 @@ public:
     void set_filter_clip(const bool p_enable);
     bool has_filter_clip() const;
 
-    void draw(RID p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
-    void draw_rect(RID p_canvas_item, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
-    void draw_rect_region(RID p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = true) const override;
+    Ref<Image> get_data() const override;
+
+    void draw(RenderingEntity p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1),
+            bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
+    void draw_rect(RenderingEntity p_canvas_item, const Rect2 &p_rect, bool p_tile = false,
+            const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false,
+            const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
+    void draw_rect_region(RenderingEntity p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect,
+            const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false,
+            const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = true) const override;
     bool get_rect_region(const Rect2 &p_rect, const Rect2 &p_src_rect, Rect2 &r_rect, Rect2 &r_src_rect) const override;
 
     bool is_pixel_opaque(int p_x, int p_y) const override;
@@ -291,7 +309,7 @@ protected:
 public:
     int get_width() const override;
     int get_height() const override;
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     bool has_alpha() const override;
 
@@ -307,9 +325,14 @@ public:
     void set_base_texture(const Ref<Texture> &p_texture);
     const Ref<Texture> &get_base_texture() const;
 
-    void draw(RID p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
-    void draw_rect(RID p_canvas_item, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
-    void draw_rect_region(RID p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = true) const override;
+    void draw(RenderingEntity p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1),
+            bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
+    void draw_rect(RenderingEntity p_canvas_item, const Rect2 &p_rect, bool p_tile = false,
+            const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false,
+            const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
+    void draw_rect_region(RenderingEntity p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect,
+            const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false,
+            const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = true) const override;
     bool get_rect_region(const Rect2 &p_rect, const Rect2 &p_src_rect, Rect2 &r_rect, Rect2 &r_src_rect) const override;
 
     bool is_pixel_opaque(int p_x, int p_y) const override;
@@ -342,7 +365,7 @@ protected:
 public:
     int get_width() const override;
     int get_height() const override;
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     bool has_alpha() const override;
 
@@ -361,9 +384,14 @@ public:
     Ref<Texture> get_piece_texture(int p_idx) const;
     Ref<Image> to_image() const;
 
-    void draw(RID p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
-    void draw_rect(RID p_canvas_item, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
-    void draw_rect_region(RID p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = true) const override;
+    void draw(RenderingEntity p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1),
+            bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
+    void draw_rect(RenderingEntity p_canvas_item, const Rect2 &p_rect, bool p_tile = false,
+            const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false,
+            const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
+    void draw_rect_region(RenderingEntity p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect,
+            const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false,
+            const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = true) const override;
 
     bool is_pixel_opaque(int p_x, int p_y) const override;
 
@@ -402,7 +430,7 @@ public:
 
 private:
     bool valid[6];
-    RID cubemap;
+    RenderingEntity cubemap;
     Image::Format format;
     uint32_t flags;
     int w, h;
@@ -412,7 +440,9 @@ private:
 
     _FORCE_INLINE_ bool _is_valid() const {
         for (int i = 0; i < 6; i++) {
-            if (valid[i]) return true;
+            if (valid[i]) {
+                return true;
+            }
         }
         return false;
     }
@@ -434,7 +464,7 @@ public:
     int get_width() const;
     int get_height() const;
 
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     void set_storage(Storage p_storage);
     Storage get_storage() const;
@@ -458,8 +488,10 @@ public:
         FLAG_MIPMAPS = RS::TEXTURE_FLAG_MIPMAPS,
         FLAG_REPEAT = RS::TEXTURE_FLAG_REPEAT,
         FLAG_FILTER = RS::TEXTURE_FLAG_FILTER,
+        FLAG_ANISOTROPIC_FILTER = RS::TEXTURE_FLAG_ANISOTROPIC_FILTER,
         FLAG_CONVERT_TO_LINEAR = RS::TEXTURE_FLAG_CONVERT_TO_LINEAR,
-        FLAGS_DEFAULT = FLAG_FILTER,
+        FLAGS_DEFAULT_TEXTURE_ARRAY = FLAG_MIPMAPS | FLAG_REPEAT | FLAG_FILTER,
+        FLAGS_DEFAULT_TEXTURE_3D = FLAG_FILTER,
     };
     enum Compression {
         COMPRESSION_LOSSLESS,
@@ -467,7 +499,7 @@ public:
         COMPRESSION_UNCOMPRESSED
     };
 private:
-    RID texture;
+    RenderingEntity texture;
     Image::Format format;
     uint32_t flags;
     int width;
@@ -491,12 +523,13 @@ public:
     uint32_t get_height() const;
     uint32_t get_depth() const;
 
-    void create(uint32_t p_width, uint32_t p_height, uint32_t p_depth, Image::Format p_format, uint32_t p_flags = FLAGS_DEFAULT);
+    void create(uint32_t p_width, uint32_t p_height, uint32_t p_depth, Image::Format p_format,
+            uint32_t p_flags = FLAGS_DEFAULT_TEXTURE_ARRAY);
     void set_layer_data(const Ref<Image> &p_image, int p_layer);
     Ref<Image> get_layer_data(int p_layer) const;
     void set_data_partial(const Ref<Image> &p_image, int p_x_ofs, int p_y_ofs, int p_z, int p_mipmap = 0);
 
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
     void set_path(StringView p_path, bool p_take_over = false) override;
 
     TextureLayered(bool p_3d = false);
@@ -508,18 +541,29 @@ class GODOT_EXPORT Texture3D : public TextureLayered {
 
     GDCLASS(Texture3D,TextureLayered)
 
+protected:
+    static void _bind_methods();
 public:
-    Texture3D() :
-            TextureLayered(true) {}
+    void create(uint32_t p_width, uint32_t p_height, uint32_t p_depth, Image::Format p_format,
+            uint32_t p_flags = FLAGS_DEFAULT_TEXTURE_3D) {
+        TextureLayered::create(p_width, p_height, p_depth, p_format, p_flags);
+    }
+    Texture3D() : TextureLayered(true) {}
 };
 
 class GODOT_EXPORT TextureArray : public TextureLayered {
 
     GDCLASS(TextureArray,TextureLayered)
 
+protected:
+    static void _bind_methods();
 public:
-    TextureArray() :
-            TextureLayered(false) {}
+    void create(uint32_t p_width, uint32_t p_height, uint32_t p_depth, Image::Format p_format,
+            uint32_t p_flags = FLAGS_DEFAULT_TEXTURE_ARRAY) {
+        TextureLayered::create(p_width, p_height, p_depth, p_format, p_flags);
+    }
+
+    TextureArray() : TextureLayered(false) {}
 };
 
 /*
@@ -544,16 +588,15 @@ public:
 
         float offset;
         Color color;
-        bool operator<(const Point &p_ponit) const {
-            return offset < p_ponit.offset;
-        }
+        bool operator<(const Point &p_ponit) const { return offset < p_ponit.offset; }
     };
 
 private:
     Ref<Gradient> gradient;
     bool update_pending;
-    RID texture;
+    RenderingEntity texture;
     int width;
+    bool use_hdr = false;
 
     void _queue_update();
     void _update();
@@ -567,8 +610,10 @@ public:
 
     void set_width(int p_width);
     int get_width() const override;
+    void set_use_hdr(bool p_enabled);
+    bool is_using_hdr() const;
 
-    RID get_rid() const override { return texture; }
+    RenderingEntity get_rid() const override { return texture; }
     int get_height() const override { return 1; }
     bool has_alpha() const override { return true; }
 
@@ -581,11 +626,83 @@ public:
     ~GradientTexture() override;
 };
 
+class GODOT_EXPORT GradientTexture2D : public Texture {
+    GDCLASS(GradientTexture2D, Texture);
+
+public:
+    enum Fill {
+        FILL_LINEAR,
+        FILL_RADIAL,
+    };
+    enum Repeat {
+        REPEAT_NONE,
+        REPEAT,
+        REPEAT_MIRROR,
+    };
+
+private:
+    Ref<Gradient> gradient;
+    mutable RenderingEntity texture;
+
+    int width = 64;
+    int height = 64;
+
+    uint32_t flags = FLAGS_DEFAULT;
+
+    bool use_hdr = false;
+
+    Vector2 fill_from;
+    Vector2 fill_to = Vector2(1, 0);
+
+    Fill fill = FILL_LINEAR;
+    Repeat repeat = REPEAT_NONE;
+
+    float _get_gradient_offset_at(int x, int y) const;
+
+    bool update_pending = false;
+    void _queue_update();
+    void _update();
+
+protected:
+    static void _bind_methods();
+
+public:
+    void set_gradient(Ref<Gradient> p_gradient);
+    Ref<Gradient> get_gradient() const;
+
+    void set_width(int p_width);
+    int get_width() const override;
+    void set_height(int p_height);
+    int get_height() const override;
+
+    void set_flags(uint32_t p_flags) override;
+    uint32_t get_flags() const override;
+
+    void set_use_hdr(bool p_enabled);
+    bool is_using_hdr() const;
+
+    void set_fill(Fill p_fill);
+    Fill get_fill() const;
+    void set_fill_from(Vector2 p_fill_from);
+    Vector2 get_fill_from() const;
+    void set_fill_to(Vector2 p_fill_to);
+    Vector2 get_fill_to() const;
+
+    void set_repeat(Repeat p_repeat);
+    Repeat get_repeat() const;
+
+    RenderingEntity get_rid() const override;
+    bool has_alpha() const override { return true; }
+    virtual Ref<Image> get_image() const;
+
+    GradientTexture2D();
+    virtual ~GradientTexture2D();
+};
 class GODOT_EXPORT ProxyTexture : public Texture {
     GDCLASS(ProxyTexture,Texture)
 
 private:
-    RID proxy;
+    RenderingEntity proxy;
     Ref<Texture> base;
 
 protected:
@@ -597,7 +714,7 @@ public:
 
     int get_width() const override;
     int get_height() const override;
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     bool has_alpha() const override;
 
@@ -614,21 +731,15 @@ class GODOT_EXPORT AnimatedTexture : public Texture {
     //use readers writers lock for this, since its far more times read than written to
     RWLock rw_lock;
 public:
-    enum {
-        MAX_FRAMES = 256
-    };
+    enum { MAX_FRAMES = 256 };
 
 private:
-    RID proxy;
+    RenderingEntity proxy;
 
     struct Frame {
 
         Ref<Texture> texture;
-        float delay_sec;
-
-        Frame() {
-            delay_sec = 0;
-        }
+        float delay_sec = 0;
     };
 
     Frame frames[MAX_FRAMES];
@@ -671,7 +782,7 @@ public:
 
     int get_width() const override;
     int get_height() const override;
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     bool has_alpha() const override;
 
@@ -691,7 +802,7 @@ class GODOT_EXPORT ExternalTexture : public Texture {
     GDCLASS(ExternalTexture, Texture)
 
 private:
-    RID texture;
+    RenderingEntity texture;
     Size2 size;
 
 protected:
@@ -706,12 +817,12 @@ public:
     int get_width() const override;
     int get_height() const override;
 
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
     bool has_alpha() const override;
 
     void set_flags(uint32_t p_flags) override;
     uint32_t get_flags() const override;
 
     ExternalTexture();
-    ~ExternalTexture();
+    ~ExternalTexture() override;
 };

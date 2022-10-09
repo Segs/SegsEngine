@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  joints_2d_sw.cpp                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -90,6 +90,9 @@ normal_relative_velocity(Body2DSW *a, Body2DSW *b, Vector2 rA, Vector2 rB, Vecto
 }
 
 bool PinJoint2DSW::setup(real_t p_step) {
+    if ((A->get_mode() <= PhysicsServer2D::BODY_MODE_KINEMATIC) && (B->get_mode() <= PhysicsServer2D::BODY_MODE_KINEMATIC)) {
+        return false;
+    }
 
 	Space2DSW *space = A->get_space();
 	ERR_FAIL_COND_V(!space, false);
@@ -140,8 +143,9 @@ bool PinJoint2DSW::setup(real_t p_step) {
 
 	// apply accumulated impulse
 	A->apply_impulse(rA, -P);
-	if (B)
+    if (B) {
 		B->apply_impulse(rB, P);
+    }
 
 	return true;
 }
@@ -157,30 +161,34 @@ void PinJoint2DSW::solve(real_t p_step) {
 	Vector2 vA = A->get_linear_velocity() - custom_cross(rA, A->get_angular_velocity());
 
 	Vector2 rel_vel;
-	if (B)
+    if (B) {
 		rel_vel = B->get_linear_velocity() - custom_cross(rB, B->get_angular_velocity()) - vA;
-	else
+    } else {
 		rel_vel = -vA;
+    }
 
 	Vector2 impulse = M.basis_xform(bias - rel_vel - Vector2(softness, softness) * P);
 
 	A->apply_impulse(rA, -impulse);
-	if (B)
+    if (B) {
 		B->apply_impulse(rB, impulse);
+    }
 
 	P += impulse;
 }
 
 void PinJoint2DSW::set_param(PhysicsServer2D::PinJointParam p_param, real_t p_value) {
 
-	if (p_param == PhysicsServer2D::PIN_JOINT_SOFTNESS)
+    if (p_param == PhysicsServer2D::PIN_JOINT_SOFTNESS) {
 		softness = p_value;
+    }
 }
 
 real_t PinJoint2DSW::get_param(PhysicsServer2D::PinJointParam p_param) const {
 
-	if (p_param == PhysicsServer2D::PIN_JOINT_SOFTNESS)
+    if (p_param == PhysicsServer2D::PIN_JOINT_SOFTNESS) {
 		return softness;
+    }
 	ERR_FAIL_V(0);
 }
 
@@ -195,16 +203,19 @@ PinJoint2DSW::PinJoint2DSW(const Vector2 &p_pos, Body2DSW *p_body_a, Body2DSW *p
 	softness = 0;
 
 	p_body_a->add_constraint(this, 0);
-	if (p_body_b)
+    if (p_body_b) {
 		p_body_b->add_constraint(this, 1);
+    }
 }
 
 PinJoint2DSW::~PinJoint2DSW() {
 
-	if (A)
+    if (A) {
 		A->remove_constraint(this);
-	if (B)
+    }
+    if (B) {
 		B->remove_constraint(this);
+    }
 }
 
 //////////////////////////////////////////////
@@ -260,6 +271,9 @@ mult_k(const Vector2 &vr, const Vector2 &k1, const Vector2 &k2) {
 
 bool GrooveJoint2DSW::setup(real_t p_step) {
 
+    if ((A->get_mode() <= PhysicsServer2D::BODY_MODE_KINEMATIC) && (B->get_mode() <= PhysicsServer2D::BODY_MODE_KINEMATIC)) {
+        return false;
+    }
 	// calculate endpoints in worldspace
 	Vector2 ta = A->get_transform().xform(A_groove_1);
 	Vector2 tb = A->get_transform().xform(A_groove_2);
@@ -300,7 +314,7 @@ bool GrooveJoint2DSW::setup(real_t p_step) {
 	Vector2 delta = (B->get_transform().get_origin() + rB) - (A->get_transform().get_origin() + rA);
 
 	real_t _b = get_bias();
-	gbias = (delta * -(_b == 0 ? space->get_constraint_bias() : _b) * (1.0 / p_step)).clamped(get_max_bias());
+    gbias = (delta * -(_b == 0 ? space->get_constraint_bias() : _b) * (1.0f / p_step)).limit_length(get_max_bias());
 
 	// apply accumulated impulse
 	A->apply_impulse(rA, -jn_acc);
@@ -319,7 +333,7 @@ void GrooveJoint2DSW::solve(real_t p_step) {
 	Vector2 jOld = jn_acc;
 	j += jOld;
 
-	jn_acc = (((clamp * j.cross(xf_normal)) > 0) ? j : j.project(xf_normal)).clamped(jn_max);
+    jn_acc = (((clamp * j.cross(xf_normal)) > 0) ? j : j.project(xf_normal)).limit_length(jn_max);
 
 	j = jn_acc - jOld;
 
@@ -353,6 +367,9 @@ GrooveJoint2DSW::~GrooveJoint2DSW() {
 //////////////////////////////////////////////
 
 bool DampedSpringJoint2DSW::setup(real_t p_step) {
+    if ((A->get_mode() <= PhysicsServer2D::BODY_MODE_KINEMATIC) && (B->get_mode() <= PhysicsServer2D::BODY_MODE_KINEMATIC)) {
+        return false;
+    }
 
 	rA = A->get_transform().basis_xform(anchor_A);
 	rB = B->get_transform().basis_xform(anchor_B);

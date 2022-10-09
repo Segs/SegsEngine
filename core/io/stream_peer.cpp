@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  stream_peer.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -117,16 +117,6 @@ Array StreamPeer::_get_partial_data(int p_bytes) {
     return ret;
 }
 
-void StreamPeer::set_big_endian(bool p_enable) {
-
-    big_endian = p_enable;
-}
-
-bool StreamPeer::is_big_endian_enabled() const {
-
-    return big_endian;
-}
-
 void StreamPeer::put_u8(uint8_t p_val) {
     put_data((const uint8_t *)&p_val, 1);
 }
@@ -137,54 +127,36 @@ void StreamPeer::put_8(int8_t p_val) {
 }
 void StreamPeer::put_u16(uint16_t p_val) {
 
-    if (big_endian) {
-        p_val = BSWAP16(p_val);
-    }
     uint8_t buf[2];
     encode_uint16(p_val, buf);
     put_data(buf, 2);
 }
 void StreamPeer::put_16(int16_t p_val) {
 
-    if (big_endian) {
-        p_val = BSWAP16(p_val);
-    }
     uint8_t buf[2];
     encode_uint16(p_val, buf);
     put_data(buf, 2);
 }
 void StreamPeer::put_u32(uint32_t p_val) {
 
-    if (big_endian) {
-        p_val = BSWAP32(p_val);
-    }
     uint8_t buf[4];
     encode_uint32(p_val, buf);
     put_data(buf, 4);
 }
 void StreamPeer::put_32(int32_t p_val) {
 
-    if (big_endian) {
-        p_val = BSWAP32(p_val);
-    }
     uint8_t buf[4];
     encode_uint32(p_val, buf);
     put_data(buf, 4);
 }
 void StreamPeer::put_u64(uint64_t p_val) {
 
-    if (big_endian) {
-        p_val = BSWAP64(p_val);
-    }
     uint8_t buf[8];
     encode_uint64(p_val, buf);
     put_data(buf, 8);
 }
 void StreamPeer::put_64(int64_t p_val) {
 
-    if (big_endian) {
-        p_val = BSWAP64(p_val);
-    }
     uint8_t buf[8];
     encode_uint64(p_val, buf);
     put_data(buf, 8);
@@ -194,10 +166,6 @@ void StreamPeer::put_float(float p_val) {
     uint8_t buf[4];
 
     encode_float(p_val, buf);
-    if (big_endian) {
-        uint32_t *p32 = (uint32_t *)buf;
-        *p32 = BSWAP32(*p32);
-    }
 
     put_data(buf, 4);
 }
@@ -205,10 +173,6 @@ void StreamPeer::put_double(double p_val) {
 
     uint8_t buf[8];
     encode_double(p_val, buf);
-    if (big_endian) {
-        uint64_t *p64 = (uint64_t *)buf;
-        *p64 = BSWAP64(*p64);
-    }
     put_data(buf, 8);
 }
 void StreamPeer::put_string(StringView p_string) {
@@ -249,9 +213,6 @@ uint16_t StreamPeer::get_u16() {
     uint8_t buf[2];
     get_data(buf, 2);
     uint16_t r = decode_uint16(buf);
-    if (big_endian) {
-        r = BSWAP16(r);
-    }
     return r;
 }
 int16_t StreamPeer::get_16() {
@@ -259,9 +220,6 @@ int16_t StreamPeer::get_16() {
     uint8_t buf[2];
     get_data(buf, 2);
     uint16_t r = decode_uint16(buf);
-    if (big_endian) {
-        r = BSWAP16(r);
-    }
     return r;
 }
 uint32_t StreamPeer::get_u32() {
@@ -269,9 +227,6 @@ uint32_t StreamPeer::get_u32() {
     uint8_t buf[4];
     get_data(buf, 4);
     uint32_t r = decode_uint32(buf);
-    if (big_endian) {
-        r = BSWAP32(r);
-    }
     return r;
 }
 int32_t StreamPeer::get_32() {
@@ -279,9 +234,6 @@ int32_t StreamPeer::get_32() {
     uint8_t buf[4];
     get_data(buf, 4);
     uint32_t r = decode_uint32(buf);
-    if (big_endian) {
-        r = BSWAP32(r);
-    }
     return r;
 }
 uint64_t StreamPeer::get_u64() {
@@ -289,9 +241,6 @@ uint64_t StreamPeer::get_u64() {
     uint8_t buf[8];
     get_data(buf, 8);
     uint64_t r = decode_uint64(buf);
-    if (big_endian) {
-        r = BSWAP64(r);
-    }
     return r;
 }
 int64_t StreamPeer::get_64() {
@@ -299,9 +248,6 @@ int64_t StreamPeer::get_64() {
     uint8_t buf[8];
     get_data(buf, 8);
     uint64_t r = decode_uint64(buf);
-    if (big_endian) {
-        r = BSWAP64(r);
-    }
     return r;
 }
 float StreamPeer::get_float() {
@@ -309,10 +255,6 @@ float StreamPeer::get_float() {
     uint8_t buf[4];
     get_data(buf, 4);
 
-    if (big_endian) {
-        uint32_t *p32 = (uint32_t *)buf;
-        *p32 = BSWAP32(*p32);
-    }
 
     return decode_float(buf);
 }
@@ -322,10 +264,6 @@ double StreamPeer::get_double() {
     uint8_t buf[8];
     get_data(buf, 8);
 
-    if (big_endian) {
-        uint64_t *p64 = (uint64_t *)buf;
-        *p64 = BSWAP64(*p64);
-    }
 
     return decode_double(buf);
 }
@@ -366,53 +304,49 @@ void StreamPeer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_data", {"bytes"}), &StreamPeer::_get_data);
     MethodBinder::bind_method(D_METHOD("get_partial_data", {"bytes"}), &StreamPeer::_get_partial_data);
 
-    MethodBinder::bind_method(D_METHOD("get_available_bytes"), &StreamPeer::get_available_bytes);
+    BIND_METHOD(StreamPeer,get_available_bytes);
 
-    MethodBinder::bind_method(D_METHOD("set_big_endian", {"enable"}), &StreamPeer::set_big_endian);
-    MethodBinder::bind_method(D_METHOD("is_big_endian_enabled"), &StreamPeer::is_big_endian_enabled);
-
-    MethodBinder::bind_method(D_METHOD("put_8", {"value"}), &StreamPeer::put_8);
-    MethodBinder::bind_method(D_METHOD("put_u8", {"value"}), &StreamPeer::put_u8);
-    MethodBinder::bind_method(D_METHOD("put_16", {"value"}), &StreamPeer::put_16);
-    MethodBinder::bind_method(D_METHOD("put_u16", {"value"}), &StreamPeer::put_u16);
-    MethodBinder::bind_method(D_METHOD("put_32", {"value"}), &StreamPeer::put_32);
-    MethodBinder::bind_method(D_METHOD("put_u32", {"value"}), &StreamPeer::put_u32);
-    MethodBinder::bind_method(D_METHOD("put_64", {"value"}), &StreamPeer::put_64);
-    MethodBinder::bind_method(D_METHOD("put_u64", {"value"}), &StreamPeer::put_u64);
-    MethodBinder::bind_method(D_METHOD("put_float", {"value"}), &StreamPeer::put_float);
-    MethodBinder::bind_method(D_METHOD("put_double", {"value"}), &StreamPeer::put_double);
-    MethodBinder::bind_method(D_METHOD("put_string", {"value"}), &StreamPeer::put_string);
-    MethodBinder::bind_method(D_METHOD("put_utf8_string", {"value"}), &StreamPeer::put_utf8_string);
+    BIND_METHOD(StreamPeer,put_8);
+    BIND_METHOD(StreamPeer,put_u8);
+    BIND_METHOD(StreamPeer,put_16);
+    BIND_METHOD(StreamPeer,put_u16);
+    BIND_METHOD(StreamPeer,put_32);
+    BIND_METHOD(StreamPeer,put_u32);
+    BIND_METHOD(StreamPeer,put_64);
+    BIND_METHOD(StreamPeer,put_u64);
+    BIND_METHOD(StreamPeer,put_float);
+    BIND_METHOD(StreamPeer,put_double);
+    BIND_METHOD(StreamPeer,put_string);
+    BIND_METHOD(StreamPeer,put_utf8_string);
     MethodBinder::bind_method(D_METHOD("put_var", {"value", "full_objects"}), &StreamPeer::put_var, {DEFVAL(false)});
 
-    MethodBinder::bind_method(D_METHOD("get_8"), &StreamPeer::get_8);
-    MethodBinder::bind_method(D_METHOD("get_u8"), &StreamPeer::get_u8);
-    MethodBinder::bind_method(D_METHOD("get_16"), &StreamPeer::get_16);
-    MethodBinder::bind_method(D_METHOD("get_u16"), &StreamPeer::get_u16);
-    MethodBinder::bind_method(D_METHOD("get_32"), &StreamPeer::get_32);
-    MethodBinder::bind_method(D_METHOD("get_u32"), &StreamPeer::get_u32);
-    MethodBinder::bind_method(D_METHOD("get_64"), &StreamPeer::get_64);
-    MethodBinder::bind_method(D_METHOD("get_u64"), &StreamPeer::get_u64);
-    MethodBinder::bind_method(D_METHOD("get_float"), &StreamPeer::get_float);
-    MethodBinder::bind_method(D_METHOD("get_double"), &StreamPeer::get_double);
+    BIND_METHOD(StreamPeer,get_8);
+    BIND_METHOD(StreamPeer,get_u8);
+    BIND_METHOD(StreamPeer,get_16);
+    BIND_METHOD(StreamPeer,get_u16);
+    BIND_METHOD(StreamPeer,get_32);
+    BIND_METHOD(StreamPeer,get_u32);
+    BIND_METHOD(StreamPeer,get_64);
+    BIND_METHOD(StreamPeer,get_u64);
+    BIND_METHOD(StreamPeer,get_float);
+    BIND_METHOD(StreamPeer,get_double);
     MethodBinder::bind_method(D_METHOD("get_string", {"bytes"}), &StreamPeer::get_string, {DEFVAL(-1)});
     //MethodBinder::bind_method(D_METHOD("get_utf8_string", {"bytes"}), &StreamPeer::get_utf8_string, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("get_var", {"allow_objects"}), &StreamPeer::get_var, {DEFVAL(false)});
 
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "big_endian"), "set_big_endian", "is_big_endian_enabled");
 }
 ////////////////////////////////
 
 void StreamPeerBuffer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("seek", {"position"}), &StreamPeerBuffer::seek);
-    MethodBinder::bind_method(D_METHOD("get_size"), &StreamPeerBuffer::get_size);
-    MethodBinder::bind_method(D_METHOD("get_position"), &StreamPeerBuffer::get_position);
-    MethodBinder::bind_method(D_METHOD("resize", {"size"}), &StreamPeerBuffer::resize);
-    MethodBinder::bind_method(D_METHOD("set_data_array", {"data"}), &StreamPeerBuffer::set_data_array);
-    MethodBinder::bind_method(D_METHOD("get_data_array"), &StreamPeerBuffer::get_data_array);
-    MethodBinder::bind_method(D_METHOD("clear"), &StreamPeerBuffer::clear);
-    MethodBinder::bind_method(D_METHOD("duplicate"), &StreamPeerBuffer::duplicate);
+    BIND_METHOD(StreamPeerBuffer,seek);
+    BIND_METHOD(StreamPeerBuffer,get_size);
+    BIND_METHOD(StreamPeerBuffer,get_position);
+    BIND_METHOD(StreamPeerBuffer,resize);
+    BIND_METHOD(StreamPeerBuffer,set_data_array);
+    BIND_METHOD(StreamPeerBuffer,get_data_array);
+    BIND_METHOD(StreamPeerBuffer,clear);
+    BIND_METHOD(StreamPeerBuffer,duplicate);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data_array"), "set_data_array", "get_data_array");
 }

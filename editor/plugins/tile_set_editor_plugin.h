@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  tile_set_editor_plugin.h                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,6 +32,7 @@
 
 #include "editor/editor_node.h"
 #include "scene/2d/sprite_2d.h"
+#include "scene/gui/split_container.h"
 #include "scene/resources/concave_polygon_shape_2d.h"
 #include "scene/resources/convex_polygon_shape_2d.h"
 #include "scene/resources/tile_set.h"
@@ -39,6 +40,9 @@
 #define WORKSPACE_MARGIN Vector2(10, 10)
 class TilesetEditorContext;
 class SpinBox;
+class ItemList;
+class HSeparator;
+class VSeparator;
 
 class TileSetEditor : public HSplitContainer {
 
@@ -114,7 +118,7 @@ class TileSetEditor : public HSplitContainer {
     int option;
     ToolButton *tileset_toolbar_buttons[TOOL_TILESET_MAX];
     MenuButton *tileset_toolbar_tools;
-    HashMap<RID, Ref<Texture> > texture_map;
+    HashMap<String, Ref<Texture> > texture_map;
 
     bool creating_shape;
     int dragging_point;
@@ -174,11 +178,9 @@ class TileSetEditor : public HSplitContainer {
     static void _import_scene(Node *p_scene, const Ref<TileSet> &p_library, bool p_merge);
     void _undo_redo_import_scene(Node *p_scene, bool p_merge);
 
-    bool _is_drop_valid(const Dictionary &p_drag_data, const Dictionary &p_item_data) const;
     Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
     bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
     void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
-    void _file_load_request(const PoolVector<UIString> &p_path, int p_at_pos = -1);
 
 protected:
     static void _bind_methods();
@@ -201,6 +203,7 @@ private:
     void _on_workspace_overlay_draw();
     void _on_workspace_draw();
     void _on_workspace_process();
+    void _on_scroll_container_input(const Ref<InputEvent> &p_event);
     void _on_workspace_input(const Ref<InputEvent> &p_ie);
     void _on_tool_clicked(int p_tool);
     void _on_priority_changed(float val);
@@ -215,6 +218,7 @@ private:
     void _select_previous_tile();
     Vector<int> _get_tiles_in_current_texture(bool sorted = false);
     bool _sort_tiles(int p_a, int p_b);
+    Vector2 _get_subtiles_count(int p_tile_id);
     void _select_next_subtile();
     void _select_previous_subtile();
     void _select_next_shape();
@@ -231,6 +235,7 @@ private:
     void _zoom_in();
     void _zoom_out();
     void _zoom_reset();
+    void _zoom_on_position(float p_zoom, const Vector2 &p_position);
 
     void draw_highlight_current_tile();
     void draw_highlight_subtile(Vector2 coord, const Vector<Vector2> &other_highlighted = Vector<Vector2>());

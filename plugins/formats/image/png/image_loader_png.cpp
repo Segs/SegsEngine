@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  image_loader_png.cpp                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -40,7 +40,7 @@
 
 Error ImageLoaderPNG::load_image(ImageData &p_image, FileAccess *f, LoadParams params) {
 
-    const size_t buffer_size = f->get_len();
+    const auto buffer_size = f->get_len();
     PoolVector<uint8_t> file_buffer;
     Error err = file_buffer.resize(buffer_size);
     if (err) {

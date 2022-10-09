@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  midi_driver_alsamidi.cpp                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,6 +36,7 @@
 #include "core/print_string.h"
 
 #include <errno.h>
+#include <stdio.h>
 
 static int get_message_size(uint8_t message) {
     switch (message & 0xF0) {

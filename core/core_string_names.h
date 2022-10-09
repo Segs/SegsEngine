@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  core_string_names.h                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -61,6 +61,7 @@ public:
     const StringName _iter_init;
     const StringName _iter_next;
     const StringName _iter_get;
+    const StringName get_phys_rid;
     const StringName get_rid;
     const StringName _to_string;
     const StringName _sections_unfolded;

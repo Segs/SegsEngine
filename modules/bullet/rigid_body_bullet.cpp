@@ -57,7 +57,6 @@
 
 IMPL_GDCLASS(BulletPhysicsDirectBodyState)
 
-BulletPhysicsDirectBodyState *BulletPhysicsDirectBodyState::singleton = nullptr;
 
 Vector3 BulletPhysicsDirectBodyState::get_total_gravity() const {
     Vector3 gVec;
@@ -123,6 +122,16 @@ Transform BulletPhysicsDirectBodyState::get_transform() const {
     return body->get_transform();
 }
 
+Vector3 BulletPhysicsDirectBodyState::get_velocity_at_local_position(const Vector3 &p_position) const
+{
+    btVector3 local_position;
+    G_TO_B(p_position, local_position);
+
+    Vector3 velocity;
+    B_TO_G(body->btBody->getVelocityInLocalPoint(local_position), velocity);
+
+    return velocity;
+}
 void BulletPhysicsDirectBodyState::add_central_force(const Vector3 &p_force) {
     body->apply_central_force(p_force);
 }
@@ -183,12 +192,16 @@ Vector3 BulletPhysicsDirectBodyState::get_contact_collider_position(int p_contac
     return body->collisions[p_contact_idx].hitWorldLocation;
 }
 
-ObjectID BulletPhysicsDirectBodyState::get_contact_collider_id(int p_contact_idx) const {
+GameEntity BulletPhysicsDirectBodyState::get_contact_collider_id(int p_contact_idx) const {
     return body->collisions[p_contact_idx].otherObject->get_instance_id();
 }
 
 int BulletPhysicsDirectBodyState::get_contact_collider_shape(int p_contact_idx) const {
     return body->collisions[p_contact_idx].other_object_shape;
+}
+
+real_t BulletPhysicsDirectBodyState::get_step() const {
+    return body->get_space()->get_delta_time();
 }
 
 Vector3 BulletPhysicsDirectBodyState::get_contact_collider_velocity_at_position(int p_contact_idx) const {
@@ -249,7 +262,8 @@ void RigidBodyBullet::KinematicUtilities::copyAllOwnerShapes() {
                 shapes[i].shape = static_cast<btConvexShape *>(shape_wrapper->shape->create_bt_shape(owner_scale * shape_wrapper->scale, safe_margin));
             } break;
             default:
-                WARN_PRINT("This shape is not supported to be kinematic!");
+                WARN_PRINT("RigidBody in 3D only supports primitive shapes or convex polygon shapes. Concave (trimesh) "
+                           "polygon shapes are not supported.");
                 shapes[i].shape = nullptr;
         }
     }
@@ -305,16 +319,20 @@ RigidBodyBullet::RigidBodyBullet() :
 
     prev_collision_traces = &collision_traces_1;
     curr_collision_traces = &collision_traces_2;
+    direct_access = memnew(BulletPhysicsDirectBodyState);
+    direct_access->body = this;
 }
 
 RigidBodyBullet::~RigidBodyBullet() {
     bulletdelete(godotMotionState);
 
+    memdelete(direct_access);
     destroy_kinematic_utilities();
 }
 
 void RigidBodyBullet::init_kinematic_utilities() {
     kinematic_utilities = memnew(KinematicUtilities(this));
+    reload_kinematic_shapes();
 }
 
 void RigidBodyBullet::destroy_kinematic_utilities() {
@@ -363,9 +381,7 @@ void RigidBodyBullet::dispatch_callbacks() {
         if (omit_forces_integration)
             btBody->clearForces();
 
-        BulletPhysicsDirectBodyState *bodyDirect = BulletPhysicsDirectBodyState::get_singleton(this);
-
-        Variant variantBodyDirect(bodyDirect);
+        Variant variantBodyDirect(direct_access);
 
         Object *obj = force_integration_callback.get_object();
         if (!obj) {
@@ -422,7 +438,7 @@ void RigidBodyBullet::on_collision_checker_start() {
 
 void RigidBodyBullet::on_collision_checker_end() {
     // Always true if active and not a static or kinematic body
-    isTransformChanged = btBody->isActive() && !btBody->isStaticOrKinematicObject();
+    updated = btBody->isActive() && !btBody->isStaticOrKinematicObject();
 }
 
 bool RigidBodyBullet::add_collision_object(RigidBodyBullet *p_otherObject, const Vector3 &p_hitWorldLocation, const Vector3 &p_hitLocalLocation, const Vector3 &p_hitNormal, const float &p_appliedImpulse, int p_other_shape_index, int p_local_shape_index) {
@@ -729,7 +745,7 @@ void RigidBodyBullet::set_continuous_collision_detection(bool p_enable) {
     if (p_enable) {
         // This threshold enable CCD if the object moves more than
         // 1 meter in one simulation frame
-        btBody->setCcdMotionThreshold(1e-7);
+        btBody->setCcdMotionThreshold(1e-7f);
 
         /// Calculate using the rule writte below the CCD swept sphere radius
         ///     CCD works on an embedded sphere of radius, make sure this radius
@@ -742,7 +758,7 @@ void RigidBodyBullet::set_continuous_collision_detection(bool p_enable) {
         }
         btBody->setCcdSweptSphereRadius(radius * 0.2);
     } else {
-        btBody->setCcdMotionThreshold(10000.0);
+        btBody->setCcdMotionThreshold(0.);
         btBody->setCcdSweptSphereRadius(0.);
     }
 }
@@ -820,7 +836,7 @@ void RigidBodyBullet::reload_shapes() {
     btBody->updateInertiaTensor();
 
     reload_kinematic_shapes();
-    set_continuous_collision_detection(btBody->getCcdMotionThreshold() < 9998.0);
+    set_continuous_collision_detection(is_continuous_collision_detection_enabled());
     reload_body();
 }
 
@@ -889,8 +905,16 @@ void RigidBodyBullet::on_exit_area(AreaBullet *p_area) {
 
 void RigidBodyBullet::reload_space_override_modificator() {
 
-    if (mode == PhysicsServer3D::BODY_MODE_STATIC)
+    if (mode == PhysicsServer3D::BODY_MODE_STATIC){
         return;
+    }
+
+    if (omit_forces_integration) {
+        // Custom behaviour.
+        btBody->setGravity(btVector3(0, 0, 0));
+        btBody->setDamping(0, 0);
+        return;
+    }
 
     Vector3 newGravity(0.0, 0.0, 0.0);
     real_t newLinearDamp = eastl::max(0.0f, linearDamp);

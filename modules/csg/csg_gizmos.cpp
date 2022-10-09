@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  csg_gizmos.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,8 +31,8 @@
 #include "csg_gizmos.h"
 
 #include "core/class_db.h"
-#include "core/translation_helpers.h"
 #include "core/string.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_settings.h"
 ///////////
 IMPL_GDCLASS(CSGShapeSpatialGizmoPlugin)
@@ -96,9 +96,12 @@ Variant CSGShapeSpatialGizmoPlugin::get_handle_value(EditorNode3DGizmo *p_gizmo,
 
         CSGBox *s = object_cast<CSGBox>(cs);
         switch (p_idx) {
-            case 0: return s->get_width();
-            case 1: return s->get_height();
-            case 2: return s->get_depth();
+            case 0:
+                return s->get_width();
+            case 1:
+                return s->get_height();
+            case 2:
+                return s->get_depth();
         }
     }
 
@@ -116,7 +119,8 @@ Variant CSGShapeSpatialGizmoPlugin::get_handle_value(EditorNode3DGizmo *p_gizmo,
 
     return Variant();
 }
-void CSGShapeSpatialGizmoPlugin::set_handle(EditorNode3DGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) {
+void CSGShapeSpatialGizmoPlugin::set_handle(
+        EditorNode3DGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) {
 
     CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
 
@@ -155,6 +159,10 @@ void CSGShapeSpatialGizmoPlugin::set_handle(EditorNode3DGizmo *p_gizmo, int p_id
         Vector3 ra, rb;
         Geometry::get_closest_points_between_segments(Vector3(), axis * 4096, sg[0], sg[1], ra, rb);
         float d = ra[p_idx];
+        if (Math::is_nan(d)) {
+            // The handle is perpendicular to the camera.
+            return;
+        }
         if (Node3DEditor::get_singleton()->is_snap_enabled()) {
             d = Math::stepify(d, Node3DEditor::get_singleton()->get_translate_snap());
         }
@@ -163,9 +171,15 @@ void CSGShapeSpatialGizmoPlugin::set_handle(EditorNode3DGizmo *p_gizmo, int p_id
             d = 0.001f;
 
         switch (p_idx) {
-            case 0: s->set_width(d * 2); break;
-            case 1: s->set_height(d * 2); break;
-            case 2: s->set_depth(d * 2); break;
+            case 0:
+                s->set_width(d * 2);
+                break;
+            case 1:
+                s->set_height(d * 2);
+                break;
+            case 2:
+                s->set_depth(d * 2);
+                break;
         }
     }
 
@@ -213,7 +227,8 @@ void CSGShapeSpatialGizmoPlugin::set_handle(EditorNode3DGizmo *p_gizmo, int p_id
             s->set_outer_radius(d);
     }
 }
-void CSGShapeSpatialGizmoPlugin::commit_handle(EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel) {
+void CSGShapeSpatialGizmoPlugin::commit_handle(
+        EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel) {
 
     CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
 
@@ -235,9 +250,15 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorNode3DGizmo *p_gizmo, int p
         CSGBox *s = object_cast<CSGBox>(cs);
         if (p_cancel) {
             switch (p_idx) {
-                case 0: s->set_width(p_restore.as<float>()); break;
-                case 1: s->set_height(p_restore.as<float>()); break;
-                case 2: s->set_depth(p_restore.as<float>()); break;
+                case 0:
+                    s->set_width(p_restore.as<float>());
+                    break;
+                case 1:
+                    s->set_height(p_restore.as<float>());
+                    break;
+                case 2:
+                    s->set_depth(p_restore.as<float>());
+                    break;
             }
             return;
         }
@@ -247,9 +268,15 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorNode3DGizmo *p_gizmo, int p
         static const char *method[3] = { "set_width", "set_height", "set_depth" };
         float current = 0;
         switch (p_idx) {
-            case 0: current = s->get_width(); break;
-            case 1: current = s->get_height(); break;
-            case 2: current = s->get_depth(); break;
+            case 0:
+                current = s->get_width();
+                break;
+            case 1:
+                current = s->get_height();
+                break;
+            case 2:
+                current = s->get_depth();
+                break;
         }
 
         ur->add_do_method(s, StaticCString(method[p_idx],true), current);
@@ -306,7 +333,8 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorNode3DGizmo *p_gizmo, int p
     }
 }
 bool CSGShapeSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-    return object_cast<CSGSphere>(p_spatial) || object_cast<CSGBox>(p_spatial) || object_cast<CSGCylinder>(p_spatial) || object_cast<CSGTorus>(p_spatial) || object_cast<CSGMesh>(p_spatial) || object_cast<CSGPolygon>(p_spatial);
+    return object_cast<CSGSphere>(p_spatial) || object_cast<CSGBox>(p_spatial) || object_cast<CSGCylinder>(p_spatial) ||
+           object_cast<CSGTorus>(p_spatial) || object_cast<CSGMesh>(p_spatial) || object_cast<CSGPolygon>(p_spatial);
 }
 
 StringView CSGShapeSpatialGizmoPlugin::get_name() const {
@@ -322,29 +350,13 @@ bool CSGShapeSpatialGizmoPlugin::is_selectable_when_hidden() const {
 }
 
 void CSGShapeSpatialGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
-
-    CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
-
     p_gizmo->clear();
 
-    Ref<Material> material;
-    Ref<EditorNode3DGizmo> ref_p_gizmo(p_gizmo);
-
-    switch (cs->get_operation()) {
-        case CSGShape::OPERATION_UNION:
-            material = get_material("shape_union_material", ref_p_gizmo);
-            break;
-        case CSGShape::OPERATION_INTERSECTION:
-            material = get_material("shape_intersection_material", ref_p_gizmo);
-            break;
-        case CSGShape::OPERATION_SUBTRACTION:
-            material = get_material("shape_subtraction_material", ref_p_gizmo);
-            break;
-    }
-
-    Ref<Material> handles_material = get_material("handles");
-
+    CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
     Vector<Vector3> faces = cs->get_brush_faces();
+    if (faces.empty()) {
+        return;
+    }
 
     Vector<Vector3> lines;
     lines.resize(faces.size() * 2);
@@ -359,8 +371,33 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
         }
     }
 
+    Ref<Material> material;
+
+    switch (cs->get_operation()) {
+        case CSGShape::OPERATION_UNION:
+            material = get_material("shape_union_material", p_gizmo);
+            break;
+        case CSGShape::OPERATION_INTERSECTION:
+            material = get_material("shape_intersection_material", p_gizmo);
+            break;
+        case CSGShape::OPERATION_SUBTRACTION:
+            material = get_material("shape_subtraction_material", p_gizmo);
+            break;
+    }
+
+    Ref<Material> handles_material = get_material("handles");
+
     p_gizmo->add_lines(lines, material);
     p_gizmo->add_collision_segments(lines);
+
+    Array csg_meshes = cs->get_meshes();
+    if (csg_meshes.size() != 2) {
+        return;
+    }
+    Ref<Mesh> csg_mesh = csg_meshes[1];
+    if (csg_mesh) {
+        p_gizmo->add_collision_triangles(csg_mesh->generate_triangle_mesh());
+    }
 
     if (p_gizmo->is_selected()) {
         // Draw a translucent representation of the CSG node
@@ -372,13 +409,13 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
         Ref<Material> solid_material;
         switch (cs->get_operation()) {
             case CSGShape::OPERATION_UNION:
-                solid_material = get_material("shape_union_solid_material", ref_p_gizmo);
+                solid_material = get_material("shape_union_solid_material", p_gizmo);
                 break;
             case CSGShape::OPERATION_INTERSECTION:
-                solid_material = get_material("shape_intersection_solid_material", ref_p_gizmo);
+                solid_material = get_material("shape_intersection_solid_material", p_gizmo);
                 break;
             case CSGShape::OPERATION_SUBTRACTION:
-                solid_material = get_material("shape_subtraction_solid_material", ref_p_gizmo);
+                solid_material = get_material("shape_subtraction_solid_material", p_gizmo);
                 break;
         }
 
@@ -396,29 +433,20 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
     if (object_cast<CSGBox>(cs)) {
         CSGBox *s = object_cast<CSGBox>(cs);
 
-        Vector<Vector3> handles {
-            Vector3(s->get_width() * 0.5f, 0, 0),
-            Vector3(0, s->get_height() * 0.5f, 0),
-            Vector3(0, 0, s->get_depth() * 0.5f)
-        };
+        Vector<Vector3> handles{ Vector3(s->get_width() * 0.5f, 0, 0), Vector3(0, s->get_height() * 0.5f, 0),
+            Vector3(0, 0, s->get_depth() * 0.5f) };
         p_gizmo->add_handles(eastl::move(handles), handles_material);
     }
 
     if (object_cast<CSGCylinder>(cs)) {
         CSGCylinder *s = object_cast<CSGCylinder>(cs);
-        Vector<Vector3> handles {
-            Vector3(s->get_radius(), 0, 0),
-            Vector3(0, s->get_height() * 0.5f, 0)
-        };
+        Vector<Vector3> handles{ Vector3(s->get_radius(), 0, 0), Vector3(0, s->get_height() * 0.5f, 0) };
         p_gizmo->add_handles(eastl::move(handles), handles_material);
     }
 
     if (object_cast<CSGTorus>(cs)) {
         CSGTorus *s = object_cast<CSGTorus>(cs);
-        Vector<Vector3> handles {
-            Vector3(s->get_inner_radius(), 0, 0),
-            Vector3(s->get_outer_radius(), 0, 0)
-        };
+        Vector<Vector3> handles{ Vector3(s->get_inner_radius(), 0, 0), Vector3(s->get_outer_radius(), 0, 0) };
 
         p_gizmo->add_handles(eastl::move(handles), handles_material);
     }

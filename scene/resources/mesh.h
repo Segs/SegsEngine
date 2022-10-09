@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  mesh.h                                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,7 +35,7 @@
 #include "core/math/triangle_mesh.h"
 #include "core/resource.h"
 #include "core/string.h"
-//#include "scene/resources/material.h"
+#include "scene/resources/material.h" // needed by msvc compilation.
 #include "scene/resources/shape.h"
 #include "servers/rendering_server_enums.h"
 #include "servers/rendering_server.h"
@@ -103,8 +103,9 @@ public:
         ARRAY_FLAG_USE_2D_VERTICES = ARRAY_COMPRESS_INDEX << 1,
         ARRAY_FLAG_USE_16_BIT_BONES = ARRAY_COMPRESS_INDEX << 2,
         ARRAY_FLAG_USE_DYNAMIC_UPDATE = ARRAY_COMPRESS_INDEX << 3,
+        ARRAY_FLAG_USE_OCTAHEDRAL_COMPRESSION = ARRAY_COMPRESS_INDEX << 4,
 
-        ARRAY_COMPRESS_DEFAULT = ARRAY_COMPRESS_NORMAL | ARRAY_COMPRESS_TANGENT | ARRAY_COMPRESS_COLOR | ARRAY_COMPRESS_TEX_UV | ARRAY_COMPRESS_TEX_UV2 | ARRAY_COMPRESS_WEIGHTS
+        ARRAY_COMPRESS_DEFAULT = ARRAY_COMPRESS_NORMAL | ARRAY_COMPRESS_TANGENT | ARRAY_COMPRESS_COLOR | ARRAY_COMPRESS_TEX_UV | ARRAY_COMPRESS_TEX_UV2 | ARRAY_COMPRESS_WEIGHTS | ARRAY_FLAG_USE_OCTAHEDRAL_COMPRESSION
 
     };
 
@@ -136,6 +137,7 @@ public:
     virtual Ref<Material> surface_get_material(int p_idx) const = 0;
     virtual int get_blend_shape_count() const = 0;
     virtual StringName get_blend_shape_name(int p_index) const = 0;
+    virtual void set_blend_shape_name(int p_index, const StringName &p_name) = 0;
 
     Vector<Face3> get_faces() const;
     Ref<TriangleMesh> generate_triangle_mesh() const;
@@ -143,7 +145,7 @@ public:
     void generate_debug_mesh_indices(Vector<Vector3> &r_points);
 
     Ref<Shape> create_trimesh_shape() const;
-    Ref<Shape> create_convex_shape() const;
+    Ref<Shape> create_convex_shape(bool p_clean = true, bool p_simplify = false) const;
 
     Ref<Mesh> create_outline(float p_margin) const;
 
@@ -153,11 +155,11 @@ public:
     Size2 get_lightmap_size_hint() const;
     void clear_cache() const;
 
-    using ConvexDecompositionFunc = Vector< Vector<Face3>> (*)(const Vector<Face3> &);
+    using ConvexDecompositionFunc = Vector< Vector<Vector3>> (*)(Span<const Vector3> p_vertices, Span<const uint32_t> p_indices, int p_max_convex_hulls, Vector<Vector<uint32_t>> *r_convex_indices);
 
-    static ConvexDecompositionFunc convex_composition_function;
+    static ConvexDecompositionFunc convex_decomposition_function;
 
-    Vector<Ref<Shape>> convex_decompose() const;
+    Vector<Ref<Shape>> convex_decompose(int p_max_convex_hulls = -1) const;
 
     Mesh();
 };
@@ -176,7 +178,7 @@ private:
         bool is_2d;
     };
     Vector<Surface> surfaces;
-    RID mesh;
+    RenderingEntity mesh;
     AABB aabb;
     BlendShapeMode blend_shape_mode;
     Vector<StringName> blend_shapes;
@@ -209,6 +211,7 @@ public:
     void add_blend_shape(const StringName &p_name);
     int get_blend_shape_count() const override;
     StringName get_blend_shape_name(int p_index) const override;
+    void set_blend_shape_name(int p_index, const StringName &p_name) override;
     void clear_blend_shapes();
 
     void set_blend_shape_mode(BlendShapeMode p_mode);
@@ -218,6 +221,7 @@ public:
 
     int get_surface_count() const override;
     void surface_remove(int p_idx);
+    void clear_surfaces();
 
     void surface_set_custom_aabb(int p_idx, const AABB &p_aabb); //only recognized by driver
 
@@ -225,7 +229,6 @@ public:
     int surface_get_array_index_len(int p_idx) const override;
     uint32_t surface_get_format(int p_idx) const override;
     PrimitiveType surface_get_primitive_type(int p_idx) const override;
-    bool surface_is_alpha_sorting_enabled(int p_idx) const;
 
     void surface_set_material(int p_idx, const Ref<Material> &p_material) override;
     Ref<Material> surface_get_material(int p_idx) const override;
@@ -240,11 +243,12 @@ public:
     AABB get_custom_aabb() const;
 
     AABB get_aabb() const override;
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     void regen_normalmaps();
 
     Error lightmap_unwrap(const Transform &p_base_transform = Transform(), float p_texel_size = 0.05f);
+    Error lightmap_unwrap_cached(int *&r_cache_data, unsigned int &r_cache_size, bool &r_used_cache, const Transform &p_base_transform, float p_texel_size);
 
     void reload_from_file() override;
 

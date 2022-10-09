@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  register_core_types.cpp                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -69,21 +69,26 @@
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
 #include "core/packed_data_container.h"
+#include "core/print_string.h"
 #include "core/project_settings.h"
 #include "core/script_language.h"
 #include "core/translation.h"
 #include "core/undo_redo.h"
 #include "os/os.h"
+#include "os/time.h"
 #include "resource/resource_manager.h"
 
-static Ref<ResourceFormatSaverBinary> resource_saver_binary;
-static Ref<ResourceFormatLoaderBinary> resource_loader_binary;
-static Ref<ResourceFormatImporter> resource_format_importer;
-static Ref<ResourceFormatLoaderImage> resource_format_image;
-static Ref<TranslationLoaderPO> resource_format_po;
-static Ref<ResourceFormatSaverCrypto> resource_format_saver_crypto;
-static Ref<ResourceFormatLoaderCrypto> resource_format_loader_crypto;
+struct CodecStore {
+    Ref<ResourceFormatSaverBinary> resource_saver_binary;
+    Ref<ResourceFormatLoaderBinary> resource_loader_binary;
+    Ref<ResourceFormatImporter> resource_format_importer;
+    Ref<ResourceFormatLoaderImage> resource_format_image;
+    Ref<TranslationLoaderPO> resource_format_po;
+    Ref<ResourceFormatSaverCrypto> resource_format_saver_crypto;
+    Ref<ResourceFormatLoaderCrypto> resource_format_loader_crypto;
+};
 
+static CodecStore *_codec_store = nullptr;
 static _ResourceManager *_resource_manger = nullptr;
 static _OS *_os = nullptr;
 static _Engine *_engine = nullptr;
@@ -91,23 +96,18 @@ static _ClassDB *_classdb = nullptr;
 static _Marshalls *_marshalls = nullptr;
 static _JSON *_json = nullptr;
 
-static IP *ip = nullptr;
+static IP *_ip = nullptr;
 
 static _Geometry *_geometry = nullptr;
-
-extern Mutex *_global_mutex;
 
 extern void register_global_constants();
 extern void unregister_global_constants();
 extern void register_variant_methods();
-extern void unregister_variant_methods();
 
 void register_core_types() {
 
-    ObjectDB::setup();
+    print_line("register_core_types");
     MemoryPool::setup();
-
-    _global_mutex = memnew(Mutex);
 
     StringName::setup();
     gResourceManager().initialize();
@@ -122,23 +122,25 @@ void register_core_types() {
     ResourceFormatLoaderBinary::initialize_class();
     ResourceFormatImporter::initialize_class();
     ResourceFormatLoaderImage::initialize_class();
+    ResourceInteractiveLoaderDefault::initialize_class();
 
-    resource_format_po = make_ref_counted<TranslationLoaderPO>();
-    gResourceManager().add_resource_format_loader(resource_format_po);
+    _codec_store = memnew(CodecStore);
+    _codec_store->resource_format_po = make_ref_counted<TranslationLoaderPO>();
+    gResourceManager().add_resource_format_loader(_codec_store->resource_format_po);
 
-    resource_saver_binary = make_ref_counted<ResourceFormatSaverBinary>();
-    gResourceManager().add_resource_format_saver(resource_saver_binary);
+    _codec_store->resource_saver_binary = make_ref_counted<ResourceFormatSaverBinary>();
+    gResourceManager().add_resource_format_saver(_codec_store->resource_saver_binary);
     //TODO: SEGS: this is a hack to provide PNG resource saver
     gResourceManager().add_resource_format_saver(make_ref_counted<ResourceFormatSaver>());
 
-    resource_loader_binary = make_ref_counted<ResourceFormatLoaderBinary>();
-    gResourceManager().add_resource_format_loader(resource_loader_binary);
+    _codec_store->resource_loader_binary = make_ref_counted<ResourceFormatLoaderBinary>();
+    gResourceManager().add_resource_format_loader(_codec_store->resource_loader_binary);
 
-    resource_format_importer = make_ref_counted<ResourceFormatImporter>();
-    gResourceManager().add_resource_format_loader(resource_format_importer);
+    _codec_store->resource_format_importer = make_ref_counted<ResourceFormatImporter>();
+    gResourceManager().add_resource_format_loader(_codec_store->resource_format_importer);
 
-    resource_format_image = make_ref_counted<ResourceFormatLoaderImage>();
-    gResourceManager().add_resource_format_loader(resource_format_image);
+    _codec_store->resource_format_image = make_ref_counted<ResourceFormatLoaderImage>();
+    gResourceManager().add_resource_format_loader(_codec_store->resource_format_image);
 
     ClassDB::register_class<Object>();
 
@@ -177,13 +179,14 @@ void register_core_types() {
     ClassDB::register_class<HashingContext>();
     ClassDB::register_custom_instance_class<X509Certificate>();
     ClassDB::register_custom_instance_class<CryptoKey>();
+    ClassDB::register_custom_instance_class<HMACContext>();
     ClassDB::register_custom_instance_class<Crypto>();
     ClassDB::register_custom_instance_class<StreamPeerSSL>();
 
-    resource_format_saver_crypto = make_ref_counted<ResourceFormatSaverCrypto>();
-    gResourceManager().add_resource_format_saver(resource_format_saver_crypto);
-    resource_format_loader_crypto = make_ref_counted<ResourceFormatLoaderCrypto>();
-    gResourceManager().add_resource_format_loader(resource_format_loader_crypto);
+    _codec_store->resource_format_saver_crypto = make_ref_counted<ResourceFormatSaverCrypto>();
+    gResourceManager().add_resource_format_saver(_codec_store->resource_format_saver_crypto);
+    _codec_store->resource_format_loader_crypto = make_ref_counted<ResourceFormatLoaderCrypto>();
+    gResourceManager().add_resource_format_loader(_codec_store->resource_format_loader_crypto);
 
     ClassDB::register_virtual_class<IP>();
     ClassDB::register_virtual_class<PacketPeer>();
@@ -225,7 +228,7 @@ void register_core_types() {
 
     ClassDB::register_virtual_class<ResourceImporter>();
 
-    ip = IP::create();
+    _ip = IP::create();
     _Geometry::initialize_class();
     _ResourceManager::initialize_class();
     _OS::initialize_class();
@@ -245,7 +248,7 @@ void register_core_types() {
 }
 
 void register_core_settings() {
-    // Since in register core types, globals may not e present.
+    // Since in register core types, globals may not be present.
     GLOBAL_DEF("network/limits/tcp/connect_timeout_seconds", (30));
     ProjectSettings::get_singleton()->set_custom_property_info("network/limits/tcp/connect_timeout_seconds", PropertyInfo(VariantType::INT, "network/limits/tcp/connect_timeout_seconds", PropertyHint::Range, "1,1800,1"));
     GLOBAL_DEF_RST("network/limits/packet_peer_stream/max_buffer_po2", (16));
@@ -270,6 +273,8 @@ void register_core_singletons() {
     ClassDB::register_class<InputMap>();
     ClassDB::register_class<_JSON>();
     //ClassDB::register_class<Expression>();
+    ClassDB::register_class<Time>();
+
     Engine *en =Engine::get_singleton();
     en->add_singleton(Engine::Singleton(StaticCString("ProjectSettings"), ProjectSettings::get_singleton()));
     en->add_singleton(Engine::Singleton(StaticCString("IP"), IP::get_singleton()));
@@ -283,6 +288,7 @@ void register_core_singletons() {
     en->add_singleton(Engine::Singleton(StaticCString("Input"), Input::get_singleton()));
     en->add_singleton(Engine::Singleton(StaticCString("InputMap"), InputMap::get_singleton()));
     en->add_singleton(Engine::Singleton(StaticCString("JSON"), _JSON::get_singleton()));
+    en->add_singleton(Engine::Singleton(StaticCString("Time"), Time::get_singleton()));
 }
 
 void unregister_core_types() {
@@ -296,33 +302,22 @@ void unregister_core_types() {
 
     memdelete(_geometry);
 
-    gResourceManager().remove_resource_format_loader(resource_format_image);
-    resource_format_image.unref();
+    gResourceManager().remove_resource_format_loader(_codec_store->resource_format_image);
+    gResourceManager().remove_resource_format_saver(_codec_store->resource_saver_binary);
+    gResourceManager().remove_resource_format_loader(_codec_store->resource_loader_binary);
+    gResourceManager().remove_resource_format_loader(_codec_store->resource_format_importer);
+    gResourceManager().remove_resource_format_loader(_codec_store->resource_format_po);
+    gResourceManager().remove_resource_format_saver(_codec_store->resource_format_saver_crypto);
+    gResourceManager().remove_resource_format_loader(_codec_store->resource_format_loader_crypto);
 
-    gResourceManager().remove_resource_format_saver(resource_saver_binary);
-    resource_saver_binary.unref();
-
-    gResourceManager().remove_resource_format_loader(resource_loader_binary);
-    resource_loader_binary.unref();
-
-    gResourceManager().remove_resource_format_loader(resource_format_importer);
-    resource_format_importer.unref();
-
-    gResourceManager().remove_resource_format_loader(resource_format_po);
-    resource_format_po.unref();
-
-    gResourceManager().remove_resource_format_saver(resource_format_saver_crypto);
-    resource_format_saver_crypto.unref();
-    gResourceManager().remove_resource_format_loader(resource_format_loader_crypto);
-    resource_format_loader_crypto.unref();
-
-    memdelete(ip);
+    memdelete(_ip);
 
     gResourceManager().finalize();
+    memdelete(_codec_store);
+
     ClassDB::cleanup_defaults();
     ObjectDB::cleanup();
 
-    unregister_variant_methods();
     unregister_global_constants();
 
     ClassDB::cleanup();
@@ -330,8 +325,6 @@ void unregister_core_types() {
     CoreStringNames::free();
     StringName::cleanup(OS::get_singleton()->is_stdout_verbose());
 
-    memdelete(_global_mutex);
-    _global_mutex = nullptr; //still needed at a few places
 
     MemoryPool::cleanup();
 }

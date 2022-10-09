@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TEXTURE_PROGRESS_H
-#define TEXTURE_PROGRESS_H
+#pragma once
 
 #include "scene/gui/range.h"
 
@@ -55,11 +54,15 @@ public:
 		FILL_COUNTER_CLOCKWISE,
 		FILL_BILINEAR_LEFT_AND_RIGHT,
 		FILL_BILINEAR_TOP_AND_BOTTOM,
-		FILL_CLOCKWISE_AND_COUNTER_CLOCKWISE
+        FILL_CLOCKWISE_AND_COUNTER_CLOCKWISE,
+        FILL_MODE_MAX,
 	};
 
 	void set_fill_mode(int p_fill);
 	int get_fill_mode();
+
+    void set_progress_offset(Point2 p_offset);
+    Point2 get_progress_offset() const;
 
 	void set_radial_initial_angle(float p_angle);
 	float get_radial_initial_angle();
@@ -99,17 +102,16 @@ public:
 	TextureProgress();
 
 private:
-	FillMode mode;
+    Color tint_under, tint_progress, tint_over;
+    Point2 progress_offset;
+    Point2 rad_center_off;
+    int stretch_margin[4];
 	float rad_init_angle;
 	float rad_max_degrees;
-	Point2 rad_center_off;
+    FillMode mode;
 	bool nine_patch_stretch;
-	int stretch_margin[4];
-	Color tint_under, tint_progress, tint_over;
 
 	Point2 unit_val_to_uv(float val);
 	Point2 get_relative_center();
 	void draw_nine_patch_stretched(const Ref<Texture> &p_texture, FillMode p_mode, double p_ratio, const Color &p_modulate);
 };
-
-#endif // TEXTURE_PROGRESS_H

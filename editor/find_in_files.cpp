@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  find_in_files.cpp                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -163,11 +163,11 @@ void FindInFiles::_process() {
     // This part can be moved to a thread if needed
 
     OS &os = *OS::get_singleton();
-    float time_before = os.get_ticks_msec();
+    uint64_t time_before = os.get_ticks_msec();
     while (is_processing()) {
         _iterate();
-        float elapsed = os.get_ticks_msec() - time_before;
-        if (elapsed > 1000.0f / 120.0f) {
+        uint64_t elapsed = os.get_ticks_msec() - time_before;
+        if (elapsed > 8) { // Process again after waiting 8 ticks
             break;
         }
     }
@@ -245,10 +245,15 @@ void FindInFiles::_scan_dir(StringView path, PoolVector<String> &out_folders) {
 
         if (file.empty())
             break;
-
-        // Ignore special dirs (such as .git and .import)
-        if (file == "." || file == ".." || StringUtils::begins_with(file,"."))
+        // If there is a .gdignore file in the directory, don't bother searching it
+        if (file == ".gdignore") {
+            break;
+        }
+        // Ignore special dirs (such as .git and project data directory)
+        String project_data_dir_name = ProjectSettings::get_singleton()->get_project_data_dir_name();
+        if (StringUtils::begins_with(file,".") || file == project_data_dir_name) {
             continue;
+        }
 
         if (dir->current_is_hidden())
             continue;
@@ -335,6 +340,16 @@ FindInFilesDialog::FindInFilesDialog() {
     _search_text_line_edit->connect("text_entered",callable_mp(this, &ClassName::_on_search_text_entered));
     gc->add_child(_search_text_line_edit);
 
+    _replace_label = memnew(Label);
+    _replace_label->set_text(TTR("Replace:"));
+    _replace_label->hide();
+    gc->add_child(_replace_label);
+
+    _replace_text_line_edit = memnew(LineEdit);
+    _replace_text_line_edit->set_h_size_flags(SIZE_EXPAND_FILL);
+    _replace_text_line_edit->connect("text_entered", callable_mp(this, &ClassName::_on_replace_text_entered));
+    _replace_text_line_edit->hide();
+    gc->add_child(_replace_text_line_edit);
     gc->add_child(memnew(Control)); // Space to maintain the grid aligned.
 
     {
@@ -395,6 +410,7 @@ FindInFilesDialog::FindInFilesDialog() {
 
     Button *cancel_button = get_ok();
     cancel_button->set_text(TTR("Cancel"));
+    _mode = SEARCH_MODE;
 }
 
 void FindInFilesDialog::set_search_text(StringView text) {
@@ -402,11 +418,39 @@ void FindInFilesDialog::set_search_text(StringView text) {
     _on_search_text_modified(text);
 }
 
+void FindInFilesDialog::set_replace_text(StringView text) {
+    _replace_text_line_edit->set_text(text);
+}
+
+void FindInFilesDialog::set_find_in_files_mode(FindInFilesMode p_mode) {
+    if (_mode == p_mode) {
+        return;
+    }
+
+    _mode = p_mode;
+
+    if (p_mode == SEARCH_MODE) {
+        set_title(TTR("Find in Files"));
+        _replace_label->hide();
+        _replace_text_line_edit->hide();
+    } else if (p_mode == REPLACE_MODE) {
+        set_title(TTR("Replace in Files"));
+        _replace_label->show();
+        _replace_text_line_edit->show();
+    }
+
+    // After hiding some child controls, recalculate proper dialog size.
+    set_size(Size2(get_size().x, 0));
+}
+
 String FindInFilesDialog::get_search_text() const {
     String text(_search_text_line_edit->get_text());
     return String(StringUtils::strip_edges( text));
 }
 
+String FindInFilesDialog::get_replace_text() const {
+    return _replace_text_line_edit->get_text();
+}
 bool FindInFilesDialog::is_match_case() const {
     return _match_case_checkbox->is_pressed();
 }
@@ -446,7 +490,7 @@ void FindInFilesDialog::_notification(int p_what) {
             Array exts = ProjectSettings::get_singleton()->getT<Array>("editor/search_in_file_extensions");
             for (int i = 0; i < exts.size(); ++i) {
                 CheckBox *cb = memnew(CheckBox);
-                StringName entry(exts[i].as<StringName>());
+                String entry(exts[i].as<String>());
                 cb->set_text(entry);
                 if (!_filters_preferences.contains(entry)) {
                     _filters_preferences[entry] = true;
@@ -487,8 +531,26 @@ void FindInFilesDialog::_on_search_text_modified(StringView text) {
 
 void FindInFilesDialog::_on_search_text_entered(StringView text) {
     // This allows to trigger a global search without leaving the keyboard
-    if (!_find_button->is_disabled())
+    if (!_find_button->is_disabled()) {
+        if (_mode == SEARCH_MODE) {
         custom_action("find");
+        }
+    }
+
+    if (!_replace_button->is_disabled()) {
+        if (_mode == REPLACE_MODE) {
+            custom_action("replace");
+        }
+    }
+}
+
+void FindInFilesDialog::_on_replace_text_entered(StringView text) {
+    // This allows to trigger a global search without leaving the keyboard.
+    if (!_replace_button->is_disabled()) {
+        if (_mode == REPLACE_MODE) {
+            custom_action("replace");
+        }
+    }
 }
 
 void FindInFilesDialog::_on_folder_selected(StringView path) {
@@ -583,7 +645,7 @@ FindInFilesPanel::FindInFilesPanel() {
         _replace_container->add_child(_replace_line_edit);
 
         _replace_all_button = memnew(Button);
-        _replace_all_button->set_text(TTR("Replace all (no undo)"));
+        _replace_all_button->set_text(TTR("Replace All (NO UNDO)"));
         _replace_all_button->connect("pressed",callable_mp(this, &ClassName::_on_replace_all_clicked));
         _replace_container->add_child(_replace_all_button);
 
@@ -609,6 +671,9 @@ void FindInFilesPanel::set_with_replace(bool with_replace) {
         _results_display->set_column_expand(0, true);
         _results_display->set_columns(1);
     }
+}
+void FindInFilesPanel::set_replace_text(StringView text) {
+    _replace_line_edit->set_text(text);
 }
 
 void FindInFilesPanel::clear() {
@@ -649,6 +714,9 @@ void FindInFilesPanel::stop_search() {
 void FindInFilesPanel::_notification(int p_what) {
     if (p_what == NOTIFICATION_PROCESS) {
         _progress_bar->set_as_ratio(_finder->get_progress());
+    } else if (p_what == NOTIFICATION_THEME_CHANGED) {
+        _search_text_label->add_font_override("font", get_theme_font("source", "EditorFonts"));
+        _results_display->add_font_override("font", get_theme_font("source", "EditorFonts"));
     }
 }
 
@@ -721,8 +789,10 @@ void FindInFilesPanel::draw_result_text(Object *item_obj, Rect2 rect) {
     match_rect.position.y += 1 * EDSCALE;
     match_rect.size.y -= 2 * EDSCALE;
 
-    _results_display->draw_rect(match_rect, Color(0, 0, 0, 0.5));
-    // Text is drawn by Tree already
+    // Use the inverted accent color to help match rectangles stand out even on the currently selected line.
+    _results_display->draw_rect_filled(match_rect, get_theme_color("accent_color", "Editor").inverted() * Color(1, 1, 1, 0.5));
+
+    // Text is drawn by Tree already.
 }
 
 void FindInFilesPanel::_on_item_edited() {
@@ -920,7 +990,7 @@ void FindInFilesPanel::apply_replaces_in_file(StringView fpath, const Vector<Fin
 }
 
 String FindInFilesPanel::get_replace_text() {
-    return String(StringUtils::strip_edges(_replace_line_edit->get_text()));
+    return _replace_line_edit->get_text();
 }
 
 void FindInFilesPanel::update_replace_buttons() {
@@ -942,7 +1012,7 @@ void FindInFilesPanel::_bind_methods() {
             PropertyInfo(VariantType::INT, "begin"),
             PropertyInfo(VariantType::INT, "end")));
 
-    ADD_SIGNAL(MethodInfo(SIGNAL_FILES_MODIFIED, PropertyInfo(VariantType::STRING, "paths")));
+    ADD_SIGNAL(MethodInfo(StringName(SIGNAL_FILES_MODIFIED), PropertyInfo(VariantType::STRING, "paths")));
 }
 
 void register_find_in_files_classes()

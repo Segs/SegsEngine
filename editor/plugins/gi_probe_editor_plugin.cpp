@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
+#include "scene/gui/tool_button.h"
 
 IMPL_GDCLASS(GIProbeEditorPlugin)
 
@@ -104,5 +105,4 @@ GIProbeEditorPlugin::GIProbeEditorPlugin(EditorNode *p_node) {
     GIProbe::bake_end_function = bake_func_end;
 }
 
-GIProbeEditorPlugin::~GIProbeEditorPlugin() {
-}
+GIProbeEditorPlugin::~GIProbeEditorPlugin() = default;

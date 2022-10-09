@@ -31,6 +31,7 @@
 #include "timer.h"
 
 #include "core/engine.h"
+#include "core/translation_helpers.h"
 #include "core/method_bind.h"
 #include "scene/main/scene_tree.h"
 
@@ -87,6 +88,7 @@ void Timer::_notification(int p_what) {
 void Timer::set_wait_time(float p_time) {
     ERR_FAIL_COND_MSG(p_time <= 0, "Time should be greater than zero.");
     wait_time = p_time;
+    update_configuration_warning();
 }
 float Timer::get_wait_time() const {
 
@@ -177,35 +179,54 @@ Timer::TimerProcessMode Timer::get_timer_process_mode() const {
 
 void Timer::_set_process(bool p_process, bool p_force) {
     switch (timer_process_mode) {
-        case TIMER_PROCESS_PHYSICS: set_physics_process_internal(p_process && !paused); break;
-        case TIMER_PROCESS_IDLE: set_process_internal(p_process && !paused); break;
+        case TIMER_PROCESS_PHYSICS:
+            set_physics_process_internal(p_process && !paused);
+            break;
+        case TIMER_PROCESS_IDLE:
+            set_process_internal(p_process && !paused);
+            break;
     }
     processing = p_process;
 }
 
+String Timer::get_configuration_warning() const {
+    String warning = Node::get_configuration_warning();
+
+    if (wait_time < 0.05f - CMP_EPSILON) {
+        if (warning != String()) {
+            warning += "\n\n";
+        }
+        warning += TTR("Very low timer wait times (< 0.05 seconds) may behave in significantly different ways "
+                       "depending on the rendered or physics frame rate.\nConsider using a script's process loop "
+                       "instead of relying on a Timer for very low wait times.");
+    }
+
+    return warning;
+}
+
 void Timer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_wait_time", {"time_sec"}), &Timer::set_wait_time);
-    MethodBinder::bind_method(D_METHOD("get_wait_time"), &Timer::get_wait_time);
+    BIND_METHOD(Timer,set_wait_time);
+    BIND_METHOD(Timer,get_wait_time);
 
-    MethodBinder::bind_method(D_METHOD("set_one_shot", {"enable"}), &Timer::set_one_shot);
-    MethodBinder::bind_method(D_METHOD("is_one_shot"), &Timer::is_one_shot);
+    BIND_METHOD(Timer,set_one_shot);
+    BIND_METHOD(Timer,is_one_shot);
 
-    MethodBinder::bind_method(D_METHOD("set_autostart", {"enable"}), &Timer::set_autostart);
-    MethodBinder::bind_method(D_METHOD("has_autostart"), &Timer::has_autostart);
+    BIND_METHOD(Timer,set_autostart);
+    BIND_METHOD(Timer,has_autostart);
 
     MethodBinder::bind_method(D_METHOD("start", {"time_sec"}), &Timer::start, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("stop"), &Timer::stop);
+    BIND_METHOD(Timer,stop);
 
-    MethodBinder::bind_method(D_METHOD("set_paused", {"paused"}), &Timer::set_paused);
-    MethodBinder::bind_method(D_METHOD("is_paused"), &Timer::is_paused);
+    BIND_METHOD(Timer,set_paused);
+    BIND_METHOD(Timer,is_paused);
 
-    MethodBinder::bind_method(D_METHOD("is_stopped"), &Timer::is_stopped);
+    BIND_METHOD(Timer,is_stopped);
 
-    MethodBinder::bind_method(D_METHOD("get_time_left"), &Timer::get_time_left);
+    BIND_METHOD(Timer,get_time_left);
 
-    MethodBinder::bind_method(D_METHOD("set_timer_process_mode", {"mode"}), &Timer::set_timer_process_mode);
-    MethodBinder::bind_method(D_METHOD("get_timer_process_mode"), &Timer::get_timer_process_mode);
+    BIND_METHOD(Timer,set_timer_process_mode);
+    BIND_METHOD(Timer,get_timer_process_mode);
 
     ADD_SIGNAL(MethodInfo("timeout"));
 

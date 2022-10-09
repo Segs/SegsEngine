@@ -38,6 +38,8 @@
 #include "scene/3d/mesh_instance_3d.h"
 #include "scene/gui/box_container.h"
 #include "node_3d_editor_plugin.h"
+#include "scene/gui/menu_button.h"
+#include "scene/gui/option_button.h"
 
 IMPL_GDCLASS(MultiMeshEditor)
 IMPL_GDCLASS(MultiMeshEditorPlugin)
@@ -310,7 +312,7 @@ MultiMeshEditor::MultiMeshEditor() {
     Button *b = memnew(Button);
     hbc->add_child(b);
     b->set_text("..");
-    b->connect("pressed",callable_mp(this, &ClassName::_browse), make_binds(false));
+    b->connect("pressed",callable_gen(this, [this]() { _browse(false); }));
 
     vbc->add_margin_child(TTR("Target Surface:"), hbc);
 
@@ -322,7 +324,7 @@ MultiMeshEditor::MultiMeshEditor() {
     hbc->add_child(b);
     b->set_text("..");
     vbc->add_margin_child(TTR("Source Mesh:"), hbc);
-    b->connect("pressed",callable_mp(this, &ClassName::_browse), make_binds(true));
+    b->connect("pressed",callable_gen(this, [this]() { _browse(true); }));
 
     populate_axis = memnew(OptionButton);
     populate_axis->add_item(TTR("X-Axis"));

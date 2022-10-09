@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_properties_array_dict.cpp                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,17 +28,23 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "editor_node.h"
 #include "editor_properties_array_dict.h"
 
 #include "core/callable_method_pointer.h"
-#include "core/object_tooling.h"
 #include "core/io/marshalls.h"
 #include "core/method_bind.h"
-#include "scene/resources/style_box.h"
+#include "core/object_tooling.h"
+#include "core/os/input.h"
+#include "editor/editor_scale.h"
+#include "editor/editor_settings.h"
+#include "editor/filesystem_dock.h"
+#include "editor_properties.h"
 #include "scene/gui/label.h"
 #include "scene/gui/panel_container.h"
-#include "editor/editor_scale.h"
-#include "editor_properties.h"
+#include "scene/main/viewport.h"
+#include "scene/resources/style_box.h"
+#include "core/resource/resource_manager.h"
 
 IMPL_GDCLASS(EditorPropertyArrayObject)
 IMPL_GDCLASS(EditorPropertyDictionaryObject)
@@ -50,7 +56,7 @@ bool EditorPropertyArrayObject::_set(const StringName &p_name, const Variant &p_
 
     if (StringUtils::begins_with(p_name,"indices")) {
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
-        array.set(idx, p_value);
+        array.set_indexed(idx, p_value);
         return true;
     }
 
@@ -103,7 +109,7 @@ bool EditorPropertyDictionaryObject::_set(const StringName &p_name, const Varian
 
     if (StringUtils::begins_with(p_name,"indices")) {
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
-        Variant key = dict.get_key_at_index(idx);
+        StringName key = dict.get_key_at_index(idx);
         dict[key] = p_value;
         return true;
     }
@@ -128,7 +134,7 @@ bool EditorPropertyDictionaryObject::_get(const StringName &p_name, Variant &r_r
     if (StringUtils::begins_with(p_name,"indices")) {
 
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
-        Variant key = dict.get_key_at_index(idx);
+        StringName key = dict.get_key_at_index(idx);
         r_ret = dict[key];
         if (r_ret.get_type() == VariantType::OBJECT && r_ret.asT<EncodedObjectAsID>()) {
             r_ret = Variant::from(r_ret.asT<EncodedObjectAsID>()->get_object_id());
@@ -174,7 +180,7 @@ void EditorPropertyArray::_property_changed(const StringName &p_prop, const Vari
     if (StringUtils::begins_with(p_prop,"indices")) {
         int idx = StringUtils::to_int(StringUtils::get_slice(p_prop,"/", 1));
         Variant array = object->get_array();
-        array.set(idx, p_value);
+        array.set_indexed(idx, p_value);
         emit_changed(get_edited_property(), array, "", true);
 
         if (array.get_type() == VariantType::ARRAY) {
@@ -187,7 +193,7 @@ void EditorPropertyArray::_property_changed(const StringName &p_prop, const Vari
 void EditorPropertyArray::_change_type(Object *p_button, int p_index) {
 
     Button *button = object_cast<Button>(p_button);
-    changing_type_idx = p_index;
+    changing_type_index = p_index;
     Rect2 rect = button->get_global_rect();
     change_type->set_as_minsize();
     change_type->set_global_position(rect.position + rect.size - Vector2(change_type->get_combined_minimum_size().x, 0));
@@ -197,13 +203,13 @@ void EditorPropertyArray::_change_type(Object *p_button, int p_index) {
 void EditorPropertyArray::_change_type_menu(int p_index) {
 
     if (p_index == (int)VariantType::VARIANT_MAX) {
-        _remove_pressed(changing_type_idx);
+        _remove_pressed(changing_type_index);
         return;
     }
 
     Variant value = Variant::construct_default(VariantType(p_index));
     Variant array = object->get_array();
-    array.set(changing_type_idx, value);
+    array.set_indexed(changing_type_index, value);
 
     emit_changed(get_edited_property(), array, "", true);
 
@@ -215,7 +221,7 @@ void EditorPropertyArray::_change_type_menu(int p_index) {
     update_property();
 }
 
-void EditorPropertyArray::_object_id_selected(StringView p_property, ObjectID p_id) {
+void EditorPropertyArray::_object_id_selected(StringView p_property, GameEntity p_id) {
     emit_signal("object_id_selected", p_property, Variant::from(p_id));
 }
 
@@ -239,7 +245,7 @@ void EditorPropertyArray::update_property() {
             arrtype = "PoolIntArray";
 
         } break;
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
 
             arrtype = "PoolFloatArray";
         } break;
@@ -263,7 +269,7 @@ void EditorPropertyArray::update_property() {
     }
 
     if (array.get_type() == VariantType::NIL) {
-        edit->set_text_utf8(String("(Nil) ") + arrtype);
+        edit->set_text(String("(Nil) ") + arrtype);
         edit->set_pressed(false);
         if (vbox) {
             set_bottom_editor(nullptr);
@@ -273,7 +279,12 @@ void EditorPropertyArray::update_property() {
         return;
     }
 
-    edit->set_text_utf8(String(arrtype) + " (size " + itos(VariantOps::size(array)) + ")");
+    int size = VariantOps::size(array);
+    int pages = M_MAX(0, size - 1) / page_length + 1;
+    page_index = MIN(page_index, pages - 1);
+    int offset = page_index * page_length;
+
+    edit->set_text(arrtype + " (size " + itos(size) + ")");
 
     bool unfolded = get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property());
     if (edit->is_pressed() != unfolded) {
@@ -289,50 +300,46 @@ void EditorPropertyArray::update_property() {
             vbox = memnew(VBoxContainer);
             add_child(vbox);
             set_bottom_editor(vbox);
-            HBoxContainer *hbc = memnew(HBoxContainer);
-            vbox->add_child(hbc);
+            HBoxContainer *hbox = memnew(HBoxContainer);
+            vbox->add_child(hbox);
             Label *label = memnew(Label(TTR("Size: ")));
             label->set_h_size_flags(SIZE_EXPAND_FILL);
-            hbc->add_child(label);
-            length = memnew(EditorSpinSlider);
-            length->set_step(1);
-            length->set_max(1000000);
-            length->set_h_size_flags(SIZE_EXPAND_FILL);
-            hbc->add_child(length);
-            length->connect("value_changed",callable_mp(this, &ClassName::_length_changed));
+            hbox->add_child(label);
 
-            page_hb = memnew(HBoxContainer);
-            vbox->add_child(page_hb);
+            size_slider = memnew(EditorSpinSlider);
+            size_slider->set_step(1);
+            size_slider->set_max(1000000);
+            size_slider->set_h_size_flags(SIZE_EXPAND_FILL);
+            size_slider->connect("value_changed",callable_mp(this, &ClassName::_length_changed));
+            hbox->add_child(size_slider);
+
+            page_hbox = memnew(HBoxContainer);
+            vbox->add_child(page_hbox);
             label = memnew(Label(TTR("Page: ")));
             label->set_h_size_flags(SIZE_EXPAND_FILL);
-            page_hb->add_child(label);
-            page = memnew(EditorSpinSlider);
-            page->set_step(1);
-            page_hb->add_child(page);
-            page->set_h_size_flags(SIZE_EXPAND_FILL);
-            page->connect("value_changed",callable_mp(this, &ClassName::_page_changed));
+            page_hbox->add_child(label);
+            page_slider = memnew(EditorSpinSlider);
+            page_slider->set_step(1);
+            page_hbox->add_child(page_slider);
+            page_slider->set_h_size_flags(SIZE_EXPAND_FILL);
+            page_slider->connect("value_changed",callable_mp(this, &ClassName::_page_changed));
         } else {
-            //bye bye children of the box
-            while (vbox->get_child_count() > 2) {
-                vbox->get_child(2)->queue_delete(); // button still needed after pressed is called
-                vbox->remove_child(vbox->get_child(2));
+            // Bye bye children of the box.
+            for (int i = vbox->get_child_count() - 1; i >= 2; i--) {
+                Node *child = vbox->get_child(i);
+                if (child == reorder_selected_element_hbox) {
+                    continue; // Don't remove the property that the user is moving.
+                }
+
+                child->queue_delete(); // Button still needed after pressed is called.
+                vbox->remove_child(child);
             }
         }
 
-        int len = VariantOps::size(array);
-
-        length->set_value(len);
-
-        int pages = M_MAX(0, len - 1) / page_len + 1;
-
-        page->set_max(pages);
-        page_idx = MIN(page_idx, pages - 1);
-        page->set_value(page_idx);
-        page_hb->set_visible(pages > 1);
-
-        int offset = page_idx * page_len;
-
-        int amount = MIN(len - offset, page_len);
+        size_slider->set_value(size);
+        page_slider->set_max(pages);
+        page_slider->set_value(page_index);
+        page_hbox->set_visible(pages > 1);
 
         if (array.get_type() == VariantType::ARRAY) {
             array = VariantOps::duplicate(array);
@@ -340,7 +347,30 @@ void EditorPropertyArray::update_property() {
 
         object->set_array(array);
 
+        int amount = MIN(size - offset, page_length);
         for (int i = 0; i < amount; i++) {
+            bool reorder_is_from_current_page = reorder_from_index / page_length == page_index;
+            if (reorder_is_from_current_page && i == reorder_from_index % page_length) {
+                // Don't duplicate the property that the user is moving.
+                continue;
+            }
+            if (!reorder_is_from_current_page && i == reorder_to_index % page_length) {
+                // Don't create the property the moving property will take the place of,
+                // e.g. (if page_length == 20) don't create element 20 if dragging an item from
+                // the first page to the second page because element 20 would become element 19.
+                continue;
+            }
+
+            HBoxContainer *hbox = memnew(HBoxContainer);
+            vbox->add_child(hbox);
+
+            Button *reorder_button = memnew(Button);
+            reorder_button->set_button_icon(get_theme_icon("TripleBar", "EditorIcons"));
+            reorder_button->set_default_cursor_shape(Control::CURSOR_MOVE);
+            reorder_button->connect("gui_input", callable_mp(this, &ClassName::_reorder_button_gui_input));
+            reorder_button->connectF("button_down", this, [=]() { _reorder_button_down(i + offset); });
+            reorder_button->connect("button_up", callable_mp(this, &ClassName::_reorder_button_up));
+            hbox->add_child(reorder_button);
             StringName prop_name("indices/" + itos(i + offset));
 
             EditorProperty *prop = nullptr;
@@ -366,10 +396,7 @@ void EditorPropertyArray::update_property() {
             prop->connect("object_id_selected",callable_mp(this, &ClassName::_object_id_selected));
             prop->set_h_size_flags(SIZE_EXPAND_FILL);
 
-            HBoxContainer *hb = memnew(HBoxContainer);
-
-            vbox->add_child(hb);
-            hb->add_child(prop);
+            hbox->add_child(prop);
 
             bool is_untyped_array = array.get_type() == VariantType::ARRAY && subtype == VariantType::NIL;
 
@@ -377,19 +404,22 @@ void EditorPropertyArray::update_property() {
 
                 Button *edit = memnew(Button);
                 edit->set_button_icon(get_theme_icon("Edit", "EditorIcons"));
-                hb->add_child(edit);
-                edit->connect("pressed",callable_mp(this, &ClassName::_change_type), varray(Variant(edit), i + offset));
+                hbox->add_child(edit);
+                edit->connectF("pressed",this,[=]() { _change_type(edit, i + offset); });
             } else {
 
                 Button *remove = memnew(Button);
                 remove->set_button_icon(get_theme_icon("Remove", "EditorIcons"));
-                remove->connect("pressed",callable_mp(this, &ClassName::_remove_pressed), varray(i + offset));
-                hb->add_child(remove);
+                remove->connectF("pressed",this,[=]() { _remove_pressed(i + offset);});
+                hbox->add_child(remove);
             }
 
             prop->update_property();
         }
 
+        if (reorder_to_index % page_length > 0) {
+            vbox->move_child(vbox->get_child(2), reorder_to_index % page_length + 2);
+        }
         updating = false;
 
     } else {
@@ -407,16 +437,109 @@ void EditorPropertyArray::_remove_pressed(int p_index) {
 
     VariantOps::remove(array,p_index);
 
-    if (array.get_type() == VariantType::ARRAY) {
-        array = VariantOps::duplicate(array);
+    emit_changed(get_edited_property(), array, "", false);
+    update_property();
+}
+
+void EditorPropertyArray::_button_draw() {
+    if (dropping) {
+        Color color = get_theme_color("accent_color", "Editor");
+        edit->draw_rect_stroke(Rect2(Point2(), edit->get_size()), color);
+    }
+}
+
+bool EditorPropertyArray::_is_drop_valid(const Dictionary &p_drag_data) const {
+    String allowed_type = Variant::get_type_name(subtype);
+
+    // When the subtype is of type Object, an additional subtype may be specified in the hint string
+    // (e.g. Resource, Texture2D, ShaderMaterial, etc). We want the allowed type to be that, not just "Object".
+    if (subtype == VariantType::OBJECT && subtype_hint_string != "") {
+        allowed_type = subtype_hint_string;
+    }
+    Vector<StringView> parts=StringUtils::split(allowed_type,',');
+    Dictionary drag_data = p_drag_data;
+
+    if (drag_data.has("type") && String(drag_data["type"]) == "files") {
+        Vector<String> files = drag_data["files"].as<Vector<String>>();
+
+        for (const String &file : files) {
+            StringName ftype = EditorFileSystem::get_singleton()->get_file_type(file);
+
+            for (StringView at : parts) {
+                at = StringUtils::strip_edges(at);
+                // Fail if one of the files is not of allowed type
+                if (!ClassDB::is_parent_class(ftype, StringName(at))) {
+                    return false;
+                }
+            }
+        }
+
+        // If no files fail, drop is valid
+        return true;
+    }
+
+    return false;
+}
+bool EditorPropertyArray::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
+    return _is_drop_valid(p_data.as<Dictionary>());
+}
+
+void EditorPropertyArray::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {
+    ERR_FAIL_COND(!_is_drop_valid(p_data.as<Dictionary>()));
+
+    Dictionary drag_data = p_data.as<Dictionary>();
+
+    if (drag_data.has("type") && String(drag_data["type"]) == "files") {
+        Vector<String> files = drag_data["files"].as<Vector<String>>();
+
+        Array array = object->get_array().as<Array>();
+
+        // Loop the file array and add to existing array.
+        for (int i = 0; i < files.size(); i++) {
+            String file = files[i];
+
+            RES res = gResourceManager().load(file);
+            if (res) {
+
+                array.push_back(res);
+            }
     }
 
     emit_changed(get_edited_property(), array, "", false);
     object->set_array(array);
     update_property();
 }
+}
 
 void EditorPropertyArray::_notification(int p_what) {
+    switch (p_what) {
+        case NOTIFICATION_ENTER_TREE:
+        case NOTIFICATION_THEME_CHANGED: {
+            change_type->clear();
+            for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
+                StringName type = Variant::interned_type_name(VariantType(i));
+                change_type->add_icon_item(get_theme_icon(type, "EditorIcons"), type, i);
+}
+            change_type->add_separator();
+            change_type->add_icon_item(get_theme_icon("Remove", "EditorIcons"), TTR("Remove Item"), (int)VariantType::VARIANT_MAX);
+        } break;
+
+        case NOTIFICATION_DRAG_BEGIN: {
+            if (is_visible_in_tree()) {
+                if (_is_drop_valid(get_viewport()->gui_get_drag_data().as<Dictionary>())) {
+                    dropping = true;
+                    edit->update();
+                }
+            }
+        } break;
+
+        case NOTIFICATION_DRAG_END: {
+            if (dropping) {
+                dropping = false;
+                edit->update();
+            }
+        } break;
+    }
 }
 void EditorPropertyArray::_edit_pressed() {
 
@@ -434,7 +557,7 @@ void EditorPropertyArray::_edit_pressed() {
 void EditorPropertyArray::_page_changed(double p_page) {
     if (updating)
         return;
-    page_idx = p_page;
+    page_index = p_page;
     update_property();
 }
 
@@ -451,7 +574,7 @@ void EditorPropertyArray::_length_changed(double p_page) {
             int size = VariantOps::size(array);
             for (int i = previous_size; i < size; i++) {
                 if (array.get(i).get_type() == VariantType::NIL) {
-                    array.set(i, Variant::construct_default(subtype));
+                    array.set_indexed(i, Variant::construct_default(subtype));
                 }
             }
         }
@@ -460,7 +583,7 @@ void EditorPropertyArray::_length_changed(double p_page) {
         int size = VariantOps::size(array);
         // Pool*Array don't initialize their elements, have to do it manually
         for (int i = previous_size; i < size; i++) {
-            array.set(i, Variant::construct_default(array.get(i).get_type()));
+            array.set_indexed(i, Variant::construct_default(array.get(i).get_type()));
         }
     }
 
@@ -473,6 +596,8 @@ void EditorPropertyArray::setup(VariantType p_array_type, StringView p_hint_stri
 
     array_type = p_array_type;
 
+    // The format of p_hint_string is:
+    // subType/subTypeHint:nextSubtype ... etc.
     if (array_type == VariantType::ARRAY && !p_hint_string.empty()) {
         auto hint_subtype_separator = StringUtils::find(p_hint_string,":");
         if (hint_subtype_separator != String::npos) {
@@ -489,23 +614,86 @@ void EditorPropertyArray::setup(VariantType p_array_type, StringView p_hint_stri
     }
 }
 
+void EditorPropertyArray::_reorder_button_gui_input(const Ref<InputEvent> &p_event) {
+    if (reorder_from_index < 0) {
+        return;
+    }
+
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
+    if (mm) {
+        Variant array = object->get_array();
+        int size = VariantOps::size(array);
+
+        if ((reorder_to_index == 0 && mm->get_relative().y < 0.0f) || (reorder_to_index == size - 1 && mm->get_relative().y > 0.0f)) {
+            return;
+        }
+
+        reorder_mouse_y_delta += mm->get_relative().y;
+        float required_y_distance = 20.0f * EDSCALE;
+        if (ABS(reorder_mouse_y_delta) > required_y_distance) {
+            int direction = reorder_mouse_y_delta > 0.0f ? 1 : -1;
+            reorder_mouse_y_delta -= required_y_distance * direction;
+
+            reorder_to_index += direction;
+            if ((direction < 0 && reorder_to_index % page_length == page_length - 1) || (direction > 0 && reorder_to_index % page_length == 0)) {
+                // Automatically move to the next/previous page.
+                page_slider->set_value(page_index + direction);
+            }
+            vbox->move_child(reorder_selected_element_hbox, reorder_to_index % page_length + 2);
+            // Ensure the moving element is visible.
+            EditorNode::get_singleton()->get_inspector()->ensure_control_visible(reorder_selected_element_hbox);
+        }
+    }
+}
+
+void EditorPropertyArray::_reorder_button_down(int p_index) {
+    reorder_from_index = p_index;
+    reorder_to_index = p_index;
+    reorder_selected_element_hbox = object_cast<HBoxContainer>(vbox->get_child(p_index % page_length + 2));
+    reorder_selected_button = object_cast<Button>(reorder_selected_element_hbox->get_child(0));
+    // Ideally it'd to be able to show the mouse but I had issues with
+    // Control's `mouse_exit()`/`mouse_entered()` signals not getting called.
+    Input::get_singleton()->set_mouse_mode(Input::MOUSE_MODE_CAPTURED);
+}
+
+void EditorPropertyArray::_reorder_button_up() {
+    if (reorder_from_index != reorder_to_index) {
+        // Move the element.
+        Variant array = object->get_array();
+
+        Variant value_to_move = array.get(reorder_from_index);
+        VariantOps::remove(array,reorder_from_index);
+        VariantOps::insert(array,reorder_from_index,eastl::move(value_to_move));
+
+        emit_changed(get_edited_property(), array, "", false);
+        object->set_array(array);
+        update_property();
+    }
+
+    reorder_from_index = -1;
+    reorder_to_index = -1;
+    reorder_mouse_y_delta = 0.0f;
+
+    Input::get_singleton()->set_mouse_mode(Input::MOUSE_MODE_VISIBLE);
+    reorder_selected_button->warp_mouse(reorder_selected_button->get_size() / 2.0f);
+
+    reorder_selected_element_hbox = nullptr;
+    reorder_selected_button = nullptr;
+}
 EditorPropertyArray::EditorPropertyArray() {
 
     object = make_ref_counted<EditorPropertyArrayObject>();
-    page_idx = 0;
-    page_len = 10;
+    page_length = int(EDITOR_GET_T<int>("interface/inspector/max_array_dictionary_items_per_page"));
     edit = memnew(Button);
     edit->set_flat(true);
     edit->set_h_size_flags(SIZE_EXPAND_FILL);
     edit->set_clip_text(true);
     edit->connect("pressed",callable_mp(this, &ClassName::_edit_pressed));
     edit->set_toggle_mode(true);
+    edit->set_drag_forwarding(this);
+    edit->connect("draw", callable_mp(this, &EditorPropertyArray::_button_draw));
     add_child(edit);
     add_focusable(edit);
-    vbox = nullptr;
-    page = nullptr;
-    length = nullptr;
-    updating = false;
     change_type = memnew(PopupMenu);
     add_child(change_type);
     change_type->connect("id_pressed",callable_mp(this, &ClassName::_change_type_menu));
@@ -516,11 +704,6 @@ EditorPropertyArray::EditorPropertyArray() {
     }
     change_type->add_separator();
     change_type->add_item(TTR("Remove Item"), (int)VariantType::VARIANT_MAX);
-    changing_type_idx = -1;
-
-    subtype = VariantType::NIL;
-    subtype_hint = PropertyHint::None;
-    subtype_hint_string = "";
 }
 
 ///////////////////// DICTIONARY ///////////////////////////
@@ -536,7 +719,7 @@ void EditorPropertyDictionary::_property_changed(const StringName &p_prop, const
     } else if (StringUtils::begins_with(p_prop,"indices")) {
         int idx = StringUtils::to_int(StringUtils::get_slice(p_prop,"/", 1));
         Dictionary dict = object->get_dict();
-        Variant key = dict.get_key_at_index(idx);
+        StringName key = dict.get_key_at_index(idx);
         dict[key] = p_value;
 
         emit_changed(get_edited_property(), dict, "", true);
@@ -554,7 +737,7 @@ void EditorPropertyDictionary::_change_type(Object *p_button, int p_index) {
     change_type->set_as_minsize();
     change_type->set_global_position(rect.position + rect.size - Vector2(change_type->get_combined_minimum_size().x, 0));
     change_type->popup();
-    changing_type_idx = p_index;
+    changing_type_index = p_index;
 }
 
 void EditorPropertyDictionary::_add_key_value() {
@@ -566,7 +749,13 @@ void EditorPropertyDictionary::_add_key_value() {
 
     Dictionary dict = object->get_dict();
 
-    dict[object->get_new_item_key()] = object->get_new_item_value();
+    Variant key_val= object->get_new_item_key();
+    if(key_val.get_type()!=VariantType::STRING && key_val.get_type() != VariantType::STRING_NAME)
+    {
+        WARN_PRINT("Key value is not a string!");
+        return;
+    }
+    dict[key_val.as<StringName>()] = object->get_new_item_value();
     object->set_new_item_key(Variant());
     object->set_new_item_value(Variant());
 
@@ -579,9 +768,9 @@ void EditorPropertyDictionary::_add_key_value() {
 
 void EditorPropertyDictionary::_change_type_menu(int p_index) {
 
-    if (changing_type_idx < 0) {
+    if (changing_type_index < 0) {
         Variant value = Variant::construct_default(VariantType(p_index));
-        if (changing_type_idx == -1) {
+        if (changing_type_index == -1) {
             object->set_new_item_key(value);
         } else {
             object->set_new_item_value(value);
@@ -592,13 +781,12 @@ void EditorPropertyDictionary::_change_type_menu(int p_index) {
 
     Dictionary dict = object->get_dict();
 
+    StringName key = dict.get_key_at_index(changing_type_index);
     if (p_index < (int)VariantType::VARIANT_MAX) {
 
         Variant value = Variant::construct_default(VariantType(p_index));
-        Variant key = dict.get_key_at_index(changing_type_idx);
         dict[key] = value;
     } else {
-        Variant key = dict.get_key_at_index(changing_type_idx);
         dict.erase(key);
     }
 
@@ -626,7 +814,7 @@ void EditorPropertyDictionary::update_property() {
 
     Dictionary dict = updated_val.as<Dictionary>();
 
-    edit->set_text_utf8(String("Dictionary (size ") + itos(dict.size()) + ")");
+    edit->set_text(String("Dictionary (size ") + itos(dict.size()) + ")");
 
     bool unfolded = get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property());
     if (edit->is_pressed() != unfolded) {
@@ -643,16 +831,16 @@ void EditorPropertyDictionary::update_property() {
             add_child(vbox);
             set_bottom_editor(vbox);
 
-            page_hb = memnew(HBoxContainer);
-            vbox->add_child(page_hb);
+            page_hbox = memnew(HBoxContainer);
+            vbox->add_child(page_hbox);
             Label *label = memnew(Label(TTR("Page: ")));
             label->set_h_size_flags(SIZE_EXPAND_FILL);
-            page_hb->add_child(label);
-            page = memnew(EditorSpinSlider);
-            page->set_step(1);
-            page_hb->add_child(page);
-            page->set_h_size_flags(SIZE_EXPAND_FILL);
-            page->connect("value_changed",callable_mp(this, &ClassName::_page_changed));
+            page_hbox->add_child(label);
+            page_slider = memnew(EditorSpinSlider);
+            page_slider->set_step(1);
+            page_hbox->add_child(page_slider);
+            page_slider->set_h_size_flags(SIZE_EXPAND_FILL);
+            page_slider->connect("value_changed",callable_mp(this, &ClassName::_page_changed));
         } else {
             // Queue children for deletion, deleting immediately might cause errors.
             for (int i = 1; i < vbox->get_child_count(); i++) {
@@ -662,16 +850,16 @@ void EditorPropertyDictionary::update_property() {
 
         int len = dict.size();
 
-        int pages = M_MAX(0, len - 1) / page_len + 1;
+        int pages = M_MAX(0, len - 1) / page_length + 1;
 
-        page->set_max(pages);
-        page_idx = MIN(page_idx, pages - 1);
-        page->set_value(page_idx);
-        page_hb->set_visible(pages > 1);
+        page_slider->set_max(pages);
+        page_index = MIN(page_index, pages - 1);
+        page_slider->set_value(page_index);
+        page_hbox->set_visible(pages > 1);
 
-        int offset = page_idx * page_len;
+        int offset = page_index * page_length;
 
-        int amount = MIN(len - offset, page_len);
+        int amount = MIN(len - offset, page_length);
 
         dict = dict.duplicate();
 
@@ -820,7 +1008,7 @@ void EditorPropertyDictionary::update_property() {
                     } else {
 
                         EditorPropertyResource *editor = memnew(EditorPropertyResource);
-                        editor->setup("Resource");
+                        editor->setup(object.get(), prop_name, "Resource");
                         prop = editor;
                     }
 
@@ -848,10 +1036,10 @@ void EditorPropertyDictionary::update_property() {
                     editor->setup(VariantType::POOL_INT_ARRAY);
                     prop = editor;
                 } break;
-                case VariantType::POOL_REAL_ARRAY: {
+                case VariantType::POOL_FLOAT32_ARRAY: {
 
                     EditorPropertyArray *editor = memnew(EditorPropertyArray);
-                    editor->setup(VariantType::POOL_REAL_ARRAY);
+                    editor->setup(VariantType::POOL_FLOAT32_ARRAY);
                     prop = editor;
                 } break;
                 case VariantType::POOL_STRING_ARRAY: {
@@ -900,8 +1088,8 @@ void EditorPropertyDictionary::update_property() {
 
             if (i < amount) {
                 String cs = key.get_construct_string();
-                prop->set_label(key.get_construct_string());
-                prop->set_tooltip_utf8(cs);
+                prop->set_label(cs);
+                prop->set_tooltip(cs);
                 change_index = i + offset;
             } else if (i == amount) {
                 prop->set_label(TTR("New Key:").asCString());
@@ -915,26 +1103,27 @@ void EditorPropertyDictionary::update_property() {
             prop->connect("property_changed",callable_mp(this, &ClassName::_property_changed));
             prop->connect("object_id_selected",callable_mp(this, &ClassName::_object_id_selected));
 
-            HBoxContainer *hb = memnew(HBoxContainer);
+            HBoxContainer *hbox = memnew(HBoxContainer);
             if (add_vbox) {
-                add_vbox->add_child(hb);
+                add_vbox->add_child(hbox);
             } else {
-                vbox->add_child(hb);
+                vbox->add_child(hbox);
             }
-            hb->add_child(prop);
+            hbox->add_child(prop);
             prop->set_h_size_flags(SIZE_EXPAND_FILL);
             Button *edit = memnew(Button);
             edit->set_button_icon(get_theme_icon("Edit", "EditorIcons"));
-            hb->add_child(edit);
-            edit->connect("pressed",callable_mp(this, &ClassName::_change_type), varray(Variant(edit), change_index));
+            hbox->add_child(edit);
+            edit->connectF("pressed",this, [=]() { _change_type(edit, change_index); });
 
             prop->update_property();
 
             if (i == amount + 1) {
-                Button *butt_add_item = memnew(Button);
-                butt_add_item->set_text(TTR("Add Key/Value Pair"));
-                butt_add_item->connect("pressed",callable_mp(this, &ClassName::_add_key_value));
-                add_vbox->add_child(butt_add_item);
+                button_add_item = memnew(Button);
+                button_add_item->set_text(TTR("Add Key/Value Pair"));
+                button_add_item->set_button_icon(get_theme_icon("Add", "EditorIcons"));
+                button_add_item->connect("pressed", callable_mp(this, &ClassName::_add_key_value));
+                add_vbox->add_child(button_add_item);
             }
         }
 
@@ -949,11 +1138,27 @@ void EditorPropertyDictionary::update_property() {
     }
 }
 
-void EditorPropertyDictionary::_object_id_selected(StringView p_property, ObjectID p_id) {
+void EditorPropertyDictionary::_object_id_selected(StringView p_property, GameEntity p_id) {
     emit_signal("object_id_selected", p_property, Variant::from(p_id));
 }
 
 void EditorPropertyDictionary::_notification(int p_what) {
+    switch (p_what) {
+        case NOTIFICATION_ENTER_TREE:
+        case NOTIFICATION_THEME_CHANGED: {
+            change_type->clear();
+            for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
+                StringName type = Variant::interned_type_name(VariantType(i));
+                change_type->add_icon_item(get_theme_icon(type, "EditorIcons"), type, i);
+            }
+            change_type->add_separator();
+            change_type->add_icon_item(get_theme_icon("Remove", "EditorIcons"), TTR("Remove Item"), (int)VariantType::VARIANT_MAX);
+
+            if (object_cast<Button>(button_add_item)) {
+                button_add_item->set_button_icon(get_theme_icon("Add", "EditorIcons"));
+            }
+        } break;
+    }
 }
 
 void EditorPropertyDictionary::_edit_pressed() {
@@ -971,15 +1176,14 @@ void EditorPropertyDictionary::_edit_pressed() {
 void EditorPropertyDictionary::_page_changed(double p_page) {
     if (updating)
         return;
-    page_idx = p_page;
+    page_index = p_page;
     update_property();
 }
 
 EditorPropertyDictionary::EditorPropertyDictionary() {
 
     object = make_ref_counted<EditorPropertyDictionaryObject>();
-    page_idx = 0;
-    page_len = 10;
+    page_length = int(EDITOR_GET("interface/inspector/max_array_dictionary_items_per_page"));
     edit = memnew(Button);
     edit->set_flat(true);
     edit->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -988,18 +1192,10 @@ EditorPropertyDictionary::EditorPropertyDictionary() {
     edit->set_toggle_mode(true);
     add_child(edit);
     add_focusable(edit);
-    vbox = nullptr;
-    page = nullptr;
     updating = false;
     change_type = memnew(PopupMenu);
     add_child(change_type);
     change_type->connect("id_pressed",callable_mp(this, &ClassName::_change_type_menu));
 
-    for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
-        StringName type(Variant::interned_type_name(VariantType(i)));
-        change_type->add_item(type, i);
-    }
-    change_type->add_separator();
-    change_type->add_item(TTR("Remove Item"), (int)VariantType::VARIANT_MAX);
-    changing_type_idx = -1;
+    changing_type_index = -1;
 }

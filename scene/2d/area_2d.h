@@ -54,17 +54,15 @@ private:
 	real_t gravity_distance_scale;
 	real_t linear_damp;
 	real_t angular_damp;
-	uint32_t collision_mask;
-	uint32_t collision_layer;
 	int priority;
 	bool monitoring;
 	bool monitorable;
 	bool locked;
 
-	void _body_inout(int p_status, const RID &p_body, ObjectID p_instance, int p_body_shape, int p_area_shape);
+	void _body_inout(int p_status, const RID &p_body, GameEntity p_instance, int p_body_shape, int p_area_shape);
 
-	void _body_enter_tree(ObjectID p_id);
-	void _body_exit_tree(ObjectID p_id);
+	void _body_enter_tree(GameEntity p_id);
+	void _body_exit_tree(GameEntity p_id);
 
 	struct ShapePair {
 
@@ -86,17 +84,18 @@ private:
 
 	struct BodyState {
 
+        RID rid;
 		int rc;
 		bool in_tree;
 		VSet<ShapePair> shapes;
 	};
 
-	HashMap<ObjectID, BodyState> body_map;
+	HashMap<GameEntity, BodyState> body_map;
 
-    void _area_inout(int p_status, const RID &p_area, ObjectID p_instance, int p_area_shape, int p_self_shape);
+    void _area_inout(int p_status, const RID &p_area, GameEntity p_instance, int p_area_shape, int p_self_shape);
 
-	void _area_enter_tree(ObjectID p_id);
-	void _area_exit_tree(ObjectID p_id);
+	void _area_enter_tree(GameEntity p_id);
+	void _area_exit_tree(GameEntity p_id);
 
 	struct AreaShapePair {
 
@@ -118,12 +117,13 @@ private:
 
 	struct AreaState {
 
+        RID rid;
 		int rc;
 		bool in_tree;
 		VSet<AreaShapePair> shapes;
 	};
 
-	HashMap<ObjectID, AreaState> area_map;
+	HashMap<GameEntity, AreaState> area_map;
 	void _clear_monitoring();
 
 	bool audio_bus_override;
@@ -164,18 +164,6 @@ public:
 
 	void set_monitorable(bool p_enable);
 	bool is_monitorable() const;
-
-	void set_collision_mask(uint32_t p_mask);
-	uint32_t get_collision_mask() const;
-
-	void set_collision_layer(uint32_t p_layer);
-	uint32_t get_collision_layer() const;
-
-	void set_collision_mask_bit(int p_bit, bool p_value);
-	bool get_collision_mask_bit(int p_bit) const;
-
-	void set_collision_layer_bit(int p_bit, bool p_value);
-	bool get_collision_layer_bit(int p_bit) const;
 
 	Array get_overlapping_bodies() const; //function for script
 	Array get_overlapping_areas() const; //function for script

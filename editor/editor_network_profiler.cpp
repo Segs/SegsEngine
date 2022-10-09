@@ -67,7 +67,7 @@ void EditorNetworkProfiler::_update_frame() {
 
     TreeItem *root = counters_display->create_item();
 
-    for (eastl::pair<const ObjectID,MultiplayerAPI::ProfilingInfo> &E : nodes_data) {
+    for (eastl::pair<const GameEntity,MultiplayerAPI::ProfilingInfo> &E : nodes_data) {
 
         TreeItem *node = counters_display->create_item(root);
 

@@ -44,9 +44,9 @@ real_t Triangulate::get_area(Span<const Vector2> contour) {
 }
 
 /*
-     is_inside_triangle decides if a point P is Inside of the triangle
-     defined by A, B, C.
-   */
+ * `is_inside_triangle` decides if a point P is inside the triangle
+ * defined by A, B, C.
+ */
 
 bool Triangulate::is_inside_triangle(real_t Ax, real_t Ay,
         real_t Bx, real_t By,

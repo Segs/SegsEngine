@@ -34,7 +34,6 @@
 #include "core/method_bind.h"
 #include "core/pool_vector.h"
 
-VARIANT_ENUM_CAST(HashingContext::HashType);
 
 IMPL_GDCLASS(HashingContext)
 
@@ -126,9 +125,9 @@ void HashingContext::_delete_ctx() {
 }
 
 void HashingContext::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("start", {"type"}), &HashingContext::start);
-    MethodBinder::bind_method(D_METHOD("update", {"chunk"}), &HashingContext::update);
-    MethodBinder::bind_method(D_METHOD("finish"), &HashingContext::finish);
+    BIND_METHOD(HashingContext,start);
+    BIND_METHOD(HashingContext,update);
+    BIND_METHOD(HashingContext,finish);
     BIND_ENUM_CONSTANT(HASH_MD5);
     BIND_ENUM_CONSTANT(HASH_SHA1);
     BIND_ENUM_CONSTANT(HASH_SHA256);

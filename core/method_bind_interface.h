@@ -23,7 +23,6 @@ protected:
     bool _returns = false;
     bool _is_vararg = false;
 
-#ifdef DEBUG_METHODS_ENABLED
     VariantType *argument_types=nullptr;
     bool checkArgs(const Variant** p_args,int p_arg_count,bool (*const  verifiers[])(const Variant &), int max_args, Callable::CallError& r_error) const
     {
@@ -42,17 +41,14 @@ protected:
         }
         return true;
     }
-#endif
     void _set_const(bool p_const) noexcept { _const = p_const; }
     void _set_returns(bool p_returns) noexcept { _returns = p_returns; }
-#ifdef DEBUG_METHODS_ENABLED
     virtual PropertyInfo _gen_argument_type_info(int p_arg) const = 0;
     virtual Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const = 0;
     virtual Span<const TypePassBy> do_get_argument_passby() const {
         return {};
     }
 
-#endif
     void set_argument_count(int p_count) noexcept { argument_count = p_count; }
     virtual Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Callable::CallError &r_error)=0;
 public:
@@ -72,11 +68,9 @@ public:
 
         if (idx < 0 || idx >= default_arguments.size())
             return Variant();
-        else
-            return default_arguments[idx];
+        return default_arguments[idx];
     }
 
-#ifdef DEBUG_METHODS_ENABLED
 
     _FORCE_INLINE_ VariantType get_argument_type(int p_argument) const {
 
@@ -87,6 +81,7 @@ public:
     PropertyInfo get_argument_info(int p_argument) const;
     PropertyInfo get_return_info() const;
 
+#ifdef DEBUG_METHODS_ENABLED
 //    void set_argument_names(const Vector<StringName> &p_names); //set by class, db, can't be inferred otherwise
 //    const Vector<StringName> &get_argument_names() const;
 
@@ -128,11 +123,8 @@ public:
 
 protected:
     NativeCall call_method;
-#ifdef DEBUG_METHODS_ENABLED
     MethodInfo arguments;
-#endif
 public:
-#ifdef DEBUG_METHODS_ENABLED
 
     PropertyInfo _gen_argument_type_info(int p_arg) const noexcept override {
 
@@ -145,6 +137,7 @@ public:
                     PropertyHint::None, nullptr, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT);
         }
     }
+#ifdef DEBUG_METHODS_ENABLED
 
     Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const noexcept override {
         return {};
@@ -197,7 +190,18 @@ public:
 template<class T, class RESULT,typename ...Args>
 class MethodBindVA;
 
+
 struct MethodBinder {
+    template <class T, typename R, typename ... Args>
+    static constexpr size_t arg_count( R(T::*f)(Args ...))
+    {
+        return sizeof...(Args);
+    }
+
+    template <class T, typename R, typename... Args>
+    static constexpr size_t arg_count(R (T::*f)(Args...) const) {
+        return sizeof...(Args);
+    }
     template<class T  ,typename R, typename ...Args>
     static MethodBind* create_method_bind_va( R (T::*p_method)(Args...)  ) {
 
@@ -212,11 +216,15 @@ struct MethodBinder {
     }
     template <class N, class M>
     static MethodBind *bind_method(N p_method_name, M p_method, uint32_t flags=METHOD_FLAGS_DEFAULT) {
-
         MethodBind *bind = create_method_bind_va(p_method);
         return ClassDB::bind_methodfi(flags, bind, p_method_name, {}); //use static function, much smaller binary usage
     }
 
+    template <class M>
+    static MethodBind *bind_methodA(StaticCString p_method_name, M p_method, uint32_t flags = METHOD_FLAGS_DEFAULT) {
+        MethodBind *bind = create_method_bind_va(p_method);
+        return ClassDB::bind_methodfi(flags, bind, D_METHOD(p_method_name, arg_count(p_method)), {}); // use static function, much smaller binary usage
+    }
     template <class N, class M>
     static MethodBind *bind_method(N p_method_name, M p_method, std::initializer_list<Variant> args) {
 
@@ -224,6 +232,11 @@ struct MethodBinder {
         return ClassDB::bind_methodfi(METHOD_FLAGS_DEFAULT, bind, p_method_name, args);
     }
 
+    template <class M>
+    static MethodBind *bind_methodA(StaticCString p_method_name, M p_method, std::initializer_list<Variant> args) {
+        MethodBind *bind = create_method_bind_va(p_method);
+        return ClassDB::bind_methodfi(METHOD_FLAGS_DEFAULT, bind, D_METHOD(p_method_name, arg_count(p_method)), args); 
+    }
     template <class M>
     static MethodBind *bind_vararg_method(const StringName &p_name, M p_method, MethodInfo &&p_info,
             const Vector<Variant> &p_default_args = null_variant_pvec, bool p_return_nil_is_variant = true) {
@@ -234,8 +247,7 @@ struct MethodBinder {
         bind->set_name(p_name);
         bind->set_default_arguments(p_default_args);
 
-        const char * instance_type = bind->get_instance_class();
-        if(!ClassDB::bind_helper(bind,instance_type,p_name) )
+        if(!ClassDB::bind_helper(bind,p_name) )
         {
             memdelete(bind);
             return nullptr;
@@ -243,3 +255,14 @@ struct MethodBinder {
         return bind;
     }
 };
+
+#define BIND_METHOD(class_name, method_name) \
+    MethodBinder::bind_methodA(StaticCString(#method_name), &class_name::method_name)
+#define BIND_METHOD_WRAPPER(class_name, method_name, wrapper)                                                          \
+    MethodBinder::bind_methodA(StaticCString(#method_name), &class_name::wrapper)
+
+#define SE_BIND_METHOD_WITH_DEFAULTS(class_name, method_name, ...) \
+    MethodBinder::bind_methodA(StaticCString(#method_name), &class_name::method_name, { __VA_ARGS__ })
+
+#define BIND_METHOD_WRAPPER_DEFAULTS(class_name, method_name, wrapper,...) \
+    MethodBinder::bind_methodA(StaticCString(#method_name), &class_name::wrapper, { __VA_ARGS__ })

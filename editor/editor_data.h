@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_data.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,8 +32,10 @@
 
 #include "core/deque.h"
 #include "core/undo_redo.h"
+#include "core/ustring.h"
+#include "core/dictionary.h"
 #include "editor/editor_plugin.h"
-#include "editor/plugins/script_editor_plugin.h"
+//#include "editor/plugins/script_editor_plugin.h"
 #include "scene/resources/texture.h"
 
 class EditorHistory {
@@ -46,7 +48,7 @@ class EditorHistory {
     struct Obj {
 
         REF ref;
-        ObjectID object;
+        GameEntity object;
         String property;
         bool inspector_only;
     };
@@ -69,7 +71,7 @@ class EditorHistory {
         Variant value;
     };
 
-    void _add_object(ObjectID p_object, StringView p_property, int p_level_change, bool p_inspector_only = false);
+    void _add_object(GameEntity p_object, StringView p_property, int p_level_change, bool p_inspector_only = false);
 
 public:
     void cleanup_history();
@@ -77,23 +79,23 @@ public:
     bool is_at_beginning() const;
     bool is_at_end() const;
 
-    void add_object_inspector_only(ObjectID p_object);
-    void add_object(ObjectID p_object);
-    void add_object(ObjectID p_object, StringView p_subprop);
-    void add_object(ObjectID p_object, int p_relevel);
+    void add_object_inspector_only(GameEntity p_object);
+    void add_object(GameEntity p_object);
+    void add_object(GameEntity p_object, StringView p_subprop);
+    void add_object(GameEntity p_object, int p_relevel);
 
     int get_history_len();
     int get_history_pos();
-    ObjectID get_history_obj(int p_obj) const;
+    GameEntity get_history_obj(int p_obj) const;
     bool is_history_obj_inspector_only(int p_obj) const;
 
     bool next();
     bool previous();
-    ObjectID get_current();
+    GameEntity get_current();
     bool is_current_inspector_only() const;
 
     int get_path_size() const;
-    ObjectID get_path_object(int p_index) const;
+    GameEntity get_path_object(int p_index) const;
     String get_path_property(int p_index) const;
 
     void clear();
@@ -114,15 +116,16 @@ public:
     };
 
     struct EditedScene {
-        Node *root;
         String path;
         Dictionary editor_states;
         Vector<Node *> selection;
         Vector<EditorHistory::History> history_stored;
-        int history_current;
         Dictionary custom_state;
-        uint64_t version;
         NodePath live_edit_root;
+        Node *root;
+        uint64_t version;
+        uint64_t file_modified_time = 0;
+        int history_current;
     };
 
 private:
@@ -138,7 +141,6 @@ private:
     Vector<PropertyData> clipboard;
     UndoRedo undo_redo;
 
-    void _cleanup_history();
 
     Vector<EditedScene> edited_scene;
     int current_edited_scene;
@@ -190,7 +192,7 @@ public:
     Node *get_edited_scene_root(int p_idx = -1);
     int get_edited_scene_count() const;
     const Vector<EditedScene> &get_edited_scenes() const;
-    StringName get_scene_title(int p_idx) const;
+    StringName get_scene_title(int p_idx,bool p_always_strip_extension=false) const;
     String get_scene_path(int p_idx) const;
     UIString get_scene_type(int p_idx) const;
     void set_scene_path(int p_idx, StringView p_path);
@@ -198,6 +200,8 @@ public:
     void set_edited_scene_version(uint64_t version, int p_scene_idx = -1);
     uint64_t get_edited_scene_version() const;
     uint64_t get_scene_version(int p_idx) const;
+    void set_scene_modified_time(int p_idx, uint64_t p_time);
+    uint64_t get_scene_modified_time(int p_idx) const;
     void clear_edited_scenes();
     void set_edited_scene_live_edit_root(const NodePath &p_root);
     NodePath get_edited_scene_live_edit_root();

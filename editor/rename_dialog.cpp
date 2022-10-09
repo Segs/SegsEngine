@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  rename_dialog.cpp                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -144,7 +144,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
     but_insert_name->set_text("NAME");
     but_insert_name->set_tooltip("${NAME}\n" + TTR("Node name"));
     but_insert_name->set_focus_mode(FOCUS_NONE);
-    but_insert_name->connect("pressed",callable_mp(this, &ClassName::_insert_text), make_binds("${NAME}"));
+    but_insert_name->connectF("pressed",this,[=]() { _insert_text("${NAME}"); });
     but_insert_name->set_h_size_flags(SIZE_EXPAND_FILL);
     grd_substitute->add_child(but_insert_name);
 
@@ -154,7 +154,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
     but_insert_parent->set_text("PARENT");
     but_insert_parent->set_tooltip("${PARENT}\n" + TTR("Node's parent name, if available"));
     but_insert_parent->set_focus_mode(FOCUS_NONE);
-    but_insert_parent->connect("pressed",callable_mp(this, &ClassName::_insert_text), make_binds("${PARENT}"));
+    but_insert_parent->connectF("pressed",this,[=]() { _insert_text("${PARENT}"); });
     but_insert_parent->set_h_size_flags(SIZE_EXPAND_FILL);
     grd_substitute->add_child(but_insert_parent);
 
@@ -164,7 +164,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
     but_insert_type->set_text("TYPE");
     but_insert_type->set_tooltip("${TYPE}\n" + TTR("Node type"));
     but_insert_type->set_focus_mode(FOCUS_NONE);
-    but_insert_type->connect("pressed",callable_mp(this, &ClassName::_insert_text), make_binds("${TYPE}"));
+    but_insert_type->connectF("pressed",this,[=]() { _insert_text("${TYPE}"); });
     but_insert_type->set_h_size_flags(SIZE_EXPAND_FILL);
     grd_substitute->add_child(but_insert_type);
 
@@ -174,7 +174,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
     but_insert_scene->set_text("SCENE");
     but_insert_scene->set_tooltip("${SCENE}\n" + TTR("Current scene name"));
     but_insert_scene->set_focus_mode(FOCUS_NONE);
-    but_insert_scene->connect("pressed",callable_mp(this, &ClassName::_insert_text), make_binds("${SCENE}"));
+    but_insert_scene->connectF("pressed",this,[=]() { _insert_text("${SCENE}"); });
     but_insert_scene->set_h_size_flags(SIZE_EXPAND_FILL);
     grd_substitute->add_child(but_insert_scene);
 
@@ -184,7 +184,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
     but_insert_root->set_text("ROOT");
     but_insert_root->set_tooltip("${ROOT}\n" + TTR("Root node name"));
     but_insert_root->set_focus_mode(FOCUS_NONE);
-    but_insert_root->connect("pressed",callable_mp(this, &ClassName::_insert_text), make_binds("${ROOT}"));
+    but_insert_root->connectF("pressed",this,[=]() { _insert_text("${ROOT}"); });
     but_insert_root->set_h_size_flags(SIZE_EXPAND_FILL);
     grd_substitute->add_child(but_insert_root);
 
@@ -194,7 +194,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
     but_insert_count->set_text("COUNTER");
     but_insert_count->set_tooltip("${COUNTER}\n" + TTR("Sequential integer counter.\nCompare counter options."));
     but_insert_count->set_focus_mode(FOCUS_NONE);
-    but_insert_count->connect("pressed",callable_mp(this, &ClassName::_insert_text), make_binds("${COUNTER}"));
+    but_insert_count->connectF("pressed",this,[=]() { _insert_text("${COUNTER}"); });
     but_insert_count->set_h_size_flags(SIZE_EXPAND_FILL);
     grd_substitute->add_child(but_insert_count);
 
@@ -288,6 +288,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
     vbc->add_child(lbl_preview_title);
 
     lbl_preview = memnew(Label);
+    lbl_preview->set_autowrap(true);
     vbc->add_child(lbl_preview);
 
     // ---- Dialog related
@@ -326,9 +327,9 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
     spn_count_padding->connect("value_changed",callable_mp(this, &ClassName::_update_preview_int));
     opt_style->connect("item_selected",callable_mp(this, &ClassName::_update_preview_int));
     opt_case->connect("item_selected",callable_mp(this, &ClassName::_update_preview_int));
-    cbut_substitute->connect("pressed",callable_mp(this, &ClassName::_update_preview), varray(""));
-    cbut_regex->connect("pressed",callable_mp(this, &ClassName::_update_preview), varray(""));
-    cbut_process->connect("pressed",callable_mp(this, &ClassName::_update_preview), varray(""));
+    cbut_substitute->connectF("pressed",this,[=]() { _update_preview(); });
+    cbut_regex->connectF("pressed",this,[=]() { _update_preview(); });
+    cbut_process->connectF("pressed",this,[=]() { _update_preview(); });
 
     but_reset->connect("pressed",callable_mp(this, &ClassName::reset));
 
@@ -452,7 +453,10 @@ String RenameDialog::_substitute(const String &subject, const Node *node, int co
     }
 
     int current = EditorNode::get_singleton()->get_editor_data().get_edited_scene();
-    result.replace("${SCENE}", EditorNode::get_singleton()->get_editor_data().get_scene_title(current).asCString());
+    // Always request the scene title with the extension stripped.
+    // Otherwise, the result could vary depending on whether a scene with the same name
+    // (but different extension) is currently open.
+    result.replace("${SCENE}", EditorNode::get_singleton()->get_editor_data().get_scene_title(current, true).asCString());
 
     Node *root_node = SceneTree::get_singleton()->get_edited_scene_root();
     if (root_node) {
@@ -542,7 +546,7 @@ String RenameDialog::_postprocess(const String &subject) {
         // To Lowercase
         result = StringUtils::to_lower(result);
     } else if (case_id == 2) {
-        // To Upercase
+        // To Uppercase
         result = StringUtils::to_upper(result);
     }
 
@@ -595,7 +599,9 @@ void RenameDialog::rename() {
     // Forward recursive as opposed to the actual renaming.
     _iterate_scene(root_node, selected_node_list, &global_count);
 
-    if (undo_redo && !to_rename.empty()) {
+    if (!undo_redo || to_rename.empty()) {
+        return;
+    }
 
         undo_redo->create_action(TTR("Batch Rename"));
 
@@ -611,12 +617,17 @@ void RenameDialog::rename() {
             }
 
             scene_tree_editor->emit_signal("node_prerename", Variant(n), new_name);
-            undo_redo->add_do_method(scene_tree_editor, "_rename_node", Variant::from(n->get_instance_id()), new_name);
-            undo_redo->add_undo_method(scene_tree_editor, "_rename_node", Variant::from(n->get_instance_id()), n->get_name());
+        undo_redo->add_do_method(
+                [=, instance_id = n->get_instance_id()]() { scene_tree_editor->_rename_node(instance_id, new_name); },
+                scene_tree_editor->get_instance_id());
+        undo_redo->add_undo_method(
+                [=, instance_id = n->get_instance_id(), old_name = n->get_name()]() {
+                    scene_tree_editor->_rename_node(instance_id, old_name);
+                },
+                scene_tree_editor->get_instance_id());
         }
 
         undo_redo->commit_action();
-    }
 }
 
 void RenameDialog::reset() {

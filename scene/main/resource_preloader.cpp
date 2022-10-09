@@ -156,14 +156,14 @@ void ResourcePreloader::get_resource_list(List<StringName> *p_list) {
 
 void ResourcePreloader::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_set_resources"), &ResourcePreloader::_set_resources);
-    MethodBinder::bind_method(D_METHOD("_get_resources"), &ResourcePreloader::_get_resources);
+    BIND_METHOD(ResourcePreloader,_set_resources);
+    BIND_METHOD(ResourcePreloader,_get_resources);
 
-    MethodBinder::bind_method(D_METHOD("add_resource", {"name", "resource"}), &ResourcePreloader::add_resource);
-    MethodBinder::bind_method(D_METHOD("remove_resource", {"name"}), &ResourcePreloader::remove_resource);
-    MethodBinder::bind_method(D_METHOD("rename_resource", {"name", "newname"}), &ResourcePreloader::rename_resource);
-    MethodBinder::bind_method(D_METHOD("has_resource", {"name"}), &ResourcePreloader::has_resource);
-    MethodBinder::bind_method(D_METHOD("get_resource", {"name"}), &ResourcePreloader::get_resource);
+    BIND_METHOD(ResourcePreloader,add_resource);
+    BIND_METHOD(ResourcePreloader,remove_resource);
+    BIND_METHOD(ResourcePreloader,rename_resource);
+    BIND_METHOD(ResourcePreloader,has_resource);
+    BIND_METHOD(ResourcePreloader,get_resource);
     MethodBinder::bind_method(D_METHOD("get_resource_list"), &ResourcePreloader::_get_resource_list);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "resources", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_resources", "_get_resources");

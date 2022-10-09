@@ -418,7 +418,7 @@ void ConcavePolygonShapeBullet::setup(const PoolVector<Vector3>& p_faces) {
 
         meshShape = bulletnew(btBvhTriangleMeshShape(shapeInterface, useQuantizedAabbCompression));
 
-        if (T_GLOBAL_DEF("physics/3d/smooth_trimesh_collision", false)) {
+        if (T_GLOBAL_GET<bool>("physics/3d/smooth_trimesh_collision")) {
             btTriangleInfoMap *triangleInfoMap = new btTriangleInfoMap();
             btGenerateInternalEdgeInfo(meshShape, triangleInfoMap);
         }
@@ -476,7 +476,7 @@ void HeightMapShapeBullet::set_data(const Variant &p_data) {
     PoolVector<real_t> l_heights;
     Variant l_heights_v = d["heights"];
 
-    if (l_heights_v.get_type() == VariantType::POOL_REAL_ARRAY) {
+    if (l_heights_v.get_type() == VariantType::POOL_FLOAT32_ARRAY) {
         // Ready-to-use heights can be passed
 
         l_heights = l_heights_v.as<PoolVector<real_t>>();
@@ -491,7 +491,7 @@ void HeightMapShapeBullet::set_data(const Variant &p_data) {
         // Float is the only common format between Godot and Bullet that can be used for decent collision.
         // (Int16 would be nice too but we still don't have it)
         // We could convert here automatically but it's better to not be intrusive and let the caller do it if necessary.
-        ERR_FAIL_COND(l_image->get_format() != Image::FORMAT_RF);
+        ERR_FAIL_COND(l_image->get_format() != ImageData::FORMAT_RF);
 
         PoolByteArray im_data = l_image->get_data();
 

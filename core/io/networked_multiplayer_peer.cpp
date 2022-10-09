@@ -36,19 +36,19 @@ IMPL_GDCLASS(NetworkedMultiplayerPeer)
 
 void NetworkedMultiplayerPeer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_transfer_mode", {"mode"}), &NetworkedMultiplayerPeer::set_transfer_mode);
-    MethodBinder::bind_method(D_METHOD("get_transfer_mode"), &NetworkedMultiplayerPeer::get_transfer_mode);
-    MethodBinder::bind_method(D_METHOD("set_target_peer", {"id"}), &NetworkedMultiplayerPeer::set_target_peer);
+    BIND_METHOD(NetworkedMultiplayerPeer,set_transfer_mode);
+    BIND_METHOD(NetworkedMultiplayerPeer,get_transfer_mode);
+    BIND_METHOD(NetworkedMultiplayerPeer,set_target_peer);
 
-    MethodBinder::bind_method(D_METHOD("get_packet_peer"), &NetworkedMultiplayerPeer::get_packet_peer);
+    BIND_METHOD(NetworkedMultiplayerPeer,get_packet_peer);
 
-    MethodBinder::bind_method(D_METHOD("poll"), &NetworkedMultiplayerPeer::poll);
+    BIND_METHOD(NetworkedMultiplayerPeer,poll);
 
-    MethodBinder::bind_method(D_METHOD("get_connection_status"), &NetworkedMultiplayerPeer::get_connection_status);
-    MethodBinder::bind_method(D_METHOD("get_unique_id"), &NetworkedMultiplayerPeer::get_unique_id);
+    BIND_METHOD(NetworkedMultiplayerPeer,get_connection_status);
+    BIND_METHOD(NetworkedMultiplayerPeer,get_unique_id);
 
-    MethodBinder::bind_method(D_METHOD("set_refuse_new_connections", {"enable"}), &NetworkedMultiplayerPeer::set_refuse_new_connections);
-    MethodBinder::bind_method(D_METHOD("is_refusing_new_connections"), &NetworkedMultiplayerPeer::is_refusing_new_connections);
+    BIND_METHOD(NetworkedMultiplayerPeer,set_refuse_new_connections);
+    BIND_METHOD(NetworkedMultiplayerPeer,is_refusing_new_connections);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "refuse_new_connections"), "set_refuse_new_connections", "is_refusing_new_connections");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "transfer_mode", PropertyHint::Enum, "Unreliable,Unreliable Ordered,Reliable"), "set_transfer_mode", "get_transfer_mode");

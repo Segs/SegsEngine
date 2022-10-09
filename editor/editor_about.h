@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_about.h                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -39,7 +39,12 @@ class RichTextLabel;
 class ScrollContainer;
 class TextureRect;
 class Tree;
+class LinkButton;
 
+/**
+ * NOTE: Do not assume the EditorNode singleton to be available in this class' methods.
+ * EditorAbout is also used from the project manager where EditorNode isn't initialized.
+ */
 class EditorAbout : public AcceptDialog {
 
     GDCLASS(EditorAbout,AcceptDialog)
@@ -48,12 +53,14 @@ private:
     void _license_tree_selected();
     ScrollContainer *_populate_list(StringView p_name, const Vector<StringName> &p_sections, const char *const *const p_src[], const int p_flag_single_column = 0);
 
+    LinkButton *version_btn;
     Tree *_tpl_tree;
     RichTextLabel *_license_text;
     RichTextLabel *_tpl_text;
     TextureRect *_logo;
 
 protected:
+    void _version_button_pressed();
     void _notification(int p_what);
     static void _bind_methods();
 

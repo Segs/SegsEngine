@@ -60,6 +60,17 @@ void ContextGL_Windows::make_current() {
     wglMakeCurrent(hDC, hRC);
 }
 
+bool ContextGL_Windows::is_offscreen_available() const {
+    return hRC_offscreen != nullptr;
+}
+
+void ContextGL_Windows::make_offscreen_current() {
+    ERR_FAIL_COND(!wglMakeCurrent(hDC, hRC_offscreen));
+}
+
+void ContextGL_Windows::release_offscreen_current() {
+    ERR_FAIL_COND(!wglMakeCurrent(hDC, nullptr));
+}
 
 HDC ContextGL_Windows::get_hdc() {
     return hDC;
@@ -219,6 +230,7 @@ Error ContextGL_Windows::initialize() {
         {
             return ERR_CANT_CREATE; // Return FALSE
         }
+        hRC_offscreen = wglCreateContextAttribsARB(hDC, nullptr, attribs);
     }
 
     wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");

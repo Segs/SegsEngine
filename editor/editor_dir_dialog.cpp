@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_dir_dialog.cpp                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,6 +34,7 @@
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_file_system.h"
 #include "editor/editor_settings.h"
 #include "editor_scale.h"
@@ -48,6 +49,7 @@ void EditorDirDialog::_update_dir(TreeItem *p_item, EditorFileSystemDirectory *p
 
     p_item->set_metadata(0, p_dir->get_path());
     p_item->set_icon(0, get_theme_icon("Folder", "EditorIcons"));
+    p_item->set_icon_modulate(0, get_theme_color("folder_icon_modulate", "FileDialog"));
 
     if (!p_item->get_parent()) {
         p_item->set_text(0, "res://");
@@ -86,22 +88,23 @@ void EditorDirDialog::reload(StringView p_path) {
 
 void EditorDirDialog::_notification(int p_what) {
 
+    const auto reload_lambda = callable_gen(this, [this](){ reload();});
     if (p_what == NOTIFICATION_ENTER_TREE) {
-        EditorFileSystem::get_singleton()->connect("filesystem_changed",callable_gen(this, [this](){ reload();}));
+        EditorFileSystem::get_singleton()->connect("filesystem_changed",reload_lambda);
         reload();
 
         if (!tree->is_connected("item_collapsed",callable_mp(this, &EditorDirDialog::_item_collapsed))) {
-            tree->connect("item_collapsed",callable_mp(this, &EditorDirDialog::_item_collapsed), varray(), ObjectNS::CONNECT_QUEUED);
+            tree->connect("item_collapsed",callable_mp(this, &EditorDirDialog::_item_collapsed), ObjectNS::CONNECT_QUEUED);
         }
 
-        if (!EditorFileSystem::get_singleton()->is_connected("filesystem_changed",callable_gen(this, [this](){ reload();}))) {
-            EditorFileSystem::get_singleton()->connect("filesystem_changed",callable_gen(this, [this](){ reload();}));
+        if (!EditorFileSystem::get_singleton()->is_connected("filesystem_changed",reload_lambda)) {
+            EditorFileSystem::get_singleton()->connect("filesystem_changed",reload_lambda);
         }
     }
 
     if (p_what == NOTIFICATION_EXIT_TREE) {
-        if (EditorFileSystem::get_singleton()->is_connected("filesystem_changed",callable_gen(this, [this](){ reload();}))) {
-            EditorFileSystem::get_singleton()->disconnect("filesystem_changed",callable_gen(this, [this](){ reload();}));
+        if (EditorFileSystem::get_singleton()->is_connected("filesystem_changed",reload_lambda)) {
+            EditorFileSystem::get_singleton()->disconnect_all("filesystem_changed",get_instance_id());
         }
     }
 

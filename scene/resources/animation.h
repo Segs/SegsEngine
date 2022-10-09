@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  animation.h                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,6 +35,8 @@
 #include "core/math/vector2.h"
 #include "core/math/quat.h"
 #include "core/node_path.h"
+
+#define ANIM_MIN_LENGTH 0.001f
 
 class GODOT_EXPORT Animation : public Resource {
 
@@ -77,6 +79,9 @@ private:
         bool enabled = true;
         Track(TrackType t) : type(t) {}
         virtual ~Track() {}
+        // non copyable
+        Track(const Track &)=delete;
+        Track &operator=(const Track &)=delete;
     };
 
     struct Key {

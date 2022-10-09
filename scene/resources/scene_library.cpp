@@ -192,17 +192,17 @@ LibraryItemHandle SceneLibrary::add_item(Item &&data)
 
 void SceneLibrary::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("create_item", {"id"}), &SceneLibrary::create_item);
-    MethodBinder::bind_method(D_METHOD("set_item_name", {"id", "name"}), &SceneLibrary::set_item_name);
-    MethodBinder::bind_method(D_METHOD("set_item_preview", {"id", "texture"}), &SceneLibrary::set_item_preview);
-    MethodBinder::bind_method(D_METHOD("get_item_name", {"id"}), &SceneLibrary::get_item_name);
-    MethodBinder::bind_method(D_METHOD("get_item_preview", {"id"}), &SceneLibrary::get_item_preview);
-    MethodBinder::bind_method(D_METHOD("remove_item", {"id"}), &SceneLibrary::remove_item);
-    MethodBinder::bind_method(D_METHOD("find_item_by_name", {"name"}), &SceneLibrary::find_item_by_name);
+    BIND_METHOD(SceneLibrary,create_item);
+    BIND_METHOD(SceneLibrary,set_item_name);
+    BIND_METHOD(SceneLibrary,set_item_preview);
+    BIND_METHOD(SceneLibrary,get_item_name);
+    BIND_METHOD(SceneLibrary,get_item_preview);
+    BIND_METHOD(SceneLibrary,remove_item);
+    BIND_METHOD(SceneLibrary,find_item_by_name);
 
-    MethodBinder::bind_method(D_METHOD("clear"), &SceneLibrary::clear);
-    MethodBinder::bind_method(D_METHOD("get_item_list"), &SceneLibrary::get_item_list);
-    MethodBinder::bind_method(D_METHOD("get_last_unused_item_id"), &SceneLibrary::get_last_unused_item_id);
+    BIND_METHOD(SceneLibrary,clear);
+    BIND_METHOD(SceneLibrary,get_item_list);
+    BIND_METHOD(SceneLibrary,get_last_unused_item_id);
 }
 
 

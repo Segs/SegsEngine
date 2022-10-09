@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  polygon_2d_editor_plugin.h                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -107,7 +107,7 @@ class Polygon2DEditor : public AbstractPolygon2DEditor {
     PoolVector<Vector2> points_prev;
     PoolVector<Vector2> uv_create_uv_prev;
     PoolVector<Vector2> uv_create_poly_prev;
-    PoolVector<Color> uv_create_colors_prev;
+    Vector<Color> uv_create_colors_prev;
     int uv_create_prev_internal_vertices;
     Array uv_create_bones_prev;
     Array polygons_prev;

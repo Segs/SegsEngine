@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  resource_format_binary.cpp                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -47,6 +47,7 @@
 #include "core/string_utils.h"
 #include "core/version.h"
 #include "core/string_formatter.h"
+#include "core/version_generated.gen.h"
 
 #include "EASTL/sort.h"
 #include "core/resource/resource_manager.h"
@@ -145,10 +146,10 @@ StringName ResourceInteractiveLoaderBinary::_get_string() {
 
 Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
 
-    uint32_t type = f->get_32();
-    print_bl("find property of type: " + itos(type));
+    uint32_t v_type = f->get_32();
+    print_bl("find property of type: " + itos(v_type));
 
-    switch (type) {
+    switch (v_type) {
 
         case VARIANT_NIL: {
 
@@ -177,6 +178,9 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
         case VARIANT_STRING: {
 
             r_v = get_unicode_string();
+        } break;
+        case VARIANT_STRING_NAME: {
+            r_v = StringName(get_unicode_string());
         } break;
         case VARIANT_VECTOR2: {
 
@@ -330,7 +334,13 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
                 case OBJECT_INTERNAL_RESOURCE: {
                     uint32_t index = f->get_32();
                     String path = res_path + "::" + ::to_string(index);
-                    RES res(gResourceManager().load(path));
+                    RES res;
+                    if (internal_resources_cache.contains(index)) {
+                        res = internal_resources_cache[index];
+                    } else {
+                        res = gResourceManager().load(path, "", no_subresource_cache);
+                        internal_resources_cache[index] = res;
+                    }
                     if (not res) {
                         WARN_PRINT("Couldn't load resource: " + path);
                     }
@@ -352,7 +362,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
                         path = remaps[path];
                     }
 
-                    RES res(gResourceManager().load(path, exttype));
+                    RES res(gResourceManager().load(path, exttype, false));
 
                     if (not res) {
                         WARN_PRINT(("Couldn't load resource: " + path));
@@ -377,7 +387,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
                             path = ProjectSettings::get_singleton()->localize_path(PathUtils::plus_file(PathUtils::get_base_dir(res_path),path));
                         }
 
-                        RES res(gResourceManager().load(path, exttype));
+                        RES res(gResourceManager().load(path, exttype, no_subresource_cache));
 
                         if (not res) {
                             WARN_PRINT(("Couldn't load resource: " + path));
@@ -401,11 +411,11 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             for (uint32_t i = 0; i < len; i++) {
                 Variant key;
                 Error err = parse_variant(key);
-                ERR_FAIL_COND_V_MSG(err, ERR_FILE_CORRUPT, "Error when trying to parse Variant.");
+                ERR_FAIL_COND_V_MSG(err || (key.get_type()!=VariantType::STRING && key.get_type() != VariantType::STRING_NAME), ERR_FILE_CORRUPT, "Error when trying to parse Variant.");
                 Variant value;
                 err = parse_variant(value);
                 ERR_FAIL_COND_V_MSG(err, ERR_FILE_CORRUPT, "Error when trying to parse Variant.");
-                d[key] = value;
+                d[key.as<StringName>()] = value;
             }
             r_v = d;
         } break;
@@ -554,7 +564,7 @@ Error ResourceInteractiveLoaderBinary::poll() {
         if (remaps.contains(path)) {
             path = remaps[path];
         }
-        RES res(gResourceManager().load(path, external_resources[s].type));
+        RES res(gResourceManager().load(path, external_resources[s].type,false));
         if (not res) {
 
             if (!gResourceManager().get_abort_on_missing_resources()) {
@@ -597,7 +607,7 @@ Error ResourceInteractiveLoaderBinary::poll() {
             path = res_path + "::" + path;
         }
 
-        if (ResourceCache::has(path)) {
+        if (!no_subresource_cache && ResourceCache::has(path)) {
             //already loaded, don't do anything
             stage++;
             error = OK;
@@ -631,7 +641,9 @@ Error ResourceInteractiveLoaderBinary::poll() {
 
     RES res(r,DoNotAddRef);
 
-    r->set_path(path);
+	if (!no_subresource_cache) {
+        r->set_path(path);
+    }
     r->set_subindex(subindex);
 
     int pc = f->get_32();
@@ -659,6 +671,7 @@ Error ResourceInteractiveLoaderBinary::poll() {
     Object_set_edited(res.get(),false);
     stage++;
 
+    internal_resources_cache[subindex] = res;
     resource_cache.push_back(res);
 
     if (main) {
@@ -881,7 +894,8 @@ ResourceInteractiveLoaderBinary::~ResourceInteractiveLoaderBinary() {
     memdelete(f);
 }
 
-Ref<ResourceInteractiveLoader> ResourceFormatLoaderBinary::load_interactive(StringView p_path, StringView p_original_path, Error *r_error) {
+Ref<ResourceInteractiveLoader> ResourceFormatLoaderBinary::load_interactive(
+        StringView p_path, StringView p_original_path, Error *r_error, bool p_no_subresource_cache) {
 
     if (r_error)
         *r_error = ERR_FILE_CANT_OPEN;
@@ -893,6 +907,7 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoaderBinary::load_interactive(Stri
 
     Ref<ResourceInteractiveLoaderBinary> ria(make_ref_counted<ResourceInteractiveLoaderBinary>());
     StringView path = !p_original_path.empty() ? p_original_path : p_path;
+    ria->set_no_subresource_cache(p_no_subresource_cache);
     ria->local_path = ProjectSettings::get_singleton()->localize_path(path);
     ria->res_path = ria->local_path;
     //ria->set_local_path( Globals::get_singleton()->localize_path(p_path) );
@@ -1065,8 +1080,8 @@ Error ResourceFormatLoaderBinary::rename_dependencies(StringView _path, const Ha
 
     save_ustring(fw, get_ustring(f)); //type
 
-    size_t md_ofs = f->get_position();
-    size_t importmd_ofs = f->get_64();
+    auto md_ofs = f->get_position();
+    auto importmd_ofs = f->get_64();
     fw->store_64(0); //metadata offset
 
     for (int i = 0; i < 14; i++) {
@@ -1416,9 +1431,9 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
             Dictionary d = p_property.as<Dictionary>();
             f->store_32(uint32_t(d.size()));
 
-            Vector<Variant> keys(d.get_key_list());
+            auto keys(d.get_key_list());
 
-            for(Variant &E : keys ) {
+            for(auto &E : keys ) {
 
                 /*
                 if (!_check_type(dict[E]))
@@ -1463,7 +1478,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
                 f->store_32(r[i]);
 
         } break;
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
 
             f->store_32(VARIANT_FLOAT32_ARRAY);
             PoolVector<real_t> arr = p_property.as<PoolVector<real_t>>();
@@ -1605,8 +1620,8 @@ void ResourceFormatSaverBinaryInstance::_find_resources(const Variant &p_variant
         case VariantType::DICTIONARY: {
 
             Dictionary d = p_variant.as<Dictionary>();
-            Vector<Variant> keys(d.get_key_list());
-            for(Variant &E : keys ) {
+            auto keys(d.get_key_list());
+            for(auto &E : keys ) {
 
                 _find_resources(E);
                 Variant v = d[E];
@@ -1640,13 +1655,12 @@ void ResourceFormatSaverBinaryInstance::save_unicode_string(FileAccess *f, Strin
 }
 
 int ResourceFormatSaverBinaryInstance::get_string_index(const StringName &p_string) {
+    if (string_map.contains(p_string)) {
+        return string_map[p_string];
+    }
 
-    StringName s(p_string);
-    if (string_map.contains(s))
-        return string_map[s];
-
-    string_map[s] = strings.size();
-    strings.push_back(s);
+    string_map[p_string] = strings.size();
+    strings.push_back(p_string);
     return strings.size() - 1;
 }
 

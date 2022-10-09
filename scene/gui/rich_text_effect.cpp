@@ -32,6 +32,7 @@
 
 #include "core/script_language.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 
 IMPL_GDCLASS(RichTextEffect)
 
@@ -71,29 +72,29 @@ IMPL_GDCLASS(CharFXTransform)
 
 void CharFXTransform::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_relative_index"), &CharFXTransform::get_relative_index);
-    MethodBinder::bind_method(D_METHOD("set_relative_index", {"index"}), &CharFXTransform::set_relative_index);
+    BIND_METHOD(CharFXTransform,get_relative_index);
+    BIND_METHOD(CharFXTransform,set_relative_index);
 
-    MethodBinder::bind_method(D_METHOD("get_absolute_index"), &CharFXTransform::get_absolute_index);
-    MethodBinder::bind_method(D_METHOD("set_absolute_index", {"index"}), &CharFXTransform::set_absolute_index);
+    BIND_METHOD(CharFXTransform,get_absolute_index);
+    BIND_METHOD(CharFXTransform,set_absolute_index);
 
-    MethodBinder::bind_method(D_METHOD("get_elapsed_time"), &CharFXTransform::get_elapsed_time);
-    MethodBinder::bind_method(D_METHOD("set_elapsed_time", {"time"}), &CharFXTransform::set_elapsed_time);
+    BIND_METHOD(CharFXTransform,get_elapsed_time);
+    BIND_METHOD(CharFXTransform,set_elapsed_time);
 
-    MethodBinder::bind_method(D_METHOD("is_visible"), &CharFXTransform::is_visible);
-    MethodBinder::bind_method(D_METHOD("set_visibility", {"visibility"}), &CharFXTransform::set_visibility);
+    BIND_METHOD(CharFXTransform,is_visible);
+    BIND_METHOD(CharFXTransform,set_visibility);
 
-    MethodBinder::bind_method(D_METHOD("get_offset"), &CharFXTransform::get_offset);
-    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &CharFXTransform::set_offset);
+    BIND_METHOD(CharFXTransform,get_offset);
+    BIND_METHOD(CharFXTransform,set_offset);
 
-    MethodBinder::bind_method(D_METHOD("get_color"), &CharFXTransform::get_color);
-    MethodBinder::bind_method(D_METHOD("set_color", {"color"}), &CharFXTransform::set_color);
+    BIND_METHOD(CharFXTransform,get_color);
+    BIND_METHOD(CharFXTransform,set_color);
 
-    MethodBinder::bind_method(D_METHOD("get_environment"), &CharFXTransform::get_environment);
-    MethodBinder::bind_method(D_METHOD("set_environment", {"environment"}), &CharFXTransform::set_environment);
+    BIND_METHOD(CharFXTransform,get_environment);
+    BIND_METHOD(CharFXTransform,set_environment);
 
-    MethodBinder::bind_method(D_METHOD("get_character"), &CharFXTransform::get_character);
-    MethodBinder::bind_method(D_METHOD("set_character", {"character"}), &CharFXTransform::set_character);
+    BIND_METHOD(CharFXTransform,get_character);
+    BIND_METHOD(CharFXTransform,set_character);
 
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "relative_index"), "set_relative_index", "get_relative_index");

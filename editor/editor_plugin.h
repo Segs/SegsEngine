@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_plugin.h                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,7 +34,6 @@
 #include "core/undo_redo.h"
 #include "editor/editor_inspector.h"
 #include "editor/import/editor_import_plugin.h"
-#include "editor/import/resource_importer_scene.h"
 #include "scene/main/node.h"
 #include "scene/resources/texture.h"
 
@@ -49,6 +48,7 @@ class EditorExportPlugin;
 class EditorSpatialGizmoPlugin;
 class EditorResourcePreview;
 class EditorFileSystem;
+class EditorSceneImporter;
 class EditorToolAddons;
 class ScriptEditor;
 class ToolButton;
@@ -69,6 +69,8 @@ public:
 
     Control *get_editor_viewport();
     void edit_resource(const Ref<Resource> &p_resource);
+    void edit_node(Node *p_node);
+    void edit_script(const Ref<Script> &p_script, int p_line=-1, int p_col=0, bool p_grab_focus=true);
     void open_scene_from_path(StringView scene_path);
     void reload_scene_from_path(StringView scene_path);
 
@@ -98,8 +100,9 @@ public:
     FileSystemDock *get_file_system_dock();
 
     Control *get_base_control();
+    float get_editor_scale() const;
 
-    void set_plugin_enabled(const StringName &p_plugin, bool p_enabled);
+    void set_plugin_enabled(StringView p_plugin, bool p_enabled);
     bool is_plugin_enabled(const StringName &p_plugin) const;
 
     EditorInspector *get_inspector() const;
@@ -119,6 +122,7 @@ public:
 class GODOT_EXPORT EditorPlugin : public Node {
 
     GDCLASS(EditorPlugin,Node)
+    SE_CLASS()
 
     friend class EditorData;
     UndoRedo *undo_redo;
@@ -198,7 +202,7 @@ public:
     virtual void forward_spatial_force_draw_over_viewport(Control *p_overlay);
 
     virtual StringView get_name() const;
-    virtual Ref<Texture> get_icon() const;
+    SE_INVOCABLE virtual Ref<Texture> get_icon() const;
     virtual bool has_main_screen() const;
     virtual void make_visible(bool p_visible);
     virtual void selected_notify() {} //notify that it was raised by the user, not the editor

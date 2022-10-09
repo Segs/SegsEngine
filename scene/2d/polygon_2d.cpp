@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  polygon_2d.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -33,6 +33,7 @@
 #include "skeleton_2d.h"
 
 #include "core/callable_method_pointer.h"
+#include "core/dictionary.h"
 #include "core/math/geometry.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
@@ -115,17 +116,17 @@ void Polygon2D::_notification(int p_what) {
                 skeleton_node = object_cast<Skeleton2D>(get_node(skeleton));
             }
 
-            ObjectID new_skeleton_id {0ULL};
+            GameEntity new_skeleton_id {entt::null};
 
             if (skeleton_node) {
                 RenderingServer::get_singleton()->canvas_item_attach_skeleton(get_canvas_item(), skeleton_node->get_skeleton());
                 new_skeleton_id = skeleton_node->get_instance_id();
             } else {
-                RenderingServer::get_singleton()->canvas_item_attach_skeleton(get_canvas_item(), RID());
+                RenderingServer::get_singleton()->canvas_item_attach_skeleton(get_canvas_item(), entt::null);
             }
 
             if (new_skeleton_id != current_skeleton_id) {
-                Object *old_skeleton = ObjectDB::get_instance(current_skeleton_id);
+                Object *old_skeleton = object_for_entity(current_skeleton_id);
                 if (old_skeleton) {
                     old_skeleton->disconnect("bone_setup_changed",callable_mp(this, &ClassName::_skeleton_bone_setup_changed));
                 }
@@ -137,8 +138,9 @@ void Polygon2D::_notification(int p_what) {
                 current_skeleton_id = new_skeleton_id;
             }
 
+            //TODO: make local vectors use stack allocation/ FixedVector ?
             Vector<Vector2> points;
-            PoolVector<Vector2> uvs;
+            Vector<Vector2> uvs;
             PoolVector<int> bones;
             PoolVector<float> weights;
 
@@ -181,7 +183,7 @@ void Polygon2D::_notification(int p_what) {
                     sum += (points[ni].x - points[i].x) * (points[ni].y + points[i].y);
                 }
 
-                bounds = bounds.grow(invert_border);
+                bounds.grow_by(invert_border);
 
                 Vector2 ep[7] = {
                     Vector2(points[highest_idx].x, points[highest_idx].y + invert_border),
@@ -221,7 +223,7 @@ void Polygon2D::_notification(int p_what) {
                 Size2 tex_size = texture->get_size();
 
                 uvs.resize(len);
-                auto uv_wr(uvs.write());
+                auto &uv_wr(uvs);
                 if (points.size() == uv.size()) {
 
                     PoolVector<Vector2>::Read uvr = uv.read();
@@ -300,11 +302,12 @@ void Polygon2D::_notification(int p_what) {
                 }
             }
 
-            PoolVector<Color> colors;
+            Color single_color[1] = {color};
+            Span<const Color> colors;
             if (vertex_colors.size() == points.size()) {
                 colors = vertex_colors;
             } else {
-                colors.push_back(color);
+                colors = single_color;
             }
 
             //			Vector<int> indices = Geometry::triangulate_polygon(points);
@@ -313,7 +316,8 @@ void Polygon2D::_notification(int p_what) {
             if (invert || polygons.empty()) {
                 Vector<int> indices(Geometry::triangulate_polygon(points));
                 if (!indices.empty()) {
-                    RenderingServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID(), -1, RID(), antialiased);
+                    RenderingServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors,
+                            uvs, bones, weights, texture ? texture->get_rid() : entt::null, -1, entt::null, antialiased);
                 }
             } else {
                 //draw individual polygons
@@ -347,7 +351,8 @@ void Polygon2D::_notification(int p_what) {
                 }
 
                 if (!total_indices.empty()) {
-                    RenderingServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), total_indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID(), -1, RID(), antialiased);
+                    RenderingServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), total_indices, points, colors, uvs,
+                            bones, weights, texture ? texture->get_rid() : entt::null, -1, entt::null, antialiased);
                 }
             }
         } break;
@@ -406,12 +411,12 @@ Color Polygon2D::get_color() const {
     return color;
 }
 
-void Polygon2D::set_vertex_colors(const PoolVector<Color> &p_colors) {
+void Polygon2D::set_vertex_colors(const Vector<Color> &p_colors) {
 
     vertex_colors = p_colors;
     update();
 }
-PoolVector<Color> Polygon2D::get_vertex_colors() const {
+const Vector<Color> &Polygon2D::get_vertex_colors() const {
 
     return vertex_colors;
 }
@@ -560,7 +565,9 @@ void Polygon2D::set_bone_path(int p_index, const NodePath &p_path) {
 Array Polygon2D::_get_bones() const {
     Array bones;
     for (int i = 0; i < get_bone_count(); i++) {
-        bones.push_back(get_bone_path(i));
+        // Convert path property to String to avoid errors due to invalid node path in editor,
+        // because it's relative to the Skeleton2D node and not Polygon2D.
+        bones.push_back(String(get_bone_path(i)));
         bones.push_back(get_bone_weights(i));
     }
     return bones;
@@ -570,7 +577,8 @@ void Polygon2D::_set_bones(const Array &p_bones) {
     ERR_FAIL_COND(p_bones.size() & 1);
     clear_bones();
     for (int i = 0; i < p_bones.size(); i += 2) {
-        add_bone(p_bones[i].as<NodePath>(), p_bones[i + 1].as< PoolVector<float>>());
+        // Convert back from String to NodePath.
+        add_bone(NodePath(p_bones[i].as<String>()), p_bones[i + 1].as< PoolVector<float>>());
     }
 }
 
@@ -587,67 +595,67 @@ NodePath Polygon2D::get_skeleton() const {
 
 void Polygon2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_polygon", {"polygon"}), &Polygon2D::set_polygon);
-    MethodBinder::bind_method(D_METHOD("get_polygon"), &Polygon2D::get_polygon);
+    BIND_METHOD(Polygon2D,set_polygon);
+    BIND_METHOD(Polygon2D,get_polygon);
 
-    MethodBinder::bind_method(D_METHOD("set_uv", {"uv"}), &Polygon2D::set_uv);
-    MethodBinder::bind_method(D_METHOD("get_uv"), &Polygon2D::get_uv);
+    BIND_METHOD(Polygon2D,set_uv);
+    BIND_METHOD(Polygon2D,get_uv);
 
-    MethodBinder::bind_method(D_METHOD("set_color", {"color"}), &Polygon2D::set_color);
-    MethodBinder::bind_method(D_METHOD("get_color"), &Polygon2D::get_color);
+    BIND_METHOD(Polygon2D,set_color);
+    BIND_METHOD(Polygon2D,get_color);
 
-    MethodBinder::bind_method(D_METHOD("set_polygons", {"polygons"}), &Polygon2D::set_polygons);
-    MethodBinder::bind_method(D_METHOD("get_polygons"), &Polygon2D::get_polygons);
+    BIND_METHOD(Polygon2D,set_polygons);
+    BIND_METHOD(Polygon2D,get_polygons);
 
-    MethodBinder::bind_method(D_METHOD("set_vertex_colors", {"vertex_colors"}), &Polygon2D::set_vertex_colors);
-    MethodBinder::bind_method(D_METHOD("get_vertex_colors"), &Polygon2D::get_vertex_colors);
+    BIND_METHOD(Polygon2D,set_vertex_colors);
+    BIND_METHOD(Polygon2D,get_vertex_colors);
 
-    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &Polygon2D::set_texture);
-    MethodBinder::bind_method(D_METHOD("get_texture"), &Polygon2D::get_texture);
+    BIND_METHOD(Polygon2D,set_texture);
+    BIND_METHOD(Polygon2D,get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_texture_offset", {"texture_offset"}), &Polygon2D::set_texture_offset);
-    MethodBinder::bind_method(D_METHOD("get_texture_offset"), &Polygon2D::get_texture_offset);
+    BIND_METHOD(Polygon2D,set_texture_offset);
+    BIND_METHOD(Polygon2D,get_texture_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_texture_rotation", {"texture_rotation"}), &Polygon2D::set_texture_rotation);
-    MethodBinder::bind_method(D_METHOD("get_texture_rotation"), &Polygon2D::get_texture_rotation);
+    BIND_METHOD(Polygon2D,set_texture_rotation);
+    BIND_METHOD(Polygon2D,get_texture_rotation);
 
-    MethodBinder::bind_method(D_METHOD("set_texture_rotation_degrees", {"texture_rotation"}), &Polygon2D::set_texture_rotation_degrees);
-    MethodBinder::bind_method(D_METHOD("get_texture_rotation_degrees"), &Polygon2D::get_texture_rotation_degrees);
+    BIND_METHOD(Polygon2D,set_texture_rotation_degrees);
+    BIND_METHOD(Polygon2D,get_texture_rotation_degrees);
 
-    MethodBinder::bind_method(D_METHOD("set_texture_scale", {"texture_scale"}), &Polygon2D::set_texture_scale);
-    MethodBinder::bind_method(D_METHOD("get_texture_scale"), &Polygon2D::get_texture_scale);
+    BIND_METHOD(Polygon2D,set_texture_scale);
+    BIND_METHOD(Polygon2D,get_texture_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_invert", {"invert"}), &Polygon2D::set_invert);
-    MethodBinder::bind_method(D_METHOD("get_invert"), &Polygon2D::get_invert);
+    BIND_METHOD(Polygon2D,set_invert);
+    BIND_METHOD(Polygon2D,get_invert);
 
-    MethodBinder::bind_method(D_METHOD("set_antialiased", {"antialiased"}), &Polygon2D::set_antialiased);
-    MethodBinder::bind_method(D_METHOD("get_antialiased"), &Polygon2D::get_antialiased);
+    BIND_METHOD(Polygon2D,set_antialiased);
+    BIND_METHOD(Polygon2D,get_antialiased);
 
-    MethodBinder::bind_method(D_METHOD("set_invert_border", {"invert_border"}), &Polygon2D::set_invert_border);
-    MethodBinder::bind_method(D_METHOD("get_invert_border"), &Polygon2D::get_invert_border);
+    BIND_METHOD(Polygon2D,set_invert_border);
+    BIND_METHOD(Polygon2D,get_invert_border);
 
-    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &Polygon2D::set_offset);
-    MethodBinder::bind_method(D_METHOD("get_offset"), &Polygon2D::get_offset);
+    BIND_METHOD(Polygon2D,set_offset);
+    BIND_METHOD(Polygon2D,get_offset);
 
-    MethodBinder::bind_method(D_METHOD("add_bone", {"path", "weights"}), &Polygon2D::add_bone);
-    MethodBinder::bind_method(D_METHOD("get_bone_count"), &Polygon2D::get_bone_count);
-    MethodBinder::bind_method(D_METHOD("get_bone_path", {"index"}), &Polygon2D::get_bone_path);
-    MethodBinder::bind_method(D_METHOD("get_bone_weights", {"index"}), &Polygon2D::get_bone_weights);
-    MethodBinder::bind_method(D_METHOD("erase_bone", {"index"}), &Polygon2D::erase_bone);
-    MethodBinder::bind_method(D_METHOD("clear_bones"), &Polygon2D::clear_bones);
-    MethodBinder::bind_method(D_METHOD("set_bone_path", {"index", "path"}), &Polygon2D::set_bone_path);
-    MethodBinder::bind_method(D_METHOD("set_bone_weights", {"index", "weights"}), &Polygon2D::set_bone_weights);
+    BIND_METHOD(Polygon2D,add_bone);
+    BIND_METHOD(Polygon2D,get_bone_count);
+    BIND_METHOD(Polygon2D,get_bone_path);
+    BIND_METHOD(Polygon2D,get_bone_weights);
+    BIND_METHOD(Polygon2D,erase_bone);
+    BIND_METHOD(Polygon2D,clear_bones);
+    BIND_METHOD(Polygon2D,set_bone_path);
+    BIND_METHOD(Polygon2D,set_bone_weights);
 
-    MethodBinder::bind_method(D_METHOD("set_skeleton", {"skeleton"}), &Polygon2D::set_skeleton);
-    MethodBinder::bind_method(D_METHOD("get_skeleton"), &Polygon2D::get_skeleton);
+    BIND_METHOD(Polygon2D,set_skeleton);
+    BIND_METHOD(Polygon2D,get_skeleton);
 
-    MethodBinder::bind_method(D_METHOD("set_internal_vertex_count", {"internal_vertex_count"}), &Polygon2D::set_internal_vertex_count);
-    MethodBinder::bind_method(D_METHOD("get_internal_vertex_count"), &Polygon2D::get_internal_vertex_count);
+    BIND_METHOD(Polygon2D,set_internal_vertex_count);
+    BIND_METHOD(Polygon2D,get_internal_vertex_count);
 
-    MethodBinder::bind_method(D_METHOD("_set_bones", {"bones"}), &Polygon2D::_set_bones);
-    MethodBinder::bind_method(D_METHOD("_get_bones"), &Polygon2D::_get_bones);
+    BIND_METHOD(Polygon2D,_set_bones);
+    BIND_METHOD(Polygon2D,_get_bones);
 
-    MethodBinder::bind_method(D_METHOD("_skeleton_bone_setup_changed"), &Polygon2D::_skeleton_bone_setup_changed);
+    BIND_METHOD(Polygon2D,_skeleton_bone_setup_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");
@@ -670,7 +678,7 @@ void Polygon2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "uv"), "set_uv", "get_uv");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_COLOR_ARRAY, "vertex_colors"), "set_vertex_colors", "get_vertex_colors");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "polygons"), "set_polygons", "get_polygons");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "bones", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "_set_bones", "_get_bones");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "bones", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "_set_bones", "_get_bones");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "internal_vertex_count", PropertyHint::Range, "0,1000"), "set_internal_vertex_count", "get_internal_vertex_count");
 }
 
@@ -685,5 +693,5 @@ Polygon2D::Polygon2D() {
     color = Color(1, 1, 1);
     rect_cache_dirty = true;
     internal_vertices = 0;
-    current_skeleton_id = 0;
+    current_skeleton_id = entt::null;
 }

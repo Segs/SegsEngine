@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  script_editor_debugger.h                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -79,6 +79,7 @@ private:
         ITEM_MENU_COPY_ERROR,
         ITEM_MENU_SAVE_REMOTE_NODE,
         ITEM_MENU_COPY_NODE_PATH,
+        ITEM_MENU_OPEN_SOURCE,
     };
 
     AcceptDialog *msgdialog;
@@ -96,10 +97,11 @@ private:
     float inspect_scene_tree_timeout;
     float inspect_edited_object_timeout;
     bool auto_switch_remote_scene_tree;
-    ObjectID inspected_object_id;
+    GameEntity inspected_object_id;
+    String last_filter;
     ScriptEditorDebuggerVariables *variables;
-    Map<ObjectID, ScriptEditorDebuggerInspectedObject *> remote_objects;
-    HashSet<ObjectID> unfold_cache;
+    HashMap<GameEntity, ScriptEditorDebuggerInspectedObject *> remote_objects;
+    HashSet<GameEntity> unfold_cache;
 
     VBoxContainer *errors_tab;
     Tree *error_tree;
@@ -121,6 +123,7 @@ private:
     int last_warning_count;
 
     bool hide_on_stop;
+    int remote_port;
     bool enable_external_editor;
     bool skip_breakpoints_value = false;
     Ref<Script> stack_script;
@@ -154,6 +157,7 @@ private:
     LineEdit *vmem_total;
 
     Tree *stack_dump;
+    LineEdit *search;
     EditorInspector *inspector;
 
     Ref<TCP_Server> server;
@@ -191,7 +195,7 @@ private:
     void _scene_tree_request();
     void _parse_message(const String &p_msg, const Array &p_data);
     void _set_reason_text(const StringName &p_reason, MessageType p_type);
-    void _scene_tree_property_select_object(ObjectID p_object);
+    void _scene_tree_property_select_object(GameEntity p_object);
     void _scene_tree_property_value_edited(StringView p_prop, const Variant &p_value);
     int _update_scene_tree(TreeItem *parent, const Array &nodes, int current_index);
 
@@ -221,7 +225,7 @@ private:
 
     void _paused();
 
-    void _set_remote_object(ObjectID p_id, ScriptEditorDebuggerInspectedObject *p_obj);
+    void _set_remote_object(GameEntity p_id, ScriptEditorDebuggerInspectedObject *p_obj);
     void _clear_remote_objects();
     void _clear_errors_list();
 
@@ -238,7 +242,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void start();
+    void start(int p_port = -1, const IP_Address& p_bind_address = IP_Address("*"));
     void pause();
     void unpause();
     void stop();
@@ -261,8 +265,8 @@ public:
     void live_debug_create_node(const NodePath &p_parent, StringView p_type, StringView p_name);
     void live_debug_instance_node(const NodePath &p_parent, StringView p_path, StringView p_name);
     void live_debug_remove_node(const NodePath &p_at);
-    void live_debug_remove_and_keep_node(const NodePath &p_at, ObjectID p_keep_id);
-    void live_debug_restore_node(ObjectID p_id, const NodePath &p_at, int p_at_pos);
+    void live_debug_remove_and_keep_node(const NodePath &p_at, GameEntity p_keep_id);
+    void live_debug_restore_node(GameEntity p_id, const NodePath &p_at, int p_at_pos);
     void live_debug_duplicate_node(const NodePath &p_at, StringView p_new_name);
     void live_debug_reparent_node(const NodePath &p_at, const NodePath &p_new_place, StringView p_new_name, int p_at_pos);
 
@@ -276,6 +280,7 @@ public:
     void set_hide_on_stop(bool p_hide);
 
     bool get_debug_with_external_editor() const;
+    String get_connection_string() const;
     void set_debug_with_external_editor(bool p_enabled);
 
     Ref<Script> get_dump_stack_script() const;

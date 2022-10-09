@@ -43,6 +43,7 @@ enum PackedGenEditState : uint8_t {
     GEN_EDIT_STATE_DISABLED,
     GEN_EDIT_STATE_INSTANCE,
     GEN_EDIT_STATE_MAIN,
+    GEN_EDIT_STATE_MAIN_INHERITED,
 };
 class GODOT_EXPORT SceneState : public RefCounted {
 
@@ -55,7 +56,7 @@ class GODOT_EXPORT SceneState : public RefCounted {
     mutable HashMap<NodePath, int> node_path_cache;
     mutable Map<int, int> base_scene_node_remap;
 
-    int base_scene_idx;
+    int base_scene_idx = -1;
 
     enum {
         NO_PARENT_SAVED = 0x7FFFFFFF,
@@ -82,10 +83,6 @@ class GODOT_EXPORT SceneState : public RefCounted {
         Vector<int> groups;
     };
 
-    struct PackState {
-        Ref<SceneState> state;
-        int node=-1;
-    };
 
     Vector<NodeData> nodes;
 
@@ -96,7 +93,6 @@ class GODOT_EXPORT SceneState : public RefCounted {
         int signal;
         int method;
         int flags;
-        Vector<int> bind_indices;
     };
 
     Vector<ConnectionData> connections;
@@ -106,9 +102,7 @@ class GODOT_EXPORT SceneState : public RefCounted {
 
     String path;
 
-    uint64_t last_modified_time;
-
-    _FORCE_INLINE_ Ref<SceneState> _get_base_scene_state() const;
+    uint64_t last_modified_time = 0;
 
     static bool disable_placeholders;
 public:
@@ -130,6 +124,10 @@ protected:
 
 public:
 
+    struct PackState {
+        Ref<SceneState> state;
+        int node = -1;
+    };
 
     static void set_disable_placeholders(bool p_disable);
 
@@ -151,7 +149,9 @@ public:
     bool can_instance() const;
     Node *instance(PackedGenEditState p_edit_state) const;
 
-    //unbuild API
+    Ref<SceneState> get_base_scene_state() const;
+
+    //query API
 
     int get_node_count() const;
     StringName get_node_type(int p_idx) const;
@@ -174,7 +174,6 @@ public:
     NodePath get_connection_target(int p_idx) const;
     StringName get_connection_method(int p_idx) const;
     int get_connection_flags(int p_idx) const;
-    Array get_connection_binds(int p_idx) const;
 
     bool has_connection(const NodePath &p_node_from, const StringName &p_signal, const NodePath &p_node_to, const StringName &p_method);
 
@@ -190,7 +189,7 @@ public:
     void add_node_property(int p_node, int p_name, int p_value);
     void add_node_group(int p_node, int p_group);
     void set_base_scene(int p_idx);
-    void add_connection(int p_from, int p_to, int p_signal, int p_method, int p_flags, Vector<int> &&p_binds);
+    void add_connection(int p_from, int p_to, int p_signal, int p_method, int p_flags);
     void add_editable_instance(const NodePath &p_path);
 
     virtual void set_last_modified_time(uint64_t p_time) { last_modified_time = p_time; }
@@ -214,6 +213,7 @@ public:
 protected:
     bool editor_can_reload_from_file() override { return false; } // this is handled by editor better
     static void _bind_methods();
+    void on_state_changed();
 
 public:
     Error pack(Node *p_scene);
@@ -227,10 +227,6 @@ public:
     void replace_state(Ref<SceneState> p_by);
 
     void set_path(StringView p_path, bool p_take_over = false) override;
-#ifdef TOOLS_ENABLED
-    void set_last_modified_time(uint64_t p_time) override { state->set_last_modified_time(p_time); }
-
-#endif
     const Ref<SceneState> &get_state() const { return state; }
 
     PackedScene();

@@ -32,7 +32,6 @@
 
 #include "core/resource.h"
 #include "core/color.h"
-#include "EASTL/sort.h"
 
 class GODOT_EXPORT Gradient : public Resource {
     GDCLASS(Gradient,Resource)
@@ -50,12 +49,7 @@ public:
 private:
     Vector<Point> points;
     bool is_sorted;
-    _FORCE_INLINE_ void _update_sorting() {
-        if (!is_sorted) {
-            eastl::sort(points.begin(),points.end());
-            is_sorted = true;
-        }
-    }
+    void _update_sorting();
 protected:
     static void _bind_methods();
 

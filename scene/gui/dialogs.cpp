@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  dialogs.cpp                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,6 +32,7 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/print_string.h"
+#include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "core/ustring.h"
 #include "line_edit.h"
@@ -209,7 +210,7 @@ void WindowDialog::_notification(int p_what) {
 
     switch (p_what) {
         case NOTIFICATION_DRAW: {
-            RID canvas = get_canvas_item();
+            RenderingEntity canvas = get_canvas_item();
 
             // Draw the background.
             Ref<StyleBox> panel = get_theme_stylebox("panel");
@@ -300,7 +301,7 @@ int WindowDialog::_drag_hit_test(const Point2 &pos) const {
 
     return drag_type;
 }
-void WindowDialog::set_title(const StringName &p_title) {
+void WindowDialog::set_title(StringView p_title) {
 
     StringName new_title = tr(p_title);
     if (title != p_title) {
@@ -310,7 +311,7 @@ void WindowDialog::set_title(const StringName &p_title) {
         update();
     }
 }
-StringName WindowDialog::get_title() const {
+const String & WindowDialog::get_title() const {
 
     return title;
 }
@@ -345,13 +346,13 @@ TextureButton *WindowDialog::get_close_button() {
 
 void WindowDialog::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_gui_input"), &WindowDialog::_gui_input);
-    MethodBinder::bind_method(D_METHOD("set_title", {"title"}), &WindowDialog::set_title);
-    MethodBinder::bind_method(D_METHOD("get_title"), &WindowDialog::get_title);
-    MethodBinder::bind_method(D_METHOD("set_resizable", {"resizable"}), &WindowDialog::set_resizable);
-    MethodBinder::bind_method(D_METHOD("get_resizable"), &WindowDialog::get_resizable);
-    MethodBinder::bind_method(D_METHOD("_closed"), &WindowDialog::_closed);
-    MethodBinder::bind_method(D_METHOD("get_close_button"), &WindowDialog::get_close_button);
+    BIND_METHOD(WindowDialog,_gui_input);
+    BIND_METHOD(WindowDialog,set_title);
+    BIND_METHOD(WindowDialog,get_title);
+    BIND_METHOD(WindowDialog,set_resizable);
+    BIND_METHOD(WindowDialog,get_resizable);
+    BIND_METHOD(WindowDialog,_closed);
+    BIND_METHOD(WindowDialog,get_close_button);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "window_title", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT_INTL), "set_title", "get_title");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "resizable", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT_INTL), "set_resizable", "get_resizable");
@@ -377,7 +378,7 @@ WindowDialog::~WindowDialog() {
 void PopupDialog::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
-        RID ci = get_canvas_item();
+        RenderingEntity ci = get_canvas_item();
         get_theme_stylebox("panel")->draw(ci, Rect2(Point2(), get_size()));
     }
 }
@@ -575,7 +576,7 @@ Button *AcceptDialog::add_button(const StringName &p_text, bool p_right, StringV
     }
 
     if (!p_action.empty()) {
-        button->connect("pressed",callable_mp(this, &ClassName::_custom_action), varray(p_action));
+        button->connectF("pressed",this,[=,sn(StringName(p_action))]() { _custom_action(sn); });
     }
 
     return button;
@@ -591,19 +592,42 @@ Button *AcceptDialog::add_cancel(const StringName &p_cancel) {
     return b;
 }
 
+void AcceptDialog::remove_button(Control *p_button)
+{
+    Button *button = object_cast<Button>(p_button);
+    ERR_FAIL_NULL(button);
+    ERR_FAIL_COND_MSG(button->get_parent() != hbc, FormatVE("Cannot remove button %s as it does not belong to this dialog.", button->get_name().asCString()));
+    ERR_FAIL_COND_MSG(button == ok, "Cannot remove dialog's OK button.");
+
+    Node *right_spacer = hbc->get_child(button->get_index() + 1);
+    // Should always be valid but let's avoid crashing
+    if (right_spacer) {
+        hbc->remove_child(right_spacer);
+        memdelete(right_spacer);
+    }
+    hbc->remove_child(button);
+
+    if (button->is_connected("pressed", callable_mp(this, &AcceptDialog::_custom_action))) {
+        button->disconnect("pressed", callable_mp(this, &AcceptDialog::_custom_action));
+    }
+    if (button->is_connected("pressed", callable_mp((WindowDialog*)this, &WindowDialog::_closed))) {
+        button->disconnect("pressed", callable_mp((WindowDialog*)this, &WindowDialog::_closed));
+    }
+}
 void AcceptDialog::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_ok"), &AcceptDialog::get_ok);
-    MethodBinder::bind_method(D_METHOD("get_label"), &AcceptDialog::get_label);
-    MethodBinder::bind_method(D_METHOD("set_hide_on_ok", {"enabled"}), &AcceptDialog::set_hide_on_ok);
-    MethodBinder::bind_method(D_METHOD("get_hide_on_ok"), &AcceptDialog::get_hide_on_ok);
+    BIND_METHOD(AcceptDialog,get_ok);
+    BIND_METHOD(AcceptDialog,get_label);
+    BIND_METHOD(AcceptDialog,set_hide_on_ok);
+    BIND_METHOD(AcceptDialog,get_hide_on_ok);
     MethodBinder::bind_method(D_METHOD("add_button", {"text", "right", "action"}), &AcceptDialog::add_button, {DEFVAL(false), DEFVAL("")});
-    MethodBinder::bind_method(D_METHOD("add_cancel", {"name"}), &AcceptDialog::add_cancel);
-    MethodBinder::bind_method(D_METHOD("register_text_enter", {"line_edit"}), &AcceptDialog::register_text_enter);
-    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &AcceptDialog::set_text);
-    MethodBinder::bind_method(D_METHOD("get_text"), &AcceptDialog::get_text);
-    MethodBinder::bind_method(D_METHOD("set_autowrap", {"autowrap"}), &AcceptDialog::set_autowrap);
-    MethodBinder::bind_method(D_METHOD("has_autowrap"), &AcceptDialog::has_autowrap);
+    BIND_METHOD(AcceptDialog,add_cancel);
+    BIND_METHOD(AcceptDialog,remove_button);
+    BIND_METHOD(AcceptDialog,register_text_enter);
+    BIND_METHOD(AcceptDialog,set_text);
+    BIND_METHOD(AcceptDialog,get_text);
+    BIND_METHOD(AcceptDialog,set_autowrap);
+    BIND_METHOD(AcceptDialog,has_autowrap);
 
     ADD_SIGNAL(MethodInfo("confirmed"));
     ADD_SIGNAL(MethodInfo("cancelled"));
@@ -656,7 +680,7 @@ AcceptDialog::~AcceptDialog() {
 
 void ConfirmationDialog::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_cancel"), &ConfirmationDialog::get_cancel);
+    BIND_METHOD(ConfirmationDialog,get_cancel);
 }
 
 Button *ConfirmationDialog::get_cancel() {

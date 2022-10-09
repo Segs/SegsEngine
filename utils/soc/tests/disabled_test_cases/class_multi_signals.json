@@ -1,0 +1,36 @@
+{
+    "api_hash":"",
+    "api_version":"",
+    "dependencies":[],
+    "module_name":"",
+    "namespaces":[
+        {
+            "contents":{
+                "subtypes":[
+                    {
+                        "contents":{
+                            "signals":[
+                                {
+                                    "name":"null_signal"
+                                },
+                                {
+                                    "arguments":[
+                                        {
+                                            "name":"arg1",
+                                            "type":{ "name":"int" }
+                                        }
+                                    ],
+                                    "name":"single_arg"
+                                }
+                            ]
+                        },
+                        "name":"SignalSource",
+                        "required_header":"class_signals.h"
+                    }
+                ]
+            },
+            "name":"GodotCore"
+        }
+    ],
+    "version":""
+}

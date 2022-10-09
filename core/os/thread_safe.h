@@ -31,13 +31,11 @@
 #pragma once
 #include "EASTL/unique_ptr.h"
 
-namespace std {
-class recursive_mutex;
-}
+#include <mutex>
 using Mutex = std::recursive_mutex;
 
-#define _THREAD_SAFE_CLASS_ eastl::unique_ptr<Mutex> __thread__safe__;
-#define _THREAD_SAFE_METHOD_ MutexLock scopedlock(*__thread__safe__);
-#define _THREAD_SAFE_LOCK_ __thread__safe__->lock();
-#define _THREAD_SAFE_UNLOCK_ __thread__safe__->unlock();
+#define _THREAD_SAFE_CLASS_ mutable Mutex __thread__safe__;
+#define _THREAD_SAFE_METHOD_ MutexLock scopedlock(__thread__safe__)
+#define _THREAD_SAFE_LOCK_ __thread__safe__.lock();
+#define _THREAD_SAFE_UNLOCK_ __thread__safe__.unlock();
 

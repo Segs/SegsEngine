@@ -575,17 +575,17 @@ float PolygonPathFinder::get_point_penalty(int p_point) const {
 
 void PolygonPathFinder::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("setup", {"points", "connections"}), &PolygonPathFinder::setup);
-    MethodBinder::bind_method(D_METHOD("find_path", {"from", "to"}), &PolygonPathFinder::find_path);
-    MethodBinder::bind_method(D_METHOD("get_intersections", {"from", "to"}), &PolygonPathFinder::get_intersections);
-    MethodBinder::bind_method(D_METHOD("get_closest_point", {"point"}), &PolygonPathFinder::get_closest_point);
-    MethodBinder::bind_method(D_METHOD("is_point_inside", {"point"}), &PolygonPathFinder::is_point_inside);
-    MethodBinder::bind_method(D_METHOD("set_point_penalty", {"idx", "penalty"}), &PolygonPathFinder::set_point_penalty);
-    MethodBinder::bind_method(D_METHOD("get_point_penalty", {"idx"}), &PolygonPathFinder::get_point_penalty);
+    BIND_METHOD(PolygonPathFinder,setup);
+    BIND_METHOD(PolygonPathFinder,find_path);
+    BIND_METHOD(PolygonPathFinder,get_intersections);
+    BIND_METHOD(PolygonPathFinder,get_closest_point);
+    BIND_METHOD(PolygonPathFinder,is_point_inside);
+    BIND_METHOD(PolygonPathFinder,set_point_penalty);
+    BIND_METHOD(PolygonPathFinder,get_point_penalty);
 
-    MethodBinder::bind_method(D_METHOD("get_bounds"), &PolygonPathFinder::get_bounds);
-    MethodBinder::bind_method(D_METHOD("_set_data"), &PolygonPathFinder::_set_data);
-    MethodBinder::bind_method(D_METHOD("_get_data"), &PolygonPathFinder::_get_data);
+    BIND_METHOD(PolygonPathFinder,get_bounds);
+    BIND_METHOD(PolygonPathFinder,_set_data);
+    BIND_METHOD(PolygonPathFinder,_get_data);
 
     ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
 }

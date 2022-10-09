@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  physics_2d_server_sw.h                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -46,7 +46,6 @@ class Physics2DServerSW : public PhysicsServer2D {
     bool active;
     int iterations;
     bool doing_sync;
-    real_t last_step;
 
     int island_count;
     int active_objects;
@@ -59,7 +58,6 @@ class Physics2DServerSW : public PhysicsServer2D {
     Step2DSW *stepper;
     Set<const Space2DSW *> active_spaces;
 
-    Physics2DDirectBodyStateSW *direct_state;
 
     mutable RID_Owner<Shape2DSW> shape_owner;
     mutable RID_Owner<Space2DSW> space_owner;
@@ -151,11 +149,11 @@ public:
     void area_remove_shape(RID p_area, int p_shape_idx) override;
     void area_clear_shapes(RID p_area) override;
 
-    void area_attach_object_instance_id(RID p_area, ObjectID p_id) override;
-    ObjectID area_get_object_instance_id(RID p_area) const override;
+    void area_attach_object_instance_id(RID p_area, GameEntity p_id) override;
+    GameEntity area_get_object_instance_id(RID p_area) const override;
 
-    void area_attach_canvas_instance_id(RID p_area, ObjectID p_id) override;
-    ObjectID area_get_canvas_instance_id(RID p_area) const override;
+    void area_attach_canvas_instance_id(RID p_area, GameEntity p_id) override;
+    GameEntity area_get_canvas_instance_id(RID p_area) const override;
 
     void area_set_param(RID p_area, AreaParameter p_param, const Variant &p_value) override;
     void area_set_transform(RID p_area, const Transform2D &p_transform) override;
@@ -198,11 +196,11 @@ public:
     void body_set_shape_disabled(RID p_body, int p_shape_idx, bool p_disabled) override;
     void body_set_shape_as_one_way_collision(RID p_body, int p_shape_idx, bool p_enable, float p_margin) override;
 
-    void body_attach_object_instance_id(RID p_body, ObjectID p_id) override;
-    ObjectID body_get_object_instance_id(RID p_body) const override;
+    void body_attach_object_instance_id(RID p_body, GameEntity p_id) override;
+    GameEntity body_get_object_instance_id(RID p_body) const override;
 
-    void body_attach_canvas_instance_id(RID p_body, ObjectID p_id) override;
-    ObjectID body_get_canvas_instance_id(RID p_body) const override;
+    void body_attach_canvas_instance_id(RID p_body, GameEntity p_id) override;
+    GameEntity body_get_canvas_instance_id(RID p_body) const override;
 
     void body_set_continuous_collision_detection_mode(RID p_body, CCDMode p_mode) override;
     CCDMode body_get_continuous_collision_detection_mode(RID p_body) const override;
@@ -252,8 +250,8 @@ public:
 
     void body_set_pickable(RID p_body, bool p_pickable) override;
 
-    bool body_test_motion(RID p_body, const Transform2D &p_from, const Vector2 &p_motion, bool p_infinite_inertia, real_t p_margin = 0.001, MotionResult *r_result = nullptr, bool p_exclude_raycast_shapes = true) override;
-    int body_test_ray_separation(RID p_body, const Transform2D &p_transform, bool p_infinite_inertia, Vector2 &r_recover_motion, SeparationResult *r_results, int p_result_max, float p_margin = 0.001) override;
+    bool body_test_motion(RID p_body, const Transform2D &p_from, const Vector2 &p_motion, bool p_infinite_inertia, real_t p_margin = 0.08, MotionResult *r_result = nullptr, bool p_exclude_raycast_shapes = true, const Set<RID> &p_exclude = Set<RID>()) override;
+    int body_test_ray_separation(RID p_body, const Transform2D &p_transform, bool p_infinite_inertia, Vector2 &r_recover_motion, SeparationResult *r_results, int p_result_max, float p_margin = 0.08) override;
 
     // this function only works on physics process, errors and returns null otherwise
     PhysicsDirectBodyState2D *body_get_direct_state(RID p_body) override;
@@ -288,6 +286,7 @@ public:
     void end_sync() override;
     void finish() override;
 
+    void set_collision_iterations(int p_iterations) override;
     bool is_flushing_queries() const override { return flushing_queries; }
 
     int get_process_info(ProcessInfo p_info) override;

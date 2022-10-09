@@ -30,20 +30,22 @@
 
 #include "main_loop.h"
 
+#include "core/external_profiler.h"
 #include "core/script_language.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/input/input_event.h"
 
 IMPL_GDCLASS(MainLoop)
 
 void MainLoop::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("input_event", {"event"}), &MainLoop::input_event);
-    MethodBinder::bind_method(D_METHOD("input_text", {"text"}), &MainLoop::input_text);
-    MethodBinder::bind_method(D_METHOD("init"), &MainLoop::init);
-    MethodBinder::bind_method(D_METHOD("iteration", {"delta"}), &MainLoop::iteration);
-    MethodBinder::bind_method(D_METHOD("idle", {"delta"}), &MainLoop::idle);
-    MethodBinder::bind_method(D_METHOD("finish"), &MainLoop::finish);
+    BIND_METHOD(MainLoop,input_event);
+    BIND_METHOD(MainLoop,input_text);
+    BIND_METHOD(MainLoop,init);
+    BIND_METHOD(MainLoop,iteration);
+    BIND_METHOD(MainLoop,idle);
+    BIND_METHOD(MainLoop,finish);
 
     BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
     BIND_VMETHOD(MethodInfo("_input_text", PropertyInfo(VariantType::STRING, "text")));
@@ -80,12 +82,8 @@ void MainLoop::set_init_script(const Ref<Script> &p_init_script) {
     init_script = p_init_script;
 }
 
-MainLoop::MainLoop() {}
-
-MainLoop::~MainLoop()
-{
-
-}
+MainLoop::MainLoop() = default;
+MainLoop::~MainLoop() = default;
 
 void MainLoop::input_text(StringView p_text) {
 

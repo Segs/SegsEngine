@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  gi_probe.cpp                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -33,7 +33,7 @@
 #include "core/os/os.h"
 
 #include "mesh_instance_3d.h"
-#include "voxelizer.h"
+#include "scene/3d/voxel_light_baker.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/translation_helpers.h"
@@ -142,42 +142,42 @@ int GIProbeData::get_dynamic_range() const {
     return RenderingServer::get_singleton()->gi_probe_get_dynamic_range(probe);
 }
 
-RID GIProbeData::get_rid() const {
+RenderingEntity GIProbeData::get_rid() const {
 
     return probe;
 }
 
 void GIProbeData::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_bounds", {"bounds"}), &GIProbeData::set_bounds);
-    MethodBinder::bind_method(D_METHOD("get_bounds"), &GIProbeData::get_bounds);
+    BIND_METHOD(GIProbeData,set_bounds);
+    BIND_METHOD(GIProbeData,get_bounds);
 
-    MethodBinder::bind_method(D_METHOD("set_cell_size", {"cell_size"}), &GIProbeData::set_cell_size);
-    MethodBinder::bind_method(D_METHOD("get_cell_size"), &GIProbeData::get_cell_size);
+    BIND_METHOD(GIProbeData,set_cell_size);
+    BIND_METHOD(GIProbeData,get_cell_size);
 
-    MethodBinder::bind_method(D_METHOD("set_to_cell_xform", {"to_cell_xform"}), &GIProbeData::set_to_cell_xform);
-    MethodBinder::bind_method(D_METHOD("get_to_cell_xform"), &GIProbeData::get_to_cell_xform);
+    BIND_METHOD(GIProbeData,set_to_cell_xform);
+    BIND_METHOD(GIProbeData,get_to_cell_xform);
 
-    MethodBinder::bind_method(D_METHOD("set_dynamic_data", {"dynamic_data"}), &GIProbeData::set_dynamic_data);
-    MethodBinder::bind_method(D_METHOD("get_dynamic_data"), &GIProbeData::get_dynamic_data);
+    BIND_METHOD(GIProbeData,set_dynamic_data);
+    BIND_METHOD(GIProbeData,get_dynamic_data);
 
-    MethodBinder::bind_method(D_METHOD("set_dynamic_range", {"dynamic_range"}), &GIProbeData::set_dynamic_range);
-    MethodBinder::bind_method(D_METHOD("get_dynamic_range"), &GIProbeData::get_dynamic_range);
+    BIND_METHOD(GIProbeData,set_dynamic_range);
+    BIND_METHOD(GIProbeData,get_dynamic_range);
 
-    MethodBinder::bind_method(D_METHOD("set_energy", {"energy"}), &GIProbeData::set_energy);
-    MethodBinder::bind_method(D_METHOD("get_energy"), &GIProbeData::get_energy);
+    BIND_METHOD(GIProbeData,set_energy);
+    BIND_METHOD(GIProbeData,get_energy);
 
-    MethodBinder::bind_method(D_METHOD("set_bias", {"bias"}), &GIProbeData::set_bias);
-    MethodBinder::bind_method(D_METHOD("get_bias"), &GIProbeData::get_bias);
+    BIND_METHOD(GIProbeData,set_bias);
+    BIND_METHOD(GIProbeData,get_bias);
 
-    MethodBinder::bind_method(D_METHOD("set_normal_bias", {"bias"}), &GIProbeData::set_normal_bias);
-    MethodBinder::bind_method(D_METHOD("get_normal_bias"), &GIProbeData::get_normal_bias);
+    BIND_METHOD(GIProbeData,set_normal_bias);
+    BIND_METHOD(GIProbeData,get_normal_bias);
 
-    MethodBinder::bind_method(D_METHOD("set_propagation", {"propagation"}), &GIProbeData::set_propagation);
-    MethodBinder::bind_method(D_METHOD("get_propagation"), &GIProbeData::get_propagation);
+    BIND_METHOD(GIProbeData,set_propagation);
+    BIND_METHOD(GIProbeData,get_propagation);
 
-    MethodBinder::bind_method(D_METHOD("set_interior", {"interior"}), &GIProbeData::set_interior);
-    MethodBinder::bind_method(D_METHOD("is_interior"), &GIProbeData::is_interior);
+    BIND_METHOD(GIProbeData,set_interior);
+    BIND_METHOD(GIProbeData,is_interior);
 
     ADD_PROPERTY(PropertyInfo(VariantType::AABB, "bounds", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_bounds", "get_bounds");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "cell_size", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_cell_size", "get_cell_size");
@@ -210,7 +210,7 @@ void GIProbe::set_probe_data(const Ref<GIProbeData> &p_data) {
     if (p_data) {
         RenderingServer::get_singleton()->instance_set_base(get_instance(), p_data->get_rid());
     } else {
-        RenderingServer::get_singleton()->instance_set_base(get_instance(), RID());
+        RenderingServer::get_singleton()->instance_set_base(get_instance(), entt::null);
     }
 
     probe_data = p_data;
@@ -382,13 +382,15 @@ void GIProbe::bake(Node *p_from_node, bool p_create_visual_debug) {
 
     static const int subdiv_value[SUBDIV_MAX] = { 7, 8, 9, 10 };
 
+    p_from_node = p_from_node ? p_from_node : get_parent();
+    ERR_FAIL_NULL(p_from_node);
     VoxelLightBaker baker;
 
     baker.begin_bake(subdiv_value[subdiv], AABB(-extents, extents * 2.0));
 
     Vector<PlotMesh> mesh_list;
 
-    _find_meshes(p_from_node ? p_from_node : get_parent(), mesh_list);
+    _find_meshes(p_from_node, mesh_list);
 
     if (bake_begin_function) {
         bake_begin_function(mesh_list.size() + 1);
@@ -421,7 +423,7 @@ void GIProbe::bake(Node *p_from_node, bool p_create_visual_debug) {
         mmi->set_multimesh(baker.create_debug_multimesh());
         add_child(mmi);
 #ifdef TOOLS_ENABLED
-        if (get_tree()->get_edited_scene_root() == this) {
+        if (is_inside_tree() && get_tree()->get_edited_scene_root() == this) {
             mmi->set_owner(this);
         } else {
             mmi->set_owner(get_owner());
@@ -478,32 +480,32 @@ String GIProbe::get_configuration_warning() const {
 
 void GIProbe::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_probe_data", {"data"}), &GIProbe::set_probe_data);
-    MethodBinder::bind_method(D_METHOD("get_probe_data"), &GIProbe::get_probe_data);
+    BIND_METHOD(GIProbe,set_probe_data);
+    BIND_METHOD(GIProbe,get_probe_data);
 
-    MethodBinder::bind_method(D_METHOD("set_subdiv", {"subdiv"}), &GIProbe::set_subdiv);
-    MethodBinder::bind_method(D_METHOD("get_subdiv"), &GIProbe::get_subdiv);
+    BIND_METHOD(GIProbe,set_subdiv);
+    BIND_METHOD(GIProbe,get_subdiv);
 
-    MethodBinder::bind_method(D_METHOD("set_extents", {"extents"}), &GIProbe::set_extents);
-    MethodBinder::bind_method(D_METHOD("get_extents"), &GIProbe::get_extents);
+    BIND_METHOD(GIProbe,set_extents);
+    BIND_METHOD(GIProbe,get_extents);
 
-    MethodBinder::bind_method(D_METHOD("set_dynamic_range", {"max"}), &GIProbe::set_dynamic_range);
-    MethodBinder::bind_method(D_METHOD("get_dynamic_range"), &GIProbe::get_dynamic_range);
+    BIND_METHOD(GIProbe,set_dynamic_range);
+    BIND_METHOD(GIProbe,get_dynamic_range);
 
-    MethodBinder::bind_method(D_METHOD("set_energy", {"max"}), &GIProbe::set_energy);
-    MethodBinder::bind_method(D_METHOD("get_energy"), &GIProbe::get_energy);
+    BIND_METHOD(GIProbe,set_energy);
+    BIND_METHOD(GIProbe,get_energy);
 
-    MethodBinder::bind_method(D_METHOD("set_bias", {"max"}), &GIProbe::set_bias);
-    MethodBinder::bind_method(D_METHOD("get_bias"), &GIProbe::get_bias);
+    BIND_METHOD(GIProbe,set_bias);
+    BIND_METHOD(GIProbe,get_bias);
 
-    MethodBinder::bind_method(D_METHOD("set_normal_bias", {"max"}), &GIProbe::set_normal_bias);
-    MethodBinder::bind_method(D_METHOD("get_normal_bias"), &GIProbe::get_normal_bias);
+    BIND_METHOD(GIProbe,set_normal_bias);
+    BIND_METHOD(GIProbe,get_normal_bias);
 
-    MethodBinder::bind_method(D_METHOD("set_propagation", {"max"}), &GIProbe::set_propagation);
-    MethodBinder::bind_method(D_METHOD("get_propagation"), &GIProbe::get_propagation);
+    BIND_METHOD(GIProbe,set_propagation);
+    BIND_METHOD(GIProbe,get_propagation);
 
-    MethodBinder::bind_method(D_METHOD("set_interior", {"enable"}), &GIProbe::set_interior);
-    MethodBinder::bind_method(D_METHOD("is_interior"), &GIProbe::is_interior);
+    BIND_METHOD(GIProbe,set_interior);
+    BIND_METHOD(GIProbe,is_interior);
 
     MethodBinder::bind_method(D_METHOD("bake", {"from_node", "create_visual_debug"}), &GIProbe::bake, {DEFVAL(Variant()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("debug_bake"), &GIProbe::debug_bake,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
@@ -532,7 +534,7 @@ GIProbe::GIProbe() {
     energy = 1.0;
     bias = 1.5;
     normal_bias = 0.0;
-    propagation = 0.7;
+    propagation = 0.7f;
     extents = Vector3(10, 10, 10);
     interior = false;
 

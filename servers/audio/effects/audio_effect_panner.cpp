@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_effect_panner.cpp                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,13 +36,13 @@ IMPL_GDCLASS(AudioEffectPanner)
 
 void AudioEffectPannerInstance::process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) {
 
-    float lvol = CLAMP(1.0 - base->pan, 0, 1);
-    float rvol = CLAMP(1.0 + base->pan, 0, 1);
+    float lvol = CLAMP(1.0f - base->pan, 0.0f, 1.0f);
+    float rvol = CLAMP(1.0f + base->pan, 0.0f, 1.0f);
 
     for (int i = 0; i < p_frame_count; i++) {
 
-        p_dst_frames[i].l = p_src_frames[i].l * lvol + p_src_frames[i].r * (1.0 - rvol);
-        p_dst_frames[i].r = p_src_frames[i].r * rvol + p_src_frames[i].l * (1.0 - lvol);
+        p_dst_frames[i].l = p_src_frames[i].l * lvol + p_src_frames[i].r * (1.0f - rvol);
+        p_dst_frames[i].r = p_src_frames[i].r * rvol + p_src_frames[i].l * (1.0f - lvol);
     }
 }
 
@@ -63,8 +63,8 @@ float AudioEffectPanner::get_pan() const {
 
 void AudioEffectPanner::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_pan", {"cpanume"}), &AudioEffectPanner::set_pan);
-    MethodBinder::bind_method(D_METHOD("get_pan"), &AudioEffectPanner::get_pan);
+    BIND_METHOD(AudioEffectPanner,set_pan);
+    BIND_METHOD(AudioEffectPanner,get_pan);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pan", PropertyHint::Range, "-1,1,0.01"), "set_pan", "get_pan");
 }

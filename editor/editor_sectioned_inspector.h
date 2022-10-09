@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_sectioned_inspector.h                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -40,21 +40,23 @@ class SectionedInspector : public HSplitContainer {
 
     GDCLASS(SectionedInspector,HSplitContainer)
 
-    ObjectID obj;
+    HashMap<String, TreeItem *> section_map;
+    String selected_category;
 
     Tree *sections;
     SectionedInspectorFilter *filter;
 
-    HashMap<String, TreeItem *> section_map;
     EditorInspector *inspector;
-    LineEdit *search_box;
+    LineEdit *search_box = nullptr;
 
-    String selected_category;
+    GameEntity obj;
 
     static void _bind_methods();
     void _section_selected();
 
     void _search_changed(const String &p_what);
+protected:
+    void _notification(int p_what);
 
 public:
     void register_search_box(LineEdit *p_box);

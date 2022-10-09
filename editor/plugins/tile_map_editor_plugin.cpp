@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  tile_map_editor_plugin.cpp                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -40,8 +40,10 @@
 #include "core/translation_helpers.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
+#include "scene/gui/slider.h"
 #include "scene/gui/split_container.h"
 #include "scene/gui/item_list.h"
+#include "scene/gui/separator.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/font.h"
 
@@ -49,9 +51,19 @@
 
 #include <QCollator>
 
+
 IMPL_GDCLASS(TileMapEditor)
 IMPL_GDCLASS(TileMapEditorPlugin)
 
+
+static float _lerp_fade(int total, int fade, float position) {
+    if (position < fade) {
+        return Math::inverse_lerp(0, fade, position);
+    } else if (position > (total - fade)) {
+        return Math::inverse_lerp(total, total - fade, position);
+    }
+    return 1.0;
+}
 
 void TileMapEditor::_node_removed(Node *p_node) {
 
@@ -86,7 +98,7 @@ void TileMapEditor::_notification(int p_what) {
             paint_button->set_button_icon(get_theme_icon("Edit", "EditorIcons"));
             bucket_fill_button->set_button_icon(get_theme_icon("Bucket", "EditorIcons"));
             picker_button->set_button_icon(get_theme_icon("ColorPick", "EditorIcons"));
-            select_button->set_button_icon(get_theme_icon("ActionCopy", "EditorIcons"));
+            select_button->set_button_icon(get_theme_icon("ToolSelect", "EditorIcons"));
 
             rotate_left_button->set_button_icon(get_theme_icon("RotateLeft", "EditorIcons"));
             rotate_right_button->set_button_icon(get_theme_icon("RotateRight", "EditorIcons"));
@@ -319,8 +331,8 @@ void TileMapEditor::_finish_undo() {
     undo_redo->commit_action();
 }
 
-void TileMapEditor::_set_cell(const Point2i &p_pos, Span<const int> p_values, bool p_flip_h, bool p_flip_v, bool p_transpose, const Point2i &p_autotile_coord) {
-
+void TileMapEditor::_set_cell(const Point2i &p_pos, Span<const int> p_values, bool p_flip_h, bool p_flip_v,
+        bool p_transpose, const Point2i &p_autotile_coord) {
     ERR_FAIL_COND(!node);
 
     if (p_values.empty())
@@ -350,7 +362,8 @@ void TileMapEditor::_set_cell(const Point2i &p_pos, Span<const int> p_values, bo
         position = prev_position;
     }
 
-    if (p_value == prev_val && p_flip_h == prev_flip_h && p_flip_v == prev_flip_v && p_transpose == prev_transpose && prev_position == position)
+    if (p_value == prev_val && p_flip_h == prev_flip_h && p_flip_v == prev_flip_v && p_transpose == prev_transpose &&
+            prev_position == position)
         return; // Check that it's actually different.
 
     for (int y = p_pos.y - 1; y <= p_pos.y + 1; y++) {
@@ -367,7 +380,8 @@ void TileMapEditor::_set_cell(const Point2i &p_pos, Span<const int> p_values, bo
     if (tool == TOOL_PASTING)
         return;
 
-    if (manual_autotile || (p_value != -1 && node->get_tileset()->tile_get_tile_mode(p_value) == TileSet::ATLAS_TILE)) {
+    if (manual_autotile || (p_value != -1 && node->get_tileset()->has_tile(p_value) &&
+                                   node->get_tileset()->tile_get_tile_mode(p_value) == TileSet::ATLAS_TILE)) {
         if (current != -1) {
             node->set_cell_autotile_coord(p_pos.x, p_pos.y, position);
         } else if (node->get_tileset()->tile_get_tile_mode(p_value) == TileSet::ATLAS_TILE && priority_atlastile) {
@@ -467,12 +481,12 @@ void TileMapEditor::_update_palette() {
     if (tiles.empty())
         return;
 
-    float min_size = EDITOR_DEF_T<float>("editors/tile_map/preview_size", 64);
+    float min_size = EDITOR_GET_T<float>("editors/tile_map/preview_size");
     min_size *= EDSCALE;
-    int hseparation = EDITOR_DEF_T<int>("editors/tile_map/palette_item_hseparation", 8);
-    bool show_tile_names = EDITOR_DEF_T("editors/tile_map/show_tile_names", true);
-    bool show_tile_ids = EDITOR_DEF_T("editors/tile_map/show_tile_ids", false);
-    bool sort_by_name = EDITOR_DEF_T("editors/tile_map/sort_tiles_by_name", true);
+    int hseparation = EDITOR_GET_T<int>("editors/tile_map/palette_item_hseparation");
+    bool show_tile_names = EDITOR_GET_T<bool>("editors/tile_map/show_tile_names");
+    bool show_tile_ids = EDITOR_GET_T<bool>("editors/tile_map/show_tile_ids");
+    bool sort_by_name = EDITOR_GET_T<bool>("editors/tile_map/sort_tiles_by_name");
 
     palette->add_constant_override("hseparation", hseparation * EDSCALE);
 
@@ -566,10 +580,9 @@ void TileMapEditor::_update_palette() {
         sel_tile = palette->get_selected_items()[0];
     }
 
-    if (sel_tile != TileMap::INVALID_CELL &&
+    if (sel_tile != TileMap::INVALID_CELL && tileset->has_tile(sel_tile) &&
             ((manual_autotile && tileset->tile_get_tile_mode(sel_tile) == TileSet::AUTO_TILE) ||
                     (!priority_atlastile && tileset->tile_get_tile_mode(sel_tile) == TileSet::ATLAS_TILE))) {
-
         const HashMap<Vector2, uint32_t> &tiles2 = tileset->autotile_get_bitmask_map(sel_tile);
 
         Vector<Vector2> entries2;
@@ -585,13 +598,12 @@ void TileMapEditor::_update_palette() {
         eastl::sort(entries2.begin(), entries2.end(), SwapComparator());
 
         Ref<Texture> tex = tileset->tile_get_texture(sel_tile);
+        Color modulate = tileset->tile_get_modulate(sel_tile);
 
         for (size_t i = 0; i < entries2.size(); i++) {
-
             manual_palette->add_item(StringName());
 
             if (tex) {
-
                 Rect2 region = tileset->tile_get_region(sel_tile);
                 int spacing = tileset->autotile_get_spacing(sel_tile);
                 region.size = tileset->autotile_get_size(sel_tile); // !!
@@ -601,6 +613,7 @@ void TileMapEditor::_update_palette() {
                     manual_palette->set_item_icon_region(manual_palette->get_item_count() - 1, region);
 
                 manual_palette->set_item_icon(manual_palette->get_item_count() - 1, tex);
+                manual_palette->set_item_icon_modulate(manual_palette->get_item_count() - 1, modulate);
             }
 
             manual_palette->set_item_metadata(manual_palette->get_item_count() - 1, entries2[i]);
@@ -616,7 +629,8 @@ void TileMapEditor::_update_palette() {
         manual_palette->show();
     }
 
-    if (sel_tile != TileMap::INVALID_CELL && tileset->tile_get_tile_mode(sel_tile) == TileSet::AUTO_TILE) {
+    if (sel_tile != TileMap::INVALID_CELL && tileset->has_tile(sel_tile) &&
+            tileset->tile_get_tile_mode(sel_tile) == TileSet::AUTO_TILE) {
         manual_button->show();
         priority_button->hide();
     } else {
@@ -629,8 +643,9 @@ void TileMapEditor::_pick_tile(const Point2 &p_pos) {
 
     int id = node->get_cell(p_pos.x, p_pos.y);
 
-    if (id == TileMap::INVALID_CELL)
+    if (id == TileMap::INVALID_CELL || !node->get_tileset()->has_tile(id)) {
         return;
+    }
 
     if (!search_box->get_text_ui().isEmpty()) {
         search_box->set_text("");
@@ -670,11 +685,15 @@ PoolVector<Vector2> TileMapEditor::_bucket_fill(const Point2i &p_start, bool era
     }
 
     // Check if the tile variation is the same
-    Vector2 prev_position = node->get_cell_autotile_coord(p_start.x, p_start.y);
     if (ids.size() == 1 && ids[0] == prev_id) {
         int current = manual_palette->get_current();
-        Vector2 position = manual_palette->get_item_metadata(current).as<Vector2>();
-        if (prev_position == position) {
+        if (current == -1) {
+            // Same ID, no variation selected, nothing to change
+            return PoolVector<Vector2>();
+        }
+        Vector2 prev_autotile_coord = node->get_cell_autotile_coord(p_start.x, p_start.y);
+        Vector2 autotile_coord = manual_palette->get_item_metadata(current).as<Vector2>();
+        if (autotile_coord == prev_autotile_coord) {
             // Same ID and variation, nothing to change
             return {};
         }
@@ -823,12 +842,157 @@ void TileMapEditor::_erase_selection() {
     }
 }
 
+void TileMapEditor::_draw_grid(Control *p_viewport, const Rect2 &p_rect) const {
+    if (!EDITOR_GET_T<bool>("editors/tile_map/display_grid")) {
+        return;
+    }
+    const Transform2D cell_xf = node->get_cell_transform();
+    const Transform2D xform = CanvasItemEditor::get_singleton()->get_canvas_transform() * node->get_global_transform();
+
+    Transform2D xform_inv = xform.affine_inverse();
+
+    // Fade the grid when the rendered cell size is relatively small.
+    const float cell_area = xform.xform(Rect2(Point2(), node->get_cell_size())).get_area();
+    const float distance_fade = MIN(Math::inverse_lerp(4.0f, 64.0f, cell_area), 1.0f);
+    if (distance_fade <= 0) {
+        return;
+    }
+    const Color grid_color = EDITOR_GET_T<Color>("editors/tile_map/grid_color") * Color(1, 1, 1, distance_fade);
+    const Color axis_color = EDITOR_GET_T<Color>("editors/tile_map/axis_color") * Color(1, 1, 1, distance_fade);
+
+    const int fade = 5;
+    const Rect2i si = p_rect.grow(fade);
+
+         // When zoomed in, it's useful to clip the rendering.
+    Rect2i clipped;
+    {
+        const Transform2D xform_inv = xform.affine_inverse();
+        const Size2 screen_size = p_viewport->get_size();
+        Rect2 rect;
+        rect.position = node->world_to_map(xform_inv.xform(Vector2()));
+        rect.expand_to(node->world_to_map(xform_inv.xform(Vector2(0, screen_size.height))) + Vector2(0, 1));
+        rect.expand_to(node->world_to_map(xform_inv.xform(Vector2(screen_size.width, 0))) + Vector2(1, 0));
+        rect.expand_to(node->world_to_map(xform_inv.xform(screen_size)) + Vector2(1, 1));
+        if (node->get_half_offset() != TileMap::HALF_OFFSET_DISABLED) {
+            rect.grow_by(1); // So it won't matter whether corners are on an odd or even row/column.
+        }
+        clipped = rect.clip(si);
+    }
+    clipped.position -= si.position; // Relative to the fade rect, in grid unit.
+    const Point2i clipped_end = clipped.position + clipped.size;
+
+    if (clipped.has_no_area()) {
+        return;
+    }
+
+    Vector<Color> colors;
+    Vector<Point2> points;
+
+         // Vertical lines.
+    if (node->get_half_offset() != TileMap::HALF_OFFSET_X && node->get_half_offset() != TileMap::HALF_OFFSET_NEGATIVE_X) {
+        colors.resize(4);
+
+        for (int x = clipped.position.x; x <= clipped_end.x; x++) {
+            Point2 points_4[4] = {
+                xform.xform(node->map_to_world(si.position + Vector2(x, 0))),
+                xform.xform(node->map_to_world(si.position + Vector2(x, fade))),
+                xform.xform(node->map_to_world(si.position + Vector2(x, si.size.y - fade))),
+                xform.xform(node->map_to_world(si.position + Vector2(x, si.size.y))),
+            };
+
+            const Color color = (x + si.position.x == 0) ? axis_color : grid_color;
+            const float line_opacity = _lerp_fade(si.size.x, fade, x);
+
+            colors[0] = Color(color.r, color.g, color.b, 0.0);
+            colors[1] = Color(color.r, color.g, color.b, color.a * line_opacity);
+            colors[2] = Color(color.r, color.g, color.b, color.a * line_opacity);
+            colors[3] = Color(color.r, color.g, color.b, 0.0);
+
+            p_viewport->draw_polyline_colors(points_4, colors, 1);
+        }
+    } else {
+        const float half_offset = node->get_half_offset() == TileMap::HALF_OFFSET_X ? 0.5 : -0.5;
+        const int cell_count = clipped.size.y;
+        points.resize(cell_count * 2);
+        colors.resize(cell_count * 2);
+
+        for (int x = clipped.position.x; x <= clipped_end.x; x++) {
+            const Color color = (x + si.position.x == 0) ? axis_color : grid_color;
+            const float line_opacity = _lerp_fade(si.size.x, fade, x);
+
+            for (int y = clipped.position.y; y < clipped_end.y; y++) {
+                Vector2 ofs;
+                if (ABS(si.position.y + y) & 1) {
+                    ofs = cell_xf[0] * half_offset;
+                }
+                const int index = (y - clipped.position.y) * 2;
+                points[index + 0] = xform.xform(ofs + node->map_to_world(si.position + Vector2(x, y), true));
+                points[index + 1] = xform.xform(ofs + node->map_to_world(si.position + Vector2(x, y + 1), true));
+                colors[index + 0] = Color(color.r, color.g, color.b, color.a * line_opacity * _lerp_fade(si.size.y, fade, y));
+                colors[index + 1] = Color(color.r, color.g, color.b, color.a * line_opacity * _lerp_fade(si.size.y, fade, y + 1));
+            }
+            p_viewport->draw_multiline_colors(points, colors, 1);
+        }
+    }
+
+         // Horizontal lines.
+    if (node->get_half_offset() != TileMap::HALF_OFFSET_Y && node->get_half_offset() != TileMap::HALF_OFFSET_NEGATIVE_Y) {
+        Point2 points_4[4];
+        colors.resize(4);
+
+        for (int y = clipped.position.y; y <= clipped_end.y; y++) {
+            points_4[0] = xform.xform(node->map_to_world(si.position + Vector2(0, y)));
+            points_4[1] = xform.xform(node->map_to_world(si.position + Vector2(fade, y)));
+            points_4[2] = xform.xform(node->map_to_world(si.position + Vector2(si.size.x - fade, y)));
+            points_4[3] = xform.xform(node->map_to_world(si.position + Vector2(si.size.x, y)));
+
+            const Color color = (y + si.position.y == 0) ? axis_color : grid_color;
+            const float line_opacity = _lerp_fade(si.size.y, fade, y);
+
+            colors[0] = Color(color.r, color.g, color.b, 0.0);
+            colors[1] = Color(color.r, color.g, color.b, color.a * line_opacity);
+            colors[2] = Color(color.r, color.g, color.b, color.a * line_opacity);
+            colors[3] = Color(color.r, color.g, color.b, 0.0);
+
+            p_viewport->draw_polyline_colors(points_4, colors, 1);
+        }
+    } else {
+        const float half_offset = node->get_half_offset() == TileMap::HALF_OFFSET_Y ? 0.5 : -0.5;
+        const int cell_count = clipped.size.x;
+        points.resize(cell_count * 2);
+        colors.resize(cell_count * 2);
+
+        for (int y = clipped.position.y; y <= clipped_end.y; y++) {
+            const Color color = (y + si.position.y == 0) ? axis_color : grid_color;
+            const float line_opacity = _lerp_fade(si.size.y, fade, y);
+
+            for (int x = clipped.position.x; x < clipped_end.x; x++) {
+                Vector2 ofs;
+                if (ABS(si.position.x + x) & 1) {
+                    ofs = cell_xf[1] * half_offset;
+                }
+                const int index = (x - clipped.position.x) * 2;
+                points[index + 0] = xform.xform(ofs + node->map_to_world(si.position + Vector2(x, y), true));
+                points[index + 1] = xform.xform(ofs + node->map_to_world(si.position + Vector2(x + 1, y), true));
+                colors[index + 0] = Color(color.r, color.g, color.b, color.a * line_opacity * _lerp_fade(si.size.x, fade, x));
+                colors[index + 1] = Color(color.r, color.g, color.b, color.a * line_opacity * _lerp_fade(si.size.x, fade, x + 1));
+            }
+            p_viewport->draw_multiline_colors(points, colors, 1);
+        }
+    }
+}
+
 void TileMapEditor::_draw_cell(Control *p_viewport, int p_cell, const Point2i &p_point, bool p_flip_h, bool p_flip_v, bool p_transpose, const Point2i &p_autotile_coord, const Transform2D &p_xform) {
+
+    if (!node->get_tileset()->has_tile(p_cell)) {
+        return;
+    }
 
     Ref<Texture> t = node->get_tileset()->tile_get_texture(p_cell);
 
-    if (not t)
+    if (not t) {
         return;
+    }
 
     Vector2 tile_ofs = node->get_tileset()->tile_get_texture_offset(p_cell);
 
@@ -978,9 +1142,9 @@ void TileMapEditor::_update_copydata() {
                 tcd.flip_v = node->is_cell_y_flipped(j, i);
                 tcd.transpose = node->is_cell_transposed(j, i);
                 tcd.autotile_coord = node->get_cell_autotile_coord(j, i);
+                copydata.emplace_back(tcd);
             }
 
-            copydata.emplace_back(tcd);
         }
     }
 }
@@ -1601,100 +1765,10 @@ void TileMapEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
     if (!node)
         return;
 
-    Transform2D cell_xf = node->get_cell_transform();
-    Transform2D xform = CanvasItemEditor::get_singleton()->get_canvas_transform() * node->get_global_transform();
-    Transform2D xform_inv = xform.affine_inverse();
+    _draw_grid(p_overlay, node->get_used_rect());
 
-    Size2 screen_size = p_overlay->get_size();
-    {
-        Rect2 aabb;
-        aabb.position = node->world_to_map(xform_inv.xform(Vector2()));
-        aabb.expand_to(node->world_to_map(xform_inv.xform(Vector2(0, screen_size.height))));
-        aabb.expand_to(node->world_to_map(xform_inv.xform(Vector2(screen_size.width, 0))));
-        aabb.expand_to(node->world_to_map(xform_inv.xform(screen_size)));
-        Rect2i si = aabb.grow(1.0);
-
-        if (node->get_half_offset() != TileMap::HALF_OFFSET_X && node->get_half_offset() != TileMap::HALF_OFFSET_NEGATIVE_X) {
-
-            int max_lines = 2000; //avoid crash if size too small
-
-            for (int i = si.position.x - 1; i <= si.position.x + si.size.x; i++) {
-
-                Vector2 from = xform.xform(node->map_to_world(Vector2(i, si.position.y)));
-                Vector2 to = xform.xform(node->map_to_world(Vector2(i, si.position.y + si.size.y + 1)));
-
-                Color col = i == 0 ? Color(1, 0.8f, 0.2f, 0.5) : Color(1, 0.3f, 0.1f, 0.2f);
-                p_overlay->draw_line(from, to, col, 1);
-                if (max_lines-- == 0)
-                    break;
-            }
-        } else {
-
-            int max_lines = 10000; //avoid crash if size too small
-
-            for (int i = si.position.x - 1; i <= si.position.x + si.size.x; i++) {
-
-                for (int j = si.position.y - 1; j <= si.position.y + si.size.y; j++) {
-
-                    Vector2 ofs;
-                    if (ABS(j) & 1) {
-                        ofs = cell_xf[0] * (node->get_half_offset() == TileMap::HALF_OFFSET_X ? 0.5 : -0.5);
-                    }
-
-                    Vector2 from = xform.xform(node->map_to_world(Vector2(i, j), true) + ofs);
-                    Vector2 to = xform.xform(node->map_to_world(Vector2(i, j + 1), true) + ofs);
-
-                    Color col = i == 0 ? Color(1, 0.8f, 0.2f, 0.5) : Color(1, 0.3f, 0.1f, 0.2f);
-                    p_overlay->draw_line(from, to, col, 1);
-
-                    if (--max_lines == 0)
-                        break;
-                }
-                if (max_lines == 0)
-                    break;
-            }
-        }
-
-        int max_lines = 10000; //avoid crash if size too small
-
-        if (node->get_half_offset() != TileMap::HALF_OFFSET_Y && node->get_half_offset() != TileMap::HALF_OFFSET_NEGATIVE_Y) {
-
-            for (int i = si.position.y - 1; i <= si.position.y + si.size.y; i++) {
-
-                Vector2 from = xform.xform(node->map_to_world(Vector2(si.position.x, i)));
-                Vector2 to = xform.xform(node->map_to_world(Vector2(si.position.x + si.size.x + 1, i)));
-
-                Color col = i == 0 ? Color(1.0f, 0.8f, 0.2f, 0.5f) : Color(1.0f, 0.3f, 0.1f, 0.2f);
-                p_overlay->draw_line(from, to, col, 1);
-
-                if (max_lines-- == 0)
-                    break;
-            }
-        } else {
-
-            for (int i = si.position.y - 1; i <= si.position.y + si.size.y; i++) {
-
-                for (int j = si.position.x - 1; j <= si.position.x + si.size.x; j++) {
-
-                    Vector2 ofs;
-                    if (ABS(j) & 1) {
-                        ofs = cell_xf[1] * (node->get_half_offset() == TileMap::HALF_OFFSET_Y ? 0.5 : -0.5);
-                    }
-
-                    Vector2 from = xform.xform(node->map_to_world(Vector2(j, i), true) + ofs);
-                    Vector2 to = xform.xform(node->map_to_world(Vector2(j + 1, i), true) + ofs);
-
-                    Color col = i == 0 ? Color(1.0f, 0.8f, 0.2f, 0.5f) : Color(1.0f, 0.3f, 0.1f, 0.2f);
-                    p_overlay->draw_line(from, to, col, 1);
-
-                    if (--max_lines == 0)
-                        break;
-                }
-                if (max_lines == 0)
-                    break;
-            }
-        }
-    }
+    const Transform2D xform = CanvasItemEditor::get_singleton()->get_canvas_transform() * node->get_global_transform();
+    const Transform2D cell_xf = node->get_cell_transform();
 
     if (selection_active) {
 
@@ -1749,8 +1823,25 @@ void TileMapEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
 
             Vector<int> ids = get_selected_tiles();
 
-            if (ids.size() == 1 && ids[0] == TileMap::INVALID_CELL)
+            if (ids.size() == 1 && ids[0] == TileMap::INVALID_CELL) {
                 return;
+            }
+
+            // Making a Rect2i that encloses all the cells in paint_undo.
+            // I wonder if there is a cleaner way to do it.
+            const Point2i first_pos = paint_undo.begin()->first;
+            int left = first_pos.x;
+            int right = first_pos.x;
+            int top = first_pos.y;
+            int bottom = first_pos.y;
+            for (eastl::pair<const Point2i,CellOp> &E : paint_undo) {
+                const Point2i &pos = E.first;
+                left = MIN(pos.x, left);
+                right = M_MAX(pos.x, right);
+                top = MIN(pos.y, top);
+                bottom = M_MAX(pos.y, bottom);
+            }
+            _draw_grid(p_overlay, Rect2i(left, top, right - left + 1, bottom - top + 1));
 
             for (eastl::pair<const Point2i,CellOp> &E : paint_undo) {
 
@@ -1761,9 +1852,11 @@ void TileMapEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
 
             Vector<int> ids = get_selected_tiles();
 
-            if (ids.size() == 1 && ids[0] == TileMap::INVALID_CELL)
+            if (ids.size() == 1 && ids[0] == TileMap::INVALID_CELL) {
                 return;
+            }
 
+            _draw_grid(p_overlay, rectangle);
             for (int i = rectangle.position.y; i <= rectangle.position.y + rectangle.size.y; i++) {
                 for (int j = rectangle.position.x; j <= rectangle.position.x + rectangle.size.x; j++) {
 
@@ -1810,9 +1903,11 @@ void TileMapEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
 
             Vector<int> st = get_selected_tiles();
 
-            if (st.size() == 1 && st[0] == TileMap::INVALID_CELL)
+            if (st.size() == 1 && st[0] == TileMap::INVALID_CELL) {
                 return;
+            }
 
+            _draw_grid(p_overlay, Rect2(over_tile, Size2(1, 1)));
             _draw_cell(p_overlay, st[0], over_tile, flip_h, flip_v, transpose, autotile_coord, xform);
         }
     }
@@ -1825,9 +1920,11 @@ void TileMapEditor::edit(Node *p_tile_map) {
     if (!canvas_item_editor_viewport) {
         canvas_item_editor_viewport = CanvasItemEditor::get_singleton()->get_viewport_control();
     }
+    auto handler=callable_mp(this, &ClassName::_tileset_settings_changed);
+    if (node && node->is_connected("settings_changed", handler)) {
+        node->disconnect("settings_changed", handler);
+    }
 
-    if (node)
-        node->disconnect("settings_changed",callable_mp(this, &ClassName::_tileset_settings_changed));
     if (p_tile_map) {
 
         node = object_cast<TileMap>(p_tile_map);
@@ -1849,8 +1946,8 @@ void TileMapEditor::edit(Node *p_tile_map) {
         _update_palette();
     }
 
-    if (node)
-        node->connect("settings_changed",callable_mp(this, &ClassName::_tileset_settings_changed));
+    if (node  && !node->is_connected("settings_changed", handler))
+        node->connect("settings_changed",handler);
 
     _clear_bucket_cache();
 }
@@ -2003,7 +2100,7 @@ TileMapEditor::TileMapEditor(EditorNode *p_editor) {
     size_slider->connect("value_changed",callable_mp(this, &ClassName::_icon_size_changed));
     add_child(size_slider);
 
-    int mw = EDITOR_DEF_T<int>("editors/tile_map/palette_min_width", 80);
+    int mw = EDITOR_GET_T<int>("editors/tile_map/palette_min_width");
 
     VSplitContainer *palette_container = memnew(VSplitContainer);
     palette_container->set_v_size_flags(SIZE_EXPAND_FILL);
@@ -2058,25 +2155,25 @@ TileMapEditor::TileMapEditor(EditorNode *p_editor) {
 #else
     paint_button->set_tooltip(TTR("Shift+LMB: Line Draw\nShift+Ctrl+LMB: Rectangle Paint"));
 #endif
-    paint_button->connect("pressed",callable_mp(this, &ClassName::_button_tool_select), make_binds(TOOL_NONE));
+    paint_button->connectF("pressed",this,[=]() { _button_tool_select(TOOL_NONE); });
     paint_button->set_toggle_mode(true);
     toolbar->add_child(paint_button);
 
     bucket_fill_button = memnew(ToolButton);
     bucket_fill_button->set_shortcut(ED_SHORTCUT("tile_map_editor/bucket_fill", TTR("Bucket Fill"), KEY_G));
-    bucket_fill_button->connect("pressed",callable_mp(this, &ClassName::_button_tool_select), make_binds(TOOL_BUCKET));
+    bucket_fill_button->connectF("pressed",this,[=]() { _button_tool_select(TOOL_BUCKET); });
     bucket_fill_button->set_toggle_mode(true);
     toolbar->add_child(bucket_fill_button);
 
     picker_button = memnew(ToolButton);
     picker_button->set_shortcut(ED_SHORTCUT("tile_map_editor/pick_tile", TTR("Pick Tile"), KEY_I));
-    picker_button->connect("pressed",callable_mp(this, &ClassName::_button_tool_select), make_binds(TOOL_PICKING));
+    picker_button->connectF("pressed",this,[=]() { _button_tool_select(TOOL_PICKING); });
     picker_button->set_toggle_mode(true);
     toolbar->add_child(picker_button);
 
     select_button = memnew(ToolButton);
     select_button->set_shortcut(ED_SHORTCUT("tile_map_editor/select", TTR("Select"), KEY_M));
-    select_button->connect("pressed",callable_mp(this, &ClassName::_button_tool_select), make_binds(TOOL_SELECTING));
+    select_button->connectF("pressed",this,[=]() { _button_tool_select(TOOL_SELECTING); });
     select_button->set_toggle_mode(true);
     toolbar->add_child(select_button);
 
@@ -2094,6 +2191,7 @@ TileMapEditor::TileMapEditor(EditorNode *p_editor) {
     tile_info->set_modulate(Color(1, 1, 1, 0.8f));
     tile_info->set_mouse_filter(MOUSE_FILTER_IGNORE);
     tile_info->add_font_override("font", EditorNode::get_singleton()->get_gui_base()->get_theme_font("main", "EditorFonts"));
+    tile_info->add_theme_color_override("font_color", Color(1, 1, 1, 0.8)); // Overlay has a fixed dark background.
     // The tile info is only displayed after a tile has been hovered.
     tile_info->hide();
     CanvasItemEditor::get_singleton()->add_control_to_info_overlay(tile_info);
@@ -2116,14 +2214,14 @@ TileMapEditor::TileMapEditor(EditorNode *p_editor) {
     rotate_left_button = memnew(ToolButton);
     rotate_left_button->set_tooltip(TTR("Rotate Left"));
     rotate_left_button->set_focus_mode(FOCUS_NONE);
-    rotate_left_button->connect("pressed",callable_mp(this, &ClassName::_rotate), varray(-1));
+    rotate_left_button->connectF("pressed",this,[=]() { _rotate(-1); });
     rotate_left_button->set_shortcut(ED_SHORTCUT("tile_map_editor/rotate_left", TTR("Rotate Left"), KEY_A));
     tool_hb->add_child(rotate_left_button);
 
     rotate_right_button = memnew(ToolButton);
     rotate_right_button->set_tooltip(TTR("Rotate Right"));
     rotate_right_button->set_focus_mode(FOCUS_NONE);
-    rotate_right_button->connect("pressed",callable_mp(this, &ClassName::_rotate), varray(1));
+    rotate_right_button->connectF("pressed",this,[=]() { _rotate(1); });
     rotate_right_button->set_shortcut(ED_SHORTCUT("tile_map_editor/rotate_right", TTR("Rotate Right"), KEY_S));
     tool_hb->add_child(rotate_right_button);
 
@@ -2166,10 +2264,10 @@ void TileMapEditorPlugin::_notification(int p_what) {
 
         switch ((int)EditorSettings::get_singleton()->getT<int>("editors/tile_map/editor_side")) {
             case 0: { // Left.
-                CanvasItemEditor::get_singleton()->get_palette_split()->move_child(tile_map_editor, 0);
+                CanvasItemEditor::get_singleton()->move_control_to_left_panel(tile_map_editor);
             } break;
             case 1: { // Right.
-                CanvasItemEditor::get_singleton()->get_palette_split()->move_child(tile_map_editor, 1);
+                CanvasItemEditor::get_singleton()->move_control_to_right_panel(tile_map_editor);
             } break;
         }
     }
@@ -2211,21 +2309,25 @@ void TileMapEditorPlugin::make_visible(bool p_visible) {
 TileMapEditorPlugin::TileMapEditorPlugin(EditorNode *p_node) {
 
     EDITOR_DEF("editors/tile_map/preview_size", 64);
+    EDITOR_DEF("editors/tile_map/palette_min_width", 80);
     EDITOR_DEF("editors/tile_map/palette_item_hseparation", 8);
     EDITOR_DEF("editors/tile_map/show_tile_names", true);
     EDITOR_DEF("editors/tile_map/show_tile_ids", false);
     EDITOR_DEF("editors/tile_map/sort_tiles_by_name", true);
     EDITOR_DEF("editors/tile_map/bucket_fill_preview", true);
     EDITOR_DEF("editors/tile_map/editor_side", 1);
+    EDITOR_DEF("editors/tile_map/display_grid", true);
+    EDITOR_DEF("editors/tile_map/grid_color", Color(1, 0.3f, 0.1f, 0.2f));
+    EDITOR_DEF("editors/tile_map/axis_color", Color(1, 0.8f, 0.2f, 0.5f));
     EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/tile_map/editor_side", PropertyHint::Enum, "Left,Right"));
 
     tile_map_editor = memnew(TileMapEditor(p_node));
     switch (EditorSettings::get_singleton()->getT<int>("editors/tile_map/editor_side")) {
         case 0: { // Left.
-            add_control_to_container(CONTAINER_CANVAS_EDITOR_SIDE_LEFT, tile_map_editor);
+            CanvasItemEditor::get_singleton()->add_control_to_left_panel(tile_map_editor);
         } break;
         case 1: { // Right.
-            add_control_to_container(CONTAINER_CANVAS_EDITOR_SIDE_RIGHT, tile_map_editor);
+            CanvasItemEditor::get_singleton()->add_control_to_right_panel(tile_map_editor);
         } break;
     }
     tile_map_editor->hide();

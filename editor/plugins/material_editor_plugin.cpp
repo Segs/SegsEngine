@@ -33,6 +33,7 @@
 #include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "editor/editor_scale.h"
+#include "editor/editor_settings.h"
 #include "scene/gui/viewport_container.h"
 #include "scene/resources/particles_material.h"
 #include "scene/resources/shader.h"
@@ -125,7 +126,7 @@ MaterialEditor::MaterialEditor() {
     vc->set_anchors_and_margins_preset(PRESET_WIDE);
     viewport = memnew(Viewport);
     Ref<World3D> world(make_ref_counted<World3D>());
-    viewport->set_world(world); //use own world
+    viewport->set_world_3d(world); //use own world
     vc->add_child(viewport);
     viewport->set_disable_input(true);
     viewport->set_transparent_background(true);
@@ -153,8 +154,8 @@ MaterialEditor::MaterialEditor() {
     viewport->add_child(box_instance);
 
     Transform box_xform;
-    box_xform.basis.rotate(Vector3(1, 0, 0), Math::deg2rad(25.0));
-    box_xform.basis = box_xform.basis * Basis().rotated(Vector3(0, 1, 0), Math::deg2rad(-25.0));
+    box_xform.basis.rotate(Vector3(1, 0, 0), Math::deg2rad(25.0f));
+    box_xform.basis = box_xform.basis * Basis().rotated(Vector3(0, 1, 0), Math::deg2rad(-25.0f));
     box_xform.basis.scale(Vector3(0.8f, 0.8f, 0.8f));
     box_xform.origin.y = 0.2f;
     box_instance->set_transform(box_xform);
@@ -178,13 +179,13 @@ MaterialEditor::MaterialEditor() {
     sphere_switch->set_toggle_mode(true);
     sphere_switch->set_pressed(true);
     vb_shape->add_child(sphere_switch);
-    sphere_switch->connect("pressed",callable_mp(this, &ClassName::_button_pressed), varray(Variant(sphere_switch)));
+    sphere_switch->connectF("pressed",this, [this]() { _button_pressed(sphere_switch); });
 
     box_switch = memnew(TextureButton);
     box_switch->set_toggle_mode(true);
     box_switch->set_pressed(false);
     vb_shape->add_child(box_switch);
-    box_switch->connect("pressed",callable_mp(this, &ClassName::_button_pressed), varray(Variant(box_switch)));
+    box_switch->connectF("pressed",this, [this]() { _button_pressed(box_switch); });
 
     hb->add_spacer();
 
@@ -194,12 +195,12 @@ MaterialEditor::MaterialEditor() {
     light_1_switch = memnew(TextureButton);
     light_1_switch->set_toggle_mode(true);
     vb_light->add_child(light_1_switch);
-    light_1_switch->connect("pressed",callable_mp(this, &ClassName::_button_pressed), varray(Variant(light_1_switch)));
+    light_1_switch->connectF("pressed",this, [this]() { _button_pressed(light_1_switch); });
 
     light_2_switch = memnew(TextureButton);
     light_2_switch->set_toggle_mode(true);
     vb_light->add_child(light_2_switch);
-    light_2_switch->connect("pressed",callable_mp(this, &ClassName::_button_pressed), varray(Variant(light_2_switch)));
+    light_2_switch->connectF("pressed",this, [this]() { _button_pressed(light_2_switch); });
 
     first_enter = true;
 
@@ -291,6 +292,8 @@ Ref<Resource> SpatialMaterialConversionPlugin::convert(const Ref<Resource> &p_re
     }
 
     smat->set_render_priority(mat->get_render_priority());
+    smat->set_local_to_scene(mat->is_local_to_scene());
+    smat->set_name(mat->get_name());
     return smat;
 }
 
@@ -327,6 +330,8 @@ Ref<Resource> ParticlesMaterialConversionPlugin::convert(const Ref<Resource> &p_
     }
 
     smat->set_render_priority(mat->get_render_priority());
+    smat->set_local_to_scene(mat->is_local_to_scene());
+    smat->set_name(mat->get_name());
     return smat;
 }
 
@@ -363,5 +368,7 @@ Ref<Resource> CanvasItemMaterialConversionPlugin::convert(const Ref<Resource> &p
     }
 
     smat->set_render_priority(mat->get_render_priority());
+    smat->set_local_to_scene(mat->is_local_to_scene());
+    smat->set_name(mat->get_name());
     return smat;
 }

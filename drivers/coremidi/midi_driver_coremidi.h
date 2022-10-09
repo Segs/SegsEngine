@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  midi_driver_coremidi.h                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -37,7 +37,6 @@
 #include "core/vector.h"
 
 #include <CoreMIDI/CoreMIDI.h>
-#include <stdio.h>
 
 class MIDIDriverCoreMidi : public MIDIDriver {
 

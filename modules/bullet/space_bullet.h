@@ -91,7 +91,34 @@ class SpaceBullet : public RIDBullet {
     friend class AreaBullet;
     friend void onBulletTickCallback(btDynamicsWorld *world, btScalar timeStep);
     friend class BulletPhysicsDirectSpaceState;
-
+public:
+    /// IMPORTANT NOTE: These members are public to expose some bullet
+    /// physics internal functionalities that are not supported or exposed
+    /// through the `PhysicsServer`.
+    ///
+    /// One example is the unofficial module `godot-kinematic-body`:
+    /// https://github.com/AndreaCatania/godot-kinematic-body/blob/3.x/kinematic_object_3d.cpp
+    ///
+    /// # How it works
+    /// To access these members from a module, the first step is to cast the
+    /// `PhysicsServer` to `BulletPhysicsServer`. This step is necessary
+    /// to have access to the `space_owner` (which is a storage that holds
+    /// the `SpaceBullet` objects).
+    /// ```c++
+    /// BulletPhysicsServer* bullet_physics_singleton = static_cast<BulletPhysicsServer *>(PhysicsServer::get_singleton());
+    /// SpaceBullet* space = bullet_physics_singleton->get_space_owner()->getornull(get_world()->get_space());
+    /// ```
+    //
+    /// Once you have access to the space, you can access the members and
+    /// execute bullet physics commands:
+    /// ```c++
+    /// space->dynamicsWorld->convexSweepTest(
+    ///	p_shape,
+    ///	btTransform(btMatrix3x3::getIdentity(), p_position),
+    ///	btTransform(btMatrix3x3::getIdentity(), p_position + p_motion),
+    ///	result,
+    ///	p_margin);
+    /// ```
     btBroadphaseInterface *broadphase;
     btDefaultCollisionConfiguration *collisionConfiguration;
     btCollisionDispatcher *dispatcher;
@@ -171,8 +198,9 @@ public:
         contactDebugCount = 0;
     }
     _FORCE_INLINE_ void add_debug_contact(const Vector3 &p_contact) {
-        if (contactDebugCount < contactDebug.size())
+        if (contactDebugCount < contactDebug.size()) {
             contactDebug[contactDebugCount++] = p_contact;
+        }
     }
     const Vector<Vector3> &get_debug_contacts() { return contactDebug; }
     _FORCE_INLINE_ int get_debug_contact_count() { return contactDebugCount; }
@@ -185,7 +213,7 @@ public:
     real_t get_linear_damp() const { return linear_damp; }
     real_t get_angular_damp() const { return angular_damp; }
 
-    bool test_body_motion(RigidBodyBullet *p_body, const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia, PhysicsServer3D::MotionResult *r_result, bool p_exclude_raycast_shapes);
+    bool test_body_motion(RigidBodyBullet *p_body, const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia, PhysicsServer3D::MotionResult *r_result, bool p_exclude_raycast_shapes, const Set<RID> &p_exclude = {});
     int test_ray_separation(RigidBodyBullet *p_body, const Transform &p_transform, bool p_infinite_inertia, Vector3 &r_recover_motion, PhysicsServer3D::SeparationResult *r_results, int p_result_max, float p_margin);
 
 private:
@@ -194,6 +222,7 @@ private:
     void check_ghost_overlaps();
     void check_body_collision();
 
+public:
     struct RecoverResult {
         bool hasPenetration;
         btVector3 normal;
@@ -207,13 +236,15 @@ private:
                 hasPenetration(false),
                 normal(0, 0, 0),
                 pointWorld(0, 0, 0),
-                penetration_distance(1e20f),
+                penetration_distance(1e20),
                 other_compound_shape_index(0),
                 other_collision_object(nullptr),
                 local_shape_most_recovered(0) {}
     };
 
-    bool recover_from_penetration(RigidBodyBullet *p_body, const btTransform &p_body_position, btScalar p_recover_movement_scale, bool p_infinite_inertia, btVector3 &r_delta_recover_movement, RecoverResult *r_recover_result = nullptr);
+private:
+
+    bool recover_from_penetration(RigidBodyBullet *p_body, const btTransform &p_body_position, btScalar p_recover_movement_scale, bool p_infinite_inertia, btVector3 &r_delta_recover_movement, RecoverResult *r_recover_result = nullptr, const Set<RID> &p_exclude={});
     /// This is an API that recover a kinematic object from penetration
     /// This allow only Convex Convex test and it always use GJK algorithm, With this API we don't benefit of Bullet special accelerated functions
     bool RFP_convex_convex_test(const btConvexShape *p_shapeA, const btConvexShape *p_shapeB, btCollisionObject *p_objectB, int p_shapeId_A, int p_shapeId_B, const btTransform &p_transformA, const btTransform &p_transformB, btScalar p_recover_movement_scale, btVector3 &r_delta_recover_movement, RecoverResult *r_recover_result = nullptr);

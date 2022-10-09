@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  node_3d_editor_gizmos.h                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -71,6 +71,19 @@ public:
     AudioStreamPlayer3DSpatialGizmoPlugin();
 };
 
+class ListenerSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
+    GDCLASS(ListenerSpatialGizmoPlugin, EditorSpatialGizmoPlugin);
+
+public:
+    bool has_gizmo(Node3D *p_spatial) override;
+    StringView get_name() const override;
+    int get_priority() const override;
+
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
+
+    ListenerSpatialGizmoPlugin();
+};
+
 class CameraSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
 
     GDCLASS(CameraSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
@@ -115,6 +128,19 @@ public:
     void redraw(EditorNode3DGizmo *p_gizmo) override;
 
     Sprite3DSpatialGizmoPlugin();
+};
+
+class Label3DSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
+    GDCLASS(Label3DSpatialGizmoPlugin, EditorSpatialGizmoPlugin);
+
+public:
+    bool has_gizmo(Node3D *p_spatial) override;
+    StringView get_name() const override;
+    int get_priority() const override;
+    bool can_be_hidden() const override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
+
+    Label3DSpatialGizmoPlugin();
 };
 
 class Position3DSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
@@ -333,6 +359,18 @@ public:
     BakedIndirectLightGizmoPlugin();
 };
 
+class CollisionObjectGizmoPlugin : public EditorSpatialGizmoPlugin {
+
+    GDCLASS(CollisionObjectGizmoPlugin, EditorSpatialGizmoPlugin);
+
+public:
+    bool has_gizmo(Node3D *p_spatial) override;
+    StringView get_name() const override;
+    int get_priority() const override;
+    void redraw(EditorNode3DGizmo *p_gizmo) override;
+
+    CollisionObjectGizmoPlugin();
+};
 class CollisionShapeSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
 
     GDCLASS(CollisionShapeSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
@@ -446,4 +484,111 @@ public:
             Vector<Vector3> *r_body_b_points);
 
     JointSpatialGizmoPlugin();
+};
+class Room;
+
+class RoomSpatialGizmo : public EditorNode3DGizmo {
+    GDCLASS(RoomSpatialGizmo, EditorNode3DGizmo);
+
+    Room *_room = nullptr;
+
+public:
+    StringName get_handle_name(int p_idx) const override;
+    Variant get_handle_value(int p_idx) override;
+    void set_handle(int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
+    void commit_handle(int p_idx, const Variant &p_restore, bool p_cancel = false) override;
+    void redraw() override;
+
+    RoomSpatialGizmo(Room *p_room = nullptr);
+};
+
+class RoomGizmoPlugin : public EditorSpatialGizmoPlugin {
+    GDCLASS(RoomGizmoPlugin, EditorSpatialGizmoPlugin);
+
+protected:
+    bool has_gizmo(Node3D *p_spatial) override;
+    StringView get_name() const override;
+    int get_priority() const override;
+    Ref<EditorNode3DGizmo> create_gizmo(Node3D *p_spatial) override;
+
+public:
+    RoomGizmoPlugin();
+};
+
+class Portal;
+
+class PortalSpatialGizmo : public EditorNode3DGizmo {
+    GDCLASS(PortalSpatialGizmo, EditorNode3DGizmo);
+
+    Portal *_portal = nullptr;
+    Color _color_portal_front;
+    Color _color_portal_back;
+
+public:
+    StringName get_handle_name(int p_idx) const override;
+    Variant get_handle_value(int p_idx) override;
+    void set_handle(int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
+    void commit_handle(int p_idx, const Variant &p_restore, bool p_cancel = false) override;
+    void redraw() override;
+
+    PortalSpatialGizmo(Portal *p_portal = nullptr);
+};
+
+class PortalGizmoPlugin : public EditorSpatialGizmoPlugin {
+    GDCLASS(PortalGizmoPlugin, EditorSpatialGizmoPlugin);
+
+protected:
+    virtual bool has_gizmo(Node3D *p_spatial) override;
+    StringView get_name() const override;
+    int get_priority() const override;
+    Ref<EditorNode3DGizmo> create_gizmo(Node3D *p_spatial) override;
+
+public:
+    PortalGizmoPlugin();
+};
+
+class Occluder;
+class OccluderShape;
+class OccluderShapeSphere;
+class OccluderShapePolygon;
+
+class OccluderSpatialGizmo : public EditorNode3DGizmo {
+    GDCLASS(OccluderSpatialGizmo, EditorNode3DGizmo);
+
+    Occluder *_occluder = nullptr;
+
+    const OccluderShape *get_occluder_shape() const;
+    const OccluderShapeSphere *get_occluder_shape_sphere() const;
+    const OccluderShapePolygon *get_occluder_shape_poly() const;
+    OccluderShape *get_occluder_shape();
+    OccluderShapeSphere *get_occluder_shape_sphere();
+    OccluderShapePolygon *get_occluder_shape_poly();
+
+    Color _color_poly_front;
+    Color _color_poly_back;
+    Color _color_hole;
+
+    void _redraw_poly(bool p_hole, Span<const Vector2> p_pts, Span<const Vector2> p_pts_raw);
+
+public:
+    StringName get_handle_name(int p_idx) const override;
+    Variant get_handle_value(int p_idx) override;
+    void set_handle(int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
+    void commit_handle(int p_idx, const Variant &p_restore, bool p_cancel = false) override;
+    void redraw() override;
+
+    OccluderSpatialGizmo(Occluder *p_occluder = nullptr);
+};
+
+class OccluderGizmoPlugin : public EditorSpatialGizmoPlugin {
+    GDCLASS(OccluderGizmoPlugin, EditorSpatialGizmoPlugin);
+
+protected:
+    bool has_gizmo(Node3D *p_spatial) override;
+    StringView get_name() const override;
+    int get_priority() const override;
+    Ref<EditorNode3DGizmo> create_gizmo(Node3D *p_spatial) override;
+
+public:
+    OccluderGizmoPlugin();
 };

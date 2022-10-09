@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/texture_atlas">
+        <file alias="TextureAtlasImportFailed.png">img/atlas_import_failed.png</file>
+    </qresource>
+</RCC>

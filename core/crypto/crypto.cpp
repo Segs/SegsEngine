@@ -31,6 +31,7 @@
 #include "crypto.h"
 
 #include "core/engine.h"
+#include "core/crypto/hashing_context.h"
 #include "core/io/compression.h"
 #include "core/list.h"
 #include "core/method_bind.h"
@@ -41,6 +42,7 @@ using namespace eastl;
 IMPL_GDCLASS(CryptoKey)
 IMPL_GDCLASS(X509Certificate)
 IMPL_GDCLASS(Crypto)
+IMPL_GDCLASS(HMACContext)
 
 /// Resources
 
@@ -53,8 +55,11 @@ CryptoKey *CryptoKey::create() {
 }
 
 void CryptoKey::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("save", { "path" }), &CryptoKey::save);
-    MethodBinder::bind_method(D_METHOD("load", { "path" }), &CryptoKey::load);
+    MethodBinder::bind_method(D_METHOD("save", { "path", "public_only" }), &CryptoKey::save,{DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("load", { "path", "public_only" }), &CryptoKey::load,{DEFVAL(false)});
+    BIND_METHOD(CryptoKey,is_public_only);
+    MethodBinder::bind_method(D_METHOD("save_to_string", {"public_only"}), &CryptoKey::save_to_string, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("load_from_string", {"string_key", "public_only"}), &CryptoKey::load_from_string, {DEFVAL(false)});
 }
 
 X509Certificate *(*X509Certificate::_create)() = nullptr;
@@ -66,8 +71,24 @@ X509Certificate *X509Certificate::create() {
 }
 
 void X509Certificate::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("save", { "path" }), &X509Certificate::save);
-    MethodBinder::bind_method(D_METHOD("load", { "path" }), &X509Certificate::load);
+    BIND_METHOD(X509Certificate,save);
+    BIND_METHOD(X509Certificate,load);
+}
+
+/// HMACContext
+
+void HMACContext::_bind_methods() {
+    BIND_METHOD(HMACContext,start);
+    BIND_METHOD(HMACContext,update);
+    BIND_METHOD(HMACContext,finish);
+}
+
+HMACContext *(*HMACContext::_create)() = nullptr;
+HMACContext *HMACContext::create() {
+    if (_create) {
+        return _create();
+    }
+    ERR_FAIL_V_MSG(nullptr, "HMACContext is not available when the mbedtls module is disabled.");
 }
 
 /// Crypto
@@ -78,7 +99,7 @@ Crypto *Crypto::create() {
     if (_create) {
         return _create();
     }
-    return memnew(Crypto);
+    ERR_FAIL_V_MSG(nullptr, "Crypto is not available when the mbedtls module is disabled.");
 }
 
 void Crypto::load_default_certificates(StringView p_path) {
@@ -87,13 +108,48 @@ void Crypto::load_default_certificates(StringView p_path) {
     }
 }
 
+PoolByteArray Crypto::hmac_digest(HashingContext::HashType p_hash_type, PoolByteArray p_key, PoolByteArray p_msg) {
+    Ref<HMACContext> ctx = Ref<HMACContext>(HMACContext::create());
+    ERR_FAIL_COND_V_MSG(!ctx, PoolByteArray(), "HMAC is not available without mbedtls module.");
+    Error err = ctx->start(p_hash_type, p_key);
+    ERR_FAIL_COND_V(err != OK, PoolByteArray());
+    err = ctx->update(p_msg);
+    ERR_FAIL_COND_V(err != OK, PoolByteArray());
+    return ctx->finish();
+}
+
+// Compares two HMACS for equality without leaking timing information in order to prevent timing attakcs.
+// @see: https://paragonie.com/blog/2015/11/preventing-timing-attacks-on-string-comparison-with-double-hmac-strategy
+bool Crypto::constant_time_compare(PoolByteArray p_trusted, PoolByteArray p_received) {
+    const uint8_t *t = p_trusted.read().ptr();
+    const uint8_t *r = p_received.read().ptr();
+    int tlen = p_trusted.size();
+    int rlen = p_received.size();
+    // If the lengths are different then nothing else matters.
+    if (tlen != rlen) {
+        return false;
+    }
+
+    uint8_t v = 0;
+    for (int i = 0; i < tlen; i++) {
+        v |= t[i] ^ r[i];
+    }
+    return v == 0;
+}
+
 void Crypto::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("generate_random_bytes", { "size" }), &Crypto::generate_random_bytes);
-    MethodBinder::bind_method(D_METHOD("generate_rsa", { "size" }), &Crypto::generate_rsa);
+    BIND_METHOD(Crypto,generate_random_bytes);
+    BIND_METHOD(Crypto,generate_rsa);
     MethodBinder::bind_method(
             D_METHOD("generate_self_signed_certificate", { "key", "issuer_name", "not_before", "not_after" }),
             &Crypto::generate_self_signed_certificate,
             { Variant("CN=myserver,O=myorganisation,C=IT"), Variant("20140101000000"), Variant("20340101000000") });
+    BIND_METHOD(Crypto,sign);
+    BIND_METHOD(Crypto,verify);
+    BIND_METHOD(Crypto,encrypt);
+    BIND_METHOD(Crypto,decrypt);
+    BIND_METHOD(Crypto,hmac_digest);
+    BIND_METHOD(Crypto,constant_time_compare);
 }
 
 PoolByteArray Crypto::generate_random_bytes(int p_bytes) {
@@ -114,7 +170,7 @@ Crypto::Crypto() = default;
 
 /// Resource loader/saver
 
-RES ResourceFormatLoaderCrypto::load(StringView p_path, StringView p_original_path, Error *r_error) {
+RES ResourceFormatLoaderCrypto::load(StringView p_path, StringView p_original_path, Error *r_error, bool p_no_subresource_cache) {
     String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "crt") {
         X509Certificate *cert = X509Certificate::create();
@@ -125,7 +181,13 @@ RES ResourceFormatLoaderCrypto::load(StringView p_path, StringView p_original_pa
     } else if (el == "key") {
         CryptoKey *key = CryptoKey::create();
         if (key) {
-            key->load(p_path);
+            key->load(p_path, false);
+        }
+        return RES(key);
+    } else if (el == "pub") {
+        CryptoKey *key = CryptoKey::create();
+        if (key) {
+            key->load(p_path, true);
         }
         return RES(key);
     }
@@ -135,6 +197,7 @@ RES ResourceFormatLoaderCrypto::load(StringView p_path, StringView p_original_pa
 void ResourceFormatLoaderCrypto::get_recognized_extensions(Vector<String> &p_extensions) const {
     p_extensions.push_back("crt");
     p_extensions.push_back("key");
+    p_extensions.push_back("pub");
 }
 
 bool ResourceFormatLoaderCrypto::handles_type(StringView p_type) const {
@@ -145,7 +208,7 @@ String ResourceFormatLoaderCrypto::get_resource_type(StringView p_path) const {
     String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "crt") {
         return "X509Certificate";
-    } else if (el == "key") {
+    } else if (el == "key" || el == "pub") {
         return "CryptoKey";
     }
     return String();
@@ -158,7 +221,7 @@ Error ResourceFormatSaverCrypto::save(StringView p_path, const RES &p_resource, 
     if (cert) {
         err = cert->save(p_path);
     } else if (key) {
-        err = key->save(p_path);
+        err = key->save(p_path,PathUtils::get_extension(p_path)=="pub");
     } else {
         ERR_FAIL_V(ERR_INVALID_PARAMETER);
     }
@@ -173,7 +236,10 @@ void ResourceFormatSaverCrypto::get_recognized_extensions(const RES &p_resource,
         p_extensions.push_back("crt");
     }
     if (key) {
+        if (!key->is_public_only()) {
         p_extensions.push_back("key");
+        }
+        p_extensions.push_back("pub");
     }
 }
 

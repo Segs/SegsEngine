@@ -36,11 +36,13 @@
 #include <limits.h>                 // C limits.h header
 #include <float.h>
 #if defined(_CPPLIB_VER)            // Dinkumware.
-	#include <ymath.h>
+#   include <ymath.h>
+#   include <cmath>
 #endif
 
 // Disable Warnings:
-//   cast truncates constant value / expression is always false
+//   4310 - cast truncates constant value
+//   4296 - expression is always false
 EA_DISABLE_VC_WARNING(4310 4296)
 
 // EASTL_CUSTOM_FLOAT_CONSTANTS_REQUIRED
@@ -49,7 +51,7 @@ EA_DISABLE_VC_WARNING(4310 4296)
 // Indicates whether we need to define our own implementations of inf, nan, snan, denorm floating point constants. 
 //
 #if !defined(EASTL_CUSTOM_FLOAT_CONSTANTS_REQUIRED)
-	#if (defined(EA_COMPILER_GNUC) || defined(EA_COMPILER_CLANG) && defined(__FLT_MIN__)) || defined(_CPPLIB_VER) // __FLT_MIN__ detects if it's really GCC/clang and not a mimic. _CPPLIB_VER (Dinkumware) covers VC++, and Microsoft platforms.
+	#if (defined(EA_COMPILER_GNUC) || defined(__clang__) && defined(__FLT_MIN__)) || defined(_CPPLIB_VER) // __FLT_MIN__ detects if it's really GCC/clang and not a mimic. _CPPLIB_VER (Dinkumware) covers VC++, and Microsoft platforms.
 		#define EASTL_CUSTOM_FLOAT_CONSTANTS_REQUIRED 0
 	#else
 		#define EASTL_CUSTOM_FLOAT_CONSTANTS_REQUIRED 1
@@ -1662,15 +1664,15 @@ namespace eastl
 				{ return 0.5f; }
 
             static EA_CONSTEXPR value_type infinity() EA_NOEXCEPT
-				{ return _CSTD _LInf._Long_double; }
+				{ return INFINITY; }
 
-            static EA_CONSTEXPR value_type quiet_NaN() EA_NOEXCEPT
+			static value_type quiet_NaN() EA_NOEXCEPT
 				{ return _CSTD _LNan._Long_double; }
 
-            static EA_CONSTEXPR value_type signaling_NaN() EA_NOEXCEPT
+			static value_type signaling_NaN() EA_NOEXCEPT
 				{ return _CSTD _LSnan._Long_double; } 
 
-            static EA_CONSTEXPR value_type denorm_min() EA_NOEXCEPT
+			static value_type denorm_min() EA_NOEXCEPT
 				{ return _CSTD _LDenorm._Long_double; }
 
 		#endif

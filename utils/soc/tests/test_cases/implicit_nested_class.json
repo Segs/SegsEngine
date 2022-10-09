@@ -1,0 +1,32 @@
+{
+    "api_hash" : "",
+    "api_version" : "",
+    "dependencies" : [],
+    "module_name" : "",
+    "namespaces" : [ {
+      "contents" : {
+          "subtypes" : [
+          {
+              "contents" : {
+              "functions" : [{ "name": "test1", "return_type": { "name": "void" } }],
+              "subtypes" : [ {
+                      "contents" : {
+                      "functions" : [{ "name": "test2", "return_type": { "name": "void" } }]
+                      },
+                      "name" : "Foo",
+                      "required_header" : "implicit_nested_class.h",
+                      "base_type" : { "name" : "Node2" }
+                  }
+                ]
+                },
+              "name" : "Bar",
+              "required_header" : "implicit_nested_class.h",
+              "base_type" : { "name" : "Node"}
+          }
+
+          ]
+      },
+      "name" : "GodotCore"
+    } ],
+    "version" : ""
+}

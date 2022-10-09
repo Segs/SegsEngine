@@ -47,3 +47,4 @@ VARIANT_NS_ENUM_CAST(RenderingServerEnums,EnvironmentSSAOBlur);
 VARIANT_NS_ENUM_CAST(RenderingServerEnums,InstanceFlags);
 VARIANT_NS_ENUM_CAST(RenderingServerEnums,ShadowCastingSetting);
 VARIANT_NS_ENUM_CAST(RenderingServerEnums,TextureType);
+VARIANT_NS_ENUM_CAST(RenderingServerEnums,ChangedPriority);

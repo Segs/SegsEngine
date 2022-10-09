@@ -51,7 +51,16 @@ class CollisionShape2DEditor : public Control {
         RECTANGLE_SHAPE,
         SEGMENT_SHAPE
     };
-
+    const Point2 RECT_HANDLES[8] = {
+        Point2(1, 0),
+        Point2(1, 1),
+        Point2(0, 1),
+        Point2(-1, 1),
+        Point2(-1, 0),
+        Point2(-1, -1),
+        Point2(0, -1),
+        Point2(1, -1),
+    };
     EditorNode *editor;
     UndoRedo *undo_redo;
     CanvasItemEditor *canvas_item_editor;
@@ -63,6 +72,8 @@ class CollisionShape2DEditor : public Control {
     int edit_handle;
     bool pressed;
     Variant original;
+    Transform2D original_transform;
+    Point2 last_point;
 
     Variant get_handle_value(int idx) const;
     void set_handle(int idx, Point2 &p_point);

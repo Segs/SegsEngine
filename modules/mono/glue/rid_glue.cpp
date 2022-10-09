@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  rid_glue.cpp                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -33,25 +33,27 @@
 #include "core/resource.h"
 
 RID *godot_icall_RID_Ctor(Object *p_from) {
-	Resource *res_from = object_cast<Resource>(p_from);
+    Resource *res_from = object_cast<Resource>(p_from);
 
-	if (res_from)
-		return memnew(RID(res_from->get_rid()));
+    if (res_from)
+        return memnew(RID(res_from->get_phys_rid()));
 
-	return memnew(RID);
+    return memnew(RID);
 }
 
 void godot_icall_RID_Dtor(RID *p_ptr) {
-	ERR_FAIL_NULL(p_ptr);
-	memdelete(p_ptr);
+    ERR_FAIL_NULL(p_ptr);
+    memdelete(p_ptr);
 }
 
 uint32_t godot_icall_RID_get_id(RID *p_ptr) {
-	return p_ptr->get_id();
+    return p_ptr->get_id();
 }
+static_assert(entt::to_integral(GameEntity(entt::null)) == ~0, "GameEntity(entt::null) must be ~0");
+static_assert(entt::to_integral(RenderingEntity(entt::null)) == ~0, "RenderingEntity(entt::null) must be ~0");
 
 void godot_register_rid_icalls() {
-	mono_add_internal_call("Godot.RID::godot_icall_RID_Ctor", (void *)godot_icall_RID_Ctor);
-	mono_add_internal_call("Godot.RID::godot_icall_RID_Dtor", (void *)godot_icall_RID_Dtor);
-	mono_add_internal_call("Godot.RID::godot_icall_RID_get_id", (void *)godot_icall_RID_get_id);
+    mono_add_internal_call("Godot.RID::godot_icall_RID_Ctor", (void *)godot_icall_RID_Ctor);
+    mono_add_internal_call("Godot.RID::godot_icall_RID_Dtor", (void *)godot_icall_RID_Dtor);
+    mono_add_internal_call("Godot.RID::godot_icall_RID_get_id", (void *)godot_icall_RID_get_id);
 }

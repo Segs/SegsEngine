@@ -1,0 +1,22 @@
+{
+    "api_hash":"",
+    "api_version":"",
+    "dependencies":[],
+    "module_name":"",
+    "namespaces":[
+        {
+            "contents":{
+                "subtypes":[
+                    {
+                        "contents":{},
+                        "name":"OpaqueStruct",
+                        "required_header":"opaque_struct.h",
+                        "is_opaque": true
+                    }
+                ]
+            },
+            "name":"GodotCore"
+        }
+    ],
+    "version":""
+}

@@ -18,7 +18,7 @@
 
 void gen_icall(const TS_Function &finfo,GeneratorContext &ctx) {
     ctx.append_line("[MethodImpl(MethodImplOptions.InternalCall)]");
-    ctx.out.append_indented("internal extern static ");
+    ctx.out.append_indented("internal static extern ");
     ctx.out.append(finfo.return_type.type->cs_name());
     ctx.out.append(" ");
     ctx.out.append(c_func_name_to_icall(&finfo));

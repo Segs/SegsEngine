@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  resource_importer_texture_atlas.cpp                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,7 +31,6 @@
 #include "resource_importer_texture_atlas.h"
 
 #include "editor_atlas_packer.h"
-#include "atlas_import_failed.xpm"
 
 #include "core/io/image_loader.h"
 #include "core/io/resource_saver.h"
@@ -40,8 +39,10 @@
 #include "scene/resources/mesh.h"
 #include "scene/resources/texture.h"
 
+#include <QResource>
 struct PackData {
     Rect2 region;
+    bool is_cropped;
     bool is_mesh;
     Vector<int> chart_pieces; // one for region, many for mesh
     Vector<Vector<Vector2>> chart_vertices; // for mesh
@@ -72,7 +73,7 @@ StringName ResourceImporterTextureAtlas::get_resource_type() const {
     return "Texture";
 }
 
-bool ResourceImporterTextureAtlas::get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const {
+bool ResourceImporterTextureAtlas::get_option_visibility(const StringName &/*p_option*/, const HashMap<StringName, Variant> &/*p_options*/) const {
 
     return true;
 }
@@ -85,24 +86,28 @@ StringName ResourceImporterTextureAtlas::get_preset_name(int p_idx) const {
     return StringName();
 }
 
-void ResourceImporterTextureAtlas::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
+void ResourceImporterTextureAtlas::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int /*p_preset*/) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::STRING, "atlas_file", PropertyHint::SaveFile, "*.png"), ""));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "import_mode", PropertyHint::Enum, "Region,Mesh2D"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "crop_to_region"), false));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "trim_alpha_border_from_region"), true));
 }
 
 StringName ResourceImporterTextureAtlas::get_option_group_file() const {
     return "atlas_file";
 }
 
-Error ResourceImporterTextureAtlas::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
-                                            Vector<String> *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterTextureAtlas::import(StringView /*p_source_file*/, StringView p_save_path, const HashMap<StringName, Variant> & /*p_options*/, Vector<String> & /*r_missing_deps*/,
+                                            Vector<String> * /*r_platform_variants*/, Vector<String> * /*r_gen_files*/, Variant * /*r_metadata*/) {
 
     /* If this happens, it's because the atlas_file field was not filled, so just import a broken texture */
 
     //use an xpm because it's size independent, the editor images are vector and size dependent
     //it's a simple hack
-    Ref<Image> broken(make_ref_counted<Image>((const char **)atlas_import_failed_xpm));
+    QResource res(":/texture_atlas/TextureAtlasImportFailed.png");
+    QByteArray uncompr(res.uncompressedData());
+    Ref<Image> broken(make_ref_counted<Image>((const uint8_t *)uncompr.data(),(int)uncompr.size()));
     Ref<ImageTexture> broken_texture(make_ref_counted<ImageTexture>());
 
     broken_texture->create_from_image(broken);
@@ -149,9 +154,10 @@ static void _plot_triangle(Vector2 *vertices, const Vector2 &p_offset, bool p_tr
     double dx_low = double(x[2] - x[1]) / (y[2] - y[1] + 1);
     double xf = x[0];
     double xt = x[0] + dx_upper; // if y[0] == y[1], special case
-    for (int yi = y[0]; yi <= (y[2] > height - 1 ? height - 1 : y[2]); yi++) {
+    int max_y = MIN(y[2], height - p_offset.y - 1);
+    for (int yi = y[0]; yi < max_y; yi++) {
         if (yi >= 0) {
-            for (int xi = (xf > 0 ? int(xf) : 0); xi <= (xt < width ? xt : width - 1); xi++) {
+            for (int xi = (xf > 0 ? int(xf) : 0); xi < (xt <= src_width ? xt : src_width); xi++) {
 
                 int px = xi, py = yi;
                 int sx = px, sy = py;
@@ -174,7 +180,7 @@ static void _plot_triangle(Vector2 *vertices, const Vector2 &p_offset, bool p_tr
                 p_image->set_pixel(px, py, color);
             }
 
-            for (int xi = (xf < width ? int(xf) : width - 1); xi >= (xt > 0 ? xt : 0); xi--) {
+            for (int xi = (xf < src_width ? int(xf) : src_width - 1); xi >= (xt > 0 ? xt : 0); xi--) {
                 int px = xi, py = yi;
                 int sx = px, sy = py;
                 sx = CLAMP(sx, 0, src_width-1);
@@ -226,8 +232,10 @@ Error ResourceImporterTextureAtlas::import_group_file(StringView p_group_file, c
         ERR_CONTINUE(err != OK);
 
         pack_data.image = image;
+        pack_data.is_cropped = options.at("crop_to_region").as<bool>();
 
         ImportMode mode = options.at("import_mode").as<ImportMode>();
+        bool trim_alpha_border_from_region = options.at("trim_alpha_border_from_region").as<bool>();
 
         if (mode == IMPORT_MODE_REGION) {
 
@@ -236,7 +244,11 @@ Error ResourceImporterTextureAtlas::import_group_file(StringView p_group_file, c
             EditorAtlasPacker::Chart chart;
 
             //clip a region from the image
-            Rect2 used_rect = image->get_used_rect();
+            Rect2 used_rect = Rect2(Vector2(), image->get_size());
+            if (trim_alpha_border_from_region) {
+                // Clip a region from the image.
+                used_rect = image->get_used_rect();
+            }
             pack_data.region = used_rect;
 
             chart.vertices.push_back(used_rect.position);
@@ -296,7 +308,7 @@ Error ResourceImporterTextureAtlas::import_group_file(StringView p_group_file, c
     //blit the atlas
     Ref<Image> new_atlas(make_ref_counted<Image>());
 
-    new_atlas->create(atlas_width, atlas_height, false, Image::FORMAT_RGBA8);
+    new_atlas->create(atlas_width, atlas_height, false, ImageData::FORMAT_RGBA8);
 
     new_atlas->lock();
 
@@ -352,7 +364,9 @@ Error ResourceImporterTextureAtlas::import_group_file(StringView p_group_file, c
 
             atlas_texture->set_atlas(cache);
             atlas_texture->set_region(Rect2(offset, pack_data.region.size));
-            atlas_texture->set_margin(Rect2(pack_data.region.position, Size2(pack_data.image->get_width(), pack_data.image->get_height()) - pack_data.region.size));
+            if (!pack_data.is_cropped) {
+                atlas_texture->set_margin(Rect2(pack_data.region.position, pack_data.image->get_size() - pack_data.region.size));
+            }
 
             texture = atlas_texture;
         } else {
@@ -413,4 +427,5 @@ Error ResourceImporterTextureAtlas::import_group_file(StringView p_group_file, c
 }
 
 ResourceImporterTextureAtlas::ResourceImporterTextureAtlas() {
+    Q_INIT_RESOURCE(texture_atlas);
 }

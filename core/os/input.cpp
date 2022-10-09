@@ -38,9 +38,6 @@
 #include "core/os/thread_safe.h"
 #include "core/project_settings.h"
 
-#ifdef TOOLS_ENABLED
-#include "editor/editor_settings.h"
-#endif
 
 using namespace eastl;
 
@@ -57,7 +54,7 @@ Input *Input::get_singleton() {
 }
 
 void Input::set_mouse_mode(MouseMode p_mode) {
-    ERR_FAIL_INDEX((int)p_mode, 4);
+    ERR_FAIL_INDEX((int)p_mode, (int)MOUSE_MODE_MAX);
     OS::get_singleton()->set_mouse_mode((OS::MouseMode)p_mode);
 }
 
@@ -68,52 +65,65 @@ Input::MouseMode Input::get_mouse_mode() const {
 
 void Input::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("is_key_pressed", {"keycode"}), &Input::is_key_pressed);
-    MethodBinder::bind_method(D_METHOD("is_mouse_button_pressed", {"button"}), &Input::is_mouse_button_pressed);
-    MethodBinder::bind_method(D_METHOD("is_joy_button_pressed", {"device", "button"}), &Input::is_joy_button_pressed);
-    MethodBinder::bind_method(D_METHOD("is_action_pressed", {"action"}), &Input::is_action_pressed);
-    MethodBinder::bind_method(D_METHOD("is_action_just_pressed", {"action"}), &Input::is_action_just_pressed);
-    MethodBinder::bind_method(D_METHOD("is_action_just_released", {"action"}), &Input::is_action_just_released);
-    MethodBinder::bind_method(D_METHOD("get_action_strength", {"action"}), &Input::get_action_strength);
-    MethodBinder::bind_method(D_METHOD("add_joy_mapping", {"mapping", "update_existing"}), &Input::add_joy_mapping, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("remove_joy_mapping", {"guid"}), &Input::remove_joy_mapping);
-    MethodBinder::bind_method(D_METHOD("joy_connection_changed", {"device", "connected", "name", "guid"}), &Input::joy_connection_changed);
-    MethodBinder::bind_method(D_METHOD("is_joy_known", {"device"}), &Input::is_joy_known);
-    MethodBinder::bind_method(D_METHOD("get_joy_axis", {"device", "axis"}), &Input::get_joy_axis);
-    MethodBinder::bind_method(D_METHOD("get_joy_name", {"device"}), &Input::get_joy_name);
-    MethodBinder::bind_method(D_METHOD("get_joy_guid", {"device"}), &Input::get_joy_guid);
-    MethodBinder::bind_method(D_METHOD("get_connected_joypads"), &Input::get_connected_joypads);
-    MethodBinder::bind_method(D_METHOD("get_joy_vibration_strength", {"device"}), &Input::get_joy_vibration_strength);
-    MethodBinder::bind_method(D_METHOD("get_joy_vibration_duration", {"device"}), &Input::get_joy_vibration_duration);
-    MethodBinder::bind_method(D_METHOD("get_joy_button_string", {"button_index"}), &Input::get_joy_button_string);
-    MethodBinder::bind_method(D_METHOD("get_joy_button_index_from_string", {"button"}), &Input::get_joy_button_index_from_string);
-    MethodBinder::bind_method(D_METHOD("get_joy_axis_string", {"axis_index"}), &Input::get_joy_axis_string);
-    MethodBinder::bind_method(D_METHOD("get_joy_axis_index_from_string", {"axis"}), &Input::get_joy_axis_index_from_string);
-    MethodBinder::bind_method(D_METHOD("start_joy_vibration", {"device", "weak_magnitude", "strong_magnitude", "duration"}), &Input::start_joy_vibration, {DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("stop_joy_vibration", {"device"}), &Input::stop_joy_vibration);
-    MethodBinder::bind_method(D_METHOD("vibrate_handheld", {"duration_ms"}), &Input::vibrate_handheld, {DEFVAL(500)});
-    MethodBinder::bind_method(D_METHOD("get_gravity"), &Input::get_gravity);
-    MethodBinder::bind_method(D_METHOD("get_accelerometer"), &Input::get_accelerometer);
-    MethodBinder::bind_method(D_METHOD("get_magnetometer"), &Input::get_magnetometer);
-    MethodBinder::bind_method(D_METHOD("get_gyroscope"), &Input::get_gyroscope);
-    //MethodBinder::bind_method(D_METHOD("get_mouse_position"),&Input::get_mouse_position); - this is not the function you want
-    MethodBinder::bind_method(D_METHOD("get_last_mouse_speed"), &Input::get_last_mouse_speed);
-    MethodBinder::bind_method(D_METHOD("get_mouse_button_mask"), &Input::get_mouse_button_mask);
-    MethodBinder::bind_method(D_METHOD("set_mouse_mode", {"mode"}), &Input::set_mouse_mode);
-    MethodBinder::bind_method(D_METHOD("get_mouse_mode"), &Input::get_mouse_mode);
-    MethodBinder::bind_method(D_METHOD("warp_mouse_position", {"to"}), &Input::warp_mouse_position);
-    MethodBinder::bind_method(D_METHOD("action_press", {"action", "strength"}), &Input::action_press, {DEFVAL(1.f)});
-    MethodBinder::bind_method(D_METHOD("action_release", {"action"}), &Input::action_release);
-    MethodBinder::bind_method(D_METHOD("set_default_cursor_shape", {"shape"}), &Input::set_default_cursor_shape, {DEFVAL(CURSOR_ARROW)});
-    MethodBinder::bind_method(D_METHOD("get_current_cursor_shape"), &Input::get_current_cursor_shape);
-    MethodBinder::bind_method(D_METHOD("set_custom_mouse_cursor", {"image", "shape", "hotspot"}), &Input::set_custom_mouse_cursor, {DEFVAL(CURSOR_ARROW), DEFVAL(Vector2())});
-    MethodBinder::bind_method(D_METHOD("parse_input_event", {"event"}), &Input::parse_input_event);
-    MethodBinder::bind_method(D_METHOD("set_use_accumulated_input", {"enable"}), &Input::set_use_accumulated_input);
+    BIND_METHOD(Input,is_key_pressed);
+    BIND_METHOD(Input,is_mouse_button_pressed);
+    BIND_METHOD(Input,is_joy_button_pressed);
+    SE_BIND_METHOD_WITH_DEFAULTS(Input, is_action_pressed,DEFVAL(false));
+    SE_BIND_METHOD_WITH_DEFAULTS(Input, is_action_just_pressed,DEFVAL(false));
+    SE_BIND_METHOD_WITH_DEFAULTS(Input, is_action_just_released,DEFVAL(false));
+    SE_BIND_METHOD_WITH_DEFAULTS(Input, get_action_strength,DEFVAL(false));
+    SE_BIND_METHOD_WITH_DEFAULTS(Input, get_action_raw_strength,DEFVAL(false));
+    BIND_METHOD(Input,get_axis);
+    SE_BIND_METHOD_WITH_DEFAULTS(Input, get_vector,DEFVAL(-1.0f));
+    SE_BIND_METHOD_WITH_DEFAULTS(Input, add_joy_mapping,DEFVAL(false));
+    BIND_METHOD(Input,remove_joy_mapping);
+    BIND_METHOD(Input,joy_connection_changed);
+    BIND_METHOD(Input,is_joy_known);
+    BIND_METHOD(Input,get_joy_axis);
+    BIND_METHOD(Input,get_joy_name);
+    BIND_METHOD(Input,get_joy_guid);
+    BIND_METHOD(Input,get_connected_joypads);
+    BIND_METHOD(Input,get_joy_vibration_strength);
+    BIND_METHOD(Input,get_joy_vibration_duration);
+    BIND_METHOD(Input,get_joy_button_string);
+    BIND_METHOD(Input,get_joy_button_index_from_string);
+    BIND_METHOD(Input,get_joy_axis_string);
+    BIND_METHOD(Input,get_joy_axis_index_from_string);
+    SE_BIND_METHOD_WITH_DEFAULTS(Input, start_joy_vibration,DEFVAL(0));
+    BIND_METHOD(Input,stop_joy_vibration);
+    SE_BIND_METHOD_WITH_DEFAULTS(Input, vibrate_handheld,DEFVAL(500));
+    BIND_METHOD(Input,get_gravity);
+    BIND_METHOD(Input,get_accelerometer);
+    BIND_METHOD(Input,get_magnetometer);
+    BIND_METHOD(Input,get_gyroscope);
+    BIND_METHOD(Input,set_gravity);
+    BIND_METHOD(Input,set_accelerometer);
+    BIND_METHOD(Input,set_magnetometer);
+    BIND_METHOD(Input,set_gyroscope);
+    //BIND_METHOD(Input,get_mouse_position); - this is not the function you want
+    BIND_METHOD(Input,get_last_mouse_speed);
+    BIND_METHOD(Input,get_mouse_button_mask);
+    BIND_METHOD(Input,set_mouse_mode);
+    BIND_METHOD(Input,get_mouse_mode);
+    BIND_METHOD(Input,warp_mouse_position);
+    SE_BIND_METHOD_WITH_DEFAULTS(Input, action_press,DEFVAL(1.f));
+    BIND_METHOD(Input,action_release);
+    SE_BIND_METHOD_WITH_DEFAULTS(Input, set_default_cursor_shape,DEFVAL(CURSOR_ARROW));
+    BIND_METHOD(Input,get_current_cursor_shape);
+    SE_BIND_METHOD_WITH_DEFAULTS(Input, set_custom_mouse_cursor,DEFVAL(CURSOR_ARROW), DEFVAL(Vector2()));
+    BIND_METHOD(Input,parse_input_event);
+    BIND_METHOD(Input,set_use_accumulated_input);
+    BIND_METHOD(Input, is_using_accumulated_input);
+    BIND_METHOD(Input,flush_buffered_events);
+
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mouse_mode"), "set_mouse_mode", "get_mouse_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_accumulated_input"), "set_use_accumulated_input", "is_using_accumulated_input");
 
     BIND_ENUM_CONSTANT(MOUSE_MODE_VISIBLE);
     BIND_ENUM_CONSTANT(MOUSE_MODE_HIDDEN);
     BIND_ENUM_CONSTANT(MOUSE_MODE_CAPTURED);
     BIND_ENUM_CONSTANT(MOUSE_MODE_CONFINED);
+    BIND_ENUM_CONSTANT(MOUSE_MODE_CONFINED_HIDDEN);
 
     BIND_ENUM_CONSTANT(CURSOR_ARROW);
     BIND_ENUM_CONSTANT(CURSOR_IBEAM);
@@ -134,31 +144,6 @@ void Input::_bind_methods() {
     BIND_ENUM_CONSTANT(CURSOR_HELP);
 
     ADD_SIGNAL(MethodInfo("joy_connection_changed", PropertyInfo(VariantType::INT, "device"), PropertyInfo(VariantType::BOOL, "connected")));
-}
-
-void Input::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
-#ifdef TOOLS_ENABLED
-
-    const String quote_style(EDITOR_DEF_T<bool>("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
-
-    StringView pf(p_function);
-    if (p_idx == 0 && (pf == "is_action_pressed"_sv || pf == "action_press"_sv || pf == "action_release"_sv || pf == "is_action_just_pressed"_sv || pf == "is_action_just_released"_sv || pf == "get_action_strength"_sv)) {
-
-        Vector<PropertyInfo> pinfo;
-        ProjectSettings::get_singleton()->get_property_list(&pinfo);
-
-        for(const PropertyInfo &pi : pinfo ) {
-
-            if (!StringUtils::begins_with(pi.name,"input/")) {
-                continue;
-            }
-
-            StringView name = pi.name.asCString();
-            name = StringUtils::substr(name,StringUtils::find(name,"/") + 1, name.length());
-            r_options->push_back(quote_style + name + quote_style);
-        }
-    }
-#endif
 }
 
 Input::Input() {

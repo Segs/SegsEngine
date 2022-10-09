@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  file_access.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -60,6 +60,7 @@ public:
     virtual Error _set_unix_permissions(StringView p_file, uint32_t p_permissions) = 0;
 
 protected:
+    AccessType get_access_type() const { return _access_type; }
     String fix_path(StringView p_path) const;
     virtual Error _open(StringView p_path, int p_mode_flags) = 0; ///< open a file
     virtual uint64_t _get_modified_time(StringView p_file) = 0;
@@ -96,10 +97,10 @@ public:
     virtual const String &get_path() const; /// returns the path for the current open file
     virtual const String &get_path_absolute() const; /// returns the absolute path for the current open file
 
-    virtual void seek(size_t p_position) = 0; ///< seek to a given position
+    virtual void seek(uint64_t p_position) = 0; ///< seek to a given position
     virtual void seek_end(int64_t p_position = 0) = 0; ///< seek from the end of file
-    virtual size_t get_position() const = 0; ///< get position in the file
-    virtual size_t get_len() const = 0; ///< get size of the file
+    virtual uint64_t get_position() const = 0; ///< get position in the file
+    virtual uint64_t get_len() const = 0; ///< get size of the file
 
     virtual bool eof_reached() const = 0; ///< reading passed EOF
 
@@ -112,7 +113,7 @@ public:
     virtual double get_double() const;
     virtual real_t get_real() const;
 
-    virtual int get_buffer(uint8_t *p_dst, int p_length) const; ///< get an array of bytes
+    virtual uint64_t get_buffer(uint8_t *p_dst, uint64_t p_length) const; ///< get an array of bytes
     virtual String get_line() const;
     virtual String get_token() const;
     virtual Vector<String> get_csv_line(char p_delim = ',') const;
@@ -145,7 +146,7 @@ public:
     virtual void store_pascal_string(StringView p_string);
     virtual String get_pascal_string();
 
-    virtual void store_buffer(const uint8_t *p_src, int p_length); ///< store an array of bytes
+    virtual void store_buffer(const uint8_t *p_src, uint64_t p_length); ///< store an array of bytes
 
     virtual bool file_exists(StringView p_name) = 0; ///< return true if a file exists
 
@@ -189,8 +190,24 @@ struct FileAccessRef {
     }
 
     operator bool() const { return f != nullptr; }
+    FileAccessRef &operator = (FileAccess *fr)
+    {
+        if(f==fr)
+            return *this;
+        if (f) {
+            if constexpr (AUTOCLOSE)
+                f->close();
+            memdelete(f);
+        }
+        f = fr;
+        return *this;
+    }
     operator FileAccess *() { return f; }
     FileAccessRef(FileAccess *fa) { f = fa; }
+    FileAccessRef(FileAccessRef &&other) noexcept {
+        f = other.f;
+        other.f = nullptr;
+    }
     ~FileAccessRef() {
         if (f) {
             if constexpr(AUTOCLOSE)
@@ -198,4 +215,6 @@ struct FileAccessRef {
             memdelete(f);
         }
     }
+    FileAccessRef& operator=(const FileAccessRef&) = delete;
+    FileAccessRef(const FileAccessRef&) = delete;
 };

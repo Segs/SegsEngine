@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  resource_importer.cpp                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,8 +32,11 @@
 
 #include "core/class_db.h"
 #include "core/io/config_file.h"
+#include "core/method_enum_caster.h"
+#include "core/object_tooling.h"
 #include "core/resource/resource_manager.h"
 #include "core/os/os.h"
+#include "core/project_settings.h"
 #include "core/property_info.h"
 #include "core/string.h"
 #include "core/string_utils.h"
@@ -42,6 +45,7 @@
 #include "EASTL/sort.h"
 
 IMPL_GDCLASS(ResourceImporter)
+VARIANT_ENUM_CAST(ResourceImporter::ImportOrder);
 
 bool ResourceFormatImporter::SortImporterByName::operator()(const ResourceImporterInterface *p_a, const ResourceImporterInterface *p_b) const {
     return StringView(p_a->get_importer_name()) < StringView(p_b->get_importer_name());
@@ -106,10 +110,10 @@ Error ResourceFormatImporter::_get_path_and_type(StringView p_path, PathAndType 
     return OK;
 }
 
-RES ResourceFormatImporter::load(StringView p_path, StringView p_original_path, Error *r_error) {
+RES ResourceFormatImporter::load(StringView p_path, StringView p_original_path, Error *r_error, bool p_no_subresource_cache) {
 
     PathAndType pat;
-    Error err = _get_path_and_type(p_path, pat);
+    const Error err = _get_path_and_type(p_path, pat);
 
     if (err != OK) {
 
@@ -119,14 +123,9 @@ RES ResourceFormatImporter::load(StringView p_path, StringView p_original_path, 
         return RES();
     }
 
-    RES res(gResourceManager().load_internal(pat.path, p_path, pat.type, false, r_error));
+    RES res(gResourceManager().load_internal(pat.path, p_path, pat.type, p_no_subresource_cache, r_error));
 
-#ifdef TOOLS_ENABLED
-    if (res) {
-        res->set_import_last_modified_time(res->get_last_modified_time()); //pass this, if used
-        res->set_import_path(pat.path);
-    }
-#endif
+    Tooling::importer_load(res, pat.path);
 
     return res;
 }
@@ -193,10 +192,10 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(StringView p_typ
 
         Vector<String>  local_exts;
         owned_importer->get_recognized_extensions(local_exts);
-        for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
-            if (!found.contains(local_exts[j])) {
-                p_extensions.emplace_back(local_exts[j]);
-                found.insert(local_exts[j]);
+        for (auto & ext : local_exts) {
+            if (!found.contains(ext)) {
+                p_extensions.emplace_back(ext);
+                found.insert(ext);
             }
         }
     }
@@ -413,6 +412,11 @@ void ResourceFormatImporter::get_importers_for_extension(StringView p_extension,
         }
     }
 }
+
+void ResourceFormatImporter::get_importers(Vector<ResourceImporterInterface *> *r_importers) const
+{
+    r_importers->assign(importers.begin(),importers.end());
+}
 /**
  * \brief Check if any importer can actually import give file.
  * \param filepath - a full path to the file ( some importers might require full path to decide )
@@ -464,8 +468,8 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_extension(Str
 }
 
 String ResourceFormatImporter::get_import_base_path(StringView p_for_file) const {
-
-    return "res://.import/" + String(PathUtils::get_file(p_for_file)) + "-" + StringUtils::md5_text(p_for_file);
+    return PathUtils::plus_file(ProjectSettings::get_singleton()->get_project_data_path(),
+            String(PathUtils::get_file(p_for_file)) + "-" + StringUtils::md5_text(p_for_file));
 }
 
 bool ResourceFormatImporter::are_import_settings_valid(StringView p_path) const {
@@ -516,4 +520,7 @@ ResourceFormatImporter::ResourceFormatImporter() {
     singleton = this;
 }
 
-
+void ResourceImporter::_bind_methods() {
+    BIND_ENUM_CONSTANT(IMPORT_ORDER_DEFAULT);
+    BIND_ENUM_CONSTANT(IMPORT_ORDER_SCENE);
+}

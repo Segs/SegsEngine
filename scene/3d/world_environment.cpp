@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  world_environment.cpp                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -43,37 +43,37 @@ void WorldEnvironment::_notification(int p_what) {
     if (p_what == Node3D::NOTIFICATION_ENTER_WORLD || p_what == Node3D::NOTIFICATION_ENTER_TREE) {
 
         if (environment) {
-            if (get_viewport()->find_world()->get_environment()) {
+            if (get_viewport()->find_world_3d()->get_environment()) {
                 WARN_PRINT("World already has an environment (Another WorldEnvironment?), overriding.");
             }
-            get_viewport()->find_world()->set_environment(environment);
-            add_to_group(StringName("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id())));
+            get_viewport()->find_world_3d()->set_environment(environment);
+            add_to_group(StringName("_world_environment_" + itos(entt::to_integral(get_viewport()->find_world_3d()->get_scenario()))));
         }
 
     } else if (p_what == Node3D::NOTIFICATION_EXIT_WORLD || p_what == Node3D::NOTIFICATION_EXIT_TREE) {
 
-        if (environment && get_viewport()->find_world()->get_environment() == environment) {
-            get_viewport()->find_world()->set_environment(Ref<Environment>());
-            remove_from_group(StringName("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id())));
+        if (environment && get_viewport()->find_world_3d()->get_environment() == environment) {
+            get_viewport()->find_world_3d()->set_environment(Ref<Environment>());
+            remove_from_group(StringName("_world_environment_" + itos(entt::to_integral(get_viewport()->find_world_3d()->get_scenario()))));
         }
     }
 }
 
 void WorldEnvironment::set_environment(const Ref<Environment> &p_environment) {
 
-    if (is_inside_tree() && environment && get_viewport()->find_world()->get_environment() == environment) {
-        get_viewport()->find_world()->set_environment(Ref<Environment>());
-        remove_from_group(StringName("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id())));
+    if (is_inside_tree() && environment && get_viewport()->find_world_3d()->get_environment() == environment) {
+        get_viewport()->find_world_3d()->set_environment(Ref<Environment>());
+        remove_from_group(StringName("_world_environment_" + itos(entt::to_integral(get_viewport()->find_world_3d()->get_scenario()))));
         //clean up
     }
 
     environment = p_environment;
     if (is_inside_tree() && environment) {
-        if (get_viewport()->find_world()->get_environment()) {
+        if (get_viewport()->find_world_3d()->get_environment()) {
             WARN_PRINT("World already has an environment (Another WorldEnvironment?), overriding.");
         }
-        get_viewport()->find_world()->set_environment(environment);
-        add_to_group(StringName("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id())));
+        get_viewport()->find_world_3d()->set_environment(environment);
+        add_to_group(StringName("_world_environment_" + itos(entt::to_integral(get_viewport()->find_world_3d()->get_scenario()))));
     }
 
     update_configuration_warning();
@@ -98,8 +98,8 @@ String WorldEnvironment::get_configuration_warning() const {
     if (/*!is_visible_in_tree() ||*/ !is_inside_tree())
         return String();
 
-    Deque<Node *> nodes;
-    get_tree()->get_nodes_in_group(StringName("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id())), &nodes);
+    Dequeue<Node *> nodes;
+    get_tree()->get_nodes_in_group(StringName("_world_environment_" + itos(entt::to_integral(get_viewport()->find_world_3d()->get_scenario()))), &nodes);
 
     if (nodes.size() > 1) {
         if (!warning.empty()) {
@@ -118,8 +118,8 @@ String WorldEnvironment::get_configuration_warning() const {
 
 void WorldEnvironment::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_environment", {"env"}), &WorldEnvironment::set_environment);
-    MethodBinder::bind_method(D_METHOD("get_environment"), &WorldEnvironment::get_environment);
+    BIND_METHOD(WorldEnvironment,set_environment);
+    BIND_METHOD(WorldEnvironment,get_environment);
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "environment", PropertyHint::ResourceType, "Environment"), "set_environment", "get_environment");
 }
 

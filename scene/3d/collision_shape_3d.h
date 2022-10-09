@@ -42,18 +42,14 @@ class GODOT_EXPORT CollisionShape3D : public Node3D {
 
     Ref<Shape> shape;
     CollisionObject3D *parent;
-    Node *debug_shape;
 
     uint32_t owner_id;
-    bool debug_shape_dirty;
     bool disabled;
 
 public:
     void resource_changed(const RES& res);
 
 protected:
-    void _update_debug_shape();
-    void _shape_changed();
 
     void _update_in_shape_owner(bool p_xform_only = false);
 

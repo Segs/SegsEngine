@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_file_system.cpp                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,15 +34,18 @@
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/map.h"
-#include "core/string.h"
-#include "core/string_formatter.h"
-#include "core/string_utils.inl"
 #include "core/method_bind.h"
 #include "core/os/file_access.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/resource/resource_manager.h"
+#include "core/resource/resource_tools.h"
+#include "core/script_language.h"
+#include "core/string.h"
+#include "core/string_formatter.h"
+#include "core/string_utils.inl"
+#include "core/translation_helpers.h"
 #include "core/variant_parser.h"
 #include "editor_node.h"
 #include "editor_resource_preview.h"
@@ -57,6 +60,20 @@ EditorFileSystem *EditorFileSystem::singleton = nullptr;
 //the name is the version, to keep compatibility with different versions of Godot
 #define CACHE_FILE_NAME "filesystem_cache6"
 
+bool editor_should_skip_directory(StringView p_path) {
+    String project_data_path = ProjectSettings::get_singleton()->get_project_data_path();
+    if (p_path == project_data_path || p_path.starts_with(project_data_path + "/")) {
+        return true;
+    }
+
+    if (FileAccess::exists(PathUtils::plus_file(p_path,"project.godot"))) // skip if another project inside this
+        return true;
+
+    if (FileAccess::exists(PathUtils::plus_file(p_path,".gdignore"))) // skip if a `.gdignore` file is inside this
+        return true;
+
+    return false;
+}
 void EditorFileSystemDirectory::sort_files() {
     eastl::sort(files.begin(),files.end());
 }
@@ -79,6 +96,10 @@ int EditorFileSystemDirectory::find_dir_index(StringView p_dir) const {
     return -1;
 }
 
+void EditorFileSystemDirectory::force_update() {
+    // We set modified_time to 0 to force `EditorFileSystem::_scan_fs_changes` to search changes in the directory
+    modified_time = 0;
+}
 int EditorFileSystemDirectory::get_subdir_count() const {
 
     return subdirs.size();
@@ -144,6 +165,11 @@ const Vector<String> &EditorFileSystemDirectory::get_file_deps(int p_idx) const 
     return files[p_idx]->deps;
 }
 
+uint64_t EditorFileSystemDirectory::get_file_modified_time(int p_idx) const {
+    ERR_FAIL_INDEX_V(p_idx, files.size(), 0);
+    return files[p_idx]->modified_time;
+}
+
 bool EditorFileSystemDirectory::get_file_import_is_valid(int p_idx) const {
 
     ERR_FAIL_INDEX_V(p_idx, files.size(), false);
@@ -180,20 +206,20 @@ EditorFileSystemDirectory *EditorFileSystemDirectory::get_parent() {
 
 void EditorFileSystemDirectory::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_subdir_count"), &EditorFileSystemDirectory::get_subdir_count);
-    MethodBinder::bind_method(D_METHOD("get_subdir", {"idx"}), &EditorFileSystemDirectory::get_subdir);
-    MethodBinder::bind_method(D_METHOD("get_file_count"), &EditorFileSystemDirectory::get_file_count);
-    MethodBinder::bind_method(D_METHOD("get_file", {"idx"}), &EditorFileSystemDirectory::get_file);
-    MethodBinder::bind_method(D_METHOD("get_file_path", {"idx"}), &EditorFileSystemDirectory::get_file_path);
-    MethodBinder::bind_method(D_METHOD("get_file_type", {"idx"}), &EditorFileSystemDirectory::get_file_type);
-    MethodBinder::bind_method(D_METHOD("get_file_script_class_name", {"idx"}), &EditorFileSystemDirectory::get_file_script_class_name);
-    MethodBinder::bind_method(D_METHOD("get_file_script_class_extends", {"idx"}), &EditorFileSystemDirectory::get_file_script_class_extends);
-    MethodBinder::bind_method(D_METHOD("get_file_import_is_valid", {"idx"}), &EditorFileSystemDirectory::get_file_import_is_valid);
-    MethodBinder::bind_method(D_METHOD("get_name"), &EditorFileSystemDirectory::get_name);
-    MethodBinder::bind_method(D_METHOD("get_path"), &EditorFileSystemDirectory::get_path);
-    MethodBinder::bind_method(D_METHOD("get_parent"), &EditorFileSystemDirectory::get_parent);
-    MethodBinder::bind_method(D_METHOD("find_file_index", {"name"}), &EditorFileSystemDirectory::find_file_index);
-    MethodBinder::bind_method(D_METHOD("find_dir_index", {"name"}), &EditorFileSystemDirectory::find_dir_index);
+    BIND_METHOD(EditorFileSystemDirectory,get_subdir_count);
+    BIND_METHOD(EditorFileSystemDirectory,get_subdir);
+    BIND_METHOD(EditorFileSystemDirectory,get_file_count);
+    BIND_METHOD(EditorFileSystemDirectory,get_file);
+    BIND_METHOD(EditorFileSystemDirectory,get_file_path);
+    BIND_METHOD(EditorFileSystemDirectory,get_file_type);
+    BIND_METHOD(EditorFileSystemDirectory,get_file_script_class_name);
+    BIND_METHOD(EditorFileSystemDirectory,get_file_script_class_extends);
+    BIND_METHOD(EditorFileSystemDirectory,get_file_import_is_valid);
+    BIND_METHOD(EditorFileSystemDirectory,get_name);
+    BIND_METHOD(EditorFileSystemDirectory,get_path);
+    BIND_METHOD(EditorFileSystemDirectory,get_parent);
+    BIND_METHOD(EditorFileSystemDirectory,find_file_index);
+    BIND_METHOD(EditorFileSystemDirectory,find_dir_index);
 }
 
 EditorFileSystemDirectory::EditorFileSystemDirectory() {
@@ -398,6 +424,7 @@ bool EditorFileSystem::_test_for_reimport(StringView p_path, bool p_only_importe
 
     Vector<String> to_check;
 
+    String importer_name;
     String source_file;
     String source_md5;
     Vector<String> dest_files;
@@ -427,6 +454,8 @@ bool EditorFileSystem::_test_for_reimport(StringView p_path, bool p_only_importe
                 for (int i = 0; i < fa.size(); i++) {
                     to_check.push_back(fa[i].as<String>());
                 }
+            } else if (assign == "importer") {
+                importer_name = value.as<String>();
             } else if (!p_only_imported_files) {
                 if (assign == "source_file") {
                     source_file = value.as<String>();
@@ -443,6 +472,9 @@ bool EditorFileSystem::_test_for_reimport(StringView p_path, bool p_only_importe
     VariantParser::release_stream(stream);
     memdelete(f);
 
+    if (importer_name == "keep") {
+        return false; //keep mode, do not reimport
+    }
     // Read the md5's from a separate file (so the import parameters aren't dependent on the file version
     String base_path = ResourceFormatImporter::get_singleton()->get_import_base_path(p_path);
     FileAccess *md5s = FileAccess::open(base_path + ".md5", FileAccess::READ, &err);
@@ -708,9 +740,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
             if (StringUtils::begins_with(f,".")) // Ignore special and . / ..
                 continue;
 
-            if (FileAccess::exists(PathUtils::plus_file(PathUtils::plus_file(cd,f),"project.godot"))) // skip if another project inside this
-                continue;
-            if (FileAccess::exists(PathUtils::plus_file(PathUtils::plus_file(cd,f),".gdignore"))) // skip if another project inside this
+            if (editor_should_skip_directory(PathUtils::plus_file(cd,f)))
                 continue;
 
             dirs.push_back(f);
@@ -889,9 +919,10 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
 
         //then scan files and directories and check what's different
 
-        DirAccess *da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
+        DirAccessRef da(DirAccess::create(DirAccess::ACCESS_RESOURCES));
 
-        da->change_dir(cd);
+        Error ret = da->change_dir(cd);
+        ERR_FAIL_COND_MSG(ret != OK, "Cannot change to '" + cd + "' folder.");
         da->list_dir_begin();
         while (true) {
 
@@ -910,9 +941,7 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
                 int idx = p_dir->find_dir_index(f);
                 if (idx == -1) {
 
-                    if (FileAccess::exists(PathUtils::plus_file(PathUtils::plus_file(cd,f),"project.godot"))) // skip if another project inside this
-                        continue;
-                    if (FileAccess::exists(PathUtils::plus_file(PathUtils::plus_file(cd,f),".gdignore"))) // skip if another project inside this
+                    if (editor_should_skip_directory(PathUtils::plus_file(cd,f)))
                         continue;
 
                     EditorFileSystemDirectory *efd = memnew(EditorFileSystemDirectory);
@@ -979,7 +1008,6 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
         }
 
         da->list_dir_end();
-        memdelete(da);
     }
 
     for (size_t i = 0; i < p_dir->files.size(); i++) {
@@ -1048,7 +1076,7 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
 
     for (int i = 0; i < p_dir->subdirs.size(); i++) {
 
-        if (updated_dir && !p_dir->subdirs[i]->verified) {
+        if ((updated_dir && !p_dir->subdirs[i]->verified) || editor_should_skip_directory(p_dir->subdirs[i]->get_path())) {
             //this directory was removed, add action to remove it
             ItemAction ia;
             ia.action = ItemAction::ACTION_DIR_REMOVE;
@@ -1330,17 +1358,17 @@ bool EditorFileSystem::_find_file(StringView p_file, EditorFileSystemDirectory *
     return cpos != -1;
 }
 //TODO: SEGS: this could return either a naked pointer or a string view.
-String EditorFileSystem::get_file_type(StringView p_file) const {
+StringName EditorFileSystem::get_file_type(StringView p_file) const {
 
     EditorFileSystemDirectory *fs = nullptr;
     int cpos = -1;
 
     if (!_find_file(p_file, &fs, cpos)) {
 
-        return {};
+        return StringName();
     }
 
-    return fs->files[cpos]->type.asCString();
+    return fs->files[cpos]->type;
 }
 
 EditorFileSystemDirectory *EditorFileSystem::find_file(StringView p_file, int *r_index) const {
@@ -1469,10 +1497,10 @@ void EditorFileSystem::_scan_script_classes(EditorFileSystemDirectory *p_dir) {
 
 void EditorFileSystem::update_script_classes() {
 
-    if (!update_script_classes_queued)
+    if (!update_script_classes_queued.is_set())
         return;
 
-    update_script_classes_queued = false;
+    update_script_classes_queued.clear();
     ScriptServer::global_classes_clear();
     if (get_filesystem()) {
         _scan_script_classes(get_filesystem());
@@ -1491,11 +1519,11 @@ void EditorFileSystem::update_script_classes() {
 }
 
 void EditorFileSystem::_queue_update_script_classes() {
-    if (update_script_classes_queued) {
+    if (update_script_classes_queued.is_set()) {
         return;
     }
 
-    update_script_classes_queued = true;
+    update_script_classes_queued.set();
     call_deferred([this] {update_script_classes();});
 }
 
@@ -1523,7 +1551,7 @@ void EditorFileSystem::update_file(StringView p_file) {
         return;
     }
 
-    String type = gResourceManager().get_resource_type(p_file);
+    const String type = gResourceManager().get_resource_type(p_file);
 
     if (cpos == -1) {
         // The file did not exist, it was added.
@@ -1573,6 +1601,10 @@ void EditorFileSystem::update_file(StringView p_file) {
     _queue_update_script_classes();
 }
 
+Set<String> EditorFileSystem::get_valid_extensions() const {
+    return valid_extensions;
+}
+
 Error EditorFileSystem::_reimport_group(StringView p_group_file, const Vector<String> &p_files) {
 
     String importer_name;
@@ -1597,6 +1629,9 @@ Error EditorFileSystem::_reimport_group(StringView p_group_file, const Vector<St
         source_file_options[p_files[i]] = HashMap<StringName, Variant>();
         importer_name = file_importer_name;
 
+        if (importer_name == "keep") {
+            continue; //do nothing
+        }
         ResourceImporterInterface *importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
         ERR_FAIL_COND_V(importer==nullptr, ERR_FILE_CORRUPT);
         Vector<ResourceImporter::ImportOption> options;
@@ -1611,7 +1646,7 @@ Error EditorFileSystem::_reimport_group(StringView p_group_file, const Vector<St
             Vector<String> sk = config->get_section_keys("params");
             for (const String &param : sk) {
                 Variant value = config->get_value("params", param);
-                //override with whathever is in file
+                //override with whatever is in file
                 source_file_options[p_files[i]][StringName(param)] = value;
             }
         }
@@ -1620,6 +1655,9 @@ Error EditorFileSystem::_reimport_group(StringView p_group_file, const Vector<St
     }
 
     ERR_FAIL_COND_V(importer_name.empty(), ERR_UNCONFIGURED);
+    if (importer_name == "keep") {
+        return OK; // (do nothing)
+    }
 
     ResourceImporterInterface *importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
 
@@ -1718,11 +1756,11 @@ Error EditorFileSystem::_reimport_group(StringView p_group_file, const Vector<St
 
             Resource *r = ResourceCache::get(file);
 
-            if (!r->get_import_path().empty()) {
+            if (!ResourceTooling::get_import_path(r).empty()) {
 
                 String dst_path = ResourceFormatImporter::get_singleton()->get_internal_resource_path(file);
-                r->set_import_path(dst_path);
-                r->set_import_last_modified_time(0);
+                ResourceTooling::set_import_path(r,dst_path);
+                ResourceTooling::set_import_last_modified_time(r,0);
             }
         }
 
@@ -1762,6 +1800,17 @@ Error EditorFileSystem::_reimport_file(const String &p_file, Vector<String> &r_m
 
     } else {
         late_added_files.insert(p_file); //imported files do not call update_file(), but just in case..
+        params["nodes/use_legacy_names"] = false;
+    }
+    if (importer_name == "keep") {
+        //keep files, do nothing.
+        fs->files[cpos]->modified_time = FileAccess::get_modified_time(p_file);
+        fs->files[cpos]->import_modified_time = FileAccess::get_modified_time(p_file + ".import");
+        fs->files[cpos]->deps.clear();
+        fs->files[cpos]->type = "";
+        fs->files[cpos]->import_valid = false;
+        EditorResourcePreview::get_singleton()->check_for_invalidation(p_file);
+        return OK;
     }
 
     ResourceImporterInterface *importer=nullptr;
@@ -1793,10 +1842,10 @@ Error EditorFileSystem::_reimport_file(const String &p_file, Vector<String> &r_m
     if (load_default && ProjectSettings::get_singleton()->has_setting(StringName(String("importer_defaults/") + importer->get_importer_name()))) {
         //use defaults if exist
         Dictionary d = ProjectSettings::get_singleton()->get(StringName(String("importer_defaults/") + importer->get_importer_name())).as<Dictionary>();
-        Vector<Variant> v(d.get_key_list());
+        auto v(d.get_key_list());
 
-        for (const Variant &E : v) {
-            params[E.as<StringName>()] = d[E];
+        for (const auto &E : v) {
+            params[E] = d[E];
         }
     }
 
@@ -1925,11 +1974,11 @@ Error EditorFileSystem::_reimport_file(const String &p_file, Vector<String> &r_m
 
         Resource *r = ResourceCache::get(p_file);
 
-        if (!r->get_import_path().empty()) {
+        if (!ResourceTooling::get_import_path(r).empty()) {
 
             String dst_path = ResourceFormatImporter::get_singleton()->get_internal_resource_path(p_file);
-            r->set_import_path(dst_path);
-            r->set_import_last_modified_time(0);
+            ResourceTooling::set_import_path(r,dst_path);
+            ResourceTooling::set_import_last_modified_time(r,0);
         }
     }
 
@@ -1939,7 +1988,7 @@ Error EditorFileSystem::_reimport_file(const String &p_file, Vector<String> &r_m
 
 void EditorFileSystem::_find_group_files(EditorFileSystemDirectory *efd, Map<String, Vector<String> > &group_files, Set<String> &groups_to_reimport) {
 
-    for (EditorFileSystemDirectory::FileInfo * fi : efd->files) {
+    for (const EditorFileSystemDirectory::FileInfo * fi : efd->files) {
         if (groups_to_reimport.contains(fi->import_group_file)) {
             group_files[fi->import_group_file].push_back(efd->get_named_file_path(fi->file));
         }
@@ -2041,19 +2090,36 @@ void EditorFileSystem::ordered_reimport(EditorProgress &pr, Vector<ImportFile> &
     }
 }
 
-void EditorFileSystem::reimport_files(const Vector<String> &p_files) {
-
-    { //check that .import folder exists
-        DirAccess *da = DirAccess::open("res://");
-        if (da->change_dir(".import") != OK) {
-            Error err = da->make_dir(".import");
+void EditorFileSystem::_create_project_data_dir_if_necessary()
+{
+    // Check that the project data directory exists
+    DirAccess *da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
+    String project_data_path = ProjectSettings::get_singleton()->get_project_data_path();
+    if (da->change_dir(project_data_path) != OK) {
+        Error err = da->make_dir(project_data_path);
             if (err) {
                 memdelete(da);
-                ERR_FAIL_MSG("Failed to create 'res://.import' folder.");
+            ERR_FAIL_MSG("Failed to create folder " + project_data_path);
             }
         }
         memdelete(da);
+    // Check that the project data directory '.gdignore' file exists
+    String project_data_gdignore_file_path = PathUtils::plus_file(project_data_path,".gdignore");
+    if (!FileAccess::exists(project_data_gdignore_file_path)) {
+        // Add an empty .gdignore file to avoid scan.
+        FileAccessRef f = FileAccess::open(project_data_gdignore_file_path, FileAccess::WRITE);
+        if (f) {
+            f->store_line("");
+            f->close();
+        } else {
+            ERR_FAIL_MSG("Failed to create file " + project_data_gdignore_file_path);
     }
+    }
+}
+
+void EditorFileSystem::reimport_files(const Vector<String> &p_files) {
+
+    _create_project_data_dir_if_necessary();
 
     importing = true;
     EditorProgress pr(("reimport"), TTR("(Re)Importing Assets"), p_files.size());
@@ -2181,15 +2247,15 @@ void EditorFileSystem::move_group_file(StringView p_path, StringView p_new_path)
 
 void EditorFileSystem::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_filesystem"), &EditorFileSystem::get_filesystem);
-    MethodBinder::bind_method(D_METHOD("is_scanning"), &EditorFileSystem::is_scanning);
-    MethodBinder::bind_method(D_METHOD("get_scanning_progress"), &EditorFileSystem::get_scanning_progress);
-    MethodBinder::bind_method(D_METHOD("scan"), &EditorFileSystem::scan);
-    MethodBinder::bind_method(D_METHOD("scan_changes"), &EditorFileSystem::scan_changes);
-    MethodBinder::bind_method(D_METHOD("update_file", {"path"}), &EditorFileSystem::update_file);
-    MethodBinder::bind_method(D_METHOD("get_filesystem_path", {"path"}), &EditorFileSystem::get_filesystem_path);
-    MethodBinder::bind_method(D_METHOD("get_file_type", {"path"}), &EditorFileSystem::get_file_type);
-    MethodBinder::bind_method(D_METHOD("update_script_classes"), &EditorFileSystem::update_script_classes);
+    BIND_METHOD(EditorFileSystem,get_filesystem);
+    BIND_METHOD(EditorFileSystem,is_scanning);
+    BIND_METHOD(EditorFileSystem,get_scanning_progress);
+    BIND_METHOD(EditorFileSystem,scan);
+    BIND_METHOD(EditorFileSystem,scan_changes);
+    BIND_METHOD(EditorFileSystem,update_file);
+    BIND_METHOD(EditorFileSystem,get_filesystem_path);
+    BIND_METHOD(EditorFileSystem,get_file_type);
+    BIND_METHOD(EditorFileSystem,update_script_classes);
 
     ADD_SIGNAL(MethodInfo("filesystem_changed"));
     ADD_SIGNAL(MethodInfo("sources_changed", PropertyInfo(VariantType::BOOL, "exist")));
@@ -2218,7 +2284,6 @@ void EditorFileSystem::_update_extensions() {
 }
 
 EditorFileSystem::EditorFileSystem() {
-    __thread__safe__.reset(new Mutex);
     g_import_func = _resource_import;
     reimport_on_missing_imported_files = T_GLOBAL_DEF("editor/reimport_missing_imported_files", true);
 
@@ -2235,17 +2300,15 @@ EditorFileSystem::EditorFileSystem() {
     scanning_changes = false;
     scanning_changes_done = false;
 
-    DirAccess *da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
-    if (da->change_dir("res://.import") != OK) {
-        da->make_dir("res://.import");
-    }
+    _create_project_data_dir_if_necessary();
+
     // This should probably also work on Unix and use the string it returns for FAT32 or exFAT
+    DirAccess *da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
     String fstype = da->get_filesystem_type();
     using_fat32_or_exfat = fstype == "FAT32" || fstype == "exFAT";
     memdelete(da);
 
     scan_total = 0;
-    update_script_classes_queued = false;
     first_scan = true;
     scan_changes_pending = false;
     revalidate_import_files = false;

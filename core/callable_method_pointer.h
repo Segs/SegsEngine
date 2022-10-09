@@ -48,10 +48,10 @@ private:
     const char *m_filename;
     int m_line;
 public:
-    ObjectID m_holder;
+    GameEntity m_holder;
     eastl::function<void()> m_func;
 
-    FunctorCallable(ObjectID holder, eastl::function<void()> f,const char *func=nullptr,int line=0) :
+    FunctorCallable(GameEntity holder, eastl::function<void()> f,const char *func=nullptr,int line=0) :
         // dangerous code
         h(hash_djb2_buffer((const uint8_t *)&f,sizeof(eastl::function<void()>))),
         m_filename(func), m_line(line),m_holder(holder), m_func(eastl::move(f))
@@ -60,7 +60,7 @@ public:
 
     uint32_t hash() const override
     {
-        return ((uint64_t)m_holder) ^ h;
+        return entt::to_integral(m_holder) ^ h;
     }
 
     String get_as_text() const override
@@ -81,14 +81,13 @@ public:
         return +[](const CallableCustom *a, const CallableCustom *b)-> bool { return a < b; };
     }
 
-    ObjectID get_object() const override
+    GameEntity get_object() const override
     {
         return m_holder;
     }
 
-    void call(const Variant **p_arguments, int p_argcount,
-              Variant &r_return_value,
-              Callable::CallError &r_call_error) const override
+    void call(const Variant **p_arguments, int p_argcount, Variant &r_return_value,
+            Callable::CallError &r_call_error) const override
     {
         assert(p_argcount==0);
         r_call_error = {};
@@ -102,7 +101,7 @@ public:
 };
 
 class CallableCustomMethodPointerBase : public CallableCustom {
-    uint32_t *comp_ptr;
+    uint8_t *comp_ptr;
     uint32_t comp_size;
     uint32_t h;
 #ifdef DEBUG_METHODS_ENABLED
@@ -112,18 +111,18 @@ class CallableCustomMethodPointerBase : public CallableCustom {
     static bool compare_less(const CallableCustom *p_a, const CallableCustom *p_b);
 
 protected:
-    void _setup(uint32_t *p_base_ptr, uint32_t p_ptr_size);
+    void _setup(uint8_t *p_base_ptr, uint32_t p_ptr_size);
 
 public:
 #ifdef DEBUG_METHODS_ENABLED
     void set_text(const char *p_text) {
         text = p_text;
     }
-    virtual String get_as_text() const {
+    String get_as_text() const override {
         return text;
     }
 #else
-    virtual String get_as_text() const {
+    String get_as_text() const override {
         return String();
     }
 #endif
@@ -227,39 +226,42 @@ void call_with_variant_args(T *p_instance, void (T::*p_method)(P...), const Vari
 
 template <class T, class... P>
 class CallableCustomMethodPointer : public CallableCustomMethodPointerBase {
+#pragma pack(push,1)
     struct Data {
         T *instance;
 #ifdef DEBUG_ENABLED
-        uint64_t object_id;
+        GameEntity object_id;
 #endif
         void (T::*method)(P...);
     } data;
+#pragma pack(pop)
 
 public:
-    virtual ObjectID get_object() const {
+    GameEntity get_object() const override {
 #ifdef DEBUG_ENABLED
-        if (ObjectDB::get_instance(ObjectID(data.object_id)) == nullptr) {
-            return ObjectID();
+        if (object_for_entity(data.object_id) == nullptr) {
+            return entt::null;
         }
 #endif
         return data.instance->get_instance_id();
     }
 
-    virtual void call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, Callable::CallError &r_call_error) const {
+    void call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, Callable::CallError &r_call_error) const override {
 #ifdef DEBUG_ENABLED
-        ERR_FAIL_COND_MSG(ObjectDB::get_instance(ObjectID(data.object_id)) == nullptr, "Invalid Object id '" + StringUtils::num_uint64(data.object_id) + "', can't call method.");
+        ERR_FAIL_COND_MSG(object_for_entity(data.object_id) == nullptr,
+                "Invalid Object id '" + StringUtils::num_uint64(entt::to_integral(data.object_id)) +
+                        "', can't call method.");
 #endif
         call_with_variant_args(data.instance, data.method, p_arguments, p_argcount, r_call_error);
     }
 
     CallableCustomMethodPointer(T *p_instance, void (T::*p_method)(P...)) {
-        memset(&data,0, sizeof(Data)); // Clear beforehand, may have padding bytes.
         data.instance = p_instance;
 #ifdef DEBUG_ENABLED
         data.object_id = p_instance->get_instance_id();
 #endif
         data.method = p_method;
-        _setup((uint32_t *)&data, sizeof(Data));
+        _setup((uint8_t *)&data, sizeof(Data));
     }
 };
 
@@ -270,7 +272,7 @@ Callable create_custom_callable_function_pointer(T *p_instance,
 #endif
         void (T::*p_method)(P...)) {
 
-    typedef CallableCustomMethodPointer<T, P...> CCMP; // Messes with memnew otherwise.
+    using CCMP = CallableCustomMethodPointer<T, P...>; // Messes with memnew otherwise.
     CCMP *ccmp = memnew(CCMP(p_instance, p_method));
 #ifdef DEBUG_METHODS_ENABLED
     ccmp->set_text(p_func_text + 1); // Try to get rid of the ampersand.
@@ -324,40 +326,40 @@ void call_with_variant_args_ret(T *p_instance, R (T::*p_method)(P...), const Var
 
 template <class T, class R, class... P>
 class CallableCustomMethodPointerRet : public CallableCustomMethodPointerBase {
+#pragma pack(push,1)
     struct Data {
         T *instance;
 #ifdef DEBUG_ENABLED
-        uint64_t object_id;
+        GameEntity object_id;
 #endif
-            R(T::*method)
-            (P...);
+        R(T::*method)(P...);
     } data;
+#pragma pack(pop)
 
 public:
-    virtual ObjectID get_object() const {
+    GameEntity get_object() const override {
 #ifdef DEBUG_ENABLED
-        if (ObjectDB::get_instance(ObjectID(data.object_id)) == nullptr) {
-            return ObjectID();
+        if (object_for_entity(data.object_id) == nullptr) {
+            return entt::null;
         }
 #endif
         return data.instance->get_instance_id();
     }
 
-    virtual void call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, Callable::CallError &r_call_error) const {
+    void call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, Callable::CallError &r_call_error) const override {
 #ifdef DEBUG_ENABLED
-        ERR_FAIL_COND_MSG(ObjectDB::get_instance(ObjectID(data.object_id)) == nullptr, "Invalid Object id '" + StringUtils::num_uint64(data.object_id) + "', can't call method.");
+        ERR_FAIL_COND_MSG(object_for_entity(data.object_id) == nullptr, "Invalid Object id '" + StringUtils::num_uint64(entt::to_integral(data.object_id)) + "', can't call method.");
 #endif
         call_with_variant_args_ret(data.instance, data.method, p_arguments, p_argcount, r_return_value, r_call_error);
     }
 
     CallableCustomMethodPointerRet(T *p_instance, R (T::*p_method)(P...)) {
-        memset(&data,0, sizeof(Data)); // Clear beforehand, may have padding bytes.
         data.instance = p_instance;
 #ifdef DEBUG_ENABLED
         data.object_id = p_instance->get_instance_id();
 #endif
         data.method = p_method;
-        _setup((uint32_t *)&data, sizeof(Data));
+        _setup((uint8_t *)&data, sizeof(Data));
     }
 };
 
@@ -369,16 +371,16 @@ private:
     const char* m_filename;
     int m_line;
     template <class... Args>
-    friend Callable create_lambda_callable_function_pointer(ObjectID p_instance, eastl::function<void(Args...)> p_method
+    friend Callable create_lambda_callable_function_pointer(GameEntity p_instance, eastl::function<void(Args...)> p_method
 #ifdef DEBUG_METHODS_ENABLED
         ,const char* p_file, int line
 #endif
     );
 public:
-    ObjectID m_holder;
+    GameEntity m_holder;
     eastl::function<void(P...)> m_func;
 
-    FunctorCallableT(ObjectID holder, eastl::function<void(P...)> f, const char* func = nullptr, int line = 0) :
+    FunctorCallableT(GameEntity holder, eastl::function<void(P...)> f, const char* func = nullptr, int line = 0) :
         // dangerous code
         h(hash_djb2_buffer((const uint8_t*)&f, sizeof(eastl::function<void()>))),
         m_filename(func), m_line(line), m_holder(holder), m_func(eastl::move(f))
@@ -387,7 +389,7 @@ public:
 
     uint32_t hash() const override
     {
-        return ((uint64_t)m_holder) ^ h;
+        return (entt::to_integral(m_holder)) ^ h;
     }
 
     String get_as_text() const override
@@ -407,7 +409,7 @@ public:
         return +[](const CallableCustom* a, const CallableCustom* b)-> bool { return a < b; };
     }
 
-    ObjectID get_object() const override
+    GameEntity get_object() const override
     {
         return m_holder;
     }
@@ -433,9 +435,7 @@ public:
 #endif
 
     }
-    void call(const Variant** p_arguments, int p_argcount,
-        Variant& r_return_value,
-        Callable::CallError& r_call_error) const override
+    void call(const Variant** p_arguments, int p_argcount, Variant& /*r_return_value*/, Callable::CallError& r_call_error) const override
     {
         r_call_error = {};
         if (!m_func)
@@ -470,7 +470,7 @@ struct function_traits
 
 template <typename ClassType, typename ReturnType, typename... Args>
 struct function_traits<ReturnType(ClassType::*)(Args...) const> {
-    typedef eastl::function<ReturnType(Args...)> f_type;
+    using f_type = eastl::function<ReturnType(Args...)>;
 };
 
 template <typename L>
@@ -495,7 +495,7 @@ Callable create_custom_callable_function_pointer(T *p_instance,
 }
 
 template <class... P>
-Callable create_lambda_callable_function_pointer(ObjectID p_instance, eastl::function<void(P...)> p_method
+Callable create_lambda_callable_function_pointer(GameEntity p_instance, eastl::function<void(P...)> p_method
 #ifdef DEBUG_METHODS_ENABLED
     ,const char* p_file, int line
 #endif
@@ -513,7 +513,7 @@ Callable create_lambda_callable_function_pointer(ObjectID p_instance, eastl::fun
 
 #ifdef DEBUG_METHODS_ENABLED
 #define callable_mp(I, M) create_custom_callable_function_pointer(I, #M, M)
-#define callable_gen(I, M) create_lambda_callable_function_pointer(I->get_instance_id(), make_function(M), __FUNCTION__,__LINE__)
+#define callable_gen(I, M) create_lambda_callable_function_pointer(I->get_instance_id(), make_function((M)), __FUNCTION__,__LINE__)
 #else
 #define callable_mp(I, M) create_custom_callable_function_pointer(I, M)
 #define callable_gen(I, M) create_lambda_callable_function_pointer(I->get_instance_id(), make_function(M))

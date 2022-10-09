@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef LINE_SHAPE_2D_H
-#define LINE_SHAPE_2D_H
+#pragma once
 
 #include "scene/resources/shape_2d.h"
 
@@ -55,11 +54,9 @@ public:
     Vector2 get_normal() const;
     real_t get_d() const;
 
-    void draw(const RID &p_to_rid, const Color &p_color) override;
+    void draw(RenderingEntity p_to_rid, const Color &p_color) override;
     Rect2 get_rect() const override;
     real_t get_enclosing_radius() const override { return d; }
 
     LineShape2D();
 };
-
-#endif // LINE_SHAPE_2D_H

@@ -30,15 +30,17 @@
 
 #include "mutex.h"
 
-Mutex *_global_mutex = nullptr;
+namespace {
+
+Mutex _global_mutex;
+
+} // end of anonymous namespace
 
 void _global_lock() {
 
-	if (_global_mutex)
-		_global_mutex->lock();
+    _global_mutex.lock();
 }
 void _global_unlock() {
 
-	if (_global_mutex)
-		_global_mutex->unlock();
+    _global_mutex.unlock();
 }

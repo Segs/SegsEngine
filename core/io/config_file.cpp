@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  config_file.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -307,27 +307,32 @@ Error ConfigFile::_parse(StringView p_path, VariantParserStream *p_stream) {
     return OK;
 }
 
+void ConfigFile::clear() {
+    values.clear();
+}
+
 void ConfigFile::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_value", {"section", "key", "value"}), &ConfigFile::set_value);
+    BIND_METHOD(ConfigFile,set_value);
     MethodBinder::bind_method(D_METHOD("get_value", {"section", "key", "default"}), &ConfigFile::get_value, {DEFVAL(Variant())});
 
-    MethodBinder::bind_method(D_METHOD("has_section", {"section"}), &ConfigFile::has_section);
-    MethodBinder::bind_method(D_METHOD("has_section_key", {"section", "key"}), &ConfigFile::has_section_key);
+    BIND_METHOD(ConfigFile,has_section);
+    BIND_METHOD(ConfigFile,has_section_key);
 
-    MethodBinder::bind_method(D_METHOD("get_sections"), &ConfigFile::get_sections);
+    BIND_METHOD(ConfigFile,get_sections);
     MethodBinder::bind_method(D_METHOD("get_section_keys", {"section"}), &ConfigFile::_get_section_keys);
 
-    MethodBinder::bind_method(D_METHOD("erase_section", {"section"}), &ConfigFile::erase_section);
-    MethodBinder::bind_method(D_METHOD("erase_section_key", {"section", "key"}), &ConfigFile::erase_section_key);
+    BIND_METHOD(ConfigFile,erase_section);
+    BIND_METHOD(ConfigFile,erase_section_key);
 
-    MethodBinder::bind_method(D_METHOD("load", {"path"}), &ConfigFile::load);
-    MethodBinder::bind_method(D_METHOD("parse",{"data"}), &ConfigFile::parse);
-    MethodBinder::bind_method(D_METHOD("save", {"path"}), &ConfigFile::save);
+    BIND_METHOD(ConfigFile,load);
+    BIND_METHOD(ConfigFile,parse);
+    BIND_METHOD(ConfigFile,save);
 
-    MethodBinder::bind_method(D_METHOD("load_encrypted", {"path", "key"}), &ConfigFile::load_encrypted);
-    MethodBinder::bind_method(D_METHOD("load_encrypted_pass", {"path", "password"}), &ConfigFile::load_encrypted_pass);
+    BIND_METHOD(ConfigFile,load_encrypted);
+    BIND_METHOD(ConfigFile,load_encrypted_pass);
 
-    MethodBinder::bind_method(D_METHOD("save_encrypted", {"path", "key"}), &ConfigFile::save_encrypted);
-    MethodBinder::bind_method(D_METHOD("save_encrypted_pass", {"path", "password"}), &ConfigFile::save_encrypted_pass);
+    BIND_METHOD(ConfigFile,save_encrypted);
+    BIND_METHOD(ConfigFile,save_encrypted_pass);
+    BIND_METHOD(ConfigFile,clear);
 }

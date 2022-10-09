@@ -49,9 +49,11 @@ namespace GodotTools.Build
             startInfo.RedirectStandardOutput = true;
             startInfo.RedirectStandardError = true;
             startInfo.UseShellExecute = false;
+            startInfo.CreateNoWindow = true;
 
             // Needed when running from Developer Command Prompt for VS
             RemovePlatformVariable(startInfo.EnvironmentVariables);
+            startInfo.EnvironmentVariables["DOTNET_SKIP_FIRST_TIME_EXPERIENCE"] = "1";
 
             var process = new Process {StartInfo = startInfo};
 
@@ -72,7 +74,7 @@ namespace GodotTools.Build
         {
             using (var process = LaunchBuild(buildInfo, stdOutHandler, stdErrHandler))
             {
-                process.WaitForExit();
+                process.WaitForExit(32000);
 
                 return process.ExitCode;
             }

@@ -1,4 +1,4 @@
-
+﻿
 set(ThirdParty_Install_Dir ${PROJECT_BINARY_DIR}/ThirdParty_Builds)
 include(ExternalProject_EASTL.cmake)
 
@@ -11,6 +11,7 @@ endmacro()
 add_subdirectory(entt)
 add_subdirectory(bullet)
 add_subdirectory(zlib)
+add_subdirectory(embree)
 
 
 
@@ -58,9 +59,10 @@ if(OPTION_MINIZIP)
     add_library(minizip_interface INTERFACE)
     target_compile_definitions(minizip_interface INTERFACE ZLIB_DLL)
     target_include_directories(minizip_interface INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/minizip>
-        $<INSTALL_INTERFACE:include/minizip>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:include>
     )
+	target_link_libraries(minizip_interface INTERFACE zlib_interface)
     install(FILES ${minizip_headers} DESTINATION include/minizip)
     install(TARGETS minizip_interface EXPORT SegsEngine
         INCLUDES DESTINATION include/minizip
@@ -107,16 +109,6 @@ target_include_directories(enet_lib PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/enet
 set_3rdparty_properties(enet_lib)
 
 # Thirdparty source files
-set(thirdparty_sources
-    pvrtccompressor/BitScale.cpp
-    pvrtccompressor/MortonTable.cpp
-    pvrtccompressor/PvrTcDecoder.cpp
-    pvrtccompressor/PvrTcEncoder.cpp
-    pvrtccompressor/PvrTcPacket.cpp
-)
-add_library(pvr_lib STATIC ${thirdparty_sources})
-target_include_directories(pvr_lib PUBLIC pvrtccompressor/)
-set_3rdparty_properties(pvr_lib)
 
 macro(remove_flag_from_target _target _flag)
     get_target_property(_target_cxx_flags ${_target} COMPILE_OPTIONS)
@@ -126,27 +118,6 @@ macro(remove_flag_from_target _target _flag)
     endif()
 endmacro()
 
-set(source_files
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4Encoding.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4Encoding_ETC1.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4Encoding_R11.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4Encoding_RG11.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4Encoding_RGB8A1.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4Encoding_RGB8.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4Encoding_RGBA8.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/Etc.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcDifferentialTrys.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcFilter.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcImage.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcIndividualTrys.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcMath.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcSortedBlockList.cpp
-)
-add_library(etc2comp OBJECT ${source_files})
-target_include_directories(etc2comp PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/)
-remove_flag_from_target(etc2comp -ffast-math)
-set_3rdparty_properties(etc2comp)
 
 set(thirdparty_sources
     ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_auto_possess.c
@@ -173,7 +144,7 @@ set(thirdparty_sources
     ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_ucd.c
     ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_valid_utf.c
     ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_xclass.c
-
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_ucptables.c
     ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_convert.c
     ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_extuni.c
     ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_script_run.c
@@ -204,6 +175,7 @@ if(OPTION_BUILTIN_MBEDTLS)
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/cipher_wrap.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/cmac.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ctr_drbg.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/constant_time.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/debug.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/des.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/dhm.c
@@ -223,8 +195,9 @@ if(OPTION_BUILTIN_MBEDTLS)
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/md4.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/md5.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/md.c
-        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/md_wrap.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/memory_buffer_alloc.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/mps_reader.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/mps_trace.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/net_sockets.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/nist_kw.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/oid.c
@@ -250,9 +223,11 @@ if(OPTION_BUILTIN_MBEDTLS)
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_ciphersuites.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_cli.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_cookie.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_msg.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_srv.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_ticket.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_tls.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_tls13_keys.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/threading.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/timing.c
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/version.c
@@ -275,6 +250,7 @@ endif()
 add_subdirectory(assimp)
 
 set(thirdparty_sources
+    ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/addr_is_reserved.c
     ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/miniupnpc.c
     ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/upnpcommands.c
     ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/miniwget.c
@@ -291,7 +267,7 @@ set(thirdparty_sources
 configure_file(${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/miniupnpcstrings.h.cmake
     ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/miniupnpcstrings.h
 )
-set(MINIUPNPC_VERSION "2.1")
+set(MINIUPNPC_VERSION "2.2.2")
 set(SYSTEM_NAME "Godot Engine")
 add_library(miniupnpc STATIC ${thirdparty_sources})
 target_include_directories(miniupnpc PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/)
@@ -321,7 +297,6 @@ set(thirdparty_sources
     ${PROJECT_SOURCE_DIR}/thirdparty/wslay/wslay_net.c
     ${PROJECT_SOURCE_DIR}/thirdparty/wslay/wslay_event.c
     ${PROJECT_SOURCE_DIR}/thirdparty/wslay/wslay_queue.c
-    ${PROJECT_SOURCE_DIR}/thirdparty/wslay/wslay_stack.c
     ${PROJECT_SOURCE_DIR}/thirdparty/wslay/wslay_frame.c
 )
 add_library(wslay OBJECT ${thirdparty_sources})
@@ -369,6 +344,21 @@ target_include_directories(internal_png PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/
 target_link_libraries(internal_png PUBLIC zlib)
 set_3rdparty_properties(internal_png)
 
+set(brotli_files
+        ${PROJECT_SOURCE_DIR}/thirdparty/brotli/common/constants.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/brotli/common/context.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/brotli/common/dictionary.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/brotli/common/platform.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/brotli/common/shared_dictionary.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/brotli/common/transform.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/brotli/dec/bit_reader.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/brotli/dec/decode.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/brotli/dec/huffman.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/brotli/dec/state.c
+)
+add_library(brotli STATIC ${brotli_files})
+target_include_directories(brotli PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/brotli/include)
+set_3rdparty_properties(brotli)
 
 set(source_files
     ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/autofit/autofit.c
@@ -407,6 +397,8 @@ set(source_files
     ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/pshinter/pshinter.c
     ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/psnames/psnames.c
     ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/raster/raster.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/sdf/sdf.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/svg/svg.c
     ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/smooth/smooth.c
     ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/truetype/truetype.c
     ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/type1/type1.c
@@ -417,8 +409,8 @@ set(source_files
 add_library(freetype STATIC ${source_files})
 target_include_directories(freetype PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/freetype/include)
 target_compile_definitions(freetype PRIVATE FT2_BUILD_LIBRARY)
-target_compile_definitions(freetype PUBLIC FREETYPE_ENABLED FT_CONFIG_OPTION_USE_PNG)
-target_link_libraries(freetype PUBLIC internal_png)
+target_compile_definitions(freetype PUBLIC FREETYPE_ENABLED FT_CONFIG_OPTION_USE_PNG FT_CONFIG_OPTION_USE_BROTLI)
+target_link_libraries(freetype PUBLIC internal_png brotli)
 set_3rdparty_properties(freetype)
 
 set(recast_source_files
@@ -442,6 +434,7 @@ set_3rdparty_properties(recast)
 
 set(source_files
     ${PROJECT_SOURCE_DIR}/thirdparty/glad/glad.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/glad/glad/glad.h
 )
 add_library(glad STATIC ${source_files})
 target_include_directories(glad PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/glad/)
@@ -455,7 +448,6 @@ endif()
 set(thirdparty_sources
     ${PROJECT_SOURCE_DIR}/thirdparty/rvo2/Agent.cpp
     ${PROJECT_SOURCE_DIR}/thirdparty/rvo2/Agent.h
-    ${PROJECT_SOURCE_DIR}/thirdparty/rvo2/API.h
     ${PROJECT_SOURCE_DIR}/thirdparty/rvo2/Definitions.h
     ${PROJECT_SOURCE_DIR}/thirdparty/rvo2/KdTree.cpp
     ${PROJECT_SOURCE_DIR}/thirdparty/rvo2/KdTree.h
@@ -481,6 +473,16 @@ target_include_directories(concurrent_queue INTERFACE
 install(FILES ${concurrent_queue_SRC} DESTINATION include/concurrentqueue)
 install(TARGETS concurrent_queue EXPORT SegsEngine
     INCLUDES DESTINATION include/concurrentqueue
+)
+
+set(stb_pack_SRC
+    ${PROJECT_SOURCE_DIR}/thirdparty/stb_rect_pack/stb_rect_pack.h
+)
+add_library(stb_rect_pack INTERFACE)
+
+target_include_directories(stb_rect_pack INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>
 )
 
 set(minimp3_SRC

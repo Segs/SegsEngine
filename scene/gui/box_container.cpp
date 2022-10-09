@@ -38,20 +38,25 @@ IMPL_GDCLASS(HBoxContainer)
 IMPL_GDCLASS(VBoxContainer)
 
 VARIANT_ENUM_CAST(BoxContainer::AlignMode);
-struct _MinSizeCache {
 
+namespace {
+
+struct _MinSizeCache {
     int min_size;
     bool will_stretch;
     int final_size;
 };
 
-void BoxContainer::_resort() {
+} // and of anonymous namespace
+class BoxContainerImpl {
+public:
+static void _resort(BoxContainer *self) {
 
     /** First pass, determine minimum size AND amount of stretchable elements */
 
-    Size2i new_size = get_size();
+    Size2i new_size = self->get_size();
 
-    int sep = get_theme_constant("separation"); //,vertical?"VBoxContainer":"HBoxContainer");
+    int sep = self->get_theme_constant("separation"); //,vertical?"VBoxContainer":"HBoxContainer");
 
     bool first = true;
     int children_count = 0;
@@ -60,8 +65,8 @@ void BoxContainer::_resort() {
     float stretch_ratio_total = 0;
     HashMap<Control *, _MinSizeCache> min_size_cache;
 
-    for (int i = 0; i < get_child_count(); i++) {
-        Control *c = object_cast<Control>(get_child(i));
+    for (int i = 0; i < self->get_child_count(); i++) {
+        Control *c = object_cast<Control>(self->get_child(i));
         if (!c || !c->is_visible_in_tree())
             continue;
         if (c->is_set_as_top_level())
@@ -70,15 +75,15 @@ void BoxContainer::_resort() {
         Size2i size = c->get_combined_minimum_size();
         _MinSizeCache msc;
 
-        if (vertical) { /* VERTICAL */
+        if (self->vertical) { /* VERTICAL */
             stretch_min += size.height;
             msc.min_size = size.height;
-            msc.will_stretch = c->get_v_size_flags() & SIZE_EXPAND;
+            msc.will_stretch = c->get_v_size_flags() & BoxContainer::SIZE_EXPAND;
 
         } else { /* HORIZONTAL */
             stretch_min += size.width;
             msc.min_size = size.width;
-            msc.will_stretch = c->get_h_size_flags() & SIZE_EXPAND;
+            msc.will_stretch = c->get_h_size_flags() & BoxContainer::SIZE_EXPAND;
         }
 
         if (msc.will_stretch) {
@@ -90,10 +95,11 @@ void BoxContainer::_resort() {
         children_count++;
     }
 
-    if (children_count == 0)
+    if (children_count == 0) {
         return;
+    }
 
-    int stretch_max = (vertical ? new_size.height : new_size.width) - (children_count - 1) * sep;
+    int stretch_max = (self->vertical ? new_size.height : new_size.width) - (children_count - 1) * sep;
     int stretch_diff = stretch_max - stretch_min;
     if (stretch_diff < 0) {
         //avoid negative stretch space
@@ -111,9 +117,9 @@ void BoxContainer::_resort() {
         bool refit_successful = true; //assume refit-test will go well
         float error = 0; // Keep track of accumulated error in pixels
 
-        for (int i = 0; i < get_child_count(); i++) {
+        for (int i = 0; i < self->get_child_count(); i++) {
 
-            Control *c = object_cast<Control>(get_child(i));
+            Control *c = object_cast<Control>(self->get_child(i));
             if (!c || !c->is_visible_in_tree())
                 continue;
             if (c->is_set_as_top_level())
@@ -156,13 +162,13 @@ void BoxContainer::_resort() {
 
     int ofs = 0;
     if (!has_stretched) {
-        switch (align) {
-            case ALIGN_BEGIN:
+        switch (self->align) {
+            case BoxContainer::ALIGN_BEGIN:
                 break;
-            case ALIGN_CENTER:
+            case BoxContainer::ALIGN_CENTER:
                 ofs = stretch_diff / 2;
                 break;
-            case ALIGN_END:
+            case BoxContainer::ALIGN_END:
                 ofs = stretch_diff;
                 break;
         }
@@ -171,9 +177,9 @@ void BoxContainer::_resort() {
     first = true;
     int idx = 0;
 
-    for (int i = 0; i < get_child_count(); i++) {
+    for (int i = 0; i < self->get_child_count(); i++) {
 
-        Control *c = object_cast<Control>(get_child(i));
+        Control *c = object_cast<Control>(self->get_child(i));
         if (!c || !c->is_visible_in_tree())
             continue;
         if (c->is_set_as_top_level())
@@ -193,14 +199,14 @@ void BoxContainer::_resort() {
             //adjust so the last one always fits perfect
             //compensating for numerical imprecision
 
-            to = vertical ? new_size.height : new_size.width;
+            to = self->vertical ? new_size.height : new_size.width;
         }
 
         int size = to - from;
 
         Rect2 rect;
 
-        if (vertical) {
+        if (self->vertical) {
 
             rect = Rect2(0, from, new_size.width, size);
         } else {
@@ -208,12 +214,13 @@ void BoxContainer::_resort() {
             rect = Rect2(from, 0, size, new_size.height);
         }
 
-        fit_child_in_rect(c, rect);
+        self->fit_child_in_rect(c, rect);
 
         ofs = to;
         idx++;
     }
 }
+};
 
 Size2 BoxContainer::get_minimum_size() const {
 
@@ -226,12 +233,7 @@ Size2 BoxContainer::get_minimum_size() const {
 
     for (int i = 0; i < get_child_count(); i++) {
         Control *c = object_cast<Control>(get_child(i));
-        if (!c)
-            continue;
-        if (c->is_set_as_top_level())
-            continue;
-
-        if (!c->is_visible()) {
+        if (!c || c->is_set_as_top_level() || !c->is_visible()) {
             continue;
         }
 
@@ -265,8 +267,7 @@ void BoxContainer::_notification(int p_what) {
     switch (p_what) {
 
         case NOTIFICATION_SORT_CHILDREN: {
-
-            _resort();
+            BoxContainerImpl::_resort(this);
         } break;
         case NOTIFICATION_THEME_CHANGED: {
 
@@ -277,39 +278,34 @@ void BoxContainer::_notification(int p_what) {
 
 void BoxContainer::set_alignment(AlignMode p_align) {
     align = p_align;
-    _resort();
-}
-
-BoxContainer::AlignMode BoxContainer::get_alignment() const {
-    return align;
+    BoxContainerImpl::_resort(this);
 }
 
 void BoxContainer::add_spacer(bool p_begin) {
-
     Control *c = memnew(Control);
-    c->set_mouse_filter(MOUSE_FILTER_PASS); //allow spacer to pass mouse events
+    c->set_mouse_filter(MOUSE_FILTER_PASS); // allow spacer to pass mouse events
 
-    if (vertical)
+    if (vertical) {
         c->set_v_size_flags(SIZE_EXPAND_FILL);
-    else
+    } else {
         c->set_h_size_flags(SIZE_EXPAND_FILL);
+    }
 
     add_child(c);
-    if (p_begin)
+    if (p_begin) {
         move_child(c, 0);
+    }
 }
 
-BoxContainer::BoxContainer(bool p_vertical) {
-
-    vertical = p_vertical;
+BoxContainer::BoxContainer(bool p_vertical) : vertical(p_vertical) {
     align = ALIGN_BEGIN;
 }
 
 void BoxContainer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("add_spacer", {"begin"}), &BoxContainer::add_spacer);
-    MethodBinder::bind_method(D_METHOD("get_alignment"), &BoxContainer::get_alignment);
-    MethodBinder::bind_method(D_METHOD("set_alignment", {"alignment"}), &BoxContainer::set_alignment);
+    BIND_METHOD(BoxContainer,add_spacer);
+    BIND_METHOD(BoxContainer,get_alignment);
+    BIND_METHOD(BoxContainer,set_alignment);
 
     BIND_ENUM_CONSTANT(ALIGN_BEGIN);
     BIND_ENUM_CONSTANT(ALIGN_CENTER);

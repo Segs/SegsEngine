@@ -48,8 +48,8 @@ public:
 private:
     Type type;
     RID self;
-    ObjectID instance_id;
-    ObjectID canvas_instance_id;
+    GameEntity instance_id;
+    GameEntity canvas_instance_id;
     bool pickable;
 
     struct Shape {
@@ -60,14 +60,10 @@ private:
         Rect2 aabb_cache; //for rayqueries
         Shape2DSW *shape;
         Variant metadata;
-        bool disabled;
-        bool one_way_collision;
-        float one_way_collision_margin;
-        Shape() {
-            disabled = false;
-            one_way_collision = false;
-            one_way_collision_margin = 0;
-        }
+        float one_way_collision_margin = 0;
+        bool disabled = false;
+        bool one_way_collision = false;
+        Shape() = default;
     };
 
     Vector<Shape> shapes;
@@ -81,6 +77,7 @@ private:
     IntrusiveListNode<CollisionObject2DSW> pending_shape_update_list;
 
     void _update_shapes();
+    void _recheck_shapes();
 
 protected:
     void _update_shapes_with_motion(const Vector2 &p_motion);
@@ -104,11 +101,11 @@ public:
     _FORCE_INLINE_ void set_self(const RID &p_self) { self = p_self; }
     _FORCE_INLINE_ RID get_self() const { return self; }
 
-    _FORCE_INLINE_ void set_instance_id(const ObjectID &p_instance_id) { instance_id = p_instance_id; }
-    _FORCE_INLINE_ ObjectID get_instance_id() const { return instance_id; }
+    _FORCE_INLINE_ void set_instance_id(GameEntity p_instance_id) { instance_id = p_instance_id; }
+    _FORCE_INLINE_ GameEntity get_instance_id() const { return instance_id; }
 
-    _FORCE_INLINE_ void set_canvas_instance_id(const ObjectID &p_canvas_instance_id) { canvas_instance_id = p_canvas_instance_id; }
-    _FORCE_INLINE_ ObjectID get_canvas_instance_id() const { return canvas_instance_id; }
+    _FORCE_INLINE_ void set_canvas_instance_id(GameEntity p_canvas_instance_id) { canvas_instance_id = p_canvas_instance_id; }
+    _FORCE_INLINE_ GameEntity get_canvas_instance_id() const { return canvas_instance_id; }
 
     void _shape_changed() override;
 
@@ -119,10 +116,6 @@ public:
     void set_shape_metadata(int p_index, const Variant &p_metadata);
 
     _FORCE_INLINE_ int get_shape_count() const { return shapes.size(); }
-    _FORCE_INLINE_ bool is_shape_disabled(int p_index) const {
-        CRASH_BAD_INDEX(p_index, shapes.size());
-        return shapes[p_index].disabled;
-    }
     _FORCE_INLINE_ Shape2DSW *get_shape(int p_index) const {
         CRASH_BAD_INDEX(p_index, shapes.size());
         return shapes[p_index].shape;
@@ -148,9 +141,9 @@ public:
     _FORCE_INLINE_ Transform2D get_inv_transform() const { return inv_transform; }
     _FORCE_INLINE_ Space2DSW *get_space() const { return space; }
 
-    void set_shape_as_disabled(int p_idx, bool p_disabled);
-    _FORCE_INLINE_ bool is_shape_set_as_disabled(int p_idx) const {
-        CRASH_BAD_INDEX(p_idx, shapes.size());
+    void set_shape_disabled(int p_idx, bool p_disabled);
+    _FORCE_INLINE_ bool is_shape_disabled(int p_idx) const {
+        ERR_FAIL_INDEX_V(p_idx, shapes.size(), false);
         return shapes[p_idx].disabled;
     }
 
@@ -171,13 +164,15 @@ public:
 
     void set_collision_mask(uint32_t p_mask) {
         collision_mask = p_mask;
-        _shape_changed();
+        _recheck_shapes();
+        _shapes_changed();
     }
     _FORCE_INLINE_ uint32_t get_collision_mask() const { return collision_mask; }
 
     void set_collision_layer(uint32_t p_layer) {
         collision_layer = p_layer;
-        _shape_changed();
+        _recheck_shapes();
+        _shapes_changed();
     }
     _FORCE_INLINE_ uint32_t get_collision_layer() const { return collision_layer; }
 
@@ -191,7 +186,7 @@ public:
     void set_pickable(bool p_pickable) { pickable = p_pickable; }
     _FORCE_INLINE_ bool is_pickable() const { return pickable; }
 
-    _FORCE_INLINE_ bool test_collision_mask(CollisionObject2DSW *p_other) const {
+    _FORCE_INLINE_ bool test_collision_mask(const CollisionObject2DSW *p_other) const {
 
         return collision_layer & p_other->collision_mask || p_other->collision_layer & collision_mask;
     }

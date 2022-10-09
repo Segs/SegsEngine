@@ -34,6 +34,11 @@
 #include "core/method_bind.h"
 #include "core/print_string.h"
 #include "core/translation_helpers.h"
+#include "editor/scene_tree_editor.h"
+#include "scene/gui/button.h"
+#include "scene/gui/check_box.h"
+#include "scene/gui/check_button.h"
+#include "scene/gui/line_edit.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/label.h"
 
@@ -53,7 +58,7 @@ void ReparentDialog::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
 
-        //RID ci = get_canvas_item();
+        //RenderingEntity ci = get_canvas_item();
         //get_stylebox("panel","PopupMenu")->draw(ci,Rect2(Point2(),get_size()));
     }
 }

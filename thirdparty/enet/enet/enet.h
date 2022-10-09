@@ -22,7 +22,7 @@ extern "C"
 
 #define ENET_VERSION_MAJOR 1
 #define ENET_VERSION_MINOR 3
-#define ENET_VERSION_PATCH 15
+#define ENET_VERSION_PATCH 17
 #define ENET_VERSION_CREATE(major, minor, patch) (((major)<<16) | ((minor)<<8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version)>>16)&0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version)>>8)&0xFF)
@@ -69,6 +69,7 @@ typedef enum _ENetSocketShutdown
     ENET_SOCKET_SHUTDOWN_READ_WRITE = 2
 } ENetSocketShutdown;
 
+#define ENET_HOST_ANY       0
 #define ENET_HOST_BROADCAST 0xFFFFFFFFU
 #define ENET_PORT_ANY       0
 
@@ -311,12 +312,10 @@ typedef struct _ENetPeer
    ENetList      acknowledgements;
    ENetList      sentReliableCommands;
    ENetList      sentUnreliableCommands;
-   ENetList      outgoingReliableCommands;
-   ENetList      outgoingUnreliableCommands;
+   ENetList      outgoingCommands;
    ENetList      dispatchedCommands;
    enet_uint16   flags;
-   enet_uint8    roundTripTimeRemainder;
-   enet_uint8    roundTripTimeVarianceRemainder;
+   enet_uint16   reserved;
    enet_uint16   incomingUnsequencedGroup;
    enet_uint16   outgoingUnsequencedGroup;
    enet_uint32   unsequencedWindow [ENET_PEER_UNSEQUENCED_WINDOW_SIZE / 32]; 
@@ -535,15 +534,6 @@ ENET_API int enet_address_set_host_ip (ENetAddress * address, const char * hostN
 */
 ENET_API int enet_address_set_host (ENetAddress * address, const char * hostName);
 
-/** Sets the host field in the address parameter from ip struct.
-    @param address destination to store resolved address
-    @param ip the ip struct to read from
-    @param size the size of the ip struct.
-    @retval 0 on success
-    @retval != 0 on failure
-    @returns the address of the given ip in address on success.
-*/
-ENET_API void enet_address_set_ip(ENetAddress * address, const uint8_t * ip, size_t size);
 
 /** Gives the printable form of the IP address specified in the address parameter.
     @param address    address printed
@@ -585,8 +575,6 @@ ENET_API void       enet_host_channel_limit (ENetHost *, size_t);
 ENET_API void       enet_host_bandwidth_limit (ENetHost *, enet_uint32, enet_uint32);
 extern   void       enet_host_bandwidth_throttle (ENetHost *);
 extern  enet_uint32 enet_host_random_seed (void);
-ENET_API void enet_host_dtls_server_setup (ENetHost *, void *, void *);
-ENET_API void enet_host_dtls_client_setup (ENetHost *, void *, uint8_t, const char *);
 
 ENET_API int                 enet_peer_send (ENetPeer *, enet_uint8, ENetPacket *);
 ENET_API ENetPacket *        enet_peer_receive (ENetPeer *, enet_uint8 * channelID);
@@ -604,8 +592,8 @@ extern void                  enet_peer_setup_outgoing_command (ENetPeer *, ENetO
 extern ENetOutgoingCommand * enet_peer_queue_outgoing_command (ENetPeer *, const ENetProtocol *, ENetPacket *, enet_uint32, enet_uint16);
 extern ENetIncomingCommand * enet_peer_queue_incoming_command (ENetPeer *, const ENetProtocol *, const void *, size_t, enet_uint32, enet_uint32);
 extern ENetAcknowledgement * enet_peer_queue_acknowledgement (ENetPeer *, const ENetProtocol *, enet_uint16);
-extern void                  enet_peer_dispatch_incoming_unreliable_commands (ENetPeer *, ENetChannel *);
-extern void                  enet_peer_dispatch_incoming_reliable_commands (ENetPeer *, ENetChannel *);
+extern void                  enet_peer_dispatch_incoming_unreliable_commands (ENetPeer *, ENetChannel *, ENetIncomingCommand *);
+extern void                  enet_peer_dispatch_incoming_reliable_commands (ENetPeer *, ENetChannel *, ENetIncomingCommand *);
 extern void                  enet_peer_on_connect (ENetPeer *);
 extern void                  enet_peer_on_disconnect (ENetPeer *);
 
@@ -615,6 +603,9 @@ ENET_API size_t enet_range_coder_compress (void *, const ENetBuffer *, size_t, s
 ENET_API size_t enet_range_coder_decompress (void *, const enet_uint8 *, size_t, enet_uint8 *, size_t);
    
 extern size_t enet_protocol_command_size (enet_uint8);
+// -- Godot start --
+#include "enet/godot_ext.h"
+// -- Godot end --
 
 #ifdef __cplusplus
 }

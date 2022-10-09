@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  property_selector.h                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -54,7 +54,7 @@ class PropertySelector : public ConfirmationDialog {
     UIString selected;
     VariantType type;
     StringName base_type;
-    ObjectID script;
+    GameEntity script;
     Object *instance;
     bool virtuals_only;
 
@@ -68,13 +68,8 @@ protected:
     static void _bind_methods();
 
 public:
-    void select_method_from_base_type(const StringName &p_base, const UIString &p_current = UIString(), bool p_virtuals_only = false);
-    void select_method_from_script(const Ref<Script> &p_script, const UIString &p_current = UIString());
-    void select_method_from_basic_type(VariantType p_type, const UIString &p_current = UIString());
     void select_method_from_instance(Object *p_instance, const UIString &p_current = UIString());
 
-    void select_property_from_base_type(const StringName &p_base, const UIString &p_current = UIString());
-    void select_property_from_script(const Ref<Script> &p_script, const UIString &p_current = UIString());
     void select_property_from_basic_type(VariantType p_type, const UIString &p_current = UIString());
     void select_property_from_instance(Object *p_instance, const UIString &p_current = UIString());
 

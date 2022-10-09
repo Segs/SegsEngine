@@ -43,40 +43,69 @@ NavigationServer *NavigationServer::singleton = nullptr;
 
 void NavigationServer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("map_create"), &NavigationServer::map_create);
-    MethodBinder::bind_method(D_METHOD("map_set_active", {"map", "active"}),&NavigationServer::map_set_active);
-    MethodBinder::bind_method(D_METHOD("map_is_active", {"nap"}),&NavigationServer::map_is_active);
-    MethodBinder::bind_method(D_METHOD("map_set_up", {"map", "up"}),&NavigationServer::map_set_up);
-    MethodBinder::bind_method(D_METHOD("map_get_up", {"map"}),&NavigationServer::map_get_up);
-    MethodBinder::bind_method(D_METHOD("map_set_cell_size", {"map", "cell_size"}),&NavigationServer::map_set_cell_size);
-    MethodBinder::bind_method(D_METHOD("map_get_cell_size", {"map"}),&NavigationServer::map_get_cell_size);
-    MethodBinder::bind_method(D_METHOD("map_set_edge_connection_margin", {"map", "margin"}),&NavigationServer::map_set_edge_connection_margin);
-    MethodBinder::bind_method(D_METHOD("map_get_edge_connection_margin", {"map"}),&NavigationServer::map_get_edge_connection_margin);
-    MethodBinder::bind_method(D_METHOD("map_get_path", {"map", "origin", "destination", "optimize"}),&NavigationServer::map_get_path);
+    BIND_METHOD(NavigationServer,get_maps);
 
-    MethodBinder::bind_method(D_METHOD("region_create"), &NavigationServer::region_create);
-    MethodBinder::bind_method(D_METHOD("region_set_map", {"region", "map"}),&NavigationServer::region_set_map);
-    MethodBinder::bind_method(D_METHOD("region_set_transform", {"region", "transform"}),&NavigationServer::region_set_transform);
-    MethodBinder::bind_method(D_METHOD("region_set_navmesh", {"region", "nav_mesh"}),&NavigationServer::region_set_navmesh);
-    MethodBinder::bind_method(D_METHOD("region_bake_navmesh", {"mesh", "node"}),&NavigationServer::region_bake_navmesh);
+    BIND_METHOD(NavigationServer,map_create);
+    BIND_METHOD(NavigationServer,map_set_active);
+    BIND_METHOD(NavigationServer,map_is_active);
+    BIND_METHOD(NavigationServer,map_set_up);
+    BIND_METHOD(NavigationServer,map_get_up);
+    BIND_METHOD(NavigationServer,map_set_cell_size);
+    BIND_METHOD(NavigationServer,map_get_cell_size);
+    BIND_METHOD(NavigationServer,map_set_cell_height);
+    BIND_METHOD(NavigationServer,map_get_cell_height);
+    BIND_METHOD(NavigationServer,map_set_edge_connection_margin);
+    BIND_METHOD(NavigationServer,map_get_edge_connection_margin);
+    MethodBinder::bind_method(D_METHOD("map_get_path", {"map", "origin", "destination", "optimize", "navigation_layers"}),&NavigationServer::map_get_path,{DEFVAL(int(1))});
+    MethodBinder::bind_method(D_METHOD("map_get_closest_point_to_segment", {"map", "start", "end", "use_collision"}),&NavigationServer::map_get_closest_point_to_segment, {DEFVAL(false)});
+    BIND_METHOD(NavigationServer,map_get_closest_point);
+    BIND_METHOD(NavigationServer,map_get_closest_point_normal);
+    BIND_METHOD(NavigationServer,map_get_closest_point_owner);
 
-    MethodBinder::bind_method(D_METHOD("agent_create"), &NavigationServer::agent_create);
-    MethodBinder::bind_method(D_METHOD("agent_set_map", {"agent", "map"}),&NavigationServer::agent_set_map);
-    MethodBinder::bind_method(D_METHOD("agent_set_neighbor_dist", {"agent", "dist"}),&NavigationServer::agent_set_neighbor_dist);
-    MethodBinder::bind_method(D_METHOD("agent_set_max_neighbors", {"agent", "count"}),&NavigationServer::agent_set_max_neighbors);
-    MethodBinder::bind_method(D_METHOD("agent_set_time_horizon", {"agent", "time"}),&NavigationServer::agent_set_time_horizon);
-    MethodBinder::bind_method(D_METHOD("agent_set_radius", {"agent", "radius"}),&NavigationServer::agent_set_radius);
-    MethodBinder::bind_method(D_METHOD("agent_set_max_speed", {"agent", "max_speed"}),&NavigationServer::agent_set_max_speed);
-    MethodBinder::bind_method(D_METHOD("agent_set_velocity", {"agent", "velocity"}),&NavigationServer::agent_set_velocity);
-    MethodBinder::bind_method(D_METHOD("agent_set_target_velocity", {"agent", "target_velocity"}),&NavigationServer::agent_set_target_velocity);
-    MethodBinder::bind_method(D_METHOD("agent_set_position", {"agent", "position"}),&NavigationServer::agent_set_position);
-    MethodBinder::bind_method(D_METHOD("agent_is_map_changed", {"agent"}),&NavigationServer::agent_is_map_changed);
-    MethodBinder::bind_method(D_METHOD("agent_set_callback", {"agent", "callback"}),&NavigationServer::agent_set_callback);
+    BIND_METHOD(NavigationServer,map_get_regions);
+    BIND_METHOD(NavigationServer,map_get_agents);
+    BIND_METHOD(NavigationServer,map_force_update);
 
-    MethodBinder::bind_method(D_METHOD("free", {"object"}),&NavigationServer::free);
+    BIND_METHOD(NavigationServer,region_create);
+    BIND_METHOD(NavigationServer,region_set_enter_cost);
+    BIND_METHOD(NavigationServer,region_get_enter_cost);
+    BIND_METHOD(NavigationServer,region_set_travel_cost);
+    BIND_METHOD(NavigationServer,region_get_travel_cost);
+    BIND_METHOD(NavigationServer,region_owns_point);
 
-    MethodBinder::bind_method(D_METHOD("set_active", {"active"}),&NavigationServer::set_active);
-    MethodBinder::bind_method(D_METHOD("step", {"delta_time"}),&NavigationServer::step);
+    BIND_METHOD(NavigationServer,region_set_map);
+    BIND_METHOD(NavigationServer,region_get_map);
+
+    BIND_METHOD(NavigationServer,region_set_navigation_layers);
+    BIND_METHOD(NavigationServer,region_get_navigation_layers);
+
+    BIND_METHOD(NavigationServer,region_set_transform);
+    BIND_METHOD(NavigationServer,region_set_navmesh);
+    BIND_METHOD(NavigationServer,region_bake_navmesh);
+    BIND_METHOD(NavigationServer,region_get_connections_count);
+    BIND_METHOD(NavigationServer,region_get_connection_pathway_start);
+    BIND_METHOD(NavigationServer,region_get_connection_pathway_end);
+
+    BIND_METHOD(NavigationServer,agent_create);
+    BIND_METHOD(NavigationServer,agent_set_map);
+    BIND_METHOD(NavigationServer,agent_get_map);
+    BIND_METHOD(NavigationServer,agent_set_neighbor_dist);
+    BIND_METHOD(NavigationServer,agent_set_max_neighbors);
+    BIND_METHOD(NavigationServer,agent_set_time_horizon);
+    BIND_METHOD(NavigationServer,agent_set_radius);
+    BIND_METHOD(NavigationServer,agent_set_max_speed);
+    BIND_METHOD(NavigationServer,agent_set_velocity);
+    BIND_METHOD(NavigationServer,agent_set_target_velocity);
+    BIND_METHOD(NavigationServer,agent_set_position);
+    BIND_METHOD(NavigationServer,agent_is_map_changed);
+    BIND_METHOD(NavigationServer,agent_set_callback);
+
+    BIND_METHOD(NavigationServer,free_rid);
+
+    BIND_METHOD(NavigationServer,set_active);
+    BIND_METHOD(NavigationServer,process);
+
+    ADD_SIGNAL(MethodInfo("map_changed", PropertyInfo(VariantType::_RID, "map")));
 }
 
 const NavigationServer *NavigationServer::get_singleton() {
@@ -88,7 +117,7 @@ NavigationServer *NavigationServer::get_singleton_mut() {
 }
 
 NavigationServer::NavigationServer() {
-    ERR_FAIL_COND(singleton != NULL);
+    ERR_FAIL_COND(singleton != nullptr);
     singleton = this;
 }
 
@@ -103,6 +132,6 @@ void NavigationServerManager::set_default_server(NavigationServerCallback p_call
 }
 
 NavigationServer *NavigationServerManager::new_default_server() {
-    ERR_FAIL_COND_V(create_callback == NULL, NULL);
+    ERR_FAIL_COND_V(create_callback == nullptr, nullptr);
     return create_callback();
 }

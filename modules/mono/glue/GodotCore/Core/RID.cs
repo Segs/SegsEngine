@@ -3,6 +3,34 @@ using System.Runtime.CompilerServices;
 
 namespace Godot
 {
+    public struct RenderingEntity
+    {
+        private ulong peer;
+        public static implicit operator RenderingEntity(ulong i)
+        {
+            return new RenderingEntity { peer=i };
+        }
+
+        public static implicit operator ulong(RenderingEntity p)
+        {
+            return p.peer;
+        }
+        public const ulong Null = uint.MaxValue;
+    }
+    public struct GameEntity
+    {
+        private ulong peer;
+        public static implicit operator GameEntity(ulong i)
+        {
+            return new GameEntity { peer=i };
+        }
+
+        public static implicit operator ulong(GameEntity p)
+        {
+            return p.peer;
+        }
+        public const ulong Null = uint.MaxValue;
+    }
     public sealed partial class RID : IDisposable
     {
         private bool disposed = false;

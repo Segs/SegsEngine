@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  button.h                                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -33,26 +33,21 @@
 #include "scene/gui/base_button.h"
 #include "core/string.h"
 
+struct ButtonDrawableComponent {
+    String text;
+    String xl_text;
+    Ref<Texture> icon;
+    float _internal_margin[4];
+    bool flat;
+    bool expand_icon;
+    bool clip_text;
+    UiTextAlign align;
+    UiTextAlign icon_align;
+};
+
 class GODOT_EXPORT Button : public BaseButton {
 
     GDCLASS(Button,BaseButton)
-
-public:
-    enum TextAlign {
-        ALIGN_LEFT,
-        ALIGN_CENTER,
-        ALIGN_RIGHT
-    };
-
-private:
-    bool flat;
-    StringName text;
-    StringName xl_text;
-    Ref<Texture> icon;
-    bool expand_icon;
-    bool clip_text;
-    TextAlign align;
-    float _internal_margin[4];
 
 protected:
     void _set_internal_margin(Margin p_margin, float p_value);
@@ -64,9 +59,8 @@ public:
 
     Size2 get_minimum_size() const override;
 
-    void set_text(const StringName &p_text);
-    StringName get_text() const;
-    void set_text_utf8(StringView p_text);
+    const String &get_text() const;
+    void set_text(StringView p_text);
 
     void set_button_icon(const Ref<Texture> &p_icon);
     Ref<Texture> get_button_icon() const;
@@ -80,8 +74,11 @@ public:
     void set_clip_text(bool p_clip_text);
     bool get_clip_text() const;
 
-    void set_text_align(TextAlign p_align);
-    TextAlign get_text_align() const;
+    void set_text_align(UiTextAlign p_align);
+    UiTextAlign get_text_align() const;
+
+    void set_icon_align(UiTextAlign p_align);
+    UiTextAlign get_icon_align() const;
 
     Button(const StringName &p_text = StringName());
     ~Button() override;

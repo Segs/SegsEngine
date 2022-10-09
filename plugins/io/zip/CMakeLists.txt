@@ -7,6 +7,6 @@ set_plugin_options(
     CLASSPROP ZipArchive
     TYPE io
     WHEN_SHARED_LIBS zlib_interface
-    LIBS zlib
+    LIBS zlib_interface
     SOURCES ${source_files} ${header_files} ${thirdparty_sources}
     )

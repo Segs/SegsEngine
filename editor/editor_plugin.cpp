@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_plugin.cpp                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,16 +28,19 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "editor_export.h"
 #include "editor_plugin.h"
+#include "editor_export.h"
+
 
 #include <utility>
 
 #include "core/method_bind.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
+#include "editor/import/resource_importer_scene.h"
+#include "editor/plugins/script_editor_plugin.h"
 #include "editor_resource_preview.h"
-#include "main/main.h"
+#include "main/main_class.h"
 #include "project_settings_editor.h"
 #include "plugins/canvas_item_editor_plugin.h"
 #include "plugins/node_3d_editor_plugin.h"
@@ -74,26 +77,26 @@ Vector<Ref<Texture>> EditorInterface::make_mesh_previews(const Vector<Ref<Mesh>>
 
     int size = p_preview_size;
 
-    RID scenario = RenderingServer::get_singleton()->scenario_create();
+    RenderingEntity scenario = RenderingServer::get_singleton()->scenario_create();
 
-    RID viewport = RenderingServer::get_singleton()->viewport_create();
+    RenderingEntity viewport = RenderingServer::get_singleton()->viewport_create();
     RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_ALWAYS);
     RenderingServer::get_singleton()->viewport_set_vflip(viewport, true);
     RenderingServer::get_singleton()->viewport_set_scenario(viewport, scenario);
     RenderingServer::get_singleton()->viewport_set_size(viewport, size, size);
     RenderingServer::get_singleton()->viewport_set_transparent_background(viewport, true);
     RenderingServer::get_singleton()->viewport_set_active(viewport, true);
-    RID viewport_texture = RenderingServer::get_singleton()->viewport_get_texture(viewport);
+    RenderingEntity viewport_texture = RenderingServer::get_singleton()->viewport_get_texture(viewport);
 
-    RID camera = RenderingServer::get_singleton()->camera_create();
+    RenderingEntity camera = RenderingServer::get_singleton()->camera_create();
     RenderingServer::get_singleton()->viewport_attach_camera(viewport, camera);
 
-    RID light = RenderingServer::get_singleton()->directional_light_create();
-    RID light_instance = RenderingServer::get_singleton()->instance_create2(light, scenario);
+    RenderingEntity light = RenderingServer::get_singleton()->directional_light_create();
+    RenderingEntity light_instance = RenderingServer::get_singleton()->instance_create2(light, scenario);
 
-    RID light2 = RenderingServer::get_singleton()->directional_light_create();
+    RenderingEntity light2 = RenderingServer::get_singleton()->directional_light_create();
     RenderingServer::get_singleton()->light_set_color(light2, Color(0.7, 0.7, 0.7));
-    RID light_instance2 = RenderingServer::get_singleton()->instance_create2(light2, scenario);
+    RenderingEntity light_instance2 = RenderingServer::get_singleton()->instance_create2(light2, scenario);
 
     EditorProgress ep(("mlib"), TTR("Creating Mesh Previews"), p_meshes.size());
 
@@ -112,7 +115,7 @@ Vector<Ref<Texture>> EditorInterface::make_mesh_previews(const Vector<Ref<Mesh>>
             mesh_xform = (*p_transforms)[i];
         }
 
-        RID inst = RenderingServer::get_singleton()->instance_create2(mesh->get_rid(), scenario);
+        RenderingEntity inst = RenderingServer::get_singleton()->instance_create2(mesh->get_rid(), scenario);
         RenderingServer::get_singleton()->instance_set_transform(inst, mesh_xform);
 
         AABB aabb = mesh->get_aabb();
@@ -176,6 +179,13 @@ void EditorInterface::edit_resource(const Ref<Resource> &p_resource) {
     EditorNode::get_singleton()->edit_resource(p_resource);
 }
 
+void EditorInterface::edit_node(Node *p_node) {
+    EditorNode::get_singleton()->edit_node(p_node);
+}
+
+void EditorInterface::edit_script(const Ref<Script> &p_script, int p_line, int p_col, bool p_grab_focus) {
+    ScriptEditor::get_singleton()->edit(p_script, p_line, p_col, p_grab_focus);
+}
 void EditorInterface::open_scene_from_path(StringView scene_path) {
 
     if (EditorNode::get_singleton()->is_changing_scene()) {
@@ -282,7 +292,11 @@ Control *EditorInterface::get_base_control() {
     return EditorNode::get_singleton()->get_gui_base();
 }
 
-void EditorInterface::set_plugin_enabled(const StringName &p_plugin, bool p_enabled) {
+float EditorInterface::get_editor_scale() const {
+    return EDSCALE;
+}
+
+void EditorInterface::set_plugin_enabled(StringView p_plugin, bool p_enabled) {
     EditorNode::get_singleton()->set_addon_plugin_enabled(p_plugin, p_enabled, true);
 }
 
@@ -317,41 +331,44 @@ EditorInterface *EditorInterface::singleton = nullptr;
 
 void EditorInterface::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("inspect_object", {"object", "for_property", "inspector_only"}), &EditorInterface::inspect_object, {DEFVAL(StringView()),DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("get_selection"), &EditorInterface::get_selection);
-    MethodBinder::bind_method(D_METHOD("get_editor_settings"), &EditorInterface::get_editor_settings);
-    MethodBinder::bind_method(D_METHOD("get_script_editor"), &EditorInterface::get_script_editor);
-    MethodBinder::bind_method(D_METHOD("get_base_control"), &EditorInterface::get_base_control);
-    MethodBinder::bind_method(D_METHOD("edit_resource", {"resource"}), &EditorInterface::edit_resource);
-    MethodBinder::bind_method(D_METHOD("open_scene_from_path", {"scene_filepath"}), &EditorInterface::open_scene_from_path);
-    MethodBinder::bind_method(D_METHOD("reload_scene_from_path", {"scene_filepath"}), &EditorInterface::reload_scene_from_path);
-    MethodBinder::bind_method(D_METHOD("play_main_scene"), &EditorInterface::play_main_scene);
-    MethodBinder::bind_method(D_METHOD("play_current_scene"), &EditorInterface::play_current_scene);
-    MethodBinder::bind_method(D_METHOD("play_custom_scene", {"scene_filepath"}), &EditorInterface::play_custom_scene);
-    MethodBinder::bind_method(D_METHOD("stop_playing_scene"), &EditorInterface::stop_playing_scene);
-    MethodBinder::bind_method(D_METHOD("is_playing_scene"), &EditorInterface::is_playing_scene);
-    MethodBinder::bind_method(D_METHOD("get_playing_scene"), &EditorInterface::get_playing_scene);
-    MethodBinder::bind_method(D_METHOD("get_open_scenes"), &EditorInterface::get_open_scenes);
-    MethodBinder::bind_method(D_METHOD("get_edited_scene_root"), &EditorInterface::get_edited_scene_root);
-    MethodBinder::bind_method(D_METHOD("get_resource_previewer"), &EditorInterface::get_resource_previewer);
-    MethodBinder::bind_method(D_METHOD("get_resource_file_system"), &EditorInterface::get_resource_file_system);
-    MethodBinder::bind_method(D_METHOD("get_editor_viewport"), &EditorInterface::get_editor_viewport);
+    MethodBinder::bind_method(D_METHOD("inspect_object", {"object", "for_property", "inspector_only"}), &EditorInterface::inspect_object, {DEFVAL(StringView("")),DEFVAL(false)});
+    BIND_METHOD(EditorInterface,get_selection);
+    BIND_METHOD(EditorInterface,get_editor_settings);
+    BIND_METHOD(EditorInterface,get_script_editor);
+    BIND_METHOD(EditorInterface,get_base_control);
+    BIND_METHOD(EditorInterface,get_editor_scale);
+    BIND_METHOD(EditorInterface,edit_resource);
+    BIND_METHOD(EditorInterface,edit_node);
+    MethodBinder::bind_method(D_METHOD("edit_script", {"script", "line", "column", "grab_focus"}), &EditorInterface::edit_script, {DEFVAL(-1), DEFVAL(0), DEFVAL(true)});
+    BIND_METHOD(EditorInterface,open_scene_from_path);
+    BIND_METHOD(EditorInterface,reload_scene_from_path);
+    BIND_METHOD(EditorInterface,play_main_scene);
+    BIND_METHOD(EditorInterface,play_current_scene);
+    BIND_METHOD(EditorInterface,play_custom_scene);
+    BIND_METHOD(EditorInterface,stop_playing_scene);
+    BIND_METHOD(EditorInterface,is_playing_scene);
+    BIND_METHOD(EditorInterface,get_playing_scene);
+    BIND_METHOD(EditorInterface,get_open_scenes);
+    BIND_METHOD(EditorInterface,get_edited_scene_root);
+    BIND_METHOD(EditorInterface,get_resource_previewer);
+    BIND_METHOD(EditorInterface,get_resource_file_system);
+    BIND_METHOD(EditorInterface,get_editor_viewport);
     MethodBinder::bind_method(D_METHOD("make_mesh_previews", {"meshes", "preview_size"}), &EditorInterface::_make_mesh_previews);
-    MethodBinder::bind_method(D_METHOD("select_file", {"file"}), &EditorInterface::select_file);
-    MethodBinder::bind_method(D_METHOD("get_selected_path"), &EditorInterface::get_selected_path);
-    MethodBinder::bind_method(D_METHOD("get_current_path"), &EditorInterface::get_current_path);
-    MethodBinder::bind_method(D_METHOD("get_file_system_dock"), &EditorInterface::get_file_system_dock);
+    BIND_METHOD(EditorInterface,select_file);
+    BIND_METHOD(EditorInterface,get_selected_path);
+    BIND_METHOD(EditorInterface,get_current_path);
+    BIND_METHOD(EditorInterface,get_file_system_dock);
 
-    MethodBinder::bind_method(D_METHOD("set_plugin_enabled", {"plugin", "enabled"}), &EditorInterface::set_plugin_enabled);
-    MethodBinder::bind_method(D_METHOD("is_plugin_enabled", {"plugin"}), &EditorInterface::is_plugin_enabled);
+    BIND_METHOD(EditorInterface,set_plugin_enabled);
+    BIND_METHOD(EditorInterface,is_plugin_enabled);
 
-    MethodBinder::bind_method(D_METHOD("get_inspector"), &EditorInterface::get_inspector);
+    BIND_METHOD(EditorInterface,get_inspector);
 
-    MethodBinder::bind_method(D_METHOD("save_scene"), &EditorInterface::save_scene);
+    BIND_METHOD(EditorInterface,save_scene);
     MethodBinder::bind_method(D_METHOD("save_scene_as", {"path", "with_preview"}), &EditorInterface::save_scene_as, {DEFVAL(true)});
 
-    MethodBinder::bind_method(D_METHOD("set_main_screen_editor", {"name"}), &EditorInterface::set_main_screen_editor);
-    MethodBinder::bind_method(D_METHOD("set_distraction_free_mode", {"enter"}), &EditorInterface::set_distraction_free_mode);
+    BIND_METHOD(EditorInterface,set_main_screen_editor);
+    BIND_METHOD(EditorInterface,set_distraction_free_mode);
 }
 
 EditorInterface::EditorInterface() {
@@ -417,14 +434,12 @@ void EditorPlugin::add_control_to_container(CustomControlContainer p_location, C
         } break;
         case CONTAINER_SPATIAL_EDITOR_SIDE_LEFT: {
 
-            Node3DEditor::get_singleton()->get_palette_split()->add_child(p_control);
-            Node3DEditor::get_singleton()->get_palette_split()->move_child(p_control, 0);
+            Node3DEditor::get_singleton()->add_control_to_left_panel(p_control);
 
         } break;
         case CONTAINER_SPATIAL_EDITOR_SIDE_RIGHT: {
 
-            Node3DEditor::get_singleton()->get_palette_split()->add_child(p_control);
-            Node3DEditor::get_singleton()->get_palette_split()->move_child(p_control, 1);
+            Node3DEditor::get_singleton()->add_control_to_right_panel(p_control);
 
         } break;
         case CONTAINER_SPATIAL_EDITOR_BOTTOM: {
@@ -439,14 +454,12 @@ void EditorPlugin::add_control_to_container(CustomControlContainer p_location, C
         } break;
         case CONTAINER_CANVAS_EDITOR_SIDE_LEFT: {
 
-            CanvasItemEditor::get_singleton()->get_palette_split()->add_child(p_control);
-            CanvasItemEditor::get_singleton()->get_palette_split()->move_child(p_control, 0);
+            CanvasItemEditor::get_singleton()->add_control_to_left_panel(p_control);
 
         } break;
         case CONTAINER_CANVAS_EDITOR_SIDE_RIGHT: {
 
-            CanvasItemEditor::get_singleton()->get_palette_split()->add_child(p_control);
-            CanvasItemEditor::get_singleton()->get_palette_split()->move_child(p_control, 1);
+            CanvasItemEditor::get_singleton()->add_control_to_right_panel(p_control);
 
         } break;
         case CONTAINER_CANVAS_EDITOR_BOTTOM: {
@@ -489,10 +502,12 @@ void EditorPlugin::remove_control_from_container(CustomControlContainer p_locati
             Node3DEditor::get_singleton()->remove_control_from_menu_panel(p_control);
 
         } break;
-        case CONTAINER_SPATIAL_EDITOR_SIDE_LEFT:
+        case CONTAINER_SPATIAL_EDITOR_SIDE_LEFT: {
+            Node3DEditor::get_singleton()->remove_control_from_left_panel(p_control);
+        } break;
         case CONTAINER_SPATIAL_EDITOR_SIDE_RIGHT: {
 
-            Node3DEditor::get_singleton()->get_palette_split()->remove_child(p_control);
+            Node3DEditor::get_singleton()->remove_control_from_right_panel(p_control);
 
         } break;
         case CONTAINER_SPATIAL_EDITOR_BOTTOM: {
@@ -505,10 +520,12 @@ void EditorPlugin::remove_control_from_container(CustomControlContainer p_locati
             CanvasItemEditor::get_singleton()->remove_control_from_menu_panel(p_control);
 
         } break;
-        case CONTAINER_CANVAS_EDITOR_SIDE_LEFT:
+        case CONTAINER_CANVAS_EDITOR_SIDE_LEFT: {
+            CanvasItemEditor::get_singleton()->remove_control_from_left_panel(p_control);
+        } break;
         case CONTAINER_CANVAS_EDITOR_SIDE_RIGHT: {
 
-            CanvasItemEditor::get_singleton()->get_palette_split()->remove_child(p_control);
+            CanvasItemEditor::get_singleton()->remove_control_from_right_panel(p_control);
 
         } break;
         case CONTAINER_CANVAS_EDITOR_BOTTOM: {
@@ -750,36 +767,44 @@ void EditorPlugin::restore_global_state() {}
 void EditorPlugin::save_global_state() {}
 
 void EditorPlugin::add_import_plugin(const Ref<EditorImportPlugin> &p_importer) {
+    ERR_FAIL_COND(!p_importer);
     ResourceFormatImporter::get_singleton()->add_importer(p_importer);
     EditorFileSystem::get_singleton()->call_deferred([] {EditorFileSystem::get_singleton()->scan(); });
 }
 
 void EditorPlugin::remove_import_plugin(const Ref<EditorImportPlugin> &p_importer) {
+    ERR_FAIL_COND(!p_importer);
     ResourceFormatImporter::get_singleton()->remove_importer(p_importer);
     EditorFileSystem::get_singleton()->call_deferred([] {EditorFileSystem::get_singleton()->scan(); });
 }
 
 void EditorPlugin::add_export_plugin(const Ref<EditorExportPlugin> &p_exporter) {
+    ERR_FAIL_COND(!p_exporter);
     EditorExport::get_singleton()->add_export_plugin(p_exporter);
 }
 
 void EditorPlugin::remove_export_plugin(const Ref<EditorExportPlugin> &p_exporter) {
+    ERR_FAIL_COND(!p_exporter);
     EditorExport::get_singleton()->remove_export_plugin(p_exporter);
 }
 
 void EditorPlugin::add_spatial_gizmo_plugin(const Ref<EditorSpatialGizmoPlugin> &p_gizmo_plugin) {
+    ERR_FAIL_COND(!p_gizmo_plugin);
     Node3DEditor::get_singleton()->add_gizmo_plugin(p_gizmo_plugin);
 }
 
 void EditorPlugin::remove_spatial_gizmo_plugin(const Ref<EditorSpatialGizmoPlugin> &p_gizmo_plugin) {
+    ERR_FAIL_COND(!p_gizmo_plugin);
     Node3DEditor::get_singleton()->remove_gizmo_plugin(p_gizmo_plugin);
 }
 
 void EditorPlugin::add_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plugin) {
+    ERR_FAIL_COND(!p_plugin);
     EditorInspector::add_inspector_plugin(p_plugin);
 }
 
 void EditorPlugin::remove_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plugin) {
+    ERR_FAIL_COND(!p_plugin);
     EditorInspector::remove_inspector_plugin(p_plugin);
 }
 struct ImportWrapper : public EditorSceneImporterInterface {
@@ -794,8 +819,8 @@ public:
     void get_extensions(Vector<String> &p_extensions) const override {
         wrapped->get_extensions(p_extensions);
     }
-    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) override {
-        return wrapped->import_scene(p_path,p_flags,p_bake_fps,r_missing_deps,r_err);
+    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, uint32_t p_compress_flags, Vector<String> *r_missing_deps, Error *r_err) override {
+        return wrapped->import_scene(p_path,p_flags,p_bake_fps,p_compress_flags,r_missing_deps,r_err);
     }
     Ref<Animation> import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) override {
         return wrapped->import_animation(p_path,p_flags,p_bake_fps);
@@ -880,44 +905,45 @@ ScriptCreateDialog *EditorPlugin::get_script_create_dialog() {
 
 void EditorPlugin::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("add_control_to_container", {"container", "control"}), &EditorPlugin::add_control_to_container);
-    MethodBinder::bind_method(D_METHOD("add_control_to_bottom_panel", {"control", "title"}), &EditorPlugin::add_control_to_bottom_panel);
-    MethodBinder::bind_method(D_METHOD("add_control_to_dock", {"slot", "control"}), &EditorPlugin::add_control_to_dock);
-    MethodBinder::bind_method(D_METHOD("remove_control_from_docks", {"control"}), &EditorPlugin::remove_control_from_docks);
-    MethodBinder::bind_method(D_METHOD("remove_control_from_bottom_panel", {"control"}), &EditorPlugin::remove_control_from_bottom_panel);
-    MethodBinder::bind_method(D_METHOD("remove_control_from_container", {"container", "control"}), &EditorPlugin::remove_control_from_container);
+    BIND_METHOD(EditorPlugin,add_control_to_container);
+    BIND_METHOD(EditorPlugin,add_control_to_bottom_panel);
+    BIND_METHOD(EditorPlugin,add_control_to_dock);
+    BIND_METHOD(EditorPlugin,remove_control_from_docks);
+    BIND_METHOD(EditorPlugin,remove_control_from_bottom_panel);
+    BIND_METHOD(EditorPlugin,remove_control_from_container);
     MethodBinder::bind_method(D_METHOD("add_tool_menu_item", {"name", "handler", "callback", "ud"}), &EditorPlugin::add_tool_menu_item, {DEFVAL(Variant())});
-    MethodBinder::bind_method(D_METHOD("add_tool_submenu_item", {"name", "submenu"}), &EditorPlugin::add_tool_submenu_item);
-    MethodBinder::bind_method(D_METHOD("remove_tool_menu_item", {"name"}), &EditorPlugin::remove_tool_menu_item);
-    MethodBinder::bind_method(D_METHOD("add_custom_type", {"type", "base", "script", "icon"}), &EditorPlugin::add_custom_type);
-    MethodBinder::bind_method(D_METHOD("remove_custom_type", {"type"}), &EditorPlugin::remove_custom_type);
+    BIND_METHOD(EditorPlugin,add_tool_submenu_item);
+    BIND_METHOD(EditorPlugin,remove_tool_menu_item);
+    BIND_METHOD(EditorPlugin,add_custom_type);
+    BIND_METHOD(EditorPlugin,remove_custom_type);
 
-    MethodBinder::bind_method(D_METHOD("add_autoload_singleton", {"name", "path"}), &EditorPlugin::add_autoload_singleton);
-    MethodBinder::bind_method(D_METHOD("remove_autoload_singleton", {"name"}), &EditorPlugin::remove_autoload_singleton);
+    BIND_METHOD(EditorPlugin,add_autoload_singleton);
+    BIND_METHOD(EditorPlugin,remove_autoload_singleton);
 
-    MethodBinder::bind_method(D_METHOD("update_overlays"), &EditorPlugin::update_overlays);
+    BIND_METHOD(EditorPlugin,update_overlays);
 
-    MethodBinder::bind_method(D_METHOD("make_bottom_panel_item_visible", {"item"}), &EditorPlugin::make_bottom_panel_item_visible);
-    MethodBinder::bind_method(D_METHOD("hide_bottom_panel"), &EditorPlugin::hide_bottom_panel);
+    BIND_METHOD(EditorPlugin,make_bottom_panel_item_visible);
+    BIND_METHOD(EditorPlugin,hide_bottom_panel);
 
-    MethodBinder::bind_method(D_METHOD("get_undo_redo"), &EditorPlugin::get_undo_redo);
-    MethodBinder::bind_method(D_METHOD("queue_save_layout"), &EditorPlugin::queue_save_layout);
-    MethodBinder::bind_method(D_METHOD("add_import_plugin", {"importer"}), &EditorPlugin::add_import_plugin);
-    MethodBinder::bind_method(D_METHOD("remove_import_plugin", {"importer"}), &EditorPlugin::remove_import_plugin);
-    MethodBinder::bind_method(D_METHOD("add_scene_import_plugin", {"scene_importer"}), &EditorPlugin::add_scene_import_plugin);
-    MethodBinder::bind_method(D_METHOD("remove_scene_import_plugin", {"scene_importer"}), &EditorPlugin::remove_scene_import_plugin);
-    MethodBinder::bind_method(D_METHOD("add_export_plugin", {"plugin"}), &EditorPlugin::add_export_plugin);
-    MethodBinder::bind_method(D_METHOD("remove_export_plugin", {"plugin"}), &EditorPlugin::remove_export_plugin);
-    MethodBinder::bind_method(D_METHOD("add_spatial_gizmo_plugin", {"plugin"}), &EditorPlugin::add_spatial_gizmo_plugin);
-    MethodBinder::bind_method(D_METHOD("remove_spatial_gizmo_plugin", {"plugin"}), &EditorPlugin::remove_spatial_gizmo_plugin);
-    MethodBinder::bind_method(D_METHOD("add_inspector_plugin", {"plugin"}), &EditorPlugin::add_inspector_plugin);
-    MethodBinder::bind_method(D_METHOD("remove_inspector_plugin", {"plugin"}), &EditorPlugin::remove_inspector_plugin);
-    MethodBinder::bind_method(D_METHOD("set_input_event_forwarding_always_enabled"), &EditorPlugin::set_input_event_forwarding_always_enabled);
-    MethodBinder::bind_method(D_METHOD("set_force_draw_over_forwarding_enabled"), &EditorPlugin::set_force_draw_over_forwarding_enabled);
+    BIND_METHOD(EditorPlugin,get_undo_redo);
+    BIND_METHOD(EditorPlugin,queue_save_layout);
+    BIND_METHOD(EditorPlugin,add_import_plugin);
+    BIND_METHOD(EditorPlugin,remove_import_plugin);
+    BIND_METHOD(EditorPlugin,add_scene_import_plugin);
+    BIND_METHOD(EditorPlugin,remove_scene_import_plugin);
+    BIND_METHOD(EditorPlugin,add_export_plugin);
+    BIND_METHOD(EditorPlugin,remove_export_plugin);
+    BIND_METHOD(EditorPlugin,add_spatial_gizmo_plugin);
+    BIND_METHOD(EditorPlugin,remove_spatial_gizmo_plugin);
+    BIND_METHOD(EditorPlugin,add_inspector_plugin);
+    BIND_METHOD(EditorPlugin,remove_inspector_plugin);
+    BIND_METHOD(EditorPlugin,set_input_event_forwarding_always_enabled);
+    BIND_METHOD(EditorPlugin,set_force_draw_over_forwarding_enabled);
 
-    MethodBinder::bind_method(D_METHOD("get_editor_interface"), &EditorPlugin::get_editor_interface);
-    MethodBinder::bind_method(D_METHOD("get_script_create_dialog"), &EditorPlugin::get_script_create_dialog);
+    BIND_METHOD(EditorPlugin,get_editor_interface);
+    BIND_METHOD(EditorPlugin,get_script_create_dialog);
 
+    //TODO: make virtual method names match actual virtual method names ex. get_plugin_icon -> get_icon
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "forward_canvas_gui_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("forward_canvas_draw_over_viewport", PropertyInfo(VariantType::OBJECT, "overlay", PropertyHint::ResourceType, "Control")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("forward_canvas_force_draw_over_viewport", PropertyInfo(VariantType::OBJECT, "overlay", PropertyHint::ResourceType, "Control")));
@@ -925,7 +951,9 @@ void EditorPlugin::_bind_methods() {
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("forward_spatial_draw_over_viewport", PropertyInfo(VariantType::OBJECT, "overlay", PropertyHint::ResourceType, "Control")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("forward_spatial_force_draw_over_viewport", PropertyInfo(VariantType::OBJECT, "overlay", PropertyHint::ResourceType, "Control")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::STRING, "get_plugin_name"));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(PropertyInfo(VariantType::OBJECT, "icon", PropertyHint::ResourceType, "Texture"), "get_plugin_icon"));
+    ClassDB::add_virtual_method(get_class_static_name(),
+            MethodInfo(
+                    PropertyInfo(VariantType::OBJECT, "icon", PropertyHint::ResourceType, "Texture"), "get_plugin_icon"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "has_main_screen"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("make_visible", PropertyInfo(VariantType::BOOL, "visible")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("edit", PropertyInfo(VariantType::OBJECT, "object")));

@@ -32,8 +32,7 @@
     @author AndreaCatania
 */
 
-#ifndef NAVIGATION_2D_SERVER_H
-#define NAVIGATION_2D_SERVER_H
+#pragma once
 
 #include "core/object.h"
 #include "core/rid.h"
@@ -49,7 +48,7 @@ protected:
     static void _bind_methods();
 
 public:
-    /// Thread safe, can be used accross many threads.
+	/// Thread safe, can be used across many threads.
     static const Navigation2DServer *get_singleton() { return singleton; }
 
     /// MUST be used in single thread!
@@ -70,6 +69,9 @@ public:
     /// Returns the map cell size.
     virtual real_t map_get_cell_size(RID p_map) const;
 
+    /// Set the map cell height used to weld the navigation mesh polygons.
+    virtual void map_set_cell_height(RID p_map, real_t p_cell_height) const;
+    virtual real_t map_get_cell_height(RID p_map) const;
     /// Set the map edge connection margin used to weld the compatible region edges.
     virtual void map_set_edge_connection_margin(RID p_map, real_t p_connection_margin) const;
 
@@ -78,6 +80,8 @@ public:
 
     /// Returns the navigation path to reach the destination from the origin.
     virtual Vector<Vector2> map_get_path(RID p_map, Vector2 p_origin, Vector2 p_destination, bool p_optimize) const;
+	virtual Vector2 map_get_closest_point(RID p_map, const Vector2 &p_point) const;
+	virtual RID map_get_closest_point_owner(RID p_map, const Vector2 &p_point) const;
 
     /// Creates a new region.
     virtual RID region_create() const;
@@ -151,10 +155,9 @@ public:
     virtual void agent_set_callback(RID p_agent, Callable && cb) const;
 
     /// Destroy the `RID`
-    virtual void free(RID p_object) const;
+    virtual void free_rid(RID p_object) const;
 
     Navigation2DServer();
-    virtual ~Navigation2DServer();
+    ~Navigation2DServer() override;
 };
 
-#endif

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  grid_map_editor_plugin.h                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,9 +30,10 @@
 
 #pragma once
 
+#include "grid_map.h"
 #include "editor/editor_plugin.h"
 #include "editor/pane_drag.h"
-#include "grid_map.h"
+#include "scene/gui/box_container.h"
 
 class Node3DEditorPlugin;
 class SpinBox;
@@ -109,21 +110,21 @@ class GridMapEditor : public VBoxContainer {
     int edit_floor[3];
     Vector3 grid_ofs;
 
-    RID grid[3];
-    RID grid_instance[3];
-    RID cursor_instance;
-    RID selection_mesh;
-    RID selection_instance;
-    RID selection_level_mesh[3];
-    RID selection_level_instance[3];
-    RID paste_mesh;
-    RID paste_instance;
+    RenderingEntity grid[3] = {entt::null,entt::null,entt::null};
+    RenderingEntity grid_instance[3]= {entt::null,entt::null,entt::null};
+    RenderingEntity cursor_instance=entt::null;
+    RenderingEntity selection_mesh=entt::null;
+    RenderingEntity selection_instance=entt::null;
+    RenderingEntity selection_level_mesh[3]= {entt::null,entt::null,entt::null};
+    RenderingEntity selection_level_instance[3]= {entt::null,entt::null,entt::null};
+    RenderingEntity paste_mesh=entt::null;
+    RenderingEntity paste_instance=entt::null;
 
     struct ClipboardItem {
         int cell_item;
         Vector3 grid_offset;
         int orientation;
-        RID instance;
+        RenderingEntity instance=entt::null;
     };
 
     Vector<ClipboardItem> clipboard_items;

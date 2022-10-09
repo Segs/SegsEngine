@@ -1,0 +1,36 @@
+{
+"api_hash":"",
+"api_version":"",
+"dependencies":[],
+"module_name":"",
+"namespaces": [
+ {
+  "contents":{
+    "namespaces" : [{
+        "contents":{
+        "enums": [
+          {
+          "constants":[
+          { "name":"KEY_ESCAPE", "value" : "SPKEY | 0x01" },
+          { "name":"KEY_TAB", "value" : "SPKEY | 0x02" },
+          { "name":"KEY_BACKTAB", "value" : "SPKEY | 0x03" },
+          { "name":"KEY_BACKSPACE", "value" : "SPKEY | 0x04" },
+          { "name":"KEY_ENTER", "value" : "SPKEY | 0x05" },
+          { "name":"KEY_KP_ENTER", "value" : "SPKEY | 0x06" }
+        ],
+          "name":"KeyList"
+          }, {
+          "constants":[
+            {"name":"KEY_CODE_MASK","value":"((1<<25)-1)"}
+          ],
+          "underlying_type":"uint32_t",
+          "name":"KeyModifierMask"
+          }
+        ]
+
+        },"name":"Inner"
+    }]
+  },"name":"TopLevel"}
+],
+"version":""
+}

@@ -64,6 +64,7 @@ public:
 
     int get_drive_count() override;
     String get_drive(int p_drive) override;
+    int get_current_drive() override;
     bool drives_are_shortcuts() override;
 
     Error change_dir(StringView p_dir) override; ///< can be relative or absolute, return false on success
@@ -78,7 +79,11 @@ public:
     Error rename(StringView p_path, StringView p_new_path) override;
     Error remove(StringView p_path) override;
 
-    size_t get_space_left() override;
+    bool is_link(StringView p_file) override;
+    String read_link(StringView p_file) override;
+    Error create_link(StringView p_source, StringView p_target) override;
+
+    uint64_t get_space_left() override;
 
     String get_filesystem_type() const override;
 

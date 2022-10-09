@@ -114,7 +114,7 @@ int TriangleMesh::_create_bvh(BVH *p_bvh, BVH **p_bb, int p_from, int p_size, in
     return index;
 }
 
-void TriangleMesh::get_indices(PoolVector<int> *r_triangles_indices) const {
+void TriangleMesh::get_indices(Vector<uint32_t> &r_triangles_indices) const {
 
     if (!valid)
         return;
@@ -123,17 +123,16 @@ void TriangleMesh::get_indices(PoolVector<int> *r_triangles_indices) const {
 
     // Parse vertices indices
 
-    r_triangles_indices->resize(triangles_num * 3);
-    PoolVector<int>::Write r_indices_write = r_triangles_indices->write();
+    r_triangles_indices.resize(triangles_num * 3);
 
     for (int i = 0; i < triangles_num; ++i) {
-        r_indices_write[3 * i + 0] = triangles[i].indices[0];
-        r_indices_write[3 * i + 1] = triangles[i].indices[1];
-        r_indices_write[3 * i + 2] = triangles[i].indices[2];
+        r_triangles_indices[3 * i + 0] = triangles[i].indices[0];
+        r_triangles_indices[3 * i + 1] = triangles[i].indices[1];
+        r_triangles_indices[3 * i + 2] = triangles[i].indices[2];
     }
 }
 
-void TriangleMesh::create(const Vector<Vector3> &p_faces) {
+void TriangleMesh::create(Span<const Vector3> p_faces) {
 
     valid = false;
 
@@ -143,7 +142,7 @@ void TriangleMesh::create(const Vector<Vector3> &p_faces) {
     triangles.resize(fc);
 
     bvh.resize(fc * 3); //will never be larger than this (todo make better)
-    PoolVector<BVH>::Write bw = bvh.write();
+    Vector<BVH> &bw(bvh);
 
     {
 
@@ -191,19 +190,18 @@ void TriangleMesh::create(const Vector<Vector3> &p_faces) {
         }
     }
 
-    PoolVector<BVH *> bwptrs;
-    bwptrs.resize(fc);
-    PoolVector<BVH *>::Write bwp = bwptrs.write();
+
+    Vector<BVH *> bwptrs;
+    bwptrs.reserve(fc);
     for (int i = 0; i < fc; i++) {
 
-        bwp[i] = &bw[i];
+        bwptrs.emplace_back(&bw[i]);
     }
 
     max_depth = 0;
     int max_alloc = fc;
-    _create_bvh(bw.ptr(), bwp.ptr(), 0, fc, 1, max_depth, max_alloc);
+    _create_bvh(bw.data(), bwptrs.data(), 0, fc, 1, max_depth, max_alloc);
 
-    bw.release(); //clearup
     bvh.resize(max_alloc); //resize back
 
     valid = true;
@@ -229,11 +227,9 @@ Vector3 TriangleMesh::get_area_normal(const AABB &p_aabb) const {
 
     int level = 0;
 
-    PoolVector<BVH>::Read bvhr = bvh.read();
-
     const Triangle *triangleptr = triangles.data();
     int pos = bvh.size() - 1;
-    const BVH *bvhptr = bvhr.ptr();
+    const BVH *bvhptr = bvh.data();
 
     stack[0] = pos;
     while (true) {
@@ -323,12 +319,10 @@ bool TriangleMesh::intersect_segment(const Vector3 &p_begin, const Vector3 &p_en
 
     int level = 0;
 
-    PoolVector<BVH>::Read bvhr = bvh.read();
-
     const Triangle *triangleptr = triangles.data();
     const Vector3 *vertexptr = vertices.data();
     int pos = bvh.size() - 1;
-    const BVH *bvhptr = bvhr.ptr();
+    const BVH *bvhptr = bvh.data();
 
     stack[0] = pos;
     while (true) {
@@ -436,12 +430,10 @@ bool TriangleMesh::intersect_ray(const Vector3 &p_begin, const Vector3 &p_dir, V
 
     int level = 0;
 
-    PoolVector<BVH>::Read bvhr = bvh.read();
-
     const Triangle *triangleptr = triangles.data();
     const Vector3 *vertexptr = vertices.data();
     int pos = bvh.size() - 1;
-    const BVH *bvhptr = bvhr.ptr();
+    const BVH *bvhptr = bvh.data();
 
     stack[0] = pos;
     while (true) {
@@ -544,12 +536,10 @@ bool TriangleMesh::intersect_convex_shape(Span<const Plane> p_planes,Span<const 
 
     int level = 0;
 
-    PoolVector<BVH>::Read bvhr = bvh.read();
-
     const Triangle *triangleptr = triangles.data();
     const Vector3 *vertexptr = vertices.data();
     int pos = bvh.size() - 1;
-    const BVH *bvhptr = bvhr.ptr();
+    const BVH *bvhptr = bvh.data();
 
     stack[0] = pos;
     while (true) {
@@ -657,21 +647,19 @@ bool TriangleMesh::inside_convex_shape(Span<const Plane> p_planes,Span<const Vec
 
     int level = 0;
 
-    PoolVector<BVH>::Read bvhr = bvh.read();
-
     Transform scale(Basis().scaled(p_scale));
 
     const Triangle *triangleptr = triangles.data();
     const Vector3 *vertexptr = vertices.data();
     int pos = bvh.size() - 1;
-    const BVH *bvhptr = bvhr.ptr();
+    const BVH *bvhptr = bvh.data();
+    bool done = false;
 
     stack[0] = pos;
-    while (true) {
+    while (!done) {
 
         uint32_t node = stack[level] & NODE_IDX_MASK;
         const BVH &b = bvhptr[node];
-        bool done = false;
 
         switch (stack[level] >> VISITED_BIT_SHIFT) {
             case TEST_AABB_BIT: {
@@ -723,15 +711,12 @@ bool TriangleMesh::inside_convex_shape(Span<const Plane> p_planes,Span<const Vec
 
                 if (level == 0) {
                     done = true;
-                    break;
-                } else
+                } else {
                     level--;
-                continue;
             }
-        }
-
-        if (done)
             break;
+    }
+        }
     }
 
     return true;
@@ -745,10 +730,10 @@ bool TriangleMesh::is_valid() const {
 Vector<Face3> TriangleMesh::get_faces() const {
 
     if (!valid)
-        return Vector<Face3>();
+        return {};
 
     Vector<Face3> faces;
-    int ts = triangles.size();
+    const int ts = triangles.size();
     faces.resize(triangles.size());
 
     for (int i = 0; i < ts; i++) {
@@ -761,6 +746,4 @@ Vector<Face3> TriangleMesh::get_faces() const {
 
 TriangleMesh::TriangleMesh() {
 
-    valid = false;
-    max_depth = 0;
 }

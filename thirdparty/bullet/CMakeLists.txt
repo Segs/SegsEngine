@@ -141,16 +141,11 @@ set(bullet2_src
     BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.cpp
     BulletDynamics/Featherstone/btMultiBodyPoint2Point.cpp
     BulletDynamics/Featherstone/btMultiBodySliderConstraint.cpp
+    BulletDynamics/Featherstone/btMultiBodySphericalJointLimit.cpp
     BulletDynamics/Featherstone/btMultiBodySphericalJointMotor.cpp
     BulletDynamics/MLCPSolvers/btDantzigLCP.cpp
     BulletDynamics/MLCPSolvers/btMLCPSolver.cpp
     BulletDynamics/MLCPSolvers/btLemkeAlgorithm.cpp
-
-    # BulletInverseDynamics
-    BulletInverseDynamics/IDMath.cpp
-    BulletInverseDynamics/MultiBodyTree.cpp
-    BulletInverseDynamics/details/MultiBodyTreeInitCache.cpp
-    BulletInverseDynamics/details/MultiBodyTreeImpl.cpp
 
     # BulletSoftBody
     BulletSoftBody/btSoftBody.cpp
@@ -161,6 +156,7 @@ set(bullet2_src
     BulletSoftBody/btSoftRigidDynamicsWorld.cpp
     BulletSoftBody/btSoftMultiBodyDynamicsWorld.cpp
     BulletSoftBody/btSoftSoftCollisionAlgorithm.cpp
+    BulletSoftBody/poly34.cpp
     BulletSoftBody/btDefaultSoftBodySolver.cpp
     BulletSoftBody/btDeformableBackwardEulerObjective.cpp
     BulletSoftBody/btDeformableBodySolver.cpp
@@ -169,9 +165,6 @@ set(bullet2_src
     BulletSoftBody/btDeformableMultiBodyDynamicsWorld.cpp
     BulletSoftBody/btDeformableContactConstraint.cpp
 
-    # clew
-    clew/clew.c
-
     # LinearMath
     LinearMath/btAlignedAllocator.cpp
     LinearMath/btConvexHull.cpp
@@ -179,7 +172,8 @@ set(bullet2_src
     LinearMath/btGeometryUtil.cpp
     LinearMath/btPolarDecomposition.cpp
     LinearMath/btQuickprof.cpp
-    LinearMath/btSerializer.cpp
+    LinearMath/btQuickprof.cpp
+    LinearMath/btReducedVector.cpp
     LinearMath/btSerializer64.cpp
     LinearMath/btThreads.cpp
     LinearMath/btVector3.cpp
@@ -191,5 +185,5 @@ add_library(bullet STATIC ${bullet2_src})
 target_include_directories(bullet PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 
-target_compile_definitions(bullet PRIVATE BT_USE_OLD_DAMPING_METHOD)
+target_compile_definitions(bullet PRIVATE BT_USE_OLD_DAMPING_METHOD BT_THREADSAFE)
 

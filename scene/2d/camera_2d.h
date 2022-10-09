@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  camera_2d.h                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -53,13 +53,13 @@ protected:
     Point2 smoothed_camera_pos;
     bool first;
 
-    ObjectID custom_viewport_id; // to check validity
+    GameEntity custom_viewport_id; // to check validity
     Viewport *custom_viewport;
     Viewport *viewport;
 
     StringName group_name;
     StringName canvas_group_name;
-    RID canvas;
+    RenderingEntity canvas;
     Vector2 offset;
     Vector2 zoom;
     AnchorMode anchor_mode;
@@ -67,6 +67,7 @@ protected:
     bool current;
     float smoothing;
     bool smoothing_enabled;
+    bool smoothing_active; // smoothing can be enabled but not active in the editor
     int limit[4];
     bool limit_smoothing_enabled;
     float drag_margin[4];
@@ -87,12 +88,12 @@ protected:
     Camera2DProcessMode process_mode;
     void _update_process_mode();
     void _update_scroll();
+    void _setup_viewport();
 
 public:
     void _make_current(Object *p_which);
     void _set_current(bool p_current);
 
-    void _set_old_smoothing(float p_enable);
 
 
 protected:

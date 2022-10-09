@@ -55,8 +55,12 @@ void GridContainer::_notification(int p_what) {
             int valid_controls_index = 0;
             for (int i = 0; i < get_child_count(); i++) {
                 Control *c = object_cast<Control>(get_child(i));
-                if (!c || !c->is_visible_in_tree())
+                if (!c || !c->is_visible_in_tree()) {
                     continue;
+                }
+                if (c->is_set_as_top_level()) {
+                    continue;
+                }
 
                 int row = valid_controls_index / columns;
                 int col = valid_controls_index % columns;
@@ -188,8 +192,8 @@ void GridContainer::set_columns(int p_columns) {
 
 void GridContainer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_columns", {"columns"}), &GridContainer::set_columns);
-    MethodBinder::bind_method(D_METHOD("get_columns"), &GridContainer::get_columns);
+    BIND_METHOD(GridContainer,set_columns);
+    BIND_METHOD(GridContainer,get_columns);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "columns", PropertyHint::Range, "1,1024,1"), "set_columns", "get_columns");
 }

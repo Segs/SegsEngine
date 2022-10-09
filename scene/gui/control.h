@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  control.h                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,6 +35,7 @@
 #include "core/string.h"
 #include "core/rid.h"
 #include "core/node_path.h"
+#include "core/method_enum_caster.h"
 #include "scene/2d/canvas_item.h"
 
 class Viewport;
@@ -48,6 +49,15 @@ class OptionButton;
 class CheckBox;
 class CheckButton;
 class TabContainer;
+
+enum class UiTextAlign {
+    ALIGN_LEFT,
+    ALIGN_CENTER,
+    ALIGN_RIGHT,
+    ALIGN_FILL
+};
+
+VARIANT_ENUM_CAST(UiTextAlign);
 
 class GODOT_EXPORT Control : public CanvasItem {
 
@@ -143,72 +153,13 @@ private:
     struct CComparator {
 
         bool operator()(const Control *p_a, const Control *p_b) const {
-            if (p_a->get_canvas_layer() == p_b->get_canvas_layer())
+            if (p_a->get_canvas_layer() == p_b->get_canvas_layer()) {
                 return p_b->is_greater_than(p_a);
+            }
 
             return p_a->get_canvas_layer() < p_b->get_canvas_layer();
         }
     };
-
-    struct Data {
-        HashMap<StringName, Ref<Texture> > icon_override;
-        HashMap<StringName, Ref<Shader> > shader_override;
-        HashMap<StringName, Ref<StyleBox> > style_override;
-        HashMap<StringName, Ref<Font> > font_override;
-        HashMap<StringName, Color> color_override;
-        HashMap<StringName, int> constant_override;
-        NodePath focus_neighbour[4];
-        NodePath focus_next;
-        NodePath focus_prev;
-        float margin[4];
-        float anchor[4];
-        StringName tooltip;
-        Control * MI; //modal item marker, holds pointer to contained object, reset when removed from modal list
-        Control * SI;
-        Control * RI; // root item container marker
-        CanvasItem *parent_canvas_item;
-
-        Control *parent;
-        Control *theme_owner;
-
-        Point2 pos_cache;
-        Size2 size_cache;
-        Size2 minimum_size_cache;
-        Size2 last_minimum_size;
-
-        FocusMode focus_mode;
-        GrowDirection h_grow;
-        GrowDirection v_grow;
-
-        float rotation;
-        Vector2 scale;
-        Vector2 pivot_offset;
-
-
-        int h_size_flags;
-        int v_size_flags;
-        float expand;
-        Point2 custom_minimum_size;
-        MouseFilter mouse_filter;
-        ObjectID drag_owner;
-        ObjectID modal_prev_focus_owner;
-        uint64_t modal_frame; //frame used to put something as modal
-        Ref<Theme> theme;
-        CursorShape default_cursor;
-
-
-        uint8_t minimum_size_valid : 1;
-        uint8_t updating_last_minimum_size : 1;
-        uint8_t pending_resize : 1;
-        uint8_t pass_on_modal_close_click : 1;
-        uint8_t clip_contents : 1;
-        uint8_t block_minimum_size_adjust : 1;
-        uint8_t disable_visibility_clip : 1;
-        uint8_t modal_exclusive : 1;
-    } data;
-
-    // used internally
-    Control *_find_control_at_pos(CanvasItem *p_node, const Point2 &p_pos, const Transform2D &p_xform, Transform2D &r_inv_xform);
 
     void _window_find_focus_neighbour(const Vector2 &p_dir, Node *p_at, const Point2 *p_points, float p_min, float &r_closest_dist, Control **r_closest);
     Control *_get_focus_neighbour(Margin p_margin, int p_count = 0);
@@ -224,14 +175,13 @@ public:
     void _change_notify_margins();
     void _update_minimum_size();
 
-    void _update_scroll();
     void _resize(const Size2 &p_size);
 
     void _compute_margins(Rect2 p_rect, const float p_anchors[4], float (&r_margins)[4]);
     void _compute_anchors(Rect2 p_rect, const float p_margins[4], float (&r_anchors)[4]);
 
     void _size_changed();
-    StringName _get_tooltip() const;
+    const String & _get_tooltip() const;
 
     void _override_changed();
 
@@ -241,7 +191,7 @@ public:
 
     friend class Viewport;
     void _modal_stack_remove();
-    void _modal_set_prev_focus_owner(ObjectID p_prev);
+    void _modal_set_prev_focus_owner(GameEntity p_prev);
 
     void _update_minimum_size_cache();
 
@@ -250,14 +200,15 @@ protected:
     void remove_child_notify(Node *p_child) override;
 
     //virtual void _window_gui_input(InputEvent p_event);
+    void set_modal_exclusive(bool p_exclusive);
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
     void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     void _notification(int p_notification);
-
     static void _bind_methods();
+    void _validate_property(PropertyInfo &property) const override;
 
     //bind helpers
 
@@ -316,6 +267,7 @@ public:
     virtual void drop_data(const Point2 &p_point, const Variant &p_data);
     void set_drag_preview(Control *p_control);
     void force_drag(const Variant &p_data, Control *p_control);
+    bool is_drag_successful() const;
 
     void set_custom_minimum_size(const Size2 &p_custom);
     Size2 get_custom_minimum_size() const;
@@ -380,6 +332,10 @@ public:
     void set_theme(const Ref<Theme> &p_theme);
     Ref<Theme> get_theme() const;
 
+    void set_theme_type_variation(const StringName &p_theme_type);
+    const StringName &get_theme_type_variation() const;
+
+
     void set_h_size_flags(int p_flags);
     int get_h_size_flags() const;
 
@@ -416,7 +372,7 @@ public:
     MouseFilter get_mouse_filter() const;
 
     void set_pass_on_modal_close_click(bool p_pass_on);
-    bool pass_on_modal_close_click() const;
+    bool get_pass_on_modal_close_click() const;
 
     /* SKINNING */
 
@@ -427,12 +383,12 @@ public:
     void add_theme_color_override(const StringName &p_name, const Color &p_color);
     void add_constant_override(const StringName &p_name, int p_constant);
 
-    Ref<Texture> get_theme_icon(const StringName &p_name, const StringName &p_node_type = StringName()) const;
-    Ref<Shader> get_shader(const StringName &p_name, const StringName &p_node_type = StringName()) const;
-    Ref<StyleBox> get_theme_stylebox(const StringName &p_name, const StringName &p_node_type = StringName()) const;
-    Ref<Font> get_theme_font(const StringName &p_name, const StringName &p_node_type = StringName()) const;
-    Color get_theme_color(const StringName &p_name, const StringName &p_node_type = StringName()) const;
-    int get_theme_constant(const StringName &p_name, const StringName &p_node_type = StringName()) const;
+    Ref<Texture> get_theme_icon(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
+    Ref<Shader> get_shader(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
+    Ref<StyleBox> get_theme_stylebox(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
+    Ref<Font> get_theme_font(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
+    Color get_theme_color(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
+    int get_theme_constant(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
 
     bool has_icon_override(const StringName &p_name) const;
     bool has_shader_override(const StringName &p_name) const;
@@ -441,18 +397,19 @@ public:
     bool has_color_override(const StringName &p_name) const;
     bool has_constant_override(const StringName &p_name) const;
 
-    bool has_icon(const StringName &p_name, const StringName &p_node_type = StringName()) const;
-    bool has_shader(const StringName &p_name, const StringName &p_node_type = StringName()) const;
-    bool has_stylebox(const StringName &p_name, const StringName &p_node_type = StringName()) const;
-    bool has_font(const StringName &p_name, const StringName &p_node_type = StringName()) const;
-    bool has_color(const StringName &p_name, const StringName &p_node_type = StringName()) const;
-    bool has_constant(const StringName &p_name, const StringName &p_node_type = StringName()) const;
+    bool has_icon(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
+    bool has_shader(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
+    bool has_stylebox(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
+    bool has_font(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
+    bool has_color(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
+    bool has_constant(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
+
+    Ref<Font> get_theme_default_font() const;
 
     /* TOOLTIP */
 
-    void set_tooltip_utf8(StringView p_tooltip);
-    void set_tooltip(const StringName &p_tooltip);
-    virtual StringName get_tooltip(const Point2 &p_pos) const;
+    void set_tooltip(StringView p_tooltip);
+    virtual const String & get_tooltip(const Point2 &p_pos) const;
     virtual Control *make_custom_tooltip(StringView p_text) const;
 
     /* CURSOR */
@@ -485,10 +442,76 @@ public:
     void set_disable_visibility_clip(bool p_ignore);
     bool is_visibility_clip_disabled() const;
 
-    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
     String get_configuration_warning() const override;
 
     Control();
     ~Control() override;
 };
 
+struct ControlData {
+    HashMap<StringName, Ref<Texture> > icon_override;
+    HashMap<StringName, Ref<Shader> > shader_override;
+    HashMap<StringName, Ref<StyleBox> > style_override;
+    HashMap<StringName, Ref<Font> > font_override;
+    HashMap<StringName, Color> color_override;
+    HashMap<StringName, int> constant_override;
+    NodePath focus_neighbour[4];
+    NodePath focus_next;
+    NodePath focus_prev;
+    float margin[4] { 0,0,0,0 };
+    float anchor[4] { Control::ANCHOR_BEGIN,Control::ANCHOR_BEGIN,Control::ANCHOR_BEGIN,Control::ANCHOR_BEGIN};
+    String tooltip;
+    StringName theme_type_variation;
+    Control * MI = nullptr; //modal item marker, holds pointer to contained object, reset when removed from modal list
+    Control * SI = nullptr;
+    Control * RI = nullptr; // root item container marker
+    CanvasItem *parent_canvas_item = nullptr;
+
+    Control *parent = nullptr;
+    Control *theme_owner = nullptr;
+
+    Point2 pos_cache;
+    Size2 size_cache;
+    Size2 minimum_size_cache;
+    Size2 last_minimum_size;
+
+    Control::FocusMode focus_mode = Control::FOCUS_NONE;
+    Control::GrowDirection h_grow = Control::GROW_DIRECTION_END;
+    Control::GrowDirection v_grow = Control::GROW_DIRECTION_END;
+
+    float rotation = 0;
+    Vector2 scale = Vector2(1, 1);
+    Vector2 pivot_offset;
+
+
+    int h_size_flags = Control::SIZE_FILL;
+    int v_size_flags = Control::SIZE_FILL;
+    float expand = 1;
+    Point2 custom_minimum_size;
+    Control::MouseFilter mouse_filter = Control::MOUSE_FILTER_STOP;
+    GameEntity drag_owner = entt::null;
+    GameEntity modal_prev_focus_owner = entt::null;
+    uint64_t modal_frame = 0; //frame used to put something as modal
+    Ref<Theme> theme;
+    Control::CursorShape default_cursor = Control::CURSOR_ARROW;
+
+    uint8_t minimum_size_valid : 1;
+    uint8_t updating_last_minimum_size : 1;
+    uint8_t pending_resize : 1;
+    uint8_t pass_on_modal_close_click : 1;
+    uint8_t clip_contents : 1;
+    uint8_t block_minimum_size_adjust : 1;
+    uint8_t disable_visibility_clip : 1;
+    uint8_t modal_exclusive : 1;
+
+    ControlData();
+    ControlData(const ControlData &) = delete;
+    ControlData &operator=(const ControlData &) = delete;
+
+    ControlData(ControlData &&) = default;
+    ControlData &operator=(ControlData &&) = default;
+};
+
+
+GODOT_EXPORT ControlData &get_control_data(Control *self);
+GODOT_EXPORT const ControlData &get_control_data(const Control *self);

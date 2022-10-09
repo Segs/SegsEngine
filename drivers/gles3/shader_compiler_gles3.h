@@ -35,7 +35,7 @@
 #include "servers/rendering/shader_language.h"
 #include "servers/rendering/shader_types.h"
 #include "servers/rendering_server_enums.h"
-
+ 
 class ShaderCompilerGLES3 {
 public:
     struct IdentifierActions {
@@ -78,9 +78,11 @@ private:
         HashMap<StringName, String> usage_defines;
     };
 
-    void _dump_function_deps(ShaderLanguage::ShaderNode *p_node, const StringName &p_for_func, const HashMap<StringName, String> &p_func_code, String &r_to_add, HashSet<StringName> &added);
-    String _dump_node_code(ShaderLanguage::Node *p_node, int p_level, GeneratedCode &r_gen_code, IdentifierActions &p_actions, const DefaultIdentifierActions &p_default_actions, bool p_assigning);
+    void _dump_function_deps(const ShaderLanguage::ShaderNode *p_node, const StringName &p_for_func, const HashMap<StringName, String> &p_func_code, String &r_to_add, HashSet<StringName> &added);
+    String _dump_node_code(const ShaderLanguage::Node *p_node, int p_level, GeneratedCode &r_gen_code, IdentifierActions &p_actions, const DefaultIdentifierActions &p_default_actions, bool p_assigning, bool p_use_scope = true);
 
+    const ShaderLanguage::ShaderNode *shader;
+    const ShaderLanguage::FunctionNode *function;
     StringName current_func_name;
     StringName vertex_name;
     StringName fragment_name;
@@ -91,6 +93,7 @@ private:
     HashSet<StringName> used_flag_pointers;
     HashSet<StringName> used_rmode_defines;
     HashSet<StringName> internal_functions;
+    HashSet<StringName> fragment_varyings;
 
     DefaultIdentifierActions actions[int(RenderingServerEnums::ShaderMode::MAX)];
 

@@ -32,18 +32,20 @@
 
 #include "core/math/face3.h"
 #include "core/reference.h"
-#include "core/pool_vector.h"
+#include "core/vector.h"
 
 class GODOT_EXPORT TriangleMesh : public RefCounted {
 
     GDCLASS(TriangleMesh,RefCounted)
 
+public:
     struct Triangle {
 
         Vector3 normal;
         int indices[3];
     };
 
+private:
     Vector<Triangle> triangles;
     Vector<Vector3> vertices;
 
@@ -61,9 +63,9 @@ class GODOT_EXPORT TriangleMesh : public RefCounted {
     friend struct BVHCmpZ;
     int _create_bvh(BVH *p_bvh, BVH **p_bb, int p_from, int p_size, int p_depth, int &max_depth, int &max_alloc);
 
-    PoolVector<BVH> bvh;
-    int max_depth;
-    bool valid;
+    Vector<BVH> bvh;
+    int max_depth = 0;
+    bool valid = false;
 
 public:
     bool is_valid() const;
@@ -76,8 +78,8 @@ public:
 
     const Vector<Triangle> &get_triangles() const { return triangles; }
     const Vector<Vector3> &get_vertices() const { return vertices; }
-    void get_indices(PoolVector<int> *r_triangles_indices) const;
+    void get_indices(Vector<uint32_t> &r_triangles_indices) const;
 
-    void create(const Vector<Vector3> &p_faces);
+    void create(Span<const Vector3> p_faces);
     TriangleMesh();
 };

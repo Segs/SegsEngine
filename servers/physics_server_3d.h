@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  physics_server_3d.h                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,6 +34,7 @@
 #include "core/math/transform.h"
 #include "core/rid.h"
 
+#include <EASTL/set.h>
 #include <utility>
 
 class PhysicsDirectSpaceState3D;
@@ -65,6 +66,8 @@ public:
     virtual void set_transform(const Transform &p_transform) = 0;
     virtual Transform get_transform() const = 0;
 
+    virtual Vector3 get_velocity_at_local_position(const Vector3 &p_position) const = 0;
+
     virtual void add_central_force(const Vector3 &p_force) = 0;
     virtual void add_force(const Vector3 &p_force, const Vector3 &p_pos) = 0;
     virtual void add_torque(const Vector3 &p_torque) = 0;
@@ -84,7 +87,7 @@ public:
 
     virtual RID get_contact_collider(int p_contact_idx) const = 0;
     virtual Vector3 get_contact_collider_position(int p_contact_idx) const = 0;
-    virtual ObjectID get_contact_collider_id(int p_contact_idx) const = 0;
+    virtual GameEntity get_contact_collider_id(int p_contact_idx) const = 0;
     virtual Object *get_contact_collider_object(int p_contact_idx) const;
     virtual int get_contact_collider_shape(int p_contact_idx) const = 0;
     virtual Vector3 get_contact_collider_velocity_at_position(int p_contact_idx) const = 0;
@@ -97,7 +100,7 @@ public:
     PhysicsDirectBodyState3D();
 };
 
-class PhysicsShapeQueryResult3D;
+class PhysicsTestMotionResult;
 
 class GODOT_EXPORT PhysicsShapeQueryParameters3D : public RefCounted {
 
@@ -128,8 +131,8 @@ public:
     void set_margin(float p_margin);
     float get_margin() const;
 
-    void set_collision_mask(int p_collision_mask);
-    int get_collision_mask() const;
+    void set_collision_mask(uint32_t p_collision_mask);
+    uint32_t get_collision_mask() const;
 
     void set_exclude(const PoolVector<RID> &p_exclude);
     PoolVector<RID> get_exclude() const;
@@ -148,6 +151,8 @@ class GODOT_EXPORT PhysicsDirectSpaceState3D : public Object {
     GDCLASS(PhysicsDirectSpaceState3D,Object)
 
 public:
+    Array _intersect_point(const Vector3 &p_point, int p_max_results = 32, const Vector<RID> &p_exclude = Vector<RID>(),
+            uint32_t p_layers = 0, bool p_collide_with_bodies = true, bool p_collide_with_areas = false);
     Dictionary _intersect_ray(const Vector3 &p_from, const Vector3 &p_to, const Array &p_exclude = Array(), uint32_t p_collision_mask = 0, bool p_collide_with_bodies = true, bool p_collide_with_areas = false);
     Array _intersect_shape(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query, int p_max_results = 32);
     Array _cast_motion(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query, const Vector3 &p_motion);
@@ -161,8 +166,8 @@ public:
     struct ShapeResult {
 
         RID rid;
-        ObjectID collider_id;
         Object *collider;
+        GameEntity collider_id;
         int shape;
     };
 
@@ -173,8 +178,8 @@ public:
         Vector3 position;
         Vector3 normal;
         RID rid;
-        ObjectID collider_id;
         Object *collider;
+        GameEntity collider_id;
         int shape;
     };
 
@@ -186,10 +191,10 @@ public:
 
         Vector3 point;
         Vector3 normal;
-        RID rid;
-        ObjectID collider_id;
-        int shape;
         Vector3 linear_velocity; //velocity at contact point
+        RID rid;
+        GameEntity collider_id;
+        int shape;
     };
 
     virtual bool cast_motion(const RID &p_shape, const Transform &p_xform, const Vector3 &p_motion, float p_margin, float &p_closest_safe, float &p_closest_unsafe, const HashSet<RID> &p_exclude = HashSet<RID>(), uint32_t p_collision_mask = 0xFFFFFFFF, bool p_collide_with_bodies = true, bool p_collide_with_areas = false, ShapeRestInfo *r_info = nullptr) = 0;
@@ -203,32 +208,13 @@ public:
     PhysicsDirectSpaceState3D();
 };
 
-class GODOT_EXPORT PhysicsShapeQueryResult3D : public RefCounted {
-
-    GDCLASS(PhysicsShapeQueryResult3D,RefCounted)
-
-    Vector<PhysicsDirectSpaceState3D::ShapeResult> result;
-
-    friend class PhysicsDirectSpaceState3D;
-
-protected:
-    static void _bind_methods();
-
-public:
-    int get_result_count() const;
-    RID get_result_rid(int p_idx) const;
-    ObjectID get_result_object_id(int p_idx) const;
-    Object *get_result_object(int p_idx) const;
-    int get_result_object_shape(int p_idx) const;
-
-    PhysicsShapeQueryResult3D();
-};
-
 class GODOT_EXPORT PhysicsServer3D : public Object {
 
     GDCLASS(PhysicsServer3D,Object)
 
     static PhysicsServer3D *singleton;
+public: // for script bindings
+    virtual bool _body_test_motion(RID p_body, const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia, const Ref<PhysicsTestMotionResult> &p_result = Ref<PhysicsTestMotionResult>(), bool p_exclude_raycast_shapes = true, const Vector<RID> &p_exclude = Vector<RID>());
 
 protected:
     static void _bind_methods();
@@ -276,8 +262,7 @@ public:
         SPACE_PARAM_BODY_ANGULAR_VELOCITY_SLEEP_THRESHOLD,
         SPACE_PARAM_BODY_TIME_TO_SLEEP,
         SPACE_PARAM_BODY_ANGULAR_VELOCITY_DAMP_RATIO,
-        SPACE_PARAM_CONSTRAINT_DEFAULT_BIAS,
-        SPACE_PARAM_TEST_MOTION_MIN_CONTACT_DEPTH
+        SPACE_PARAM_CONSTRAINT_DEFAULT_BIAS
     };
 
     virtual void space_set_param(RID p_space, SpaceParameter p_param, real_t p_value) = 0;
@@ -336,8 +321,8 @@ public:
 
     virtual void area_set_shape_disabled(RID p_area, int p_shape_idx, bool p_disabled) = 0;
 
-    virtual void area_attach_object_instance_id(RID p_area, ObjectID p_id) = 0;
-    virtual ObjectID area_get_object_instance_id(RID p_area) const = 0;
+    virtual void area_attach_object_instance_id(RID p_area, GameEntity p_id) = 0;
+    virtual GameEntity area_get_object_instance_id(RID p_area) const = 0;
 
     virtual void area_set_param(RID p_area, AreaParameter p_param, const Variant &p_value) = 0;
     virtual void area_set_transform(RID p_area, const Transform &p_transform) = 0;
@@ -388,8 +373,8 @@ public:
 
     virtual void body_set_shape_disabled(RID p_body, int p_shape_idx, bool p_disabled) = 0;
 
-    virtual void body_attach_object_instance_id(RID p_body, ObjectID p_id) = 0;
-    virtual ObjectID body_get_object_instance_id(RID p_body) const = 0;
+    virtual void body_attach_object_instance_id(RID p_body, GameEntity p_id) = 0;
+    virtual GameEntity body_get_object_instance_id(RID p_body) const = 0;
 
     virtual void body_set_enable_continuous_collision_detection(RID p_body, bool p_enable) = 0;
     virtual bool body_is_continuous_collision_detection_enabled(RID p_body) const = 0;
@@ -484,6 +469,7 @@ public:
     virtual PhysicsDirectBodyState3D *body_get_direct_state(RID p_body) = 0;
 
     struct MotionResult {
+        Variant collider_metadata;
 
         Vector3 motion;
         Vector3 remainder;
@@ -491,19 +477,16 @@ public:
         Vector3 collision_point;
         Vector3 collision_normal;
         Vector3 collider_velocity;
-        int collision_local_shape;
-        ObjectID collider_id;
+        real_t collision_depth = 0.0;
+        real_t collision_safe_fraction = 0.0;
+        real_t collision_unsafe_fraction = 0.0;
+        int collision_local_shape=0;
+        GameEntity collider_id= entt::null;
         RID collider;
-        int collider_shape;
-        Variant collider_metadata;
-        MotionResult() {
-            collision_local_shape = 0;
-            collider_id = ObjectID(0ULL);
-            collider_shape = 0;
-        }
+        int collider_shape=0;
     };
 
-    virtual bool body_test_motion(RID p_body, const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia, MotionResult *r_result = nullptr, bool p_exclude_raycast_shapes = true) = 0;
+    virtual bool body_test_motion(RID p_body, const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia, MotionResult *r_result = nullptr, bool p_exclude_raycast_shapes = true, const Set<RID> &p_exclude = {}) = 0;
 
     struct SeparationResult {
 
@@ -512,7 +495,7 @@ public:
         Vector3 collision_normal;
         Vector3 collider_velocity;
         int collision_local_shape;
-        ObjectID collider_id;
+        GameEntity collider_id;
         RID collider;
         int collider_shape;
         Variant collider_metadata;
@@ -762,6 +745,7 @@ public:
 
     virtual bool is_flushing_queries() const = 0;
 
+    virtual void set_collision_iterations(int p_iterations) = 0;
     enum ProcessInfo {
 
         INFO_ACTIVE_OBJECTS,
@@ -773,6 +757,37 @@ public:
 
     PhysicsServer3D();
     ~PhysicsServer3D() override;
+};
+class GODOT_EXPORT PhysicsTestMotionResult : public RefCounted {
+
+    GDCLASS(PhysicsTestMotionResult,RefCounted)
+
+    PhysicsServer3D::MotionResult result;
+    bool colliding = false;
+    friend class PhysicsServer;
+
+protected:
+    static void _bind_methods();
+
+public:
+    PhysicsTestMotionResult();
+
+    PhysicsServer3D::MotionResult *get_result_ptr() const { return const_cast<PhysicsServer3D::MotionResult *>(&result); }
+
+    //bool is_colliding() const;
+    Vector3 get_motion() const;
+    Vector3 get_motion_remainder() const;
+
+    Vector3 get_collision_point() const;
+    Vector3 get_collision_normal() const;
+    Vector3 get_collider_velocity() const;
+    GameEntity get_collider_id() const;
+    RID get_collider_rid() const;
+    Object *get_collider() const;
+    int get_collider_shape() const;
+    real_t get_collision_depth() const;
+    real_t get_collision_safe_fraction() const;
+    real_t get_collision_unsafe_fraction() const;
 };
 
 using CreatePhysicsServerCallback = PhysicsServer3D *(*)();
@@ -800,6 +815,7 @@ class PhysicsServerManager {
 
 public:
     static const StaticCString setting_property_name;
+    static int current_server_id;
 
 private:
     static void on_servers_changed();

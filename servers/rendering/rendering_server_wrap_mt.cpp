@@ -36,20 +36,14 @@
 
 void RenderingServerWrapMT::thread_exit() {
 
-    exit = true;
+    exit.set();
 }
 
 void RenderingServerWrapMT::thread_draw(bool p_swap_buffers, double frame_step) {
-
-    if (!atomic_decrement(&draw_pending)) {
-
-        submission_thread_singleton->draw(p_swap_buffers, frame_step);
-    }
+    submission_thread_singleton->draw(p_swap_buffers, frame_step);
 }
 
 void RenderingServerWrapMT::thread_flush() {
-
-    atomic_decrement(&draw_pending);
 }
 
 void RenderingServerWrapMT::_thread_callback(void *_instance) {
@@ -67,9 +61,9 @@ void RenderingServerWrapMT::thread_loop() {
 
     submission_thread_singleton->init();
 
-    exit = false;
-    draw_thread_up = true;
-    while (!exit) {
+    exit.clear();
+    draw_thread_up.set();
+    while (!exit.is_set()) {
         // flush commands one by one, until exit is requested
         command_queue.wait_and_flush_one();
     }
@@ -85,11 +79,9 @@ void RenderingServerWrapMT::sync() {
 
     if (create_thread) {
 
-        atomic_increment(&draw_pending);
         command_queue.push_and_sync([this]() {thread_flush(); });
     } else {
         assert(Thread::get_caller_id() == server_thread);
-
         command_queue.flush_all(); //flush all pending from other threads
     }
 }
@@ -97,8 +89,6 @@ void RenderingServerWrapMT::sync() {
 void RenderingServerWrapMT::draw(bool p_swap_buffers, double frame_step) {
 
     if (create_thread) {
-
-        atomic_increment(&draw_pending);
         command_queue.push([this,p_swap_buffers,frame_step]() {thread_draw(p_swap_buffers,frame_step); });
     } else {
 
@@ -119,7 +109,7 @@ void RenderingServerWrapMT::init() {
         thread.start(_thread_callback, this);
         print_verbose("VisualServerWrapMT: Starting render thread");
     }
-    while (!draw_thread_up) {
+    while (!draw_thread_up.is_set()) {
         OS::get_singleton()->delay_usec(1000);
     }
     print_verbose("VisualServerWrapMT: Finished render thread");
@@ -297,14 +287,12 @@ RenderingServerWrapMT::RenderingServerWrapMT(bool p_create_thread) :
 
     memnew(RenderingServerRaster);
     create_thread = p_create_thread;
-    draw_pending = 0;
-    draw_thread_up = false;
     pool_max_size = T_GLOBAL_GET<int>("memory/limits/multithreaded_server/rid_pool_prealloc");
 
     if (!p_create_thread) {
         server_thread = Thread::get_caller_id();
     } else {
-        server_thread = 0;
+        server_thread = {};
     }
 }
 

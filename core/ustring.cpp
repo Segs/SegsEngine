@@ -1044,7 +1044,7 @@ String StringUtils::utf8(const UIString &str) {
 
 int StringUtils::hex_to_int(const UIString &s,bool p_with_prefix) {
 
-    if (p_with_prefix && s.length() < 3)
+    if (s.isEmpty() || (p_with_prefix && s.length() < 3))
         return 0;
     QStringRef to_convert;
     if (p_with_prefix) {
@@ -1114,8 +1114,9 @@ int64_t StringUtils::hex_to_int64(StringView s,bool p_with_prefix) {
 }
 int64_t StringUtils::bin_to_int64(const UIString &s,bool p_with_prefix) {
 
-    if (p_with_prefix && s.length() < 3)
+    if (s.isEmpty() || (p_with_prefix && s.length() < 3)) {
         return 0;
+    }
     QStringRef to_convert;
     if (p_with_prefix) {
         if (!s.startsWith("0b"))
@@ -1161,7 +1162,7 @@ int StringUtils::to_int(StringView p_str,bool *ok) {
     return QByteArray::fromRawData(p_str.data(),p_str.length()).toInt(ok);
 }
 
-bool StringUtils::is_numeric(const String &str) {
+bool StringUtils::is_numeric(StringView str) {
 
     if (str.length() == 0) {
         return false;
@@ -1533,18 +1534,6 @@ StringView StringUtils::substr(StringView s,int p_from, size_t p_chars) {
     return res.substr(p_from,p_chars);
 }
 
-int StringUtils::find_last(const UIString &s,const UIString &p_str) {
-    return s.lastIndexOf(p_str);
-}
-int StringUtils::find_last(const UIString &s,const CharType c) {
-    return s.lastIndexOf(c);
-}
-size_t StringUtils::find_last(StringView s,char c) {
-    return s.rfind(c);
-}
-size_t StringUtils::find_last(StringView s,StringView oth) {
-    return s.rfind(oth);
-}
 int StringUtils::find(const UIString &s,const UIString &p_str, int p_from) {
     if (p_from < 0)
         return -1;
@@ -1620,13 +1609,16 @@ size_t StringUtils::rfind(StringView s,StringView p_str, int p_from) {
 size_t StringUtils::rfind(StringView s,char c, int p_from) {
     return s.rfind(c,p_from);
 }
+int StringUtils::rfind(const UIString &s,const CharType c, int p_from) {
+    return s.lastIndexOf(c,p_from);
+}
 int StringUtils::rfindn(const UIString &s,const UIString &p_str, int p_from) {
     return s.lastIndexOf(p_str,p_from,Qt::CaseInsensitive);
 }
 size_t StringUtils::rfindn(StringView s,StringView p_str, int p_from) {
     QByteArray a(s.data(),s.size());
     QByteArray b(p_str.data(),p_str.size());
-    int res = a.toLower().lastIndexOf(b.toLower());
+    int res = a.toLower().lastIndexOf(b.toLower(),p_from);
     if(res==-1)
         return String::npos;
 
@@ -2252,36 +2244,44 @@ StringView StringUtils::rstrip(StringView str,StringView p_chars)  {
 
     return substr(str,0, end + 1);
 }
+
+bool PathUtils::is_network_share_path(StringView path) {
+    return path.starts_with("//") || path.starts_with("\\\\");
+}
+
 String PathUtils::simplify_path(StringView str) {
 
-    String s(str);
     String drive;
-    if (s.starts_with("local://")) {
+    if (str.starts_with("local://")) {
         drive = "local://";
-        s = s.substr(8);
-    } else if (s.starts_with("res://")) {
+        str = str.substr(8);
+    } else if (str.starts_with("res://")) {
 
         drive = "res://";
-        s = s.substr(6);
-    } else if (s.starts_with("user://")) {
+        str = str.substr(6);
+    } else if (str.starts_with("user://")) {
 
         drive = "user://";
-        s = s.substr(7, s.length());
-    } else if (s.starts_with("/") || s.starts_with("\\")) {
+        str = str.substr(7);
+    } else if (is_network_share_path(str)) {
+        drive = str.substr(0, 2);
+        str = str.substr(2);
+    } else if (str.starts_with("/") || str.starts_with("\\")) {
 
-        drive = s.substr(0, 1);
-        s = s.substr(1);
+        drive = str.substr(0, 1);
+        str = str.substr(1);
     } else {
 
-        size_t p = s.find(":/");
+        size_t p = str.find(":/");
         if (p == String::npos)
-            p = s.find(":\\");
-        if (p != String::npos && p < s.find("/")) {
+            p = str.find(":\\");
+        if (p != String::npos && p < str.find("/")) {
 
-            drive = s.substr(0, p + 2);
-            s = s.substr(p + 2, s.length());
+            drive = str.substr(0, p + 2);
+            str = str.substr(p + 2);
         }
     }
+    String s(str);
 
     s.replace('\\', '/');
     while (true) { // in case of using 2 or more slash
@@ -3460,28 +3460,7 @@ StringView PathUtils::get_extension(StringView path) {
 
     return StringUtils::substr(path,pos + 1);
 }
-//String PathUtils::plus_file(const String &bp,const String &p_file) {
-//    if (bp.isEmpty())
-//        return p_file;
-//    if (bp.back() == '/' || StringUtils::begins_with(p_file,'/'))
-//        return bp + p_file;
-//    return bp + "/" + p_file;
-//}
-//String PathUtils::plus_file_utf8(const String &bp,StringView p_file) {
-//    String fl(String::fromUtf8(p_file.data(),p_file.size()));
-//    if (bp.isEmpty())
-//        return fl;
-//    if (bp.back() == '/' || StringUtils::begins_with(p_file,"/"))
-//        return bp + fl;
-//    return bp + "/" + fl;
-//}
-//String PathUtils::plus_file_utf8(StringView bp,StringView p_file) {
-//    if (bp.empty())
-//        return String(p_file);
-//    if (bp.back() == '/' || StringUtils::begins_with(p_file,"/"))
-//        return String(bp) + p_file;
-//    return String(bp) + "/" + p_file;
-//}
+
 String PathUtils::plus_file(StringView bp,StringView p_file) {
     if (bp.empty())
         return String(p_file);
@@ -3491,6 +3470,7 @@ String PathUtils::plus_file(StringView bp,StringView p_file) {
         return String(bp) + p_file;
     return String(bp) + "/" + p_file;
 }
+
 String PathUtils::join_path(Span<StringView> parts) {
     if (parts.empty())
         return String();
@@ -3507,6 +3487,23 @@ String PathUtils::join_path(Span<StringView> parts) {
     return res;
 }
 
+String PathUtils::join_path(std::initializer_list<StringView> parts) {
+    size_t needed_memory=0;
+    for(StringView v : parts)
+        needed_memory += v.size()+1;
+    if(needed_memory)
+        return {};
+
+    String res;
+    res.reserve(needed_memory);
+    for (StringView v : parts) {
+        if(!res.empty() && res.back()!='/') {
+            res.push_back('/');
+        }
+        res.append(v);
+    }
+    return res;
+}
 UIString StringUtils::percent_encode(const UIString &str) {
 
     String cs = to_utf8(str);
@@ -3966,12 +3963,6 @@ int StringUtils::compare(StringView lhs, StringView rhs, Compare case_sensitive)
 {
     return compare(from_utf8(lhs),from_utf8(rhs),case_sensitive);
 }
-bool StringUtils::contains(const char *heystack, const char *needle)
-{
-    eastl::string_view sv1(heystack);
-    eastl::string_view nd1(needle);
-    return sv1.find(nd1)!=std::string_view::npos;
-}
 bool StringUtils::contains(const UIString &heystack, const UIString &needle,Compare mode)
 {
     assert(mode!=Compare::CaseNatural);
@@ -3990,8 +3981,11 @@ bool StringUtils::contains(StringView heystack, char c)
 {
     return heystack.find(c)!=heystack.npos;
 }
-bool StringUtils::contains(StringView heystack, StringView c)
+bool StringUtils::contains(StringView heystack, StringView c, Compare mode)
 {
+    if(mode!=Compare::CaseSensitive) {
+        return contains(from_utf8(heystack),from_utf8(c),mode);
+    }
     return heystack.find(c)!=heystack.npos;
 }
 
@@ -4041,7 +4035,7 @@ String StringUtils::property_name_encode(StringView str) {
     // Escape and quote strings with extended ASCII or further Unicode characters
     // as well as '"', '=' or ' ' (32)
     for (char c : str) {
-        if (c == '=' || c == '"' || c < 33 || c > 126) {
+        if (c == '=' || c == '"' || c == ';' || c == '[' || c == ']' || c < 33 || c > 126) {
             return "\"" + c_escape_multiline(str) + "\"";
         }
     }

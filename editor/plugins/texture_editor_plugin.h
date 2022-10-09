@@ -28,29 +28,31 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TEXTURE_EDITOR_PLUGIN_H
-#define TEXTURE_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "scene/resources/texture.h"
+#include "scene/gui/margin_container.h"
 
-class TextureEditor : public Control {
+class TexturePreview : public MarginContainer {
+    GDCLASS(TexturePreview, MarginContainer)
 
-    GDCLASS(TextureEditor,Control)
+private:
+    TextureRect *texture_display = nullptr;
 
-    Ref<Texture> texture;
+    TextureRect *checkerboard = nullptr;
+    Label *metadata_label = nullptr;
+
+    void _update_metadata_label_text();
 
 protected:
     void _notification(int p_what);
-    void _gui_input(const Ref<InputEvent>& p_event);
-    void _changed_callback(Object *p_changed, StringName p_prop) override;
-    static void _bind_methods();
+    static void _bind_methods() {};
 
 public:
-    void edit(const Ref<Texture>& p_texture);
-    TextureEditor();
-    ~TextureEditor() override;
+    TextureRect *get_texture_display() const { return texture_display; }
+    TexturePreview(const Ref<Texture> &p_texture, bool p_show_metadata);
 };
 
 class EditorInspectorPluginTexture : public EditorInspectorPlugin {
@@ -71,4 +73,3 @@ public:
     TextureEditorPlugin(EditorNode *p_node);
 };
 
-#endif // TEXTURE_EDITOR_PLUGIN_H

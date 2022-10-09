@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_preview_plugins.h                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITORPREVIEWPLUGINS_H
-#define EDITORPREVIEWPLUGINS_H
+#pragma once
 
 #include "editor/editor_resource_preview.h"
+#include "core/safe_refcount.h"
 
 void post_process_preview(const Ref<Image> &p_image);
 
@@ -82,17 +82,17 @@ class EditorMaterialPreviewPlugin : public EditorResourcePreviewGenerator {
 
     GDCLASS(EditorMaterialPreviewPlugin,EditorResourcePreviewGenerator)
 
-    RID scenario;
-    RID sphere;
-    RID sphere_instance;
-    RID viewport;
-    RID viewport_texture;
-    RID light;
-    RID light_instance;
-    RID light2;
-    RID light_instance2;
-    RID camera;
-    mutable volatile bool preview_done;
+    RenderingEntity scenario;
+    RenderingEntity sphere;
+    RenderingEntity sphere_instance;
+    RenderingEntity viewport;
+    RenderingEntity viewport_texture;
+    RenderingEntity light;
+    RenderingEntity light_instance;
+    RenderingEntity light2;
+    RenderingEntity light_instance2;
+    RenderingEntity camera;
+    mutable SafeFlag preview_done;
 
     void _preview_done(const Variant &p_udata);
 
@@ -128,16 +128,16 @@ class EditorMeshPreviewPlugin : public EditorResourcePreviewGenerator {
 
     GDCLASS(EditorMeshPreviewPlugin,EditorResourcePreviewGenerator)
 
-    RID scenario;
-    RID mesh_instance;
-    RID viewport;
-    RID viewport_texture;
-    RID light;
-    RID light_instance;
-    RID light2;
-    RID light_instance2;
-    RID camera;
-    mutable volatile bool preview_done;
+    RenderingEntity scenario;
+    RenderingEntity mesh_instance;
+    RenderingEntity viewport;
+    RenderingEntity viewport_texture;
+    RenderingEntity light;
+    RenderingEntity light_instance;
+    RenderingEntity light2;
+    RenderingEntity light_instance2;
+    RenderingEntity camera;
+    mutable SafeFlag preview_done;
 
     void _preview_done(const Variant &p_udata);
 
@@ -156,11 +156,11 @@ class EditorFontPreviewPlugin : public EditorResourcePreviewGenerator {
 
     GDCLASS(EditorFontPreviewPlugin,EditorResourcePreviewGenerator)
 
-    RID viewport;
-    RID viewport_texture;
-    RID canvas;
-    RID canvas_item;
-    mutable volatile bool preview_done;
+    RenderingEntity viewport;
+    RenderingEntity viewport_texture;
+    RenderingEntity canvas;
+    RenderingEntity canvas_item;
+    mutable SafeFlag preview_done;
 
     void _preview_done(const Variant &p_udata);
 
@@ -175,4 +175,3 @@ public:
     EditorFontPreviewPlugin();
     ~EditorFontPreviewPlugin() override;
 };
-#endif // EDITORPREVIEWPLUGINS_H

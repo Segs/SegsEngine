@@ -31,12 +31,16 @@
 #pragma once
 
 #include "rasterizer_storage_gles3.h"
+#include "rasterizer_gl_unique_handle.h"
 #include "servers/rendering/rasterizer.h"
 
 #include "gles3/shaders/canvas_shadow.glsl.gen.h"
+#include "gles3/shaders/canvas.glsl.gen.h"
 #include "gles3/shaders/lens_distorted.glsl.gen.h"
 
 class RasterizerSceneGLES3;
+struct RasterizerTextureComponent;
+
 
 class RasterizerCanvasBaseGLES3 : public RasterizerCanvas {
 public:
@@ -53,16 +57,16 @@ public:
 
         enum { NUM_QUAD_ARRAY_VARIATIONS = 8 };
 
-        GLuint canvas_quad_vertices;
-        GLuint canvas_quad_array;
+        GLBufferHandle canvas_quad_vertices;
+        GLVAOHandle canvas_quad_array;
 
-        GLuint polygon_buffer;
-        GLuint polygon_buffer_quad_arrays[NUM_QUAD_ARRAY_VARIATIONS];
-        GLuint polygon_buffer_pointer_array;
-        GLuint polygon_index_buffer;
+        GLBufferHandle polygon_buffer;
+        GLMultiVAOHandle<NUM_QUAD_ARRAY_VARIATIONS> polygon_buffer_quad_arrays;
+        GLVAOHandle polygon_buffer_pointer_array;
+        GLBufferHandle polygon_index_buffer;
 
-        GLuint particle_quad_vertices;
-        GLuint particle_quad_array;
+        GLBufferHandle particle_quad_vertices;
+        GLVAOHandle particle_quad_array;
 
         uint32_t polygon_buffer_size;
         uint32_t polygon_index_buffer_size;
@@ -71,7 +75,7 @@ public:
 
     struct State {
         CanvasItemUBO canvas_item_ubo_data;
-        GLuint canvas_item_ubo;
+        GLBufferHandle canvas_item_ubo;
         bool canvas_texscreen_used;
         CanvasShaderGLES3 canvas_shader;
         CanvasShadowShaderGLES3 canvas_shadow_shader;
@@ -84,9 +88,9 @@ public:
         bool using_modulate;
         bool using_large_vertex;
 
-        RID current_tex;
-        RID current_normal;
-        RasterizerStorageGLES3::Texture *current_tex_ptr;
+        RenderingEntity current_tex;
+        RenderingEntity current_normal;
+        RenderingEntity current_tex_ptr; // can be a proxy from current_tex
 
         Transform vp;
 
@@ -104,60 +108,37 @@ public:
     // allow user to choose api usage
     GLenum _buffer_upload_usage_flag;
 
-    struct LightInternal : public RID_Data {
-
-        struct UBOData {
-
-            float light_matrix[16];
-            float local_matrix[16];
-            float shadow_matrix[16];
-            float color[4];
-            float shadow_color[4];
-            float light_pos[2];
-            float shadowpixel_size;
-            float shadow_gradient;
-            float light_height;
-            float light_outside_alpha;
-            float shadow_distance_mult;
-            uint8_t padding[4];
-        } ubo_data;
-
-        GLuint ubo;
-    };
-
-    RID_Owner<LightInternal> light_internal_owner;
-
-    RID light_internal_create() override;
-    void light_internal_update(RID p_rid, Light3D *p_light) override;
-    void light_internal_free(RID p_rid) override;
+    RenderingEntity light_internal_create() override;
+    void light_internal_update(RenderingEntity p_rid, RasterizerCanvasLight3DComponent *p_light) override;
+    void light_internal_free(RenderingEntity p_rid) override;
 
     void canvas_begin() override;
     void canvas_end() override;
 
     void _set_texture_rect_mode(bool p_enable, bool p_ninepatch = false, bool p_light_angle = false, bool p_modulate = false, bool p_large_vertex = false);
-    RasterizerStorageGLES3::Texture *_bind_canvas_texture(const RID &p_texture, const RID &p_normal_map, bool p_force = false);
+    RasterizerTextureComponent *_bind_canvas_texture(RenderingEntity p_texture, RenderingEntity p_normal_map, bool p_force = false);
 
     void _draw_gui_primitive(int p_points, const Vector2 *p_vertices, const Color *p_colors, const Vector2 *p_uvs, const float *p_light_angles = nullptr);
     void _draw_polygon(const int *p_indices, int p_index_count, int p_vertex_count, const Vector2 *p_vertices, const Vector2 *p_uvs, const Color *p_colors, bool p_singlecolor, const int *p_bones, const float *p_weights);
     void _draw_generic(GLuint p_primitive, int p_vertex_count, const Vector2 *p_vertices, const Vector2 *p_uvs, const Color *p_colors, bool p_singlecolor);
     void _draw_generic_indices(GLuint p_primitive, const int *p_indices, int p_index_count, int p_vertex_count, const Vector2 *p_vertices, const Vector2 *p_uvs, const Color *p_colors, bool p_singlecolor);
 
-    void _copy_texscreen(const Rect2 &p_rect);
+    void _copy_texscreen(Rect2 p_rect);
 
-    virtual void canvas_debug_viewport_shadows(Light3D *p_lights_with_shadow);
+    void canvas_debug_viewport_shadows(Span<RasterizerCanvasLight3DComponent *> p_lights_with_shadow) override;
 
-    virtual void canvas_light_shadow_buffer_update(RID p_buffer, const Transform2D &p_light_xform, int p_light_mask, float p_near, float p_far, LightOccluderInstance *p_occluders, CameraMatrix *p_xform_cache);
+    void canvas_light_shadow_buffer_update(RenderingEntity p_buffer, const Transform2D &p_light_xform, int p_light_mask, float p_near, float p_far, RenderingEntity p_occluders, CameraMatrix *p_xform_cache) override;
 
-    virtual void reset_canvas();
+    void reset_canvas() override;
 
-    void draw_generic_textured_rect(const Rect2 &p_rect, const Rect2 &p_src);
+    void draw_generic_textured_rect(Rect2 p_rect, const Rect2 &p_src);
     void draw_lens_distortion_rect(const Rect2 &p_rect, float p_k1, float p_k2, const Vector2 &p_eye_center, float p_oversample);
-    void render_rect_nvidia_workaround(const Item::CommandRect *p_rect, const RasterizerStorageGLES3::Texture *p_texture);
+    void render_rect_nvidia_workaround(const Item::CommandRect *p_rect, const RasterizerTextureComponent *p_texture);
 
     void initialize();
     void finalize();
 
-    virtual void draw_window_margins(int *black_margin, RID *black_image);
+    void draw_window_margins(int *black_margin, RenderingEntity *black_image) override;
 
     RasterizerCanvasBaseGLES3();
 };

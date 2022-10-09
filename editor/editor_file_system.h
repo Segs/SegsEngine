@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_file_system.h                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -39,7 +39,6 @@
 #include "core/map.h"
 
 #include "core/string.h"
-#include "core/translation_helpers.h"
 #include "scene/main/node.h"
 class FileAccess;
 
@@ -98,6 +97,7 @@ public:
     StringName get_file_type(int p_idx) const;
     const Vector<String> &get_file_deps(int p_idx) const;
     bool get_file_import_is_valid(int p_idx) const;
+    uint64_t get_file_modified_time(int p_idx) const;
     StringName get_file_script_class_name(int p_idx) const; //used for scripts
     StringName get_file_script_class_extends(int p_idx) const; //used for scripts
     const String &get_file_script_class_icon_path(int p_idx) const; //used for scripts
@@ -106,6 +106,7 @@ public:
 
     int find_file_index(StringView p_file) const;
     int find_dir_index(StringView p_dir) const;
+    void force_update();
 
     EditorFileSystemDirectory();
     ~EditorFileSystemDirectory() override;
@@ -201,6 +202,7 @@ class GODOT_EXPORT EditorFileSystem : public Node {
 
     void _scan_fs_changes(EditorFileSystemDirectory *p_dir, const ScanProgress &p_progress);
 
+    void _create_project_data_dir_if_necessary();
     void _delete_internal_files(StringView p_file);
 
     Set<String> valid_extensions;
@@ -239,7 +241,7 @@ class GODOT_EXPORT EditorFileSystem : public Node {
     };
 
     void _scan_script_classes(EditorFileSystemDirectory *p_dir);
-    volatile bool update_script_classes_queued;
+    SafeFlag update_script_classes_queued;
     void _queue_update_script_classes();
 
     StringName _get_global_script_class(StringView p_type, StringView p_path, StringName *r_extends, String *r_icon_path) const;
@@ -273,9 +275,10 @@ public:
     void scan_changes();
     void get_changed_sources(List<String> *r_changed);
     void update_file(StringView p_file);
+    Set<String> get_valid_extensions() const;
 
     EditorFileSystemDirectory *get_filesystem_path(StringView p_path);
-    String get_file_type(StringView p_file) const;
+    StringName get_file_type(StringView p_file) const;
     EditorFileSystemDirectory *find_file(StringView p_file, int *r_index) const;
 
     void reimport_files(const Vector<String> &p_files);
@@ -288,3 +291,4 @@ public:
     EditorFileSystem();
     ~EditorFileSystem() override;
 };
+extern bool editor_should_skip_directory(StringView p_path);

@@ -26,12 +26,12 @@ namespace GodotTools.Ides
         private readonly FileStream metaFile;
         private string MetaFilePath { get; }
 
-        private readonly SemaphoreSlim peersSem = new SemaphoreSlim(1);
+        private readonly SemaphoreSlim _peersSem = new SemaphoreSlim(1);
 
         private readonly TcpListener listener;
 
         private readonly Dictionary<string, Queue<NotifyAwaiter<bool>>> clientConnectedAwaiters = new Dictionary<string, Queue<NotifyAwaiter<bool>>>();
-        private readonly Dictionary<string, Queue<NotifyAwaiter<bool>>> clientDisconnectedAwaiters = new Dictionary<string, Queue<NotifyAwaiter<bool>>>();
+        private readonly Dictionary<string, Queue<NotifyAwaiter<bool>>> _clientDisconnectedAwaiters = new Dictionary<string, Queue<NotifyAwaiter<bool>>>();
 
         public async Task<bool> AwaitClientConnected(string identity)
         {
@@ -48,10 +48,10 @@ namespace GodotTools.Ides
 
         public async Task<bool> AwaitClientDisconnected(string identity)
         {
-            if (!clientDisconnectedAwaiters.TryGetValue(identity, out var queue))
+            if (!_clientDisconnectedAwaiters.TryGetValue(identity, out var queue))
             {
                 queue = new Queue<NotifyAwaiter<bool>>();
-                clientDisconnectedAwaiters.Add(identity, queue);
+                _clientDisconnectedAwaiters.Add(identity, queue);
             }
 
             var awaiter = new NotifyAwaiter<bool>();
@@ -77,7 +77,7 @@ namespace GodotTools.Ides
             if (IsDisposed)
                 return;
 
-            using (await peersSem.UseAsync())
+            using (await _peersSem.UseAsync())
             {
                 if (IsDisposed) // lock may not be fair
                     return;
@@ -149,11 +149,11 @@ namespace GodotTools.Ides
 
                 peer.Disconnected += () =>
                 {
-                    if (clientDisconnectedAwaiters.TryGetValue(peer.RemoteIdentity, out var queue))
+                    if (_clientDisconnectedAwaiters.TryGetValue(peer.RemoteIdentity, out var queue))
                     {
                         while (queue.Count > 0)
                             queue.Dequeue().SetResult(true);
-                        clientDisconnectedAwaiters.Remove(peer.RemoteIdentity);
+                        _clientDisconnectedAwaiters.Remove(peer.RemoteIdentity);
                     }
                 };
                 // ReSharper restore AccessToDisposedClosure
@@ -172,7 +172,7 @@ namespace GodotTools.Ides
                     return;
                 }
 
-                using (await peersSem.UseAsync())
+                using (await _peersSem.UseAsync())
                     Peers.Add(peer);
 
                 try
@@ -181,7 +181,7 @@ namespace GodotTools.Ides
                 }
                 finally
                 {
-                    using (await peersSem.UseAsync())
+                    using (await _peersSem.UseAsync())
                         Peers.Remove(peer);
                 }
             }
@@ -204,7 +204,7 @@ namespace GodotTools.Ides
         public async void BroadcastRequest<TResponse>(string identity, Request request)
             where TResponse : Response, new()
         {
-            using (await peersSem.UseAsync())
+            using (await _peersSem.UseAsync())
             {
                 if (!IsAnyConnected(identity))
                 {

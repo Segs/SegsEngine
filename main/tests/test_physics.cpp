@@ -57,10 +57,10 @@ class TestPhysicsMainLoop : public MainLoop {
 
     RID plane;
     RID sphere;
-    RID light;
-    RID camera;
+    RenderingEntity light;
+    RenderingEntity camera;
     RID mover;
-    RID scenario;
+    RenderingEntity scenario;
     RID space;
 
     RID character;
@@ -71,9 +71,9 @@ class TestPhysicsMainLoop : public MainLoop {
 
     Vector<RID> bodies;
     Map<PhysicsServer3D::ShapeType, RID> type_shape_map;
-    Map<PhysicsServer3D::ShapeType, RID> type_mesh_map;
+    Map<PhysicsServer3D::ShapeType, RenderingEntity> type_mesh_map;
 
-    void body_changed_transform(Object *p_state, RID p_visual_instance) {
+    void body_changed_transform(Object *p_state, RenderingEntity p_visual_instance) {
 
         PhysicsDirectBodyState3D *state = (PhysicsDirectBodyState3D *)p_state;
         RenderingServer *vs = RenderingServer::get_singleton();
@@ -94,7 +94,7 @@ protected:
         RenderingServer *vs = RenderingServer::get_singleton();
         PhysicsServer3D *ps = PhysicsServer3D::get_singleton();
 
-        RID mesh_instance = vs->instance_create2(type_mesh_map[p_shape], scenario);
+        RenderingEntity mesh_instance = vs->instance_create2(type_mesh_map[p_shape], scenario);
         RID body = ps->body_create(p_body, !p_active_default);
         ps->body_set_space(body, space);
         ps->body_set_param(body, PhysicsServer3D::BODY_PARAM_BOUNCE, 0.0);
@@ -140,7 +140,7 @@ protected:
         PhysicsServer3D *ps = PhysicsServer3D::get_singleton();
 
         /* SPHERE SHAPE */
-        RID sphere_mesh = vs->make_sphere_mesh(10, 20, 0.5);
+        RenderingEntity sphere_mesh = vs->make_sphere_mesh(10, 20, 0.5);
         type_mesh_map[PhysicsServer3D::SHAPE_SPHERE] = sphere_mesh;
 
         RID sphere_shape = ps->shape_create(PhysicsServer3D::SHAPE_SPHERE);
@@ -150,7 +150,7 @@ protected:
         /* BOX SHAPE */
 
         PoolVector<Plane> box_planes = Geometry::build_box_planes(Vector3(0.5, 0.5, 0.5));
-        RID box_mesh = vs->mesh_create();
+        RenderingEntity box_mesh = vs->mesh_create();
         Geometry::MeshData box_data = Geometry::build_convex_mesh(box_planes);
         vs->mesh_add_surface_from_mesh_data(box_mesh, eastl::move(box_data));
         type_mesh_map[PhysicsServer3D::SHAPE_BOX] = box_mesh;
@@ -163,7 +163,7 @@ protected:
 
         PoolVector<Plane> capsule_planes = Geometry::build_capsule_planes(0.5, 0.7f, 12, Vector3::AXIS_Z);
 
-        RID capsule_mesh = vs->mesh_create();
+        RenderingEntity capsule_mesh = vs->mesh_create();
         Geometry::MeshData capsule_data = Geometry::build_convex_mesh(capsule_planes);
         vs->mesh_add_surface_from_mesh_data(capsule_mesh, eastl::move(capsule_data));
 
@@ -180,7 +180,7 @@ protected:
 
         PoolVector<Plane> convex_planes = Geometry::build_cylinder_planes(0.5, 0.7f, 5, Vector3::AXIS_Z);
 
-        RID convex_mesh = vs->mesh_create();
+        RenderingEntity convex_mesh = vs->mesh_create();
         Geometry::MeshData convex_data = Geometry::build_convex_mesh(convex_planes);
         QuickHull::build(convex_data.vertices, convex_data);
         vs->mesh_add_surface_from_mesh_data(convex_mesh, eastl::move(convex_data));
@@ -208,13 +208,13 @@ protected:
             normals.push_back(p.normal);
         }
 
-        RID trimesh_mesh = vs->mesh_create();
+        RenderingEntity trimesh_mesh = vs->mesh_create();
         SurfaceArrays d;
         d.set_positions(eastl::move(p_faces));
         d.m_normals = eastl::move(normals);
         vs->mesh_add_surface_from_arrays(trimesh_mesh, RS::PRIMITIVE_TRIANGLES, d);
 
-        RID triins = vs->instance_create2(trimesh_mesh, scenario);
+        RenderingEntity triins = vs->instance_create2(trimesh_mesh, scenario);
 
         RID tribody = ps->body_create(PhysicsServer3D::BODY_MODE_STATIC);
         ps->body_set_space(tribody, space);
@@ -305,7 +305,7 @@ public:
         RenderingServer *vs = RenderingServer::get_singleton();
 
         /* LIGHT */
-        RID lightaux = vs->directional_light_create();
+        RenderingEntity lightaux = vs->directional_light_create();
         scenario = vs->scenario_create();
         vs->light_set_shadow(lightaux, true);
         light = vs->instance_create2(lightaux, scenario);
@@ -317,7 +317,7 @@ public:
 
         camera = vs->camera_create();
 
-        RID viewport = vs->viewport_create();
+        RenderingEntity viewport = vs->viewport_create();
         Size2i screen_size = OS::get_singleton()->get_window_size();
         vs->viewport_set_size(viewport, screen_size.x, screen_size.y);
         vs->viewport_attach_to_screen(viewport, Rect2(Vector2(), screen_size));
@@ -370,7 +370,7 @@ public:
 
         PoolVector<Plane> capsule_planes = Geometry::build_capsule_planes(0.5, 1, 12, 5, Vector3::AXIS_Y);
 
-        RID capsule_mesh = vs->mesh_create();
+        RenderingEntity capsule_mesh = vs->mesh_create();
         Geometry::MeshData capsule_data = Geometry::build_convex_mesh(capsule_planes);
         vs->mesh_add_surface_from_mesh_data(capsule_mesh, eastl::move(capsule_data));
         type_mesh_map[PhysicsServer3D::SHAPE_CAPSULE] = capsule_mesh;
@@ -384,7 +384,7 @@ public:
         //shape_xform.origin=Vector3(1,1,1);
         ps->shape_set_data(capsule_shape, capsule_params);
 
-        RID mesh_instance = vs->instance_create2(capsule_mesh, scenario);
+        RenderingEntity mesh_instance = vs->instance_create2(capsule_mesh, scenario);
         character = ps->body_create(PhysicsServer3D::BODY_MODE_CHARACTER);
         ps->body_set_space(character, space);
         //todo add space

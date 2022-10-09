@@ -1,0 +1,18 @@
+{
+"api_hash":"",
+"api_version":"",
+"dependencies":[],
+"module_name":"",
+"namespaces": [
+ {
+  "contents":{
+    "namespaces" : [
+        {
+            "contents" : {},
+            "name":"Bar"
+        }
+    ]
+  },"name":"TopLevel"}
+],
+"version":""
+}

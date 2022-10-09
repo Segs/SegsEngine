@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  cpu_particles_2d.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CPU_PARTICLES_2D_H
-#define CPU_PARTICLES_2D_H
+#pragma once
 
 #include "core/rid.h"
+#include "core/os/mutex.h"
 #include "scene/2d/node_2d.h"
 #include "scene/resources/texture.h"
 
@@ -89,6 +89,7 @@ private:
         Vector2 velocity;
         Color color;
         Color base_color;
+        Color start_color_rand;
         float custom[4];
         float rotation;
         float angle_rand;
@@ -101,17 +102,17 @@ private:
         bool active;
     };
 
-    float time;
-    float inactive_time;
+    float time=0.0f;
+    float inactive_time=0.0f;
     float frame_remainder;
     int cycle;
     bool redraw;
 
-    RID mesh;
-    RID multimesh;
+    RenderingEntity mesh;
+    RenderingEntity multimesh;
 
     PoolVector<Particle> particles;
-    PoolVector<float> particle_data;
+    Vector<float> particle_data;
     PoolVector<int> particle_order;
 
     struct SortLifetime {
@@ -163,6 +164,7 @@ private:
     Ref<Curve> curve_parameters[PARAM_MAX];
     Color color;
     Ref<Gradient> color_ramp;
+    Ref<Gradient> color_initial_ramp;
 
     bool flags[FLAG_MAX];
 
@@ -175,12 +177,11 @@ private:
     int emission_point_count;
 
     Vector2 gravity;
+    Mutex update_mutex;
 
     void _update_internal();
     void _particles_process(float p_delta);
     void _update_particle_data_buffer();
-
-    Mutex *update_mutex;
 
     void _update_render_thread();
 
@@ -203,7 +204,6 @@ public:
     void set_explosiveness_ratio(float p_ratio);
     void set_randomness_ratio(float p_ratio);
     void set_lifetime_randomness(float p_random);
-    void set_visibility_aabb(const Rect2 &p_aabb);
     void set_use_local_coordinates(bool p_enable);
     void set_speed_scale(float p_scale);
 
@@ -215,7 +215,6 @@ public:
     float get_explosiveness_ratio() const;
     float get_randomness_ratio() const;
     float get_lifetime_randomness() const;
-    Rect2 get_visibility_aabb() const;
     bool get_use_local_coordinates() const;
     float get_speed_scale() const;
 
@@ -228,8 +227,6 @@ public:
     void set_draw_order(DrawOrder p_order);
     DrawOrder get_draw_order() const;
 
-    void set_draw_passes(int p_count);
-    int get_draw_passes() const;
 
     void set_texture(const Ref<Texture> &p_texture);
     Ref<Texture> get_texture() const;
@@ -259,6 +256,8 @@ public:
 
     void set_color_ramp(const Ref<Gradient> &p_ramp);
     Ref<Gradient> get_color_ramp() const;
+    void set_color_initial_ramp(const Ref<Gradient> &p_ramp);
+    Ref<Gradient> get_color_initial_ramp() const;
 
     void set_particle_flag(Flags p_flag, bool p_enable);
     bool get_particle_flag(Flags p_flag) const;
@@ -269,7 +268,6 @@ public:
     void set_emission_points(const PoolVector<Vector2> &p_points);
     void set_emission_normals(const PoolVector<Vector2> &p_normals);
     void set_emission_colors(const PoolVector<Color> &p_colors);
-    void set_emission_point_count(int p_count);
 
     EmissionShape get_emission_shape() const;
     float get_emission_sphere_radius() const;
@@ -277,7 +275,6 @@ public:
     PoolVector<Vector2> get_emission_points() const;
     PoolVector<Vector2> get_emission_normals() const;
     PoolVector<Color> get_emission_colors() const;
-    int get_emission_point_count() const;
 
     void set_gravity(const Vector2 &p_gravity);
     Vector2 get_gravity() const;
@@ -291,5 +288,3 @@ public:
     CPUParticles2D();
     ~CPUParticles2D() override;
 };
-
-#endif // CPU_PARTICLES_2D_H

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  random_pcg.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -45,7 +45,7 @@ void RandomPCG::seed(uint64_t p_seed) {
 }
 
 void RandomPCG::randomize() {
-    seed(OS::get_singleton()->get_ticks_usec() * pcg.state + PCG_DEFAULT_INC_64);
+    seed((OS::get_singleton()->get_unix_time() + OS::get_singleton()->get_ticks_usec()) * pcg.state + PCG_DEFAULT_INC_64);
 }
 
 uint32_t RandomPCG::rand() {

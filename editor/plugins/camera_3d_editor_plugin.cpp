@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
+#include "scene/gui/button.h"
 
 IMPL_GDCLASS(Camera3DEditor)
 IMPL_GDCLASS(Camera3DEditorPlugin)
@@ -56,7 +57,7 @@ void Camera3DEditor::_pressed() {
 
 void Camera3DEditor::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_pressed"), &Camera3DEditor::_pressed);
+    BIND_METHOD(Camera3DEditor,_pressed);
 }
 
 void Camera3DEditor::edit(Node *p_camera) {

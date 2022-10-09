@@ -89,7 +89,7 @@ NavigationObstacle2D::NavigationObstacle2D() :
 }
 
 NavigationObstacle2D::~NavigationObstacle2D() {
-    Navigation2DServer::get_singleton()->free(agent);
+    Navigation2DServer::get_singleton()->free_rid(agent);
     agent = RID(); // Pointless
 }
 
@@ -103,7 +103,7 @@ void NavigationObstacle2D::set_navigation(Navigation2D *p_nav) {
 
 void NavigationObstacle2D::set_navigation_node(Node *p_nav) {
     Navigation2D *nav = object_cast<Navigation2D>(p_nav);
-    ERR_FAIL_COND(nav == NULL);
+    ERR_FAIL_COND(nav == nullptr);
     set_navigation(nav);
 }
 

@@ -29,15 +29,15 @@
 /*************************************************************************/
 
 // Circular dependency between Vector3 and Basis :/
-#include "core/math/vector3.h"
 
 #pragma once
 
 #include "core/math/math_defs.h"
 #include "core/math/math_funcs.h"
+#include "core/math/vector3.h"
 #include "core/error_macros.h"
 
-class GODOT_EXPORT Quat {
+class GODOT_EXPORT [[nodiscard]] Quat {
 public:
     real_t x, y, z, w;
 
@@ -51,6 +51,7 @@ public:
     bool is_normalized() const;
     Quat inverse() const;
     constexpr real_t dot(const Quat &q) const;
+    real_t angle_to(const Quat &p_to) const;
 
     void set_euler_xyz(const Vector3 &p_euler);
     Vector3 get_euler_xyz() const;

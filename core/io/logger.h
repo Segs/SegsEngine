@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  logger.h                                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -40,6 +40,7 @@ class GODOT_EXPORT Logger {
 protected:
     bool should_log(bool p_err);
 
+    static bool _flush_stdout_on_print;
 public:
     enum ErrorType {
         ERR_ERROR,
@@ -47,6 +48,8 @@ public:
         ERR_SCRIPT,
         ERR_SHADER
     };
+
+    static void set_flush_stdout_on_print(bool value);
 
     virtual void logv(StringView p_msg, bool p_err) = 0;
 
@@ -56,6 +59,10 @@ public:
     void logf_error(StringView p_msg);
 
     virtual ~Logger();
+
+    Logger() = default;
+    Logger(const Logger &)=delete;
+    Logger &operator =(const Logger &)=delete;
 };
 
 /**

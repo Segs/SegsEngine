@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  register_scene_types.cpp                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -90,6 +90,7 @@
 #include "scene/gui/control.h"
 #include "scene/gui/dialogs.h"
 #include "scene/gui/file_dialog.h"
+#include "scene/gui/flow_container.h"
 #include "scene/gui/gradient_edit.h"
 #include "scene/gui/graph_edit.h"
 #include "scene/gui/graph_node.h"
@@ -153,6 +154,8 @@
 #include "scene/resources/mesh.h"
 #include "scene/resources/mesh_data_tool.h"
 #include "scene/resources/navigation_mesh.h"
+#include "scene/resources/occluder_shape.h"
+#include "scene/resources/occluder_shape_polygon.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/particles_material.h"
 #include "scene/resources/physics_material.h"
@@ -683,6 +686,9 @@ void register_scene_types() {
     ClassDB::register_class<CenterContainer>();
     ClassDB::register_class<ScrollContainer>();
     ClassDB::register_class<PanelContainer>();
+    ClassDB::register_virtual_class<FlowContainer>();
+    ClassDB::register_class<HFlowContainer>();
+    ClassDB::register_class<VFlowContainer>();
 
     OS::get_singleton()->yield(); //may take time to init
 
@@ -1008,6 +1014,9 @@ void register_scene_types() {
     ClassDB::register_class<PlaneShape>();
     ClassDB::register_class<ConvexPolygonShape3D>();
     ClassDB::register_class<ConcavePolygonShape3D>();
+    ClassDB::register_virtual_class<OccluderShape>();
+    ClassDB::register_class<OccluderShapeSphere>();
+    ClassDB::register_class<OccluderShapePolygon>();
 
     OS::get_singleton()->yield(); //may take time to init
 
@@ -1029,6 +1038,7 @@ void register_scene_types() {
     ClassDB::register_class<LargeTexture>();
     ClassDB::register_class<CurveTexture>();
     ClassDB::register_class<GradientTexture>();
+    ClassDB::register_class<GradientTexture2D>();
     ClassDB::register_class<ProxyTexture>();
     ClassDB::register_class<AnimatedTexture>();
     ClassDB::register_class<CameraTexture>();
@@ -1109,17 +1119,29 @@ void register_scene_types() {
     OS::get_singleton()->yield(); //may take time to init
 
     for (int i = 0; i < 20; i++) {
-        GLOBAL_DEF(StringName("layer_names/2d_render/layer_" + itos(i + 1)), "");
-        GLOBAL_DEF(StringName("layer_names/2d_physics/layer_" + itos(i + 1)), "");
-        GLOBAL_DEF(StringName("layer_names/3d_render/layer_" + itos(i + 1)), "");
-        GLOBAL_DEF(StringName("layer_names/3d_physics/layer_" + itos(i + 1)), "");
+        String idxname = itos(i + 1);
+        GLOBAL_DEF(StringName("layer_names/2d_render/layer_" + idxname), "");
+        GLOBAL_DEF(StringName("layer_names/2d_physics/layer_" + idxname), "");
+        GLOBAL_DEF(StringName("layer_names/2d_navigation/layer_" + idxname), "");
+        GLOBAL_DEF(StringName("layer_names/3d_render/layer_" + idxname), "");
+        GLOBAL_DEF(StringName("layer_names/3d_physics/layer_" + idxname), "");
+        GLOBAL_DEF(StringName("layer_names/3d_navigation/layer_" + idxname), "");
     }
 
+    for (int i = 20; i < 32; i++) {
+        String idxname = itos(i + 1);
+        GLOBAL_DEF(StringName("layer_names/2d_physics/layer_" + idxname), "");
+        GLOBAL_DEF(StringName("layer_names/2d_navigation/layer_" + idxname), "");
+        GLOBAL_DEF(StringName("layer_names/3d_physics/layer_" + idxname), "");
+        GLOBAL_DEF(StringName("layer_names/3d_navigation/layer_" + idxname), "");
+    }
+}
+void initialize_theme() {
     bool default_theme_hidpi = T_GLOBAL_DEF("gui/theme/use_hidpi", false);
     ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/use_hidpi", PropertyInfo(VariantType::BOOL, "gui/theme/use_hidpi", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
-    String theme_path = T_GLOBAL_DEF("gui/theme/custom", String());
+    String theme_path = T_GLOBAL_DEF("gui/theme/custom", String(),true);
     ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/custom", PropertyInfo(VariantType::STRING, "gui/theme/custom", PropertyHint::File, "*.tres,*.res,*.theme", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
-    String font_path = T_GLOBAL_DEF("gui/theme/custom_font", String());
+    String font_path = T_GLOBAL_DEF("gui/theme/custom_font", String(),true);
     ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/custom_font", PropertyInfo(VariantType::STRING, "gui/theme/custom_font", PropertyHint::File, "*.tres,*.res,*.font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
 
     Ref<Font> font;

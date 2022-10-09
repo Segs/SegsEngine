@@ -408,6 +408,12 @@ namespace eastl
             value={}; // uninitialize the passed vector
             return res;
         }
+        size_t erase_all_unsorted(const value_type &value) {
+            size_t count=0;
+            while(erase_first_unsorted(value)!=end())
+                count++;
+            return count;
+        }
 #endif
 
     protected:
@@ -1976,7 +1982,7 @@ namespace eastl
                 pointer pNewEnd = pNewData;
                 try
                 {   // To do: We are not handling exceptions properly below.  In particular we don't want to
-                    // call eastl::destruct on the entire range if only the first part of the range was costructed.
+                    // call eastl::destruct on the entire range if only the first part of the range was constructed.
                     ::new((void*)(pNewData + nPosSize)) value_type(eastl::forward<Args>(args)...);              // Because the old data is potentially being moved rather than copied, we need to move.
                     pNewEnd = NULL;                                                                             // Set to NULL so that in catch we can tell the exception occurred during the next call.
                     pNewEnd = eastl::uninitialized_move_ptr_if_noexcept(mpBegin, destPosition, pNewData);       // the value first, because it might possibly be a reference to the old data being moved.
@@ -2083,6 +2089,13 @@ namespace eastl
     }
 
 
+#if defined(EA_COMPILER_HAS_THREE_WAY_COMPARISON)
+	template <typename T, typename Allocator>
+	inline synth_three_way_result<T> operator<=>(const vector<T, Allocator>& a, const vector<T, Allocator>& b)
+	{
+		return eastl::lexicographical_compare_three_way(a.begin(), a.end(), b.begin(), b.end(), synth_three_way{});
+	}
+#else
     template <typename T, typename Allocator>
     inline bool operator!=(const vector<T, Allocator>& a, const vector<T, Allocator>& b)
     {
@@ -2117,6 +2130,7 @@ namespace eastl
         return !(a < b);
     }
 
+#endif
 
     template <typename T, typename Allocator>
     inline void swap(vector<T, Allocator>& a, vector<T, Allocator>& b) EA_NOEXCEPT_IF(EA_NOEXCEPT_EXPR(a.swap(b)))

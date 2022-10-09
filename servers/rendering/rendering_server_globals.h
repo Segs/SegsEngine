@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  rendering_server_globals.h                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,23 +31,63 @@
 #pragma once
 
 #include "rasterizer.h"
+#include "core/ecs_registry.h"
+#include "core/engine_entities.h"
 
-class VisualServerCanvas;
+class RenderingServerCanvas;
 class VisualServerViewport;
 class VisualServerScene;
+template<class Entity, bool multi_threaded>
 class ECS_Registry;
 
 class VisualServerGlobals {
 public:
-	static RasterizerStorage *storage;
-	static RasterizerCanvas *canvas_render;
-	static RasterizerScene *scene_render;
-	static Rasterizer *rasterizer;
-    static ECS_Registry *ecs;
+    static RasterizerStorage *storage;
+    static RasterizerCanvas *canvas_render;
+    static RasterizerScene *scene_render;
+    static Rasterizer *rasterizer;
+    static ECS_Registry<RenderingEntity,true> *ecs;
 
-	static VisualServerCanvas *canvas;
-	static VisualServerViewport *viewport;
-	static VisualServerScene *scene;
+    static RenderingServerCanvas *canvas;
+    static VisualServerViewport *viewport;
+    static VisualServerScene *scene;
+
+    static int64_t bvh_nodes_created;
+    static int64_t bvh_nodes_destroyed;
 };
 
 #define VSG VisualServerGlobals
+template <class T>
+class RenderingEntity_Owner {
+public:
+    T *get(RenderingEntity p_rid) {
+#ifdef DEBUG_ENABLED
+        ERR_FAIL_COND_V(p_rid==entt::null, nullptr);
+        ERR_FAIL_COND_V(!VSG::ecs->registry.all_of<T>(p_rid), nullptr);
+#endif
+        return VSG::ecs->try_get<T>(p_rid);
+    }
+    bool owns(RenderingEntity re) {
+        return re != entt::null && VSG::ecs->registry.all_of<T>(re);
+    }
+    _FORCE_INLINE_ T *getornull(RenderingEntity p_rid) {
+        if (p_rid == entt::null)
+            return nullptr;
+#ifdef DEBUG_ENABLED
+        ERR_FAIL_COND_V(!VSG::ecs->registry.all_of<T>(p_rid), nullptr);
+#endif
+        return VSG::ecs->try_get<T>(p_rid);
+    }
+
+    T *getptr(RenderingEntity p_rid) { return VSG::ecs->try_get<T>(p_rid); }
+    void get_owned_list(Vector<RenderingEntity> *p_owned) {
+#ifdef DEBUG_ENABLED
+        VSG::ecs->registry.view<T>().each([&](RenderingEntity re, const T &v) {
+            { p_owned->push_back(re); }
+        });
+#endif
+    }
+    void free(RenderingEntity re) {
+        VSG::ecs->registry.destroy(re);
+    }
+};

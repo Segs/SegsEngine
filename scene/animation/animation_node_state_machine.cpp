@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  animation_node_state_machine.cpp                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -109,23 +109,23 @@ int AnimationNodeStateMachineTransition::get_priority() const {
 }
 
 void AnimationNodeStateMachineTransition::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_switch_mode", {"mode"}), &AnimationNodeStateMachineTransition::set_switch_mode);
-    MethodBinder::bind_method(D_METHOD("get_switch_mode"), &AnimationNodeStateMachineTransition::get_switch_mode);
+    BIND_METHOD(AnimationNodeStateMachineTransition,set_switch_mode);
+    BIND_METHOD(AnimationNodeStateMachineTransition,get_switch_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_auto_advance", {"auto_advance"}), &AnimationNodeStateMachineTransition::set_auto_advance);
-    MethodBinder::bind_method(D_METHOD("has_auto_advance"), &AnimationNodeStateMachineTransition::has_auto_advance);
+    BIND_METHOD(AnimationNodeStateMachineTransition,set_auto_advance);
+    BIND_METHOD(AnimationNodeStateMachineTransition,has_auto_advance);
 
-    MethodBinder::bind_method(D_METHOD("set_advance_condition", {"name"}), &AnimationNodeStateMachineTransition::set_advance_condition);
-    MethodBinder::bind_method(D_METHOD("get_advance_condition"), &AnimationNodeStateMachineTransition::get_advance_condition);
+    BIND_METHOD(AnimationNodeStateMachineTransition,set_advance_condition);
+    BIND_METHOD(AnimationNodeStateMachineTransition,get_advance_condition);
 
-    MethodBinder::bind_method(D_METHOD("set_xfade_time", {"secs"}), &AnimationNodeStateMachineTransition::set_xfade_time);
-    MethodBinder::bind_method(D_METHOD("get_xfade_time"), &AnimationNodeStateMachineTransition::get_xfade_time);
+    BIND_METHOD(AnimationNodeStateMachineTransition,set_xfade_time);
+    BIND_METHOD(AnimationNodeStateMachineTransition,get_xfade_time);
 
-    MethodBinder::bind_method(D_METHOD("set_disabled", {"disabled"}), &AnimationNodeStateMachineTransition::set_disabled);
-    MethodBinder::bind_method(D_METHOD("is_disabled"), &AnimationNodeStateMachineTransition::is_disabled);
+    BIND_METHOD(AnimationNodeStateMachineTransition,set_disabled);
+    BIND_METHOD(AnimationNodeStateMachineTransition,is_disabled);
 
-    MethodBinder::bind_method(D_METHOD("set_priority", {"priority"}), &AnimationNodeStateMachineTransition::set_priority);
-    MethodBinder::bind_method(D_METHOD("get_priority"), &AnimationNodeStateMachineTransition::get_priority);
+    BIND_METHOD(AnimationNodeStateMachineTransition,set_priority);
+    BIND_METHOD(AnimationNodeStateMachineTransition,get_priority);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "switch_mode", PropertyHint::Enum, "Immediate,Sync,AtEnd"), "set_switch_mode", "get_switch_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "auto_advance"), "set_auto_advance", "has_auto_advance");
@@ -334,7 +334,7 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *p_st
                     // stopped, invalid state
                     StringName node_name = start_request;
                     start_request = StringName(); //clear start request
-                    ERR_FAIL_V_MSG(0, "Can't travel to '" + node_name + "' if state machine is not playing.");
+                    ERR_FAIL_V_MSG(0, "Can't travel to '" + node_name + "' if state machine is not playing. Maybe you need to enable Autoplay on Load for one of the nodes in your state machine or call .start() first?");
                 }
             } else {
                 if (!_travel(p_state_machine, start_request)) {
@@ -346,11 +346,17 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *p_st
             }
         } else {
             // teleport to start
+            if (p_state_machine->states.contains(start_request)) {
             path.clear();
             current = start_request;
             playing = true;
             play_start = true;
             start_request = StringName(); //clear start request
+            } else {
+                StringName node = start_request;
+                start_request = StringName(); //clear start request
+                ERR_FAIL_V_MSG(0, String("No such node: '") + node + "'");
+            }
         }
     }
 
@@ -511,14 +517,14 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *p_st
 
 void AnimationNodeStateMachinePlayback::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("travel", {"to_node"}), &AnimationNodeStateMachinePlayback::travel);
-    MethodBinder::bind_method(D_METHOD("start", {"node"}), &AnimationNodeStateMachinePlayback::start);
-    MethodBinder::bind_method(D_METHOD("stop"), &AnimationNodeStateMachinePlayback::stop);
-    MethodBinder::bind_method(D_METHOD("is_playing"), &AnimationNodeStateMachinePlayback::is_playing);
-    MethodBinder::bind_method(D_METHOD("get_current_node"), &AnimationNodeStateMachinePlayback::get_current_node);
-    MethodBinder::bind_method(D_METHOD("get_current_play_position"), &AnimationNodeStateMachinePlayback::get_current_play_position);
-    MethodBinder::bind_method(D_METHOD("get_current_length"), &AnimationNodeStateMachinePlayback::get_current_length);
-    MethodBinder::bind_method(D_METHOD("get_travel_path"), &AnimationNodeStateMachinePlayback::get_travel_path);
+    BIND_METHOD(AnimationNodeStateMachinePlayback,travel);
+    BIND_METHOD(AnimationNodeStateMachinePlayback,start);
+    BIND_METHOD(AnimationNodeStateMachinePlayback,stop);
+    BIND_METHOD(AnimationNodeStateMachinePlayback,is_playing);
+    BIND_METHOD(AnimationNodeStateMachinePlayback,get_current_node);
+    BIND_METHOD(AnimationNodeStateMachinePlayback,get_current_play_position);
+    BIND_METHOD(AnimationNodeStateMachinePlayback,get_current_length);
+    BIND_METHOD(AnimationNodeStateMachinePlayback,get_travel_path);
 }
 
 AnimationNodeStateMachinePlayback::AnimationNodeStateMachinePlayback() {
@@ -533,18 +539,18 @@ AnimationNodeStateMachinePlayback::AnimationNodeStateMachinePlayback() {
 ///////////////////////////////////////////////////////
 
 void AnimationNodeStateMachine::get_parameter_list(Vector<PropertyInfo> *r_list) const {
-    r_list->push_back(PropertyInfo(VariantType::OBJECT, playback, PropertyHint::ResourceType, "AnimationNodeStateMachinePlayback", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
+    r_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(playback), PropertyHint::ResourceType, "AnimationNodeStateMachinePlayback", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
     Vector<StringName> advance_conditions;
     for (int i = 0; i < transitions.size(); i++) {
         StringName ac = transitions[i].transition->get_advance_condition_name();
-        if (ac != StringName() && advance_conditions.find(ac) == nullptr) {
-            advance_conditions.push_back(ac);
+        if (!ac.empty() && advance_conditions.find(ac) == nullptr) {
+            advance_conditions.emplace_back(eastl::move(ac));
         }
     }
 
     eastl::sort(advance_conditions.begin(),advance_conditions.end(),WrapAlphaCompare());
-    for (const StringName &E : advance_conditions) {
-        r_list->push_back(PropertyInfo(VariantType::BOOL, E));
+    for (StringName &E : advance_conditions) {
+        r_list->push_back(PropertyInfo(VariantType::BOOL, eastl::move(E)));
     }
 }
 
@@ -573,7 +579,7 @@ void AnimationNodeStateMachine::add_node(const StringName &p_name, Ref<Animation
     emit_changed();
     emit_signal("tree_changed");
 
-    p_node->connect("tree_changed",callable_mp(this, &ClassName::_tree_changed), varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
+    p_node->connect("tree_changed",callable_mp(this, &ClassName::_tree_changed),  ObjectNS::CONNECT_REFERENCE_COUNTED);
 }
 
 void AnimationNodeStateMachine::replace_node(const StringName &p_name, Ref<AnimationNode> p_node) {
@@ -594,7 +600,7 @@ void AnimationNodeStateMachine::replace_node(const StringName &p_name, Ref<Anima
     emit_changed();
     emit_signal("tree_changed");
 
-    p_node->connect("tree_changed",callable_mp(this, &ClassName::_tree_changed), {}, ObjectNS::CONNECT_REFERENCE_COUNTED);
+    p_node->connectF("tree_changed",this,[=]() { _tree_changed(); }, ObjectNS::CONNECT_REFERENCE_COUNTED);
 }
 
 Ref<AnimationNode> AnimationNodeStateMachine::get_node(const StringName &p_name) const {
@@ -751,7 +757,7 @@ void AnimationNodeStateMachine::add_transition(const StringName &p_from, const S
     tr.to = p_to;
     tr.transition = p_transition;
 
-    tr.transition->connect("advance_condition_changed",callable_mp(this, &ClassName::_tree_changed), varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
+    tr.transition->connect("advance_condition_changed",callable_mp(this, &ClassName::_tree_changed), ObjectNS::CONNECT_REFERENCE_COUNTED);
 
     transitions.push_back(tr);
 }
@@ -975,33 +981,33 @@ void AnimationNodeStateMachine::_tree_changed() {
 void AnimationNodeStateMachine::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_node", {"name", "node", "position"}), &AnimationNodeStateMachine::add_node, {DEFVAL(Vector2())});
-    MethodBinder::bind_method(D_METHOD("replace_node", {"name", "node"}), &AnimationNodeStateMachine::replace_node);
-    MethodBinder::bind_method(D_METHOD("get_node", {"name"}), &AnimationNodeStateMachine::get_node);
-    MethodBinder::bind_method(D_METHOD("remove_node", {"name"}), &AnimationNodeStateMachine::remove_node);
-    MethodBinder::bind_method(D_METHOD("rename_node", {"name", "new_name"}), &AnimationNodeStateMachine::rename_node);
-    MethodBinder::bind_method(D_METHOD("has_node", {"name"}), &AnimationNodeStateMachine::has_node);
-    MethodBinder::bind_method(D_METHOD("get_node_name", {"node"}), &AnimationNodeStateMachine::get_node_name);
+    BIND_METHOD(AnimationNodeStateMachine,replace_node);
+    BIND_METHOD(AnimationNodeStateMachine,get_node);
+    BIND_METHOD(AnimationNodeStateMachine,remove_node);
+    BIND_METHOD(AnimationNodeStateMachine,rename_node);
+    BIND_METHOD(AnimationNodeStateMachine,has_node);
+    BIND_METHOD(AnimationNodeStateMachine,get_node_name);
 
-    MethodBinder::bind_method(D_METHOD("set_node_position", {"name", "position"}), &AnimationNodeStateMachine::set_node_position);
-    MethodBinder::bind_method(D_METHOD("get_node_position", {"name"}), &AnimationNodeStateMachine::get_node_position);
+    BIND_METHOD(AnimationNodeStateMachine,set_node_position);
+    BIND_METHOD(AnimationNodeStateMachine,get_node_position);
 
-    MethodBinder::bind_method(D_METHOD("has_transition", {"from", "to"}), &AnimationNodeStateMachine::has_transition);
-    MethodBinder::bind_method(D_METHOD("add_transition", {"from", "to", "transition"}), &AnimationNodeStateMachine::add_transition);
-    MethodBinder::bind_method(D_METHOD("get_transition", {"idx"}), &AnimationNodeStateMachine::get_transition);
-    MethodBinder::bind_method(D_METHOD("get_transition_from", {"idx"}), &AnimationNodeStateMachine::get_transition_from);
-    MethodBinder::bind_method(D_METHOD("get_transition_to", {"idx"}), &AnimationNodeStateMachine::get_transition_to);
-    MethodBinder::bind_method(D_METHOD("get_transition_count"), &AnimationNodeStateMachine::get_transition_count);
-    MethodBinder::bind_method(D_METHOD("remove_transition_by_index", {"idx"}), &AnimationNodeStateMachine::remove_transition_by_index);
-    MethodBinder::bind_method(D_METHOD("remove_transition", {"from", "to"}), &AnimationNodeStateMachine::remove_transition);
+    BIND_METHOD(AnimationNodeStateMachine,has_transition);
+    BIND_METHOD(AnimationNodeStateMachine,add_transition);
+    BIND_METHOD(AnimationNodeStateMachine,get_transition);
+    BIND_METHOD(AnimationNodeStateMachine,get_transition_from);
+    BIND_METHOD(AnimationNodeStateMachine,get_transition_to);
+    BIND_METHOD(AnimationNodeStateMachine,get_transition_count);
+    BIND_METHOD(AnimationNodeStateMachine,remove_transition_by_index);
+    BIND_METHOD(AnimationNodeStateMachine,remove_transition);
 
-    MethodBinder::bind_method(D_METHOD("set_start_node", {"name"}), &AnimationNodeStateMachine::set_start_node);
-    MethodBinder::bind_method(D_METHOD("get_start_node"), &AnimationNodeStateMachine::get_start_node);
+    BIND_METHOD(AnimationNodeStateMachine,set_start_node);
+    BIND_METHOD(AnimationNodeStateMachine,get_start_node);
 
-    MethodBinder::bind_method(D_METHOD("set_end_node", {"name"}), &AnimationNodeStateMachine::set_end_node);
-    MethodBinder::bind_method(D_METHOD("get_end_node"), &AnimationNodeStateMachine::get_end_node);
+    BIND_METHOD(AnimationNodeStateMachine,set_end_node);
+    BIND_METHOD(AnimationNodeStateMachine,get_end_node);
 
-    MethodBinder::bind_method(D_METHOD("set_graph_offset", {"offset"}), &AnimationNodeStateMachine::set_graph_offset);
-    MethodBinder::bind_method(D_METHOD("get_graph_offset"), &AnimationNodeStateMachine::get_graph_offset);
+    BIND_METHOD(AnimationNodeStateMachine,set_graph_offset);
+    BIND_METHOD(AnimationNodeStateMachine,get_graph_offset);
 
 }
 

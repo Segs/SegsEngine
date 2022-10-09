@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  code_editor.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,8 +36,10 @@
 #include "core/os/keyboard.h"
 #include "core/string_builder.h"
 #include "core/string_formatter.h"
+#include "core/string_utils.inl"
 #include "core/translation_helpers.h"
 #include "editor/editor_scale.h"
+#include "editor/plugins/script_editor_plugin.h"
 #include "editor_node.h"
 #include "editor_settings.h"
 #include "scene/gui/margin_container.h"
@@ -156,7 +158,7 @@ bool FindReplaceBar::_search(uint32_t p_flags, int p_from_line, int p_from_col) 
     bool found = text_edit->search(text, p_flags, p_from_line, p_from_col, line, col);
 
     if (found) {
-        if (!preserve_cursor) {
+        if (!preserve_cursor && !is_selection_only()) {
             text_edit->unfold_line(line);
             text_edit->cursor_set_line(line, false);
             text_edit->cursor_set_column(col + text.length(), false);
@@ -585,9 +587,6 @@ void FindReplaceBar::_bind_methods() {
 
 FindReplaceBar::FindReplaceBar() {
 
-    results_count = -1;
-    replace_all_mode = false;
-    preserve_cursor = false;
 
     vbc_lineedit = memnew(VBoxContainer);
     add_child(vbc_lineedit);
@@ -697,8 +696,8 @@ void CodeTextEditor::_input(const Ref<InputEvent> &event) {
         accept_event();
         return;
     }
-    if (ED_IS_SHORTCUT("script_text_editor/clone_down", key_event)) {
-        clone_lines_down();
+    if (ED_IS_SHORTCUT("script_text_editor/duplicate_selection", key_event)) {
+        duplicate_selection();
         accept_event();
         return;
     }
@@ -706,9 +705,7 @@ void CodeTextEditor::_input(const Ref<InputEvent> &event) {
 
 void CodeTextEditor::_text_editor_gui_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
-
-    if (mb) {
+    if (Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event)) {
 
         if (mb->is_pressed() && mb->get_command()) {
 
@@ -720,8 +717,7 @@ void CodeTextEditor::_text_editor_gui_input(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventMagnifyGesture> magnify_gesture = dynamic_ref_cast<InputEventMagnifyGesture>(p_event);
-    if (magnify_gesture) {
+    if (Ref<InputEventMagnifyGesture> magnify_gesture = dynamic_ref_cast<InputEventMagnifyGesture>(p_event)) {
 
         Ref<DynamicFont> font = dynamic_ref_cast<DynamicFont>(text_editor->get_theme_font("font"));
 
@@ -737,9 +733,7 @@ void CodeTextEditor::_text_editor_gui_input(const Ref<InputEvent> &p_event) {
         return;
     }
 
-    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
-
-    if (k) {
+    if (Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event)) {
 
         if (k->is_pressed()) {
             if (ED_IS_SHORTCUT("script_editor/zoom_in", p_event)) {
@@ -791,7 +785,7 @@ void CodeTextEditor::_line_col_changed() {
             positional_column += 1;
         }
     }
-    line_and_col_txt->set_text(FormatSN("(%3d,%3d)",text_editor->cursor_get_line() + 1,positional_column + 1));
+    line_and_col_txt->set_text(FormatSN("%3d : %3d",text_editor->cursor_get_line() + 1,positional_column + 1));
 }
 
 void CodeTextEditor::_text_changed() {
@@ -882,8 +876,10 @@ bool CodeTextEditor::_add_font_size(int p_delta) {
 
     Ref<DynamicFont> font = dynamic_ref_cast<DynamicFont>(text_editor->get_theme_font("font"));
 
-    if (font) {
-        int new_size = CLAMP(font->get_size() + p_delta, 8 * EDSCALE, 96 * EDSCALE);
+    if (!font) {
+        return false;
+    }
+    int new_size = CLAMP<float>(font->get_size() + p_delta, 8 * EDSCALE, 96 * EDSCALE);
 
         if (new_size != font->get_size()) {
             EditorSettings::get_singleton()->set("interface/editor/code_font_size", new_size / EDSCALE);
@@ -891,9 +887,6 @@ bool CodeTextEditor::_add_font_size(int p_delta) {
         }
 
         return true;
-    } else {
-        return false;
-    }
 }
 
 void CodeTextEditor::update_editor_settings() {
@@ -918,11 +911,12 @@ void CodeTextEditor::update_editor_settings() {
     text_editor->set_hiding_enabled(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/code_folding"));
     text_editor->set_draw_fold_gutter(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/code_folding"));
     text_editor->set_wrap_enabled(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/word_wrap"));
-    text_editor->set_show_line_length_guideline(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/show_line_length_guideline"));
-    text_editor->set_line_length_guideline_column(EditorSettings::get_singleton()->getT<int>("text_editor/appearance/line_length_guideline_column"));
+    text_editor->set_show_line_length_guidelines(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/show_line_length_guidelines"));
+    text_editor->set_line_length_guideline_soft_column(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/line_length_guideline_soft_column"));
+    text_editor->set_line_length_guideline_hard_column(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/line_length_guideline_hard_column"));
     text_editor->set_scroll_pass_end_of_file(EditorSettings::get_singleton()->getT<bool>("text_editor/cursor/scroll_past_end_of_file"));
     text_editor->cursor_set_block_mode(EditorSettings::get_singleton()->getT<bool>("text_editor/cursor/block_caret"));
-    text_editor->cursor_set_blink_enabled(EditorSettings::get_singleton()->getT<bool>("text_editor/cursor/caret_blink"));
+    text_editor->cursor_set_blink_enabled(EditorSettings::get_singleton()->is_caret_blink_active());
     text_editor->cursor_set_blink_speed(EditorSettings::get_singleton()->getT<float>("text_editor/cursor/caret_blink_speed"));
     text_editor->set_auto_brace_completion(EditorSettings::get_singleton()->getT<bool>("text_editor/completion/auto_brace_complete"));
 }
@@ -1205,7 +1199,9 @@ void CodeTextEditor::_delete_line(int p_line) {
         text_editor->cursor_set_column(0);
     }
     text_editor->backspace_at_cursor();
+    if (p_line < text_editor->get_line_count()) {
     text_editor->unfold_line(p_line);
+    }
     text_editor->cursor_set_line(p_line);
 }
 void CodeTextEditor::delete_lines() {
@@ -1227,7 +1223,7 @@ void CodeTextEditor::delete_lines() {
 }
 
 
-void CodeTextEditor::clone_lines_down() {
+void CodeTextEditor::duplicate_selection() {
     const int cursor_column = text_editor->cursor_get_column();
     int from_line = text_editor->cursor_get_line();
     int to_line = text_editor->cursor_get_line();
@@ -1637,7 +1633,7 @@ void CodeTextEditor::remove_all_bookmarks() {
 
 void CodeTextEditor::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_input"), &CodeTextEditor::_input);
+    BIND_METHOD(CodeTextEditor,_input);
 
     ADD_SIGNAL(MethodInfo("validate_script"));
     ADD_SIGNAL(MethodInfo("load_theme_settings"));
@@ -1680,6 +1676,7 @@ CodeTextEditor::CodeTextEditor() {
     text_editor->set_show_line_numbers(true);
     text_editor->set_brace_matching(true);
     text_editor->set_auto_indent(true);
+    text_editor->set_deselect_on_focus_loss_enabled(false);
 
     status_bar = memnew(HBoxContainer);
     add_child(status_bar);

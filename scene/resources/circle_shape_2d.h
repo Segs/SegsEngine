@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  circle_shape_2d.h                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -54,7 +54,7 @@ public:
         return radius;
     }
 
-    void draw(const RID &p_to_rid, const Color &p_color) override;
+    void draw(RenderingEntity p_to_rid, const Color &p_color) override;
     Rect2 get_rect() const override;
 
     CircleShape2D();

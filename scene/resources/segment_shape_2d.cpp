@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  segment_shape_2d.cpp                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,9 +30,10 @@
 
 #include "segment_shape_2d.h"
 
+#include "core/dictionary.h"
+#include "core/method_bind.h"
 #include "servers/physics_server_2d.h"
 #include "servers/rendering_server.h"
-#include "core/method_bind.h"
 
 IMPL_GDCLASS(SegmentShape2D)
 IMPL_GDCLASS(RayShape2D)
@@ -40,8 +41,8 @@ IMPL_GDCLASS(RayShape2D)
 #ifdef TOOLS_ENABLED
 bool SegmentShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
-    Vector2 l[2] = { a, b };
-    Vector2 closest = Geometry::get_closest_point_to_segment_2d(p_point, l);
+    const Vector2 l[2] = { a, b };
+    const Vector2 closest = Geometry::get_closest_point_to_segment_2d(p_point, l);
     return p_point.distance_to(closest) < p_tolerance;
 }
 #endif
@@ -51,7 +52,7 @@ void SegmentShape2D::_update_shape() {
     Rect2 r;
     r.position = a;
     r.size = b;
-    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), r);
+    PhysicsServer2D::get_singleton()->shape_set_data(get_phys_rid(), r);
     emit_changed();
 }
 
@@ -75,7 +76,7 @@ Vector2 SegmentShape2D::get_b() const {
     return b;
 }
 
-void SegmentShape2D::draw(const RID &p_to_rid, const Color &p_color) {
+void SegmentShape2D::draw(RenderingEntity p_to_rid, const Color &p_color) {
 
     RenderingServer::get_singleton()->canvas_item_add_line(p_to_rid, a, b, p_color, 3);
 }
@@ -90,11 +91,11 @@ Rect2 SegmentShape2D::get_rect() const {
 
 void SegmentShape2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_a", {"a"}), &SegmentShape2D::set_a);
-    MethodBinder::bind_method(D_METHOD("get_a"), &SegmentShape2D::get_a);
+    BIND_METHOD(SegmentShape2D,set_a);
+    BIND_METHOD(SegmentShape2D,get_a);
 
-    MethodBinder::bind_method(D_METHOD("set_b", {"b"}), &SegmentShape2D::set_b);
-    MethodBinder::bind_method(D_METHOD("get_b"), &SegmentShape2D::get_b);
+    BIND_METHOD(SegmentShape2D,set_b);
+    BIND_METHOD(SegmentShape2D,get_b);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "a"), "set_a", "get_a");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "b"), "set_b", "get_b");
@@ -115,24 +116,22 @@ void RayShape2D::_update_shape() {
     Dictionary d;
     d["length"] = length;
     d["slips_on_slope"] = slips_on_slope;
-    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), d);
+    PhysicsServer2D::get_singleton()->shape_set_data(get_phys_rid(), d);
     emit_changed();
 }
 
-void RayShape2D::draw(const RID &p_to_rid, const Color &p_color) {
+void RayShape2D::draw(RenderingEntity p_to_rid, const Color &p_color) {
 
     Vector2 tip = Vector2(0, get_length());
     RenderingServer::get_singleton()->canvas_item_add_line(p_to_rid, Vector2(), tip, p_color, 3);
     Vector<Vector2> pts;
     float tsize = 4;
     pts.push_back(tip + Vector2(0, tsize));
-    pts.push_back(tip + Vector2(0.707 * tsize, 0));
-    pts.push_back(tip + Vector2(-0.707 * tsize, 0));
-    PoolVector<Color> cols;
-    for (int i = 0; i < 3; i++)
-        cols.push_back(p_color);
+    pts.push_back(tip + Vector2(0.707f * tsize, 0));
+    pts.push_back(tip + Vector2(-0.707f * tsize, 0));
+    const Color cols[3] {p_color,p_color,p_color};
 
-    RenderingServer::get_singleton()->canvas_item_add_primitive(p_to_rid, pts, cols, PoolVector<Point2>(), RID());
+    RenderingServer::get_singleton()->canvas_item_add_primitive(p_to_rid, pts, cols, {}, entt::null);
 }
 
 Rect2 RayShape2D::get_rect() const {
@@ -140,19 +139,20 @@ Rect2 RayShape2D::get_rect() const {
     Rect2 rect;
     rect.position = Vector2();
     rect.expand_to(Vector2(0, length));
-    rect = rect.grow(0.707 * 4);
+    rect.grow_by(0.707 * 4);
     return rect;
 }
 
 void RayShape2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_length", {"length"}), &RayShape2D::set_length);
-    MethodBinder::bind_method(D_METHOD("get_length"), &RayShape2D::get_length);
+    BIND_METHOD(RayShape2D,set_length);
+    BIND_METHOD(RayShape2D,get_length);
 
-    MethodBinder::bind_method(D_METHOD("set_slips_on_slope", {"active"}), &RayShape2D::set_slips_on_slope);
-    MethodBinder::bind_method(D_METHOD("get_slips_on_slope"), &RayShape2D::get_slips_on_slope);
+    BIND_METHOD(RayShape2D,set_slips_on_slope);
+    BIND_METHOD(RayShape2D,get_slips_on_slope);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "length"), "set_length", "get_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "length", PropertyHint::Range, "0.01,1024,0.01,or_greater"),
+            "set_length", "get_length");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "slips_on_slope"), "set_slips_on_slope", "get_slips_on_slope");
 }
 

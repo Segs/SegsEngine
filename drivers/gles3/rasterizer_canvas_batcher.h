@@ -34,11 +34,19 @@
 #include "core/project_settings.h"
 #include "core/string_utils.h"
 #include "core/print_string.h"
+#include "core/deque.h"
+#include "drivers/gles3/rasterizer_render_target_component.h"
+#include "drivers/gles3/rasterizer_skeleton_component.h"
 #include "rasterizer_array.h"
 #include "rasterizer_asserts.h"
 #include "rasterizer_storage_common.h"
+#include "rasterizer_texture_component.h"
 #include "servers/rendering/rasterizer.h"
+#include "servers/rendering/rendering_server_globals.h"
 
+struct RasterizerShaderComponent;
+class RasterizerStorageGLES3;
+struct RasterizerMaterialComponent;
 // We are using the curiously recurring template pattern
 // https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
 // For static polymorphism.
@@ -51,35 +59,34 @@
 
 // These macros makes it simpler and less verbose to define (and redefine) the inline functions
 // template preamble
-#define T_PREAMBLE template <class T, typename T_STORAGE>
+#define T_PREAMBLE template <class T>
 // class preamble
-#define C_PREAMBLE RasterizerCanvasBatcher<T, T_STORAGE>
+#define C_PREAMBLE RasterizerCanvasBatcher<T>
 // generic preamble
 #define PREAMBLE(RET_T) \
     T_PREAMBLE          \
     RET_T C_PREAMBLE
 
-template <class T, typename T_STORAGE>
-class RasterizerCanvasBatcher {
+class RasterizerCanvasBatcherBaseClass {
 
 public:
     // used to determine whether we use hardware transform (none)
     // software transform all verts, or software transform just a translate
     // (no rotate or scale)
-    enum TransformMode {
+    enum TransformMode : int8_t {
         TM_NONE,
         TM_ALL,
         TM_TRANSLATE,
     };
 
-    // pod versions of vector and color and RID, need to be 32 bit for vertex format
+    // pod versions of vector and color and RenderingEntity, need to be 32 bit for vertex format
     struct BatchVector2 {
         float x, y;
         void set(float xx, float yy) {
             x = xx;
             y = yy;
         }
-        void set(const Vector2 &p_o) {
+        void set(Vector2 p_o) {
             x = p_o.x;
             y = p_o.y;
         }
@@ -109,25 +116,15 @@ public:
             b = bb;
             a = aa;
         }
-        bool operator==(const BatchColor &p_c) const {
+        bool operator==(BatchColor p_c) const {
             return (r == p_c.r) && (g == p_c.g) && (b == p_c.b) && (a == p_c.a);
         }
-        bool operator!=(const BatchColor &p_c) const { return (*this == p_c) == false; }
-        bool equals(const Color &p_c) const {
+        bool operator!=(BatchColor p_c) const { return (*this == p_c) == false; }
+        bool equals(Color p_c) const {
             return (r == p_c.r) && (g == p_c.g) && (b == p_c.b) && (a == p_c.a);
         }
         const float *get_data() const { return &r; }
-        String to_string() const {
-            String sz = "{";
-            const float *data = get_data();
-            for (int c = 0; c < 4; c++) {
-                float f = data[c];
-                int val = ((f * 255.0f) + 0.5f);
-                sz += String(Variant(val)) + " ";
-            }
-            sz += "}";
-            return sz;
-        }
+        String to_string() const;
     };
 
     // simplest FVF - local or baked position
@@ -171,8 +168,14 @@ public:
 
     // Batch should be as small as possible, and ideally nicely aligned (is 32 bytes at the moment)
     struct Batch {
-        RasterizerStorageCommon::BatchType type; // should be 16 bit
-        uint16_t batch_texture_id;
+        // we can keep the batch structure small because we either need to store
+        // the color if a handled batch, or the parent item if a default batch, so
+        // we can reference the correct originating command
+        union {
+            BatchColor color;
+            // for default batches we will store the parent item
+            const RasterizerCanvas::Item *item;
+        };
 
         // also item reference number
         uint32_t first_command;
@@ -180,12 +183,34 @@ public:
         // in the case of DEFAULT, this is num commands.
         // with rects, is number of command and rects.
         // with lines, is number of lines
+        // with polys, is number of indices (actual rendered verts)
         uint32_t num_commands;
 
         // first vertex of this batch in the vertex lists
         uint32_t first_vert;
 
-        BatchColor color;
+        uint16_t batch_texture_id;
+        RasterizerStorageCommon::BatchType type; // should be 16 bit
+        uint32_t get_num_verts() const {
+            switch (type) {
+                default: {
+                } break;
+                case RasterizerStorageCommon::BT_RECT: {
+                    return num_commands * 4;
+                } break;
+                case RasterizerStorageCommon::BT_LINE:
+                case RasterizerStorageCommon::BT_LINE_AA: {
+                    return num_commands * 2;
+                } break;
+                case RasterizerStorageCommon::BT_POLY: {
+                    return num_commands;
+                } break;
+            }
+
+            // error condition
+            WARN_PRINT_ONCE("reading num_verts from incorrect batch type");
+            return 0;
+        }
     };
 
     struct BatchTex {
@@ -194,8 +219,8 @@ public:
             TILE_NORMAL,
             TILE_FORCE_REPEAT,
         };
-        RID RID_texture;
-        RID RID_normal;
+        RenderingEntity RID_texture;
+        RenderingEntity RID_normal;
         TileMode tile_mode;
         BatchVector2 tex_pixel_size;
         uint32_t flags;
@@ -228,7 +253,8 @@ public:
 
         // we are always splitting items with lots of commands,
         // and items with unhandled primitives (default)
-        bool use_hardware_transform() const { return num_item_refs == 1; }
+        bool is_single_item() const { return (num_item_refs == 1); }
+        bool use_attrib_transform() const { return flags & RasterizerStorageCommon::USE_LARGE_FVF; }
     };
 
     struct BItemRef {
@@ -249,51 +275,7 @@ public:
 
     struct BatchData {
 
-        BatchData() {
-            reset_flush();
-            reset_joined_item();
-
-            gl_vertex_buffer = 0;
-            gl_index_buffer = 0;
-            max_quads = 0;
-            vertex_buffer_size_units = 0;
-            vertex_buffer_size_bytes = 0;
-            index_buffer_size_units = 0;
-            index_buffer_size_bytes = 0;
-
-            use_colored_vertices = false;
-
-            settings_use_batching = false;
-            settings_max_join_item_commands = 0;
-            settings_colored_vertex_format_threshold = 0.0f;
-            settings_batch_buffer_num_verts = 0;
-            scissor_threshold_area = 0.0f;
-            joined_item_batch_flags = 0;
-            diagnose_frame = false;
-            next_diagnose_tick = 10000;
-            diagnose_frame_number = 9999999999; // some high number
-            join_across_z_indices = true;
-            settings_item_reordering_lookahead = 0;
-
-            settings_use_batching_original_choice = false;
-            settings_flash_batching = false;
-            settings_diagnose_frame = false;
-            settings_scissor_lights = false;
-            settings_scissor_threshold = -1.0f;
-            settings_use_single_rect_fallback = false;
-            settings_use_software_skinning = true;
-            settings_ninepatch_mode = 0; // default
-            settings_light_max_join_items = 16;
-
-            settings_uv_contract = false;
-            settings_uv_contract_amount = 0.0f;
-
-            buffer_mode_batch_upload_send_null = true;
-            buffer_mode_batch_upload_flag_stream = false;
-
-            stats_items_sorted = 0;
-            stats_light_items_joined = 0;
-        }
+        BatchData();
 
         // called for each joined item
         void reset_joined_item() {
@@ -301,25 +283,7 @@ public:
         }
 
         // called after each flush
-        void reset_flush() {
-            batches.reset();
-            batch_textures.clear();
-
-            vertices.reset();
-            light_angles.reset();
-            vertex_colors.reset();
-            vertex_modulates.reset();
-            vertex_transforms.reset();
-
-            total_quads = 0;
-            total_verts = 0;
-            total_color_changes = 0;
-
-            use_light_angles = false;
-            use_modulate = false;
-            use_large_verts = false;
-            fvf = RasterizerStorageCommon::FVF_REGULAR;
-        }
+        void reset_flush();
 
         unsigned int gl_vertex_buffer;
         unsigned int gl_index_buffer;
@@ -428,7 +392,7 @@ public:
         // frame stats (just for monitoring and debugging)
         int stats_items_sorted;
         int stats_light_items_joined;
-    } bdata;
+    };
 
     struct FillState {
         void reset_flush() {
@@ -442,29 +406,34 @@ public:
             sequence_batch_type_flags = 0;
         }
 
-        void reset_joined_item(bool p_use_hardware_transform) {
+        void reset_joined_item(bool p_is_single_item, bool p_use_attrib_transform) {
             reset_flush();
-            use_hardware_transform = p_use_hardware_transform;
+            is_single_item = p_is_single_item;
+            use_attrib_transform = p_use_attrib_transform;
+            use_software_transform = !is_single_item && !use_attrib_transform;
             extra_matrix_sent = false;
         }
+        Transform2D transform_combined; // final * extra
+        Transform2D skeleton_base_inverse_xform; // used in software skinning
+        Vector2 texpixel_size;
+        Color final_modulate;
+        Batch *curr_batch;
 
         // for batching multiple types, we don't allow mixing RECTs / LINEs etc.
         // using flags allows quicker rejection of sequences with different batch types
         uint32_t sequence_batch_type_flags;
-
-        Batch *curr_batch;
         int batch_tex_id;
-        bool use_hardware_transform;
-        bool contract_uvs;
-        Vector2 texpixel_size;
-        Color final_modulate;
+        int transform_extra_command_number_p1; // plus one to allow fast checking against zero
+
         TransformMode transform_mode;
         TransformMode orig_transform_mode;
 
+        bool is_single_item : 1;
+        bool use_attrib_transform : 1;
+        bool use_software_transform : 1;
+        bool contract_uvs : 1;
         // support for extra matrices
-        bool extra_matrix_sent; // whether sent on this item (in which case sofware transform can't be used untl end of item)
-        int transform_extra_command_number_p1; // plus one to allow fast checking against zero
-        Transform2D transform_combined; // final * extra
+        bool extra_matrix_sent : 1; // whether sent on this item (in which case software transform can't be used untl end of item)
     };
 
     // used during try_join
@@ -472,13 +441,13 @@ public:
         RenderItemState() { reset(); }
         void reset() {
             current_clip = nullptr;
-            shader_cache = nullptr;
+            shader_cache = entt::null;
             rebind_shader = true;
             prev_use_skeleton = false;
             last_blend_mode = -1;
-            canvas_last_material = RID();
+            canvas_last_material = entt::null;
             item_group_z = 0;
-            item_group_light = nullptr;
+            //item_group_light = entt::null;
             final_modulate = Color(-1.0, -1.0, -1.0, -1.0); // just something unlikely
 
             joined_item_batch_type_flags_curr = 0;
@@ -488,12 +457,12 @@ public:
         }
 
         RasterizerCanvas::Item *current_clip;
-        typename T_STORAGE::Shader *shader_cache;
+        RenderingEntity shader_cache;//RasterizerShaderComponent *
         bool rebind_shader;
         bool prev_use_skeleton;
         bool prev_distance_field;
         int last_blend_mode;
-        RID canvas_last_material;
+        RenderingEntity canvas_last_material;
         Color final_modulate;
 
         // used for joining items only
@@ -509,35 +478,72 @@ public:
         // 'item group' is data over a single call to canvas_render_items
         int item_group_z;
         Color item_group_modulate;
-        RasterizerCanvas::Light3D *item_group_light;
+        Span<RasterizerCanvasLight3DComponent *> item_group_light;
         Transform2D item_group_base_transform;
-    } _render_item_state;
+    };
 
+    BatchData bdata;
+    RenderItemState _render_item_state;
     bool use_nvidia_rect_workaround;
 
     //////////////////////////////////////////////////////////////////////////////
     // End of structs used by the batcher. Beginning of funcs.
+    Batch *_batch_request_new(bool p_blank = true) {
+        Batch *batch = bdata.batches.request();
+        if (!batch) {
+            // grow the batches
+            bdata.batches.grow();
+
+            // and the temporary batches (used for color verts)
+            bdata.batches_temp.reset();
+            bdata.batches_temp.grow();
+
+            // this should always succeed after growing
+            batch = bdata.batches.request();
+            RAST_DEBUG_ASSERT(batch);
+        }
+
+        if (p_blank) {
+            memset(batch, 0, sizeof(Batch));
+        } else {
+            batch->item = nullptr;
+        }
+
+        return batch;
+    }
+
+    BatchVertex *_batch_vertex_request_new() {
+        return bdata.vertices.request();
+    }
+protected:
+    static RasterizerTextureComponent *_get_canvas_texture(RenderingEntity p_texture);
+
+    void batch_canvas_begin();
+    void batch_canvas_end();
+    void batch_constructor();
+
+};
+
+template <class T>
+class RasterizerCanvasBatcher : public RasterizerCanvasBatcherBaseClass {
 private:
     // curiously recurring template pattern - allows access to functions in the DERIVED class
     // this is kind of like using virtual functions but more efficient as they are resolved at compile time
-    T_STORAGE *get_storage() { return static_cast<const T *>(this)->storage; }
-    const T_STORAGE *get_storage() const { return static_cast<const T *>(this)->storage; }
+    RasterizerStorageGLES3 *get_storage() { return static_cast<const T *>(this)->storage; }
+    const RasterizerStorageGLES3 *get_storage() const { return static_cast<const T *>(this)->storage; }
     T *get_this() { return static_cast<T *>(this); }
     const T *get_this() const { return static_cast<const T *>(this); }
 
 protected:
     // main functions called from the rasterizer canvas
-    void batch_constructor();
     void batch_initialize();
 
-    void batch_canvas_begin();
-    void batch_canvas_end();
-    void batch_canvas_render_items_begin(const Color &p_modulate, RasterizerCanvas::Light3D *p_light, const Transform2D &p_base_transform);
+    void batch_canvas_render_items_begin(const Color &p_modulate, Span<RasterizerCanvasLight3DComponent *> p_light, const Transform2D &p_base_transform);
     void batch_canvas_render_items_end();
-    void batch_canvas_render_items(RasterizerCanvas::Item *p_item_list, int p_z, const Color &p_modulate, RasterizerCanvas::Light3D *p_light, const Transform2D &p_base_transform);
+    void batch_canvas_render_items(Dequeue<RasterizerCanvas::Item *> &p_item_list, int p_z, const Color &p_modulate, Span<RasterizerCanvasLight3DComponent *> p_light, const Transform2D &p_base_transform);
 
     // recording and sorting items from the initial pass
-    void record_items(RasterizerCanvas::Item *p_item_list, int p_z);
+    void record_items(Dequeue<RasterizerCanvas::Item *> &p_item_list, int p_z);
     void join_sorted_items();
     void sort_items();
     bool _sort_items_match(const BSortItem &p_a, const BSortItem &p_b) const;
@@ -548,14 +554,14 @@ protected:
     bool _detect_item_batch_break(RenderItemState &r_ris, RasterizerCanvas::Item *p_ci, bool &r_batch_break);
 
     // drives the loop filling batches and flushing
-    void render_joined_item_commands(const BItemJoined &p_bij, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, typename T_STORAGE::Material *p_material, bool p_lit);
+    void render_joined_item_commands(const BItemJoined &p_bij, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, RasterizerMaterialComponent *p_material, bool p_lit, const RenderItemState &p_ris);
 
 private:
     // flush once full or end of joined item
-    void flush_render_batches(RasterizerCanvas::Item *p_first_item, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, typename T_STORAGE::Material *p_material, uint32_t p_sequence_batch_type_flags);
+    void flush_render_batches(RasterizerCanvas::Item *p_first_item, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, RasterizerMaterialComponent *p_material, uint32_t p_sequence_batch_type_flags);
 
     // a single joined item can contain multiple itemrefs, and thus create lots of batches
-    bool prefill_joined_item(FillState &r_fill_state, int &r_command_start, RasterizerCanvas::Item *p_item, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, typename T_STORAGE::Material *p_material);
+    bool prefill_joined_item(FillState &r_fill_state, int &r_command_start, RasterizerCanvas::Item *p_item, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, RasterizerMaterialComponent *p_material);
 
     // prefilling different types of batch
 
@@ -573,11 +579,11 @@ private:
     bool _prefill_rect(RasterizerCanvas::Item::CommandRect *rect, FillState &r_fill_state, int &r_command_start, int command_num, int command_count, RasterizerCanvas::Item::Command *const *commands, RasterizerCanvas::Item *p_item, bool multiply_final_modulate);
 
     // dealing with textures
-    int _batch_find_or_create_tex(const RID &p_texture, const RID &p_normal, bool p_tile, int p_previous_match);
+    int _batch_find_or_create_tex(RenderingEntity p_texture, RenderingEntity p_normal, bool p_tile, int p_previous_match);
 
 protected:
     // legacy support for non batched mode
-    void _legacy_canvas_item_render_commands(RasterizerCanvas::Item *p_item, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, typename T_STORAGE::Material *p_material);
+    void _legacy_canvas_item_render_commands(RasterizerCanvas::Item *p_item, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, RasterizerMaterialComponent *p_material);
 
     // light scissoring
     bool _light_scissor_begin(const Rect2 &p_item_rect, const Transform2D &p_light_xform, const Rect2 &p_light_rect) const;
@@ -607,57 +613,6 @@ protected:
     }
     bool _software_skin_poly(RasterizerCanvas::Item::CommandPolygon *p_poly, RasterizerCanvas::Item *p_item, BatchVertex *bvs, BatchColor *vertex_colors, const FillState &p_fill_state, const BatchColor *p_precalced_colors);
 
-    typename T_STORAGE::Texture *_get_canvas_texture(const RID &p_texture) const {
-        if (p_texture.is_valid()) {
-
-            typename T_STORAGE::Texture *texture = get_storage()->texture_owner.getornull(p_texture);
-
-            if (texture) {
-
-                // could be a proxy texture (e.g. animated)
-                if (texture->proxy) {
-                    // take care to prevent infinite loop
-                    int count = 0;
-                    while (texture->proxy) {
-                        texture = texture->proxy;
-                        count++;
-                        ERR_FAIL_COND_V_MSG(count == 16, nullptr, "Texture proxy infinite loop detected.");
-                    }
-                }
-
-                return texture->get_ptr();
-            }
-        }
-
-        return nullptr;
-    }
-
-public:
-    Batch *_batch_request_new(bool p_blank = true) {
-        Batch *batch = bdata.batches.request();
-        if (!batch) {
-            // grow the batches
-            bdata.batches.grow();
-
-            // and the temporary batches (used for color verts)
-            bdata.batches_temp.reset();
-            bdata.batches_temp.grow();
-
-            // this should always succeed after growing
-            batch = bdata.batches.request();
-            RAST_DEBUG_ASSERT(batch);
-        }
-
-        if (p_blank)
-            memset(batch, 0, sizeof(Batch));
-
-        return batch;
-    }
-
-    BatchVertex *_batch_vertex_request_new() {
-        return bdata.vertices.request();
-    }
-
 protected:
     // no need to compile these in in release, they are unneeded outside the editor and only add to executable size
 #if defined(TOOLS_ENABLED) && defined(DEBUG_ENABLED)
@@ -665,52 +620,7 @@ protected:
 #endif
 };
 
-PREAMBLE(void)::batch_canvas_begin() {
-    // diagnose_frame?
-    bdata.frame_string = ""; // just in case, always set this as we don't want a string leak in release...
-#if defined(TOOLS_ENABLED) && defined(DEBUG_ENABLED)
-    if (bdata.settings_diagnose_frame) {
-        bdata.diagnose_frame = false;
-
-        uint32_t tick = OS::get_singleton()->get_ticks_msec();
-        uint64_t frame = Engine::get_singleton()->get_frames_drawn();
-
-        if (tick >= bdata.next_diagnose_tick) {
-            bdata.next_diagnose_tick = tick + 10000;
-
-            // the plus one is prevent starting diagnosis half way through frame
-            bdata.diagnose_frame_number = frame + 1;
-        }
-
-        if (frame == bdata.diagnose_frame_number) {
-            bdata.diagnose_frame = true;
-            bdata.reset_stats();
-        }
-
-        if (bdata.diagnose_frame) {
-            bdata.frame_string = "canvas_begin FRAME " + itos(frame) + "\n";
-        }
-    }
-#endif
-}
-
-PREAMBLE(void)::batch_canvas_end() {
-#if defined(TOOLS_ENABLED) && defined(DEBUG_ENABLED)
-    if (bdata.diagnose_frame) {
-        bdata.frame_string += "canvas_end\n";
-        if (bdata.stats_items_sorted) {
-            bdata.frame_string += "\titems reordered: " + itos(bdata.stats_items_sorted) + "\n";
-        }
-        if (bdata.stats_light_items_joined) {
-            bdata.frame_string += "\tlight items joined: " + itos(bdata.stats_light_items_joined) + "\n";
-        }
-
-        print_line(bdata.frame_string);
-    }
-#endif
-}
-
-PREAMBLE(void)::batch_canvas_render_items_begin(const Color &p_modulate, RasterizerCanvas::Light3D *p_light, const Transform2D &p_base_transform) {
+PREAMBLE(void)::batch_canvas_render_items_begin(const Color &p_modulate, Span<RasterizerCanvasLight3DComponent *> p_light, const Transform2D &p_base_transform) {
     // if we are debugging, flash each frame between batching renderer and old version to compare for regressions
     if (bdata.settings_flash_batching) {
         if ((Engine::get_singleton()->get_frames_drawn() % 2) == 0)
@@ -743,15 +653,13 @@ PREAMBLE(void)::batch_canvas_render_items_begin(const Color &p_modulate, Rasteri
     bdata.join_across_z_indices = true;
 
     int light_count = 0;
-    while (p_light) {
+    for(auto *l : p_light) {
         light_count++;
 
-        if ((p_light->z_min != RS::CANVAS_ITEM_Z_MIN) || (p_light->z_max != RS::CANVAS_ITEM_Z_MAX)) {
+        if ((l->z_min != RS::CANVAS_ITEM_Z_MIN) || (l->z_max != RS::CANVAS_ITEM_Z_MAX)) {
             // prevent joining across z indices. This would have caused visual regressions
             bdata.join_across_z_indices = false;
         }
-
-        p_light = p_light->next_ptr;
     }
 
     // can't use the light region bitfield if there are too many lights
@@ -774,9 +682,8 @@ PREAMBLE(void)::batch_canvas_render_items_end() {
         bdata.frame_string += "items\n";
     }
 #endif
-
     // batching render is deferred until after going through all the z_indices, joining all the items
-    get_this()->canvas_render_items_implementation(0, 0, _render_item_state.item_group_modulate,
+    get_this()->canvas_render_items_implementation({}, 0, _render_item_state.item_group_modulate,
             _render_item_state.item_group_light,
             _render_item_state.item_group_base_transform);
 
@@ -785,7 +692,7 @@ PREAMBLE(void)::batch_canvas_render_items_end() {
     bdata.sort_items.reset();
 }
 
-PREAMBLE(void)::batch_canvas_render_items(RasterizerCanvas::Item *p_item_list, int p_z, const Color &p_modulate, RasterizerCanvas::Light3D *p_light, const Transform2D &p_base_transform) {
+PREAMBLE(void)::batch_canvas_render_items(Dequeue<RasterizerCanvas::Item *> &p_item_list, int p_z, const Color &p_modulate, Span<RasterizerCanvasLight3DComponent *> p_light, const Transform2D &p_base_transform) {
     // stage 1 : join similar items, so that their state changes are not repeated,
     // and commands from joined items can be batched together
     if (bdata.settings_use_batching) {
@@ -850,6 +757,7 @@ PREAMBLE(void)::_prefill_default_batch(FillState &r_fill_state, int p_command_nu
             r_fill_state.curr_batch->type = RasterizerStorageCommon::BT_DEFAULT;
             r_fill_state.curr_batch->first_command = extra_command;
             r_fill_state.curr_batch->num_commands = 1;
+            r_fill_state.curr_batch->item = &p_item;
 
             // revert to the original transform mode
             // e.g. go back to NONE if we were in hardware transform mode
@@ -875,10 +783,11 @@ PREAMBLE(void)::_prefill_default_batch(FillState &r_fill_state, int p_command_nu
         r_fill_state.curr_batch->type = RasterizerStorageCommon::BT_DEFAULT;
         r_fill_state.curr_batch->first_command = p_command_num;
         r_fill_state.curr_batch->num_commands = 1;
+        r_fill_state.curr_batch->item = &p_item;
     }
 }
 
-PREAMBLE(int)::_batch_find_or_create_tex(const RID &p_texture, const RID &p_normal, bool p_tile, int p_previous_match) {
+PREAMBLE(int)::_batch_find_or_create_tex(RenderingEntity p_texture, RenderingEntity p_normal, bool p_tile, int p_previous_match) {
 
     // optimization .. in 99% cases the last matched value will be the same, so no need to traverse the list
     if (p_previous_match > 0) // if it is zero, it will get hit first in the linear search anyway
@@ -919,7 +828,7 @@ PREAMBLE(int)::_batch_find_or_create_tex(const RID &p_texture, const RID &p_norm
     new_batch_tex.RID_normal = p_normal;
 
     // get the texture
-    typename T_STORAGE::Texture *texture = _get_canvas_texture(p_texture);
+    RasterizerTextureComponent*texture = _get_canvas_texture(p_texture);
 
     if (texture) {
         // special case, there can be textures with no width or height
@@ -966,17 +875,6 @@ PREAMBLE(int)::_batch_find_or_create_tex(const RID &p_texture, const RID &p_norm
     return bdata.batch_textures.size() - 1;
 }
 
-PREAMBLE(void)::batch_constructor() {
-    bdata.settings_use_batching = false;
-
-#ifdef GLES_OVER_GL
-    use_nvidia_rect_workaround = GLOBAL_GET("rendering/quality/2d/use_nvidia_rect_flicker_workaround");
-#else
-    // Not needed (a priori) on GLES devices
-    use_nvidia_rect_workaround = false;
-#endif
-}
-
 PREAMBLE(void)::batch_initialize() {
     bdata.settings_use_batching = T_GLOBAL_GET<bool>("rendering/batching/options/use_batching");
     bdata.settings_max_join_item_commands = T_GLOBAL_GET<int>("rendering/batching/parameters/max_join_item_commands");
@@ -984,8 +882,35 @@ PREAMBLE(void)::batch_initialize() {
     bdata.settings_item_reordering_lookahead = T_GLOBAL_GET<int>("rendering/batching/parameters/item_reordering_lookahead");
     bdata.settings_light_max_join_items = T_GLOBAL_GET<int>("rendering/batching/lights/max_join_items");
     bdata.settings_use_single_rect_fallback = T_GLOBAL_GET<bool>("rendering/batching/options/single_rect_fallback");
-    bdata.settings_use_software_skinning = T_GLOBAL_GET<bool>("rendering/quality/2d/use_software_skinning");
-    bdata.settings_ninepatch_mode = T_GLOBAL_GET<int>("rendering/quality/2d/ninepatch_mode");
+    bdata.settings_use_software_skinning = T_GLOBAL_GET<bool>("rendering/2d/options/use_software_skinning");
+    bdata.settings_ninepatch_mode = T_GLOBAL_GET<int>("rendering/2d/options/ninepatch_mode");
+
+    // allow user to override the api usage techniques using project settings
+    int send_null_mode = T_GLOBAL_GET<int>("rendering/2d/opengl/batching_send_null");
+    switch (send_null_mode) {
+        default: {
+            bdata.buffer_mode_batch_upload_send_null = true;
+        } break;
+        case 1: {
+            bdata.buffer_mode_batch_upload_send_null = false;
+        } break;
+        case 2: {
+            bdata.buffer_mode_batch_upload_send_null = true;
+        } break;
+    }
+
+    int stream_mode = T_GLOBAL_GET<int>("rendering/2d/opengl/batching_stream");
+    switch (stream_mode) {
+        default: {
+            bdata.buffer_mode_batch_upload_flag_stream = false;
+        } break;
+        case 1: {
+            bdata.buffer_mode_batch_upload_flag_stream = false;
+        } break;
+        case 2: {
+            bdata.buffer_mode_batch_upload_flag_stream = true;
+        } break;
+    }
 
     // alternatively only enable uv contract if pixel snap in use,
     // but with this enable bool, it should not be necessary
@@ -1066,13 +991,12 @@ PREAMBLE(void)::batch_initialize() {
     bdata.settings_light_max_join_items = CLAMP(bdata.settings_light_max_join_items, 0, 65535);
     bdata.settings_item_reordering_lookahead = CLAMP(bdata.settings_item_reordering_lookahead, 0, 65535);
 
-    // for debug purposes, output a string with the batching options
-    String batching_options_string = "OpenGL ES Batching: ";
+    // For debug purposes, output a string with the batching options.
     if (bdata.settings_use_batching) {
-        batching_options_string += "ON";
 
         if (OS::get_singleton()->is_stdout_verbose()) {
-            batching_options_string += "\n\tOPTIONS\n";
+            String batching_options_string = "OpenGL ES Batching: ON\n";
+            batching_options_string += "\tOPTIONS\n";
             batching_options_string += "\tmax_join_item_commands " + itos(bdata.settings_max_join_item_commands) + "\n";
             batching_options_string += "\tcolored_vertex_format_threshold " + String(Variant(bdata.settings_colored_vertex_format_threshold)) + "\n";
             batching_options_string += "\tbatch_buffer_size " + itos(bdata.settings_batch_buffer_num_verts) + "\n";
@@ -1084,9 +1008,9 @@ PREAMBLE(void)::batch_initialize() {
 
             batching_options_string += "\tdebug_flash " + String(Variant(bdata.settings_flash_batching)) + "\n";
             batching_options_string += "\tdiagnose_frame " + String(Variant(bdata.settings_diagnose_frame));
-        }
 
         print_line(batching_options_string);
+    }
     }
 
     // special case, for colored vertex format threshold.
@@ -1160,13 +1084,21 @@ PREAMBLE(bool)::_light_scissor_begin(const Rect2 &p_item_rect, const Transform2D
             return false;
         }
     }
+    auto * current_rt = get<RasterizerRenderTargetComponent>(get_storage()->frame.current_rt);
+    int rh = current_rt->height;
 
-    int rh = get_storage()->frame.current_rt->height;
-
+    // using the exact size was leading to off by one errors,
+    // possibly due to pixel snap. For this reason we will boost
+    // the scissor area by 1 pixel, this will take care of any rounding
+    // issues, and shouldn't significantly negatively impact performance.
     int y = rh - (cliprect.position.y + cliprect.size.y);
-    if (get_storage()->frame.current_rt->flags[RasterizerStorage::RENDER_TARGET_VFLIP])
+    y += 1; // off by 1 boost before flipping
+
+    if (current_rt->flags[RS::RENDER_TARGET_VFLIP]) {
         y = cliprect.position.y;
-    get_this()->gl_enable_scissor(cliprect.position.x, y, cliprect.size.width, cliprect.size.height);
+    }
+
+    get_this()->gl_enable_scissor(cliprect.position.x - 1, y, cliprect.size.width + 2, cliprect.size.height + 2);
 
     return true;
 }
@@ -1216,9 +1148,10 @@ PREAMBLE(void)::_calculate_scissor_threshold_area() {
     if (bdata.settings_scissor_threshold < 0.0001f) {
         bdata.scissor_threshold_area = -1.0f; // will always pass
     } else {
+        auto * current_rt = get<RasterizerRenderTargetComponent>(get_storage()->frame.current_rt);
         // in pixels
-        int w = get_storage()->frame.current_rt->width;
-        int h = get_storage()->frame.current_rt->height;
+        int w = current_rt->width;
+        int h = current_rt->height;
 
         int screen_area = w * h;
 
@@ -1233,12 +1166,10 @@ PREAMBLE(bool)::_prefill_line(RasterizerCanvas::Item::CommandLine *p_line, FillS
     // You can't batch the different types together.
     RasterizerStorageCommon::BatchType line_batch_type = RasterizerStorageCommon::BT_LINE;
     uint32_t line_batch_flags = RasterizerStorageCommon::BTF_LINE;
-#ifdef GLES_OVER_GL
     if (p_line->antialiased) {
         line_batch_type = RasterizerStorageCommon::BT_LINE_AA;
         line_batch_flags = RasterizerStorageCommon::BTF_LINE_AA;
     }
-#endif
 
     // conditions for creating a new batch
     if (r_fill_state.curr_batch->type != line_batch_type) {
@@ -1255,16 +1186,18 @@ PREAMBLE(bool)::_prefill_line(RasterizerCanvas::Item::CommandLine *p_line, FillS
     // get the baked line color
     Color col = p_line->color;
 
-    if (multiply_final_modulate)
+    if (multiply_final_modulate) {
         col *= r_fill_state.final_modulate;
+    }
 
     BatchColor bcol;
     bcol.set(col);
 
     // if the color has changed we need a new batch
     // (only single color line batches supported so far)
-    if (r_fill_state.curr_batch->color != bcol)
+    if (!change_batch && r_fill_state.curr_batch->color != bcol) {
         change_batch = true;
+    }
 
     // not sure if needed
     r_fill_state.batch_tex_id = -1;
@@ -1289,7 +1222,8 @@ PREAMBLE(bool)::_prefill_line(RasterizerCanvas::Item::CommandLine *p_line, FillS
 
         r_fill_state.curr_batch->type = line_batch_type;
         r_fill_state.curr_batch->color = bcol;
-        r_fill_state.curr_batch->batch_texture_id = -1;
+        // cast is to stop sanitizer benign warning .. watch though in case destination type changes
+        r_fill_state.curr_batch->batch_texture_id = (uint16_t)-1;
         r_fill_state.curr_batch->first_command = command_num;
         r_fill_state.curr_batch->num_commands = 1;
         //r_fill_state.curr_batch->first_quad = bdata.total_quads;
@@ -1303,7 +1237,9 @@ PREAMBLE(bool)::_prefill_line(RasterizerCanvas::Item::CommandLine *p_line, FillS
     Vector2 from = p_line->from;
     Vector2 to = p_line->to;
 
-    if (r_fill_state.transform_mode != TM_NONE) {
+    const bool use_large_verts = bdata.use_large_verts;
+
+    if ((r_fill_state.transform_mode != TM_NONE) && (!use_large_verts)) {
         _software_transform_vertex(from, r_fill_state.transform_combined);
         _software_transform_vertex(to, r_fill_state.transform_combined);
     }
@@ -1365,7 +1301,7 @@ PREAMBLE(bool)::_prefill_line(RasterizerCanvas::Item::CommandLine *p_line, FillS
 T_PREAMBLE
 template <bool SEND_LIGHT_ANGLES>
 bool C_PREAMBLE::_prefill_ninepatch(RasterizerCanvas::Item::CommandNinePatch *p_np, FillState &r_fill_state, int &r_command_start, int command_num, int command_count, RasterizerCanvas::Item *p_item, bool multiply_final_modulate) {
-    typename T_STORAGE::Texture *tex = _get_canvas_texture(p_np->texture);
+    RasterizerTextureComponent *tex = _get_canvas_texture(p_np->texture);
 
     if (!tex) {
         // FIXME: Handle textureless ninepatch gracefully
@@ -1530,14 +1466,23 @@ bool C_PREAMBLE::_prefill_polygon(RasterizerCanvas::Item::CommandPolygon *p_poly
     int num_inds = p_poly->indices.size();
 
     // nothing to draw?
-    if (!num_inds)
+    if (!num_inds || p_poly->points.empty()) {
         return false;
+    }
 
     // we aren't using indices, so will transform verts more than once .. less efficient.
     // could be done with a temporary vertex buffer
     BatchVertex *bvs = bdata.vertices.request(num_inds);
     if (!bvs) {
-        // run out of space in the vertex buffer .. finish this function and draw what we have so far
+        // run out of space in the vertex buffer
+        // check for special case where the batching buffer is simply not big enough to fit this primitive.
+        if (!bdata.vertices.size()) {
+            // can't draw, ignore the primitive, otherwise we would enter an infinite loop
+            WARN_PRINT_ONCE("poly has too many indices to draw, increase batch buffer size");
+            return false;
+        }
+
+        // .. finish this function and draw what we have so far
         // return where we got to
         r_command_start = command_num;
         return true;
@@ -1569,18 +1514,18 @@ bool C_PREAMBLE::_prefill_polygon(RasterizerCanvas::Item::CommandPolygon *p_poly
         const Transform2D &tr = r_fill_state.transform_combined;
 
         pBT[0].translate.set(tr.elements[2]);
-        // could do swizzling in shader?
-        pBT[0].basis[0].set(tr.elements[0][0], tr.elements[1][0]);
-        pBT[0].basis[1].set(tr.elements[0][1], tr.elements[1][1]);
+        pBT[0].basis[0].set(tr.elements[0][0], tr.elements[0][1]);
+        pBT[0].basis[1].set(tr.elements[1][0], tr.elements[1][1]);
     }
     ////////////////////////////////////
 
     // the modulate is always baked
     Color modulate;
-    if (!use_large_verts && !use_modulate && multiply_final_modulate)
+    if (multiply_final_modulate) {
         modulate = r_fill_state.final_modulate;
-    else
+    } else {
         modulate = Color(1, 1, 1, 1);
+    }
 
     int old_batch_tex_id = r_fill_state.batch_tex_id;
     r_fill_state.batch_tex_id = _batch_find_or_create_tex(p_poly->texture, p_poly->normal_map, false, old_batch_tex_id);
@@ -1607,17 +1552,18 @@ bool C_PREAMBLE::_prefill_polygon(RasterizerCanvas::Item::CommandPolygon *p_poly
         }
 
         // open new batch (this should never fail, it dynamically grows)
-        r_fill_state.curr_batch = _batch_request_new(false);
+        Batch * curr_batch = _batch_request_new(false);
+        r_fill_state.curr_batch = curr_batch;
 
-        r_fill_state.curr_batch->type = RasterizerStorageCommon::BT_POLY;
+        curr_batch->type = RasterizerStorageCommon::BT_POLY;
 
         // modulate unused except for debugging?
-        r_fill_state.curr_batch->color.set(modulate);
-        r_fill_state.curr_batch->batch_texture_id = r_fill_state.batch_tex_id;
-        r_fill_state.curr_batch->first_command = command_num;
-        r_fill_state.curr_batch->num_commands = num_inds;
-        //		r_fill_state.curr_batch->num_elements = num_inds;
-        r_fill_state.curr_batch->first_vert = bdata.total_verts;
+        curr_batch->color.set(modulate);
+        curr_batch->batch_texture_id = r_fill_state.batch_tex_id;
+        curr_batch->first_command = command_num;
+        curr_batch->num_commands = num_inds;
+        //		curr_batch->num_elements = num_inds;
+        curr_batch->first_vert = bdata.total_verts;
     } else {
         // we could alternatively do the count when closing a batch .. perhaps more efficient
         r_fill_state.curr_batch->num_commands += num_inds;
@@ -1650,14 +1596,21 @@ bool C_PREAMBLE::_prefill_polygon(RasterizerCanvas::Item::CommandPolygon *p_poly
     }
 
     if (!_software_skin_poly(p_poly, p_item, bvs, vertex_colors, r_fill_state, precalced_colors)) {
+        bool software_transform = (r_fill_state.transform_mode != TM_NONE) && (!use_large_verts);
 
         for (int n = 0; n < num_inds; n++) {
             int ind = p_poly->indices[n];
 
             RAST_DEV_DEBUG_ASSERT(ind < p_poly->points.size());
 
+            // recover at runtime from invalid polys (the editor may send invalid polys)
+            if ((unsigned int)ind >= (unsigned int)num_verts) {
+                // will recover as long as there is at least one vertex.
+                // if there are no verts, we will have quick rejected earlier in this function
+                ind = 0;
+            }
             // this could be moved outside the loop
-            if (r_fill_state.transform_mode != TM_NONE) {
+            if (software_transform) {
                 Vector2 pos = p_poly->points[ind];
                 _software_transform_vertex(pos, r_fill_state.transform_combined);
                 bvs[n].pos.set(pos.x, pos.y);
@@ -1710,18 +1663,24 @@ bool C_PREAMBLE::_prefill_polygon(RasterizerCanvas::Item::CommandPolygon *p_poly
 PREAMBLE(bool)::_software_skin_poly(RasterizerCanvas::Item::CommandPolygon *p_poly, RasterizerCanvas::Item *p_item, BatchVertex *bvs, BatchColor *vertex_colors, const FillState &p_fill_state, const BatchColor *p_precalced_colors) {
 
     //	alternatively could check get_this()->state.using_skeleton
-    if (p_item->skeleton == RID())
+    if (p_item->skeleton == entt::null)
         return false;
 
     int num_inds = p_poly->indices.size();
     int num_verts = p_poly->points.size();
 
-    RID skeleton = p_item->skeleton;
+    auto &skeleton = p_item->skeleton;
     int bone_count = RasterizerStorage::base_singleton->skeleton_get_bone_count(skeleton);
 
     // we want a temporary buffer of positions to transform
     Vector2 *pTemps = (Vector2 *)alloca(num_verts * sizeof(Vector2));
     memset((void *)pTemps, 0, num_verts * sizeof(Vector2));
+    // only the inverse appears to be needed
+    const Transform2D &skel_trans_inv = p_fill_state.skeleton_base_inverse_xform;
+    // we can't get this from the state, because more than one skeleton item may have been joined together..
+    // we need to handle the base skeleton on a per item basis as the joined item is rendered.
+    // const Transform2D &skel_trans = get_this()->state.skeleton_transform;
+    // const Transform2D &skel_trans_inv = get_this()->state.skeleton_transform_inverse;
 
     // these are used in the shader but don't appear to be needed for software transform
     //	const Transform2D &skel_trans = get_this()->state.skeleton_transform;
@@ -1737,8 +1696,10 @@ PREAMBLE(bool)::_software_skin_poly(RasterizerCanvas::Item::CommandPolygon *p_po
 
     if (num_verts && (p_poly->bones.size() == num_verts * 4) && (p_poly->weights.size() == p_poly->bones.size())) {
 
-        const Transform2D &item_transform = p_item->xform;
-        Transform2D item_transform_inv = item_transform.affine_inverse();
+        // instead of using the p_item->xform we use the final transform,
+        // because we want the poly transform RELATIVE to the base skeleton.
+        const Transform2D item_transform = skel_trans_inv * p_item->final_transform;
+        const Transform2D item_transform_inv = item_transform.affine_inverse();
 
         for (int n = 0; n < num_verts; n++) {
             const Vector2 &src_pos = p_poly->points[n];
@@ -1796,6 +1757,12 @@ PREAMBLE(bool)::_software_skin_poly(RasterizerCanvas::Item::CommandPolygon *p_po
         int ind = p_poly->indices[n];
 
         RAST_DEV_DEBUG_ASSERT(ind < num_verts);
+        // recover at runtime from invalid polys (the editor may send invalid polys)
+        if ((unsigned int)ind >= (unsigned int)num_verts) {
+            // will recover as long as there is at least one vertex.
+            // if there are no verts, we will have quick rejected earlier in this function
+            ind = 0;
+        }
         const Point2 &pos = pTemps[ind];
         bvs[n].pos.set(pos.x, pos.y);
 
@@ -1816,6 +1783,9 @@ T_PREAMBLE
 template <bool SEND_LIGHT_ANGLES>
 bool C_PREAMBLE::_prefill_rect(RasterizerCanvas::Item::CommandRect *rect, FillState &r_fill_state, int &r_command_start, int command_num, int command_count, RasterizerCanvas::Item::Command *const *commands, RasterizerCanvas::Item *p_item, bool multiply_final_modulate) {
     bool change_batch = false;
+    if (rect->texture != entt::null && !VSG::ecs->registry.valid(rect->texture)) {
+        rect->texture = entt::null; //TODO: fix this madness, checking for valid textures in prefill rect
+    }
 
     // conditions for creating a new batch
     if (r_fill_state.curr_batch->type != RasterizerStorageCommon::BT_RECT) {
@@ -1838,7 +1808,7 @@ bool C_PREAMBLE::_prefill_rect(RasterizerCanvas::Item::CommandRect *rect, FillSt
         // because joined items with more than 1, the command * will be incorrect
         // NOTE - this is assuming that use_hardware_transform means that it is a non-joined item!!
         // If that assumption is incorrect this will go horribly wrong.
-        if (bdata.settings_use_single_rect_fallback && r_fill_state.use_hardware_transform) {
+        if (bdata.settings_use_single_rect_fallback && r_fill_state.is_single_item) {
             bool is_single_rect = false;
             int command_num_next = command_num + 1;
             if (command_num_next < command_count) {
@@ -1876,10 +1846,11 @@ bool C_PREAMBLE::_prefill_rect(RasterizerCanvas::Item::CommandRect *rect, FillSt
 
     Color col = rect->modulate;
 
-    if (!use_large_verts) {
+    // use_modulate and use_large_verts should have been checked in the calling prefill_item function.
+    // we don't want to apply the modulate on the CPU if it is stored in the vertex format, it will
+    // be applied in the shader
         if (multiply_final_modulate) {
             col *= r_fill_state.final_modulate;
-        }
     }
 
     // instead of doing all the texture preparation for EVERY rect,
@@ -1901,7 +1872,7 @@ bool C_PREAMBLE::_prefill_rect(RasterizerCanvas::Item::CommandRect *rect, FillSt
 
     // we need to treat color change separately because we need to count these
     // to decide whether to switch on the fly to colored vertices.
-    if (!r_fill_state.curr_batch->color.equals(col)) {
+    if (!change_batch && !r_fill_state.curr_batch->color.equals(col)) {
         change_batch = true;
         bdata.total_color_changes++;
     }
@@ -2061,9 +2032,8 @@ bool C_PREAMBLE::_prefill_rect(RasterizerCanvas::Item::CommandRect *rect, FillSt
         const Transform2D &tr = r_fill_state.transform_combined;
 
         pBT[0].translate.set(tr.elements[2]);
-        // could do swizzling in shader?
-        pBT[0].basis[0].set(tr.elements[0][0], tr.elements[1][0]);
-        pBT[0].basis[1].set(tr.elements[0][1], tr.elements[1][1]);
+        pBT[0].basis[0].set(tr.elements[0][0], tr.elements[0][1]);
+        pBT[0].basis[1].set(tr.elements[1][0], tr.elements[1][1]);
 
         pBT[1] = pBT[0];
         pBT[2] = pBT[0];
@@ -2086,11 +2056,11 @@ bool C_PREAMBLE::_prefill_rect(RasterizerCanvas::Item::CommandRect *rect, FillSt
 
             // apply to an x axis
             // the x axis and y axis can be taken directly from the transform (no need to xform identity vectors)
-            Vector2 x_axis(tr.elements[0][0], tr.elements[1][0]);
+            Vector2 x_axis(tr.elements[0][0], tr.elements[0][1]);
 
             // have to do a y axis to check for scaling flips
             // this is hassle and extra slowness. We could only allow flips via the flags.
-            Vector2 y_axis(tr.elements[0][1], tr.elements[1][1]);
+            Vector2 y_axis(tr.elements[1][0], tr.elements[1][1]);
 
             // has the x / y axis flipped due to scaling?
             float cross = x_axis.cross(y_axis);
@@ -2138,29 +2108,26 @@ bool C_PREAMBLE::_prefill_rect(RasterizerCanvas::Item::CommandRect *rect, FillSt
 }
 
 // This function may be called MULTIPLE TIMES for each item, so needs to record how far it has got
-PREAMBLE(bool)::prefill_joined_item(FillState &r_fill_state, int &r_command_start, RasterizerCanvas::Item *p_item, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, typename T_STORAGE::Material *p_material) {
+PREAMBLE(bool)::prefill_joined_item(FillState &r_fill_state, int &r_command_start, RasterizerCanvas::Item *p_item, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, RasterizerMaterialComponent *p_material) {
     // we will prefill batches and vertices ready for sending in one go to the vertex buffer
     int command_count = p_item->commands.size();
     RasterizerCanvas::Item::Command *const *commands = p_item->commands.data();
 
-    // checking the color for not being white makes it 92/90 times faster in the case where it is white
-    bool multiply_final_modulate = false;
-    if (!r_fill_state.use_hardware_transform && (r_fill_state.final_modulate != Color(1, 1, 1, 1))) {
-        multiply_final_modulate = true;
+    // whether to multiply final modulate on the CPU, or pass it in the FVF and apply in the shader
+    bool multiply_final_modulate = true;
+
+    if (r_fill_state.is_single_item || bdata.use_modulate || bdata.use_large_verts) {
+        multiply_final_modulate = false;
     }
 
     // start batch is a dummy batch (tex id -1) .. could be made more efficient
     if (!r_fill_state.curr_batch) {
-        // OLD METHOD, but left dangling zero length default batches
-        //		r_fill_state.curr_batch = _batch_request_new();
-        //		r_fill_state.curr_batch->type = RasterizerStorageCommon::BT_DEFAULT;
-        //		r_fill_state.curr_batch->first_command = r_command_start;
-        // should tex_id be set to -1? check this
 
         // allocate dummy batch on the stack, it should always get replaced
         // note that the rest of the structure is uninitialized, this should not matter
         // if the type is checked before anything else.
         r_fill_state.curr_batch = (Batch *)alloca(sizeof(Batch));
+        memset(r_fill_state.curr_batch,0,sizeof(Batch));
         r_fill_state.curr_batch->type = RasterizerStorageCommon::BT_DUMMY;
 
         // this is assumed to be the case
@@ -2199,7 +2166,7 @@ PREAMBLE(bool)::prefill_joined_item(FillState &r_fill_state, int &r_command_star
                     RasterizerCanvas::Item::CommandTransform *transform = static_cast<RasterizerCanvas::Item::CommandTransform *>(command);
                     const Transform2D &extra_matrix = transform->xform;
 
-                    if (r_fill_state.use_hardware_transform) {
+                    if (r_fill_state.is_single_item && !r_fill_state.use_attrib_transform) {
                         // if we are using hardware transform mode, we have already sent the final transform,
                         // so we only want to software transform the extra matrix
                         r_fill_state.transform_combined = extra_matrix;
@@ -2220,7 +2187,7 @@ PREAMBLE(bool)::prefill_joined_item(FillState &r_fill_state, int &r_command_star
                 RasterizerCanvas::Item::CommandRect *rect = static_cast<RasterizerCanvas::Item::CommandRect *>(command);
 
                 // unoptimized - could this be done once per batch / batch texture?
-                bool send_light_angles = rect->normal_map != RID();
+                bool send_light_angles = rect->normal_map != entt::null;
 
                 bool buffer_full = false;
 
@@ -2247,7 +2214,7 @@ PREAMBLE(bool)::prefill_joined_item(FillState &r_fill_state, int &r_command_star
                 }
 
                 // unoptimized - could this be done once per batch / batch texture?
-                bool send_light_angles = np->normal_map != RID();
+                bool send_light_angles = np->normal_map != entt::null;
 
                 bool buffer_full = false;
 
@@ -2279,37 +2246,40 @@ PREAMBLE(bool)::prefill_joined_item(FillState &r_fill_state, int &r_command_star
             case RasterizerCanvas::Item::Command::TYPE_POLYGON: {
 
                 RasterizerCanvas::Item::CommandPolygon *polygon = static_cast<RasterizerCanvas::Item::CommandPolygon *>(command);
-#ifdef GLES_OVER_GL
                 // anti aliasing not accelerated .. it is problematic because it requires a 2nd line drawn around the outside of each
                 // poly, which would require either a second list of indices or a second list of vertices for this step
+                bool use_legacy_path = false;
                 if (polygon->antialiased) {
-                    // not accelerated
+                    // anti aliasing is also not supported for software skinned meshes.
+                    // we can't easily revert, so we force software skinned meshes to run through
+                    // batching path with no AA.
+                    use_legacy_path = !bdata.settings_use_software_skinning || p_item->skeleton == entt::null;
+                }
+
+                if (use_legacy_path) {
                     _prefill_default_batch(r_fill_state, command_num, *p_item);
                 } else {
-#endif
                     // not using software skinning?
                     if (!bdata.settings_use_software_skinning && get_this()->state.using_skeleton) {
                         // not accelerated
                         _prefill_default_batch(r_fill_state, command_num, *p_item);
                     } else {
                         // unoptimized - could this be done once per batch / batch texture?
-                        bool send_light_angles = polygon->normal_map != RID();
+                        bool send_light_angles = polygon->normal_map != entt::null;
 
                         bool buffer_full = false;
 
                         if (send_light_angles) {
-                            // NYI
+                            // polygon with light angles is not yet implemented
+                            // for batching .. this means software skinned with light angles won't work
                             _prefill_default_batch(r_fill_state, command_num, *p_item);
-                            //buffer_full = prefill_polygon<true>(polygon, r_fill_state, r_command_start, command_num, command_count, p_item, multiply_final_modulate);
                         } else
                             buffer_full = _prefill_polygon<false>(polygon, r_fill_state, r_command_start, command_num, command_count, p_item, multiply_final_modulate);
 
                         if (buffer_full)
                             return true;
                     } // if not using hardware skinning path
-#ifdef GLES_OVER_GL
                 } // if not anti-aliased poly
-#endif
 
             } break;
         }
@@ -2323,7 +2293,7 @@ PREAMBLE(bool)::prefill_joined_item(FillState &r_fill_state, int &r_command_star
     return false;
 }
 
-PREAMBLE(void)::flush_render_batches(RasterizerCanvas::Item *p_first_item, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, typename T_STORAGE::Material *p_material, uint32_t p_sequence_batch_type_flags) {
+PREAMBLE(void)::flush_render_batches(RasterizerCanvas::Item *p_first_item, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, RasterizerMaterialComponent *p_material, uint32_t p_sequence_batch_type_flags) {
 
     // some heuristic to decide whether to use colored verts.
     // feel free to tweak this.
@@ -2401,15 +2371,15 @@ PREAMBLE(void)::flush_render_batches(RasterizerCanvas::Item *p_first_item, Raste
     // send buffers to opengl
     get_this()->_batch_upload_buffers();
 
-    RasterizerCanvas::Item::Command *const *commands = p_first_item->commands.data();
 
 #if defined(TOOLS_ENABLED) && defined(DEBUG_ENABLED)
     if (bdata.diagnose_frame) {
+        RasterizerCanvas::Item::Command *const *commands = p_first_item->commands.data();
         diagnose_batches(commands);
     }
 #endif
 
-    get_this()->render_batches(commands, p_current_clip, r_reclip, p_material);
+    get_this()->render_batches(p_current_clip, r_reclip, p_material);
 
     // if we overrode the fvf for lines, set it back to the joined item fvf
     bdata.fvf = backup_fvf;
@@ -2420,14 +2390,14 @@ PREAMBLE(void)::flush_render_batches(RasterizerCanvas::Item *p_first_item, Raste
 #endif
 }
 
-PREAMBLE(void)::render_joined_item_commands(const BItemJoined &p_bij, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, typename T_STORAGE::Material *p_material, bool p_lit) {
+PREAMBLE(void)::render_joined_item_commands(const BItemJoined &p_bij, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, RasterizerMaterialComponent *p_material, bool p_lit, const RenderItemState &p_ris) {
 
     RasterizerCanvas::Item *item = 0;
     RasterizerCanvas::Item *first_item = bdata.item_refs[p_bij.first_item_ref].item;
 
     // fill_state and bdata have once off setup per joined item, and a smaller reset on flush
     FillState fill_state;
-    fill_state.reset_joined_item(p_bij.use_hardware_transform());
+    fill_state.reset_joined_item(p_bij.is_single_item(), p_bij.use_attrib_transform());
 
     bdata.reset_joined_item();
 
@@ -2441,6 +2411,12 @@ PREAMBLE(void)::render_joined_item_commands(const BItemJoined &p_bij, Rasterizer
         bdata.use_large_verts = true;
         bdata.fvf = RasterizerStorageCommon::FVF_LARGE;
     }
+    // make sure the jointed item flags state is up to date, as it is read indirectly in
+    // a couple of places from the state rather than from the joined item.
+    // we could alternatively make sure to only read directly from the joined item
+    // during the render, but it is probably more bug future proof to make sure both
+    // are up to date.
+    bdata.joined_item_batch_flags = p_bij.flags;
 
     // in the special case of custom shaders that read from VERTEX (i.e. vertex position)
     // we want to disable software transform of extra matrix
@@ -2466,10 +2442,21 @@ PREAMBLE(void)::render_joined_item_commands(const BItemJoined &p_bij, Rasterizer
         // ONCE OFF fill state setup, that will be retained over multiple calls to
         // prefill_joined_item()
         fill_state.transform_combined = item->final_transform;
+        // calculate skeleton base inverse transform if required for software skinning
+        // put in the fill state as this is readily accessible from the software skinner
+        RasterizerSkeletonComponent *skeleton = bdata.settings_use_software_skinning ? get<RasterizerSkeletonComponent>(item->skeleton) : nullptr;
+        if (skeleton) {
+            if (skeleton->use_2d) {
+                // with software skinning we still need to know the skeleton inverse transform, the other two aren't needed
+                // but are left in for simplicity here
+                Transform2D skeleton_transform = p_ris.item_group_base_transform * skeleton->base_transform_2d;
+                fill_state.skeleton_base_inverse_xform = skeleton_transform.affine_inverse();
+            }
+        }
 
         // decide the initial transform mode, and make a backup
         // in orig_transform_mode in case we need to switch back
-        if (!fill_state.use_hardware_transform) {
+        if (fill_state.use_software_transform) {
             fill_state.transform_mode = _find_transform_mode(fill_state.transform_combined);
         } else {
             fill_state.transform_mode = TM_NONE;
@@ -2504,30 +2491,27 @@ PREAMBLE(void)::render_joined_item_commands(const BItemJoined &p_bij, Rasterizer
     bdata.reset_flush();
 }
 
-PREAMBLE(void)::_legacy_canvas_item_render_commands(RasterizerCanvas::Item *p_item, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, typename T_STORAGE::Material *p_material) {
+PREAMBLE(void)::_legacy_canvas_item_render_commands(RasterizerCanvas::Item *p_item, RasterizerCanvas::Item *p_current_clip, bool &r_reclip, RasterizerMaterialComponent *p_material) {
 
     int command_count = p_item->commands.size();
 
-    RasterizerCanvas::Item::Command *const *commands = p_item->commands.data();
 
     // legacy .. just create one massive batch and render everything as before
     bdata.batches.reset();
     Batch *batch = _batch_request_new();
     batch->type = RasterizerStorageCommon::BT_DEFAULT;
     batch->num_commands = command_count;
+    batch->item = p_item;
 
-    get_this()->render_batches(commands, p_current_clip, r_reclip, p_material);
+    get_this()->render_batches(p_current_clip, r_reclip, p_material);
     bdata.reset_flush();
 }
 
-PREAMBLE(void)::record_items(RasterizerCanvas::Item *p_item_list, int p_z) {
-    while (p_item_list) {
+PREAMBLE(void)::record_items(Dequeue<RasterizerCanvas::Item *> &p_item_list, int p_z) {
+    for(RasterizerCanvas::Item * item : p_item_list) {
         BSortItem *s = bdata.sort_items.request_with_grow();
-
-        s->item = p_item_list;
+        s->item = item;
         s->z_index = p_z;
-
-        p_item_list = p_item_list->next;
     }
 }
 
@@ -2600,6 +2584,8 @@ PREAMBLE(void)::join_sorted_items() {
             BItemRef *r = bdata.item_refs.request_with_grow();
             r->item = ci;
             r->final_modulate = _render_item_state.final_modulate;
+            // joined item references may introduce new flags
+            _render_item_state.joined_item->flags |= bdata.joined_item_batch_flags;
         }
 
     } // for s through sort items
@@ -2717,6 +2703,10 @@ PREAMBLE(bool)::sort_items_from(int p_start) {
         return false;
     }
 
+    // disallow sorting over copy back buffer
+    if (second.item->copy_back_buffer) {
+        return false;
+    }
     // which neighbour to test
     int test_last = 2 + bdata.settings_item_reordering_lookahead;
     for (int test = 2; test < test_last; test++) {
@@ -2835,7 +2825,6 @@ void C_PREAMBLE::_translate_batches_to_larger_FVF(uint32_t p_sequence_batch_type
     RAST_DEBUG_ASSERT(bdata.unit_vertices.max_size() == bdata.vertices.max_size());
     RAST_DEBUG_ASSERT(bdata.batches_temp.max_size() == bdata.batches.max_size());
 
-    Color curr_col(-1.0f, -1.0f, -1.0f, -1.0f);
 
     Batch *dest_batch = nullptr;
 
@@ -2850,7 +2839,7 @@ void C_PREAMBLE::_translate_batches_to_larger_FVF(uint32_t p_sequence_batch_type
 
         // does source batch use light angles?
         const BatchTex &btex = bdata.batch_textures[source_batch.batch_texture_id];
-        bool source_batch_uses_light_angles = btex.RID_normal != RID();
+        bool source_batch_uses_light_angles = btex.RID_normal != entt::null;
 
         bool needs_new_batch = true;
 
@@ -2863,10 +2852,9 @@ void C_PREAMBLE::_translate_batches_to_larger_FVF(uint32_t p_sequence_batch_type
                         needs_new_batch = false;
 
                         // create the colored verts (only if not default)
-                        //int first_vert = source_batch.first_quad * 4;
-                        //int end_vert = 4 * (source_batch.first_quad + source_batch.num_commands);
                         int first_vert = source_batch.first_vert;
-                        int end_vert = first_vert + (4 * source_batch.num_commands);
+                        int num_verts = source_batch.get_num_verts();
+                        int end_vert = first_vert + num_verts;
 
                         for (int v = first_vert; v < end_vert; v++) {
                             RAST_DEV_DEBUG_ASSERT(bdata.vertices.size());
@@ -2923,10 +2911,9 @@ void C_PREAMBLE::_translate_batches_to_larger_FVF(uint32_t p_sequence_batch_type
 
             // create the colored verts (only if not default)
             if (source_batch.type != RasterizerStorageCommon::BT_DEFAULT) {
-                //					int first_vert = source_batch.first_quad * 4;
-                //					int end_vert = 4 * (source_batch.first_quad + source_batch.num_commands);
                 int first_vert = source_batch.first_vert;
-                int end_vert = first_vert + (4 * source_batch.num_commands);
+                int num_verts = source_batch.get_num_verts();
+                int end_vert = first_vert + num_verts;
 
                 for (int v = first_vert; v < end_vert; v++) {
                     RAST_DEV_DEBUG_ASSERT(bdata.vertices.size());
@@ -3049,14 +3036,12 @@ PREAMBLE(bool)::_detect_item_batch_break(RenderItemState &r_ris, RasterizerCanva
                     // only allow polygons to join if they aren't skeleton
                     RasterizerCanvas::Item::CommandPolygon *poly = static_cast<RasterizerCanvas::Item::CommandPolygon *>(command);
 
-#ifdef GLES_OVER_GL
                     // anti aliasing not accelerated
                     if (poly->antialiased)
                         return true;
-#endif
 
                     // light angles not yet implemented, treat as default
-                    if (poly->normal_map != RID())
+                    if (poly->normal_map != entt::null)
                         return true;
 
                     if (!get_this()->bdata.settings_use_software_skinning && poly->bones.size())

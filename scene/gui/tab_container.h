@@ -56,7 +56,6 @@ private:
     bool menu_hovered;
     int highlight_arrow;
     TabAlign align;
-    Control *_get_tab(int p_idx) const;
     int _get_top_margin() const;
     Popup *popup;
     bool drag_to_rearrange_enabled;
@@ -69,6 +68,7 @@ private:
     void _on_mouse_exited();
     void _update_current_tab();
     void _draw_tab(Ref<StyleBox> &p_tab_style, Color &p_font_color, int p_index, float p_x);
+    void _repaint();
 
 protected:
     void _child_renamed_callback();
@@ -76,13 +76,16 @@ protected:
     void _notification(int p_what);
     void add_child_notify(Node *p_child) override;
     void remove_child_notify(Node *p_child) override;
+    void move_child_notify(Node *p_child) override;
 
     Variant get_drag_data(const Point2 &p_point) override;
     bool can_drop_data(const Point2 &p_point, const Variant &p_data) const override;
     void drop_data(const Point2 &p_point, const Variant &p_data) override;
-    int get_tab_idx_at_point(const Point2 &p_point) const;
 
     static void _bind_methods();
+public: //needed for scripting access
+
+    int get_tab_idx_at_point(const Point2 &p_point) const;
 
 public:
     void set_tab_align(TabAlign p_align);
@@ -116,7 +119,7 @@ public:
 
     Size2 get_minimum_size() const override;
 
-    void get_translatable_strings(List<StringName> *p_strings) const override;
+    void get_translatable_strings(List<String> *p_strings) const override;
 
     void set_popup(Node *p_popup);
     Popup *get_popup() const;

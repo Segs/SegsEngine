@@ -53,6 +53,14 @@ Error ResourceInteractiveLoader::wait() {
     return err;
 }
 
+void ResourceInteractiveLoader::set_no_subresource_cache(bool p_no_subresource_cache) {
+    no_subresource_cache = p_no_subresource_cache;
+}
+
+bool ResourceInteractiveLoader::get_no_subresource_cache() {
+    return no_subresource_cache;
+}
+
 ResourceInteractiveLoader::~ResourceInteractiveLoader() {
     if (!path_loading.empty()) {
         gResourceManager().remove_from_loading_map_and_thread(path_loading, path_loading_thread);
@@ -102,11 +110,15 @@ void ResourceFormatLoader::get_recognized_extensions_for_type(StringView p_type,
 }
 
 void ResourceInteractiveLoader::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("get_resource"), &ResourceInteractiveLoader::get_resource);
-    MethodBinder::bind_method(D_METHOD("poll"), &ResourceInteractiveLoader::poll);
-    MethodBinder::bind_method(D_METHOD("wait"), &ResourceInteractiveLoader::wait);
-    MethodBinder::bind_method(D_METHOD("get_stage"), &ResourceInteractiveLoader::get_stage);
-    MethodBinder::bind_method(D_METHOD("get_stage_count"), &ResourceInteractiveLoader::get_stage_count);
+    BIND_METHOD(ResourceInteractiveLoader,get_resource);
+    BIND_METHOD(ResourceInteractiveLoader,poll);
+    BIND_METHOD(ResourceInteractiveLoader,wait);
+    BIND_METHOD(ResourceInteractiveLoader,get_stage);
+    BIND_METHOD(ResourceInteractiveLoader,get_stage_count);
+    BIND_METHOD(ResourceInteractiveLoader, set_no_subresource_cache);
+    BIND_METHOD(ResourceInteractiveLoader, get_no_subresource_cache);
+
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "no_subresource_cache"), "set_no_subresource_cache", "get_no_subresource_cache");
 }
 
 void ResourceInteractiveLoaderDefault::set_translation_remapped(bool p_remapped) {
@@ -114,21 +126,25 @@ void ResourceInteractiveLoaderDefault::set_translation_remapped(bool p_remapped)
 }
 IMPL_GDCLASS(ResourceInteractiveLoaderDefault)
 
+bool ResourceFormatLoader::exists(StringView p_path) const {
+    return FileAccess::exists(p_path); // by default just check file
+}
+
+// Warning: Derived classes must override either `load` or `load_interactive`. The base code
+// here can trigger an infinite recursion otherwise, since `load` calls `load_interactive`
+// vice versa.
 Ref<ResourceInteractiveLoader> ResourceFormatLoader::load_interactive(
-        StringView p_path, StringView p_original_path, Error *r_error) {
-    // either this
-    Ref<Resource> res = load(p_path, p_original_path, r_error);
+        StringView p_path, StringView p_original_path, Error *r_error, bool p_no_subresource_cache) {
+    // Warning: See previous note about the risk of infinite recursion.
+    Ref<Resource> res = load(p_path, p_original_path, r_error, p_no_subresource_cache);
     if (not res) {
         return Ref<ResourceInteractiveLoader>();
     }
 
     Ref<ResourceInteractiveLoaderDefault> ril(make_ref_counted<ResourceInteractiveLoaderDefault>());
+    ril->set_no_subresource_cache(p_no_subresource_cache);
     ril->resource = res;
     return ril;
-}
-
-bool ResourceFormatLoader::exists(StringView p_path) const {
-    return FileAccess::exists(p_path); // by default just check file
 }
 
 void ResourceFormatLoader::get_recognized_extensions(Vector<String> &p_extensions) const {
@@ -137,16 +153,16 @@ void ResourceFormatLoader::get_recognized_extensions(Vector<String> &p_extension
     }
 }
 
-RES ResourceFormatLoader::load(StringView p_path, StringView p_original_path, Error *r_error) {
+RES ResourceFormatLoader::load(StringView p_path, StringView p_original_path, Error *r_error, bool p_no_subresource_cache) {
     if (get_script_instance() && get_script_instance()->has_method("load")) {
-        Variant res = get_script_instance()->call("load", p_path, p_original_path);
+        Variant res = get_script_instance()->call("load", p_path, p_original_path, p_no_subresource_cache);
 
-        if (res.get_type() == VariantType::INT) {
+        if (res.get_type() == VariantType::INT) { // Error code, abort.
             if (r_error) {
                 *r_error = (Error)res.as<int64_t>();
             }
-
-        } else {
+            return RES();
+        } else {  // Success, pass on result.
             if (r_error) {
                 *r_error = OK;
             }
@@ -154,8 +170,8 @@ RES ResourceFormatLoader::load(StringView p_path, StringView p_original_path, Er
         }
     }
 
-    // or this must be implemented
-    Ref<ResourceInteractiveLoader> ril = load_interactive(p_path, p_original_path, r_error);
+    // Warning: See previous note about the risk of infinite recursion.
+    Ref<ResourceInteractiveLoader> ril = load_interactive(p_path, p_original_path, r_error, p_no_subresource_cache);
     if (not ril) {
         return RES();
     }
@@ -189,7 +205,7 @@ Error ResourceFormatLoader::rename_dependencies(StringView p_path, const HashMap
     if (get_script_instance() && get_script_instance()->has_method("rename_dependencies")) {
         Dictionary deps_dict;
         for (const eastl::pair<const String, String> &E : p_map) {
-            deps_dict[E.first] = E.second;
+            deps_dict[StringName(E.first)] = E.second;
         }
 
         int64_t res = get_script_instance()->call("rename_dependencies", deps_dict).as<int64_t>();
@@ -202,20 +218,17 @@ Error ResourceFormatLoader::rename_dependencies(StringView p_path, const HashMap
 void ResourceFormatLoader::_bind_methods() {
     {
         MethodInfo info = MethodInfo(VariantType::NIL, "load", PropertyInfo(VariantType::STRING, "path"),
-                PropertyInfo(VariantType::STRING, "original_path"));
+                PropertyInfo(VariantType::STRING, "original_path"), PropertyInfo(VariantType::BOOL, "no_subresource_cache"));
         info.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
         ClassDB::add_virtual_method(get_class_static_name(), info);
     }
     auto cname(get_class_static_name());
     ClassDB::add_virtual_method(cname, MethodInfo(VariantType::POOL_STRING_ARRAY, "get_recognized_extensions"));
-    ClassDB::add_virtual_method(
-            cname, MethodInfo(VariantType::BOOL, "handles_type", PropertyInfo(VariantType::STRING_NAME, "typename")));
-    ClassDB::add_virtual_method(
-            cname, MethodInfo(VariantType::STRING, "get_resource_type", PropertyInfo(VariantType::STRING, "path")));
-    ClassDB::add_virtual_method(cname, MethodInfo("get_dependencies", PropertyInfo(VariantType::STRING, "path"),
-                                               PropertyInfo(VariantType::STRING, "add_types")));
-    ClassDB::add_virtual_method(
-            cname, MethodInfo(VariantType::INT, "rename_dependencies", PropertyInfo(VariantType::STRING, "path"),
-                           PropertyInfo(VariantType::STRING, "renames")));
+    ClassDB::add_virtual_method(cname, MethodInfo(VariantType::BOOL, "handles_type", PropertyInfo(VariantType::STRING_NAME, "typename")));
+    ClassDB::add_virtual_method(cname, MethodInfo(VariantType::STRING, "get_resource_type", PropertyInfo(VariantType::STRING, "path")));
+    ClassDB::add_virtual_method(cname, MethodInfo("get_dependencies", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::STRING, "add_types")));
+    ClassDB::add_virtual_method(cname, MethodInfo(VariantType::INT, "rename_dependencies", PropertyInfo(VariantType::STRING, "path"),
+                                               PropertyInfo(VariantType::STRING, "renames")));
 }
+
 ResourceLoaderImport g_import_func;

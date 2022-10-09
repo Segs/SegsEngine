@@ -37,18 +37,19 @@ IMPL_GDCLASS(MultiMeshInstance3D)
 
 void MultiMeshInstance3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_multimesh", {"multimesh"}), &MultiMeshInstance3D::set_multimesh);
-    MethodBinder::bind_method(D_METHOD("get_multimesh"), &MultiMeshInstance3D::get_multimesh);
+    BIND_METHOD(MultiMeshInstance3D,set_multimesh);
+    BIND_METHOD(MultiMeshInstance3D,get_multimesh);
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "multimesh", PropertyHint::ResourceType, "MultiMesh"), "set_multimesh", "get_multimesh");
 }
 
 void MultiMeshInstance3D::set_multimesh(const Ref<MultiMesh> &p_multimesh) {
 
     multimesh = p_multimesh;
-    if (multimesh)
+    if (multimesh) {
         set_base(multimesh->get_rid());
+    }
     else
-        set_base(RID());
+        set_base(entt::null);
 }
 
 Ref<MultiMesh> MultiMeshInstance3D::get_multimesh() const {
@@ -65,8 +66,7 @@ AABB MultiMeshInstance3D::get_aabb() const {
 
     if (not multimesh)
         return AABB();
-    else
-        return multimesh->get_aabb();
+    return multimesh->get_aabb();
 }
 
 MultiMeshInstance3D::MultiMeshInstance3D() {

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  resource_importer_layered_texture.cpp                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -42,9 +42,6 @@ namespace {
 constexpr const char *compression_formats[] = {
     "bptc",
     "s3tc",
-    "etc",
-    "etc2",
-    "pvrtc",
     nullptr
 };
 }
@@ -92,14 +89,15 @@ StringName LayeredTextureImpl::get_preset_name(int p_idx) const {
 
 void LayeredTextureImpl::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PropertyHint::Enum, "Lossless (PNG),Video RAM (S3TC/ETC/BPTC),Uncompressed", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), p_preset == PRESET_3D ? 1 : 0));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "compress/no_bptc_if_rgb"), false));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "flags/repeat", PropertyHint::Enum, "Disabled,Enabled,Mirrored"), 0));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "flags/filter"), true));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "flags/mipmaps"), p_preset == PRESET_COLOR_CORRECT ? 0 : 1));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "flags/srgb", PropertyHint::Enum, "Disable,Enable"), p_preset == PRESET_3D ? 1 : 0));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "slices/horizontal", PropertyHint::Range, "1,256,1"), p_preset == PRESET_COLOR_CORRECT ? 16 : 8));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "slices/vertical", PropertyHint::Range, "1,256,1"), p_preset == PRESET_COLOR_CORRECT ? 1 : 8));
+    r_options->emplace_back(PropertyInfo(VariantType::INT, "compress/mode", PropertyHint::Enum, "Lossless (PNG),Video RAM (S3TC/ETC/BPTC),Uncompressed", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), p_preset == PRESET_3D ? 1 : 0);
+    r_options->emplace_back(PropertyInfo(VariantType::BOOL, "compress/no_bptc_if_rgb"), false);
+    r_options->emplace_back(PropertyInfo(VariantType::INT, "flags/repeat", PropertyHint::Enum, "Disabled,Enabled,Mirrored"), 0);
+    r_options->emplace_back(PropertyInfo(VariantType::BOOL, "flags/filter"), true);
+    r_options->emplace_back(PropertyInfo(VariantType::BOOL, "flags/mipmaps"), p_preset == PRESET_COLOR_CORRECT ? 0 : 1);
+    r_options->emplace_back(PropertyInfo(VariantType::BOOL, "flags/anisotropic"), false);
+    r_options->emplace_back(PropertyInfo(VariantType::INT, "flags/srgb", PropertyHint::Enum, "Disable,Enable"), p_preset == PRESET_3D ? 1 : 0);
+    r_options->emplace_back(PropertyInfo(VariantType::INT, "slices/horizontal", PropertyHint::Range, "1,256,1"), p_preset == PRESET_COLOR_CORRECT ? 16 : 8);
+    r_options->emplace_back(PropertyInfo(VariantType::INT, "slices/vertical", PropertyHint::Range, "1,256,1"), p_preset == PRESET_COLOR_CORRECT ? 1 : 8);
 }
 
 void LayeredTextureImpl::_save_tex(const Vector<Ref<Image>> &p_images, StringView p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags) {
@@ -124,7 +122,7 @@ void LayeredTextureImpl::_save_tex(const Vector<Ref<Image>> &p_images, StringVie
         f->store_32(p_compress_mode); // 0 - lossless (PNG), 1 - vram, 2 - uncompressed
     }
 
-    if ((p_compress_mode == COMPRESS_LOSSLESS) && p_images[0]->get_format() > Image::FORMAT_RGBA8) {
+    if ((p_compress_mode == COMPRESS_LOSSLESS) && p_images[0]->get_format() > ImageData::FORMAT_RGBA8) {
         p_compress_mode = COMPRESS_UNCOMPRESSED; //these can't go as lossy
     }
 
@@ -209,6 +207,7 @@ Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path
     int repeat= p_options.at("flags/repeat").as<int>();
     bool filter = p_options.at("flags/filter").as<bool>();
     bool mipmaps = p_options.at("flags/mipmaps").as<bool>();
+    bool anisotropic = p_options.at("flags/anisotropic").as<bool>();
     int srgb= p_options.at("flags/srgb").as<int>();
     int hslices= p_options.at("slices/horizontal").as<int>();
     int vslices= p_options.at("slices/vertical").as<int>();
@@ -220,16 +219,24 @@ Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path
         return err;
 
     int tex_flags = 0;
-    if (repeat > 0)
+    if (repeat > 0) {
         tex_flags |= Texture::FLAG_REPEAT;
-    if (repeat == 2)
+    }
+    if (repeat == 2) {
         tex_flags |= Texture::FLAG_MIRRORED_REPEAT;
-    if (filter)
+    }
+    if (filter) {
         tex_flags |= Texture::FLAG_FILTER;
-    if (mipmaps || compress_mode == COMPRESS_VIDEO_RAM)
+    }
+    if (mipmaps || compress_mode == COMPRESS_VIDEO_RAM) {
         tex_flags |= Texture::FLAG_MIPMAPS;
-    if (srgb == 1)
+    }
+    if (anisotropic) {
+        tex_flags |= Texture::FLAG_ANISOTROPIC_FILTER;
+    }
+    if (srgb == 1) {
         tex_flags |= Texture::FLAG_CONVERT_TO_LINEAR;
+    }
 
     Vector<Ref<Image> > slices;
 
@@ -241,8 +248,8 @@ Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path
         //if using video ram, optimize
         if (srgb) {
             //remove alpha if not needed, so compression is more efficient
-            if (image->get_format() == Image::FORMAT_RGBA8 && !image->detect_alpha()) {
-                image->convert(Image::FORMAT_RGB8);
+            if (image->get_format() == ImageData::FORMAT_RGBA8 && !image->detect_alpha()) {
+                image->convert(ImageData::FORMAT_RGB8);
             }
         } else {
             image->optimize_channels();
@@ -283,43 +290,24 @@ Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path
                 }
             }
 
-            formats_imported.push_back("bptc");
+            formats_imported.emplace_back("bptc");
         }
 
         if (encode_bptc) {
 
             _save_tex(slices, p_save_path + ".bptc." + extension, compress_mode, ImageCompressMode::COMPRESS_BPTC, mipmaps, tex_flags);
-            r_platform_variants->push_back("bptc");
+            r_platform_variants->emplace_back("bptc");
             ok_on_pc = true;
         }
 
         if (ProjectSettings::get_singleton()->getT<bool>("rendering/vram_compression/import_s3tc")) {
 
             _save_tex(slices, p_save_path + ".s3tc." + extension, compress_mode, ImageCompressMode::COMPRESS_S3TC, mipmaps, tex_flags);
-            r_platform_variants->push_back("s3tc");
+            r_platform_variants->emplace_back("s3tc");
             ok_on_pc = true;
-            formats_imported.push_back("s3tc");
+            formats_imported.emplace_back("s3tc");
         }
 
-        if (ProjectSettings::get_singleton()->getT<bool>("rendering/vram_compression/import_etc2")) {
-
-            _save_tex(slices, p_save_path + ".etc2." + extension, compress_mode, ImageCompressMode::COMPRESS_ETC2, mipmaps, tex_flags);
-            r_platform_variants->push_back("etc2");
-            formats_imported.push_back("etc2");
-        }
-
-        if (ProjectSettings::get_singleton()->getT<bool>("rendering/vram_compression/import_etc")) {
-            _save_tex(slices, p_save_path + ".etc." + extension, compress_mode, ImageCompressMode::COMPRESS_ETC, mipmaps, tex_flags);
-            r_platform_variants->push_back("etc");
-            formats_imported.push_back("etc");
-        }
-
-        if (ProjectSettings::get_singleton()->getT<bool>("rendering/vram_compression/import_pvrtc")) {
-
-            _save_tex(slices, p_save_path + ".pvrtc." + extension, compress_mode, ImageCompressMode::COMPRESS_PVRTC4, mipmaps, tex_flags);
-            r_platform_variants->push_back("pvrtc");
-            formats_imported.push_back("pvrtc");
-        }
 #ifdef TOOLS_ENABLED
         if (!ok_on_pc) {
             EditorNode::add_io_error("Warning, no suitable PC VRAM compression enabled in Project Settings. This texture will not display correctly on PC.");

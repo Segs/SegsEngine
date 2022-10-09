@@ -33,6 +33,7 @@
 #include "core/typedefs.h"
 #include "core/error_list.h"
 #include "core/forward_decls.h"
+#include "core/safe_refcount.h"
 
 #include <thread>
 
@@ -42,9 +43,9 @@ using ThreadCreateCallback = void (*)(void *);
 
 class Thread {
 public:
-    typedef void (*Callback)(void *p_userdata);
+    using Callback = void (*)(void *);
 
-    typedef uint64_t ID;
+    using ID=std::thread::id;
 
     enum Priority {
         PRIORITY_LOW,
@@ -59,12 +60,10 @@ public:
 
 private:
     static ID main_thread_id;
-    static ID last_thread_id;
 
     friend class Main;
 
-    ID id = 0;
-    static thread_local ID caller_id;
+    ID id = {};
     std::thread thread;
 
     static void callback(Thread *p_self, const Settings &p_settings, Thread::Callback p_callback, void *p_userdata);
@@ -83,11 +82,12 @@ public:
 
     _FORCE_INLINE_ ID get_id() const { return id; }
     // get the ID of the caller thread
-    _FORCE_INLINE_ static ID get_caller_id() { return caller_id; }
+    _FORCE_INLINE_ static ID get_caller_id() { return std::this_thread::get_id(); }
     // get the ID of the main thread
     _FORCE_INLINE_ static ID get_main_id() { return main_thread_id; }
 
     static Error set_name(StringView p_name);
+    uint64_t hash() const;
 
     void start(Thread::Callback p_callback, void *p_user, const Settings &p_settings = Settings());
     bool is_started() const;

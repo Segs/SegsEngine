@@ -113,7 +113,7 @@ public:
 
     void get_extensions(Vector<String> &r_extensions) const override;
     uint32_t get_import_flags() const override;
-    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
+    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps,uint32_t p_compress_flags, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
     Ref<Image> load_image(ImportState &state, const aiScene *p_scene, UIString p_path);
 
     // EditorSceneImporterInterface interface

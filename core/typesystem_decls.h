@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <stdint.h>
 
@@ -17,6 +17,7 @@ enum Metadata {
     METADATA_REAL_IS_DOUBLE,
     METADATA_STRING_VIEW,
     METADATA_NON_COW_CONTAINER,
+    METADATA_IS_ENTITY_ID,
 };
 }
 
@@ -43,8 +44,10 @@ enum class PropertyHint : int8_t {
     Flags=7, ///< hint_text= "flag1,flag2,etc" (as bit flags)
     Layers2DRenderer,
     Layers2DPhysics,
+    Layers2DNavigation,
     Layers3DRenderer,
     Layers3DPhysics,
+    Layers3DNavigation,
     File, ///< a file path must be passed, hint_text (optionally) is a filter "*.png,*.wav,*.doc,"
     Dir, ///< a directory path must be passed
     GlobalFile, ///< a file path must be passed, hint_text (optionally) is a filter "*.png,*.wav,*.doc,"
@@ -58,18 +61,13 @@ enum class PropertyHint : int8_t {
     ObjectID,
     TypeString, ///< a type string, the hint is the base type to choose
     NodePathToEditedNode, ///< so something else can provide this (used in scripts)
-    MethodOfVariantType, ///< a method of a type
-    MethodOfBaseType, ///< a method of a base type
-    MethodOfInstance, ///< a method of an instance
-    MethodOfScript, ///< a method of a script & base
     PropertyOfVariantType, ///< a property of a type
-    PropertyOfBaseType, ///< a property of a base type
-    PropertyOfInstance, ///< a property of an instance
-    PropertyOfScript, ///< a property of a script & base
     ObjectTooBig, ///< object is too big to send
     NodePathValidTypes,
     SaveFile, ///< a file path must be passed, hint_text (optionally) is a filter "*.png,*.wav,*.doc,". This opens a save dialog
     IntIsObjectID,
+    EnumSuggestion,
+    LocaleID,
     Max
     // When updating PropertyHint, also sync the hardcoded list in VisualScriptEditorVariableEdit
 };
@@ -110,10 +108,11 @@ enum class TypePassBy : int8_t {
     Value=0, // T
     Reference, // T &
     ConstReference, // const T &
+    Move, // T &&
+    Pointer, // T *
+    ConstPointer, // const T *
     RefValue, // Ref<T>
     ConstRefReference, // const Ref<T> &
-    Move, // T &&
-    Pointer,
     MAX_PASS_BY
 };
 

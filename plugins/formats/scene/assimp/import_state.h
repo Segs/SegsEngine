@@ -37,7 +37,6 @@
 #include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/3d/node_3d.h"
-#include "scene/animation/animation_player.h"
 #include "scene/resources/animation.h"
 #include "scene/resources/surface_tool.h"
 
@@ -49,6 +48,7 @@
 #include <assimp/DefaultLogger.hpp>
 #include <assimp/LogStream.hpp>
 #include <assimp/Logger.hpp>
+class AnimationPlayer;
 
 namespace AssimpImporter {
 /** Import state is for global scene import data

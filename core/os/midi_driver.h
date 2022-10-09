@@ -54,6 +54,7 @@ public:
 
     static void receive_input_packet(uint64_t timestamp, uint8_t *data, uint32_t length);
 
+    MIDIDriver(const MIDIDriver &) = delete;
     MIDIDriver();
     virtual ~MIDIDriver() = default;
 };

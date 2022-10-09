@@ -35,6 +35,7 @@
 #include "core/translation_helpers.h"
 #include "scene/gui/panel.h"
 
+
 IMPL_GDCLASS(StyleBoxPreview)
 IMPL_GDCLASS(EditorInspectorPluginStyleBox)
 IMPL_GDCLASS(StyleBoxEditorPlugin)

@@ -1,7 +1,7 @@
 
 /* png.c - location for general purpose libpng functions
  *
- * Copyright (c) 2018-2019 Cosmin Truta
+ * Copyright (c) 2018-2022 Cosmin Truta
  * Copyright (c) 1998-2002,2004,2006-2018 Glenn Randers-Pehrson
  * Copyright (c) 1996-1997 Andreas Dilger
  * Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.
@@ -14,7 +14,7 @@
 #include "pngpriv.h"
 
 /* Generate a compiler error if there is an old png.h in the search path. */
-typedef png_libpng_version_1_6_37 Your_png_h_is_not_version_1_6_37;
+typedef png_libpng_version_1_6_38 Your_png_h_is_not_version_1_6_38;
 
 #ifdef __GNUC__
 /* The version tests may need to be added to, but the problem warning has
@@ -720,7 +720,7 @@ png_init_io(png_structrp png_ptr, png_FILE_p fp)
  *
  * Where UNSIGNED_MAX is the appropriate maximum unsigned value, so when the
  * negative integral value is added the result will be an unsigned value
- * correspnding to the 2's complement representation.
+ * corresponding to the 2's complement representation.
  */
 void PNGAPI
 png_save_int_32(png_bytep buf, png_int_32 i)
@@ -815,8 +815,8 @@ png_get_copyright(png_const_structrp png_ptr)
    return PNG_STRING_COPYRIGHT
 #else
    return PNG_STRING_NEWLINE \
-      "libpng version 1.6.37" PNG_STRING_NEWLINE \
-      "Copyright (c) 2018-2019 Cosmin Truta" PNG_STRING_NEWLINE \
+      "libpng version 1.6.38" PNG_STRING_NEWLINE \
+      "Copyright (c) 2018-2022 Cosmin Truta" PNG_STRING_NEWLINE \
       "Copyright (c) 1998-2002,2004,2006-2018 Glenn Randers-Pehrson" \
       PNG_STRING_NEWLINE \
       "Copyright (c) 1996-1997 Andreas Dilger" PNG_STRING_NEWLINE \
@@ -1843,12 +1843,12 @@ png_icc_profile_error(png_const_structrp png_ptr, png_colorspacerp colorspace,
 #  ifdef PNG_WARNINGS_SUPPORTED
    else
       {
-         char number[PNG_NUMBER_BUFFER_SIZE]; /* +24 = 114*/
+         char number[PNG_NUMBER_BUFFER_SIZE]; /* +24 = 114 */
 
          pos = png_safecat(message, (sizeof message), pos,
              png_format_number(number, number+(sizeof number),
              PNG_NUMBER_FORMAT_x, value));
-         pos = png_safecat(message, (sizeof message), pos, "h: "); /*+2 = 116*/
+         pos = png_safecat(message, (sizeof message), pos, "h: "); /* +2 = 116 */
       }
 #  endif
    /* The 'reason' is an arbitrary message, allow +79 maximum 195 */
@@ -3614,6 +3614,25 @@ png_8bit_l2[128] =
    172473545U, 147538590U, 122703574U, 97967701U, 73330182U, 48790236U,
    24347096U, 0U
 
+#if 0
+   /* The following are the values for 16-bit tables - these work fine for the
+    * 8-bit conversions but produce very slightly larger errors in the 16-bit
+    * log (about 1.2 as opposed to 0.7 absolute error in the final value).  To
+    * use these all the shifts below must be adjusted appropriately.
+    */
+   65166, 64430, 63700, 62976, 62257, 61543, 60835, 60132, 59434, 58741, 58054,
+   57371, 56693, 56020, 55352, 54689, 54030, 53375, 52726, 52080, 51439, 50803,
+   50170, 49542, 48918, 48298, 47682, 47070, 46462, 45858, 45257, 44661, 44068,
+   43479, 42894, 42312, 41733, 41159, 40587, 40020, 39455, 38894, 38336, 37782,
+   37230, 36682, 36137, 35595, 35057, 34521, 33988, 33459, 32932, 32408, 31887,
+   31369, 30854, 30341, 29832, 29325, 28820, 28319, 27820, 27324, 26830, 26339,
+   25850, 25364, 24880, 24399, 23920, 23444, 22970, 22499, 22029, 21562, 21098,
+   20636, 20175, 19718, 19262, 18808, 18357, 17908, 17461, 17016, 16573, 16132,
+   15694, 15257, 14822, 14390, 13959, 13530, 13103, 12678, 12255, 11834, 11415,
+   10997, 10582, 10168, 9756, 9346, 8937, 8531, 8126, 7723, 7321, 6921, 6523,
+   6127, 5732, 5339, 4947, 4557, 4169, 3782, 3397, 3014, 2632, 2251, 1872, 1495,
+   1119, 744, 372
+#endif
 };
 
 static png_int_32
@@ -3749,6 +3768,21 @@ png_32bit_exp[16] =
 };
 
 /* Adjustment table; provided to explain the numbers in the code below. */
+#if 0
+for (i=11;i>=0;--i){ print i, " ", (1 - e(-(2^i)/65536*l(2))) * 2^(32-i), "\n"}
+   11 44937.64284865548751208448
+   10 45180.98734845585101160448
+    9 45303.31936980687359311872
+    8 45364.65110595323018870784
+    7 45395.35850361789624614912
+    6 45410.72259715102037508096
+    5 45418.40724413220722311168
+    4 45422.25021786898173001728
+    3 45424.17186732298419044352
+    2 45425.13273269940811464704
+    1 45425.61317555035558641664
+    0 45425.85339951654943850496
+#endif
 
 static png_uint_32
 png_exp(png_fixed_point x)

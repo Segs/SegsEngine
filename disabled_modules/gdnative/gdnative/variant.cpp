@@ -226,7 +226,7 @@ void GDAPI godot_variant_new_pool_int_array(godot_variant *r_dest, const godot_p
     memnew_placement_custom(dest, Variant, Variant(*pia));
 }
 
-void GDAPI godot_variant_new_pool_real_array(godot_variant *r_dest, const godot_pool_real_array *p_pra) {
+void GDAPI godot_variant_new_POOL_FLOAT32_ARRAY(godot_variant *r_dest, const godot_POOL_FLOAT32_ARRAY *p_pra) {
     Variant *dest = (Variant *)r_dest;
     PoolRealArray *pra = (PoolRealArray *)p_pra;
     memnew_placement_custom(dest, Variant, Variant(*pra));
@@ -421,8 +421,8 @@ godot_pool_int_array GDAPI godot_variant_as_pool_int_array(const godot_variant *
     return raw_dest;
 }
 
-godot_pool_real_array GDAPI godot_variant_as_pool_real_array(const godot_variant *p_self) {
-    godot_pool_real_array raw_dest;
+godot_POOL_FLOAT32_ARRAY GDAPI godot_variant_as_POOL_FLOAT32_ARRAY(const godot_variant *p_self) {
+    godot_POOL_FLOAT32_ARRAY raw_dest;
     const Variant *self = (const Variant *)p_self;
     PoolRealArray *dest = (PoolRealArray *)&raw_dest;
     memnew_placement(dest, PoolRealArray(self->operator PoolRealArray())); // operator = is overloaded by PoolRealArray

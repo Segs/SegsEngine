@@ -2,7 +2,7 @@ SET(QT_MISSING True)
 # msvc only; mingw will need different logic
 IF(MSVC)
     # look for user-registry pointing to qtcreator
-    GET_FILENAME_COMPONENT(QT_BIN [HKEY_CURRENT_USER\\Software\\Classes\\Applications\\QtProject.QtCreator.cpp\\shell\\Open\\Command] PATH)
+    GET_FILENAME_COMPONENT(QT_BIN [HKEY_CURRENT_USER\\Software\\Classes\\Applications\\QtProject.QtCreator.pro\\shell\\Open\\Command] PATH)
     if(${MSVC_VERSION} VERSION_LESS "1910")
         MESSAGE(FATAL_ERROR "SEGS requires visual studio 2017 to build")
     endif()

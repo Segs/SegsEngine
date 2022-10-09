@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  arvr_nodes.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -204,8 +204,8 @@ void ARVRController::_notification(int p_what) {
             ERR_FAIL_NULL(arvr_server);
 
             // find the tracker for our controller
-            ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
-            if (tracker == nullptr) {
+            auto tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
+            if (!tracker) {
                 // this controller is currently turned off
                 is_active = false;
                 button_states = 0;
@@ -250,25 +250,25 @@ void ARVRController::_notification(int p_what) {
 }
 
 void ARVRController::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_controller_id", {"controller_id"}), &ARVRController::set_controller_id);
-    MethodBinder::bind_method(D_METHOD("get_controller_id"), &ARVRController::get_controller_id);
+    BIND_METHOD(ARVRController,set_controller_id);
+    BIND_METHOD(ARVRController,get_controller_id);
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "controller_id", PropertyHint::Range, "0,32,1"), "set_controller_id", "get_controller_id");
-    MethodBinder::bind_method(D_METHOD("get_controller_name"), &ARVRController::get_controller_name);
+    BIND_METHOD(ARVRController,get_controller_name);
 
     // passthroughs to information about our related joystick
-    MethodBinder::bind_method(D_METHOD("get_joystick_id"), &ARVRController::get_joystick_id);
-    MethodBinder::bind_method(D_METHOD("is_button_pressed", {"button"}), &ARVRController::is_button_pressed);
-    MethodBinder::bind_method(D_METHOD("get_joystick_axis", {"axis"}), &ARVRController::get_joystick_axis);
+    BIND_METHOD(ARVRController,get_joystick_id);
+    BIND_METHOD(ARVRController,is_button_pressed);
+    BIND_METHOD(ARVRController,get_joystick_axis);
 
-    MethodBinder::bind_method(D_METHOD("get_is_active"), &ARVRController::get_is_active);
-    MethodBinder::bind_method(D_METHOD("get_hand"), &ARVRController::get_hand);
+    BIND_METHOD(ARVRController,get_is_active);
+    BIND_METHOD(ARVRController,get_hand);
 
-    MethodBinder::bind_method(D_METHOD("get_rumble"), &ARVRController::get_rumble);
-    MethodBinder::bind_method(D_METHOD("set_rumble", {"rumble"}), &ARVRController::set_rumble);
+    BIND_METHOD(ARVRController,get_rumble);
+    BIND_METHOD(ARVRController,set_rumble);
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rumble", PropertyHint::Range, "0.0,1.0,0.01"), "set_rumble", "get_rumble");
     ADD_PROPERTY_DEFAULT("rumble", 0.0);
 
-    MethodBinder::bind_method(D_METHOD("get_mesh"), &ARVRController::get_mesh);
+    BIND_METHOD(ARVRController,get_mesh);
 
     ADD_SIGNAL(MethodInfo("button_pressed", PropertyInfo(VariantType::INT, "button")));
     ADD_SIGNAL(MethodInfo("button_release", PropertyInfo(VariantType::INT, "button")));
@@ -291,7 +291,7 @@ StringName ARVRController::get_controller_name() const {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
     ERR_FAIL_NULL_V(arvr_server, StringName());
 
-    ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
+    auto tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
     if (tracker == nullptr) {
         return StringName("Not connected");
     }
@@ -304,7 +304,7 @@ int ARVRController::get_joystick_id() const {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
     ERR_FAIL_NULL_V(arvr_server, 0);
 
-    ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
+    auto tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
     if (tracker == nullptr) {
         // No tracker? no joystick id... (0 is our first joystick)
         return -1;
@@ -336,7 +336,7 @@ real_t ARVRController::get_rumble() const {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
     ERR_FAIL_NULL_V(arvr_server, 0.0);
 
-    ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
+    auto tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
     if (tracker == nullptr) {
         return 0.0;
     }
@@ -349,7 +349,7 @@ void ARVRController::set_rumble(float p_rumble) {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
     ERR_FAIL_NULL(arvr_server);
 
-    ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
+    auto tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
     if (tracker != nullptr) {
         tracker->set_rumble(p_rumble);
     }
@@ -368,7 +368,7 @@ ARVRPositionalTracker::TrackerHand ARVRController::get_hand() const {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
     ERR_FAIL_NULL_V(arvr_server, ARVRPositionalTracker::TRACKER_HAND_UNKNOWN);
 
-    ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
+    auto tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
     if (tracker == nullptr) {
         return ARVRPositionalTracker::TRACKER_HAND_UNKNOWN;
     }
@@ -383,7 +383,7 @@ String ARVRController::get_configuration_warning() const {
     String warning = BaseClassName::get_configuration_warning();
     // must be child node of ARVROrigin!
     ARVROrigin *origin = object_cast<ARVROrigin>(get_parent());
-    if (origin == NULL) {
+    if (origin == nullptr) {
         if (!warning.empty()) {
             warning += "\n\n";
         }
@@ -426,7 +426,7 @@ void ARVRAnchor::_notification(int p_what) {
             ERR_FAIL_NULL(arvr_server);
 
             // find the tracker for our anchor
-            ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_ANCHOR, anchor_id);
+            auto tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_ANCHOR, anchor_id);
             if (tracker == nullptr) {
                 // this anchor is currently not available
                 is_active = false;
@@ -464,17 +464,17 @@ void ARVRAnchor::_notification(int p_what) {
 
 void ARVRAnchor::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_anchor_id", {"anchor_id"}), &ARVRAnchor::set_anchor_id);
-    MethodBinder::bind_method(D_METHOD("get_anchor_id"), &ARVRAnchor::get_anchor_id);
+    BIND_METHOD(ARVRAnchor,set_anchor_id);
+    BIND_METHOD(ARVRAnchor,get_anchor_id);
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "anchor_id", PropertyHint::Range, "0,32,1"), "set_anchor_id", "get_anchor_id");
-    MethodBinder::bind_method(D_METHOD("get_anchor_name"), &ARVRAnchor::get_anchor_name);
+    BIND_METHOD(ARVRAnchor,get_anchor_name);
 
-    MethodBinder::bind_method(D_METHOD("get_is_active"), &ARVRAnchor::get_is_active);
-    MethodBinder::bind_method(D_METHOD("get_size"), &ARVRAnchor::get_size);
+    BIND_METHOD(ARVRAnchor,get_is_active);
+    BIND_METHOD(ARVRAnchor,get_size);
 
-    MethodBinder::bind_method(D_METHOD("get_plane"), &ARVRAnchor::get_plane);
+    BIND_METHOD(ARVRAnchor,get_plane);
 
-    MethodBinder::bind_method(D_METHOD("get_mesh"), &ARVRAnchor::get_mesh);
+    BIND_METHOD(ARVRAnchor,get_mesh);
     ADD_SIGNAL(MethodInfo("mesh_updated", PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh")));
 }
 
@@ -498,7 +498,7 @@ StringName ARVRAnchor::get_anchor_name() const {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
     ERR_FAIL_NULL_V(arvr_server, StringName());
 
-    ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_ANCHOR, anchor_id);
+    auto tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_ANCHOR, anchor_id);
     if (tracker == nullptr) {
         return StringName("Not connected");
     }
@@ -517,7 +517,7 @@ String ARVRAnchor::get_configuration_warning() const {
     String warning = BaseClassName::get_configuration_warning();
     // must be child node of ARVROrigin!
     ARVROrigin *origin = object_cast<ARVROrigin>(get_parent());
-    if (origin == NULL) {
+    if (origin == nullptr) {
         if (warning != String()) {
             warning += "\n\n";
         }
@@ -563,7 +563,7 @@ String ARVROrigin::get_configuration_warning() const {
         return String();
 
     String warning = BaseClassName::get_configuration_warning();
-    if (tracked_camera == NULL) {
+    if (tracked_camera == nullptr) {
         if (!warning.empty()) {
             warning += "\n\n";
         }
@@ -574,8 +574,8 @@ String ARVROrigin::get_configuration_warning() const {
 }
 
 void ARVROrigin::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_world_scale", {"world_scale"}), &ARVROrigin::set_world_scale);
-    MethodBinder::bind_method(D_METHOD("get_world_scale"), &ARVROrigin::get_world_scale);
+    BIND_METHOD(ARVROrigin,set_world_scale);
+    BIND_METHOD(ARVROrigin,get_world_scale);
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "world_scale"), "set_world_scale", "get_world_scale");
 }
 

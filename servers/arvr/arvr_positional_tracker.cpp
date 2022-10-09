@@ -44,17 +44,17 @@ void ARVRPositionalTracker::_bind_methods() {
     BIND_ENUM_CONSTANT(TRACKER_RIGHT_HAND);
 
     // this class is read only from GDScript, so we only have access to getters..
-    MethodBinder::bind_method(D_METHOD("get_type"), &ARVRPositionalTracker::get_type);
-    MethodBinder::bind_method(D_METHOD("get_tracker_id"), &ARVRPositionalTracker::get_tracker_id);
-    MethodBinder::bind_method(D_METHOD("get_name"), &ARVRPositionalTracker::get_name);
-    MethodBinder::bind_method(D_METHOD("get_joy_id"), &ARVRPositionalTracker::get_joy_id);
-    MethodBinder::bind_method(D_METHOD("get_tracks_orientation"), &ARVRPositionalTracker::get_tracks_orientation);
-    MethodBinder::bind_method(D_METHOD("get_orientation"), &ARVRPositionalTracker::get_orientation);
-    MethodBinder::bind_method(D_METHOD("get_tracks_position"), &ARVRPositionalTracker::get_tracks_position);
-    MethodBinder::bind_method(D_METHOD("get_position"), &ARVRPositionalTracker::get_position);
-    MethodBinder::bind_method(D_METHOD("get_hand"), &ARVRPositionalTracker::get_hand);
-    MethodBinder::bind_method(D_METHOD("get_transform", {"adjust_by_reference_frame"}), &ARVRPositionalTracker::get_transform);
-    MethodBinder::bind_method(D_METHOD("get_mesh"), &ARVRPositionalTracker::get_mesh);
+    BIND_METHOD(ARVRPositionalTracker,get_type);
+    BIND_METHOD(ARVRPositionalTracker,get_tracker_id);
+    BIND_METHOD(ARVRPositionalTracker,get_name);
+    BIND_METHOD(ARVRPositionalTracker,get_joy_id);
+    BIND_METHOD(ARVRPositionalTracker,get_tracks_orientation);
+    BIND_METHOD(ARVRPositionalTracker,get_orientation);
+    BIND_METHOD(ARVRPositionalTracker,get_tracks_position);
+    BIND_METHOD(ARVRPositionalTracker,get_position);
+    BIND_METHOD(ARVRPositionalTracker,get_hand);
+    BIND_METHOD(ARVRPositionalTracker,get_transform);
+    BIND_METHOD(ARVRPositionalTracker,get_mesh);
 
     // these functions we don't want to expose to normal users but do need to be callable from GDNative
     MethodBinder::bind_method(D_METHOD("_set_type", {"type"}), &ARVRPositionalTracker::set_type);
@@ -63,8 +63,8 @@ void ARVRPositionalTracker::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_orientation", {"orientation"}), &ARVRPositionalTracker::set_orientation);
     MethodBinder::bind_method(D_METHOD("_set_rw_position", {"rw_position"}), &ARVRPositionalTracker::set_rw_position);
     MethodBinder::bind_method(D_METHOD("_set_mesh", {"mesh"}), &ARVRPositionalTracker::set_mesh);
-    MethodBinder::bind_method(D_METHOD("get_rumble"), &ARVRPositionalTracker::get_rumble);
-    MethodBinder::bind_method(D_METHOD("set_rumble", {"rumble"}), &ARVRPositionalTracker::set_rumble);
+    BIND_METHOD(ARVRPositionalTracker,get_rumble);
+    BIND_METHOD(ARVRPositionalTracker,set_rumble);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rumble"), "set_rumble", "get_rumble");
 }
@@ -112,14 +112,14 @@ bool ARVRPositionalTracker::get_tracks_orientation() const {
 }
 
 void ARVRPositionalTracker::set_orientation(const Basis &p_orientation) {
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     tracks_orientation = true; // obviously we have this
     orientation = p_orientation;
 }
 
 Basis ARVRPositionalTracker::get_orientation() const {
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     return orientation;
 }
@@ -129,7 +129,7 @@ bool ARVRPositionalTracker::get_tracks_position() const {
 }
 
 void ARVRPositionalTracker::set_position(const Vector3 &p_position) {
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     ARVRServer *arvr_server = ARVRServer::get_singleton();
     ERR_FAIL_NULL(arvr_server);
@@ -141,7 +141,7 @@ void ARVRPositionalTracker::set_position(const Vector3 &p_position) {
 }
 
 Vector3 ARVRPositionalTracker::get_position() const {
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     ARVRServer *arvr_server = ARVRServer::get_singleton();
     ERR_FAIL_NULL_V(arvr_server, rw_position);
@@ -151,26 +151,26 @@ Vector3 ARVRPositionalTracker::get_position() const {
 }
 
 void ARVRPositionalTracker::set_rw_position(const Vector3 &p_rw_position) {
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     tracks_position = true; // obviously we have this
     rw_position = p_rw_position;
 }
 
 Vector3 ARVRPositionalTracker::get_rw_position() const {
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     return rw_position;
 }
 
 void ARVRPositionalTracker::set_mesh(const Ref<Mesh> &p_mesh) {
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     mesh = p_mesh;
 }
 
 Ref<Mesh> ARVRPositionalTracker::get_mesh() const {
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     return mesh;
 }
@@ -229,7 +229,6 @@ void ARVRPositionalTracker::set_rumble(real_t p_rumble) {
 }
 
 ARVRPositionalTracker::ARVRPositionalTracker() {
-    __thread__safe__.reset(new Mutex);
     type = ARVRServer::TRACKER_UNKNOWN;
     name = "Unknown";
     joy_id = -1;

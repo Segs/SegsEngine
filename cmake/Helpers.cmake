@@ -1,4 +1,4 @@
-# This defines target properties common to all engine components
+﻿# This defines target properties common to all engine components
 macro(set_common_target_properties TARGET)
     set_target_properties(${TARGET} PROPERTIES
         CXX_VISIBILITY_PRESET hidden # -fvisibility=hidden
@@ -6,7 +6,9 @@ macro(set_common_target_properties TARGET)
         VISIBILITY_INLINES_HIDDEN TRUE
     )
     # always export symbols marked as such
-    target_compile_definitions(${TARGET} PRIVATE GODOT_EXPORTS)
+    target_compile_definitions(${TARGET} PRIVATE
+        $<BUILD_INTERFACE:GODOT_EXPORTS>
+    )
     if(USE_TRACY_PROFILER)
         target_compile_definitions(${TARGET} PRIVATE TRACY_ENABLE TRACY_ON_DEMAND)
         target_link_libraries(${TARGET} PUBLIC Threads::Threads)
@@ -135,9 +137,6 @@ function(save_active_platforms apnames ap)
     foreach(x ${${ap}})
         set(names "logo")
         get_filename_component(base_path ${x} NAME)
-        if(EXISTS "${PROJECT_SOURCE_DIR}/${x}/run_icon.png")
-            list(APPEND names "run_icon")
-        endif()
         foreach(name ${names})
             bin2h(SOURCE_FILE "${x}/${name}.png" HEADER_FILE "${x}/${name}.gen.h" VARIABLE_NAME "_${base_path}_${name}")
         endforeach()
@@ -164,7 +163,7 @@ function(update_version module_version_string)
             OUTPUT_STRIP_TRAILING_WHITESPACE)
             set(VERSION_HASH ${SEGS_REVISION})
     endif()
-    configure_file(version_hash.h.cmake version_hash.gen.h)
+    configure_file(version_hash.cpp.cmake version_hash.gen.cpp )
 endfunction()
 
 macro(add_object_lib dirname)

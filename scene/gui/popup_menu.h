@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  popup_menu.h                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -40,9 +40,8 @@ class GODOT_EXPORT PopupMenu : public Popup {
 
     struct Item {
         Ref<Texture> icon;
-        StringName text;
-        StringName xl_text;
-        bool checked;
+        String text;
+        String xl_text;
         enum {
             CHECKABLE_TYPE_NONE,
             CHECKABLE_TYPE_CHECK_BOX,
@@ -50,16 +49,17 @@ class GODOT_EXPORT PopupMenu : public Popup {
         } checkable_type;
         int max_states;
         int state;
-        bool separator;
-        bool disabled;
         int id;
         Variant metadata;
         StringName submenu;
-        StringName tooltip;
+        String tooltip;
         uint32_t accel;
         int _ofs_cache;
         int h_ofs;
         Ref<ShortCut> shortcut;
+        bool checked;
+        bool separator;
+        bool disabled;
         bool shortcut_is_global;
         bool shortcut_is_disabled;
 
@@ -78,14 +78,24 @@ class GODOT_EXPORT PopupMenu : public Popup {
         }
     };
 
-    class Timer *submenu_timer;
     Vector<Rect2> autohide_areas;
     Vector<Item> items;
+    HashMap<Ref<ShortCut>, int> shortcut_refcount;
+    Rect2 parent_rect;
+    Vector2 moved;
+    String search_string;
+    class Timer *submenu_timer;
+    uint64_t search_time_msec;
     int initial_button_mask;
-    bool during_grabbed_click;
     int mouse_over;
     int submenu_over;
-    Rect2 parent_rect;
+    bool during_grabbed_click;
+    bool invalidated_click;
+    bool hide_on_item_selection;
+    bool hide_on_checkable_item_selection;
+    bool hide_on_multistate_item_selection;
+    bool hide_on_window_lose_focus;
+    bool allow_search;
     String _get_accel_text(int p_item) const;
     int _get_mouse_over(const Point2 &p_over) const;
     Size2 get_minimum_size() const override;
@@ -94,18 +104,6 @@ class GODOT_EXPORT PopupMenu : public Popup {
     void _activate_submenu(int over);
     void _submenu_timeout();
 
-    bool invalidated_click;
-    bool hide_on_item_selection;
-    bool hide_on_checkable_item_selection;
-    bool hide_on_multistate_item_selection;
-    bool hide_on_window_lose_focus;
-    Vector2 moved;
-
-
-    HashMap<Ref<ShortCut>, int> shortcut_refcount;
-    bool allow_search;
-    uint64_t search_time_msec;
-    String search_string;
 public:
     Array _get_items() const;
     void _set_items(const Array &p_items);
@@ -115,6 +113,7 @@ public:
 
 protected:
     bool has_point(const Point2 &p_point) const override;
+    void perform_draw();
 
     friend class MenuButton;
     void _notification(int p_what);
@@ -128,7 +127,7 @@ public:
     void add_check_item_utf8(StringView p_label, int p_id = -1, uint32_t p_accel = 0);
     void add_icon_check_item(const Ref<Texture> &p_icon, const StringName &p_label, int p_id = -1, uint32_t p_accel = 0);
     void add_radio_check_item_utf8(StringView p_label, int p_id = -1, uint32_t p_accel = 0);
-    void add_radio_check_item(const StringName &p_label, int p_id = -1, uint32_t p_accel = 0);
+    void add_radio_check_item(StringView p_label, int p_id = -1, uint32_t p_accel = 0);
     void add_icon_radio_check_item(const Ref<Texture> &p_icon, const StringName &p_label, int p_id = -1, uint32_t p_accel = 0);
 
     void add_multistate_item(const StringName &p_label, int p_max_states, int p_default_state = 0, int p_id = -1, uint32_t p_accel = 0);
@@ -162,8 +161,7 @@ public:
 
     void toggle_item_checked(int p_idx);
 
-    String get_item_text_utf8(int p_idx) const;
-    StringName get_item_text(int p_idx) const;
+    const String &get_item_text(int p_idx) const;
     int get_item_idx_from_text(const StringName &text) const;
     int get_item_idx_from_text_utf8(StringView text) const;
     Ref<Texture> get_item_icon(int p_idx) const;
@@ -178,11 +176,12 @@ public:
     bool is_item_checkable(int p_idx) const;
     bool is_item_radio_checkable(int p_idx) const;
     bool is_item_shortcut_disabled(int p_idx) const;
-    StringName get_item_tooltip(int p_idx) const;
+    const String &get_item_tooltip(int p_idx) const;
     Ref<ShortCut> get_item_shortcut(int p_idx) const;
     int get_item_state(int p_idx) const;
 
     int get_current_index() const;
+    void set_current_index(int p_idx);
     int get_item_count() const;
 
     bool activate_item_by_event(const Ref<InputEvent> &p_event, bool p_for_global_only = false);
@@ -196,9 +195,9 @@ public:
 
     void set_parent_rect(const Rect2 &p_rect);
 
-    StringName get_tooltip(const Point2 &p_pos) const override;
+    const String & get_tooltip(const Point2 &p_pos) const override;
 
-    void get_translatable_strings(List<StringName> *p_strings) const override;
+    void get_translatable_strings(List<String> *p_strings) const override;
 
     void add_autohide_area(const Rect2 &p_area);
     void clear_autohide_areas();

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_plugin_settings.cpp                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -55,83 +55,79 @@ void EditorPluginSettings::_notification(int p_what) {
     }
 }
 
-void EditorPluginSettings::update_plugins() {
-
-    plugin_list->clear();
-
-    DirAccess *da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
-    Error err = da->change_dir("res://addons");
+Vector<String> EditorPluginSettings::_get_plugins(const String &p_dir) {
+    DirAccessRef da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
+    Error err = da->change_dir(p_dir);
     if (err != OK) {
-        memdelete(da);
-        return;
+        return Vector<String>();
     }
-
-    updating = true;
-
-    TreeItem *root = plugin_list->create_item();
-
-    da->list_dir_begin();
-
-    String d = da->get_next();
 
     Vector<String> plugins;
 
-    while (!d.empty()) {
-
-        bool dir = da->current_is_dir();
-        String path = "res://addons/" + d + "/plugin.cfg";
-
-        if (dir && FileAccess::exists(path)) {
-
-            plugins.push_back(d);
+    da->list_dir_begin();
+    for (String path = da->get_next(); !path.empty(); path = da->get_next()) {
+        if (path[0] == '.' || !da->current_is_dir()) {
+            continue;
         }
 
-        d = da->get_next();
-    }
+        const String full_path = PathUtils::plus_file(p_dir,path);
+        const String plugin_config = PathUtils::plus_file(full_path,"plugin.cfg");
+        if (FileAccess::exists(plugin_config)) {
+            plugins.push_back(plugin_config);
+        } else {
+            plugins.push_back(_get_plugins(full_path));
+        }
+        }
 
     da->list_dir_end();
-    memdelete(da);
+    return plugins;
+}
 
+void EditorPluginSettings::update_plugins() {
+
+    plugin_list->clear();
+    updating = true;
+
+    TreeItem *root = plugin_list->create_item();
+    Vector<String> plugins = _get_plugins("res://addons");
     eastl::sort(plugins.begin(), plugins.end());
 
-    for (auto & plugin : plugins) {
+    for (const auto & plugin : plugins) {
 
         Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
-        String path = "res://addons/" + plugin + "/plugin.cfg";
 
-        Error err2 = cf->load(path);
+        Error err2 = cf->load(plugin);
 
         if (err2 != OK) {
-            WARN_PRINT("Can't load plugin config: " + path);
+            WARN_PRINT("Can't load plugin config: " + plugin);
             continue;
         }
         bool key_missing = false;
 
         if (!cf->has_section_key("plugin", "name")) {
-            WARN_PRINT("Plugin config misses \"plugin/name\" key: " + path);
+            WARN_PRINT("Plugin config misses \"plugin/name\" key: " + plugin);
             key_missing = true;
         }
         if (!cf->has_section_key("plugin", "author")) {
-            WARN_PRINT("Plugin config misses \"plugin/author\" key: " + path);
+            WARN_PRINT("Plugin config misses \"plugin/author\" key: " + plugin);
             key_missing = true;
         }
         if (!cf->has_section_key("plugin", "version")) {
-            WARN_PRINT("Plugin config misses \"plugin/version\" key: " + path);
+            WARN_PRINT("Plugin config misses \"plugin/version\" key: " + plugin);
             key_missing = true;
         }
         if (!cf->has_section_key("plugin", "description")) {
-            WARN_PRINT("Plugin config misses \"plugin/description\" key: " + path);
+            WARN_PRINT("Plugin config misses \"plugin/description\" key: " + plugin);
             key_missing = true;
         }
         if (!cf->has_section_key("plugin", "script")) {
-            WARN_PRINT("Plugin config misses \"plugin/script\" key: " + path);
+            WARN_PRINT("Plugin config misses \"plugin/script\" key: " + plugin);
             key_missing = true;
         }
 
         if (key_missing)
             continue;
 
-        StringName d2(plugin);
         StringName name = cf->get_value("plugin", "name").as<StringName>();
         StringName author = cf->get_value("plugin", "author").as<StringName>();
         StringName version = cf->get_value("plugin", "version").as<StringName>();
@@ -141,15 +137,15 @@ void EditorPluginSettings::update_plugins() {
         TreeItem *item = plugin_list->create_item(root);
         item->set_text(0, name);
         item->set_tooltip(0, FormatSN(TTR("Name: %s\nPath: %s\nMain Script: %3\nDescription: %4").asCString(),
-                name.asCString(), path.c_str(), script.asCString(), description.asCString()));
-        item->set_metadata(0, d2);
+                name.asCString(), plugin.c_str(), script.asCString(), description.asCString()));
+        item->set_metadata(0, plugin);
         item->set_text(1, version);
         item->set_metadata(1, script);
         item->set_text(2, author);
         item->set_metadata(2, description);
         item->set_cell_mode(3, TreeItem::CELL_MODE_CHECK);
         item->set_text(3, TTR("Enable"));
-        bool is_active = EditorNode::get_singleton()->is_addon_plugin_enabled(d2);
+        bool is_active = EditorNode::get_singleton()->is_addon_plugin_enabled(plugin);
         item->set_checked(3, is_active);
         item->set_editable(3, true);
         item->add_button(4, get_theme_icon("Edit", "EditorIcons"), BUTTON_PLUGIN_EDIT, false, TTR("Edit Plugin"));
@@ -191,7 +187,7 @@ void EditorPluginSettings::_cell_button_pressed(Object *p_item, int p_column, in
     if (p_id == BUTTON_PLUGIN_EDIT) {
         if (p_column == 4) {
             String dir = item->get_metadata(0).as<String>();
-            plugin_config_dialog->config("res://addons/" + dir + "/plugin.cfg");
+            plugin_config_dialog->config(dir);
             plugin_config_dialog->popup_centered();
         }
     }
@@ -223,11 +219,11 @@ EditorPluginSettings::EditorPluginSettings() {
     plugin_list->set_v_size_flags(SIZE_EXPAND_FILL);
     plugin_list->set_columns(5);
     plugin_list->set_column_titles_visible(true);
-    plugin_list->set_column_title(0, TTR("Name:"));
-    plugin_list->set_column_title(1, TTR("Version:"));
-    plugin_list->set_column_title(2, TTR("Author:"));
-    plugin_list->set_column_title(3, TTR("Status:"));
-    plugin_list->set_column_title(4, TTR("Edit:"));
+    plugin_list->set_column_title(0, TTR("Name"));
+    plugin_list->set_column_title(1, TTR("Version"));
+    plugin_list->set_column_title(2, TTR("Author"));
+    plugin_list->set_column_title(3, TTR("Status"));
+    plugin_list->set_column_title(4, TTR("Edit"));
     plugin_list->set_column_expand(0, true);
     plugin_list->set_column_expand(1, false);
     plugin_list->set_column_expand(2, false);

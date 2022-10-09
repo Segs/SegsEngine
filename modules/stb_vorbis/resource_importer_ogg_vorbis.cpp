@@ -101,7 +101,7 @@ Error ResourceImporterOGGVorbis::import(StringView p_source_file, StringView p_s
     Ref<AudioStreamOGGVorbis> ogg_stream(make_ref_counted<AudioStreamOGGVorbis>());
 
     ogg_stream->set_data(data);
-    ERR_FAIL_COND_V(!ogg_stream->get_data().size(), ERR_FILE_CORRUPT);
+    ERR_FAIL_COND_V_MSG(!ogg_stream->get_data().size(), ERR_FILE_CORRUPT, String("Couldn't import file as AudioStreamOGGVorbis: ") + p_source_file);
     ogg_stream->set_loop(loop);
     ogg_stream->set_loop_offset(loop_offset);
 

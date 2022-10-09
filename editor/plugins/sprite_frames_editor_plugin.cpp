@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  sprite_frames_editor_plugin.cpp                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -39,11 +39,15 @@
 #include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_file_dialog.h"
 #include "editor/editor_file_system.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "scene/3d/sprite_3d.h"
 #include "scene/gui/center_container.h"
+#include "scene/gui/check_button.h"
+#include "scene/gui/margin_container.h"
+#include "scene/gui/panel_container.h"
 #include "scene/gui/item_list.h"
 #include "scene/gui/spin_box.h"
 #include "scene/resources/style_box.h"
@@ -52,6 +56,10 @@
 IMPL_GDCLASS(SpriteFramesEditor)
 IMPL_GDCLASS(SpriteFramesEditorPlugin)
 
+static void _draw_shadowed_line(Control *p_control, const Point2 &p_from, const Size2 &p_size, const Size2 &p_shadow_offset, Color p_color, Color p_shadow_color) {
+    p_control->draw_line(p_from, p_from + p_size, p_color);
+    p_control->draw_line(p_from + p_shadow_offset, p_from + p_size + p_shadow_offset, p_shadow_color);
+}
 void SpriteFramesEditor::_gui_input(const Ref<InputEvent>& p_event) {
 }
 
@@ -67,28 +75,63 @@ void SpriteFramesEditor::_open_sprite_sheet() {
     file_split_sheet->popup_centered_ratio();
 }
 
+int SpriteFramesEditor::_sheet_preview_position_to_frame_index(const Point2 &p_position) {
+    const Size2i offset = _get_offset();
+    const Size2i frame_size = _get_frame_size();
+    const Size2i separation = _get_separation();
+    const Size2i block_size = frame_size + separation;
+    const Point2i position = p_position / sheet_zoom - offset;
+
+    if (position.x % block_size.x > frame_size.x || position.y % block_size.y > frame_size.y) {
+        return -1; // Gap between frames.
+    }
+
+    const Point2i frame = position / block_size;
+    const Size2i frame_count = _get_frame_count();
+    if (frame.x < 0 || frame.y < 0 || frame.x >= frame_count.x || frame.y >= frame_count.y) {
+        return -1; // Out of bound.
+    }
+
+    return frame_count.x * frame.y + frame.x;
+}
+
 void SpriteFramesEditor::_sheet_preview_draw() {
+    const Size2i frame_count = _get_frame_count();
+    const Size2i separation = _get_separation();
 
-    Size2i size = split_sheet_preview->get_size();
-    int h = split_sheet_h->get_value();
-    int v = split_sheet_v->get_value();
-    int width = size.width / h;
-    int height = size.height / v;
-    const float a = 0.3f;
-    for (int i = 1; i < h; i++) {
+    const Size2 draw_offset = Size2(_get_offset()) * sheet_zoom;
+    const Size2 draw_sep = Size2(separation) * sheet_zoom;
+    const Size2 draw_frame_size = Size2(_get_frame_size()) * sheet_zoom;
+    const Size2 draw_size = draw_frame_size * frame_count + draw_sep * (frame_count - Size2i(1, 1));
 
-        int x = i * width;
-        split_sheet_preview->draw_line(Point2(x, 0), Point2(x, size.height), Color(1, 1, 1, a));
-        split_sheet_preview->draw_line(Point2(x + 1, 0), Point2(x + 1, size.height), Color(0, 0, 0, a));
+    const Color line_color = Color(1, 1, 1, 0.3);
+    const Color shadow_color = Color(0, 0, 0, 0.3);
 
-        for (int j = 1; j < v; j++) {
+    // Vertical lines.
+    _draw_shadowed_line(split_sheet_preview, draw_offset, Vector2(0, draw_size.y), Vector2(1, 0), line_color, shadow_color);
+    for (int i = 0; i < frame_count.x - 1; i++) {
+        const Point2 start = draw_offset + Vector2(i * draw_sep.x + (i + 1) * draw_frame_size.x, 0);
+        if (separation.x == 0) {
+            _draw_shadowed_line(split_sheet_preview, start, Vector2(0, draw_size.y), Vector2(1, 0), line_color, shadow_color);
+        } else {
+            const Size2 size = Size2(draw_sep.x, draw_size.y);
+            split_sheet_preview->draw_rect_filled(Rect2(start, size), line_color);
+    }
+    }
+    _draw_shadowed_line(split_sheet_preview, draw_offset + Vector2(draw_size.x, 0), Vector2(0, draw_size.y), Vector2(1, 0), line_color, shadow_color);
 
-            int y = j * height;
-
-            split_sheet_preview->draw_line(Point2(0, y), Point2(size.width, y), Color(1, 1, 1, a));
-            split_sheet_preview->draw_line(Point2(0, y + 1), Point2(size.width, y + 1), Color(0, 0, 0, a));
+    // Horizontal lines.
+    _draw_shadowed_line(split_sheet_preview, draw_offset, Vector2(draw_size.x, 0), Vector2(0, 1), line_color, shadow_color);
+    for (int i = 0; i < frame_count.y - 1; i++) {
+        const Point2 start = draw_offset + Vector2(0, i * draw_sep.y + (i + 1) * draw_frame_size.y);
+        if (separation.y == 0) {
+            _draw_shadowed_line(split_sheet_preview, start, Vector2(draw_size.x, 0), Vector2(0, 1), line_color, shadow_color);
+        } else {
+            const Size2 size = Size2(draw_size.x, draw_sep.y);
+            split_sheet_preview->draw_rect_filled(Rect2(start, size), line_color);
         }
     }
+    _draw_shadowed_line(split_sheet_preview, draw_offset + Vector2(0, draw_size.y), Vector2(draw_size.x, 0), Vector2(0, 1), line_color, shadow_color);
 
     if (frames_selected.empty()) {
         split_sheet_dialog->get_ok()->set_disabled(true);
@@ -98,96 +141,135 @@ void SpriteFramesEditor::_sheet_preview_draw() {
 
     Color accent = get_theme_color("accent_color", "Editor");
 
-    for (int E : frames_selected) {
-        int idx = E;
-        int xp = idx % h;
-        int yp = (idx - xp) / h;
-        int x = xp * width;
-        int y = yp * height;
-
-        split_sheet_preview->draw_rect(Rect2(x + 5, y + 5, width - 10, height - 10), Color(0, 0, 0, 0.35f), true);
-        split_sheet_preview->draw_rect(Rect2(x + 0, y + 0, width - 0, height - 0), Color(0, 0, 0, 1), false);
-        split_sheet_preview->draw_rect(Rect2(x + 1, y + 1, width - 2, height - 2), Color(0, 0, 0, 1), false);
-        split_sheet_preview->draw_rect(Rect2(x + 2, y + 2, width - 4, height - 4), accent, false);
-        split_sheet_preview->draw_rect(Rect2(x + 3, y + 3, width - 6, height - 6), accent, false);
-        split_sheet_preview->draw_rect(Rect2(x + 4, y + 4, width - 8, height - 8), Color(0, 0, 0, 1), false);
-        split_sheet_preview->draw_rect(Rect2(x + 5, y + 5, width - 10, height - 10), Color(0, 0, 0, 1), false);
+    for (int idx : frames_selected) {
+        const int x = idx % frame_count.x;
+        const int y = idx / frame_count.x;
+        const Point2 pos = draw_offset + Point2(x, y) * (draw_frame_size + draw_sep);
+        split_sheet_preview->draw_rect_filled(Rect2(pos + Size2(5, 5), draw_frame_size - Size2(10, 10)), Color(0, 0, 0, 0.35));
+        split_sheet_preview->draw_rect_stroke(Rect2(pos, draw_frame_size), Color(0, 0, 0, 1));
+        split_sheet_preview->draw_rect_stroke(Rect2(pos + Size2(1, 1), draw_frame_size - Size2(2, 2)), Color(0, 0, 0, 1));
+        split_sheet_preview->draw_rect_stroke(Rect2(pos + Size2(2, 2), draw_frame_size - Size2(4, 4)), accent);
+        split_sheet_preview->draw_rect_stroke(Rect2(pos + Size2(3, 3), draw_frame_size - Size2(6, 6)), accent);
+        split_sheet_preview->draw_rect_stroke(Rect2(pos + Size2(4, 4), draw_frame_size - Size2(8, 8)), Color(0, 0, 0, 1));
+        split_sheet_preview->draw_rect_stroke(Rect2(pos + Size2(5, 5), draw_frame_size - Size2(10, 10)), Color(0, 0, 0, 1));
     }
 
     split_sheet_dialog->get_ok()->set_disabled(false);
     split_sheet_dialog->get_ok()->set_text(FormatSN(TTR("Add %d Frame(s)").asCString(), frames_selected.size()));
 }
 void SpriteFramesEditor::_sheet_preview_input(const Ref<InputEvent> &p_event) {
-
-    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
+    const Ref<InputEventMouseButton> mb(dynamic_ref_cast<InputEventMouseButton>(p_event));
 
     if (mb && mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
-        Size2i size = split_sheet_preview->get_size();
-        int h = split_sheet_h->get_value();
-        int v = split_sheet_v->get_value();
+        const int idx = _sheet_preview_position_to_frame_index(mb->get_position());
 
-        int x = CLAMP(int(mb->get_position().x) * h / size.width, 0, h - 1);
-        int y = CLAMP(int(mb->get_position().y) * v / size.height, 0, v - 1);
+        if (idx != -1) {
+            if (mb->get_shift() && last_frame_selected >= 0) {
+                // select multiple
+                int from = idx;
+                int to = last_frame_selected;
+                if (from > to) {
+                    SWAP(from, to);
+                }
 
-        int idx = h * y + x;
+                for (int i = from; i <= to; i++) {
+                    // Prevent double-toggling the same frame when moving the mouse when the mouse button is still held.
+                    frames_toggled_by_mouse_hover.insert(idx);
+                    if (mb->get_control()) {
+                        frames_selected.erase(i);
+                    } else {
+                        frames_selected.insert(i);
+                    }
+                }
+            } else {
+                // Prevent double-toggling the same frame when moving the mouse when the mouse button is still held.
+                frames_toggled_by_mouse_hover.insert(idx);
 
-        if (mb->get_shift() && last_frame_selected >= 0) {
-            //select multiple
-            int from = idx;
-            int to = last_frame_selected;
-            if (from > to) {
-                SWAP(from, to);
-            }
-
-            for (int i = from; i <= to; i++) {
                 if (mb->get_control()) {
-                    frames_selected.erase(i);
+                    frames_selected.erase(idx);
                 } else {
-                    frames_selected.insert(i);
+                    frames_selected.insert(idx);
                 }
             }
-        } else {
+        }
+
+        if (last_frame_selected != idx || idx != -1) {
+            last_frame_selected = idx;
+            split_sheet_preview->update();
+        }
+    }
+    if (mb && !mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
+        frames_toggled_by_mouse_hover.clear();
+}
+    const Ref<InputEventMouseMotion> mm(dynamic_ref_cast<InputEventMouseMotion>(p_event));
+    if (mm && mm->get_button_mask() & BUTTON_MASK_LEFT) {
+        // Select by holding down the mouse button on frames.
+        const int idx = _sheet_preview_position_to_frame_index(mm->get_position());
+
+        if (idx != -1 && !frames_toggled_by_mouse_hover.contains(idx)) {
+            // Only allow toggling each tile once per mouse hold.
+            // Otherwise, the selection would constantly "flicker" in and out when moving the mouse cursor.
+            // The mouse button must be released before it can be toggled again.
+            frames_toggled_by_mouse_hover.insert(idx);
+
             if (frames_selected.contains(idx)) {
                 frames_selected.erase(idx);
             } else {
                 frames_selected.insert(idx);
             }
-        }
 
-        last_frame_selected = idx;
-        split_sheet_preview->update();
+            last_frame_selected = idx;
+            split_sheet_preview->update();
+        }
+    }
+}
+
+void SpriteFramesEditor::_sheet_scroll_input(const Ref<InputEvent> &p_event) {
+    const Ref<InputEventMouseButton> mb(dynamic_ref_cast<InputEventMouseButton>(p_event));
+
+    if (mb) {
+        // Zoom in/out using Ctrl + mouse wheel. This is done on the ScrollContainer
+        // to allow performing this action anywhere, even if the cursor isn't
+        // hovering the texture in the workspace.
+        if (mb->get_button_index() == BUTTON_WHEEL_UP && mb->is_pressed() && mb->get_control()) {
+            _sheet_zoom_on_position(scale_ratio, mb->get_position());
+            // Don't scroll up after zooming in.
+            split_sheet_scroll->accept_event();
+        } else if (mb->get_button_index() == BUTTON_WHEEL_DOWN && mb->is_pressed() && mb->get_control()) {
+            _sheet_zoom_on_position(1 / scale_ratio, mb->get_position());
+            // Don't scroll down after zooming out.
+            split_sheet_scroll->accept_event();
+        }
+    }
+
+    const Ref<InputEventMouseMotion> mm = (dynamic_ref_cast<InputEventMouseMotion>(p_event));
+    if (mm && mm->get_button_mask() & BUTTON_MASK_MIDDLE) {
+        const Vector2 dragged = Input::get_singleton()->warp_mouse_motion(mm, split_sheet_scroll->get_global_rect());
+        split_sheet_scroll->set_h_scroll(split_sheet_scroll->get_h_scroll() - dragged.x);
+        split_sheet_scroll->set_v_scroll(split_sheet_scroll->get_v_scroll() - dragged.y);
     }
 }
 
 void SpriteFramesEditor::_sheet_add_frames() {
+    const Size2i frame_count = _get_frame_count();
+    const Size2i frame_size = _get_frame_size();
+    const Size2i offset = _get_offset();
+    const Size2i separation = _get_separation();
 
-    Size2i size = split_sheet_preview->get_size();
-    int h = split_sheet_h->get_value();
-    int v = split_sheet_v->get_value();
 
     undo_redo->create_action(TTR("Add Frame"));
 
     int fc = frames->get_frame_count(edited_anim);
 
-    AtlasTexture *atlas_source = object_cast<AtlasTexture>(split_sheet_preview->get_texture().get());
-
-    Rect2 region_rect = Rect2();
-
-    if (atlas_source && atlas_source->get_atlas())
-        region_rect = atlas_source->get_region();
+    AtlasTexture *src_atlas = object_cast<AtlasTexture>(split_sheet_preview->get_texture().get());
 
     for (int E : frames_selected) {
         int idx = E;
-        int width = size.width / h;
-        int height = size.height / v;
-        int xp = idx % h;
-        int yp = (idx - xp) / h;
-        int x = (xp * width) + region_rect.position.x;
-        int y = (yp * height) + region_rect.position.y;
+        const Point2 frame_coords(idx % frame_count.x, idx / frame_count.x);
 
         Ref<AtlasTexture> at(make_ref_counted<AtlasTexture>());
         at->set_atlas(split_sheet_preview->get_texture());
-        at->set_region(Rect2(x, y, width, height));
+        at->set_region(Rect2(offset + frame_coords * (frame_size + separation), frame_size));
 
         undo_redo->add_do_method(frames, "add_frame", edited_anim, at, -1);
         undo_redo->add_undo_method(frames, "remove_frame", edited_anim, fc);
@@ -196,6 +278,34 @@ void SpriteFramesEditor::_sheet_add_frames() {
     undo_redo->add_do_method(this, "_update_library");
     undo_redo->add_undo_method(this, "_update_library");
     undo_redo->commit_action();
+}
+
+void SpriteFramesEditor::_sheet_zoom_on_position(float p_zoom, const Vector2 &p_position) {
+    const float old_zoom = sheet_zoom;
+    sheet_zoom = CLAMP(sheet_zoom * p_zoom, min_sheet_zoom, max_sheet_zoom);
+
+    const Size2 texture_size = split_sheet_preview->get_texture()->get_size();
+    split_sheet_preview->set_custom_minimum_size(texture_size * sheet_zoom);
+
+    Vector2 offset = Vector2(split_sheet_scroll->get_h_scroll(), split_sheet_scroll->get_v_scroll());
+    offset = (offset + p_position) / old_zoom * sheet_zoom - p_position;
+    split_sheet_scroll->set_h_scroll(offset.x);
+    split_sheet_scroll->set_v_scroll(offset.y);
+}
+
+void SpriteFramesEditor::_sheet_zoom_in() {
+    _sheet_zoom_on_position(scale_ratio, Vector2());
+}
+
+void SpriteFramesEditor::_sheet_zoom_out() {
+    _sheet_zoom_on_position(1 / scale_ratio, Vector2());
+}
+
+void SpriteFramesEditor::_sheet_zoom_reset() {
+    // Default the zoom to match the editor scale, but don't dezoom on editor scales below 100% to prevent pixel art from looking bad.
+    sheet_zoom = M_MAX(1.0f, EDSCALE);
+    Size2 texture_size = split_sheet_preview->get_texture()->get_size();
+    split_sheet_preview->set_custom_minimum_size(texture_size * sheet_zoom);
 }
 
 void SpriteFramesEditor::_sheet_select_clear_all_frames() {
@@ -214,7 +324,56 @@ void SpriteFramesEditor::_sheet_select_clear_all_frames() {
     split_sheet_preview->update();
 }
 
-void SpriteFramesEditor::_sheet_spin_changed(double) {
+void SpriteFramesEditor::_sheet_spin_changed(double p_value, int p_dominant_param) {
+    if (updating_split_settings) {
+        return;
+    }
+    updating_split_settings = true;
+
+    if (p_dominant_param != PARAM_USE_CURRENT) {
+        dominant_param = p_dominant_param;
+    }
+
+    const Size2i texture_size = split_sheet_preview->get_texture()->get_size();
+    const Size2i size = texture_size - _get_offset();
+
+    switch (dominant_param) {
+        case PARAM_SIZE: {
+            const Size2i frame_size = _get_frame_size();
+
+            const Size2i offset_max = texture_size - frame_size;
+            split_sheet_offset_x->set_max(offset_max.x);
+            split_sheet_offset_y->set_max(offset_max.y);
+
+            const Size2i sep_max = size - frame_size * 2;
+            split_sheet_sep_x->set_max(sep_max.x);
+            split_sheet_sep_y->set_max(sep_max.y);
+
+            const Size2i separation = _get_separation();
+            const Size2i count = (size + separation) / (frame_size + separation);
+            split_sheet_h->set_value(count.x);
+            split_sheet_v->set_value(count.y);
+        } break;
+
+        case PARAM_FRAME_COUNT: {
+            const Size2i count = _get_frame_count();
+
+            const Size2i offset_max = texture_size - count;
+            split_sheet_offset_x->set_max(offset_max.x);
+            split_sheet_offset_y->set_max(offset_max.y);
+
+            const Size2i gap_count = count - Size2i(1, 1);
+            split_sheet_sep_x->set_max(gap_count.x == 0 ? size.x : (size.x - count.x) / gap_count.x);
+            split_sheet_sep_y->set_max(gap_count.y == 0 ? size.y : (size.y - count.y) / gap_count.y);
+
+            const Size2i separation = _get_separation();
+            const Size2i frame_size = (size - separation * gap_count) / count;
+            split_sheet_size_x->set_value(frame_size.x);
+            split_sheet_size_y->set_value(frame_size.y);
+        } break;
+    }
+
+    updating_split_settings = false;
 
     frames_selected.clear();
     last_frame_selected = -1;
@@ -228,22 +387,45 @@ void SpriteFramesEditor::_prepare_sprite_sheet(StringView p_file) {
         EditorNode::get_singleton()->show_warning("Unable to load images");
         ERR_FAIL_COND(not texture);
     }
-    if (texture != split_sheet_preview->get_texture()) {
-        //different texture, reset to 4x4
-        split_sheet_h->set_value(4);
-        split_sheet_v->set_value(4);
-    }
     frames_selected.clear();
     last_frame_selected = -1;
 
+    bool new_texture = texture != split_sheet_preview->get_texture();
     split_sheet_preview->set_texture(texture);
+    if (new_texture) {
+        // Reset spin max.
+        const Size2i size = texture->get_size();
+        split_sheet_size_x->set_max(size.x);
+        split_sheet_size_y->set_max(size.y);
+        split_sheet_sep_x->set_max(size.x);
+        split_sheet_sep_y->set_max(size.y);
+        split_sheet_offset_x->set_max(size.x);
+        split_sheet_offset_y->set_max(size.y);
+
+        // Different texture, reset to 4x4.
+        dominant_param = PARAM_FRAME_COUNT;
+        updating_split_settings = true;
+        split_sheet_h->set_value(4);
+        split_sheet_v->set_value(4);
+        split_sheet_size_x->set_value(size.x / 4);
+        split_sheet_size_y->set_value(size.y / 4);
+        split_sheet_sep_x->set_value(0);
+        split_sheet_sep_y->set_value(0);
+        split_sheet_offset_x->set_value(0);
+        split_sheet_offset_y->set_value(0);
+        updating_split_settings = false;
+
+        // Reset zoom.
+        _sheet_zoom_reset();
+    }
     split_sheet_dialog->popup_centered_ratio(0.65f);
 }
 
 void SpriteFramesEditor::_notification(int p_what) {
 
     switch (p_what) {
-        case NOTIFICATION_ENTER_TREE: {
+        case NOTIFICATION_ENTER_TREE:
+        case NOTIFICATION_THEME_CHANGED: {
             load->set_button_icon(get_theme_icon("Load", "EditorIcons"));
             load_sheet->set_button_icon(get_theme_icon("SpriteSheet", "EditorIcons"));
             copy->set_button_icon(get_theme_icon("ActionCopy", "EditorIcons"));
@@ -253,13 +435,17 @@ void SpriteFramesEditor::_notification(int p_what) {
             move_up->set_button_icon(get_theme_icon("MoveLeft", "EditorIcons"));
             move_down->set_button_icon(get_theme_icon("MoveRight", "EditorIcons"));
             _delete->set_button_icon(get_theme_icon("Remove", "EditorIcons"));
+            zoom_out->set_button_icon(get_theme_icon("ZoomLess", "EditorIcons"));
+            zoom_reset->set_button_icon(get_theme_icon("ZoomReset", "EditorIcons"));
+            zoom_in->set_button_icon(get_theme_icon("ZoomMore", "EditorIcons"));
             new_anim->set_button_icon(get_theme_icon("New", "EditorIcons"));
             remove_anim->set_button_icon(get_theme_icon("Remove", "EditorIcons"));
-            [[fallthrough]];
+            split_sheet_zoom_out->set_button_icon(get_theme_icon("ZoomLess", "EditorIcons"));
+            split_sheet_zoom_reset->set_button_icon(get_theme_icon("ZoomReset", "EditorIcons"));
+            split_sheet_zoom_in->set_button_icon(get_theme_icon("ZoomMore", "EditorIcons"));
+            split_sheet_scroll->add_theme_style_override("bg", get_theme_stylebox("bg", "Tree"));
+            break;
         }
-        case NOTIFICATION_THEME_CHANGED: {
-            splite_sheet_scroll->add_theme_style_override("bg", get_theme_stylebox("bg", "Tree"));
-        } break;
         case NOTIFICATION_READY: {
             add_constant_override("autohide", 1); // Fixes the dragger always showing up.
         } break;
@@ -311,6 +497,21 @@ void SpriteFramesEditor::_file_load_request(const PoolVector<String> &p_path, in
     undo_redo->commit_action();
 }
 
+Size2i SpriteFramesEditor::_get_frame_count() const {
+    return Size2i(split_sheet_h->get_value(), split_sheet_v->get_value());
+}
+
+Size2i SpriteFramesEditor::_get_frame_size() const {
+    return Size2i(split_sheet_size_x->get_value(), split_sheet_size_y->get_value());
+}
+
+Size2i SpriteFramesEditor::_get_offset() const {
+    return Size2i(split_sheet_offset_x->get_value(), split_sheet_offset_y->get_value());
+}
+
+Size2i SpriteFramesEditor::_get_separation() const {
+    return Size2i(split_sheet_sep_x->get_value(), split_sheet_sep_y->get_value());
+}
 void SpriteFramesEditor::_load_pressed() {
 
     ERR_FAIL_COND(!frames->has_animation(edited_anim));
@@ -658,6 +859,53 @@ void SpriteFramesEditor::_animation_fps_changed(double p_value) {
     undo_redo->commit_action();
 }
 
+void SpriteFramesEditor::_tree_input(const Ref<InputEvent> &p_event) {
+    const Ref<InputEventMouseButton> mb(dynamic_ref_cast<InputEventMouseButton>(p_event));
+
+    if (mb) {
+        if (mb->get_button_index() == BUTTON_WHEEL_UP && mb->is_pressed() && mb->get_control()) {
+            _zoom_in();
+            // Don't scroll up after zooming in.
+            accept_event();
+        } else if (mb->get_button_index() == BUTTON_WHEEL_DOWN && mb->is_pressed() && mb->get_control()) {
+            _zoom_out();
+            // Don't scroll down after zooming out.
+            accept_event();
+        }
+    }
+}
+
+void SpriteFramesEditor::_zoom_in() {
+    // Do not zoom in or out with no visible frames
+    if (frames->get_frame_count(edited_anim) <= 0) {
+        return;
+    }
+    if (thumbnail_zoom < max_thumbnail_zoom) {
+        thumbnail_zoom *= scale_ratio;
+        int thumbnail_size = (int)(thumbnail_default_size * thumbnail_zoom);
+        tree->set_fixed_column_width(thumbnail_size * 3 / 2);
+        tree->set_fixed_icon_size(Size2(thumbnail_size, thumbnail_size));
+    }
+}
+
+void SpriteFramesEditor::_zoom_out() {
+    // Do not zoom in or out with no visible frames
+    if (frames->get_frame_count(edited_anim) <= 0) {
+        return;
+    }
+    if (thumbnail_zoom > min_thumbnail_zoom) {
+        thumbnail_zoom /= scale_ratio;
+        int thumbnail_size = (int)(thumbnail_default_size * thumbnail_zoom);
+        tree->set_fixed_column_width(thumbnail_size * 3 / 2);
+        tree->set_fixed_icon_size(Size2(thumbnail_size, thumbnail_size));
+    }
+}
+
+void SpriteFramesEditor::_zoom_reset() {
+    thumbnail_zoom = M_MAX(1.0f, EDSCALE);
+    tree->set_fixed_column_width(thumbnail_default_size * 3 / 2);
+    tree->set_fixed_icon_size(Size2(thumbnail_default_size, thumbnail_default_size));
+}
 void SpriteFramesEditor::_update_library(bool p_skip_selector) {
 
     updating = true;
@@ -703,16 +951,34 @@ void SpriteFramesEditor::_update_library(bool p_skip_selector) {
     for (int i = 0; i < frames->get_frame_count(edited_anim); i++) {
 
         StringName name;
-        Ref<Texture> icon;
-        Ref<Texture> frame_tex(frames->get_frame(edited_anim, i));
-        name = ": " + (frame_tex ? StringName(frame_tex->get_name()) : TTR("(empty)"));
-        icon = frame_tex;
+        Ref<Texture> frame = frames->get_frame(edited_anim, i);
 
-        tree->add_item(name, icon);
-        if (frame_tex)
-            tree->set_item_tooltip_utf8(tree->get_item_count() - 1, frame_tex->get_path());
-        if (sel == i)
+        if (!frame) {
+            name = StringName(itos(i) + ": " + TTR("(empty)"));
+        } else {
+            name = StringName(itos(i) + ": " + frame->get_name());
+        }
+
+        tree->add_item(name, frame);
+        if (frame) {
+            UIString tooltip = UIString::fromUtf8(frame->get_path().c_str());
+
+            // Frame is often saved as an AtlasTexture subresource within a scene/resource file,
+            // thus its path might be not what the user is looking for. So we're also showing
+            // subsequent source texture paths.
+            UIString prefix = UIString::fromUtf8("┖╴");
+            Ref<AtlasTexture> at = dynamic_ref_cast<AtlasTexture>(frame);
+            while (at && at->get_atlas()) {
+                tooltip += "\n" + prefix + at->get_atlas()->get_path().c_str();
+                prefix = "    " + prefix;
+                at = dynamic_ref_cast<AtlasTexture>(at->get_atlas());
+            }
+
+            tree->set_item_tooltip(tree->get_item_count() - 1, tooltip.toUtf8().data());
+        }
+        if (sel == i) {
             tree->select(tree->get_item_count() - 1);
+        }
     }
 
     anim_speed->set_value(frames->get_animation_speed(edited_anim));
@@ -744,6 +1010,9 @@ void SpriteFramesEditor::edit(SpriteFrames *p_frames) {
         }
 
         _update_library();
+        // Clear zoom and split sheet texture
+        split_sheet_preview->set_texture(Ref<Texture>());
+        _zoom_reset();
     } else {
 
         hide();
@@ -802,9 +1071,9 @@ bool SpriteFramesEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
 
         for (int i = 0; i < files.size(); i++) {
             String file = files[i];
-            String ftype = EditorFileSystem::get_singleton()->get_file_type(file);
+            StringName ftype = EditorFileSystem::get_singleton()->get_file_type(file);
 
-            if (!ClassDB::is_parent_class(StringName(ftype), "Texture")) {
+            if (!ClassDB::is_parent_class(ftype, "Texture")) {
                 return false;
             }
         }
@@ -873,9 +1142,9 @@ void SpriteFramesEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 void SpriteFramesEditor::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_update_library", {"skipsel"}), &SpriteFramesEditor::_update_library, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("get_drag_data_fw"), &SpriteFramesEditor::get_drag_data_fw);
-    MethodBinder::bind_method(D_METHOD("can_drop_data_fw"), &SpriteFramesEditor::can_drop_data_fw);
-    MethodBinder::bind_method(D_METHOD("drop_data_fw"), &SpriteFramesEditor::drop_data_fw);
+    BIND_METHOD(SpriteFramesEditor,get_drag_data_fw);
+    BIND_METHOD(SpriteFramesEditor,can_drop_data_fw);
+    BIND_METHOD(SpriteFramesEditor,drop_data_fw);
 }
 
 SpriteFramesEditor::SpriteFramesEditor() {
@@ -980,6 +1249,19 @@ SpriteFramesEditor::SpriteFramesEditor() {
     _delete->set_tooltip(TTR("Delete"));
     hbc->add_child(_delete);
 
+    hbc->add_spacer();
+
+    zoom_out = memnew(ToolButton);
+    zoom_out->set_tooltip(TTR("Zoom Out"));
+    hbc->add_child(zoom_out);
+
+    zoom_reset = memnew(ToolButton);
+    zoom_reset->set_tooltip(TTR("Zoom Reset"));
+    hbc->add_child(zoom_reset);
+
+    zoom_in = memnew(ToolButton);
+    zoom_in->set_tooltip(TTR("Zoom In"));
+    hbc->add_child(zoom_in);
     file = memnew(EditorFileDialog);
     add_child(file);
 
@@ -987,12 +1269,9 @@ SpriteFramesEditor::SpriteFramesEditor() {
     tree->set_v_size_flags(SIZE_EXPAND_FILL);
     tree->set_icon_mode(ItemList::ICON_MODE_TOP);
 
-    int thumbnail_size = 96;
     tree->set_max_columns(0);
     tree->set_icon_mode(ItemList::ICON_MODE_TOP);
-    tree->set_fixed_column_width(thumbnail_size * 3 / 2);
     tree->set_max_text_lines(2);
-    tree->set_fixed_icon_size(Size2(thumbnail_size, thumbnail_size));
     tree->set_drag_forwarding(this);
 
     sub_vb->add_child(tree);
@@ -1009,7 +1288,11 @@ SpriteFramesEditor::SpriteFramesEditor() {
     empty2->connect("pressed",callable_mp(this, &ClassName::_empty2_pressed));
     move_up->connect("pressed",callable_mp(this, &ClassName::_up_pressed));
     move_down->connect("pressed",callable_mp(this, &ClassName::_down_pressed));
+    zoom_in->connect("pressed", callable_mp(this, &ClassName::_zoom_in));
+    zoom_out->connect("pressed", callable_mp(this, &ClassName::_zoom_out));
+    zoom_reset->connect("pressed", callable_mp(this, &ClassName::_zoom_reset));
     file->connect("files_selected",callable_mp(this, &ClassName::_file_load_request));
+    tree->connect("gui_input", callable_mp(this, &ClassName::_tree_input));
     loading_scene = false;
     sel = -1;
 
@@ -1026,27 +1309,71 @@ SpriteFramesEditor::SpriteFramesEditor() {
     VBoxContainer *split_sheet_vb = memnew(VBoxContainer);
     split_sheet_dialog->add_child(split_sheet_vb);
     split_sheet_dialog->set_title(TTR("Select Frames"));
+    split_sheet_dialog->set_resizable(true);
     split_sheet_dialog->connect("confirmed",callable_mp(this, &ClassName::_sheet_add_frames));
 
     HBoxContainer *split_sheet_hb = memnew(HBoxContainer);
 
-    Label *ss_label = memnew(Label(TTR("Horizontal:")));
-    split_sheet_hb->add_child(ss_label);
+    split_sheet_hb->add_child(memnew(Label(TTR("Horizontal:"))));
     split_sheet_h = memnew(SpinBox);
     split_sheet_h->set_min(1);
     split_sheet_h->set_max(128);
     split_sheet_h->set_step(1);
     split_sheet_hb->add_child(split_sheet_h);
-    split_sheet_h->connect("value_changed",callable_mp(this, &ClassName::_sheet_spin_changed));
+    split_sheet_h->connect("value_changed",callable_gen(this,[=](double val) { _sheet_spin_changed(val,PARAM_FRAME_COUNT); }) );
 
-    ss_label = memnew(Label(TTR("Vertical:")));
-    split_sheet_hb->add_child(ss_label);
+    split_sheet_hb->add_child(memnew(Label(TTR("Vertical:"))));
     split_sheet_v = memnew(SpinBox);
     split_sheet_v->set_min(1);
     split_sheet_v->set_max(128);
     split_sheet_v->set_step(1);
     split_sheet_hb->add_child(split_sheet_v);
-    split_sheet_v->connect("value_changed",callable_mp(this, &ClassName::_sheet_spin_changed));
+    split_sheet_v->connect("value_changed",callable_gen(this,[=](double val) { _sheet_spin_changed(val,PARAM_FRAME_COUNT); }) );
+
+    split_sheet_hb->add_child(memnew(VSeparator));
+    split_sheet_hb->add_child(memnew(Label(TTR("Size:"))));
+    split_sheet_size_x = memnew(SpinBox);
+    split_sheet_size_x->set_min(1);
+    split_sheet_size_x->set_step(1);
+    split_sheet_size_x->set_suffix("px");
+    split_sheet_size_x->connect("value_changed",callable_gen(this,[=](double val) { _sheet_spin_changed(val,PARAM_SIZE); }));
+    split_sheet_hb->add_child(split_sheet_size_x);
+    split_sheet_size_y = memnew(SpinBox);
+    split_sheet_size_y->set_min(1);
+    split_sheet_size_y->set_step(1);
+    split_sheet_size_y->set_suffix("px");
+    split_sheet_size_y->connect("value_changed",callable_gen(this,[=](double val) { _sheet_spin_changed(val,PARAM_SIZE);}));
+    split_sheet_hb->add_child(split_sheet_size_y);
+
+    split_sheet_hb->add_child(memnew(VSeparator));
+    split_sheet_hb->add_child(memnew(Label(TTR("Separation:"))));
+    split_sheet_sep_x = memnew(SpinBox);
+    split_sheet_sep_x->set_min(0);
+    split_sheet_sep_x->set_step(1);
+    split_sheet_sep_x->set_suffix("px");
+    split_sheet_sep_x->connect("value_changed",callable_gen(this,[=](double val) { _sheet_spin_changed(val,PARAM_USE_CURRENT);}));
+    split_sheet_hb->add_child(split_sheet_sep_x);
+    split_sheet_sep_y = memnew(SpinBox);
+    split_sheet_sep_y->set_min(0);
+    split_sheet_sep_y->set_step(1);
+    split_sheet_sep_y->set_suffix("px");
+    split_sheet_sep_y->connect("value_changed",callable_gen(this,[=](double val) { _sheet_spin_changed(val,PARAM_USE_CURRENT);}));
+    split_sheet_hb->add_child(split_sheet_sep_y);
+
+    split_sheet_hb->add_child(memnew(VSeparator));
+    split_sheet_hb->add_child(memnew(Label(TTR("Offset:"))));
+    split_sheet_offset_x = memnew(SpinBox);
+    split_sheet_offset_x->set_min(0);
+    split_sheet_offset_x->set_step(1);
+    split_sheet_offset_x->set_suffix("px");
+    split_sheet_offset_x->connect("value_changed", callable_gen(this,[=](double val) { _sheet_spin_changed(val,PARAM_USE_CURRENT);}));
+    split_sheet_hb->add_child(split_sheet_offset_x);
+    split_sheet_offset_y = memnew(SpinBox);
+    split_sheet_offset_y->set_min(0);
+    split_sheet_offset_y->set_step(1);
+    split_sheet_offset_y->set_suffix("px");
+    split_sheet_offset_y->connect("value_changed", callable_gen(this,[=](double val) { _sheet_spin_changed(val,PARAM_USE_CURRENT);}));
+    split_sheet_hb->add_child(split_sheet_offset_y);
 
     split_sheet_hb->add_spacer();
 
@@ -1056,30 +1383,71 @@ SpriteFramesEditor::SpriteFramesEditor() {
     split_sheet_hb->add_child(select_clear_all);
 
     split_sheet_vb->add_child(split_sheet_hb);
+    PanelContainer *split_sheet_panel = memnew(PanelContainer);
+    split_sheet_panel->set_h_size_flags(SIZE_EXPAND_FILL);
+    split_sheet_panel->set_v_size_flags(SIZE_EXPAND_FILL);
+    split_sheet_vb->add_child(split_sheet_panel);
 
     split_sheet_preview = memnew(TextureRect);
-    split_sheet_preview->set_expand(false);
-    split_sheet_preview->set_mouse_filter(MOUSE_FILTER_PASS);
+    split_sheet_preview->set_expand(true);
     split_sheet_preview->connect("draw",callable_mp(this, &ClassName::_sheet_preview_draw));
     split_sheet_preview->connect("gui_input",callable_mp(this, &ClassName::_sheet_preview_input));
 
-    splite_sheet_scroll = memnew(ScrollContainer);
-    splite_sheet_scroll->set_enable_h_scroll(true);
-    splite_sheet_scroll->set_enable_v_scroll(true);
-    splite_sheet_scroll->set_v_size_flags(SIZE_EXPAND_FILL);
+    split_sheet_scroll = memnew(ScrollContainer);
+    split_sheet_scroll->set_enable_h_scroll(true);
+    split_sheet_scroll->set_enable_v_scroll(true);
+    split_sheet_scroll->connect("gui_input", callable_mp(this, &ClassName::_sheet_scroll_input));
+    split_sheet_panel->add_child(split_sheet_scroll);
     CenterContainer *cc = memnew(CenterContainer);
     cc->add_child(split_sheet_preview);
     cc->set_h_size_flags(SIZE_EXPAND_FILL);
     cc->set_v_size_flags(SIZE_EXPAND_FILL);
-    splite_sheet_scroll->add_child(cc);
+    cc->set_mouse_filter(MOUSE_FILTER_PASS);
+    split_sheet_scroll->add_child(cc);
 
-    split_sheet_vb->add_child(splite_sheet_scroll);
+    MarginContainer *split_sheet_zoom_margin = memnew(MarginContainer);
+    split_sheet_panel->add_child(split_sheet_zoom_margin);
+    split_sheet_zoom_margin->set_h_size_flags(0);
+    split_sheet_zoom_margin->set_v_size_flags(0);
+    split_sheet_zoom_margin->add_constant_override("margin_top", 5);
+    split_sheet_zoom_margin->add_constant_override("margin_left", 5);
+    HBoxContainer *split_sheet_zoom_hb = memnew(HBoxContainer);
+    split_sheet_zoom_margin->add_child(split_sheet_zoom_hb);
+
+    split_sheet_zoom_out = memnew(ToolButton);
+    split_sheet_zoom_out->set_focus_mode(FOCUS_NONE);
+    split_sheet_zoom_out->set_tooltip(TTR("Zoom Out"));
+    split_sheet_zoom_out->connect("pressed", callable_mp(this, &ClassName::_sheet_zoom_out));
+    split_sheet_zoom_hb->add_child(split_sheet_zoom_out);
+
+    split_sheet_zoom_reset = memnew(ToolButton);
+    split_sheet_zoom_reset->set_focus_mode(FOCUS_NONE);
+    split_sheet_zoom_reset->set_tooltip(TTR("Zoom Reset"));
+    split_sheet_zoom_reset->connect("pressed", callable_mp(this, &ClassName::_sheet_zoom_reset));
+    split_sheet_zoom_hb->add_child(split_sheet_zoom_reset);
+
+    split_sheet_zoom_in = memnew(ToolButton);
+    split_sheet_zoom_in->set_focus_mode(FOCUS_NONE);
+    split_sheet_zoom_in->set_tooltip(TTR("Zoom In"));
+    split_sheet_zoom_in->connect("pressed", callable_mp(this, &ClassName::_sheet_zoom_in));
+    split_sheet_zoom_hb->add_child(split_sheet_zoom_in);
 
     file_split_sheet = memnew(EditorFileDialog);
     file_split_sheet->set_title(TTR("Create Frames from Sprite2D Sheet"));
     file_split_sheet->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     add_child(file_split_sheet);
     file_split_sheet->connect("file_selected",callable_mp(this, &ClassName::_prepare_sprite_sheet));
+    // Config scale.
+    scale_ratio = 1.2f;
+    thumbnail_default_size = 96 * M_MAX(1, EDSCALE);
+    thumbnail_zoom = M_MAX(1.0f, EDSCALE);
+    max_thumbnail_zoom = 8.0f * M_MAX(1.0f, EDSCALE);
+    min_thumbnail_zoom = 0.1f * M_MAX(1.0f, EDSCALE);
+    // Default the zoom to match the editor scale, but don't dezoom on editor scales below 100% to prevent pixel art from looking bad.
+    sheet_zoom = M_MAX(1.0f, EDSCALE);
+    max_sheet_zoom = 16.0f * M_MAX(1.0f, EDSCALE);
+    min_sheet_zoom = 0.01f * M_MAX(1.0f, EDSCALE);
+    _zoom_reset();
 }
 
 void SpriteFramesEditorPlugin::edit(Object *p_object) {

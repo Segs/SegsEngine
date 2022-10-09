@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_profiler.cpp                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -33,6 +33,7 @@
 #include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/os/os.h"
+#include "core/set.h"
 #include "core/translation_helpers.h"
 #include "editor_scale.h"
 #include "editor_settings.h"
@@ -322,9 +323,9 @@ void EditorProfiler::_update_plot() {
 
                 for (int j = prev_plot; j <= plot_pos; j++) {
 
-                    column[j * 4 + 0] += Math::fast_ftoi(CLAMP(col.r * 255, 0, 255));
-                    column[j * 4 + 1] += Math::fast_ftoi(CLAMP(col.g * 255, 0, 255));
-                    column[j * 4 + 2] += Math::fast_ftoi(CLAMP(col.b * 255, 0, 255));
+                    column[j * 4 + 0] += Math::fast_ftoi(CLAMP<float>(col.r * 255, 0, 255));
+                    column[j * 4 + 1] += Math::fast_ftoi(CLAMP<float>(col.g * 255, 0, 255));
+                    column[j * 4 + 2] += Math::fast_ftoi(CLAMP<float>(col.b * 255, 0, 255));
                     column[j * 4 + 3] += 1;
                 }
             }
@@ -356,7 +357,7 @@ void EditorProfiler::_update_plot() {
     wr.release();
 
     Ref<Image> img(make_ref_counted<Image>());
-    img->create(w, h, false, Image::FORMAT_RGBA8, graph_image);
+    img->create(w, h, false, ImageData::FORMAT_RGBA8, graph_image);
 
     if (reset_texture) {
         if (not graph_texture) {
@@ -410,7 +411,7 @@ void EditorProfiler::_update_frame() {
             item->set_metadata(1, it.script);
             item->set_metadata(2, it.line);
             item->set_text_align(2, TreeItem::ALIGN_RIGHT);
-            item->set_tooltip(0, StringName(it.script + ":" + itos(it.line)));
+            item->set_tooltip(0, StringName(it.name + "\n" + it.script + ":" + itos(it.line)));
 
             float time = dtime == DISPLAY_SELF_TIME ? it.self : it.total;
 
@@ -447,10 +448,12 @@ void EditorProfiler::_clear_pressed() {
 }
 
 void EditorProfiler::_notification(int p_what) {
-
-    if (p_what == NOTIFICATION_ENTER_TREE) {
-        activate->set_button_icon(get_theme_icon("Play", "EditorIcons"));
-        clear_button->set_button_icon(get_theme_icon("Clear", "EditorIcons"));
+    switch (p_what) {
+        case NOTIFICATION_ENTER_TREE:
+        case NOTIFICATION_THEME_CHANGED: {
+            activate->set_button_icon(get_theme_icon("Play", "EditorIcons"));
+            clear_button->set_button_icon(get_theme_icon("Clear", "EditorIcons"));
+        } break;
     }
 }
 
@@ -626,24 +629,35 @@ Vector<Vector<String> > EditorProfiler::get_data_as_csv() const {
         return res;
     }
 
-    // signatures
-    Vector<String> signatures;
-    const Vector<EditorProfiler::Metric::Category> &categories = frame_metrics[0].categories;
-
-    for (int j = 0; j < categories.size(); j++) {
-
-        const EditorProfiler::Metric::Category &c = categories[j];
-        signatures.emplace_back(c.signature);
-
-        for (int k = 0; k < c.items.size(); k++) {
-            signatures.emplace_back(c.items[k].signature);
+    // Different metrics may contain different number of categories.
+    Set<StringName> possible_signatures;
+    for (int i = 0; i < frame_metrics.size(); i++) {
+        const Metric &m = frame_metrics[i];
+        if (!m.valid) {
+            continue;
         }
+        for (const eastl::pair<const StringName, Metric::Category *> &E : m.category_ptrs) {
+            possible_signatures.insert(E.first);
+        }
+        for (const eastl::pair<const StringName, Metric::Category::Item *> &E : m.item_ptrs) {
+            possible_signatures.insert(E.first);
+        }
+    }
+
+    // Generate CSV header and cache indices.
+    Map<StringName, int> sig_map;
+    Vector<String> signatures;
+    signatures.resize(possible_signatures.size());
+    int sig_index = 0;
+    for (const StringName &E : possible_signatures) {
+        signatures[sig_index] = E;
+        sig_map[E] = sig_index;
+        sig_index++;
     }
     res.push_back(signatures);
 
     // values
     Vector<String> values;
-    values.resize(signatures.size());
 
     int index = last_metric;
 
@@ -655,22 +669,25 @@ Vector<Vector<String> > EditorProfiler::get_data_as_csv() const {
             index = 0;
         }
 
-        if (!frame_metrics[index].valid) {
+        const Metric &m = frame_metrics[index];
+
+        if (!m.valid) {
             continue;
         }
-        int it = 0;
-        const Vector<EditorProfiler::Metric::Category> &frame_cat = frame_metrics[index].categories;
 
-        for (int j = 0; j < frame_cat.size(); j++) {
+        // Don't keep old values since there may be empty cells.
+        values.clear();
+        values.resize(possible_signatures.size());
 
-            const EditorProfiler::Metric::Category &c = frame_cat[j];
-            values[it++] = StringUtils::num_real(c.total_time);
-
-            for (int k = 0; k < c.items.size(); k++) {
-                values[it++] = StringUtils::num_real(c.items[k].total);
-            }
+        for (const eastl::pair<const StringName, Metric::Category *> &E : m.category_ptrs) {
+            values[sig_map[E.first]] = StringUtils::num_real(E.second->total_time);
         }
-        res.emplace_back(values);
+        for (const eastl::pair<const StringName, Metric::Category::Item *> &E : m.item_ptrs) {
+            values[sig_map[E.first]] = StringUtils::num_real(E.second->total);
+        }
+
+
+        res.push_back(values);
     }
 
     return res;
@@ -694,8 +711,8 @@ EditorProfiler::EditorProfiler() {
     hb->add_child(memnew(Label(TTR("Measure:"))));
 
     display_mode = memnew(OptionButton);
-    display_mode->add_item(TTR("Frame Time (sec)"));
-    display_mode->add_item(TTR("Average Time (sec)"));
+    display_mode->add_item(TTR("Frame Time (ms)"));
+    display_mode->add_item(TTR("Average Time (ms)"));
     display_mode->add_item(TTR("Frame %"));
     display_mode->add_item(TTR("Physics Frame %"));
     display_mode->connect("item_selected",callable_mp(this, &ClassName::_combo_changed));
@@ -707,7 +724,11 @@ EditorProfiler::EditorProfiler() {
     display_time = memnew(OptionButton);
     display_time->add_item(TTR("Inclusive"));
     display_time->add_item(TTR("Self"));
-    display_time->connect("item_selected",callable_mp(this, &ClassName::_combo_changed));
+    display_time->set_tooltip(
+            TTR("Inclusive: Includes time from other functions called by this function.\nUse this to spot "
+                "bottlenecks.\n\nSelf: Only count the time spent in the function itself, not in other functions called "
+                "by that function.\nUse this to find individual functions to optimize."));
+    display_time->connect("item_selected", callable_mp(this, &ClassName::_combo_changed));
 
     hb->add_child(display_time);
 

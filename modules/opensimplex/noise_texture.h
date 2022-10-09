@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  noise_texture.h                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -50,11 +50,12 @@ private:
     bool update_queued;
     bool regen_queued;
 
-    RID texture;
+    RenderingEntity texture;
     uint32_t flags;
 
     Ref<OpenSimplexNoise> noise;
     Vector2i size;
+    Vector2 noise_offset;
     bool seamless;
     bool as_normalmap;
     float bump_strength;
@@ -78,6 +79,9 @@ public:
     void set_width(int p_width);
     void set_height(int p_height);
 
+    void set_noise_offset(Vector2 p_noise_offset);
+    Vector2 get_noise_offset() const;
+
     void set_seamless(bool p_seamless);
     bool get_seamless();
 
@@ -93,7 +97,7 @@ public:
     void set_flags(uint32_t p_flags) override;
     uint32_t get_flags() const override;
 
-    RID get_rid() const override { return texture; }
+    RenderingEntity get_rid() const override { return texture; }
     bool has_alpha() const override { return false; }
 
     Ref<Image> get_data() const override;

@@ -76,12 +76,12 @@ void AudioStreamPlaybackResampled::mix(AudioFrame *p_buffer, float p_rate_scale,
         AudioFrame y3 = internal_buffer[idx - 0];
 
         float mu2 = mu * mu;
-        AudioFrame a0 = y3 - y2 - y0 + y1;
-        AudioFrame a1 = y0 - y1 - a0;
+        AudioFrame a0 = 3 * y1 - 3 * y2 + y3 - y0;
+        AudioFrame a1 = 2 * y0 - 5 * y1 + 4 * y2 - y3;
         AudioFrame a2 = y2 - y0;
-        AudioFrame a3 = y1;
+        AudioFrame a3 = 2 * y1;
 
-        p_buffer[i] = (a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3);
+        p_buffer[i] = (a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3) / 2;
 
         mix_offset += mix_increment;
 
@@ -108,7 +108,7 @@ void AudioStreamPlaybackResampled::mix(AudioFrame *p_buffer, float p_rate_scale,
 
 void AudioStream::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_length"), &AudioStream::get_length);
+    BIND_METHOD(AudioStream,get_length);
 }
 
 ////////////////////////////////
@@ -239,7 +239,7 @@ void AudioStreamPlaybackMicrophone::seek(float p_time) {
 
 AudioStreamPlaybackMicrophone::~AudioStreamPlaybackMicrophone() {
     microphone->playbacks.erase(this);
-    stop();
+    AudioStreamPlaybackMicrophone::stop();
 }
 
 AudioStreamPlaybackMicrophone::AudioStreamPlaybackMicrophone() {
@@ -301,11 +301,11 @@ float AudioStreamRandomPitch::get_length() const {
 
 void AudioStreamRandomPitch::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_audio_stream", {"stream"}), &AudioStreamRandomPitch::set_audio_stream);
-    MethodBinder::bind_method(D_METHOD("get_audio_stream"), &AudioStreamRandomPitch::get_audio_stream);
+    BIND_METHOD(AudioStreamRandomPitch,set_audio_stream);
+    BIND_METHOD(AudioStreamRandomPitch,get_audio_stream);
 
-    MethodBinder::bind_method(D_METHOD("set_random_pitch", {"scale"}), &AudioStreamRandomPitch::set_random_pitch);
-    MethodBinder::bind_method(D_METHOD("get_random_pitch"), &AudioStreamRandomPitch::get_random_pitch);
+    BIND_METHOD(AudioStreamRandomPitch,set_random_pitch);
+    BIND_METHOD(AudioStreamRandomPitch,get_random_pitch);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "audio_stream", PropertyHint::ResourceType, "AudioStream"), "set_audio_stream", "get_audio_stream");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "random_pitch", PropertyHint::Range, "1,16,0.01"), "set_random_pitch", "get_random_pitch");

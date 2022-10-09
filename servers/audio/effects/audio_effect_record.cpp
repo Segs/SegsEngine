@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_effect_record.cpp                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -88,7 +88,7 @@ namespace  {
                 xm_sample = 0;
             else
             {
-                xm_sample = CLAMP(in[i] * 32767.0, -32768, 32767);
+                xm_sample = CLAMP(in[i] * 32767.0f, -32768.0f, 32767.0f);
                 /*
                 if (xm_sample==32767 || xm_sample==-32768)
                     printf("clippy!\n",xm_sample);
@@ -343,7 +343,7 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
         dst_data.resize(data_size);
 
         for (int i = 0; i < data_size; i++) {
-            int8_t v = CLAMP(current_instance->recording_data[i] * 128, -128, 127);
+            int8_t v = CLAMP<float>(current_instance->recording_data[i] * 128, -128, 127);
             dst_data[i] = v;
         }
     } else if (dst_format == AudioStreamSample::FORMAT_16_BITS) {
@@ -351,7 +351,7 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
         dst_data.resize(data_size * 2);
 
         for (int i = 0; i < data_size; i++) {
-            int16_t v = CLAMP(current_instance->recording_data[i] * 32768, -32768, 32767);
+            int16_t v = CLAMP<float>(current_instance->recording_data[i] * 32768, -32768, 32767);
             encode_uint16(v, &dst_data[i * 2]);
         }
     } else if (dst_format == AudioStreamSample::FORMAT_IMA_ADPCM) {
@@ -398,11 +398,11 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
 }
 
 void AudioEffectRecord::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_recording_active", {"record"}), &AudioEffectRecord::set_recording_active);
-    MethodBinder::bind_method(D_METHOD("is_recording_active"), &AudioEffectRecord::is_recording_active);
-    MethodBinder::bind_method(D_METHOD("set_format", {"format"}), &AudioEffectRecord::set_format);
-    MethodBinder::bind_method(D_METHOD("get_format"), &AudioEffectRecord::get_format);
-    MethodBinder::bind_method(D_METHOD("get_recording"), &AudioEffectRecord::get_recording);
+    BIND_METHOD(AudioEffectRecord,set_recording_active);
+    BIND_METHOD(AudioEffectRecord,is_recording_active);
+    BIND_METHOD(AudioEffectRecord,set_format);
+    BIND_METHOD(AudioEffectRecord,get_format);
+    BIND_METHOD(AudioEffectRecord,get_recording);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "format", PropertyHint::Enum, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");
 }

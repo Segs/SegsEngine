@@ -285,7 +285,7 @@ static int _bsp_find_best_half_plane(const Face3 *p_faces, const Vector<int> &p_
         const Face3 &f = p_faces[indices[i]];
         Plane p = f.get_plane();
 
-        int num_over = 0, num_under = 0, num_spanning = 0;
+        int num_over = 0, num_under = 0;
 
         for (int j = 0; j < ic; j++) {
 
@@ -308,15 +308,15 @@ static int _bsp_find_best_half_plane(const Face3 *p_faces, const Vector<int> &p_
                 }
             }
 
-            if (over && under)
-                num_spanning++;
-            else if (over)
+            if (over && under) {
+                continue;
+            }
+            if (over)
                 num_over++;
             else
                 num_under++;
         }
 
-        //real_t split_cost = num_spanning / (real_t) face_count;
         real_t relation = Math::abs(num_over - num_under) / (real_t)ic;
 
         // being honest, i never found a way to add split cost to the mix in a meaninguful way
@@ -324,7 +324,6 @@ static int _bsp_find_best_half_plane(const Face3 *p_faces, const Vector<int> &p_
 
         real_t plane_cost = /*split_cost +*/ relation;
 
-        //printf("plane %i, %i over, %i under, %i spanning, cost is %g\n",i,num_over,num_under,num_spanning,plane_cost);
         if (plane_cost < best_plane_cost) {
 
             best_plane = i;
@@ -481,7 +480,7 @@ BSP_Tree::BSP_Tree(const Variant &p_variant) {
     PoolVector<int> src_nodes = d["nodes"].as<PoolVector<int>>();
     ERR_FAIL_COND(src_nodes.size() % 3);
 
-    if (d["planes"].get_type() == VariantType::POOL_REAL_ARRAY) {
+    if (d["planes"].get_type() == VariantType::POOL_FLOAT32_ARRAY) {
 
         PoolVector<real_t> src_planes = d["planes"].as<PoolVector<real_t>>();
         size_t plane_count = src_planes.size();

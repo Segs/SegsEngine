@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  polygon_2d_editor_plugin.cpp                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -203,7 +203,7 @@ void Polygon2DEditor::_update_bone_list() {
         if (name.empty()) {
             name = "Bone " + itos(i);
         }
-        cb->set_text_utf8(name);
+        cb->set_text(name);
         cb->set_button_group(bg);
         cb->set_meta("bone_path", np);
         cb->set_focus_mode(FOCUS_NONE);
@@ -212,7 +212,7 @@ void Polygon2DEditor::_update_bone_list() {
         if (np == selected || bone_scroll_vb->get_child_count() < 2)
             cb->set_pressed(true);
 
-        cb->connect("pressed",callable_mp(this, &ClassName::_bone_paint_selected), varray(i));
+        cb->connectF("pressed",this,[this,i]() { _bone_paint_selected(i); });
     }
 
     uv_edit_draw->update();
@@ -630,8 +630,8 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
 
                     uv_create_poly_prev.remove(closest);
                     uv_create_uv_prev.remove(closest);
-                    if (uv_create_colors_prev.size()) {
-                        uv_create_colors_prev.remove(closest);
+                    if (!uv_create_colors_prev.empty()) {
+                        uv_create_colors_prev.erase_at(closest);
                     }
 
                     undo_redo->create_action(TTR("Remove Internal Vertex"));
@@ -953,7 +953,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
 
                     for (int i = 0; i < pc; i++) {
                         if (mtx.xform(rv[i]).distance_to(bone_paint_pos) < radius) {
-                            w[i] = CLAMP(r[i] + amount, 0, 1);
+                            w[i] = CLAMP(r[i] + amount, 0.0f, 1.0f);
                         }
                     }
                 }
@@ -1077,11 +1077,11 @@ void Polygon2DEditor::_uv_draw() {
         poly_line_color.a *= 0.25f;
     }
     Color polygon_line_color = Color(0.5, 0.5, 0.9f);
-    PoolVector<Color> polygon_fill_color;
+    Color polygon_fill_color[1];
     {
         Color pf = polygon_line_color;
         pf.a *= 0.5f;
-        polygon_fill_color.push_back(pf);
+        polygon_fill_color[0] = pf;
     }
     Color prev_color = Color(0.5, 0.5, 0.5);
     Rect2 rect;
@@ -1140,7 +1140,7 @@ void Polygon2DEditor::_uv_draw() {
         if (weight_r.ptr()) {
             Vector2 draw_pos = mtx.xform(uvs[i]);
             float weight = weight_r[i];
-            uv_edit_draw->draw_rect(Rect2(draw_pos - Vector2(2, 2) * EDSCALE, Vector2(5, 5) * EDSCALE), Color(weight, weight, weight, 1.0), Math::round(EDSCALE));
+            uv_edit_draw->draw_rect_stroke(Rect2(draw_pos - Vector2(2, 2) * EDSCALE, Vector2(5, 5) * EDSCALE), Color(weight, weight, weight, 1.0), Math::round(EDSCALE));
         } else {
             if (i < uv_draw_max) {
                 uv_edit_draw->draw_texture(handle, mtx.xform(uvs[i]) - handle->get_size() * 0.5);
@@ -1251,7 +1251,7 @@ void Polygon2DEditor::_uv_draw() {
 }
 
 void Polygon2DEditor::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("_update_polygon_editing_state"), &Polygon2DEditor::_update_polygon_editing_state);
+    BIND_METHOD(Polygon2DEditor,_update_polygon_editing_state);
 }
 
 Vector2 Polygon2DEditor::snap_point(Vector2 p_target) const {
@@ -1275,7 +1275,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     button_uv = memnew(ToolButton);
     add_child(button_uv);
     button_uv->set_tooltip(TTR("Open Polygon 2D UV editor."));
-    button_uv->connect("pressed",callable_mp(this, &ClassName::_menu_option), varray(MODE_EDIT_UV));
+    button_uv->connectF("pressed",this,[this]() { _menu_option(MODE_EDIT_UV); });
 
     uv_mode = UV_MODE_EDIT_POINT;
     uv_edit = memnew(AcceptDialog);
@@ -1314,10 +1314,8 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     uv_edit_mode[2]->set_button_group(uv_edit_group);
     uv_edit_mode[3]->set_button_group(uv_edit_group);
 
-    uv_edit_mode[0]->connect("pressed",callable_mp(this, &ClassName::_uv_edit_mode_select), varray(0));
-    uv_edit_mode[1]->connect("pressed",callable_mp(this, &ClassName::_uv_edit_mode_select), varray(1));
-    uv_edit_mode[2]->connect("pressed",callable_mp(this, &ClassName::_uv_edit_mode_select), varray(2));
-    uv_edit_mode[3]->connect("pressed",callable_mp(this, &ClassName::_uv_edit_mode_select), varray(3));
+    for(int i=0; i<4; ++i)
+        uv_edit_mode[i]->connectF("pressed",this,[this,i]() { _uv_edit_mode_select(i); });
 
     uv_mode_hb->add_child(memnew(VSeparator));
 
@@ -1327,7 +1325,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
         uv_button[i] = memnew(ToolButton);
         uv_button[i]->set_toggle_mode(true);
         uv_mode_hb->add_child(uv_button[i]);
-        uv_button[i]->connect("pressed",callable_mp(this, &ClassName::_uv_mode), varray(i));
+        uv_button[i]->connectF("pressed",this,[this,i]() { _uv_mode(i); });
         uv_button[i]->set_focus_mode(FOCUS_NONE);
     }
 

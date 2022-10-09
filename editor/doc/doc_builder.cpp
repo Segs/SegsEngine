@@ -169,6 +169,13 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
             prop.name = E.name.asCString();
             prop.overridden = inherited;
 
+            if (inherited) {
+                StringName parent = ClassDB::get_parent_class(StringName(c.name));
+                while (!ClassDB::has_property(parent, E.name, true)) {
+                    parent = ClassDB::get_parent_class(parent);
+                }
+                prop.overrides = parent;
+            }
             bool default_value_valid = false;
             Variant default_value;
 
@@ -347,35 +354,41 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
         StringName scname((cname));
         {
             Vector<StringName> l;
-            Theme::get_default()->get_constant_list(scname, &l);
-            for (const StringName &E : l) {
-
-                c.theme_properties.emplace_back(E.asCString(),"int");
-                c.theme_properties.back().default_value = itos(Theme::get_default()->get_constant(E, scname)).c_str();
-            }
-
-            l.clear();
             Theme::get_default()->get_color_list(scname, &l);
             for (const StringName &E : l) {
 
-                c.theme_properties.emplace_back(E.asCString(),"Color");
-                c.theme_properties.back().default_value = Variant(Theme::get_default()->get_color(E, scname)).get_construct_string();
+                DocContents::ThemeItemDoc tid {E.asCString(),"Color","color"};
+                tid.default_value = Variant(Theme::get_default()->get_color(E, scname)).get_construct_string();
+                c.theme_properties.emplace_back(eastl::move(tid));
             }
 
             l.clear();
-            Theme::get_default()->get_icon_list(scname, &l);
+            Theme::get_default()->get_constant_list(scname, &l);
             for (const StringName &E : l) {
-                c.theme_properties.emplace_back(E.asCString(),"Texture");
+
+                DocContents::ThemeItemDoc tid {E.asCString(),"int","constant"};
+                tid.default_value = itos(Theme::get_default()->get_constant(E, scname)).c_str();
+                c.theme_properties.emplace_back(eastl::move(tid));
+            }
+
+            l.clear();
+            Theme::get_default()->get_icon_list(scname, l);
+            for (const StringName &E : l) {
+                DocContents::ThemeItemDoc tid {E.asCString(),"Texture","icon"};
+                c.theme_properties.emplace_back(eastl::move(tid));
             }
             l.clear();
             Theme::get_default()->get_font_list(scname, &l);
             for (const StringName &E : l) {
-                c.theme_properties.emplace_back(E.asCString(),"Font" );
+                DocContents::ThemeItemDoc tid {E.asCString(),"Font","font"};
+                c.theme_properties.emplace_back(eastl::move(tid));
             }
             l = Theme::get_default()->get_stylebox_list(scname);
             for (const StringName &E : l) {
-                c.theme_properties.emplace_back(E.asCString(),"StyleBox");
+                DocContents::ThemeItemDoc tid {E.asCString(),"StyleBox","style"};
+                c.theme_properties.emplace_back(eastl::move(tid));
             }
+            eastl::sort(c.theme_properties.begin(),c.theme_properties.end());
         }
     }
 
@@ -411,7 +424,7 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
             DocContents::PropertyDoc property;
             property.name = pi.name.asCString();
             property.type = Variant::interned_type_name(pi.type).asCString();
-            property.default_value = v.get(pi.name).get_construct_string().c_str();
+            property.default_value = v.get_named(pi.name).get_construct_string().c_str();
 
             c.properties.push_back(property);
         }

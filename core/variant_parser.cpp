@@ -56,6 +56,7 @@
 #include "core/variant.h"
 
 #include "EASTL/sort.h"
+#include <cmath>
 
 struct StreamFile : public VariantParserStream {
 
@@ -137,6 +138,16 @@ const char *VariantParser::tk_name[TK_MAX] = {
     "ERROR"
 };
 
+static double stor_fix(const String &p_str) {
+    if (p_str == "inf") {
+        return Math_INF;
+    } else if (p_str == "inf_neg") {
+        return -Math_INF;
+    } else if (p_str == "nan") {
+        return Math_NAN;
+    }
+    return -1;
+}
 Error VariantParser::get_token(VariantParserStream *p_stream, Token &r_token, int &line, String &r_err_str) {
     bool string_name = false;
     eastl::fixed_string<char, 128, true> tmp_str_buf; // static variable to prevent constat alloc/dealloc
@@ -209,8 +220,10 @@ Error VariantParser::get_token(VariantParserStream *p_stream, Token &r_token, in
                         r_token.type = TK_EOF;
                         return OK;
                     }
-                    if (ch == '\n')
+                    if (ch == '\n') {
+                        line++;
                         break;
+                    }
                 }
 
                 break;
@@ -497,8 +510,19 @@ Error VariantParser::_parse_construct(VariantParserStream *p_stream, Vector<T> &
             break;
         }
         if (token.type != TK_NUMBER) {
+            bool valid = false;
+            if (token.type == TK_IDENTIFIER) {
+                double real = stor_fix(token.value.as<String>());
+                if (real != -1) {
+                    token.type = TK_NUMBER;
+                    token.value = real;
+                    valid = true;
+                }
+            }
+            if (!valid) {
             r_err_str = "Expected float in constructor";
             return ERR_PARSE_ERROR;
+        }
         }
 
         r_construct.push_back(token.value.as<T>());
@@ -546,6 +570,8 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
             value = Variant();
         else if (id == "inf"_sv)
             value = Math_INF;
+        else if (id == "inf_neg"_sv)
+            value = -Math_INF;
         else if (id == "nan"_sv)
             value = Math_NAN;
         else if (id == "Vector2"_sv) {
@@ -1230,7 +1256,12 @@ Error VariantParser::_parse_dictionary(Dictionary &object, VariantParserStream *
             if (err) {
                 return err;
             }
-            object[key] = v;
+            if(key.get_type()!=VariantType::STRING && key.get_type() != VariantType::STRING_NAME)
+            {
+                r_err_str = "Expected key to be a string";
+                return ERR_PARSE_ERROR;
+            }
+            object[key.as<StringName>()] = v;
             need_comma = true;
             at_key = true;
         }
@@ -1458,24 +1489,23 @@ void VariantParser::release_stream(VariantParserStream *s)
 //////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-static String rtosfix(double p_value) {
-
-    if (p_value == 0.0)
-        return "0"; //avoid negative zero (-0) being written, which may annoy git, svn, etc. for changes when they don't exist.
-    else
+static String rtos_fix(double p_value) {
+    if (p_value == 0.0) {
+        return "0"; // avoid negative zero (-0) being written, which may annoy git, svn, etc. for changes when they
+                    // don't exist.
+    } else if (std::isnan(p_value)) {
+        return "nan";
+    } else if (std::isinf(p_value)) {
+        if (p_value > 0) {
+            return "inf";
+        } else {
+            return "inf_neg";
+        }
+    } else {
         return StringUtils::num_scientific(p_value);
 }
-struct VariantCompareLess {
+}
 
-    bool operator()(const Variant& p_l, const Variant& p_r) const {
-        bool valid = false;
-        Variant res;
-        Variant::evaluate(Variant::OP_LESS, p_l, p_r, res, valid);
-        if (!valid)
-            res = false;
-        return res.as<bool>();
-    }
-};
 Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_string_func, void *p_store_string_ud, EncodeResourceFunc p_encode_res_func, void *p_encode_res_ud) {
 
     switch (p_variant.get_type()) {
@@ -1493,8 +1523,8 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
         } break;
         case VariantType::FLOAT: {
 
-            String s = rtosfix(p_variant.as<float>());
-            if (s != "inf" && s != "nan") {
+            String s = rtos_fix(p_variant.as<float>());
+            if (s != "inf" && s != "inf_neg" && s != "nan") {
                 if (not StringUtils::contains(s,".") && not StringUtils::contains(s,"e"))
                     s += ".0";
                 p_store_string_func(p_store_string_ud, s);
@@ -1510,35 +1540,35 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
         case VariantType::VECTOR2: {
 
             Vector2 v = p_variant.as<Vector2>();
-            p_store_string_func(p_store_string_ud, "Vector2( " + rtosfix(v.x) + ", " + rtosfix(v.y) + " )");
+            p_store_string_func(p_store_string_ud, "Vector2( " + rtos_fix(v.x) + ", " + rtos_fix(v.y) + " )");
         } break;
         case VariantType::RECT2: {
 
             Rect2 aabb = p_variant.as<Rect2>();
-            p_store_string_func(p_store_string_ud, "Rect2( " + rtosfix(aabb.position.x) + ", " + rtosfix(aabb.position.y) + ", " + rtosfix(aabb.size.x) + ", " + rtosfix(aabb.size.y) + " )");
+            p_store_string_func(p_store_string_ud, "Rect2( " + rtos_fix(aabb.position.x) + ", " + rtos_fix(aabb.position.y) + ", " + rtos_fix(aabb.size.x) + ", " + rtos_fix(aabb.size.y) + " )");
 
         } break;
         case VariantType::VECTOR3: {
 
             Vector3 v = p_variant.as<Vector3>();
-            p_store_string_func(p_store_string_ud, "Vector3( " + rtosfix(v.x) + ", " + rtosfix(v.y) + ", " + rtosfix(v.z) + " )");
+            p_store_string_func(p_store_string_ud, "Vector3( " + rtos_fix(v.x) + ", " + rtos_fix(v.y) + ", " + rtos_fix(v.z) + " )");
         } break;
         case VariantType::PLANE: {
 
             Plane p = p_variant.as<Plane>();
-            p_store_string_func(p_store_string_ud, "Plane( " + rtosfix(p.normal.x) + ", " + rtosfix(p.normal.y) + ", " + rtosfix(p.normal.z) + ", " + rtosfix(p.d) + " )");
+            p_store_string_func(p_store_string_ud, "Plane( " + rtos_fix(p.normal.x) + ", " + rtos_fix(p.normal.y) + ", " + rtos_fix(p.normal.z) + ", " + rtos_fix(p.d) + " )");
 
         } break;
         case VariantType::AABB: {
 
             AABB aabb = p_variant.as<::AABB>();
-            p_store_string_func(p_store_string_ud, "AABB( " + rtosfix(aabb.position.x) + ", " + rtosfix(aabb.position.y) + ", " + rtosfix(aabb.position.z) + ", " + rtosfix(aabb.size.x) + ", " + rtosfix(aabb.size.y) + ", " + rtosfix(aabb.size.z) + " )");
+            p_store_string_func(p_store_string_ud, "AABB( " + rtos_fix(aabb.position.x) + ", " + rtos_fix(aabb.position.y) + ", " + rtos_fix(aabb.position.z) + ", " + rtos_fix(aabb.size.x) + ", " + rtos_fix(aabb.size.y) + ", " + rtos_fix(aabb.size.z) + " )");
 
         } break;
         case VariantType::QUAT: {
 
             Quat quat = p_variant.as<Quat>();
-            p_store_string_func(p_store_string_ud, "Quat( " + rtosfix(quat.x) + ", " + rtosfix(quat.y) + ", " + rtosfix(quat.z) + ", " + rtosfix(quat.w) + " )");
+            p_store_string_func(p_store_string_ud, "Quat( " + rtos_fix(quat.x) + ", " + rtos_fix(quat.y) + ", " + rtos_fix(quat.z) + ", " + rtos_fix(quat.w) + " )");
 
         } break;
         case VariantType::TRANSFORM2D: {
@@ -1550,7 +1580,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 
                     if (i != 0 || j != 0)
                         s += ", ";
-                    s += rtosfix(m3.elements[i][j]);
+                    s += rtos_fix(m3.elements[i][j]);
                 }
             }
 
@@ -1566,7 +1596,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 
                     if (i != 0 || j != 0)
                         s += ", ";
-                    s += rtosfix(m3.elements[i][j]);
+                    s += rtos_fix(m3.elements[i][j]);
                 }
             }
 
@@ -1584,11 +1614,11 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
                     if (i != 0 || j != 0) {
                         s += ", ";
                     }
-                    s += rtosfix(m3.elements[i][j]);
+                    s += rtos_fix(m3.elements[i][j]);
                 }
             }
 
-            s = s + ", " + rtosfix(t.origin.x) + ", " + rtosfix(t.origin.y) + ", " + rtosfix(t.origin.z);
+            s = s + ", " + rtos_fix(t.origin.x) + ", " + rtos_fix(t.origin.y) + ", " + rtos_fix(t.origin.z);
 
             p_store_string_func(p_store_string_ud, s + " )");
         } break;
@@ -1597,7 +1627,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
         case VariantType::COLOR: {
 
             Color c = p_variant.as<Color>();
-            p_store_string_func(p_store_string_ud, "Color( " + rtosfix(c.r) + ", " + rtosfix(c.g) + ", " + rtosfix(c.b) + ", " + rtosfix(c.a) + " )");
+            p_store_string_func(p_store_string_ud, "Color( " + rtos_fix(c.r) + ", " + rtos_fix(c.g) + ", " + rtos_fix(c.b) + ", " + rtos_fix(c.a) + " )");
 
         } break;
         case VariantType::STRING_NAME: {
@@ -1680,14 +1710,14 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 
         case VariantType::DICTIONARY: {
 
-            Dictionary dict = p_variant.as<            Dictionary>();
+            Dictionary dict = p_variant.as<Dictionary>();
 
-            Vector<Variant> keys(dict.get_key_list());
-            eastl::sort(keys.begin(),keys.end(), VariantCompareLess());
+            auto keys(dict.get_key_list());
+            eastl::sort(keys.begin(),keys.end(), WrapAlphaCompare());
 
             p_store_string_func(p_store_string_ud, "{\n");
             int size = keys.size()-1;
-            for(Variant &E : keys ) {
+            for(auto &E : keys ) {
 
                 /*
                 if (!_check_type(dict[E]))
@@ -1756,7 +1786,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
             p_store_string_func(p_store_string_ud, (" )"));
 
         } break;
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
 
             p_store_string_func(p_store_string_ud, ("PoolRealArray( "));
             PoolVector<real_t> data = p_variant.as<PoolVector<real_t>>();
@@ -1768,7 +1798,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 
                 if (i > 0)
                     p_store_string_func(p_store_string_ud, (", "));
-                p_store_string_func(p_store_string_ud, rtosfix(ptr[i]));
+                p_store_string_func(p_store_string_ud, rtos_fix(ptr[i]));
             }
 
             p_store_string_func(p_store_string_ud, (" )"));
@@ -1807,7 +1837,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 
                 if (i > 0)
                     p_store_string_func(p_store_string_ud, (", "));
-                p_store_string_func(p_store_string_ud, rtosfix(ptr[i].x) + ", " + rtosfix(ptr[i].y));
+                p_store_string_func(p_store_string_ud, rtos_fix(ptr[i].x) + ", " + rtos_fix(ptr[i].y));
             }
 
             p_store_string_func(p_store_string_ud, (" )"));
@@ -1825,7 +1855,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 
                 if (i > 0)
                     p_store_string_func(p_store_string_ud, (", "));
-                p_store_string_func(p_store_string_ud, rtosfix(ptr[i].x) + ", " + rtosfix(ptr[i].y) + ", " + rtosfix(ptr[i].z));
+                p_store_string_func(p_store_string_ud, rtos_fix(ptr[i].x) + ", " + rtos_fix(ptr[i].y) + ", " + rtos_fix(ptr[i].z));
             }
 
             p_store_string_func(p_store_string_ud, (" )"));
@@ -1845,7 +1875,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
                 if (i > 0)
                     p_store_string_func(p_store_string_ud, (", "));
 
-                p_store_string_func(p_store_string_ud, rtosfix(ptr[i].r) + ", " + rtosfix(ptr[i].g) + ", " + rtosfix(ptr[i].b) + ", " + rtosfix(ptr[i].a));
+                p_store_string_func(p_store_string_ud, rtos_fix(ptr[i].r) + ", " + rtos_fix(ptr[i].g) + ", " + rtos_fix(ptr[i].b) + ", " + rtos_fix(ptr[i].a));
             }
             p_store_string_func(p_store_string_ud, (" )"));
 

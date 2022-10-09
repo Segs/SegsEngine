@@ -49,8 +49,6 @@ private:
 protected:
     Ref<SSLContextMbedTLS> ssl_ctx;
 
-    static void _bind_methods();
-
     Error _do_handshake();
 
 public:

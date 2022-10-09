@@ -44,9 +44,10 @@ public:
     OS::ProcessID pid;
 
 private:
-    bool debug_collisions;
-    bool debug_navigation;
-    Status status;
+    bool debug_collisions = false;
+    bool debug_navigation = false;
+    bool debug_shader_fallbacks = false;
+    Status status = STATUS_STOP;
     String running_scene;
 
 public:
@@ -64,6 +65,9 @@ public:
 
     void set_debug_navigation(bool p_debug);
     bool get_debug_navigation() const;
+
+    void set_debug_shader_fallbacks(bool p_debug);
+    bool get_debug_shader_fallbacks() const;
 
     EditorRun();
 };

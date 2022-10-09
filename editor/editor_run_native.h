@@ -40,14 +40,15 @@ class EditorRunNative : public HBoxContainer {
 	GDCLASS(EditorRunNative,HBoxContainer)
 
 	Map<int, MenuButton *> menus;
-	bool first;
-	bool deploy_dumb;
-	bool deploy_debug_remote;
-	bool debug_collisions;
-	bool debug_navigation;
+    bool first = true;
+    bool deploy_dumb=false;
+    bool deploy_debug_remote=false;
+    bool debug_collisions=false;
+    bool debug_navigation=false;
+    bool debug_shader_fallbacks=false;
 
-	int resume_idx;
-	int resume_platform;
+    int resume_idx=0;
+    int resume_platform=0;
 
 	void _run_native(int p_idx, int p_platform);
 
@@ -67,6 +68,9 @@ public:
 
 	void set_debug_navigation(bool p_debug);
 	bool get_debug_navigation() const;
+
+    void set_debug_shader_fallbacks(bool p_debug);
+    bool get_debug_shader_fallbacks() const;
 
 	void resume_run_native();
 

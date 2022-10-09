@@ -32,46 +32,42 @@
 #include "scene/resources/mesh.h"
 #include "thirdparty/vhacd/public/VHACD.h"
 
-static Vector<Vector<Face3> > convex_decompose(const Vector<Face3> &p_faces) {
-
-    Vector<float> vertices;
-    vertices.resize(p_faces.size() * 9);
-    Vector<uint32_t> indices;
-    indices.resize(p_faces.size() * 3);
-
-    for (int i = 0; i < p_faces.size(); i++) {
-        for (int j = 0; j < 3; j++) {
-            vertices[i * 9 + j * 3 + 0] = p_faces[i].vertex[j].x;
-            vertices[i * 9 + j * 3 + 1] = p_faces[i].vertex[j].y;
-            vertices[i * 9 + j * 3 + 2] = p_faces[i].vertex[j].z;
-            indices[i * 3 + j] = i * 3 + j;
+static Vector< Vector<Vector3>> convex_decompose(Span<const Vector3> p_vertices, Span<const uint32_t> p_indices, int p_max_convex_hulls, Vector<Vector<uint32_t>> *r_convex_indices) {
+    VHACD::IVHACD::Parameters params;
+    if (p_max_convex_hulls > 0) {
+        params.m_maxConvexHulls = p_max_convex_hulls;
         }
-    }
 
     VHACD::IVHACD *decomposer = VHACD::CreateVHACD();
-    VHACD::IVHACD::Parameters params;
-    decomposer->Compute(vertices.data(), vertices.size() / 3, indices.data(), indices.size() / 3, params);
+    decomposer->Compute((const float *)p_vertices.data(), p_vertices.size()*3, p_indices.data(), p_indices.size(), params);
 
     int hull_count = decomposer->GetNConvexHulls();
 
-    Vector<Vector<Face3> > ret;
-    ret.reserve(hull_count);
+    Vector< Vector<Vector3>> ret;
+    ret.resize(hull_count);
+
+    if (r_convex_indices) {
+        r_convex_indices->resize(hull_count);
+    }
 
     for (int i = 0; i < hull_count; i++) {
-        Vector<Face3> triangles;
         VHACD::IVHACD::ConvexHull hull;
         decomposer->GetConvexHull(i, hull);
-        triangles.resize(hull.m_nTriangles);
-        for (uint32_t j = 0; j < hull.m_nTriangles; j++) {
-            Face3 f;
+        Vector<Vector3> &points = ret[i];
+        points.resize(hull.m_nPoints);
+
+        Vector<Vector3> &w = points;
+        for (uint32_t j = 0; j < hull.m_nPoints; ++j) {
             for (int k = 0; k < 3; k++) {
-                for (int l = 0; l < 3; l++) {
-                    f.vertex[k][l] = hull.m_points[hull.m_triangles[j * 3 + k] * 3 + l];
+                w[j][k] = hull.m_points[j * 3 + k];
                 }
             }
-            triangles[j] = f;
+        if (r_convex_indices) {
+            Vector<uint32_t> &indices = (*r_convex_indices)[i];
+            indices.resize(hull.m_nTriangles * 3);
+
+            memcpy(indices.data(), hull.m_triangles, hull.m_nTriangles * 3 * sizeof(uint32_t));
         }
-        ret.emplace_back(eastl::move(triangles));
     }
 
     decomposer->Clean();
@@ -81,9 +77,9 @@ static Vector<Vector<Face3> > convex_decompose(const Vector<Face3> &p_faces) {
 }
 
 void register_vhacd_types() {
-    Mesh::convex_composition_function = convex_decompose;
+    Mesh::convex_decomposition_function = convex_decompose;
 }
 
 void unregister_vhacd_types() {
-    Mesh::convex_composition_function = nullptr;
+    Mesh::convex_decomposition_function = nullptr;
 }

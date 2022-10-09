@@ -9,11 +9,6 @@ class LayeredTextureImpl : public ResourceImporterInterface{
 
     bool is_3d;
 
-protected:
-    static void _texture_reimport_srgb(const Ref<StreamTexture> &p_tex);
-    static void _texture_reimport_3d(const Ref<StreamTexture> &p_tex);
-    static void _texture_reimport_normal(const Ref<StreamTexture> &p_tex);
-
 public:
     enum Preset {
         PRESET_3D,
@@ -42,8 +37,6 @@ public:
 
     Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
         Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
-
-    void update_imports();
 
     bool are_import_settings_valid(StringView p_path) const override;
     String get_import_settings_string() const override;

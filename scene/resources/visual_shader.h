@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  visual_shader.h                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -100,7 +100,7 @@ public:
 
     HashMap<String, int> modes;
     HashSet<StringName> flags;
-    volatile mutable bool dirty;
+    mutable SafeFlag dirty;
 
     static RenderModeEnums render_mode_enums[];
 
@@ -179,9 +179,6 @@ protected:
 
     static void _bind_methods();
 public:
-    Array _get_default_input_values() const;
-    void _set_default_input_values(const Array &p_values);
-public:
     enum PortType {
         PORT_TYPE_SCALAR,
         PORT_TYPE_VECTOR,
@@ -199,8 +196,10 @@ public:
     virtual PortType get_input_port_type(int p_port) const = 0;
     virtual StringName get_input_port_name(int p_port) const = 0;
 
-    void set_input_port_default_value(int p_port, const Variant &p_value);
+    virtual void set_input_port_default_value(int p_port, const Variant &p_value);
     Variant get_input_port_default_value(int p_port) const; // if NIL (default if node does not set anything) is returned, it means no default value is wanted if disconnected, thus no input var must be supplied (empty string will be supplied)
+    Array get_default_input_values() const;
+    virtual void set_default_input_values(const Array &p_values);
 
     virtual int get_output_port_count() const = 0;
     virtual PortType get_output_port_type(int p_port) const = 0;
@@ -220,6 +219,7 @@ public:
     virtual bool is_generate_input_var(int p_port) const;
 
     virtual bool is_code_generated() const;
+    virtual bool is_show_prop_names() const;
 
     virtual Vector<StringName> get_editable_properties() const;
 
@@ -243,6 +243,7 @@ class GODOT_EXPORT VisualShaderNodeCustom : public VisualShaderNode {
         int type;
     };
 
+    bool is_initialized = false;
     Vector<Port> input_ports;
     Vector<Port> output_ports;
 
@@ -259,7 +260,10 @@ protected:
     PortType get_output_port_type(int p_port) const override;
     StringName get_output_port_name(int p_port) const override;
 
+    void set_input_port_default_value(int p_port, const Variant &p_value) override;
+    void set_default_input_values(const Array &p_values) override;
 protected:
+    void _set_input_port_default_value(int p_port, const Variant &p_value);
     String generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
     String generate_global_per_node(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
 
@@ -268,6 +272,8 @@ protected:
 public:
     VisualShaderNodeCustom();
     void update_ports();
+    bool _is_initialized();
+    void _set_initialized(bool p_enabled);
 };
 
 /////
@@ -375,6 +381,8 @@ protected:
 public:
     void set_global_code_generated(bool p_enabled);
     bool is_global_code_generated() const;
+
+    bool is_show_prop_names() const override;
 
     void set_uniform_name(const StringName &p_name);
     StringName get_uniform_name() const;

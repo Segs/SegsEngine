@@ -1,20 +1,15 @@
 #ifndef ENTT_PROCESS_SCHEDULER_HPP
 #define ENTT_PROCESS_SCHEDULER_HPP
 
-
-#include "EASTL/vector.h"
-#include "EASTL/memory.h"
-#include "EASTL/utility.h"
-#include "EASTL/type_traits.h"
-#include "EASTL/algorithm.h"
-#include "EASTL/unique_ptr.h"
-
+#include <algorithm>
+#include <memory>
+#include <type_traits>
+#include <utility>
+#include <vector>
 #include "../config/config.h"
 #include "process.hpp"
 
-
 namespace entt {
-
 
 /**
  * @brief Cooperative scheduler for processes.
@@ -42,13 +37,13 @@ namespace entt {
  *
  * @tparam Delta Type to use to provide elapsed time.
  */
-template<typename Delta, typename Allocator = EASTLAllocatorType>
+template<typename Delta>
 class scheduler {
     struct process_handler {
-        using instance_type = eastl::unique_ptr<void, void(*)(void *)>;
+        using instance_type = std::unique_ptr<void, void (*)(void *)>;
         using update_fn_type = bool(process_handler &, Delta, void *);
         using abort_fn_type = void(process_handler &, bool);
-        using next_type = eastl::unique_ptr<process_handler>;
+        using next_type = std::unique_ptr<process_handler>;
 
         instance_type instance;
         update_fn_type *update;
@@ -58,23 +53,20 @@ class scheduler {
 
     struct continuation {
         continuation(process_handler *ref)
-            : handler{ref}
-        {
-            ENTT_ASSERT(handler);
-        }
+            : handler{ref} {}
 
         template<typename Proc, typename... Args>
-        continuation then(Args &&... args) {
-            static_assert(eastl::is_base_of_v<process<Proc, Delta>, Proc>);
-            auto proc = typename process_handler::instance_type{new Proc{eastl::forward<Args>(args)...}, &scheduler::deleter<Proc>};
-            handler->next.reset(new process_handler{eastl::move(proc), &scheduler::update<Proc>, &scheduler::abort<Proc>, nullptr});
+        continuation then(Args &&...args) {
+            static_assert(std::is_base_of_v<process<Proc, Delta>, Proc>, "Invalid process type");
+            auto proc = typename process_handler::instance_type{new Proc{std::forward<Args>(args)...}, &scheduler::deleter<Proc>};
+            handler->next.reset(new process_handler{std::move(proc), &scheduler::update<Proc>, &scheduler::abort<Proc>, nullptr});
             handler = handler->next.get();
             return *this;
         }
 
         template<typename Func>
         continuation then(Func &&func) {
-            return then<process_adaptor<eastl::decay_t<Func>, Delta>>(eastl::forward<Func>(func));
+            return then<process_adaptor<std::decay_t<Func>, Delta>>(std::forward<Func>(func));
         }
 
     private:
@@ -82,23 +74,23 @@ class scheduler {
     };
 
     template<typename Proc>
-    static bool update(process_handler &handler, const Delta delta, void *data) {
+    [[nodiscard]] static bool update(process_handler &handler, const Delta delta, void *data) {
         auto *process = static_cast<Proc *>(handler.instance.get());
         process->tick(delta, data);
 
-        auto dead = process->dead();
-
-        if(dead) {
-            if(handler.next && !process->rejected()) {
-                handler = eastl::move(*handler.next);
+        if(process->rejected()) {
+            return true;
+        } else if(process->finished()) {
+            if(handler.next) {
+                handler = std::move(*handler.next);
                 // forces the process to exit the uninitialized state
-                dead = handler.update(handler, {}, nullptr);
-            } else {
-                handler.instance.reset();
+                return handler.update(handler, {}, nullptr);
             }
+
+            return true;
         }
 
-        return dead;
+        return false;
     }
 
     template<typename Proc>
@@ -122,13 +114,13 @@ public:
     scheduler(scheduler &&) = default;
 
     /*! @brief Default move assignment operator. @return This scheduler. */
-    scheduler & operator=(scheduler &&) = default;
+    scheduler &operator=(scheduler &&) = default;
 
     /**
      * @brief Number of processes currently scheduled.
      * @return Number of processes currently scheduled.
      */
-    size_type size() const ENTT_NOEXCEPT {
+    [[nodiscard]] size_type size() const ENTT_NOEXCEPT {
         return handlers.size();
     }
 
@@ -136,7 +128,7 @@ public:
      * @brief Returns true if at least a process is currently scheduled.
      * @return True if there are scheduled processes, false otherwise.
      */
-    bool empty() const ENTT_NOEXCEPT {
+    [[nodiscard]] bool empty() const ENTT_NOEXCEPT {
         return handlers.empty();
     }
 
@@ -176,13 +168,13 @@ public:
      * @return An opaque object to use to concatenate processes.
      */
     template<typename Proc, typename... Args>
-    auto attach(Args &&... args) {
-        static_assert(eastl::is_base_of_v<process<Proc, Delta>, Proc>);
-        auto proc = typename process_handler::instance_type{new Proc{eastl::forward<Args>(args)...}, &scheduler::deleter<Proc>};
-        process_handler handler{eastl::move(proc), &scheduler::update<Proc>, &scheduler::abort<Proc>, nullptr};
+    auto attach(Args &&...args) {
+        static_assert(std::is_base_of_v<process<Proc, Delta>, Proc>, "Invalid process type");
+        auto proc = typename process_handler::instance_type{new Proc{std::forward<Args>(args)...}, &scheduler::deleter<Proc>};
+        process_handler handler{std::move(proc), &scheduler::update<Proc>, &scheduler::abort<Proc>, nullptr};
         // forces the process to exit the uninitialized state
         handler.update(handler, {}, nullptr);
-        return continuation{&handlers.emplace_back(eastl::move(handler))};
+        return continuation{&handlers.emplace_back(std::move(handler))};
     }
 
     /**
@@ -238,8 +230,8 @@ public:
      */
     template<typename Func>
     auto attach(Func &&func) {
-        using Proc = process_adaptor<eastl::decay_t<Func>, Delta>;
-        return attach<Proc>(eastl::forward<Func>(func));
+        using Proc = process_adaptor<std::decay_t<Func>, Delta>;
+        return attach<Proc>(std::forward<Func>(func));
     }
 
     /**
@@ -254,19 +246,17 @@ public:
      * @param data Optional data.
      */
     void update(const Delta delta, void *data = nullptr) {
-        bool clean = false;
+        auto sz = handlers.size();
 
         for(auto pos = handlers.size(); pos; --pos) {
-            auto &handler = handlers[pos-1];
-            const bool dead = handler.update(handler, delta, data);
-            clean = clean || dead;
+            auto &handler = handlers[pos - 1];
+
+            if(const auto dead = handler.update(handler, delta, data); dead) {
+                std::swap(handler, handlers[--sz]);
+            }
         }
 
-        if(clean) {
-            handlers.erase(eastl::remove_if(handlers.begin(), handlers.end(), [](auto &handler) {
-                return !handler.instance;
-            }), handlers.end());
-        }
+        handlers.erase(handlers.begin() + sz, handlers.end());
     }
 
     /**
@@ -287,16 +277,14 @@ public:
             handler.abort(handler, immediately);
         }
 
-        eastl::move(handlers.begin(), handlers.end(), eastl::back_inserter(exec));
+        std::move(handlers.begin(), handlers.end(), std::back_inserter(exec));
         handlers.swap(exec);
     }
 
 private:
-    eastl::vector<process_handler> handlers{};
+    std::vector<process_handler> handlers{};
 };
 
-
-}
-
+} // namespace entt
 
 #endif

@@ -37,6 +37,7 @@
 #include "core/vset.h"
 
 class Constraint2DSW;
+class Physics2DDirectBodyStateSW;
 
 class Body2DSW : public CollisionObject2DSW {
 
@@ -56,12 +57,12 @@ class Body2DSW : public CollisionObject2DSW {
 
         Vector2 local_pos;
         Vector2 local_normal;
-        real_t depth;
+        float depth;
         int local_shape;
         Vector2 collider_pos;
-        int collider_shape;
-        ObjectID collider_instance_id;
         RID collider;
+        int collider_shape;
+        GameEntity collider_instance_id;
         Vector2 collider_velocity_at_pos;
     };
     using ForceIntegrationCallback = Callable;
@@ -70,31 +71,31 @@ class Body2DSW : public CollisionObject2DSW {
     PhysicsServer2D::BodyMode mode = PhysicsServer2D::BODY_MODE_RIGID;
 
     Vector2 biased_linear_velocity;
-    real_t biased_angular_velocity = 0;
+    float biased_angular_velocity = 0;
 
     Vector2 linear_velocity;
-    real_t angular_velocity = 0;
+    float angular_velocity = 0;
 
-    real_t linear_damp = -1;
-    real_t angular_damp = -1;
-    real_t gravity_scale = 1.0f;
+    float linear_damp = -1;
+    float angular_damp = -1;
+    float gravity_scale = 1.0f;
 
-    real_t mass=1;
-    real_t inertia=0;
-    real_t bounce=0;
-    real_t friction=1;
+    float mass=1;
+    float inertia=0;
+    float bounce=0;
+    float friction=1;
 
-    real_t _inv_mass=1;
-    real_t _inv_inertia=0;
+    float _inv_mass=1;
+    float _inv_inertia=0;
 
     Vector2 gravity;
-    real_t area_linear_damp=0;
-    real_t area_angular_damp=0;
+    float area_linear_damp=0;
+    float area_angular_damp=0;
 
-    real_t still_time = 0;
+    float still_time = 0;
 
     Vector2 applied_force;
-    real_t applied_torque = 0;
+    float applied_torque = 0;
 
     //IntrusiveListNode<Body2DSW> active_list;
     IntrusiveListNode<Body2DSW> inertia_update_list;
@@ -132,6 +133,7 @@ class Body2DSW : public CollisionObject2DSW {
 
     _FORCE_INLINE_ void _compute_area_gravity_and_dampenings(const Area2DSW *p_area);
 
+    Physics2DDirectBodyStateSW *direct_access = nullptr;
     friend class Physics2DDirectBodyStateSW; // i give up, too many functions to expose
 
 public:
@@ -165,7 +167,9 @@ public:
     _FORCE_INLINE_ int get_max_contacts_reported() const { return contacts.size(); }
 
     _FORCE_INLINE_ bool can_report_contacts() const { return !contacts.empty(); }
-    _FORCE_INLINE_ void add_contact(const Vector2 &p_local_pos, const Vector2 &p_local_normal, real_t p_depth, int p_local_shape, const Vector2 &p_collider_pos, int p_collider_shape, ObjectID p_collider_instance_id, const RID &p_collider, const Vector2 &p_collider_velocity_at_pos);
+    _FORCE_INLINE_ void add_contact(const Vector2 &p_local_pos, const Vector2 &p_local_normal, float p_depth,
+            int p_local_shape, const Vector2 &p_collider_pos, int p_collider_shape, GameEntity p_collider_instance_id,
+            const RID &p_collider, const Vector2 &p_collider_velocity_at_pos);
 
     _FORCE_INLINE_ void add_exception(const RID &p_exception) { exceptions.insert(p_exception); }
     _FORCE_INLINE_ void remove_exception(const RID &p_exception) { exceptions.erase(p_exception); }
@@ -181,29 +185,31 @@ public:
     _FORCE_INLINE_ Body2DSW *get_island_list_next() const { return island_list_next; }
     _FORCE_INLINE_ void set_island_list_next(Body2DSW *p_next) { island_list_next = p_next; }
 
-    _FORCE_INLINE_ void add_constraint(Constraint2DSW *p_constraint, int p_pos) { constraint_map[p_constraint] = p_pos; }
+    _FORCE_INLINE_ void add_constraint(Constraint2DSW *p_constraint, int p_pos) {
+        constraint_map[p_constraint] = p_pos;
+    }
     _FORCE_INLINE_ void remove_constraint(Constraint2DSW *p_constraint) { constraint_map.erase(p_constraint); }
     const HashMap<Constraint2DSW *, int> &get_constraint_map() const { return constraint_map; }
     _FORCE_INLINE_ void clear_constraint_map() { constraint_map.clear(); }
 
-    _FORCE_INLINE_ void set_omit_force_integration(bool p_omit_force_integration) { omit_force_integration = p_omit_force_integration; }
+    _FORCE_INLINE_ void set_omit_force_integration(bool p_omit_force_integration) {
+        omit_force_integration = p_omit_force_integration;
+    }
     _FORCE_INLINE_ bool get_omit_force_integration() const { return omit_force_integration; }
 
     _FORCE_INLINE_ void set_linear_velocity(const Vector2 &p_velocity) { linear_velocity = p_velocity; }
     _FORCE_INLINE_ Vector2 get_linear_velocity() const { return linear_velocity; }
 
-    _FORCE_INLINE_ void set_angular_velocity(real_t p_velocity) { angular_velocity = p_velocity; }
-    _FORCE_INLINE_ real_t get_angular_velocity() const { return angular_velocity; }
+    _FORCE_INLINE_ void set_angular_velocity(float p_velocity) { angular_velocity = p_velocity; }
+    _FORCE_INLINE_ float get_angular_velocity() const { return angular_velocity; }
 
     _FORCE_INLINE_ void set_biased_linear_velocity(const Vector2 &p_velocity) { biased_linear_velocity = p_velocity; }
     _FORCE_INLINE_ Vector2 get_biased_linear_velocity() const { return biased_linear_velocity; }
 
-    _FORCE_INLINE_ void set_biased_angular_velocity(real_t p_velocity) { biased_angular_velocity = p_velocity; }
-    _FORCE_INLINE_ real_t get_biased_angular_velocity() const { return biased_angular_velocity; }
+    _FORCE_INLINE_ void set_biased_angular_velocity(float p_velocity) { biased_angular_velocity = p_velocity; }
+    _FORCE_INLINE_ float get_biased_angular_velocity() const { return biased_angular_velocity; }
 
-    _FORCE_INLINE_ void apply_central_impulse(const Vector2 &p_impulse) {
-        linear_velocity += p_impulse * _inv_mass;
-    }
+    _FORCE_INLINE_ void apply_central_impulse(const Vector2 &p_impulse) { linear_velocity += p_impulse * _inv_mass; }
 
     _FORCE_INLINE_ void apply_impulse(const Vector2 &p_offset, const Vector2 &p_impulse) {
 
@@ -211,9 +217,7 @@ public:
         angular_velocity += _inv_inertia * p_offset.cross(p_impulse);
     }
 
-    _FORCE_INLINE_ void apply_torque_impulse(real_t p_torque) {
-        angular_velocity += _inv_inertia * p_torque;
-    }
+    _FORCE_INLINE_ void apply_torque_impulse(float p_torque) { angular_velocity += _inv_inertia * p_torque; }
 
     _FORCE_INLINE_ void apply_bias_impulse(const Vector2 &p_pos, const Vector2 &p_j) {
 
@@ -230,8 +234,8 @@ public:
         set_active(true);
     }
 
-    void set_param(PhysicsServer2D::BodyParameter p_param, real_t);
-    real_t get_param(PhysicsServer2D::BodyParameter p_param) const;
+    void set_param(PhysicsServer2D::BodyParameter p_param, float);
+    float get_param(PhysicsServer2D::BodyParameter p_param) const;
 
     void set_mode(PhysicsServer2D::BodyMode p_mode);
     PhysicsServer2D::BodyMode get_mode() const;
@@ -242,12 +246,10 @@ public:
     void set_applied_force(const Vector2 &p_force) { applied_force = p_force; }
     Vector2 get_applied_force() const { return applied_force; }
 
-    void set_applied_torque(real_t p_torque) { applied_torque = p_torque; }
-    real_t get_applied_torque() const { return applied_torque; }
+    void set_applied_torque(float p_torque) { applied_torque = p_torque; }
+    float get_applied_torque() const { return applied_torque; }
 
-    _FORCE_INLINE_ void add_central_force(const Vector2 &p_force) {
-        applied_force += p_force;
-    }
+    _FORCE_INLINE_ void add_central_force(const Vector2 &p_force) { applied_force += p_force; }
 
     _FORCE_INLINE_ void add_force(const Vector2 &p_offset, const Vector2 &p_force) {
 
@@ -255,30 +257,35 @@ public:
         applied_torque += p_offset.cross(p_force);
     }
 
-    _FORCE_INLINE_ void add_torque(real_t p_torque) {
-        applied_torque += p_torque;
+    _FORCE_INLINE_ void add_torque(float p_torque) { applied_torque += p_torque; }
+
+    _FORCE_INLINE_ void set_continuous_collision_detection_mode(PhysicsServer2D::CCDMode p_mode) {
+        continuous_cd_mode = p_mode;
     }
 
-    _FORCE_INLINE_ void set_continuous_collision_detection_mode(PhysicsServer2D::CCDMode p_mode) { continuous_cd_mode = p_mode; }
-    _FORCE_INLINE_ PhysicsServer2D::CCDMode get_continuous_collision_detection_mode() const { return continuous_cd_mode; }
+    _FORCE_INLINE_ PhysicsServer2D::CCDMode get_continuous_collision_detection_mode() const {
+        return continuous_cd_mode;
+    }
 
     void set_space(Space2DSW *p_space) override;
 
     void update_inertias();
 
-    _FORCE_INLINE_ real_t get_inv_mass() const { return _inv_mass; }
-    _FORCE_INLINE_ real_t get_inv_inertia() const { return _inv_inertia; }
-    _FORCE_INLINE_ real_t get_friction() const { return friction; }
-    _FORCE_INLINE_ Vector2 get_gravity() const { return gravity; }
-    _FORCE_INLINE_ real_t get_bounce() const { return bounce; }
-    _FORCE_INLINE_ real_t get_linear_damp() const { return linear_damp; }
-    _FORCE_INLINE_ real_t get_angular_damp() const { return angular_damp; }
+    float get_inv_mass() const { return _inv_mass; }
+    float get_inv_inertia() const { return _inv_inertia; }
+    float get_friction() const { return friction; }
+    Vector2 get_gravity() const { return gravity; }
+    float get_bounce() const { return bounce; }
+    float get_linear_damp() const { return linear_damp; }
+    float get_angular_damp() const { return angular_damp; }
 
-    void integrate_forces(real_t p_step);
-    void integrate_velocities(real_t p_step);
+    void integrate_forces(float p_step);
+    void integrate_velocities(float p_step);
+    Vector2 get_velocity_in_local_point(const Vector2 &rel_pos) const {
+        return linear_velocity + Vector2(-angular_velocity * rel_pos.y, angular_velocity * rel_pos.x);
+    }
 
-    _FORCE_INLINE_ Vector2 get_motion() const {
-
+    Vector2 get_motion() const {
         if (mode > PhysicsServer2D::BODY_MODE_KINEMATIC) {
             return new_transform.get_origin() - get_transform().get_origin();
         } else if (mode == PhysicsServer2D::BODY_MODE_KINEMATIC) {
@@ -290,7 +297,8 @@ public:
     void call_queries();
     void wakeup_neighbours();
 
-    bool sleep_test(real_t p_step);
+    bool sleep_test(float p_step);
+    Physics2DDirectBodyStateSW *get_direct_state() const { return direct_access; }
 
     Body2DSW();
     ~Body2DSW() override;
@@ -298,7 +306,9 @@ public:
 
 //add contact inline
 
-void Body2DSW::add_contact(const Vector2 &p_local_pos, const Vector2 &p_local_normal, real_t p_depth, int p_local_shape, const Vector2 &p_collider_pos, int p_collider_shape, ObjectID p_collider_instance_id, const RID &p_collider, const Vector2 &p_collider_velocity_at_pos) {
+void Body2DSW::add_contact(const Vector2 &p_local_pos, const Vector2 &p_local_normal, float p_depth, int p_local_shape,
+        const Vector2 &p_collider_pos, int p_collider_shape, GameEntity p_collider_instance_id, const RID &p_collider,
+        const Vector2 &p_collider_velocity_at_pos) {
 
     int c_max = contacts.size();
 
@@ -313,7 +323,7 @@ void Body2DSW::add_contact(const Vector2 &p_local_pos, const Vector2 &p_local_no
         idx = contact_count++;
     } else {
 
-        real_t least_depth = 1e20f;
+        float least_depth = 1e20f;
         int least_deep = -1;
         for (int i = 0; i < c_max; i++) {
 
@@ -347,32 +357,66 @@ class Physics2DDirectBodyStateSW : public PhysicsDirectBodyState2D {
     GDCLASS(Physics2DDirectBodyStateSW,PhysicsDirectBodyState2D)
 
 public:
-    static Physics2DDirectBodyStateSW *singleton;
-    Body2DSW *body;
-    real_t step;
+    Body2DSW *body = nullptr;
 
-    Vector2 get_total_gravity() const override { return body->gravity; } // get gravity vector working on this body space/area
-    real_t get_total_angular_damp() const override { return body->area_angular_damp; } // get density of this body space/area
-    real_t get_total_linear_damp() const override { return body->area_linear_damp; } // get density of this body space/area
+    Vector2 get_total_gravity() const override {
+        return body->gravity;
+    } // get gravity vector working on this body space/area
+    float get_total_angular_damp() const override {
+        return body->area_angular_damp;
+    } // get density of this body space/area
+    float get_total_linear_damp() const override {
+        return body->area_linear_damp;
+    } // get density of this body space/area
 
-    real_t get_inverse_mass() const override { return body->get_inv_mass(); } // get the mass
-    real_t get_inverse_inertia() const override { return body->get_inv_inertia(); } // get density of this body space
+    float get_inverse_mass() const override { return body->get_inv_mass(); } // get the mass
+    float get_inverse_inertia() const override { return body->get_inv_inertia(); } // get density of this body space
 
-    void set_linear_velocity(const Vector2 &p_velocity) override { body->set_linear_velocity(p_velocity); }
+    void set_linear_velocity(const Vector2 &p_velocity) override {
+        body->wakeup();
+        body->set_linear_velocity(p_velocity);
+    }
     Vector2 get_linear_velocity() const override { return body->get_linear_velocity(); }
 
-    void set_angular_velocity(real_t p_velocity) override { body->set_angular_velocity(p_velocity); }
-    real_t get_angular_velocity() const override { return body->get_angular_velocity(); }
+    void set_angular_velocity(float p_velocity) override {
+        body->wakeup();
+        body->set_angular_velocity(p_velocity);
+    }
+    float get_angular_velocity() const override { return body->get_angular_velocity(); }
 
-    void set_transform(const Transform2D &p_transform) override { body->set_state(PhysicsServer2D::BODY_STATE_TRANSFORM, p_transform); }
+    void set_transform(const Transform2D &p_transform) override {
+        body->set_state(PhysicsServer2D::BODY_STATE_TRANSFORM, p_transform);
+    }
+
+    Vector2 get_velocity_at_local_position(const Vector2 &p_position) const override {
+        return body->get_velocity_in_local_point(p_position);
+    }
     Transform2D get_transform() const override { return body->get_transform(); }
 
-    void add_central_force(const Vector2 &p_force) override { body->add_central_force(p_force); }
-    void add_force(const Vector2 &p_offset, const Vector2 &p_force) override { body->add_force(p_offset, p_force); }
-    void add_torque(real_t p_torque) override { body->add_torque(p_torque); }
-    void apply_central_impulse(const Vector2 &p_impulse) override { body->apply_central_impulse(p_impulse); }
-    void apply_impulse(const Vector2 &p_offset, const Vector2 &p_force) override { body->apply_impulse(p_offset, p_force); }
-    void apply_torque_impulse(real_t p_torque) override { body->apply_torque_impulse(p_torque); }
+    void add_central_force(const Vector2 &p_force) override {
+        body->wakeup();
+        body->add_central_force(p_force);
+    }
+    void add_force(const Vector2 &p_offset, const Vector2 &p_force) override {
+        body->wakeup();
+        body->add_force(p_offset, p_force);
+    }
+    void add_torque(float p_torque) override {
+        body->wakeup();
+        body->add_torque(p_torque);
+    }
+    void apply_central_impulse(const Vector2 &p_impulse) override {
+        body->wakeup();
+        body->apply_central_impulse(p_impulse);
+    }
+    void apply_impulse(const Vector2 &p_offset, const Vector2 &p_force) override {
+        body->wakeup();
+        body->apply_impulse(p_offset, p_force);
+    }
+    void apply_torque_impulse(float p_torque) override {
+        body->wakeup();
+        body->apply_torque_impulse(p_torque);
+    }
 
     void set_sleep_state(bool p_enable) override { body->set_active(!p_enable); }
     bool is_sleeping() const override { return !body->is_active(); }
@@ -400,8 +444,8 @@ public:
         ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, Vector2());
         return body->contacts[p_contact_idx].collider_pos;
     }
-    ObjectID get_contact_collider_id(int p_contact_idx) const override {
-        ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, ObjectID(0ULL));
+    GameEntity get_contact_collider_id(int p_contact_idx) const override {
+        ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, entt::null);
         return body->contacts[p_contact_idx].collider_instance_id;
     }
     int get_contact_collider_shape(int p_contact_idx) const override {
@@ -417,9 +461,7 @@ public:
 
     PhysicsDirectSpaceState2D *get_space_state() override;
 
-    real_t get_step() const override { return step; }
-    Physics2DDirectBodyStateSW() {
-        singleton = this;
-        body = nullptr;
-    }
+    float get_step() const override;
+
+    Physics2DDirectBodyStateSW() {}
 };

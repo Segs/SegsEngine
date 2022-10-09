@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  capsule_shape_2d.cpp                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -59,7 +59,7 @@ bool CapsuleShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p_t
 
 void CapsuleShape2D::_update_shape() {
 
-    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), Vector2(radius, height));
+    PhysicsServer2D::get_singleton()->shape_set_data(get_phys_rid(), Vector2(radius, height));
     emit_changed();
 }
 
@@ -75,9 +75,7 @@ void CapsuleShape2D::set_radius(real_t p_radius) {
 
 void CapsuleShape2D::set_height(real_t p_height) {
 
-    height = p_height;
-    if (height < 0)
-        height = 0;
+    height = eastl::max(p_height,0.0f);
     _update_shape();
 }
 
@@ -85,12 +83,17 @@ real_t CapsuleShape2D::get_height() const {
     return height;
 }
 
-void CapsuleShape2D::draw(const RID &p_to_rid, const Color &p_color) {
+void CapsuleShape2D::draw(RenderingEntity p_to_rid, const Color &p_color) {
 
     Vector<Vector2> points = _get_points();
-    PoolVector<Color> col;
-    col.push_back(p_color);
-    RenderingServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
+    Color col[1]={p_color};
+    auto * rs=RenderingServer::get_singleton();
+    rs->canvas_item_add_polygon(p_to_rid, points, col);
+    if (is_collision_outline_enabled()) {
+        rs->canvas_item_add_polyline(p_to_rid, points, col, 1.0, true);
+        // Draw the last segment as it's not drawn by `canvas_item_add_polyline()`.
+        rs->canvas_item_add_line(p_to_rid, points[points.size() - 1], points[0], p_color, 1.0, true);
+    }
 }
 
 Rect2 CapsuleShape2D::get_rect() const {
@@ -104,14 +107,14 @@ Rect2 CapsuleShape2D::get_rect() const {
 
 void CapsuleShape2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}), &CapsuleShape2D::set_radius);
-    MethodBinder::bind_method(D_METHOD("get_radius"), &CapsuleShape2D::get_radius);
+    BIND_METHOD(CapsuleShape2D,set_radius);
+    BIND_METHOD(CapsuleShape2D,get_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_height", {"height"}), &CapsuleShape2D::set_height);
-    MethodBinder::bind_method(D_METHOD("get_height"), &CapsuleShape2D::get_height);
+    BIND_METHOD(CapsuleShape2D,set_height);
+    BIND_METHOD(CapsuleShape2D,get_height);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height",PropertyHint::Range,"0.01,1024,0.01,or_greater"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius",PropertyHint::Range,"0.01,1024,0.01,or_greater"), "set_radius", "get_radius");
 }
 
 CapsuleShape2D::CapsuleShape2D() :

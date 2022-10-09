@@ -133,17 +133,17 @@ Size2 TextureRect::get_minimum_size() const {
 }
 void TextureRect::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &TextureRect::set_texture);
-    MethodBinder::bind_method(D_METHOD("get_texture"), &TextureRect::get_texture);
-    MethodBinder::bind_method(D_METHOD("set_expand", {"enable"}), &TextureRect::set_expand);
-    MethodBinder::bind_method(D_METHOD("has_expand"), &TextureRect::has_expand);
-    MethodBinder::bind_method(D_METHOD("set_flip_h", {"enable"}), &TextureRect::set_flip_h);
-    MethodBinder::bind_method(D_METHOD("is_flipped_h"), &TextureRect::is_flipped_h);
-    MethodBinder::bind_method(D_METHOD("set_flip_v", {"enable"}), &TextureRect::set_flip_v);
-    MethodBinder::bind_method(D_METHOD("is_flipped_v"), &TextureRect::is_flipped_v);
-    MethodBinder::bind_method(D_METHOD("set_stretch_mode", {"stretch_mode"}), &TextureRect::set_stretch_mode);
-    MethodBinder::bind_method(D_METHOD("get_stretch_mode"), &TextureRect::get_stretch_mode);
-    MethodBinder::bind_method(D_METHOD("_texture_changed"), &TextureRect::_texture_changed);
+    BIND_METHOD(TextureRect,set_texture);
+    BIND_METHOD(TextureRect,get_texture);
+    BIND_METHOD(TextureRect,set_expand);
+    BIND_METHOD(TextureRect,has_expand);
+    BIND_METHOD(TextureRect,set_flip_h);
+    BIND_METHOD(TextureRect,is_flipped_h);
+    BIND_METHOD(TextureRect,set_flip_v);
+    BIND_METHOD(TextureRect,is_flipped_v);
+    BIND_METHOD(TextureRect,set_stretch_mode);
+    BIND_METHOD(TextureRect,get_stretch_mode);
+    BIND_METHOD(TextureRect,_texture_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "expand"), "set_expand", "has_expand");

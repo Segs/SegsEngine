@@ -58,34 +58,21 @@ private:
 
 	struct Comb {
 
-		int size;
-		float *buffer;
-		float feedback;
-		float damp; //lowpass
-		float damp_h; //history
-		int pos;
-		int extra_spread_frames;
-
-		Comb() {
-			size = 0;
-			buffer = nullptr;
-			feedback = 0;
-			damp_h = 0;
-			pos = 0;
-		}
+        float *buffer = nullptr;
+        int size = 0;
+        float feedback = 0;
+        float damp = 0; // lowpass
+        float damp_h = 0; // history
+        int pos = 0;
+        int extra_spread_frames = 0;
 	};
 
 	struct AllPass {
 
-		int size;
-		float *buffer;
-		int pos;
-		int extra_spread_frames;
-		AllPass() {
-			size = 0;
-			buffer = nullptr;
-			pos = 0;
-		}
+        int size = 0;
+        float *buffer = nullptr;
+        int pos = 0;
+        int extra_spread_frames = 0;
 	};
 
 	Comb comb[MAX_COMBS];

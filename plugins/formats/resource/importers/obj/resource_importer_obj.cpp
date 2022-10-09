@@ -213,7 +213,8 @@ static Error _parse_material_library(StringView p_path, Map<String, Ref<SpatialM
 }
 
 static Error _parse_obj(StringView p_path, Vector<Ref<Mesh>> &r_meshes, bool p_single_mesh, bool p_generate_tangents,
-        bool p_optimize, Vector3 p_scale_mesh, Vector3 p_offset_mesh, Vector<String> *r_missing_deps) {
+                        uint32_t p_compress_flags,
+         Vector3 p_scale_mesh, Vector3 p_offset_mesh, Vector<String> *r_missing_deps) {
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
     ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, FormatVE("Couldn't open OBJ file '%.*s', it may not exist or not be readable.", (int)p_path.size(),p_path.data()));
@@ -224,7 +225,6 @@ static Error _parse_obj(StringView p_path, Vector<Ref<Mesh>> &r_meshes, bool p_s
     Vector3 scale_mesh = p_scale_mesh;
     Vector3 offset_mesh = p_offset_mesh;
 
-    int mesh_flags = p_optimize ? Mesh::ARRAY_COMPRESS_DEFAULT : 0;
 
     Vector<Vector3> vertices;
     Vector<Vector3> normals;
@@ -361,7 +361,7 @@ static Error _parse_obj(StringView p_path, Vector<Ref<Mesh>> &r_meshes, bool p_s
                     surf_tool->set_material(material_map[current_material_library][current_material]);
                 }
 
-                mesh = surf_tool->commit(mesh, mesh_flags);
+                mesh = surf_tool->commit(mesh, p_compress_flags);
 
                 if (!current_material.empty()) {
                     mesh->surface_set_name(mesh->get_surface_count() - 1, PathUtils::get_basename(current_material));
@@ -428,11 +428,11 @@ static Error _parse_obj(StringView p_path, Vector<Ref<Mesh>> &r_meshes, bool p_s
     return OK;
 }
 
-Node *ResourceImporterOBJ::import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
+Node *ResourceImporterOBJ::import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, uint32_t p_compress_flags, Vector<String> *r_missing_deps, Error *r_err) {
 
     Vector<Ref<Mesh> > meshes;
 
-    Error err = _parse_obj(p_path, meshes, false, p_flags &IMPORT_GENERATE_TANGENT_ARRAYS, p_flags &IMPORT_USE_COMPRESSION,
+    Error err = _parse_obj(p_path, meshes, false, p_flags &IMPORT_GENERATE_TANGENT_ARRAYS, p_compress_flags,
             Vector3(1, 1, 1), Vector3(0, 0, 0), r_missing_deps);
 
     if (err != OK) {
@@ -497,12 +497,17 @@ StringName ResourceImporterOBJ::get_preset_name(int /*p_idx*/) const {
     return "";
 }
 
-void ResourceImporterOBJ::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
+void ResourceImporterOBJ::get_import_options(
+        Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     r_options->emplace_back(PropertyInfo(VariantType::BOOL, "generate_tangents"), true);
     r_options->emplace_back(PropertyInfo(VariantType::VECTOR3, "scale_mesh"), Vector3(1, 1, 1));
     r_options->emplace_back(PropertyInfo(VariantType::VECTOR3, "offset_mesh"), Vector3(0, 0, 0));
     r_options->emplace_back(PropertyInfo(VariantType::BOOL, "optimize_mesh"), true);
+    r_options->emplace_back(PropertyInfo(VariantType::BOOL, "octahedral_compression"), true);
+    r_options->emplace_back(PropertyInfo(VariantType::INT, "optimize_mesh_flags", PropertyHint::Flags,
+                                    "Vertex,Normal,Tangent,Color,TexUV,TexUV2,Bones,Weights,Index"),
+            RS::ARRAY_COMPRESS_DEFAULT >> RS::ARRAY_COMPRESS_BASE);
 }
 bool ResourceImporterOBJ::get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const {
 
@@ -514,8 +519,13 @@ Error ResourceImporterOBJ::import(StringView p_source_file, StringView p_save_pa
 
     Vector<Ref<Mesh> > meshes;
 
-    Error err = _parse_obj(p_source_file, meshes, true, p_options.at("generate_tangents").as<bool>(),
-            p_options.at("optimize_mesh").as<bool>(), p_options.at("scale_mesh").as<Vector3>(),p_options.at("offset_mesh").as<Vector3>(), &r_missing_deps);
+    uint32_t compress_flags = p_options.at(StringName("optimize_mesh_flags")).as<int>() << RS::ARRAY_COMPRESS_BASE;
+
+    if (p_options.at(StringName("octahedral_compression")).as<bool>()) {
+        compress_flags |= RS::ARRAY_FLAG_USE_OCTAHEDRAL_COMPRESSION;
+    }
+    Error err = _parse_obj(p_source_file, meshes, true, p_options.at("generate_tangents").as<bool>(), compress_flags,
+            p_options.at("scale_mesh").as<Vector3>(), p_options.at("offset_mesh").as<Vector3>(), nullptr);
 
     ERR_FAIL_COND_V(err != OK, err);
     ERR_FAIL_COND_V(meshes.size() != 1, ERR_BUG);

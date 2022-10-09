@@ -51,6 +51,7 @@ class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
     VariantParserStream *stream=nullptr;
 
     struct ExtResource {
+        RES cache;
         String path;
         String type;
     };
@@ -60,9 +61,8 @@ class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
 
     bool ignore_resource_parsing;
 
-    //Map<String,String> remaps;
-
     Map<int, ExtResource> ext_resources;
+    Map<int, RES> int_resources;
 
     int resources_total;
     int resource_current;
@@ -73,7 +73,6 @@ class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
     mutable int lines;
 
     Map<String, String> remaps;
-    //void _printerr();
 
     static Error _parse_sub_resources(
             void *p_self, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
@@ -111,7 +110,6 @@ class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
 
     friend class ResourceFormatLoaderText;
 
-    List<RES> resource_cache;
     Error error;
 
     RES resource;
@@ -141,7 +139,8 @@ public:
 class ResourceFormatLoaderText : public ResourceFormatLoader {
 public:
     static ResourceFormatLoaderText *singleton;
-    Ref<ResourceInteractiveLoader> load_interactive(StringView p_path, StringView p_original_path = {}, Error *r_error = nullptr) override;
+    Ref<ResourceInteractiveLoader> load_interactive(
+            StringView p_path, StringView p_original_path = {}, Error *r_error = nullptr, bool p_no_subresource_cache=false) override;
     void get_recognized_extensions_for_type(StringView p_type, Vector<String> &p_extensions) const override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool handles_type(StringView p_type) const override;

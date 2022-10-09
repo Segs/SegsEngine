@@ -31,13 +31,22 @@
 #include "version_control_editor_plugin.h"
 
 #include "core/callable_method_pointer.h"
+#include "core/method_bind.h"
+#include "core/os/keyboard.h"
 #include "core/resource/resource_manager.h"
 #include "core/script_language.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_file_system.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
-#include "core/method_bind.h"
+#include "editor/editor_settings.h"
+#include "scene/gui/dialogs.h"
+#include "scene/gui/option_button.h"
+#include "scene/gui/separator.h"
+#include "scene/gui/split_container.h"
+#include "scene/gui/tab_container.h"
+#include "scene/gui/text_edit.h"
+#include "scene/gui/tool_button.h"
 #include "scene/resources/font.h"
 
 VersionControlEditorPlugin *VersionControlEditorPlugin::singleton = nullptr;
@@ -47,7 +56,7 @@ VARIANT_ENUM_CAST(VersionControlEditorPlugin::ChangeType);
 
 void VersionControlEditorPlugin::_bind_methods() {
 
-//    MethodBinder::bind_method(D_METHOD("popup_vcs_set_up_dialog"), &VersionControlEditorPlugin::popup_vcs_set_up_dialog);
+//    BIND_METHOD(VersionControlEditorPlugin,popup_vcs_set_up_dialog);
 
     // Used to track the status of files in the staging area
     BIND_ENUM_CONSTANT(CHANGE_TYPE_NEW);
@@ -60,7 +69,7 @@ void VersionControlEditorPlugin::_bind_methods() {
 void VersionControlEditorPlugin::_selected_a_vcs(int p_id) {
 
     const Vector<StringName> &available_addons = get_available_vcs_names();
-    const StringName selected_vcs = StringName(set_up_choice->get_item_text_utf8(p_id));
+    const StringName selected_vcs = StringName(set_up_choice->get_item_text(p_id));
 }
 
 void VersionControlEditorPlugin::_populate_available_vcs_names() {
@@ -110,7 +119,7 @@ void VersionControlEditorPlugin::_initialize_vcs() {
     ERR_FAIL_COND_MSG(!EditorVCSInterface::get_singleton(),EditorVCSInterface::get_singleton()->get_vcs_name() + " is already active");
 
     const int id = set_up_choice->get_selected_id();
-    StringName selected_addon(set_up_choice->get_item_text_utf8(id));
+    StringName selected_addon(set_up_choice->get_item_text(id));
 
     StringView path = ScriptServer::get_global_class_path(selected_addon);
     Ref<Script> script = dynamic_ref_cast<Script>(gResourceManager().load(path));
@@ -121,7 +130,7 @@ void VersionControlEditorPlugin::_initialize_vcs() {
     ERR_FAIL_COND_MSG(!addon_script_instance, "Failed to create addon script instance.");
 
     // The addon is attached as a script to the VCS interface as a proxy end-point
-    vcs_interface->set_script_and_instance(script.get_ref_ptr(), addon_script_instance);
+    vcs_interface->set_script_instance(addon_script_instance);
 
     EditorVCSInterface::set_singleton(vcs_interface);
     EditorFileSystem::get_singleton()->connect("filesystem_changed",callable_mp(this, &ClassName::_refresh_stage_area));
@@ -148,7 +157,7 @@ void VersionControlEditorPlugin::_send_commit_msg() {
         version_control_dock_button->set_pressed(false);
     } else {
 
-        WARN_PRINT("No VCS addon is initialized. Select a Version Control Addon from Project menu");
+        WARN_PRINT("No VCS addon is initialized. Select a Version Control Addon from Project menu.");
     }
 
     _update_commit_status();
@@ -167,7 +176,7 @@ void VersionControlEditorPlugin::_refresh_stage_area() {
         String file_path;
         for (int i = 0; i < modified_file_paths.size(); i++) {
 
-            file_path = modified_file_paths.get_key_at_index(i).as<String>();
+            file_path = modified_file_paths.get_key_at_index(i);
             TreeItem *found = stage_files->search_item_text(file_path, nullptr, true);
             if (!found) {
 
@@ -339,6 +348,29 @@ void VersionControlEditorPlugin::_update_commit_status() {
 
 void VersionControlEditorPlugin::_update_commit_button() {
     commit_button->set_disabled(StringUtils::strip_edges(commit_message->get_text()).empty());
+}
+
+void VersionControlEditorPlugin::_commit_message_gui_input(const Ref<InputEvent> &p_event) {
+    if (!commit_message->has_focus()) {
+        return;
+    }
+    if (StringUtils::strip_edges(commit_message->get_text()).empty()) {
+        // Do not allow empty commit messages.
+        return;
+    }
+    const Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
+
+    if (k && k->is_pressed()) {
+        if (ED_IS_SHORTCUT("version_control/commit", p_event)) {
+            if (staged_files_count == 0) {
+                // Stage all files only when no files were previously staged.
+                _stage_all();
+            }
+            _send_commit_msg();
+            commit_message->accept_event();
+            return;
+        }
+    }
 }
 
 void VersionControlEditorPlugin::register_editor() {
@@ -524,8 +556,10 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
     commit_message->set_custom_minimum_size(Size2(200, 100));
     commit_message->set_wrap_enabled(true);
     commit_message->connect("text_changed", callable_mp(this, &VersionControlEditorPlugin::_update_commit_button));
-    commit_message->set_text_ui(TTR("Add a commit message").asString());
+    commit_message->connect("gui_input", callable_mp(this, &VersionControlEditorPlugin::_commit_message_gui_input));
+    commit_message->set_text(TTR("Add a commit message"));
     commit_box_vbc->add_child(commit_message);
+    ED_SHORTCUT("version_control/commit", TTR("Commit"), KEY_MASK_CMD | KEY_ENTER);
 
     commit_button = memnew(Button);
     commit_button->set_text(TTR("Commit Changes"));
@@ -539,6 +573,7 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
 
     version_control_dock = memnew(PanelContainer);
     version_control_dock->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+    version_control_dock->set_custom_minimum_size(Size2(0, 300) * EDSCALE);
     version_control_dock->hide();
 
     diff_vbc = memnew(VBoxContainer);

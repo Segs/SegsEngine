@@ -52,7 +52,7 @@ class DirAccessWindows : public DirAccess {
     /* Windows stuff */
 
     char drives[MAX_DRIVES]; // a-z:
-    int drive_count;
+    int drive_count = 0;
 
     String current_dir;
 
@@ -82,7 +82,11 @@ public:
     Error remove(StringView p_path) override;
 
     //virtual FileType get_file_type() const;
-    size_t get_space_left() override;
+    virtual bool is_link(StringView p_file) { return false; };
+    virtual String read_link(StringView p_file) { return String(p_file); };
+    virtual Error create_link(StringView p_source, StringView p_target) { return FAILED; };
+
+    uint64_t get_space_left();
 
     String get_filesystem_type() const override;
 

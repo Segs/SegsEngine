@@ -57,7 +57,7 @@ static int __bsr_clz32(uint32_t x) {
 #endif
 
 class RandomPCG {
-    typedef struct { uint64_t state;  uint64_t inc; } random_state;
+    using random_state = struct { uint64_t state;  uint64_t inc; } ;
     random_state pcg;
     uint64_t current_seed; // The seed the current generator state started from.
     uint64_t current_inc;

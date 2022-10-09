@@ -139,7 +139,7 @@ Error ImageLoaderSVG::_create_image(ImageData &p_image, const PoolVector<uint8_t
 
 Error ImageLoaderSVG::load_image(ImageData &p_image, FileAccess *f, LoadParams params) {
 
-    uint32_t size = f->get_len();
+    uint64_t size = f->get_len();
     PoolVector<uint8_t> src_image;
     src_image.resize(size + 1);
     PoolVector<uint8_t>::Write src_w = src_image.write();
@@ -152,7 +152,6 @@ Error ImageLoaderSVG::load_image(ImageData &p_image, FileAccess *f, LoadParams p
 void ImageLoaderSVG::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back(("svg"));
-    p_extensions.push_back(("svgz"));
 }
 
 ImageLoaderSVG::ImageLoaderSVG() {

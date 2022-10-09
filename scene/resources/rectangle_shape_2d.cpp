@@ -38,7 +38,7 @@ IMPL_GDCLASS(RectangleShape2D)
 
 void RectangleShape2D::_update_shape() {
 
-    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), extents);
+    PhysicsServer2D::get_singleton()->shape_set_data(get_phys_rid(), extents);
     emit_changed();
 }
 
@@ -53,9 +53,22 @@ Vector2 RectangleShape2D::get_extents() const {
     return extents;
 }
 
-void RectangleShape2D::draw(const RID &p_to_rid, const Color &p_color) {
-
+void RectangleShape2D::draw(RenderingEntity p_to_rid, const Color &p_color) {
     RenderingServer::get_singleton()->canvas_item_add_rect(p_to_rid, Rect2(-extents, extents * 2.0), p_color);
+    if (!is_collision_outline_enabled()) {
+        return;
+    }
+
+    Vector2 stroke_points[5] = { -extents, Vector2(extents.x, -extents.y), extents, Vector2(-extents.x, extents.y),
+        -extents };
+
+    Vector<Color> stroke_colors;
+    stroke_colors.resize(5);
+    for (int i = 0; i < 5; i++) {
+        stroke_colors[i] = p_color;
+    }
+
+    RenderingServer::get_singleton()->canvas_item_add_polyline(p_to_rid, stroke_points, stroke_colors, 1.0, true);
 }
 
 Rect2 RectangleShape2D::get_rect() const {
@@ -66,8 +79,8 @@ Rect2 RectangleShape2D::get_rect() const {
 
 void RectangleShape2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_extents", {"extents"}), &RectangleShape2D::set_extents);
-    MethodBinder::bind_method(D_METHOD("get_extents"), &RectangleShape2D::get_extents);
+    BIND_METHOD(RectangleShape2D,set_extents);
+    BIND_METHOD(RectangleShape2D,get_extents);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "extents"), "set_extents", "get_extents");
 }

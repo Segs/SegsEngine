@@ -42,7 +42,6 @@ foreach(tgt ${global_targets})
     endif()
 
 
-    target_link_libraries(${tgt}_drivers PUBLIC zlib)
     if(NOT OPTION_${tgt}_DISABLE_RENDERING)
         target_include_directories(${tgt}_drivers PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/..)
         target_include_directories(${tgt}_drivers PUBLIC ${CMAKE_CURRENT_BINARY_DIR})

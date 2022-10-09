@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  property_selector.cpp                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/keyboard.h"
+#include "core/string_formatter.h"
 #include "editor/editor_node.h"
 #include "editor/editor_help.h"
 
@@ -110,7 +111,7 @@ void PropertySelector::_update_search() {
             v.get_property_list(&props);
         } else {
 
-            Object *obj = ObjectDB::get_instance(script);
+            Object *obj = object_for_entity(script);
             if (object_cast<Script>(obj)) {
 
                 props.push_back(PropertyInfo(VariantType::NIL, "Script Variables", PropertyHint::None, "", PROPERTY_USAGE_CATEGORY));
@@ -119,7 +120,7 @@ void PropertySelector::_update_search() {
 
             StringName base(base_type);
             while (base) {
-                props.push_back(PropertyInfo(VariantType::NIL, base, PropertyHint::None, "", PROPERTY_USAGE_CATEGORY));
+                props.push_back(PropertyInfo(VariantType::NIL, StringName(base), PropertyHint::None, "", PROPERTY_USAGE_CATEGORY));
                 ClassDB::get_property_list(base, &props, true);
                 base = ClassDB::get_parent_class(base);
             }
@@ -212,7 +213,7 @@ void PropertySelector::_update_search() {
             //v.get_method_list(&methods);
         } else {
 
-            Object *obj = ObjectDB::get_instance(script);
+            Object *obj = object_for_entity(script);
             if (object_cast<Script>(obj)) {
 
                 methods.push_back(MethodInfo("*Script Methods"));
@@ -351,55 +352,67 @@ void PropertySelector::_item_selected() {
     StringName class_type;
     if (type != VariantType::NIL) {
         class_type = Variant::interned_type_name(type);
-
-    } else {
+    } else if (!base_type.empty()) {
         class_type = base_type;
+    } else if (instance) {
+        class_type = instance->get_class_name();
     }
 
     DocData *dd = EditorHelp::get_doc_data();
     String text;
 
     if (properties) {
-
-        StringName at_class = class_type;
-
-        while (!at_class.empty()) {
-
-            auto E = dd->class_list.find(at_class.asCString());
-            if (E!=dd->class_list.end()) {
-                for (size_t i = 0; i < E->second.properties.size(); i++) {
+        while (!class_type.empty()) {
+            auto E = dd->class_list.find_as(class_type);
+            if (dd->class_list.end()!=E) {
+                for (int i = 0; i < E->second.properties.size(); i++) {
                     if (E->second.properties[i].name == name) {
-                        text = E->second.properties[i].description;
+                        text = DTR(E->second.properties[i].description);
+                        break;
                     }
                 }
             }
 
-            at_class = ClassDB::get_parent_class(at_class);
+            if (text != String()) {
+                break;
+            }
+
+            // The property may be from a parent class, keep looking.
+            class_type = ClassDB::get_parent_class(class_type);
         }
     } else {
-
-        StringName at_class = class_type;
-
-        while (!at_class.empty()) {
-
-            auto E = dd->class_list.find(at_class.asCString());
-            if (E!=dd->class_list.end()) {
-                for (size_t i = 0; i < E->second.methods.size(); i++) {
+        while (class_type != String()) {
+            auto E = dd->class_list.find_as(class_type);
+            if (dd->class_list.end()!=E) {
+                for (int i = 0; i < E->second.methods.size(); i++) {
                     if (E->second.methods[i].name == name) {
-                        text = E->second.methods[i].description;
+                        text = DTR(E->second.description);
+                        break;
                     }
                 }
             }
 
-            at_class = ClassDB::get_parent_class(at_class);
+            if (!text.empty()) {
+                break;
+            }
+
+            // The method may be from a parent class, keep looking.
+            class_type = ClassDB::get_parent_class(class_type);
         }
     }
 
-    if (text.empty())
-        return;
-
-    help_bit->set_text(text);
+    if (text != String()) {
+        // Display both property name and description, since the help bit may be displayed
+        // far away from the location (especially if the dialog was resized to be taller).
+        help_bit->set_text(FormatVE("[b]%s[/b]: %s", name.c_str(), text.c_str()));
+        help_bit->get_rich_text()->set_self_modulate(Color(1, 1, 1, 1));
+    } else {
+        // Use nested `vformat()` as translators shouldn't interfere with BBCode tags.
+        help_bit->set_text(FormatVE(TTR("No description available for %s.").asCString(), FormatVE("[b]%s[/b]", name.c_str()).c_str()));
+        help_bit->get_rich_text()->set_self_modulate(Color(1, 1, 1, 0.5));
+    }
 }
+
 
 void PropertySelector::_notification(int p_what) {
 
@@ -411,61 +424,61 @@ void PropertySelector::_notification(int p_what) {
     }
 }
 
-void PropertySelector::select_method_from_base_type(const StringName &p_base, const UIString &p_current, bool p_virtuals_only) {
+//void PropertySelector::select_method_from_base_type(const StringName &p_base, const UIString &p_current, bool p_virtuals_only) {
 
-    base_type = p_base;
-    selected = p_current;
-    type = VariantType::NIL;
-    script = ObjectID();
-    properties = false;
-    instance = nullptr;
-    virtuals_only = p_virtuals_only;
+//    base_type = p_base;
+//    selected = p_current;
+//    type = VariantType::NIL;
+//    script = entt::null;
+//    properties = false;
+//    instance = nullptr;
+//    virtuals_only = p_virtuals_only;
 
-    popup_centered_ratio(0.6f);
-    search_box->set_text("");
-    search_box->grab_focus();
-    _update_search();
-}
+//    popup_centered_ratio(0.6f);
+//    search_box->set_text("");
+//    search_box->grab_focus();
+//    _update_search();
+//}
 
-void PropertySelector::select_method_from_script(const Ref<Script> &p_script, const UIString &p_current) {
+//void PropertySelector::select_method_from_script(const Ref<Script> &p_script, const UIString &p_current) {
 
-    ERR_FAIL_COND(not p_script);
-    base_type = p_script->get_instance_base_type();
-    selected = p_current;
-    type = VariantType::NIL;
-    script = p_script->get_instance_id();
-    properties = false;
-    instance = nullptr;
-    virtuals_only = false;
+//    ERR_FAIL_COND(not p_script);
+//    base_type = p_script->get_instance_base_type();
+//    selected = p_current;
+//    type = VariantType::NIL;
+//    script = p_script->get_instance_id();
+//    properties = false;
+//    instance = nullptr;
+//    virtuals_only = false;
 
-    popup_centered_ratio(0.6f);
-    search_box->set_text("");
-    search_box->grab_focus();
-    _update_search();
-}
-void PropertySelector::select_method_from_basic_type(VariantType p_type, const UIString &p_current) {
+//    popup_centered_ratio(0.6f);
+//    search_box->set_text("");
+//    search_box->grab_focus();
+//    _update_search();
+//}
+//void PropertySelector::select_method_from_basic_type(VariantType p_type, const UIString &p_current) {
 
-    ERR_FAIL_COND(p_type == VariantType::NIL);
-    base_type = "";
-    selected = p_current;
-    type = p_type;
-    script = ObjectID();
-    properties = false;
-    instance = nullptr;
-    virtuals_only = false;
+//    ERR_FAIL_COND(p_type == VariantType::NIL);
+//    base_type = "";
+//    selected = p_current;
+//    type = p_type;
+//    script = entt::null;
+//    properties = false;
+//    instance = nullptr;
+//    virtuals_only = false;
 
-    popup_centered_ratio(0.6f);
-    search_box->set_text("");
-    search_box->grab_focus();
-    _update_search();
-}
+//    popup_centered_ratio(0.6f);
+//    search_box->set_text("");
+//    search_box->grab_focus();
+//    _update_search();
+//}
 
 void PropertySelector::select_method_from_instance(Object *p_instance, const UIString &p_current) {
 
     base_type = StringName(p_instance->get_class());
     selected = p_current;
     type = VariantType::NIL;
-    script = ObjectID();
+    script = entt::null;
     {
         Ref<Script> scr(refFromRefPtr<Script>(p_instance->get_script()));
         if (scr)
@@ -481,39 +494,39 @@ void PropertySelector::select_method_from_instance(Object *p_instance, const UIS
     _update_search();
 }
 
-void PropertySelector::select_property_from_base_type(const StringName &p_base, const UIString &p_current) {
+//void PropertySelector::select_property_from_base_type(const StringName &p_base, const UIString &p_current) {
 
-    base_type = p_base;
-    selected = p_current;
-    type = VariantType::NIL;
-    script = ObjectID();
-    properties = true;
-    instance = nullptr;
-    virtuals_only = false;
+//    base_type = p_base;
+//    selected = p_current;
+//    type = VariantType::NIL;
+//    script = entt::null;
+//    properties = true;
+//    instance = nullptr;
+//    virtuals_only = false;
 
-    popup_centered_ratio(0.6f);
-    search_box->set_text("");
-    search_box->grab_focus();
-    _update_search();
-}
+//    popup_centered_ratio(0.6f);
+//    search_box->set_text("");
+//    search_box->grab_focus();
+//    _update_search();
+//}
 
-void PropertySelector::select_property_from_script(const Ref<Script> &p_script, const UIString &p_current) {
+//void PropertySelector::select_property_from_script(const Ref<Script> &p_script, const UIString &p_current) {
 
-    ERR_FAIL_COND(not p_script);
+//    ERR_FAIL_COND(not p_script);
 
-    base_type = p_script->get_instance_base_type();
-    selected = p_current;
-    type = VariantType::NIL;
-    script = p_script->get_instance_id();
-    properties = true;
-    instance = nullptr;
-    virtuals_only = false;
+//    base_type = p_script->get_instance_base_type();
+//    selected = p_current;
+//    type = VariantType::NIL;
+//    script = p_script->get_instance_id();
+//    properties = true;
+//    instance = nullptr;
+//    virtuals_only = false;
 
-    popup_centered_ratio(0.6f);
-    search_box->set_text("");
-    search_box->grab_focus();
-    _update_search();
-}
+//    popup_centered_ratio(0.6f);
+//    search_box->set_text("");
+//    search_box->grab_focus();
+//    _update_search();
+//}
 
 void PropertySelector::select_property_from_basic_type(VariantType p_type, const UIString &p_current) {
 
@@ -521,7 +534,7 @@ void PropertySelector::select_property_from_basic_type(VariantType p_type, const
     base_type = "";
     selected = p_current;
     type = p_type;
-    script = ObjectID();
+    script = entt::null;
     properties = true;
     instance = nullptr;
     virtuals_only = false;
@@ -537,7 +550,7 @@ void PropertySelector::select_property_from_instance(Object *p_instance, const U
     base_type = "";
     selected = p_current;
     type = VariantType::NIL;
-    script = ObjectID();
+    script = entt::null;
     properties = true;
     instance = p_instance;
     virtuals_only = false;

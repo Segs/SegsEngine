@@ -179,7 +179,7 @@
 			memcpy(w.ptr(), dataY, new_width * new_height);
 
 			img[0].instance();
-			img[0]->create(new_width, new_height, 0, Image::FORMAT_R8, img_data[0]);
+			img[0]->create(new_width, new_height, 0, ImageData::FORMAT_R8, img_data[0]);
 		}
 
 		{
@@ -201,7 +201,7 @@
 
 			///TODO GLES2 doesn't support FORMAT_RG8, need to do some form of conversion
 			img[1].instance();
-			img[1]->create(new_width, new_height, 0, Image::FORMAT_RG8, img_data[1]);
+			img[1]->create(new_width, new_height, 0, ImageData::FORMAT_RG8, img_data[1]);
 		}
 
 		// set our texture...

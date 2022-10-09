@@ -58,6 +58,11 @@ struct MethodDoc {
     }
 };
 
+struct TutorialDoc {
+    String link;
+    String title;
+};
+
 struct ConstantDoc {
 
     String name;
@@ -74,6 +79,7 @@ struct PropertyDoc {
     String description;
     String setter, getter;
     String default_value;
+    String overrides;
     bool overridden = false;
     bool operator<(const PropertyDoc &p_prop) const {
         return name < p_prop.name;
@@ -82,6 +88,20 @@ struct PropertyDoc {
     PropertyDoc(const String &nm,const char *tp) : name(nm),type(tp) {}
 };
 
+struct ThemeItemDoc {
+    String name;
+    String type;
+    String data_type;
+    String description;
+    String default_value;
+    bool operator<(const ThemeItemDoc &p_theme_item) const {
+        // First sort by the data type, then by name.
+        if (data_type == p_theme_item.data_type) {
+            return name < p_theme_item.name;
+        }
+        return data_type < p_theme_item.data_type;
+    }
+};
 //TODO: allow nested type/namespace docs.
 struct ClassDoc {
 
@@ -90,12 +110,12 @@ struct ClassDoc {
     String category;
     String brief_description;
     String description;
-    Vector<String> tutorials;
+    Vector<TutorialDoc> tutorials;
     Vector<MethodDoc> methods;
     Vector<MethodDoc> defined_signals;
     Vector<ConstantDoc> constants;
     Vector<PropertyDoc> properties;
-    Vector<PropertyDoc> theme_properties;
+    Vector<ThemeItemDoc> theme_properties;
     const ConstantDoc *const_by_name(const char * c_name) const {
         for(const ConstantDoc &cd : constants)
             if(cd.name==c_name)
@@ -129,16 +149,6 @@ struct ClassDoc {
         return nullptr;
     }
 
-    const PropertyDoc * property_by_name(StringView c_name) const {
-        for (const PropertyDoc& property_doc : properties)
-            if (property_doc.name == c_name)
-                return &property_doc;
-        for (const PropertyDoc& property_doc : theme_properties)
-            if (property_doc.name == c_name)
-                return &property_doc;
-        return nullptr;
-
-    }
     const PropertyDoc * property_by_func_name(StringView c_name) const {
         for (const PropertyDoc& property_doc : properties)
             if ((property_doc.getter == c_name)||(property_doc.setter == c_name))

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  polygon_2d.h                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -39,7 +39,7 @@ class GODOT_EXPORT Polygon2D : public Node2D {
 
     PoolVector<Vector2> polygon;
     PoolVector<Vector2> uv;
-    PoolVector<Color> vertex_colors;
+    Vector<Color> vertex_colors;
     Array polygons;
     int internal_vertices;
 
@@ -65,7 +65,7 @@ class GODOT_EXPORT Polygon2D : public Node2D {
     mutable Rect2 item_rect;
 
     NodePath skeleton;
-    ObjectID current_skeleton_id;
+    GameEntity current_skeleton_id;
 public:
     Array _get_bones() const;
     void _set_bones(const Array &p_bones);
@@ -105,8 +105,8 @@ public:
     void set_color(const Color &p_color);
     Color get_color() const;
 
-    void set_vertex_colors(const PoolVector<Color> &p_colors);
-    PoolVector<Color> get_vertex_colors() const;
+    void set_vertex_colors(const Vector<Color> &p_colors);
+    const Vector<Color> &get_vertex_colors() const;
 
     void set_texture(const Ref<Texture> &p_texture);
     Ref<Texture> get_texture() const;

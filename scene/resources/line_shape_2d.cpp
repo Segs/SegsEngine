@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  line_shape_2d.cpp                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -56,7 +56,7 @@ void LineShape2D::_update_shape() {
     Array arr;
     arr.push_back(normal);
     arr.push_back(d);
-    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), arr);
+    PhysicsServer2D::get_singleton()->shape_set_data(get_phys_rid(), arr);
     emit_changed();
 }
 
@@ -81,7 +81,7 @@ real_t LineShape2D::get_d() const {
     return d;
 }
 
-void LineShape2D::draw(const RID &p_to_rid, const Color &p_color) {
+void LineShape2D::draw(RenderingEntity p_to_rid, const Color &p_color) {
 
     Vector2 point = get_d() * get_normal();
 
@@ -107,14 +107,15 @@ Rect2 LineShape2D::get_rect() const {
 
 void LineShape2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_normal", {"normal"}), &LineShape2D::set_normal);
-    MethodBinder::bind_method(D_METHOD("get_normal"), &LineShape2D::get_normal);
+    BIND_METHOD(LineShape2D,set_normal);
+    BIND_METHOD(LineShape2D,get_normal);
 
-    MethodBinder::bind_method(D_METHOD("set_d", {"d"}), &LineShape2D::set_d);
-    MethodBinder::bind_method(D_METHOD("get_d"), &LineShape2D::get_d);
+    BIND_METHOD(LineShape2D,set_d);
+    BIND_METHOD(LineShape2D,get_d);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "normal"), "set_normal", "get_normal");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "d"), "set_d", "get_d");
+    ADD_PROPERTY(
+            PropertyInfo(VariantType::FLOAT, "d", PropertyHint::Range, "0.01,1024,0.01,or_greater"), "set_d", "get_d");
 }
 
 LineShape2D::LineShape2D() :

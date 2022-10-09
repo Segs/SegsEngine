@@ -73,8 +73,13 @@ void remove_error_handler(ErrorHandlerList *p_handler)
 void _err_print_error(const char *p_function, const char *p_file, int p_line, StringView p_error, StringView p_message,
                       ErrorHandlerType p_type)
 {
-    OS::get_singleton()->print_error(p_function, p_file, p_line, p_error, p_message,
-                                     static_cast<Logger::ErrorType>(p_type));
+    if (OS::get_singleton()) {
+        OS::get_singleton()->print_error(p_function, p_file, p_line, p_error, p_message, (Logger::ErrorType)p_type);
+    } else {
+        // Fallback if errors happen before OS init or after it's destroyed.
+        StringView err_details = (!p_message.empty()) ? p_message : p_error;
+        fprintf(stderr, "ERROR: %.*s\n   at: %s (%s:%i)\n", err_details.size(), err_details.data(), p_function, p_file, p_line);
+    }
 
     _global_lock();
     ErrorHandlerList *l = error_handler_list;
@@ -96,4 +101,7 @@ void _err_print_index_error(const char *p_function, const char *p_file, int p_li
         itos(p_size) + ").");
 
     _err_print_error(p_function, p_file, p_line, err, p_message);
+}
+void _err_flush_stdout() {
+    fflush(stdout);
 }

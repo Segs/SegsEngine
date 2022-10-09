@@ -39,6 +39,8 @@
 #include "scene/gui/split_container.h"
 #include "scene/gui/tree.h"
 
+class EditorHelpBit;
+
 class GODOT_EXPORT EditorFeatureProfile : public RefCounted {
     GDCLASS(EditorFeatureProfile,RefCounted)
 
@@ -58,9 +60,11 @@ private:
     HashSet<StringName> disabled_classes;
     HashSet<StringName> disabled_editors;
     HashMap<StringName, HashSet<StringName> > disabled_properties;
+    HashSet<StringName> collapsed_classes;
 
     bool features_disabled[FEATURE_MAX];
     static const char *feature_names[FEATURE_MAX];
+    static const char *feature_descriptions[FEATURE_MAX];
     static const char *feature_identifiers[FEATURE_MAX];
 
     StringView _get_feature_name(Feature p_feature) { return get_feature_name(p_feature); }
@@ -79,6 +83,8 @@ public:
     bool is_class_property_disabled(const StringName &p_class, const StringName &p_property) const;
     bool has_class_properties_disabled(const StringName &p_class) const;
 
+    void set_item_collapsed(const StringName &p_class, bool p_collapsed);
+    bool is_item_collapsed(const StringName &p_class) const;
     void set_disable_feature(Feature p_feature, bool p_disable);
     bool is_feature_disabled(Feature p_feature) const;
 
@@ -86,6 +92,7 @@ public:
     Error load_from_file(StringView p_path);
 
     static StringView get_feature_name(Feature p_feature);
+    static String get_feature_description(Feature p_feature);
 
     EditorFeatureProfile();
 };
@@ -118,8 +125,12 @@ class EditorFeatureProfileManager : public AcceptDialog {
 
     HSplitContainer *h_split;
 
+    VBoxContainer *class_list_vbc;
     Tree *class_list;
+    VBoxContainer *property_list_vbc;
     Tree *property_list;
+    EditorHelpBit *description_bit;
+    Label *no_profile_selected_help;
 
     EditorFileDialog *import_profiles;
     EditorFileDialog *export_profile;
@@ -146,6 +157,7 @@ class EditorFeatureProfileManager : public AcceptDialog {
 
     void _class_list_item_selected();
     void _class_list_item_edited();
+    void _class_list_item_collapsed(Object *p_item);
     void _property_item_edited();
     void _save_and_update();
 

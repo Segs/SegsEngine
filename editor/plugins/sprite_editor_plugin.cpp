@@ -31,6 +31,7 @@
 #include "sprite_editor_plugin.h"
 
 #include "core/callable_method_pointer.h"
+#include "core/math/geometry.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "canvas_item_editor_plugin.h"
@@ -41,7 +42,11 @@
 #include "scene/2d/mesh_instance_2d.h"
 #include "scene/2d/polygon_2d.h"
 #include "scene/gui/box_container.h"
+#include "scene/gui/dialogs.h"
+#include "scene/gui/menu_button.h"
 #include "scene/main/scene_tree.h"
+#include "scene/resources/mesh.h"
+#include "servers/rendering_server.h"
 #include "thirdparty/misc/clipper.hpp"
 
 IMPL_GDCLASS(SpriteEditor)
@@ -190,6 +195,11 @@ void SpriteEditor::_update_mesh_data() {
     }
     Ref<Image> image = texture->get_data();
     ERR_FAIL_COND(not image);
+
+    if (image->is_compressed()) {
+        image->decompress();
+    }
+
     Rect2 rect;
     if (node->is_region())
         rect = node->get_region_rect();

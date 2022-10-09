@@ -30,6 +30,8 @@
 
 #include "visibility_notifier_3d.h"
 
+#include "cull_instance_component.h"
+#include "core/ecs_registry.h"
 #include "core/engine.h"
 #include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
@@ -37,8 +39,11 @@
 #include "scene/3d/camera_3d.h"
 #include "scene/3d/physics_body_3d.h"
 #include "scene/animation/animation_player.h"
+#include "scene/animation/animation_tree.h"
+#include "scene/animation/animation_tree_player.h"
 #include "scene/scene_string_names.h"
 #include "scene/resources/world_3d.h"
+#include "servers/rendering/rendering_server_scene.h"
 
 IMPL_GDCLASS(VisibilityNotifier3D)
 IMPL_GDCLASS(VisibilityEnabler3D)
@@ -48,7 +53,11 @@ void VisibilityNotifier3D::_enter_camera(Camera3D *p_camera) {
 
     ERR_FAIL_COND(cameras.contains(p_camera));
     cameras.insert(p_camera);
-    if (cameras.size() == 1) {
+    bool in_gameplay = _in_gameplay;
+    if (!Engine::get_singleton()->are_portals_active()) {
+        in_gameplay = true;
+    }
+    if (in_gameplay && (cameras.size() == 1)) {
         emit_signal(SceneStringNames::screen_entered);
         _screen_enter();
     }
@@ -60,9 +69,13 @@ void VisibilityNotifier3D::_exit_camera(Camera3D *p_camera) {
 
     ERR_FAIL_COND(!cameras.contains(p_camera));
     cameras.erase(p_camera);
+    bool in_gameplay = _in_gameplay;
+    if (!Engine::get_singleton()->are_portals_active()) {
+        in_gameplay = true;
+    }
 
     emit_signal(SceneStringNames::camera_exited, Variant(p_camera));
-    if (cameras.empty()) {
+    if (in_gameplay && cameras.empty()) {
         emit_signal(SceneStringNames::screen_exited);
 
         _screen_exit();
@@ -76,7 +89,9 @@ void VisibilityNotifier3D::set_aabb(const AABB &p_aabb) {
     aabb = p_aabb;
 
     if (is_inside_world()) {
-        get_world()->_update_notifier(this, get_global_transform().xform(aabb));
+        AABB world_aabb = get_global_transform().xform(aabb);
+        get_world_3d()->_update_notifier(this, world_aabb);
+        _world_aabb_center = world_aabb.get_center();
     }
 
     Object_change_notify(this,"aabb");
@@ -93,15 +108,43 @@ void VisibilityNotifier3D::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_ENTER_WORLD: {
 
-            get_world()->_register_notifier(this, get_global_transform().xform(aabb));
+            world = get_world_3d();
+            ERR_FAIL_COND(!world);
+            AABB world_aabb = get_global_transform().xform(aabb);
+            world->_register_notifier(this, world_aabb);
+            _world_aabb_center = world_aabb.get_center();
+            game_object_registry.registry.emplace_or_replace<CullInstancePortalModeDirty>(get_instance_id());
+            //_refresh_portal_mode();
         } break;
         case NOTIFICATION_TRANSFORM_CHANGED: {
+            AABB world_aabb = get_global_transform().xform(aabb);
 
-            get_world()->_update_notifier(this, get_global_transform().xform(aabb));
+            world->_update_notifier(this, get_global_transform().xform(aabb));
+            if (_max_distance_active) {
+                _world_aabb_center = world_aabb.get_center();
+            }
+            if (_cull_instance_rid != entt::null) {
+                RoomAPI::ghost_update(_cull_instance_rid, world_aabb);
+            }
         } break;
         case NOTIFICATION_EXIT_WORLD: {
 
-            get_world()->_remove_notifier(this);
+            ERR_FAIL_COND(!world);
+            world->_remove_notifier(this);
+        } break;
+        case NOTIFICATION_ENTER_GAMEPLAY: {
+            _in_gameplay = true;
+            if (cameras.size() && Engine::get_singleton()->are_portals_active()) {
+                emit_signal(SceneStringNames::screen_entered);
+                _screen_enter();
+            }
+        } break;
+        case NOTIFICATION_EXIT_GAMEPLAY: {
+            _in_gameplay = false;
+            if (cameras.size() && Engine::get_singleton()->are_portals_active()) {
+                emit_signal(SceneStringNames::screen_exited);
+                _screen_exit();
+            }
         } break;
     }
 }
@@ -111,11 +154,29 @@ bool VisibilityNotifier3D::is_on_screen() const {
     return !cameras.empty();
 }
 
+void VisibilityNotifier3D::set_max_distance(real_t p_max_distance) {
+    if (p_max_distance > CMP_EPSILON) {
+        _max_distance = p_max_distance;
+        _max_distance_squared = _max_distance * _max_distance;
+        _max_distance_active = true;
+
+        // make sure world aabb centre is up to date
+        if (is_inside_world()) {
+            AABB world_aabb = get_global_transform().xform(aabb);
+            _world_aabb_center = world_aabb.get_center();
+        }
+    } else {
+        _max_distance = 0.0;
+        _max_distance_squared = 0.0;
+        _max_distance_active = false;
+    }
+}
+
 void VisibilityNotifier3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_aabb", {"rect"}), &VisibilityNotifier3D::set_aabb);
-    MethodBinder::bind_method(D_METHOD("get_aabb"), &VisibilityNotifier3D::get_aabb);
-    MethodBinder::bind_method(D_METHOD("is_on_screen"), &VisibilityNotifier3D::is_on_screen);
+    BIND_METHOD(VisibilityNotifier3D,set_aabb);
+    BIND_METHOD(VisibilityNotifier3D,get_aabb);
+    BIND_METHOD(VisibilityNotifier3D,is_on_screen);
 
     ADD_PROPERTY(PropertyInfo(VariantType::AABB, "aabb"), "set_aabb", "get_aabb");
 
@@ -126,9 +187,16 @@ void VisibilityNotifier3D::_bind_methods() {
 }
 
 VisibilityNotifier3D::VisibilityNotifier3D() {
+    game_object_registry.registry.emplace<CullInstanceComponent>(get_instance_id());
 
-    aabb = AABB(Vector3(-1, -1, -1), Vector3(2, 2, 2));
     set_notify_transform(true);
+}
+
+VisibilityNotifier3D::~VisibilityNotifier3D() {
+    game_object_registry.registry.remove<CullInstanceComponent>(get_instance_id());
+    if (_cull_instance_rid != entt::null) {
+        RenderingServer::get_singleton()->free_rid(_cull_instance_rid);
+    }
 }
 
 //////////////////////////////////////
@@ -168,16 +236,13 @@ void VisibilityEnabler3D::_find_nodes(Node *p_node) {
         }
     }
 
-    {
-
-        AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node);
-        if (ap) {
+    if (object_cast<AnimationPlayer>(p_node) || object_cast<AnimationTree>(p_node) || object_cast<AnimationTreePlayer>(p_node)) {
             add = true;
-        }
     }
 
     if (add) {
-        p_node->connect(SceneStringNames::tree_exiting, callable_mp(this, &VisibilityEnabler3D::_node_removed), varray(Variant(p_node)), ObjectNS::CONNECT_ONESHOT);
+        p_node->connect(SceneStringNames::tree_exiting, callable_gen(this, [=]() { _node_removed(p_node); }),
+                ObjectNS::CONNECT_ONESHOT);
         nodes[p_node] = meta;
         _change_node_state(p_node, false);
     }
@@ -215,7 +280,7 @@ void VisibilityEnabler3D::_notification(int p_what) {
 
             if (!visible)
                 _change_node_state(E.first, true);
-            E.first->disconnect(SceneStringNames::tree_exiting, callable_mp(this, &VisibilityEnabler3D::_node_removed));
+            E.first->disconnect_all(SceneStringNames::tree_exiting, get_instance_id());
         }
 
         nodes.clear();
@@ -234,11 +299,13 @@ void VisibilityEnabler3D::_change_node_state(Node *p_node, bool p_enabled) {
     }
 
     if (enabler[ENABLER_PAUSE_ANIMATIONS]) {
-        AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node);
-
-        if (ap) {
+        if (AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node)) {
 
             ap->set_active(p_enabled);
+        } else if (AnimationTree *at = object_cast<AnimationTree>(p_node)) {
+            at->set_active(p_enabled);
+        } else if (AnimationTreePlayer *atp = object_cast<AnimationTreePlayer>(p_node)) {
+            atp->set_active(p_enabled);
         }
     }
 }
@@ -252,8 +319,8 @@ void VisibilityEnabler3D::_node_removed(Node *p_node) {
 
 void VisibilityEnabler3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_enabler", {"enabler", "enabled"}), &VisibilityEnabler3D::set_enabler);
-    MethodBinder::bind_method(D_METHOD("is_enabler_enabled", {"enabler"}), &VisibilityEnabler3D::is_enabler_enabled);
+    BIND_METHOD(VisibilityEnabler3D,set_enabler);
+    BIND_METHOD(VisibilityEnabler3D,is_enabler_enabled);
 
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "pause_animations"), "set_enabler", "is_enabler_enabled", ENABLER_PAUSE_ANIMATIONS);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "freeze_bodies"), "set_enabler", "is_enabler_enabled", ENABLER_FREEZE_BODIES);

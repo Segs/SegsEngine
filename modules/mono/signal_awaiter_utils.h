@@ -34,12 +34,12 @@
 #include "csharp_script.h"
 #include "mono_gc_handle.h"
 
-Error GODOT_EXPORT gd_mono_connect_signal_awaiter(Object *p_source, const StringName &p_signal, Object *p_target, MonoObject *p_awaiter);
+GODOT_EXPORT Error gd_mono_connect_signal_awaiter(Object *p_source, const StringName &p_signal, Object *p_target, MonoObject *p_awaiter);
 
 class SignalAwaiterCallable : public CallableCustom {
-    ObjectID target_id;
     MonoGCHandleData awaiter_handle;
     StringName signal;
+    GameEntity target_id;
 
 public:
     static bool compare_equal(const CallableCustom *p_a, const CallableCustom *p_b);
@@ -55,7 +55,7 @@ public:
     CompareEqualFunc get_compare_equal_func() const override;
     CompareLessFunc get_compare_less_func() const override;
 
-    ObjectID get_object() const override;
+    GameEntity get_object() const override;
 
     _FORCE_INLINE_ StringName get_signal() const { return signal; }
 
@@ -83,7 +83,7 @@ public:
     CompareEqualFunc get_compare_equal_func() const override;
     CompareLessFunc get_compare_less_func() const override;
 
-    ObjectID get_object() const override;
+    GameEntity get_object() const override;
 
     StringName get_signal() const;
 

@@ -1,36 +1,28 @@
 #ifndef ENTT_SIGNAL_FWD_HPP
 #define ENTT_SIGNAL_FWD_HPP
 
+#include "EASTL/memory.h"
 
 namespace entt {
 
-
-/*! @class delegate */
 template<typename>
 class delegate;
 
-/*! @class dispatcher */
 class dispatcher;
 
-/*! @class emitter */
 template<typename>
 class emitter;
 
-/*! @class connection */
 class connection;
 
-/*! @class scoped_connection */
 struct scoped_connection;
-/*! @class sink */
+
 template<typename>
 class sink;
 
-/*! @class sigh */
-template<typename>
+template<typename Type, typename = eastl::allocator>
 class sigh;
 
-
-}
-
+} // namespace entt
 
 #endif

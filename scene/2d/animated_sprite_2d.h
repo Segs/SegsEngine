@@ -32,6 +32,7 @@
 
 #include "scene/2d/node_2d.h"
 #include "scene/resources/texture.h"
+#include "core/string.h"
 
 class GODOT_EXPORT SpriteFrames : public Resource {
 
@@ -89,7 +90,7 @@ public:
         const HashMap<StringName, Anim>::const_iterator E = animations.find(p_anim);
         if (unlikely(E==animations.end())) {
             report_missing_animation(p_anim.asCString());
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " + String(p_anim),{});
             return Ref<Texture>();
         }
         ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>());
@@ -104,7 +105,7 @@ public:
         const HashMap<StringName, Anim>::const_iterator E = animations.find(p_anim);
         if (unlikely(E==animations.end())) {
             report_missing_animation(p_anim.asCString());
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " + String(p_anim),{});
             return Ref<Texture>();
         }
         ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>());
@@ -121,7 +122,7 @@ public:
         HashMap<StringName, Anim>::iterator E = animations.find(p_anim);
         if (unlikely(E==animations.end())) {
             report_missing_animation(p_anim.asCString());
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " + String(p_anim),{});
             return;
         }
         ERR_FAIL_COND(p_idx < 0);
@@ -160,8 +161,7 @@ class GODOT_EXPORT AnimatedSprite2D : public Node2D {
 public:
     float _get_frame_duration();
     void _reset_timeout();
-    void _set_playing(bool p_playing);
-    bool _is_playing() const;
+    bool _is_playing() const { return playing; }
     Rect2 _get_rect() const;
 
 protected:
@@ -187,6 +187,7 @@ public:
 
     void play(const StringName &p_animation = StringName(), const bool p_backwards = false);
     void stop();
+    void set_playing(bool p_playing);
     bool is_playing() const;
 
     void set_animation(const StringName &p_animation);
@@ -209,9 +210,6 @@ public:
 
     void set_flip_v(bool p_flip);
     bool is_flipped_v() const;
-
-    void set_modulate(const Color &p_color);
-    Color get_modulate() const;
 
     String get_configuration_warning() const override;
     AnimatedSprite2D();

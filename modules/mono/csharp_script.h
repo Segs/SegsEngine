@@ -34,9 +34,9 @@
 #include "core/io/resource_saver.h"
 #include "core/io/resource_format_loader.h"
 #include "core/script_language.h"
-#include "core/self_list.h"
 #include "core/list.h"
 #include "core/set.h"
+#include "core/dictionary.h"
 
 #include "mono_gc_handle.h"
 #include "mono_gd/gd_mono.h"
@@ -98,6 +98,7 @@ private:
 
     bool tool = false;
     bool valid = false;
+    bool reload_invalidated;
     bool builtin;
 
 
@@ -111,8 +112,8 @@ private:
         Vector<Pair<StringName, Array>> event_signals;
     };
 
-    HashSet<ObjectID> pending_reload_instances;
-    Map<ObjectID, StateBackup> pending_reload_state;
+    HashSet<GameEntity> pending_reload_instances;
+    HashMap<GameEntity, StateBackup> pending_reload_state;
     StringName tied_class_name_for_reload;
     StringName tied_class_namespace_for_reload;
 #endif
@@ -152,7 +153,7 @@ private:
     void load_script_signals(GDMonoClass *p_class, GDMonoClass *p_native_class);
     bool _get_signal(GDMonoClass *p_class, GDMonoMethod *p_delegate_invoke, Vector<SignalParameter> &params);
 
-    bool _update_exports();
+    bool _update_exports(PlaceHolderScriptInstance *p_instance_to_update=nullptr);
     bool _get_member_export(IMonoClassMember *p_member, bool p_inspect_export, PropertyInfo &r_prop_info, bool &r_exported);
 #ifdef TOOLS_ENABLED
     static int _try_get_member_export_hint(IMonoClassMember *p_member, ManagedType p_type, VariantType p_variant_type, bool p_allow_generics, PropertyHint &r_hint, String &r_hint_string);
@@ -279,7 +280,7 @@ public:
     void get_property_list(Vector<PropertyInfo> *p_properties) const override;
     VariantType get_property_type(const StringName &p_name, bool *r_is_valid) const override;
 
-    /* TODO */ void get_method_list(Vector<MethodInfo> * /*p_list*/) const override {}
+    void get_method_list(Vector<MethodInfo> * /*p_list*/) const override;
     bool has_method(const StringName &p_method) const override;
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) override;
 
@@ -355,7 +356,7 @@ class GODOT_EXPORT CSharpLanguage : public ScriptLanguage {
     Map<Object *, CSharpScriptBinding> script_bindings;
 #ifdef DEBUG_ENABLED
     // List of unsafe object references
-    Map<ObjectID, int> unsafe_object_references;
+    HashMap<GameEntity, int> unsafe_object_references;
     Mutex unsafe_object_references_lock;
 #endif
 
@@ -449,6 +450,7 @@ public:
 
     /* EDITOR FUNCTIONS */
     void get_reserved_words(Vector<String> *p_words) const override;
+    bool is_control_flow_keyword(String p_keyword) const override;
     void get_comment_delimiters(Vector<String> *p_delimiters) const override;
     void get_string_delimiters(Vector<String> *p_delimiters) const override;
     Ref<Script> get_template(StringView p_class_name, StringView p_base_class_name) const override;
@@ -532,7 +534,7 @@ public:
 
 class ResourceFormatLoaderCSharpScript : public ResourceFormatLoader {
 public:
-    RES load(StringView p_path, StringView p_original_path = "", Error *r_error = NULL) override;
+    RES load(StringView p_path, StringView p_original_path = "", Error *r_error = nullptr, bool p_no_subresource_cache = false) override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool handles_type(StringView p_type) const override;
     String get_resource_type(StringView p_path) const override;

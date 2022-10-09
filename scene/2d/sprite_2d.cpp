@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  sprite.cpp                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -105,7 +105,7 @@ void Sprite2D::_get_rects(Rect2 &r_src_rect, Rect2 &r_dst_rect, bool &r_filter_c
     Point2 dest_offset = offset;
     if (centered)
         dest_offset -= frame_size / 2;
-    if (Engine::get_singleton()->get_use_pixel_snap()) {
+    if (Engine::get_singleton()->get_use_gpu_pixel_snap()) {
         dest_offset = dest_offset.floor();
     }
 
@@ -126,7 +126,7 @@ void Sprite2D::_notification(int p_what) {
             if (not texture)
                 return;
 
-            RID ci = get_canvas_item();
+            RenderingEntity ci = get_canvas_item();
 
             /*
             texture->draw(ci,Point2());
@@ -385,7 +385,7 @@ Rect2 Sprite2D::get_rect() const {
     if (centered)
         ofs -= Size2(s) / 2;
 
-    if (Engine::get_singleton()->get_use_pixel_snap()) {
+    if (Engine::get_singleton()->get_use_gpu_pixel_snap()) {
         ofs = ofs.floor();
     }
 
@@ -418,50 +418,50 @@ void Sprite2D::_texture_changed() {
 
 void Sprite2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &Sprite2D::set_texture);
-    MethodBinder::bind_method(D_METHOD("get_texture"), &Sprite2D::get_texture);
+    BIND_METHOD(Sprite2D,set_texture);
+    BIND_METHOD(Sprite2D,get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_normal_map", {"normal_map"}), &Sprite2D::set_normal_map);
-    MethodBinder::bind_method(D_METHOD("get_normal_map"), &Sprite2D::get_normal_map);
+    BIND_METHOD(Sprite2D,set_normal_map);
+    BIND_METHOD(Sprite2D,get_normal_map);
 
-    MethodBinder::bind_method(D_METHOD("set_centered", {"centered"}), &Sprite2D::set_centered);
-    MethodBinder::bind_method(D_METHOD("is_centered"), &Sprite2D::is_centered);
+    BIND_METHOD(Sprite2D,set_centered);
+    BIND_METHOD(Sprite2D,is_centered);
 
-    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &Sprite2D::set_offset);
-    MethodBinder::bind_method(D_METHOD("get_offset"), &Sprite2D::get_offset);
+    BIND_METHOD(Sprite2D,set_offset);
+    BIND_METHOD(Sprite2D,get_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_flip_h", {"flip_h"}), &Sprite2D::set_flip_h);
-    MethodBinder::bind_method(D_METHOD("is_flipped_h"), &Sprite2D::is_flipped_h);
+    BIND_METHOD(Sprite2D,set_flip_h);
+    BIND_METHOD(Sprite2D,is_flipped_h);
 
-    MethodBinder::bind_method(D_METHOD("set_flip_v", {"flip_v"}), &Sprite2D::set_flip_v);
-    MethodBinder::bind_method(D_METHOD("is_flipped_v"), &Sprite2D::is_flipped_v);
+    BIND_METHOD(Sprite2D,set_flip_v);
+    BIND_METHOD(Sprite2D,is_flipped_v);
 
-    MethodBinder::bind_method(D_METHOD("set_region", {"enabled"}), &Sprite2D::set_region);
-    MethodBinder::bind_method(D_METHOD("is_region"), &Sprite2D::is_region);
+    BIND_METHOD(Sprite2D,set_region);
+    BIND_METHOD(Sprite2D,is_region);
 
-    MethodBinder::bind_method(D_METHOD("is_pixel_opaque", {"pos"}), &Sprite2D::is_pixel_opaque);
+    BIND_METHOD(Sprite2D,is_pixel_opaque);
 
-    MethodBinder::bind_method(D_METHOD("set_region_rect", {"rect"}), &Sprite2D::set_region_rect);
-    MethodBinder::bind_method(D_METHOD("get_region_rect"), &Sprite2D::get_region_rect);
+    BIND_METHOD(Sprite2D,set_region_rect);
+    BIND_METHOD(Sprite2D,get_region_rect);
 
-    MethodBinder::bind_method(D_METHOD("set_region_filter_clip", {"enabled"}), &Sprite2D::set_region_filter_clip);
-    MethodBinder::bind_method(D_METHOD("is_region_filter_clip_enabled"), &Sprite2D::is_region_filter_clip_enabled);
+    BIND_METHOD(Sprite2D,set_region_filter_clip);
+    BIND_METHOD(Sprite2D,is_region_filter_clip_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_frame", {"frame"}), &Sprite2D::set_frame);
-    MethodBinder::bind_method(D_METHOD("get_frame"), &Sprite2D::get_frame);
+    BIND_METHOD(Sprite2D,set_frame);
+    BIND_METHOD(Sprite2D,get_frame);
 
-    MethodBinder::bind_method(D_METHOD("set_frame_coords", {"coords"}), &Sprite2D::set_frame_coords);
-    MethodBinder::bind_method(D_METHOD("get_frame_coords"), &Sprite2D::get_frame_coords);
+    BIND_METHOD(Sprite2D,set_frame_coords);
+    BIND_METHOD(Sprite2D,get_frame_coords);
 
-    MethodBinder::bind_method(D_METHOD("set_vframes", {"vframes"}), &Sprite2D::set_vframes);
-    MethodBinder::bind_method(D_METHOD("get_vframes"), &Sprite2D::get_vframes);
+    BIND_METHOD(Sprite2D,set_vframes);
+    BIND_METHOD(Sprite2D,get_vframes);
 
-    MethodBinder::bind_method(D_METHOD("set_hframes", {"hframes"}), &Sprite2D::set_hframes);
-    MethodBinder::bind_method(D_METHOD("get_hframes"), &Sprite2D::get_hframes);
+    BIND_METHOD(Sprite2D,set_hframes);
+    BIND_METHOD(Sprite2D,get_hframes);
 
-    MethodBinder::bind_method(D_METHOD("get_rect"), &Sprite2D::get_rect);
+    BIND_METHOD(Sprite2D,get_rect);
 
-    MethodBinder::bind_method(D_METHOD("_texture_changed"), &Sprite2D::_texture_changed);
+    BIND_METHOD(Sprite2D,_texture_changed);
 
     ADD_SIGNAL(MethodInfo("frame_changed"));
     ADD_SIGNAL(MethodInfo("texture_changed"));

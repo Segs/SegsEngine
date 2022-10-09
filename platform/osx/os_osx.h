@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  os_osx.h                                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -49,6 +49,7 @@
 #include <ApplicationServices/ApplicationServices.h>
 #include <CoreVideo/CoreVideo.h>
 
+#undef BitMap
 #undef CursorShape
 
 class OS_OSX : public OS_Unix {
@@ -59,22 +60,29 @@ public:
         bool echo;
         bool raw;
         uint32_t scancode;
+        uint32_t physical_scancode;
         uint32_t unicode;
     };
+
+    struct WarpEvent {
+        NSTimeInterval timestamp;
+        NSPoint delta;
+    };
+    Vector<WarpEvent> warp_events;
+    NSTimeInterval last_warp = 0;
+    bool ignore_warp = false;
 
     Vector<KeyEvent> key_event_buffer;
     int key_event_pos;
 
     bool force_quit;
+    bool is_resizing = false;
     //  rasterizer seems to no longer be given to visual server, its using GLES3 directly?
     //Rasterizer *rasterizer;
-    RenderingServer *rendering_server;
-
-    CameraServer *camera_server;
+    RenderingServer *visual_server;
 
     List<String> args;
     MainLoop *main_loop;
-
 
 #ifdef COREAUDIO_ENABLED
     AudioDriverCoreAudio audio_driver;
@@ -106,6 +114,7 @@ public:
     id cursor;
     NSOpenGLPixelFormat *pixelFormat;
     NSOpenGLContext *context;
+    NSOpenGLContext *context_offscreen;
 
     bool layered_window;
     bool waiting_for_vsync;
@@ -123,6 +132,7 @@ public:
     bool zoomed;
     bool resizable;
     bool window_focused;
+    bool on_top;
 
     Size2 window_size;
     Rect2 restore_rect;
@@ -137,6 +147,7 @@ public:
     Size2 min_size;
     Size2 max_size;
 
+    PowerOSX *power_manager;
     CrashHandler crash_handler;
 
     float _mouse_scale(float p_scale) {
@@ -173,6 +184,8 @@ public:
     Map<String, Vector<GlobalMenuItem> > global_menus;
 
     void _update_global_menu();
+    static void pre_wait_observer_cb(CFRunLoopObserverRef p_observer, CFRunLoopActivity p_activiy, void *p_context);
+
 protected:
     virtual void initialize_core();
     virtual Error initialize(const VideoMode &p_desired, int p_video_driver, int p_audio_driver);
@@ -238,6 +251,9 @@ public:
     VideoMode get_video_mode(int p_screen = 0) const override;
     void get_fullscreen_mode_list(Vector<VideoMode> *p_list, int p_screen = 0) const override;
 
+    bool is_offscreen_gl_available() const override;
+    void set_offscreen_gl_current(bool p_current) override;
+
     String get_executable_path() const override;
 
     LatinKeyboardVariant get_latin_keyboard_variant() const override;
@@ -250,6 +266,9 @@ public:
     Point2 get_screen_position(int p_screen = -1) const override;
     Size2 get_screen_size(int p_screen = -1) const override;
     int get_screen_dpi(int p_screen = -1) const override;
+    float get_screen_scale(int p_screen = -1) const override;
+    float get_screen_max_scale() const override;
+    float get_screen_refresh_rate(int p_screen = -1) const override;
 
     Point2 get_window_position() const override;
     void set_window_position(const Point2 &p_position) override;
@@ -295,8 +314,6 @@ public:
 
     void disable_crash_handler();
     bool is_disable_crash_handler() const;
-
-    virtual Error move_to_trash(const String &p_path);
 
     void force_process_input();
 

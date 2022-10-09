@@ -108,10 +108,10 @@ void VideoStreamPlaybackTheora::video_write(void) {
             yuv420_2_rgb8888((uint8_t *)dst, (uint8_t *)yuv[0].data, (uint8_t *)yuv[1].data, (uint8_t *)yuv[2].data, size.x, size.y, yuv[0].stride, yuv[1].stride, size.x << 2);
         };
 
-        format = Image::FORMAT_RGBA8;
+        format = ImageData::FORMAT_RGBA8;
     }
 
-    Ref<Image> img = memnew(Image(size.x, size.y, 0, Image::FORMAT_RGBA8, frame_data)); //zero copy image creation
+    Ref<Image> img = memnew(Image(size.x, size.y, 0, ImageData::FORMAT_RGBA8, frame_data)); //zero copy image creation
 
     texture->set_data(img); //zero copy send to visual server
 
@@ -340,7 +340,7 @@ void VideoStreamPlaybackTheora::set_file(const String &p_file) {
         size.x = w;
         size.y = h;
 
-        texture->create(w, h, Image::FORMAT_RGBA8, Texture::FLAG_FILTER | Texture::FLAG_VIDEO_SURFACE);
+        texture->create(w, h, ImageData::FORMAT_RGBA8, Texture::FLAG_FILTER | Texture::FLAG_VIDEO_SURFACE);
 
     } else {
         /* tear down the partial theora setup */

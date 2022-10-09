@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  skeleton_2d.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -87,14 +87,14 @@ void Bone2D::_notification(int p_what) {
 }
 void Bone2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_rest", {"rest"}), &Bone2D::set_rest);
-    MethodBinder::bind_method(D_METHOD("get_rest"), &Bone2D::get_rest);
-    MethodBinder::bind_method(D_METHOD("apply_rest"), &Bone2D::apply_rest);
-    MethodBinder::bind_method(D_METHOD("get_skeleton_rest"), &Bone2D::get_skeleton_rest);
-    MethodBinder::bind_method(D_METHOD("get_index_in_skeleton"), &Bone2D::get_index_in_skeleton);
+    BIND_METHOD(Bone2D,set_rest);
+    BIND_METHOD(Bone2D,get_rest);
+    BIND_METHOD(Bone2D,apply_rest);
+    BIND_METHOD(Bone2D,get_skeleton_rest);
+    BIND_METHOD(Bone2D,get_index_in_skeleton);
 
-    MethodBinder::bind_method(D_METHOD("set_default_length", {"default_length"}), &Bone2D::set_default_length);
-    MethodBinder::bind_method(D_METHOD("get_default_length"), &Bone2D::get_default_length);
+    BIND_METHOD(Bone2D,set_default_length);
+    BIND_METHOD(Bone2D,get_default_length);
 
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "rest"), "set_rest", "get_rest");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "default_length", PropertyHint::Range, "1,1024,1"), "set_default_length", "get_default_length");
@@ -286,18 +286,18 @@ void Skeleton2D::_notification(int p_what) {
     }
 }
 
-RID Skeleton2D::get_skeleton() const {
+RenderingEntity Skeleton2D::get_skeleton() const {
     return skeleton;
 }
 void Skeleton2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_update_bone_setup"), &Skeleton2D::_update_bone_setup);
-    MethodBinder::bind_method(D_METHOD("_update_transform"), &Skeleton2D::_update_transform);
+    BIND_METHOD(Skeleton2D,_update_bone_setup);
+    BIND_METHOD(Skeleton2D,_update_transform);
 
-    MethodBinder::bind_method(D_METHOD("get_bone_count"), &Skeleton2D::get_bone_count);
-    MethodBinder::bind_method(D_METHOD("get_bone", {"idx"}), &Skeleton2D::get_bone);
+    BIND_METHOD(Skeleton2D,get_bone_count);
+    BIND_METHOD(Skeleton2D,get_bone);
 
-    MethodBinder::bind_method(D_METHOD("get_skeleton"), &Skeleton2D::get_skeleton);
+    BIND_METHOD(Skeleton2D,get_skeleton);
 
     ADD_SIGNAL(MethodInfo("bone_setup_changed"));
 }

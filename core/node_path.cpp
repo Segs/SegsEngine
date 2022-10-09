@@ -45,10 +45,10 @@ static Vector<StringName> s_null_stringname_vec;
 
 struct NodePathData {
 
-    SafeRefCount refcount;
     Vector<StringName> path;
     Vector<StringName> subpath;
     StringName concatenated_subpath;
+    SafeRefCount refcount;
     bool absolute;
     bool has_slashes;
 };
@@ -80,17 +80,14 @@ void NodePath::prepend_period() {
 }
 
 bool NodePath::is_absolute() const {
-
-    if (!data)
-        return false;
-
-    return data->absolute;
+    return data && data->absolute;
 }
 
 bool NodePath::is_locator() const
 {
-    if(!data)
+    if(!data) {
         return false;
+    }
     return !data->path.empty() && StringView(data->path.front()).starts_with('|');
 }
 
@@ -174,37 +171,38 @@ bool NodePath::operator==(const NodePath &p_path) const {
 
     return true;
 }
-bool NodePath::operator!=(const NodePath &p_path) const {
-
-    return (!(*this == p_path));
-}
 
 NodePath &NodePath::operator=(const NodePath &p_path) {
 
-    if (this == &p_path)
+    if (this == &p_path) {
         return *this;
+    }
 
     unref();
 
     if (p_path.data && p_path.data->refcount.ref()) {
-
         data = p_path.data;
     }
     return *this;
 }
+
 bool NodePath::empty() const noexcept {
     return !data || (data->path.empty() && data->subpath.empty());
 }
+
 String NodePath::asString() const {
-    if (!data)
+    if (!data) {
         return String();
+    }
 
     String ret;
-    if (data->absolute)
+    if (data->absolute) {
         ret = "/";
-    ret += String::joined(data->path,"/");
-    if(!data->subpath.empty())
-        ret += ":"+String::joined(data->subpath,":");
+    }
+    ret += String::joined(data->path, "/");
+    if (!data->subpath.empty()) {
+        ret += ":" + String::joined(data->subpath, ":");
+    }
 
     return ret;
 }
@@ -214,24 +212,19 @@ NodePath::operator String() const {
 }
 
 NodePath::NodePath(const NodePath &p_path) {
-
-    data = nullptr;
-
     if (p_path.data && p_path.data->refcount.ref()) {
-
         data = p_path.data;
     }
 }
 
 const Vector<StringName> &NodePath::get_names() const {
-
-    if (data)
+    if (data) {
         return data->path;
+    }
     return s_null_stringname_vec;
 }
 
 const Vector<StringName> &NodePath::get_subnames() const {
-
     if (data)
         return data->subpath;
     return s_null_stringname_vec;
@@ -253,84 +246,80 @@ StringName NodePath::get_concatenated_subnames() const {
 }
 
 NodePath NodePath::rel_path_to(const NodePath &p_np) const {
-
     ERR_FAIL_COND_V(!is_absolute(), NodePath());
     ERR_FAIL_COND_V(!p_np.is_absolute(), NodePath());
 
     const Vector<StringName> &src_dirs(get_names());
     const Vector<StringName> &dst_dirs(p_np.get_names());
 
-    //find common parent
+    // find common parent
     size_t common_parent = 0;
-
-    while (true) {
-        if (src_dirs.size() == common_parent)
+    const size_t src_count = src_dirs.size();
+    const size_t dst_count = dst_dirs.size();
+    const size_t top_count = eastl::min(src_count, dst_count);
+    while (common_parent < top_count) {
+        if (src_dirs[common_parent] != dst_dirs[common_parent]) {
             break;
-        if (dst_dirs.size() == common_parent)
-            break;
-        if (src_dirs[common_parent] != dst_dirs[common_parent])
-            break;
+        }
         common_parent++;
     }
 
     common_parent--;
 
     Vector<StringName> relpath;
+    relpath.reserve(src_dirs.size() + dst_dirs.size() + 1);
 
-    for (int i = src_dirs.size() - 1; i > common_parent; i--) {
-
-        relpath.emplace_back(StaticCString(".."));
+    StringName back_str("..");
+    for (int i = common_parent + 1; i < src_dirs.size(); i++) {
+        relpath.emplace_back(back_str);
     }
 
-    for (size_t i = common_parent + 1; i < dst_dirs.size(); i++) {
-
-        relpath.push_back(dst_dirs[i]);
+    for (int i = common_parent + 1; i < dst_dirs.size(); i++) {
+        relpath.emplace_back(dst_dirs[i]);
     }
 
-    if (relpath.empty())
-        relpath.emplace_back(StaticCString("."));
+    if (relpath.empty()) {
+        relpath.emplace_back(".");
+    }
 
     return NodePath(relpath, p_np.get_subnames(), false);
 }
 
 NodePath NodePath::get_as_property_path() const {
-
     if (!data || data->path.empty()) {
         return *this;
-    } else {
-        Vector<StringName> new_path = data->subpath;
-
-        String initial_subname(data->path[0]);
-
-        for (size_t i = 1; i < data->path.size(); i++) {
-            initial_subname += "/" + String(data->path[i].asCString());
-        }
-        new_path.push_front(StringName(initial_subname));
-
-        return NodePath({}, new_path, false);
     }
+
+    Vector<StringName> new_path = data->subpath;
+
+    String initial_subname(data->path[0]);
+
+    for (size_t i = 1; i < data->path.size(); i++) {
+        initial_subname += "/" + String(data->path[i].asCString());
+    }
+    new_path.push_front(StringName(initial_subname));
+
+    return NodePath({}, new_path, false);
 }
 
 NodePath::NodePath(Span<const StringName> p_path, bool p_absolute) {
 
-    data = nullptr;
-
-    if (p_path.empty())
+    if (p_path.empty()) {
         return;
+    }
 
     data = memnew(NodePathData);
     data->refcount.init();
     data->absolute = p_absolute;
-    data->path.assign(p_path.begin(),p_path.end());
+    data->path.assign(p_path.begin(), p_path.end());
     data->has_slashes = true;
 }
 
 NodePath::NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p_subpath, bool p_absolute) {
 
-    data = nullptr;
-
-    if (p_path.empty() && p_subpath.empty())
+    if (p_path.empty() && p_subpath.empty()) {
         return;
+    }
 
     data = memnew(NodePathData);
     data->refcount.init();
@@ -339,12 +328,13 @@ NodePath::NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p
     data->subpath = p_subpath;
     data->has_slashes = true;
 }
-NodePath::NodePath(Vector<StringName> &&p_path, Vector<StringName> &&p_subpath, bool p_absolute) {
 
+NodePath::NodePath(Vector<StringName> &&p_path, Vector<StringName> &&p_subpath, bool p_absolute) {
     data = nullptr;
 
-    if (p_path.empty() && p_subpath.empty())
+    if (p_path.empty() && p_subpath.empty()) {
         return;
+    }
 
     data = memnew(NodePathData);
     data->refcount.init();
@@ -355,12 +345,14 @@ NodePath::NodePath(Vector<StringName> &&p_path, Vector<StringName> &&p_subpath, 
 }
 
 void NodePath::simplify() {
-
-    if (!data)
+    if (!data) {
         return;
+    }
+
     for (size_t i = 0; i < data->path.size(); i++) {
-        if (data->path.size() == 1)
+        if (data->path.size() == 1) {
             break;
+        }
         if (StringView(data->path[i]) == "."_sv) {
             data->path.erase_at(i);
             i--;
@@ -381,8 +373,9 @@ void NodePath::simplify() {
 
 NodePath NodePath::simplified() const {
 
-    if(is_empty())
+    if(is_empty()) {
         return *this;
+    }
 
     NodePath np = *this;
     np.simplify();
@@ -390,7 +383,6 @@ NodePath NodePath::simplified() const {
 }
 
 NodePath::NodePath(StringView p_path) {
-
     data = nullptr;
 
     if (p_path.empty()) {
@@ -404,19 +396,18 @@ NodePath::NodePath(StringView p_path) {
     bool last_is_slash = true;
     bool has_slashes = false;
     int slices = 0;
-    auto subpath_pos = StringUtils::find(path,":");
+    auto subpath_pos = StringUtils::find(path, ":");
 
     if (subpath_pos != String::npos) {
-
         int from = subpath_pos + 1;
 
         for (size_t i = from; i <= path.length(); i++) {
-
-            if (path[i] == ':' || path[i]==0 ) {
-
-                StringView str = StringUtils::substr(path,from, i - from);
+            if (path[i] == ':' || path[i] == 0) {
+                StringView str = StringUtils::substr(path, from, i - from);
                 if (str.empty()) {
-                    if (path[i]==0) continue; // Allow end-of-path :
+                    if (path[i] == 0) {
+                        continue; // Allow end-of-path :
+                    }
 
                     ERR_FAIL_MSG("Invalid NodePath '" + String(p_path) + "'.");
                 }
@@ -426,17 +417,14 @@ NodePath::NodePath(StringView p_path) {
             }
         }
 
-        path = StringUtils::substr(path,0, subpath_pos);
+        path = StringUtils::substr(path, 0, subpath_pos);
     }
 
     for (int i = (int)absolute; i < path.length(); i++) {
-
         if (path[i] == '/') {
-
             last_is_slash = true;
             has_slashes = true;
         } else {
-
             if (last_is_slash) {
                 slices++;
             }
@@ -456,19 +444,17 @@ NodePath::NodePath(StringView p_path) {
     data->subpath = subpath;
     hash_cache_valid = false;
 
-    if (slices == 0)
+    if (slices == 0) {
         return;
+    }
     data->path.resize(slices);
     last_is_slash = true;
     int from = (int)absolute;
     int slice = 0;
     for (int i = (int)absolute; i < path.length(); i++) {
-
         if (path[i] == '/') {
-
             if (!last_is_slash) {
-
-                StringView name = StringUtils::substr(path,from, i - from);
+                StringView name = StringUtils::substr(path, from, i - from);
                 ERR_FAIL_INDEX(slice, data->path.size());
                 data->path[slice++] = StringName(name);
             }
@@ -480,15 +466,11 @@ NodePath::NodePath(StringView p_path) {
     }
     // part after the final slash
     if (!last_is_slash) {
-
-        StringView name = StringUtils::substr(path,from);
+        StringView name = StringUtils::substr(path, from);
         ERR_FAIL_INDEX(slice, data->path.size());
         data->path[slice++] = StringName(name);
     }
-
 }
-
-NodePath::NodePath() = default;
 
 NodePath::~NodePath() {
     unref();

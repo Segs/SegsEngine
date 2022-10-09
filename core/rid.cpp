@@ -35,7 +35,7 @@
 
 SafeRefCount RID_OwnerBase::refcount;
 
-void RID_OwnerBase::get_owned_list(List<RID> *p_owned) {
+void RID_OwnerBase::get_owned_list(Vector<RID> *p_owned) {
 
 #ifdef DEBUG_ENABLED
 

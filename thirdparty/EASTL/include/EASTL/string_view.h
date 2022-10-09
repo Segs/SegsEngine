@@ -545,7 +545,7 @@ namespace eastl
     typedef basic_string_view<wchar_t> wstring_view;
 
     // C++17 string types
-	typedef basic_string_view<char8_t>  u8string_view;  // C++20 feature, but always present for consistency.
+    typedef basic_string_view<char8_t>  u8string_view;  // C++20 feature, but always present for consistency.
     typedef basic_string_view<char16_t> u16string_view;
     typedef basic_string_view<char32_t> u32string_view;
 
@@ -566,26 +566,27 @@ namespace eastl
         {
             string_view::const_iterator p = x.cbegin();
             string_view::const_iterator end = x.cend();
-            uint32_t result = 2166136261U; // We implement an FNV-like string hash.
+            uint32_t result = 2166136261U;   // FNV1a hash. Perhaps the best string hash. Intentionally uint32_t instead of size_t, so the behavior is the same regardless of size.
             while (p != end)
-                result = (result * 16777619) ^ (uint8_t)*p++;
+                result = (result ^ (uint8_t)*p++) * 16777619;
+
             return (size_t)result;
         }
     };
-	#if defined(EA_CHAR8_UNIQUE) && EA_CHAR8_UNIQUE
-		template<> struct hash<u8string_view>
-		{
-			size_t operator()(const u8string_view& x) const
-			{
-				u8string_view::const_iterator p = x.cbegin();
-				u8string_view::const_iterator end = x.cend();
-				uint32_t result = 2166136261U;
-				while (p != end)
-					result = (result * 16777619) ^ (uint8_t)*p++;
-				return (size_t)result;
-			}
-		};
-	#endif
+    #if defined(EA_CHAR8_UNIQUE) && EA_CHAR8_UNIQUE
+        template<> struct hash<u8string_view>
+        {
+            size_t operator()(const u8string_view& x) const
+            {
+                u8string_view::const_iterator p = x.cbegin();
+                u8string_view::const_iterator end = x.cend();
+                uint32_t result = 2166136261U;
+                while (p != end)
+                    result = (result ^ (uint8_t)*p++) * 16777619 ;
+                return (size_t)result;
+            }
+        };
+    #endif
 
     template<> struct hash<u16string_view>
     {
@@ -595,7 +596,7 @@ namespace eastl
             u16string_view::const_iterator end = x.cend();
             uint32_t result = 2166136261U;
             while (p != end)
-                result = (result * 16777619) ^ (uint16_t)*p++;
+                result = (result ^ (uint16_t)*p++) * 16777619;
             return (size_t)result;
         }
     };
@@ -608,7 +609,7 @@ namespace eastl
             u32string_view::const_iterator end = x.cend();
             uint32_t result = 2166136261U;
             while (p != end)
-                result = (result * 16777619) ^ (uint32_t)*p++;
+                result = (result ^ (uint32_t)*p++) * 16777619;
             return (size_t)result;
         }
     };
@@ -622,7 +623,7 @@ namespace eastl
                 wstring_view::const_iterator end = x.cend();
                 uint32_t result = 2166136261U;
                 while (p != end)
-                    result = (result * 16777619) ^ (uint32_t)*p++;
+                    result = (result ^ (uint32_t)*p++) * 16777619;
                 return (size_t)result;
             }
         };
@@ -645,11 +646,11 @@ namespace eastl
                 EA_CONSTEXPR inline u16string_view operator "" _sv(const char16_t* str, size_t len) EA_NOEXCEPT { return {str, len}; }
                 EA_CONSTEXPR inline u32string_view operator "" _sv(const char32_t* str, size_t len) EA_NOEXCEPT { return {str, len}; }
                 EA_CONSTEXPR inline wstring_view operator "" _sv(const wchar_t* str, size_t len) EA_NOEXCEPT { return {str, len}; }
-				// C++20 char8_t support.
-				#if EA_CHAR8_UNIQUE
-					EA_CONSTEXPR inline u8string_view operator "" sv(const char8_t* str, size_t len) EA_NOEXCEPT { return {str, len}; }
-					EA_CONSTEXPR inline u8string_view operator "" _sv(const char8_t* str, size_t len) EA_NOEXCEPT { return {str, len}; }
-				#endif
+                // C++20 char8_t support.
+                #if EA_CHAR8_UNIQUE
+                    EA_CONSTEXPR inline u8string_view operator "" sv(const char8_t* str, size_t len) EA_NOEXCEPT { return {str, len}; }
+                    EA_CONSTEXPR inline u8string_view operator "" _sv(const char8_t* str, size_t len) EA_NOEXCEPT { return {str, len}; }
+                #endif
             }
         }
         EA_RESTORE_VC_WARNING() // warning: 4455

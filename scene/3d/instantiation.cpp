@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  multimesh_instance_3d.cpp                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -41,14 +41,14 @@ IMPL_GDCLASS(LibraryEntryInstance)
 
 void LibraryEntryInstance::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_library", {"library"}), &LibraryEntryInstance::set_library);
-    MethodBinder::bind_method(D_METHOD("get_library"), &LibraryEntryInstance::get_library);
+    BIND_METHOD(LibraryEntryInstance,set_library);
+    BIND_METHOD(LibraryEntryInstance,get_library);
 
-    MethodBinder::bind_method(D_METHOD("set_library_path", {"library"}), &LibraryEntryInstance::set_library_path);
-    MethodBinder::bind_method(D_METHOD("get_library_path"), &LibraryEntryInstance::get_library_path);
+    BIND_METHOD(LibraryEntryInstance,set_library_path);
+    BIND_METHOD(LibraryEntryInstance,get_library_path);
 
-    MethodBinder::bind_method(D_METHOD("set_entry", { "library" }), &LibraryEntryInstance::set_entry);
-    MethodBinder::bind_method(D_METHOD("get_entry"), &LibraryEntryInstance::get_entry);
+    BIND_METHOD(LibraryEntryInstance,set_entry);
+    BIND_METHOD(LibraryEntryInstance,get_entry);
 
     ClassDB::add_property(get_class_static_name(),
             PropertyInfo(VariantType::OBJECT, "library", PropertyHint::ResourceType, "SceneLibrary",PROPERTY_USAGE_EDITOR),
@@ -88,11 +88,11 @@ static void search_for_parent_with_library(LibraryEntryInstance *n) {
 void LibraryEntryInstance::update_instance()
 {
 
-    if(!resolved_library || entry_name.empty())
+    if(!resolved_library || entry_name.empty()) {
         return;
+    }
 
     {
-        //instantiated_child->set_editable_instance(false);
         LibraryItemHandle h = resolved_library->find_item_by_name(entry_name);
         set_filename(lib_name+"::"+StringUtils::num(h));
         ERR_FAIL_COND_MSG(h == LibraryItemHandle(-1), "Library does not contain selected entry:" + entry_name);

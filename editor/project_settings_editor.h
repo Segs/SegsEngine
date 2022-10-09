@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  project_settings_editor.h                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,31 +28,29 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PROJECT_SETTINGS_H
-#define PROJECT_SETTINGS_H
+#pragma once
 
 #include "core/undo_redo.h"
 #include "editor/editor_autoload_settings.h"
 #include "editor/editor_data.h"
 #include "editor/editor_plugin_settings.h"
 #include "editor/editor_sectioned_inspector.h"
+#include "editor/import_defaults_editor.h"
 #include "scene/gui/dialogs.h"
 #include "scene/gui/tab_container.h"
+
+class EditorLocaleDialog;
 
 class ProjectSettingsEditor : public AcceptDialog {
 
     GDCLASS(ProjectSettingsEditor,AcceptDialog)
 
     enum InputType {
+        INPUT_KEY_PHYSICAL,
         INPUT_KEY,
         INPUT_JOY_BUTTON,
         INPUT_JOY_MOTION,
         INPUT_MOUSE_BUTTON
-    };
-
-    enum LocaleFilter {
-        SHOW_ALL_LOCALES,
-        SHOW_ONLY_SELECTED_LOCALES,
     };
 
     TabContainer *tab_container;
@@ -72,9 +70,8 @@ class ProjectSettingsEditor : public AcceptDialog {
 
     HBoxContainer *add_prop_bar;
     AcceptDialog *message;
-    LineEdit *category;
     LineEdit *property;
-    OptionButton *type;
+    OptionButton *type_box;
     PopupMenu *popup_add;
     ConfirmationDialog *press_a_key;
     Label *press_a_key_label;
@@ -88,6 +85,7 @@ class ProjectSettingsEditor : public AcceptDialog {
     Button *action_add;
     Label *action_add_error;
     Tree *input_editor;
+    bool press_a_key_physical;
     bool setting;
     bool updating_translations;
 
@@ -95,17 +93,13 @@ class ProjectSettingsEditor : public AcceptDialog {
 
     EditorFileDialog *translation_file_open;
     Tree *translation_list;
+    EditorLocaleDialog *locale_select;
 
     Button *translation_res_option_add_button;
     EditorFileDialog *translation_res_file_open;
     EditorFileDialog *translation_res_option_file_open;
     Tree *translation_remap;
     Tree *translation_remap_options;
-    Tree *translation_filter;
-    bool translation_locales_list_created;
-    OptionButton *translation_locale_filter_mode;
-    Vector<TreeItem *> translation_filter_treeitems;
-    Vector<int> translation_locales_idxs_remap;
 
     EditorAutoloadSettings *autoload_settings;
 
@@ -140,21 +134,21 @@ class ProjectSettingsEditor : public AcceptDialog {
     void _copy_to_platform(int p_which);
 
     void _translation_file_open();
-    void _translation_add(StringView p_path);
+    void _translation_add(const Vector<String> &p_path);
     void _translation_delete(Object *p_item, int p_column, int p_button);
     void _update_translations();
 
     void _translation_res_file_open();
-    void _translation_res_add(StringView p_path);
+    void _translation_res_add(const Vector<String> &p_paths);
     void _translation_res_delete(Object *p_item, int p_column, int p_button);
     void _translation_res_select();
     void _translation_res_option_file_open();
-    void _translation_res_option_add(StringView p_path);
+    void _translation_res_option_add(const Vector<String> &p_path);
     void _translation_res_option_changed();
     void _translation_res_option_delete(Object *p_item, int p_column, int p_button);
 
-    void _translation_filter_option_changed();
-    void _translation_filter_mode_changed(int p_mode);
+	void _translation_res_option_popup(bool p_arrow_clicked);
+    void _translation_res_option_selected(const String &p_locale);
 
     void _toggle_search_bar(bool p_pressed);
 
@@ -164,7 +158,6 @@ class ProjectSettingsEditor : public AcceptDialog {
 
     void _copy_to_platform_about_to_show();
 
-    ProjectSettingsEditor();
 
     static ProjectSettingsEditor *singleton;
 
@@ -172,11 +165,13 @@ class ProjectSettingsEditor : public AcceptDialog {
     TextureRect *restart_icon;
     PanelContainer *restart_container;
     ToolButton *restart_close_button;
+    ImportDefaultsEditor *import_defaults_editor;
 
     void _editor_restart_request();
     void _editor_restart();
     void _editor_restart_close();
 
+    void _update_theme();
 protected:
     void _unhandled_input(const Ref<InputEvent> &p_event);
     void _notification(int p_what);
@@ -199,7 +194,6 @@ public:
 
     void queue_save();
 
-    ProjectSettingsEditor(EditorData *p_data);
+    explicit ProjectSettingsEditor(EditorData *p_data);
 };
 
-#endif // PROJECT_SETTINGS_H

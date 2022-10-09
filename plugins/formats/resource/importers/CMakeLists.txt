@@ -1,5 +1,4 @@
 add_subdirectory(bitmap)
-add_subdirectory(csv)
 add_subdirectory(csv_translation)
 add_subdirectory(image)
 add_subdirectory(obj)

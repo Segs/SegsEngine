@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  detect_prime.cpp                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -57,11 +57,12 @@ using GLXCREATECONTEXTATTRIBSARBPROC = GLXContext (*)(Display *, GLXFBConfig, GL
 
 struct vendor {
     const char *glxvendor;
-    int priority;
+    int priority = 0;
 };
 
 vendor vendormap[] = {
     { "Advanced Micro Devices, Inc.", 30 },
+    { "AMD", 30 },
     { "NVIDIA Corporation", 30 },
     { "X.Org", 30 },
     { "Intel Open Source Technology Center", 20 },
@@ -129,7 +130,7 @@ void create_context() {
 
 int detect_prime() {
     pid_t p;
-    int priorities[2];
+    int priorities[2] = {};
     String vendors[2];
     String renderers[2];
 

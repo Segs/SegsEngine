@@ -253,7 +253,7 @@ void Main::print_help(StringView p_binary) {
     OS::get_singleton()->print("  --remote-debug <address>         Remote debug (<host/IP>:<port> address).\n");
 #if defined(DEBUG_ENABLED) && !defined(SERVER_ENABLED)
     OS::get_singleton()->print("  --debug-collisions               Show collision shapes when running the scene.\n");
-    OS::get_singleton()->print("  --debug-navigation               Show navigation polygons when running the scene.\n");
+    OS::get_singleton()->print("  --debug_navigation               Show navigation polygons when running the scene.\n");
 #endif
     OS::get_singleton()->print("  --frame-delay <ms>               Simulate high CPU load (delay each frame by <ms> milliseconds).\n");
     OS::get_singleton()->print("  --time-scale <scale>             Force time scale (higher values are faster, 1.0 is normal speed).\n");
@@ -698,7 +698,7 @@ Error Main::setup(bool p_second_phase) {
 #if defined(DEBUG_ENABLED) && !defined(SERVER_ENABLED)
         } else if (*I == "--debug-collisions") {
             debug_collisions = true;
-        } else if (*I == "--debug-navigation") {
+        } else if (*I == "--debug_navigation") {
             debug_navigation = true;
 #endif
         } else if (*I == "--remote-debug") {
@@ -801,7 +801,7 @@ Error Main::setup(bool p_second_phase) {
         ScriptDebuggerRemote *sdr = memnew(ScriptDebuggerRemote);
         uint16_t debug_port = 6007;
         if (StringUtils::contains(debug_host,':')) {
-            auto sep_pos = StringUtils::find_last(debug_host,":");
+            auto sep_pos = StringUtils::rfind(debug_host,":");
             debug_port = StringUtils::to_int(StringUtils::substr(debug_host,sep_pos + 1, debug_host.length()));
             debug_host = StringUtils::substr(debug_host,0, sep_pos);
         }
@@ -825,7 +825,7 @@ Error Main::setup(bool p_second_phase) {
 
         for (const String &bp : breakpoints) {
 
-            auto sp = StringUtils::find_last(bp,":");
+            auto sp = StringUtils::rfind(bp,":");
             ERR_CONTINUE_MSG(sp == String::npos, "Invalid breakpoint: '" + bp + "', expected file:line format.");
 
             script_debugger->insert_breakpoint(StringUtils::to_int(StringUtils::substr(bp,sp + 1, bp.length())), StringName(StringUtils::substr(bp,0, sp)));

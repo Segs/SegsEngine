@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  touch_screen_button.cpp                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -210,14 +210,14 @@ StringName TouchScreenButton::get_action() const {
 }
 
 void TouchScreenButton::_input(const Ref<InputEvent> &p_event) {
+    ERR_FAIL_COND(!p_event);
 
-    if (!get_tree())
+    if (!is_visible_in_tree())
         return;
+    ERR_FAIL_COND(nullptr==p_event);
 
     if (p_event->get_device() != 0)
         return;
-
-    ERR_FAIL_COND(!is_visible_in_tree());
 
     const InputEventScreenTouch *st = object_cast<InputEventScreenTouch>(p_event.get());
 
@@ -373,36 +373,36 @@ bool TouchScreenButton::is_passby_press_enabled() const {
 
 void TouchScreenButton::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &TouchScreenButton::set_texture);
-    MethodBinder::bind_method(D_METHOD("get_texture"), &TouchScreenButton::get_texture);
+    BIND_METHOD(TouchScreenButton,set_texture);
+    BIND_METHOD(TouchScreenButton,get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_texture_pressed", {"texture_pressed"}), &TouchScreenButton::set_texture_pressed);
-    MethodBinder::bind_method(D_METHOD("get_texture_pressed"), &TouchScreenButton::get_texture_pressed);
+    BIND_METHOD(TouchScreenButton,set_texture_pressed);
+    BIND_METHOD(TouchScreenButton,get_texture_pressed);
 
-    MethodBinder::bind_method(D_METHOD("set_bitmask", {"bitmask"}), &TouchScreenButton::set_bitmask);
-    MethodBinder::bind_method(D_METHOD("get_bitmask"), &TouchScreenButton::get_bitmask);
+    BIND_METHOD(TouchScreenButton,set_bitmask);
+    BIND_METHOD(TouchScreenButton,get_bitmask);
 
-    MethodBinder::bind_method(D_METHOD("set_shape", {"shape"}), &TouchScreenButton::set_shape);
-    MethodBinder::bind_method(D_METHOD("get_shape"), &TouchScreenButton::get_shape);
+    BIND_METHOD(TouchScreenButton,set_shape);
+    BIND_METHOD(TouchScreenButton,get_shape);
 
-    MethodBinder::bind_method(D_METHOD("set_shape_centered", {"bool"}), &TouchScreenButton::set_shape_centered);
-    MethodBinder::bind_method(D_METHOD("is_shape_centered"), &TouchScreenButton::is_shape_centered);
+    BIND_METHOD(TouchScreenButton,set_shape_centered);
+    BIND_METHOD(TouchScreenButton,is_shape_centered);
 
-    MethodBinder::bind_method(D_METHOD("set_shape_visible", {"bool"}), &TouchScreenButton::set_shape_visible);
-    MethodBinder::bind_method(D_METHOD("is_shape_visible"), &TouchScreenButton::is_shape_visible);
+    BIND_METHOD(TouchScreenButton,set_shape_visible);
+    BIND_METHOD(TouchScreenButton,is_shape_visible);
 
-    MethodBinder::bind_method(D_METHOD("set_action", {"action"}), &TouchScreenButton::set_action);
-    MethodBinder::bind_method(D_METHOD("get_action"), &TouchScreenButton::get_action);
+    BIND_METHOD(TouchScreenButton,set_action);
+    BIND_METHOD(TouchScreenButton,get_action);
 
-    MethodBinder::bind_method(D_METHOD("set_visibility_mode", {"mode"}), &TouchScreenButton::set_visibility_mode);
-    MethodBinder::bind_method(D_METHOD("get_visibility_mode"), &TouchScreenButton::get_visibility_mode);
+    BIND_METHOD(TouchScreenButton,set_visibility_mode);
+    BIND_METHOD(TouchScreenButton,get_visibility_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_passby_press", {"enabled"}), &TouchScreenButton::set_passby_press);
-    MethodBinder::bind_method(D_METHOD("is_passby_press_enabled"), &TouchScreenButton::is_passby_press_enabled);
+    BIND_METHOD(TouchScreenButton,set_passby_press);
+    BIND_METHOD(TouchScreenButton,is_passby_press_enabled);
 
-    MethodBinder::bind_method(D_METHOD("is_pressed"), &TouchScreenButton::is_pressed);
+    BIND_METHOD(TouchScreenButton,is_pressed);
 
-    MethodBinder::bind_method(D_METHOD("_input"), &TouchScreenButton::_input);
+    BIND_METHOD(TouchScreenButton,_input);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "pressed", PropertyHint::ResourceType, "Texture"), "set_texture_pressed", "get_texture_pressed");

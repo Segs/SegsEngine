@@ -131,6 +131,7 @@
 //    remove_cv
 //    remove_const                          The member typedef type shall be the same as T except that any top level const-qualifier has been removed. remove_const<const volatile int>::type evaluates to volatile int, whereas remove_const<const int*> is const int*.
 //    remove_volatile
+//    remove_cvref
 //    add_cv
 //    add_const
 //    add_volatile
@@ -177,6 +178,12 @@
 //    is_nothrow_swappable                  "
 //    is_reference_wrapper                  Found in <EASTL/functional.h>
 //    remove_reference_wrapper              "
+//    is_detected                           Checks if some supplied arguments (Args) respect a constraint (Op).
+//    detected_t                            Check which type we obtain after expanding some arguments (Args) over a constraint (Op).
+//    detected_or                           Checks if some supplied arguments (Args) respect a constraint (Op) and allow to overwrite return type.
+//    detected_or_t                         Equivalent to detected_or<Default, Op, Args...>::type.
+//    is_detected_exact                     Check that the type we obtain after expanding some arguments (Args) over a constraint (Op) is equivalent to Expected.
+//    is_detected_convertible               Check that the type we obtain after expanding some arguments (Args) over a constraint (Op) is convertible to Expected.
 //
 // Deprecated pre-C++11 type traits
 //    has_trivial_constructor               The default constructor for T is trivial.
@@ -666,7 +673,7 @@ namespace eastl
     ///////////////////////////////////////////////////////////////////////
     // is_reference
     //
-    // is_reference<T>::value == true if and only if T is a reference type.
+	// is_reference<T>::value == true if and only if T is a reference type (l-value reference or r-value reference).
     // This category includes reference to function types.
     //
     ///////////////////////////////////////////////////////////////////////
@@ -675,6 +682,7 @@ namespace eastl
 
     template <typename T> struct is_reference     : public eastl::false_type{};
     template <typename T> struct is_reference<T&> : public eastl::true_type{};
+	template <typename T> struct is_reference<T&&> : public eastl::true_type{};
 
     #if EASTL_VARIABLE_TEMPLATES_ENABLED
         template<typename T>
@@ -823,9 +831,11 @@ namespace eastl
     //
     // The add_reference transformation trait adds a level of indirection
     // by reference to the type to which it is applied. For a given type T,
-    // add_reference<T>::type is equivalent to T& if is_reference<T>::value == false,
+	// add_reference<T>::type is equivalent to T& if is_lvalue_reference<T>::value == false,
     // and T otherwise.
     //
+	// Note: due to the reference collapsing rules, if you supply an r-value reference such as T&&, it will collapse to T&. 
+	//
     ///////////////////////////////////////////////////////////////////////
 
     #define EASTL_TYPE_TRAIT_add_reference_CONFORMANCE 1    // add_reference is conforming.
@@ -1044,6 +1054,9 @@ namespace eastl
 // The following files implement the type traits themselves.
 #include <EASTL/internal/type_fundamental.h>
 #include <EASTL/internal/type_transformations.h>
+#include <EASTL/internal/type_void_t.h>
 #include <EASTL/internal/type_properties.h>
 #include <EASTL/internal/type_compound.h>
 #include <EASTL/internal/type_pod.h>
+#include <EASTL/internal/type_detected.h>
+

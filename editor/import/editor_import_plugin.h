@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_import_plugin.h                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,14 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_IMPORT_PLUGIN_H
-#define EDITOR_IMPORT_PLUGIN_H
+#pragma once
 
 #include "core/io/resource_importer.h"
 
-class EditorImportPlugin : public ResourceImporter {
+class GODOT_EXPORT EditorImportPlugin : public ResourceImporter {
     GDCLASS(EditorImportPlugin,ResourceImporter)
 
+    SE_CLASS()
 protected:
     static void _bind_methods();
 
@@ -53,9 +53,10 @@ public:
     float get_priority() const override;
     int get_import_order() const override;
     void get_import_options(Vector<ImportOption> *r_options, int p_preset) const override;
-    bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const override;
-    Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
+    bool get_option_visibility(
+            const StringName &p_option, const HashMap<StringName, Variant> &p_options) const override;
+    SE_INVOCABLE Error import(StringView p_source_file, StringView p_save_path,
+            const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
         Vector<String> *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata = nullptr) override;
 };
 
-#endif //EDITOR_IMPORT_PLUGIN_H

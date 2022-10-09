@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  undo_redo.h                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,9 +30,16 @@
 
 #pragma once
 
-#include "core/object.h"
-#include "core/object_id.h"
-#include "core/resource.h"
+#include "core/reference.h"
+
+struct GODOT_EXPORT UndoableAction {
+    virtual ~UndoableAction() {}
+    virtual StringName name() const = 0;
+    virtual void redo() = 0;
+    virtual void undo() = 0;
+    // checks if operation is still applicable.
+    virtual bool can_apply() = 0;
+};
 
 class GODOT_EXPORT UndoRedo : public Object {
 
@@ -63,13 +70,14 @@ protected:
 
 public:
     void create_action(StringView p_name, MergeMode p_mode = MERGE_DISABLE);
-    void create_action_pair(StringView p_name, ObjectID owner,eastl::function<void()> do_actions, eastl::function<void()> undo_actions, MergeMode p_mode = MERGE_DISABLE);
+    void create_action_pair(StringView p_name, GameEntity owner,eastl::function<void()> do_actions, eastl::function<void()> undo_actions, MergeMode p_mode = MERGE_DISABLE);
+    void add_action(UndoableAction *p_action);
 
     void add_do_method(Object *p_object, const StringName &p_method, VARIANT_ARG_LIST);
-    void add_do_method(eastl::function<void()> func,ObjectID owner = ObjectID(0ULL));
+    void add_do_method(eastl::function<void()> func,GameEntity owner = entt::null);
 
     void add_undo_method(Object *p_object, const StringName &p_method, VARIANT_ARG_LIST);
-    void add_undo_method(eastl::function<void()> func, ObjectID owner = ObjectID(0ULL));
+    void add_undo_method(eastl::function<void()> func, GameEntity owner = entt::null);
 
     void add_do_property(Object *p_object, StringView p_property, const Variant &p_value);
     void add_undo_property(Object *p_object, StringView p_property, const Variant &p_value);
@@ -84,8 +92,8 @@ public:
     StringView get_current_action_name() const;
     void clear_history(bool p_increase_version = true);
 
-    bool has_undo();
-    bool has_redo();
+    bool has_undo() const;
+    bool has_redo() const;
 
     uint64_t get_version() const;
 
@@ -94,8 +102,12 @@ public:
     void set_method_notify_callback(MethodNotifyCallback p_method_callback, void *p_ud);
     void set_property_notify_callback(PropertyNotifyCallback p_property_callback, void *p_ud);
 
-    UndoRedo();
     ~UndoRedo() override;
+private:
+    //NOTE: only constructed from editor code, consider moving it there
+    friend class EditorData;
+    friend class EditorSettingsDialog;
+    UndoRedo();
 };
 
 

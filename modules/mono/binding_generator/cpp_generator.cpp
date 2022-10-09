@@ -167,43 +167,36 @@ StringView replaceFunctionName(const TS_Function *finfo, bool in_godot_ns) {
     StringView from(finfo->c_name());
     StringView res = from;
     const TS_TypeLike *owner(finfo->enclosing_type);
-    if(owner->c_name()=="Node") {
-        if(res== "get_children")
+    if (owner->c_name() == "Node") {
+        if (res == "get_children")
             return "_get_children";
-    }
-    else if(owner->c_name()=="PacketPeer") {
-        if(res== "get_var")
+    } else if (owner->c_name() == "PacketPeer") {
+        if (res == "get_var")
             return "_bnd_get_var";
-    }
-    else if(owner->c_name()=="TextEdit") {
-        if(res== "search")
+    } else if (owner->c_name() == "TextEdit") {
+        if (res == "search")
             return "_search_bind";
-    }
-    else if(owner->c_name()=="StreamPeer") {
-        if(res== "get_data")
+    } else if (owner->c_name() == "StreamPeer") {
+        if (res == "get_data")
             return "_get_data";
-    }
-    else if(owner->c_name()=="ScriptEditor") {
-        if(res== "goto_line")
+    } else if (owner->c_name() == "ScriptEditor") {
+        if (res == "goto_line")
             return "_goto_script_line2";
-    }
-    else if(owner->c_name()=="WebSocketServer") {
-        //sigh, udp and tcp servers `_listen` but WebSocketServer `listen`s
-        if(res== "listen")
+    } else if (owner->c_name() == "WebSocketServer") {
+        // sigh, udp and tcp servers `_listen` but WebSocketServer `listen`s
+        if (res == "listen")
             return "listen";
-    }
-    else if(owner->c_name()=="Tree") {
-        if(res== "create_item")
+    } else if (owner->c_name() == "Tree") {
+        if (res == "create_item")
             return "_create_item";
 
-    }
-    else if(owner->c_name()=="StreamPeerTCP") {
-        if(res== "connect_to_host")
+    } else if (owner->c_name() == "StreamPeerTCP") {
+        if (res == "connect_to_host")
             return "_connect";
-
     }
     static const HashMap<StringView, StringView> s_entries = {
         { "_get_slide_collision", "get_slide_collision" },
+        { "_get_last_slide_collision", "get_last_slide_collision" },
         { "_set_import_path", "set_import_path" },
         { "add_do_method", "_add_do_method" },
         { "add_property_info", "_add_property_info_bind" },
@@ -228,20 +221,22 @@ StringView replaceFunctionName(const TS_Function *finfo, bool in_godot_ns) {
         { "get_action_list", "_get_action_list" },
         { "get_connection_list", "_get_connection_list" },
         { "get_groups", "_get_groups" },
-        { "get_item_area_rect","_get_item_rect"},
+        { "get_font_types", "_get_font_types"},
+        { "get_item_area_rect", "_get_item_rect" },
         { "get_item_shapes", "_get_item_shapes" },
         { "get_local_addresses", "_get_local_addresses" },
         { "get_local_interfaces", "_get_local_interfaces" },
         { "get_named_attribute_value", "get_attribute_value" },
         { "get_named_attribute_value_safe", "get_attribute_value_safe" },
-        { "get_next_selected","_get_next_selected"},
+        { "get_next_selected", "_get_next_selected" },
         { "get_node_and_resource", "_get_node_and_resource" },
         { "get_node_connections", "_get_node_connections" },
-        { "get_range_config","_get_range_config"},
+        { "get_range_config", "_get_range_config" },
         { "get_response_headers", "_get_response_headers" },
         { "get_shape_owners", "_get_shape_owners" },
         { "get_slide_collision", "_get_slide_collision" },
-        { "get_tiles_ids","_get_tiles_ids"},
+        { "get_last_slide_collision", "_get_last_slide_collision" },
+        { "get_tiles_ids", "_get_tiles_ids" },
         { "get_transformable_selected_nodes", "_get_transformable_selected_nodes" },
         { "make_mesh_previews", "_make_mesh_previews" },
         { "move_and_collide", "_move" },
@@ -257,85 +252,90 @@ StringView replaceFunctionName(const TS_Function *finfo, bool in_godot_ns) {
         { "set_item_shapes", "_set_item_shapes" },
         { "set_navigation", "set_navigation_node" },
         { "set_target", "_set_target" },
-        { "set_variable_info","_set_variable_info"},
+        { "set_variable_info", "_set_variable_info" },
         { "surface_get_blend_shape_arrays", "_surface_get_blend_shape_arrays" },
         { "take_over_path", "set_path" },
-        {"_get_gizmo_extents","get_gizmo_extents"},
-        {"_set_gizmo_extents","set_gizmo_extents"},
-        {"add_user_signal","_add_user_signal"},
-        {"call","_call_bind"},
-        {"call_deferred","_call_deferred_bind"},
-        {"call_group_flags","_call_group_flags"},
-        {"cast_motion","_cast_motion"},
-        {"collide_shape","_collide_shape"},
-//        {"emit_signal","_emit_signal"},
-        {"force_draw","draw"},
-        {"get_bound_child_nodes_to_bone","_get_bound_child_nodes_to_bone"},
-        {"get_breakpoints","get_breakpoints_array"},
-        {"get_color_list","_get_color_list"},
-        {"get_constant_list","_get_constant_list"},
-        {"get_current_script","_get_current_script"},
-        {"get_default_font","get_default_theme_font"},
-        {"get_expand_margin","get_expand_margin_size"},
-        {"get_font_list","_get_font_list"},
-        {"get_icon_list","_get_icon_list"},
-        {"get_incoming_connections","_get_incoming_connections"},
-        {"get_indexed","_get_indexed_bind"},
-        {"get_message_list","_get_message_list"},
-        {"get_meta_list","_get_meta_list_bind"},
-        {"get_method_list","_get_method_list_bind"},
-        {"get_open_scripts","_get_open_scripts"},
-        {"get_packet","_get_packet"},
-        {"get_packet_error","_get_packet_error"},
-        {"get_packet_ip","_get_packet_ip"},
-        {"get_partial_data","_get_partial_data"},
-        {"get_property_list","_get_property_list_bind"},
-        {"get_property_default_value","_get_property_default_value"},
-        {"get_resource_list","_get_resource_list"},
-        {"get_rest_info","_get_rest_info"},
+        { "_get_gizmo_extents", "get_gizmo_extents" },
+        { "_set_gizmo_extents", "set_gizmo_extents" },
+        { "call", "_call_bind" },
+        { "call_deferred", "_call_deferred_bind" },
+        { "call_group_flags", "_call_group_flags" },
+        { "cast_motion", "_cast_motion" },
+        { "collide_shape", "_collide_shape" },
+        //        {"emit_signal","_emit_signal"},
+        { "force_draw", "draw" },
+        { "get_bound_child_nodes_to_bone", "_get_bound_child_nodes_to_bone" },
+        { "get_breakpoints", "get_breakpoints_array" },
+        { "get_color_list", "_get_color_list" },
+        { "get_color_types", "_get_color_types" },
+        { "get_constant_list", "_get_constant_list" },
+        { "get_constant_types", "_get_constant_types" },
+        { "get_current_script", "_get_current_script" },
+        { "get_default_font", "get_default_theme_font" },
+        { "has_default_font", "has_default_theme_font" },
+        { "get_expand_margin", "get_expand_margin_size" },
+        { "get_font_list", "_get_font_list" },
+        { "get_icon_list", "_get_icon_list" },
+        { "get_icon_types", "_get_icon_types" },
+        { "get_incoming_connections", "_get_incoming_connections" },
+        { "get_indexed", "_get_indexed_bind" },
+        { "get_message_list", "_get_message_list" },
+        { "get_meta_list", "_get_meta_list_bind" },
+        { "get_method_list", "_get_method_list_bind" },
+        { "get_open_scripts", "_get_open_scripts" },
+        { "get_packet", "_get_packet" },
+        { "get_packet_error", "_get_packet_error" },
+        { "get_packet_ip", "_get_packet_ip" },
+        { "get_partial_data", "_get_partial_data" },
+        { "get_property_list", "_get_property_list_bind" },
+        { "get_property_default_value", "_get_property_default_value" },
+        { "get_resource_list", "_get_resource_list" },
+        { "get_rest_info", "_get_rest_info" },
         //{"get_scancode_with_modifiers","get_keycode_with_modifiers"},
-        {"get_script_method_list","_get_script_method_list"},
-        {"get_script_signal_list","_get_script_signal_list"},
-        {"get_script_property_list","_get_script_property_list"},
-        {"get_signal_connection_list","_get_signal_connection_list"},
-        {"get_script_constant_map","_get_script_constant_map"},
-        {"get_signal_list","_get_signal_list"},
-        {"get_stylebox_list","_get_stylebox_list"},
-        {"get_type_list","_get_type_list"},
-        {"has_user_signal","_has_user_signal"},
-        {"instances_cull_convex","_instances_cull_convex_bind"},
-        {"intersect_point","_intersect_point"},
-        {"intersect_point_on_canvas","_intersect_point_on_canvas"},
-        {"intersect_ray","_intersect_ray"},
-        {"intersect_shape","_intersect_shape"},
-        {"is_hide_on_state_item_selection","is_hide_on_multistate_item_selection"},
-        {"listen","_listen"},
-        {"load_resource_pack","_load_resource_pack"},
-        {"mesh_add_surface_from_arrays","_mesh_add_surface_from_arrays"},
-        {"newline","add_newline"},
-        {"physical_bones_start_simulation","physical_bones_start_simulation_on"},
-        {"put_data","_put_data"},
-        {"put_packet","_put_packet"},
-        {"put_partial_data","_put_partial_data"},
-        {"set_dest_address","_set_dest_address"},
-        {"set_expand_margin","set_expand_margin_size"},
-        {"set_expand_margin_all","set_expand_margin_size_all"},
-        {"set_expand_margin_individual","set_expand_margin_size_individual"},
-        {"set_hide_on_state_item_selection","set_hide_on_multistate_item_selection"},
-        {"set_indexed","_set_indexed_bind"},
-        {"shader_get_param_list","_shader_get_param_list_bind"},
-        {"share","_share"},
-        {"test_motion","_test_motion"},
-        {"texture_debug_usage","_texture_debug_usage_bind"},
-        {"tile_set_shapes","_tile_set_shapes"},
+        { "get_script_method_list", "_get_script_method_list" },
+        { "get_script_signal_list", "_get_script_signal_list" },
+        { "get_script_property_list", "_get_script_property_list" },
+        { "get_signal_connection_list", "_get_signal_connection_list" },
+        { "get_script_constant_map", "_get_script_constant_map" },
+        { "get_signal_list", "_get_signal_list" },
+        { "get_stylebox_list", "_get_stylebox_list" },
+        { "get_type_list", "_get_type_list" },
+        { "get_theme_item_list", "_get_theme_item_list" },
+        { "get_theme_item_types", "_get_theme_item_types" },
+        { "has_user_signal", "_has_user_signal" },
+        { "instances_cull_convex", "_instances_cull_convex_bind" },
+        { "intersect_point", "_intersect_point" },
+        { "intersect_point_on_canvas", "_intersect_point_on_canvas" },
+        { "intersect_ray", "_intersect_ray" },
+        { "intersect_shape", "_intersect_shape" },
+        { "is_hide_on_state_item_selection", "is_hide_on_multistate_item_selection" },
+        { "listen", "_listen" },
+        { "load_resource_pack", "_load_resource_pack" },
+        { "mesh_add_surface_from_arrays", "_mesh_add_surface_from_arrays" },
+        { "newline", "add_newline" },
+        { "physical_bones_start_simulation", "physical_bones_start_simulation_on" },
+        { "put_data", "_put_data" },
+        { "put_packet", "_put_packet" },
+        { "put_partial_data", "_put_partial_data" },
+        { "set_dest_address", "_set_dest_address" },
+        { "set_expand_margin", "set_expand_margin_size" },
+        { "set_expand_margin_all", "set_expand_margin_size_all" },
+        { "set_expand_margin_individual", "set_expand_margin_size_individual" },
+        { "set_hide_on_state_item_selection", "set_hide_on_multistate_item_selection" },
+        { "set_indexed", "_set_indexed_bind" },
+        { "shader_get_param_list", "_shader_get_param_list_bind" },
+        { "share", "_share" },
+        { "test_motion", "_test_motion" },
+        { "texture_debug_usage", "_texture_debug_usage_bind" },
+        { "tile_set_shapes", "_tile_set_shapes" },
 
-        {"call_group","_call_group"},
-        {"get_nodes_in_group","_get_nodes_in_group"},
-        {"tile_get_shapes","_tile_get_shapes"},
-        {"_set_editor_description","set_editor_description"},
-        { "_get_editor_description","get_editor_description" },
+        { "call_group", "_call_group" },
+        { "get_nodes_in_group", "_get_nodes_in_group" },
+        { "tile_get_shapes", "_tile_get_shapes" },
+        { "_set_editor_description", "set_editor_description" },
+        { "_get_editor_description", "get_editor_description" },
     };
-    if(!in_godot_ns) {
+    if (!in_godot_ns) {
         return res;
     }
     auto iter = s_entries.find(from);
@@ -344,7 +344,6 @@ StringView replaceFunctionName(const TS_Function *finfo, bool in_godot_ns) {
 
     return res;
 }
-
 }
 
 void CppGeneratorVisitor::visitNamespace(TS_Namespace *ns) {
@@ -599,8 +598,8 @@ void CppGeneratorVisitor::prepareArgumentLocals(const TS_Function *finfo, eastl:
 
 static const TS_TypeLike *top_level_ns(const TS_TypeLike *base) {
     while(base) {
-        if(base->parent) {
-            base = base->parent;
+        if(base->nested_in) {
+            base = base->nested_in;
         }
         else
             if(base->kind()==TS_TypeLike::NAMESPACE) {
@@ -710,11 +709,6 @@ void CppGeneratorVisitor::visitFunction(const TS_Function *finfo) {
         return;
     if (finfo->m_imported) // skip functions marked as imported
         return;
-    //FIXME: sigh...
-    if(finfo->c_name()=="free" && finfo->enclosing_type->c_name()=="Object") {
-
-        return;
-    }
 
     m_cpp_icalls.out.append_indented("mono_add_internal_call(\"");
     String basens = m_namespace_stack.back()->cs_name() + "." + m_current_module->m_name + "NativeCalls::";

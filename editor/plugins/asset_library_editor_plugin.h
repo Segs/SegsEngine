@@ -183,8 +183,10 @@ class GODOT_EXPORT EditorAssetLibrary : public PanelContainer {
     PanelContainer *library_scroll_bg;
     ScrollContainer *library_scroll;
     VBoxContainer *library_vb;
-    Label *library_loading;
-    Label *library_error;
+    Label* library_info;
+    VBoxContainer* library_error;
+    Label* library_error_label;
+    Button* library_error_retry;
     LineEdit *filter;
     Timer *filter_debounce_timer;
     OptionButton *categories;
@@ -229,7 +231,7 @@ class GODOT_EXPORT EditorAssetLibrary : public PanelContainer {
 
     ///MainListing
 
-    enum ImageType {
+    enum ImageType : uint8_t {
         IMAGE_QUEUE_ICON,
         IMAGE_QUEUE_THUMBNAIL,
         IMAGE_QUEUE_SCREENSHOT,
@@ -237,14 +239,14 @@ class GODOT_EXPORT EditorAssetLibrary : public PanelContainer {
     };
 
     struct ImageQueue {
-
-        bool active;
-        int queue_id;
-        ImageType image_type;
-        int image_index;
         String image_url;
         HTTPRequest *request;
-        ObjectID target;
+
+        int queue_id;
+        int image_index;
+        GameEntity target;
+        ImageType image_type;
+        bool active;
     };
 
     int last_queue_id;
@@ -252,7 +254,7 @@ class GODOT_EXPORT EditorAssetLibrary : public PanelContainer {
 
     void _image_update(bool use_cache, bool final, const PoolByteArray &p_data, int p_queue_id);
     void _image_request_completed(int p_status, int p_code, const PoolVector<String> &headers, const PoolByteArray &p_data, int p_queue_id);
-    void _request_image(ObjectID p_for, String p_image_url, ImageType p_type, int p_image_index);
+    void _request_image(GameEntity p_for, String p_image_url, ImageType p_type, int p_image_index);
     void _update_image_queue();
 
     HBoxContainer *_make_pages(int p_page, int p_page_count, int p_page_len, int p_total_items, int p_current_items);
@@ -269,7 +271,7 @@ class GODOT_EXPORT EditorAssetLibrary : public PanelContainer {
     };
 
     RequestType requesting;
-    Dictionary category_map;
+    HashMap<int,Variant> category_map;
 
     ScrollContainer *downloads_scroll;
     HBoxContainer *downloads_hb;
@@ -285,22 +287,23 @@ class GODOT_EXPORT EditorAssetLibrary : public PanelContainer {
     void _search(int p_page = 0);
     void _rerun_search(int p_ignore);
     void _search_text_changed(StringView p_text = StringView());
-    void _search_text_entered(StringView p_text = StringView());
     void _api_request(StringView p_request, RequestType p_request_type, StringView p_arguments = {});
     void _http_request_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
-    void _http_download_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
     void _filter_debounce_timer_timeout();
+    void _request_current_config();
 
     void _repository_changed(int p_repository_id);
     void _support_toggled(int p_support);
 
     void _install_external_asset(StringView p_zip_path, StringView p_title);
+    void _update_asset_items_columns();
 
     friend class EditorAssetLibraryItemDescription;
     friend class EditorAssetLibraryItem;
 
 protected:
     static void _bind_methods();
+    void _update_repository_options();
     void _notification(int p_what);
 
 public:
@@ -317,6 +320,8 @@ class AssetLibraryEditorPlugin : public EditorPlugin {
     EditorNode *editor;
 
 public:
+    static bool is_available();
+
     StringView get_name() const override { return "AssetLib"; }
     bool has_main_screen() const override { return true; }
     void edit(Object *p_object) override {}

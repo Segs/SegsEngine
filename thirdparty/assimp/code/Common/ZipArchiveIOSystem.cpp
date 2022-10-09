@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef ASSIMP_USE_HUNTER
 #  include <minizip/unzip.h>
 #else
-#  include <unzip.h>
+#  include <minizip/unzip.h>
 #endif
 
 namespace Assimp {

@@ -76,7 +76,7 @@ protected:
 
 public:
     NavigationAgent();
-    virtual ~NavigationAgent();
+    ~NavigationAgent() override;
 
     void set_navigation(Navigation3D *p_nav);
     const Navigation3D *get_navigation() const {
@@ -159,6 +159,7 @@ public:
 
 private:
     void update_navigation();
+	void _check_distance_to_target();
 };
 
 #endif

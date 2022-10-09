@@ -29,8 +29,7 @@ namespace jl {
  * signals with arguments
  */
 template<bool lockable,class ... Types >
-class GODOT_EXPORT SignalT final : public LockableSignal<lockable>
-{
+class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) SignalT final : public LockableSignal<lockable> {
 public:
 
     using Delegate = generic::delegate< void(Types...) > ;
@@ -352,6 +351,6 @@ using BlockableSignal = SignalT<true,Types...>;
 
 #ifdef GODOT_EXPORTS
 // make a void() instantiation of the template available for the engine build, but not to the projects using the engine
-extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) jl::SignalT<false>;
-extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) jl::SignalT<true>;
+extern template class EXPORT_TEMPLATE_DECL jl::SignalT<false>;
+extern template class EXPORT_TEMPLATE_DECL jl::SignalT<true>;
 #endif

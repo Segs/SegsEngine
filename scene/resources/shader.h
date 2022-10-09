@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  shader.h                                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -46,7 +46,7 @@ class GODOT_EXPORT Shader : public Resource {
     OBJ_SAVE_TYPE(Shader)
 
 private:
-    RID shader;
+    RenderingEntity shader;
     RenderingServerEnums::ShaderMode mode;
     String shader_custom_defines;
 
@@ -91,7 +91,7 @@ public:
         return StringName();
     }
 
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     Shader();
     ~Shader() override;

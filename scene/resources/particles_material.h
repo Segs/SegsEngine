@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  particles_material.h                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -58,6 +58,7 @@ public:
         PARAM_MAX
     };
 
+    // When extending, make sure not to overflow the size of the MaterialKey below.
     enum Flags {
         FLAG_ALIGN_Y_TO_VELOCITY,
         FLAG_ROTATE_Y,
@@ -65,23 +66,28 @@ public:
         FLAG_MAX
     };
 
+    // When extending, make sure not to overflow the size of the MaterialKey below.
     enum EmissionShape {
         EMISSION_SHAPE_POINT,
         EMISSION_SHAPE_SPHERE,
         EMISSION_SHAPE_BOX,
         EMISSION_SHAPE_POINTS,
         EMISSION_SHAPE_DIRECTED_POINTS,
+        EMISSION_SHAPE_RING,
         EMISSION_SHAPE_MAX
     };
 
 private:
+    // The bit size of the struct must be kept below or equal to 32 bits.
+    // Consider this when extending Flags, or EmissionShape.
     union MaterialKey {
 
         struct {
             uint32_t texture_mask : 16;
             uint32_t texture_color : 1;
+            uint32_t texture_initial_color : 1;
             uint32_t flags : 4;
-            uint32_t emission_shape : 2;
+            uint32_t emission_shape : 3;
             uint32_t trail_size_texture : 1;
             uint32_t trail_color_texture : 1;
             uint32_t invalid_key : 1;
@@ -98,7 +104,7 @@ private:
     };
 
     struct ShaderData {
-        RID shader;
+        RenderingEntity shader;
         int users;
     };
 
@@ -122,6 +128,7 @@ private:
         }
 
         mk.texture_color = color_ramp ? 1 : 0;
+        mk.texture_initial_color = color_initial_ramp ? 1 : 0;
         mk.emission_shape = emission_shape;
         mk.trail_color_texture = trail_color_modifier ? 1 : 0;
         mk.trail_size_texture = trail_size_modifier ? 1 : 0;
@@ -130,7 +137,7 @@ private:
         return mk;
     }
 
-    static Mutex *material_mutex;
+    static Mutex material_mutex;
 
     bool is_dirty_element; //!< this value is set when this material is waiting to be updated by \fn _update_shader
 
@@ -138,6 +145,7 @@ private:
     _FORCE_INLINE_ void _queue_shader_change();
     //_FORCE_INLINE_ bool _is_shader_dirty() const;
 
+    bool is_initialized = false;
     Vector3 direction;
     float spread;
     float flatness;
@@ -148,6 +156,7 @@ private:
     Ref<Texture> tex_parameters[PARAM_MAX];
     Color color;
     Ref<Texture> color_ramp;
+    Ref<Texture> color_initial_ramp;
 
     bool flags[FLAG_MAX];
 
@@ -158,6 +167,10 @@ private:
     Ref<Texture> emission_normal_texture;
     Ref<Texture> emission_color_texture;
     int emission_point_count;
+    float emission_ring_height;
+    float emission_ring_radius;
+    float emission_ring_inner_radius;
+    Vector3 emission_ring_axis;
 
     bool anim_loop;
 
@@ -201,6 +214,8 @@ public:
     void set_color_ramp(const Ref<Texture> &p_texture);
     Ref<Texture> get_color_ramp() const;
 
+    void set_color_initial_ramp(const Ref<Texture> &p_texture);
+    Ref<Texture> get_color_initial_ramp() const;
     void set_flag(Flags p_flag, bool p_enable);
     bool get_flag(Flags p_flag) const;
 
@@ -211,6 +226,10 @@ public:
     void set_emission_normal_texture(const Ref<Texture> &p_normals);
     void set_emission_color_texture(const Ref<Texture> &p_colors);
     void set_emission_point_count(int p_count);
+    void set_emission_ring_radius(float p_radius);
+    void set_emission_ring_inner_radius(float p_offset);
+    void set_emission_ring_height(float p_height);
+    void set_emission_ring_axis(Vector3 p_axis);
 
     EmissionShape get_emission_shape() const;
     float get_emission_sphere_radius() const;
@@ -219,6 +238,10 @@ public:
     Ref<Texture> get_emission_normal_texture() const;
     Ref<Texture> get_emission_color_texture() const;
     int get_emission_point_count() const;
+    float get_emission_ring_radius() const;
+    float get_emission_ring_inner_radius() const;
+    float get_emission_ring_height() const;
+    Vector3 get_emission_ring_axis() const;
 
     void set_trail_divisor(int p_divisor);
     int get_trail_divisor() const;
@@ -239,7 +262,7 @@ public:
     static void finish_shaders();
     static void flush_changes();
 
-    RID get_shader_rid() const;
+    RenderingEntity get_shader_rid() const;
 
     RenderingServerEnums::ShaderMode get_shader_mode() const override;
 

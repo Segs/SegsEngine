@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  register_types.cpp                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -57,6 +57,7 @@ bool xatlas_mesh_lightmap_unwrap_callback(float p_texel_size, const float *p_ver
 
     xatlas::ChartOptions chart_options;
     chart_options.fixWinding = true;
+    ERR_FAIL_COND_V_MSG(p_texel_size <= 0.0f, false, "Texel size must be greater than 0.");
 
     xatlas::PackOptions pack_options;
     pack_options.padding = 1;
@@ -78,14 +79,18 @@ bool xatlas_mesh_lightmap_unwrap_callback(float p_texel_size, const float *p_ver
     float h = *r_size_hint_y;
 
     if (w == 0.0f || h == 0.0f) {
+        xatlas::Destroy(atlas);
         return false; //could not bake because there is no area
     }
 
     const xatlas::Mesh &output = atlas->meshes[0];
 
     *r_vertex = (int *)malloc(sizeof(int) * output.vertexCount);
+    ERR_FAIL_NULL_V_MSG(*r_vertex, false, "Out of memory.");
     *r_uv = (float *)malloc(sizeof(float) * output.vertexCount * 2);
+    ERR_FAIL_NULL_V_MSG(*r_uv, false, "Out of memory.");
     *r_index = (int *)malloc(sizeof(int) * output.indexCount);
+    ERR_FAIL_NULL_V_MSG(*r_index, false, "Out of memory.");
 
     float max_x = 0;
     float max_y = 0;

@@ -38,6 +38,7 @@
 #include "core/string_formatter.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_file_system.h"
+#include "editor/editor_settings.h"
 #include "editor_node.h"
 #include "scene/gui/item_list.h"
 #include "scene/gui/margin_container.h"
@@ -468,13 +469,13 @@ void DependencyRemoveDialog::show(const Vector<String> &p_folders, const Vector<
     eastl::sort(removed_deps.begin(),removed_deps.end());
     if (removed_deps.empty()) {
         owners->hide();
-        text->set_text(TTR("Remove selected files from the project? (no undo)\nYou can find the removed files in the system trash to restore them."));
+        text->set_text(TTR("Remove the selected files from the project? (Cannot be undone.)\nDepending on your filesystem configuration, the files will either be moved to the system trash or deleted permanently."));
         set_size(Size2());
         popup_centered();
     } else {
         _build_removed_dependency_tree(removed_deps);
         owners->show();
-        text->set_text(TTR("The files being removed are required by other resources in order for them to work.\nRemove them anyway? (no undo)\nYou can find the removed files in the system trash to restore them."));
+        text->set_text(TTR("The files being removed are required by other resources in order for them to work.\nRemove them anyway? (Cannot be undone.)\nDepending on your filesystem configuration, the files will either be moved to the system trash or deleted permanently."));
         popup_centered(Size2(500, 350));
     }
     EditorFileSystem::get_singleton()->scan_changes();

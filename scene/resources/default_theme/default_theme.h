@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  default_theme.h                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef DEFAULT_THEME_H
-#define DEFAULT_THEME_H
+#pragma once
 
 #include "scene/resources/theme.h"
 
@@ -37,4 +36,3 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 void make_default_theme(bool p_hidpi, const Ref<Font> &p_font);
 void clear_default_theme();
 
-#endif

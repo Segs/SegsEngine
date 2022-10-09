@@ -1,21 +1,17 @@
 #ifndef ENTT_RESOURCE_CACHE_HPP
 #define ENTT_RESOURCE_CACHE_HPP
 
-#include "EASTL/memory.h"
-#include "EASTL/utility.h"
-#include "EASTL/type_traits.h"
-#include "EASTL/unordered_map.h"
-#include <memory> // Used here since we don't want to break the multithreadedness promise of std::shared_ptr
-
+#include <type_traits>
+#include <utility>
 #include "../config/config.h"
+#include "../container/dense_map.hpp"
 #include "../core/fwd.hpp"
+#include "../core/utility.hpp"
+#include "fwd.hpp"
 #include "handle.hpp"
 #include "loader.hpp"
-#include "fwd.hpp"
-
 
 namespace entt {
-
 
 /**
  * @brief Simple cache for resources of a given type.
@@ -28,26 +24,29 @@ namespace entt {
  * @tparam Resource Type of resources managed by a cache.
  */
 template<typename Resource>
-struct cache {
+class resource_cache {
+    static_assert(std::is_same_v<Resource, std::remove_const_t<std::remove_reference_t<Resource>>>, "Invalid resource type");
+
+public:
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Type of resources managed by a cache. */
     using resource_type = Resource;
 
     /*! @brief Default constructor. */
-    cache() = default;
+    resource_cache() = default;
 
     /*! @brief Default move constructor. */
-    cache(cache &&) = default;
+    resource_cache(resource_cache &&) = default;
 
     /*! @brief Default move assignment operator. @return This cache. */
-    cache & operator=(cache &&) = default;
+    resource_cache &operator=(resource_cache &&) = default;
 
     /**
      * @brief Number of resources managed by a cache.
      * @return Number of resources currently stored.
      */
-    size_type size() const ENTT_NOEXCEPT {
+    [[nodiscard]] size_type size() const ENTT_NOEXCEPT {
         return resources.size();
     }
 
@@ -55,7 +54,7 @@ struct cache {
      * @brief Returns true if a cache contains no resources, false otherwise.
      * @return True if the cache contains no resources, false otherwise.
      */
-    bool empty() const ENTT_NOEXCEPT {
+    [[nodiscard]] bool empty() const ENTT_NOEXCEPT {
         return resources.empty();
     }
 
@@ -92,20 +91,16 @@ struct cache {
      * @return A handle for the given resource.
      */
     template<typename Loader, typename... Args>
-    entt::handle<Resource> load(const id_type id, Args &&... args) {
-        static_assert(eastl::is_base_of_v<loader<Loader, Resource>, Loader>);
-        entt::handle<Resource> resource{};
-
+    resource_handle<resource_type> load(const id_type id, Args &&...args) {
         if(auto it = resources.find(id); it == resources.cend()) {
-            if(auto instance = Loader{}.get(eastl::forward<Args>(args)...); instance) {
-                resources[id] = instance;
-                resource = eastl::move(instance);
+            if(auto handle = temp<Loader>(std::forward<Args>(args)...); handle) {
+                return (resources[id] = std::move(handle));
             }
         } else {
-            resource = it->second;
+            return it->second;
         }
 
-        return resource;
+        return {};
     }
 
     /**
@@ -132,8 +127,8 @@ struct cache {
      * @return A handle for the given resource.
      */
     template<typename Loader, typename... Args>
-    entt::handle<Resource> reload(const id_type id, Args &&... args) {
-        return (discard(id), load<Loader>(id, eastl::forward<Args>(args)...));
+    resource_handle<resource_type> reload(const id_type id, Args &&...args) {
+        return (discard(id), load<Loader>(id, std::forward<Args>(args)...));
     }
 
     /**
@@ -149,8 +144,8 @@ struct cache {
      * @return A handle for the given resource.
      */
     template<typename Loader, typename... Args>
-    entt::handle<Resource> temp(Args &&... args) const {
-        return { Loader{}.get(eastl::forward<Args>(args)...) };
+    [[nodiscard]] resource_handle<resource_type> temp(Args &&...args) const {
+        return Loader{}.get(std::forward<Args>(args)...);
     }
 
     /**
@@ -161,14 +156,26 @@ struct cache {
      * cache contains the resource itself. Otherwise the returned handle is
      * uninitialized and accessing it results in undefined behavior.
      *
-     * @sa handle
+     * @sa resource_handle
      *
      * @param id Unique resource identifier.
      * @return A handle for the given resource.
      */
-    entt::handle<Resource> handle(const id_type id) const {
-        auto it = resources.find(id);
-        return { it == resources.end() ? nullptr : it->second };
+    [[nodiscard]] resource_handle<const resource_type> handle(const id_type id) const {
+        if(auto it = resources.find(id); it != resources.cend()) {
+            return it->second;
+        }
+
+        return {};
+    }
+
+    /*! @copydoc handle */
+    [[nodiscard]] resource_handle<resource_type> handle(const id_type id) {
+        if(auto it = resources.find(id); it != resources.end()) {
+            return it->second;
+        }
+
+        return {};
     }
 
     /**
@@ -176,7 +183,7 @@ struct cache {
      * @param id Unique resource identifier.
      * @return True if the cache contains the resource, false otherwise.
      */
-    bool contains(const id_type id) const {
+    [[nodiscard]] bool contains(const id_type id) const {
         return (resources.find(id) != resources.cend());
     }
 
@@ -203,15 +210,15 @@ struct cache {
      * forms:
      *
      * @code{.cpp}
-     * void(const id_type);
-     * void(handle<Resource>);
-     * void(const id_type, handle<Resource>);
+     * void(const entt::id_type);
+     * void(entt::resource_handle<const resource_type>);
+     * void(const entt::id_type, entt::resource_handle<const resource_type>);
      * @endcode
      *
      * @tparam Func Type of the function object to invoke.
      * @param func A valid function object.
      */
-    template <typename Func>
+    template<typename Func>
     void each(Func func) const {
         auto begin = resources.begin();
         auto end = resources.end();
@@ -219,22 +226,55 @@ struct cache {
         while(begin != end) {
             auto curr = begin++;
 
-            if constexpr(eastl::is_invocable_v<Func, id_type>) {
+            if constexpr(std::is_invocable_v<Func, id_type>) {
                 func(curr->first);
-            } else if constexpr(eastl::is_invocable_v<Func, entt::handle<Resource>>) {
-                func(entt::handle{ curr->second });
+            } else if constexpr(std::is_invocable_v<Func, resource_handle<const resource_type>>) {
+                func(resource_handle<const resource_type>{curr->second});
             } else {
-                func(curr->first, entt::handle{ curr->second });
+                func(curr->first, resource_handle<const resource_type>{curr->second});
+            }
+        }
+    }
+
+    /**
+     * @copybrief each
+     *
+     * The function object is invoked for each element. It is provided with
+     * either the resource identifier, the resource handle or both of them.<br/>
+     * The signature of the function must be equivalent to one of the following
+     * forms:
+     *
+     * @code{.cpp}
+     * void(const entt::id_type);
+     * void(entt::resource_handle<resource_type>);
+     * void(const entt::id_type, entt::resource_handle<resource_type>);
+     * @endcode
+     *
+     * @tparam Func Type of the function object to invoke.
+     * @param func A valid function object.
+     */
+    template<typename Func>
+    void each(Func func) {
+        auto begin = resources.begin();
+        auto end = resources.end();
+
+        while(begin != end) {
+            auto curr = begin++;
+
+            if constexpr(std::is_invocable_v<Func, id_type>) {
+                func(curr->first);
+            } else if constexpr(std::is_invocable_v<Func, resource_handle<resource_type>>) {
+                func(curr->second);
+            } else {
+                func(curr->first, curr->second);
             }
         }
     }
 
 private:
-    eastl::unordered_map<id_type, std::shared_ptr<Resource>> resources;
+    dense_map<id_type, resource_handle<resource_type>, identity> resources;
 };
 
-
-}
-
+} // namespace entt
 
 #endif

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="linux_exporter_logo.png">icons/linux_exporter_logo.png</file>
+    </qresource>
+</RCC>

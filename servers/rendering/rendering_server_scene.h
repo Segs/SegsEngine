@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  rendering_server_scene.h                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -37,12 +37,18 @@
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
 #include "core/os/mutex.h"
+#include "core/list.h"
 #include "core/self_list.h"
 #include "core/deque.h"
+#include "servers/rendering/portals/portal_renderer.h"
+#include "servers/rendering/render_entity_helpers.h"
+#include "servers/rendering/rendering_server_globals.h"
 
 struct NewOctree {};
 enum ARVREyes : int8_t;
 class ARVRInterface;
+struct RenderingInstanceComponent;
+class RenderingServerCallbacks;
 
 enum class GIUpdateStage : int8_t {
     CHECK,
@@ -50,28 +56,207 @@ enum class GIUpdateStage : int8_t {
     UPLOADING,
 };
 
+struct ComponentPairInfo {
+    //light entity in geometry
+    //gi probe entity in geometry
+    //reflection entity in geometry
+    RenderingEntity L;
+    RenderingEntity geometry = entt::null;
+};
+
+struct Camera3DComponent {
+
+    enum Type {
+        PERSPECTIVE,
+        ORTHOGONAL,
+        FRUSTUM
+    };
+    Type type = PERSPECTIVE;
+    float fov = 70.0f;
+    float znear = 0.05f;
+    float zfar = 100.0f;
+    float size = 1.0f;
+    Vector2 offset{};
+    uint32_t visible_layers = 0xFFFFFFFF;
+    bool vaspect = false;
+    MoveOnlyEntityHandle env;
+
+    // transform_prev is only used when using fixed timestep interpolation
+    Transform transform;
+    int32_t previous_room_id_hint=-1;
+};
+
+// common interface for all spatial partitioning schemes
+// this is a bit excessive boilerplate-wise but can be removed if we decide to stick with one method
+
+// note this is actually the BVH id +1, so that visual server can test against zero
+// for validity to maintain compatibility with octree (where 0 indicates invalid)
+typedef uint32_t SpatialPartitionID;
+
+class SpatialPartitioningScene_BVH {
+    class UserPairTestFunction {
+    public:
+        static bool user_pair_check(RenderingEntity p_a, RenderingEntity p_b) {
+            // return false if no collision, decided by masks etc
+            return true;
+        }
+    };
+
+    class UserCullTestFunction {
+        // write this logic once for use in all routines
+        // double check this as a possible source of bugs in future.
+        static bool _cull_pairing_mask_test_hit(uint32_t p_maskA, uint32_t p_typeA, uint32_t p_maskB, uint32_t p_typeB) {
+            // double check this as a possible source of bugs in future.
+            const bool A_match_B = p_maskA & p_typeB;
+
+            if (!A_match_B) {
+                bool B_match_A = p_maskB & p_typeA;
+                if (!B_match_A) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+    public:
+        static bool user_cull_check(const RenderingEntity p_a, const RenderingEntity p_b);
+    };
+    // Note that SpatialPartitionIDs are +1 based when stored in visual server, to enable 0 to indicate invalid ID.
+    BVH_Manager<RenderingEntity, true, 256, UserPairTestFunction, UserCullTestFunction> _bvh;
+    RenderingEntity _dummy_cull_object;
+
+public:
+    typedef void *(*PairCallback)(void *, uint32_t, RenderingEntity, int, uint32_t, RenderingEntity, int);
+    typedef void (*UnpairCallback)(void *, uint32_t, RenderingEntity, int, uint32_t, RenderingEntity, int, void *);
+
+    SpatialPartitionID create(RenderingEntity p_userdata, const AABB &p_aabb = AABB(), int p_subindex = 0, bool p_pairable = false, uint32_t p_pairable_type = 0, uint32_t p_pairable_mask = 1);
+    void erase(SpatialPartitionID p_handle) { _bvh.erase(p_handle - 1); check_bvh_userdata(); }
+    void move(SpatialPartitionID p_handle, const AABB &p_aabb) { _bvh.move(p_handle - 1, p_aabb); check_bvh_userdata(); }
+    void activate(SpatialPartitionID p_handle, const AABB &p_aabb);
+    void deactivate(SpatialPartitionID p_handle);
+    void force_collision_check(SpatialPartitionID p_handle);
+    void update() { _bvh.update(); check_bvh_userdata();}
+    void update_collisions() { _bvh.update_collisions(); check_bvh_userdata(); }
+    void set_pairable(RenderingInstanceComponent *p_instance, bool p_pairable, uint32_t p_pairable_type, uint32_t p_pairable_mask);
+    int cull_convex(Span<const Plane> p_convex, Span<RenderingEntity> p_result_array, uint32_t p_mask = 0xFFFFFFFF);
+    int cull_aabb(const AABB &p_aabb, Span<RenderingEntity> p_result_array, int *p_subindex_array = nullptr, uint32_t p_mask = 0xFFFFFFFF);
+    int cull_segment(const Vector3 &p_from, const Vector3 &p_to, Span<RenderingEntity> p_result_array, int *p_subindex_array = nullptr, uint32_t p_mask = 0xFFFFFFFF);
+    void set_pair_callback(PairCallback p_callback, void *p_userdata) {
+        _bvh.set_pair_callback(p_callback, p_userdata);
+    }
+    void set_unpair_callback(UnpairCallback p_callback, void *p_userdata) {
+        _bvh.set_unpair_callback(p_callback, p_userdata);
+    }
+    void check_bvh_userdata();
+    void params_set_node_expansion(real_t p_value) { _bvh.params_set_node_expansion(p_value); }
+    void params_set_pairing_expansion(real_t p_value) { _bvh.params_set_pairing_expansion(p_value); }
+    SpatialPartitioningScene_BVH &operator=(SpatialPartitioningScene_BVH &&from) noexcept {
+        _bvh = eastl::move(from._bvh);
+        _dummy_cull_object = from._dummy_cull_object;
+        from._dummy_cull_object = entt::null;
+        return *this;
+    }
+    SpatialPartitioningScene_BVH();
+    ~SpatialPartitioningScene_BVH();
+    SpatialPartitioningScene_BVH(const SpatialPartitioningScene_BVH&) = delete;
+    SpatialPartitioningScene_BVH &operator=(const SpatialPartitioningScene_BVH &) = delete;
+};
+
+struct RenderingScenarioComponent {
+
+
+    SpatialPartitioningScene_BVH sps;
+
+    Vector<RenderingEntity> directional_lights;
+    PortalRenderer _portal_renderer;
+    MoveOnlyEntityHandle self;
+    MoveOnlyEntityHandle environment;
+    MoveOnlyEntityHandle fallback_environment;
+    MoveOnlyEntityHandle reflection_probe_shadow_atlas;
+    MoveOnlyEntityHandle reflection_atlas;
+    Vector<RenderingEntity> instances;
+    RS::ScenarioDebugMode debug=RS::SCENARIO_DEBUG_DISABLED;
+
+    void unregister_scenario();
+
+    RenderingScenarioComponent(const RenderingScenarioComponent&) = delete;
+    RenderingScenarioComponent &operator=(const RenderingScenarioComponent&) = delete;
+
+    RenderingScenarioComponent(RenderingScenarioComponent &&from) noexcept {
+        *this = eastl::move(from);
+    }
+    RenderingScenarioComponent &operator=(RenderingScenarioComponent &&from) noexcept {
+        unregister_scenario();
+        if(this==&from)
+        {
+            assert(false);
+            sps = {};
+            directional_lights.clear();
+        } else {
+            sps = eastl::move(from.sps);
+            directional_lights = eastl::move(from.directional_lights);
+            instances = eastl::move(from.instances);
+        }
+        self = eastl::move(from.self);
+        environment = eastl::move(from.environment);
+        fallback_environment = eastl::move(from.fallback_environment);
+        reflection_probe_shadow_atlas = eastl::move(from.reflection_probe_shadow_atlas);
+        reflection_atlas = eastl::move(from.reflection_atlas);
+        debug = eastl::move(from.debug);
+        return *this;
+    }
+
+    RenderingScenarioComponent() {}
+    ~RenderingScenarioComponent()
+    {
+        unregister_scenario();
+    }
+};
+
+struct RenderingInstanceLightmapCaptureDataComponent  {
+    List<ComponentPairInfo> geometries;
+
+    HashSet<RenderingEntity> users; // RenderingInstanceComponent *
+
+    RenderingInstanceLightmapCaptureDataComponent() {}
+};
+namespace RoomAPI {
+/* ROOMS */
+RenderingEntity room_create();
+void room_set_scenario(RenderingEntity p_room, RenderingEntity p_scenario);
+void room_add_instance(RenderingEntity p_room, RenderingEntity p_instance, const AABB &p_aabb, const Vector<Vector3> &p_object_pts);
+void room_add_ghost(RenderingEntity p_room, GameEntity p_object_id, const AABB &p_aabb);
+void room_set_bound(RenderingEntity p_room, GameEntity p_room_object_id, const Vector<Plane> &p_convex, const AABB &p_aabb, const Vector<Vector3> &p_verts);
+void room_prepare(RenderingEntity p_room, int32_t p_priority);
+void rooms_and_portals_clear(RenderingEntity p_scenario);
+void rooms_unload(RenderingEntity p_scenario, String p_reason);
+void rooms_finalize(RenderingEntity p_scenario, bool p_generate_pvs, bool p_cull_using_pvs, bool p_use_secondary_pvs, bool p_use_signals, String p_pvs_filename, bool p_use_simple_pvs, bool p_log_pvs_generation);
+void rooms_override_camera(RenderingEntity p_scenario, bool p_override, const Vector3 &p_point, const Span<const Plane> *p_convex);
+void rooms_set_active(RenderingEntity p_scenario, bool p_active);
+void rooms_set_params(RenderingEntity p_scenario, int p_portal_depth_limit, real_t p_roaming_expansion_margin);
+void rooms_set_debug_feature(RenderingEntity p_scenario, RS::RoomsDebugFeature p_feature, bool p_active);
+void rooms_update_gameplay_monitor(RenderingEntity p_scenario, const Vector<Vector3> &p_camera_positions);
+
+// don't use this in a game
+bool rooms_is_loaded(RenderingEntity p_scenario);
+
+/* ROOMGROUPS */
+RenderingEntity roomgroup_create();
+void roomgroup_prepare(RenderingEntity p_roomgroup, GameEntity p_roomgroup_object_id);
+void roomgroup_set_scenario(RenderingEntity p_roomgroup, RenderingEntity p_scenario);
+void roomgroup_add_room(RenderingEntity p_roomgroup, RenderingEntity p_room);
+
+// Occlusion 'ghosts'
+RenderingEntity ghost_create();
+void ghost_set_scenario(RenderingEntity p_ghost, RenderingEntity p_scenario, GameEntity p_id, const AABB &p_aabb);
+void ghost_update(RenderingEntity p_ghost, const AABB &p_aabb);
+
+}
 class VisualServerScene {
+    friend void render_ref_probes();
     /* CAMERA API */
 
-    struct Camera3D : public RID_Data {
-
-        enum Type {
-            PERSPECTIVE,
-            ORTHOGONAL,
-            FRUSTUM
-        };
-        Type type = PERSPECTIVE;
-        float fov = 70.0f;
-        float znear = 0.05f;
-        float zfar = 100.0f;
-        float size = 1.0f;
-        Vector2 offset{};
-        uint32_t visible_layers = 0xFFFFFFFF;
-        bool vaspect = false;
-        RID env;
-
-        Transform transform;
-    };
 public:
     enum {
 
@@ -82,227 +267,67 @@ public:
         MAX_EXTERIOR_PORTALS = 128,
     };
 
-    uint64_t render_pass;
+    uint64_t render_pass = 1;
 
     static VisualServerScene *singleton;
 
+    /* EVENT QUEUING */
+
+    void tick();
+    void pre_draw(bool p_will_draw);
 // FIXME: Kept as reference for future implementation
 
 
-    RID camera_create();
-    void camera_set_perspective(RID p_camera, float p_fovy_degrees, float p_z_near, float p_z_far);
-    void camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far);
-    void camera_set_frustum(RID p_camera, float p_size, Vector2 p_offset, float p_z_near, float p_z_far);
-    void camera_set_transform(RID p_camera, const Transform &p_transform);
-    void camera_set_cull_mask(RID p_camera, uint32_t p_layers);
-    void camera_set_environment(RID p_camera, RID p_env);
-    void camera_set_use_vertical_aspect(RID p_camera, bool p_enable);
-    static bool owns_camera(RID p_camera);
+    RenderingEntity camera_create();
+    void camera_set_perspective(RenderingEntity p_camera, float p_fovy_degrees, float p_z_near, float p_z_far);
+    void camera_set_orthogonal(RenderingEntity p_camera, float p_size, float p_z_near, float p_z_far);
+    void camera_set_frustum(RenderingEntity p_camera, float p_size, Vector2 p_offset, float p_z_near, float p_z_far);
+    void camera_set_transform(RenderingEntity p_camera, const Transform &p_transform);
+    void camera_set_cull_mask(RenderingEntity p_camera, uint32_t p_layers);
+    void camera_set_environment(RenderingEntity p_camera, RenderingEntity p_env);
+    void camera_set_use_vertical_aspect(RenderingEntity p_camera, bool p_enable);
+    static bool owns_camera(RenderingEntity p_camera);
     /* SCENARIO API */
 
-    struct Instance;
-    // common interface for all spatial partitioning schemes
-    // this is a bit excessive boilerplatewise but can be removed if we decide to stick with one method
+    static void *_instance_pair(void *p_self, SpatialPartitionID, RenderingEntity p_A, int, SpatialPartitionID, RenderingEntity p_B, int);
+    static void _instance_unpair(void *p_self, SpatialPartitionID, RenderingEntity p_A, int, SpatialPartitionID, RenderingEntity p_B, int, void *);
 
-    // note this is actually the BVH id +1, so that visual server can test against zero
-    // for validity to maintain compatibility with octree (where 0 indicates invalid)
-    typedef uint32_t SpatialPartitionID;
+    RenderingEntity scenario_create();
 
-    class SpatialPartitioningScene_BVH {
-        // Note that SpatialPartitionIDs are +1 based when stored in visual server, to enable 0 to indicate invalid ID.
-        BVH_Manager<Instance, true, 256> _bvh;
-
-    public:
-        typedef void *(*PairCallback)(void *, uint32_t, Instance *, int, uint32_t, Instance *, int);
-        typedef void (*UnpairCallback)(void *, uint32_t, Instance *, int, uint32_t, Instance *, int, void *);
-
-        SpatialPartitionID create(Instance *p_userdata, const AABB &p_aabb = AABB(), int p_subindex = 0, bool p_pairable = false, uint32_t p_pairable_type = 0, uint32_t p_pairable_mask = 1);
-        void erase(SpatialPartitionID p_handle) { _bvh.erase(p_handle - 1); }
-        void move(SpatialPartitionID p_handle, const AABB &p_aabb) { _bvh.move(p_handle - 1, p_aabb); }
-        void update() { _bvh.update(); }
-        void update_collisions() { _bvh.update_collisions(); }
-        void set_pairable(SpatialPartitionID p_handle, bool p_pairable, uint32_t p_pairable_type, uint32_t p_pairable_mask) {
-            _bvh.set_pairable(p_handle - 1, p_pairable, p_pairable_type, p_pairable_mask);
-        }
-        int cull_convex(Span<const Plane> p_convex, Instance **p_result_array, int p_result_max, uint32_t p_mask = 0xFFFFFFFF) {
-            return _bvh.cull_convex(p_convex, p_result_array, p_result_max, p_mask);
-        }
-        int cull_aabb(const AABB &p_aabb, Instance **p_result_array, int p_result_max, int *p_subindex_array = nullptr, uint32_t p_mask = 0xFFFFFFFF) {
-            return _bvh.cull_aabb(p_aabb, p_result_array, p_result_max, p_subindex_array, p_mask);
-        }
-        int cull_segment(const Vector3 &p_from, const Vector3 &p_to, Instance **p_result_array, int p_result_max, int *p_subindex_array = nullptr, uint32_t p_mask = 0xFFFFFFFF) {
-            return _bvh.cull_segment(p_from, p_to, p_result_array, p_result_max, p_subindex_array, p_mask);
-        }
-        void set_pair_callback(PairCallback p_callback, void *p_userdata) {
-            _bvh.set_pair_callback(p_callback, p_userdata);
-        }
-        void set_unpair_callback(UnpairCallback p_callback, void *p_userdata) {
-            _bvh.set_unpair_callback(p_callback, p_userdata);
-        }
-
-        void params_set_node_expansion(real_t p_value) { _bvh.params_set_node_expansion(p_value); }
-        void params_set_pairing_expansion(real_t p_value) { _bvh.params_set_pairing_expansion(p_value); }
-    };
-
-    struct Scenario : RID_Data {
-
-        RS::ScenarioDebugMode debug;
-        RID self;
-
-        SpatialPartitioningScene_BVH sps;
-
-        Vector<Instance *> directional_lights;
-        RID environment;
-        RID fallback_environment;
-        RID reflection_probe_shadow_atlas;
-        RID reflection_atlas;
-
-        IntrusiveList<Instance> instances;
-
-        Scenario() { debug = RS::SCENARIO_DEBUG_DISABLED; }
-    };
-
-    mutable RID_Owner<Scenario> scenario_owner;
-
-    static void *_instance_pair(void *p_self, SpatialPartitionID, Instance *p_A, int, SpatialPartitionID, Instance *p_B, int);
-    static void _instance_unpair(void *p_self, SpatialPartitionID, Instance *p_A, int, SpatialPartitionID, Instance *p_B, int, void *);
-
-    RID scenario_create();
-
-    void scenario_set_debug(RID p_scenario, RS::ScenarioDebugMode p_debug_mode);
-    void scenario_set_environment(RID p_scenario, RID p_environment);
-    void scenario_set_fallback_environment(RID p_scenario, RID p_environment);
-    void scenario_set_reflection_atlas_size(RID p_scenario, int p_size, int p_subdiv);
+    void scenario_set_debug(RenderingEntity p_scenario, RS::ScenarioDebugMode p_debug_mode);
+    void scenario_set_environment(RenderingEntity p_scenario, RenderingEntity p_environment);
+    void scenario_set_fallback_environment(RenderingEntity p_scenario, RenderingEntity p_environment);
+    void scenario_set_reflection_atlas_size(RenderingEntity p_scenario, int p_size, int p_subdiv);
 
     /* INSTANCING API */
+    void _instance_queue_update(RenderingInstanceComponent *p_instance, bool p_update_aabb, bool p_update_materials = false);
 
-    struct InstanceBaseData {
+    struct InstanceReflectionProbeData   {
+        List<ComponentPairInfo> geometries;
 
-        virtual ~InstanceBaseData() = default;
+        RenderingEntity owner = entt::null; //RenderingInstanceComponent
+        RenderingEntity instance = entt::null;
+        int32_t previous_room_id_hint = -1;
+        int render_step = -1;
+        bool reflection_dirty = true;
     };
 
-    struct Instance : RasterizerScene::InstanceBase {
 
-        RID self;
-        //scenario stuff
-        Scenario *scenario = nullptr;
-        IntrusiveListNode<Instance> scenario_item;
-        SpatialPartitionID spatial_partition_id = 0;
-
-        //aabb stuff
-
-        ObjectID object_id {0ULL};
-
-        float lod_begin;
-        float lod_end;
-        float lod_begin_hysteresis;
-        float lod_end_hysteresis;
-        RID lod_instance;
-
-        uint64_t last_render_pass;
-        uint64_t last_frame_pass;
-
-        uint64_t version; // changes to this, and changes to base increase version
-
-        InstanceBaseData *base_data;
-
-        void base_removed() override {
-
-            singleton->instance_set_base(self, RID());
-        }
-
-        void base_changed(bool p_aabb, bool p_materials) override {
-
-            singleton->_instance_queue_update(this, p_aabb, p_materials);
-        }
-
-        Instance() :
-                scenario_item(this) {
-
-            visible = true;
-
-            lod_begin = 0;
-            lod_end = 0;
-            lod_begin_hysteresis = 0;
-            lod_end_hysteresis = 0;
-
-            last_render_pass = 0;
-            last_frame_pass = 0;
-            version = 1;
-            base_data = nullptr;
-
-        }
-
-        ~Instance() override {
-            memdelete(base_data);
-        }
+    struct InstanceLightData {
+        List<ComponentPairInfo> geometries;
+        RenderingEntity instance = entt::null;
+        uint64_t last_version = 0;
+        bool D = false; // directional light in scenario
+        bool shadow_dirty = true;
+        int32_t previous_room_id_hint = -1;
     };
 
-    void _instance_queue_update(Instance *p_instance, bool p_update_aabb, bool p_update_materials = false);
+    struct InstanceGIProbeData {
 
-    struct InstanceReflectionProbeData : public InstanceBaseData {
+        RenderingEntity owner = entt::null;
+        List<ComponentPairInfo> geometries;
 
-        Instance *owner;
-
-        struct PairInfo {
-            List<Instance *>::iterator L; //reflection iterator in geometry
-            Instance *geometry;
-        };
-        List<PairInfo> geometries;
-
-        RID instance;
-        bool reflection_dirty;
-        IntrusiveListNode<InstanceReflectionProbeData> update_list;
-
-        int render_step;
-
-        InstanceReflectionProbeData() :
-                update_list(this) {
-
-            reflection_dirty = true;
-            render_step = -1;
-        }
-    };
-
-    IntrusiveList<InstanceReflectionProbeData> reflection_probe_render_list;
-
-    struct InstanceLightData : public InstanceBaseData {
-
-        struct PairInfo {
-            List<Instance *>::iterator L; //light iterator in geometry
-            Instance *geometry;
-        };
-
-        RID instance;
-        uint64_t last_version;
-        bool D; // directional light in scenario
-        bool shadow_dirty;
-
-        List<PairInfo> geometries;
-
-        Instance *baked_light;
-
-        InstanceLightData() {
-
-            shadow_dirty = true;
-            D = false;
-            last_version = 0;
-            baked_light = nullptr;
-        }
-    };
-
-    struct InstanceGIProbeData : public InstanceBaseData {
-
-        Instance *owner;
-
-        struct PairInfo {
-            List<Instance *>::iterator L; //gi probe iterator in geometry
-            Instance *geometry;
-        };
-
-        List<PairInfo> geometries;
-
-        HashSet<Instance *> lights;
+        HashSet<RenderingInstanceComponent *> lights;
 
         struct LightCache {
 
@@ -351,8 +376,8 @@ public:
 
         struct Dynamic {
 
-            HashMap<RID, LightCache> light_cache;
-            HashMap<RID, LightCache> light_cache_changes;
+            HashMap<RenderingEntity, LightCache> light_cache;
+            HashMap<RenderingEntity, LightCache> light_cache_changes;
             PoolVector<int> light_data;
             Vector<LocalData> local_data;
             Vector<Vector<uint32_t> > level_cell_lists;
@@ -360,7 +385,7 @@ public:
             Vector<PoolVector<CompBlockS3TC> > mipmaps_s3tc; //for s3tc
 
             Transform light_to_cell_xform;
-            RID probe_data;
+            RenderingEntity probe_data = entt::null;
             int bake_dynamic_range;
             int grid_size[3];
             float propagate;
@@ -368,98 +393,106 @@ public:
             GIUpdateStage updating_stage;
         } dynamic;
 
-        RID probe_instance;
+        RenderingEntity probe_instance = entt::null;
 
         bool invalid;
         uint32_t base_version;
 
-        IntrusiveListNode<InstanceGIProbeData> update_element;
-
-        InstanceGIProbeData() :
-                update_element(this) {
+        InstanceGIProbeData() {
             invalid = true;
             base_version = 0;
             dynamic.updating_stage = GIUpdateStage::CHECK;
         }
     };
 
-    IntrusiveList<InstanceGIProbeData> gi_probe_update_list;
-
-    struct InstanceLightmapCaptureData : public InstanceBaseData {
-
-        struct PairInfo {
-            List<Instance *>::iterator L; //iterator in geometry
-            Instance *geometry;
-        };
-        List<PairInfo> geometries;
-
-        HashSet<Instance *> users;
-
-        InstanceLightmapCaptureData() {}
-    };
-
     int instance_cull_count;
-    Instance *instance_cull_result[MAX_INSTANCE_CULL];
-    Instance *instance_shadow_cull_result[MAX_INSTANCE_CULL]; //used for generating shadowmaps
-    Instance *light_cull_result[MAX_LIGHTS_CULLED];
-    RID light_instance_cull_result[MAX_LIGHTS_CULLED];
+    RenderingEntity instance_cull_result[MAX_INSTANCE_CULL];
+    RenderingEntity instance_shadow_cull_result[MAX_INSTANCE_CULL]; //used for generating shadowmaps
+    RenderingInstanceComponent *light_cull_result[MAX_LIGHTS_CULLED];
+    RenderingEntity light_instance_cull_result[MAX_LIGHTS_CULLED];
     int light_cull_count;
     int directional_light_count;
-    RID reflection_probe_instance_cull_result[MAX_REFLECTION_PROBES_CULLED];
+    RenderingEntity reflection_probe_instance_cull_result[MAX_REFLECTION_PROBES_CULLED];
     int reflection_probe_cull_count;
 
-    RID_Owner<Instance> instance_owner;
+    RenderingEntity instance_create();
 
-    RID instance_create();
+    void instance_set_base(RenderingEntity p_instance, RenderingEntity p_base);
+    void instance_set_scenario(RenderingEntity p_instance, RenderingEntity p_scenario);
+    void instance_set_layer_mask(RenderingEntity p_instance, uint32_t p_mask);
+    void instance_set_transform(RenderingEntity p_instance, const Transform &p_transform);
+    void instance_attach_object_instance_id(RenderingEntity p_instance, GameEntity p_id);
+    void instance_set_blend_shape_weight(RenderingEntity p_instance, int p_shape, float p_weight);
+    void instance_set_surface_material(RenderingEntity p_instance, int p_surface, RenderingEntity p_material);
+    void instance_set_visible(RenderingEntity p_instance, bool p_visible);
+    static void instance_set_use_lightmap(RenderingEntity p_instance, RenderingEntity p_lightmap_instance, RenderingEntity p_lightmap, int p_lightmap_slice, const Rect2 &p_lightmap_uv_rect);
 
-    void instance_set_base(RID p_instance, RID p_base); // from can be mesh, light, poly, area and portal so far.
-    void instance_set_scenario(RID p_instance, RID p_scenario); // from can be mesh, light, poly, area and portal so far.
-    void instance_set_layer_mask(RID p_instance, uint32_t p_mask);
-    void instance_set_transform(RID p_instance, const Transform &p_transform);
-    void instance_attach_object_instance_id(RID p_instance, ObjectID p_id);
-    void instance_set_blend_shape_weight(RID p_instance, int p_shape, float p_weight);
-    void instance_set_surface_material(RID p_instance, int p_surface, RID p_material);
-    void instance_set_visible(RID p_instance, bool p_visible);
-    void instance_set_use_lightmap(RID p_instance, RID p_lightmap_instance, RID p_lightmap);
+    void instance_set_custom_aabb(RenderingEntity p_instance, AABB p_aabb);
 
-    void instance_set_custom_aabb(RID p_instance, AABB p_aabb);
+    void instance_attach_skeleton(RenderingEntity p_instance, RenderingEntity p_skeleton);
 
-    void instance_attach_skeleton(RID p_instance, RID p_skeleton);
+    void instance_set_extra_visibility_margin(RenderingEntity p_instance, real_t p_margin);
+    // Portals
+    void instance_set_portal_mode(RenderingEntity p_instance, RS::InstancePortalMode p_mode);
+    RenderingEntity portal_create();
+    void portal_set_scenario(RenderingEntity p_portal, RenderingEntity p_scenario);
+    void portal_set_geometry(RenderingEntity p_portal, const Vector<Vector3> &p_points, real_t p_margin);
+    void portal_link(RenderingEntity p_portal, RenderingEntity p_room_from, RenderingEntity p_room_to, bool p_two_way);
+    void portal_set_active(RenderingEntity p_portal, bool p_active);
+public:
+    RenderingEntity occluder_instance_create();
+    void occluder_instance_set_scenario(RenderingEntity p_occluder_instance, RenderingEntity p_scenario);
+    void occluder_instance_link_resource(RenderingEntity p_occluder_instance, RenderingEntity p_occluder_resource);
+    void occluder_instance_set_transform(RenderingEntity p_occluder, const Transform &p_xform);
+    void occluder_instance_set_active(RenderingEntity p_occluder, bool p_active);
 
-    void instance_set_extra_visibility_margin(RID p_instance, real_t p_margin);
+    RenderingEntity occluder_resource_create();
+    void occluder_resource_prepare(RenderingEntity p_occluder_resource, RS::OccluderType p_type);
+    void occluder_resource_spheres_update(RenderingEntity p_occluder_resource, const Vector<Plane> &p_spheres);
+    void occluder_resource_mesh_update(RenderingEntity p_occluder_resource, const OccluderMeshData &p_mesh_data);
 
+    void set_use_occlusion_culling(bool p_enable);
+
+    // editor only .. slow
+    Geometry::MeshData occlusion_debug_get_current_polys(RenderingEntity p_scenario) const;
+    const PortalResources &get_portal_resources() const { return _portal_resources; }
+    PortalResources &get_portal_resources() { return _portal_resources; }
+
+    void callbacks_register(RenderingServerCallbacks *p_callbacks);
+    RenderingServerCallbacks *get_callbacks() const { return _visual_server_callbacks; }
     // don't use these in a game!
-    Vector<ObjectID> instances_cull_aabb(const AABB &p_aabb, RID p_scenario = RID()) const;
-    Vector<ObjectID> instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario = RID()) const;
-    Vector<ObjectID> instances_cull_convex(Span<const Plane> p_convex, RID p_scenario = RID()) const;
+    Vector<GameEntity> instances_cull_aabb(const AABB &p_aabb, RenderingEntity p_scenario) const;
+    Vector<GameEntity> instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RenderingEntity p_scenario) const;
+    Vector<GameEntity> instances_cull_convex(Span<const Plane> p_convex, RenderingEntity p_scenario) const;
 
-    void instance_geometry_set_flag(RID p_instance, RS::InstanceFlags p_flags, bool p_enabled);
-    void instance_geometry_set_cast_shadows_setting(RID p_instance, RS::ShadowCastingSetting p_shadow_casting_setting);
-    void instance_geometry_set_material_override(RID p_instance, RID p_material);
+    void instance_geometry_set_flag(RenderingEntity p_instance, RS::InstanceFlags p_flags, bool p_enabled);
+    void instance_geometry_set_cast_shadows_setting(RenderingEntity p_instance, RS::ShadowCastingSetting p_shadow_casting_setting);
+    void instance_geometry_set_material_override(RenderingEntity p_instance, RenderingEntity p_material);
+    void instance_geometry_set_material_overlay(RenderingEntity p_instance, RenderingEntity p_material);
 
-    void instance_geometry_set_draw_range(RID p_instance, float p_min, float p_max, float p_min_margin, float p_max_margin);
-    void instance_geometry_set_as_instance_lod(RID p_instance, RID p_as_lod_of_instance);
+    void instance_geometry_set_draw_range(RenderingEntity p_instance, float p_min, float p_max, float p_min_margin, float p_max_margin);
+    void instance_geometry_set_as_instance_lod(RenderingEntity p_instance, RenderingEntity p_as_lod_of_instance);
 
-    _FORCE_INLINE_ void _update_instance(Instance *p_instance);
-    _FORCE_INLINE_ void _update_instance_aabb(Instance *p_instance);
-    _FORCE_INLINE_ void _update_dirty_instance(Instance *p_instance);
-    void _update_instance_material(Instance *p_instance);
-    _FORCE_INLINE_ void _update_instance_lightmap_captures(Instance *p_instance);
+    _FORCE_INLINE_ void _update_instance(RenderingInstanceComponent *p_instance);
+    _FORCE_INLINE_ void _update_instance_aabb(RenderingInstanceComponent *p_instance);
+    _FORCE_INLINE_ void _update_dirty_instance(RenderingInstanceComponent *p_instance);
+    void _update_instance_material(RenderingInstanceComponent *p_instance);
+    _FORCE_INLINE_ void _update_instance_lightmap_captures(RenderingInstanceComponent *p_instance);
 
-    _FORCE_INLINE_ bool _light_instance_update_shadow(Instance *p_instance, const Transform &p_cam_transform,
-            const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_shadow_atlas, Scenario *p_scenario);
+    _FORCE_INLINE_ bool _light_instance_update_shadow(RenderingInstanceComponent *p_instance, const Transform &p_cam_transform,
+            const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RenderingEntity p_shadow_atlas, RenderingScenarioComponent *p_scenario);
 
     void _prepare_scene(const Transform &p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal,
-            RID p_force_environment, uint32_t p_visible_layers, RID p_scenario, RID p_shadow_atlas,
-            RID p_reflection_probe);
-    void _render_scene(const Transform &p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal,
-            RID p_force_environment, RID p_scenario, RID p_shadow_atlas, RID p_reflection_probe,
+            RenderingEntity p_force_environment, uint32_t p_visible_layers, RenderingEntity p_scenario, RenderingEntity p_shadow_atlas,
+            RenderingEntity p_reflection_probe, int32_t &r_previous_room_id_hint);
+    void _render_scene(const Transform &p_cam_transform, const CameraMatrix &p_cam_projection, const int p_eye, bool p_cam_orthogonal,
+            RenderingEntity p_force_environment, RenderingEntity p_scenario, RenderingEntity p_shadow_atlas, RenderingEntity p_reflection_probe,
             int p_reflection_probe_pass);
-    void render_empty_scene(RID p_scenario, RID p_shadow_atlas);
+    void render_empty_scene(RenderingEntity p_scenario, RenderingEntity p_shadow_atlas);
 
-    void render_camera(RID p_camera, RID p_scenario, Size2 p_viewport_size, RID p_shadow_atlas);
-    void render_camera(Ref<ARVRInterface> &p_interface, ARVREyes p_eye, RID p_camera, RID p_scenario,
-            Size2 p_viewport_size, RID p_shadow_atlas);
+    void render_camera(RenderingEntity p_camera, RenderingEntity p_scenario, Size2 p_viewport_size, RenderingEntity p_shadow_atlas);
+    void render_camera(Ref<ARVRInterface> &p_interface, ARVREyes p_eye, RenderingEntity p_camera, RenderingEntity p_scenario,
+            Size2 p_viewport_size, RenderingEntity p_shadow_atlas);
     void update_dirty_instances();
 
     //probes
@@ -486,23 +519,33 @@ public:
     void _gi_probe_bake_thread();
     static void _gi_probe_bake_threads(void *);
 
-    volatile bool probe_bake_thread_exit;
+    SafeFlag probe_bake_thread_exit;
     Thread probe_bake_thread;
-    Semaphore *probe_bake_sem;
+    Semaphore probe_bake_sem;
     Mutex probe_bake_mutex;
-    Deque<Instance *> probe_bake_list;
 
     void render_probes();
 
-    bool free(RID p_rid);
 
     VisualServerScene();
     virtual ~VisualServerScene();
+private:
+    RenderingServerCallbacks *_visual_server_callbacks = nullptr;
+    PortalResources _portal_resources;
 protected:
-    bool _render_reflection_probe_step(Instance *p_instance, int p_step);
+    bool _render_reflection_probe_step(RenderingInstanceComponent *p_instance, int p_step);
     void _bake_gi_probe_light(const GIProbeDataHeader *header, const GIProbeDataCell *cells,
             InstanceGIProbeData::LocalData *local_data, const uint32_t *leaves, int p_leaf_count,
             const InstanceGIProbeData::LightCache &light_cache, int p_sign);
-    void _bake_gi_probe(Instance *p_gi_probe);
+    void _bake_gi_probe(RenderingInstanceComponent *p_gi_probe);
 };
+
+extern void set_instance_dirty(RenderingEntity id, bool p_update_aabb, bool p_update_materials);
+extern void _instance_destroy_occlusion_rep(RenderingInstanceComponent *p_instance);
+extern void _instance_create_occlusion_rep(RenderingInstanceComponent *p_instance);
+extern bool _instance_get_transformed_aabb(RenderingEntity p_instance, AABB &r_aabb);
+extern GameEntity _instance_get_object_ID(VSInstance *p_instance);
+extern bool _instance_cull_check(const VSInstance *p_instance, uint32_t p_cull_mask);
+extern VSInstance *_instance_get_from_rid(RenderingEntity p_instance);
+extern bool _instance_get_transformed_aabb_for_occlusion(RenderingEntity p_instance, AABB &r_aabb);
 

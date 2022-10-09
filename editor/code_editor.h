@@ -55,7 +55,6 @@ public:
     void popup_find_line(TextEdit *p_edit);
     int get_line() const;
 
-    void set_text_editor(TextEdit *p_text_editor);
     GotoLineDialog();
 };
 
@@ -84,10 +83,10 @@ class FindReplaceBar : public HBoxContainer {
 
     int result_line;
     int result_col;
-    int results_count;
+    int results_count = -1;
 
-    bool replace_all_mode;
-    bool preserve_cursor;
+    bool replace_all_mode = false;
+    bool preserve_cursor = false;
 
     void _get_search_from(int &r_line, int &r_col);
     void _update_results_count();
@@ -101,7 +100,6 @@ class FindReplaceBar : public HBoxContainer {
     void _search_text_changed(StringView p_text);
     void _search_text_entered(StringView p_text);
     void _replace_text_entered(StringView p_text);
-    void _update_size();
 
 protected:
     void _notification(int p_what);
@@ -220,7 +218,7 @@ public:
     void move_lines_up();
     void move_lines_down();
     void delete_lines();
-    void clone_lines_down();
+    void duplicate_selection();
 
     /// Toggle inline comment on currently selected lines, or on current line if nothing is selected,
     /// by adding or removing comment delimiter

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_effect_reverb.cpp                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -100,7 +100,7 @@ void AudioEffectReverb::set_predelay_msec(float p_msec) {
 
 void AudioEffectReverb::set_predelay_feedback(float p_feedback) {
 
-    predelay_fb = CLAMP(p_feedback, 0, 0.98);
+    predelay_fb = CLAMP(p_feedback, 0.0f, 0.98f);
 }
 void AudioEffectReverb::set_room_size(float p_size) {
 
@@ -163,29 +163,29 @@ float AudioEffectReverb::get_hpf() const {
 
 void AudioEffectReverb::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_predelay_msec", {"msec"}), &AudioEffectReverb::set_predelay_msec);
-    MethodBinder::bind_method(D_METHOD("get_predelay_msec"), &AudioEffectReverb::get_predelay_msec);
+    BIND_METHOD(AudioEffectReverb,set_predelay_msec);
+    BIND_METHOD(AudioEffectReverb,get_predelay_msec);
 
-    MethodBinder::bind_method(D_METHOD("set_predelay_feedback", {"feedback"}), &AudioEffectReverb::set_predelay_feedback);
-    MethodBinder::bind_method(D_METHOD("get_predelay_feedback"), &AudioEffectReverb::get_predelay_feedback);
+    BIND_METHOD(AudioEffectReverb,set_predelay_feedback);
+    BIND_METHOD(AudioEffectReverb,get_predelay_feedback);
 
-    MethodBinder::bind_method(D_METHOD("set_room_size", {"size"}), &AudioEffectReverb::set_room_size);
-    MethodBinder::bind_method(D_METHOD("get_room_size"), &AudioEffectReverb::get_room_size);
+    BIND_METHOD(AudioEffectReverb,set_room_size);
+    BIND_METHOD(AudioEffectReverb,get_room_size);
 
-    MethodBinder::bind_method(D_METHOD("set_damping", {"amount"}), &AudioEffectReverb::set_damping);
-    MethodBinder::bind_method(D_METHOD("get_damping"), &AudioEffectReverb::get_damping);
+    BIND_METHOD(AudioEffectReverb,set_damping);
+    BIND_METHOD(AudioEffectReverb,get_damping);
 
-    MethodBinder::bind_method(D_METHOD("set_spread", {"amount"}), &AudioEffectReverb::set_spread);
-    MethodBinder::bind_method(D_METHOD("get_spread"), &AudioEffectReverb::get_spread);
+    BIND_METHOD(AudioEffectReverb,set_spread);
+    BIND_METHOD(AudioEffectReverb,get_spread);
 
-    MethodBinder::bind_method(D_METHOD("set_dry", {"amount"}), &AudioEffectReverb::set_dry);
-    MethodBinder::bind_method(D_METHOD("get_dry"), &AudioEffectReverb::get_dry);
+    BIND_METHOD(AudioEffectReverb,set_dry);
+    BIND_METHOD(AudioEffectReverb,get_dry);
 
-    MethodBinder::bind_method(D_METHOD("set_wet", {"amount"}), &AudioEffectReverb::set_wet);
-    MethodBinder::bind_method(D_METHOD("get_wet"), &AudioEffectReverb::get_wet);
+    BIND_METHOD(AudioEffectReverb,set_wet);
+    BIND_METHOD(AudioEffectReverb,get_wet);
 
-    MethodBinder::bind_method(D_METHOD("set_hpf", {"amount"}), &AudioEffectReverb::set_hpf);
-    MethodBinder::bind_method(D_METHOD("get_hpf"), &AudioEffectReverb::get_hpf);
+    BIND_METHOD(AudioEffectReverb,set_hpf);
+    BIND_METHOD(AudioEffectReverb,get_hpf);
 
     ADD_GROUP("Predelay", "predelay_");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "predelay_msec", PropertyHint::Range, "20,500,1"), "set_predelay_msec", "get_predelay_msec");

@@ -39,6 +39,7 @@
 #include "audio/audio_effect.h"
 #include "audio/audio_stream.h"
 #include "audio/effects/audio_effect_amplify.h"
+#include "audio/effects/audio_effect_capture.h"
 #include "audio/effects/audio_effect_chorus.h"
 #include "audio/effects/audio_effect_compressor.h"
 #include "audio/effects/audio_effect_delay.h"
@@ -58,6 +59,8 @@
 #include "camera/camera_feed.h"
 #include "camera_server.h"
 
+#include "navigation_2d_server.h"
+#include "navigation_server.h"
 #include "physics_2d/physics_2d_server_sw.h"
 #include "physics_2d/physics_2d_server_wrap_mt.h"
 #include "physics_server_2d.h"
@@ -171,6 +174,8 @@ void register_server_types() {
     ClassDB::register_class<AudioServer>();
     ClassDB::register_virtual_class<PhysicsServer3D>();
     ClassDB::register_virtual_class<PhysicsServer2D>();
+    ClassDB::register_virtual_class<NavigationServer>();
+    ClassDB::register_virtual_class<Navigation2DServer>();
     ClassDB::register_class<ARVRServer>();
     ClassDB::register_class<CameraServer>();
 
@@ -226,20 +231,20 @@ void register_server_types() {
         ClassDB::register_class<AudioEffectRecord>();
         ClassDB::register_class<AudioEffectSpectrumAnalyzer>();
         ClassDB::register_virtual_class<AudioEffectSpectrumAnalyzerInstance>();
+        ClassDB::register_class<AudioEffectCapture>();
     }
 
     ClassDB::register_class<CameraFeed>();
 
     ClassDB::register_virtual_class<PhysicsDirectBodyState2D>();
     ClassDB::register_virtual_class<PhysicsDirectSpaceState2D>();
-    ClassDB::register_virtual_class<PhysicsShapeQueryResult2D>();
     ClassDB::register_class<Physics2DTestMotionResult>();
     ClassDB::register_class<PhysicsShapeQueryParameters2D>();
 
     ClassDB::register_class<PhysicsShapeQueryParameters3D>();
     ClassDB::register_virtual_class<PhysicsDirectBodyState3D>();
     ClassDB::register_virtual_class<PhysicsDirectSpaceState3D>();
-    ClassDB::register_virtual_class<PhysicsShapeQueryResult3D>();
+    ClassDB::register_class<PhysicsTestMotionResult>();
 
     ScriptDebuggerRemote::resource_usage_func = _debugger_get_resource_usage;
 
@@ -271,6 +276,8 @@ void register_server_singletons() {
     Engine::get_singleton()->add_singleton(Engine::Singleton("AudioServer", AudioServer::get_singleton()));
     Engine::get_singleton()->add_singleton(Engine::Singleton("PhysicsServer3D", PhysicsServer3D::get_singleton()));
     Engine::get_singleton()->add_singleton(Engine::Singleton("PhysicsServer2D", PhysicsServer2D::get_singleton()));
+    Engine::get_singleton()->add_singleton(Engine::Singleton("NavigationServer", NavigationServer::get_singleton_mut()));
+    Engine::get_singleton()->add_singleton(Engine::Singleton("Navigation2DServer", Navigation2DServer::get_singleton_mut()));
     Engine::get_singleton()->add_singleton(Engine::Singleton("ARVRServer", ARVRServer::get_singleton()));
     Engine::get_singleton()->add_singleton(Engine::Singleton("CameraServer", CameraServer::get_singleton()));
 }

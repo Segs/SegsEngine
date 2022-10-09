@@ -234,7 +234,7 @@ void GDMonoAssembly::initialize() {
 MonoAssembly *GDMonoAssembly::_real_load_assembly_from(StringView p_path, bool p_refonly, MonoAssemblyName *p_aname) {
 
     Vector<uint8_t> data = FileAccess::get_file_as_array(p_path);
-    ERR_FAIL_COND_V_MSG(data.empty(), NULL, "Could read the assembly in the specified location");
+    ERR_FAIL_COND_V_MSG(data.empty(), nullptr, "Could read the assembly in the specified location");
 
     String image_filename;
 
@@ -248,7 +248,7 @@ MonoAssembly *GDMonoAssembly::_real_load_assembly_from(StringView p_path, bool p
             true, &status, p_refonly,
             image_filename.c_str());
 
-    ERR_FAIL_COND_V_MSG(status != MONO_IMAGE_OK || !image, NULL, "Failed to open assembly image from memory: '" + p_path + "'.");
+    ERR_FAIL_COND_V_MSG(status != MONO_IMAGE_OK || !image, nullptr, "Failed to open assembly image from memory: '" + p_path + "'.");
 
     if (p_aname != nullptr) {
         // Check assembly version
@@ -301,7 +301,7 @@ no_pdb:
 
     MonoAssembly *assembly = mono_assembly_load_from_full(image, image_filename.c_str(), &status, p_refonly);
 
-    ERR_FAIL_COND_V_MSG(status != MONO_IMAGE_OK || !assembly, NULL, "Failed to load assembly for image");
+    ERR_FAIL_COND_V_MSG(status != MONO_IMAGE_OK || !assembly, nullptr, "Failed to load assembly for image");
 
     if (need_manual_load_hook) {
         // For some reason if an assembly survived domain reloading (maybe because it's referenced somewhere else),
@@ -487,7 +487,7 @@ GDMonoAssembly *GDMonoAssembly::load_from(StringView p_name, StringView p_path, 
     }
 
     GDMonoAssembly *loaded_asm = GDMono::get_singleton()->get_loaded_assembly(p_name);
-    ERR_FAIL_NULL_V_MSG(loaded_asm, NULL, "Loaded assembly missing from table. Did we not receive the load hook?");
+    ERR_FAIL_NULL_V_MSG(loaded_asm, nullptr, "Loaded assembly missing from table. Did we not receive the load hook?");
 
     return loaded_asm;
 }

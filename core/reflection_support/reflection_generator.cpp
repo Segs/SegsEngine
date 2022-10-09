@@ -1,15 +1,18 @@
-#include "reflection_generator.h"
+﻿#include "reflection_generator.h"
 
 #include "reflection_data.h"
 #include "core/variant.h"
 #include "core/engine.h"
 #include "core/string_utils.inl"
+#include "core/math/quat.h"
+#include "core/math/transform_2d.h"
 #include "core/math/transform.h"
 #include "core/class_db.h"
 #include "core/global_constants.h"
 #include "core/os/os.h"
 #include "core/method_bind.h"
 #include "core/script_language.h"
+#include "core/string_formatter.h"
 #include "core/version.h"
 #include "core/class_db.h"
 
@@ -27,9 +30,10 @@
 #include <QJsonObject>
 #include <QDebug>
 
-static bool s_log_print_enabled = true;
-static void _log(const char* p_format, ...) {
+namespace {
+bool s_log_print_enabled = true;
 
+void _log(const char *p_format, ...) {
     if (s_log_print_enabled) {
         va_list list;
 
@@ -39,7 +43,13 @@ static void _log(const char* p_format, ...) {
     }
 }
 
+String toInitializer(Vector3 v) {
+    return FormatVE("(%ff, %ff, %ff)", v.x, v.y, v.z);
+}
 
+String toInitializer(Vector2 v) {
+    return FormatVE("(%ff, %ff)", v.x, v.y);
+}
 //Take the running program state, and generate the reflection json file.
 bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_iarg) {
 
@@ -59,40 +69,75 @@ bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_
             r_iarg.default_argument = "(%s)" + r_iarg.default_argument;
         }
         break;
+    case VariantType::REN_ENT:
+        // the only one that makes sense. Disabled, until c# side is ready.
+        // r_iarg.default_argument = "RenderingEntity.Null";
+        assert(false);
+        break;
     case VariantType::FLOAT:
-#ifndef REAL_T_IS_DOUBLE
         r_iarg.default_argument += "f";
-#endif
         break;
     case VariantType::STRING_NAME:
     case VariantType::STRING:
     case VariantType::NODE_PATH:
         r_iarg.default_argument = "\"" + r_iarg.default_argument + "\"";
         break;
-    case VariantType::TRANSFORM:
-        if (p_val.as<Transform>() == Transform())
-            r_iarg.default_argument.clear();
-        r_iarg.default_argument = "new %s(" + r_iarg.default_argument + ")";
+        case VariantType::TRANSFORM: {
+            Transform transform = p_val.as<Transform>();
+            if (transform == Transform()) {
+                r_iarg.default_argument = "Transform.Identity";
+            } else {
+                Basis basis = transform.basis;
+                r_iarg.default_argument = "new Transform(new Vector3" + toInitializer(basis.get_column(0)) +
+                                          ", new Vector3" + toInitializer(basis.get_column(1)) + ", new Vector3" +
+                                          toInitializer(basis.get_column(2)) + ", new Vector3" +
+                                          toInitializer(transform.origin) + ")";
+            }
         r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
-        break;
-    case VariantType::PLANE:
-    case VariantType::AABB:
-    case VariantType::COLOR: r_iarg.default_argument = "new Color(1, 1, 1, 1)";
+        } break;
+
+        case VariantType::PLANE: {
+            Plane plane = p_val.operator Plane();
+            r_iarg.default_argument = "new Plane(new Vector3(" + (String)plane.normal + "), " + rtos(plane.d) + ")";
         r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
-        break;
+        } break;
+        case VariantType::AABB: {
+            AABB aabb = p_val.as<::AABB>();
+            r_iarg.default_argument = "new AABB(new Vector3(" + aabb.position.operator String() + "), new Vector3(" +
+                                      aabb.size.operator String() + "))";
+            r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
+        } break;
+        case VariantType::COLOR: {
+            if (r_iarg.default_argument == "1,1,1,1") {
+                r_iarg.default_argument = "1, 1, 1, 1";
+            }
+            auto parts = r_iarg.default_argument.split(',');
+            for (auto &str : parts) {
+                str += "f";
+            }
+            auto clr = String::joined(parts, ", ");
+            r_iarg.default_argument = "new Color(" + clr + ")";
+            r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
+        } break;
+        case VariantType::RECT2: {
+            Rect2 rect = p_val.as<Rect2>();
+            r_iarg.default_argument = "new Rect2(new Vector2(" + rect.position.operator String() + "), new Vector2(" +
+                                      rect.size.operator String() + "))";
+            r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
+        } break;
     case VariantType::VECTOR2:
-    case VariantType::RECT2:
-    case VariantType::VECTOR3: r_iarg.default_argument = "new %s" + r_iarg.default_argument;
+        case VariantType::VECTOR3:
+            r_iarg.default_argument = "new %s" + r_iarg.default_argument;
         r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
         break;
     case VariantType::OBJECT:
         ERR_FAIL_COND_V_MSG(!p_val.is_zero(), false,
-            "Parameter of type '" + r_iarg.type.cname +
-            "' can only have null/zero as the default value.");
+                    "Parameter of type '" + r_iarg.type.cname + "' can only have null/zero as the default value.");
 
         r_iarg.default_argument = "null";
         break;
-    case VariantType::DICTIONARY: r_iarg.default_argument = "new %s()";
+        case VariantType::DICTIONARY:
+            r_iarg.default_argument = "new %s()";
         r_iarg.def_param_mode = ArgumentInterface::NULLABLE_REF;
         break;
     case VariantType::_RID:
@@ -100,15 +145,14 @@ bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_
             "Parameter of type '" + (r_iarg.type.cname) + "' cannot have a default value of type 'RID'.");
 
         ERR_FAIL_COND_V_MSG(!p_val.is_zero(), false,
-            "Parameter of type '" + (r_iarg.type.cname) +
-            "' can only have null/zero as the default value.");
+                    "Parameter of type '" + (r_iarg.type.cname) + "' can only have null/zero as the default value.");
 
         r_iarg.default_argument = "null";
         break;
     case VariantType::ARRAY:
     case VariantType::POOL_BYTE_ARRAY:
     case VariantType::POOL_INT_ARRAY:
-    case VariantType::POOL_REAL_ARRAY:
+    case VariantType::POOL_FLOAT32_ARRAY:
     case VariantType::POOL_STRING_ARRAY:
     case VariantType::POOL_VECTOR2_ARRAY:
     case VariantType::POOL_VECTOR3_ARRAY:
@@ -116,35 +160,63 @@ bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_
         r_iarg.default_argument = "new %s {}";
         r_iarg.def_param_mode = ArgumentInterface::NULLABLE_REF;
         break;
-    case VariantType::TRANSFORM2D:
-    case VariantType::BASIS:
-    case VariantType::QUAT:
-        r_iarg.default_argument = String(Variant::get_type_name(p_val.get_type())) + ".Identity";
+        case VariantType::TRANSFORM2D: {
+            Transform2D transform = p_val.as<Transform2D>();
+            if (transform == Transform2D()) {
+                r_iarg.default_argument = "Transform2D.Identity";
+            } else {
+                r_iarg.default_argument = "new Transform2D(new Vector2" + transform.elements[0].operator String() +
+                                          ", new Vector2" + transform.elements[1].operator String() + ", new Vector2" +
+                                          transform.elements[2].operator String() + ")";
+            }
         r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
+        } break;
+        case VariantType::BASIS: {
+            Basis basis = p_val.as<Basis>();
+            if (basis == Basis()) {
+                r_iarg.default_argument = "Basis.Identity";
+            } else {
+                r_iarg.default_argument = "new Basis(new Vector3" + basis.get_column(0).operator String() +
+                                          ", new Vector3" + basis.get_column(1).operator String() + ", new Vector3" +
+                                          basis.get_column(2).operator String() + ")";
+            }
+            r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
+        } break;
+        case VariantType::QUAT: {
+            Quat quat = p_val.as<Quat>();
+            if (quat == Quat()) {
+                r_iarg.default_argument = "Quat.Identity";
+            } else {
+                r_iarg.default_argument = "new Quat" + quat.operator String();
+            }
+            r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
+        } break;
+        default: {
+            CRASH_NOW_MSG("Unexpected Variant type: " + StringUtils::num_uint64((int)p_val.get_type()));
         break;
-    default: {
     }
     }
 
-    if (r_iarg.def_param_mode == ArgumentInterface::CONSTANT && r_iarg.type.cname == "Variant" && r_iarg.default_argument != "null")
+    if (r_iarg.def_param_mode == ArgumentInterface::CONSTANT && r_iarg.type.cname == "Variant" &&
+            r_iarg.default_argument != "null")
         r_iarg.def_param_mode = ArgumentInterface::NULLABLE_REF;
 
     return true;
 }
-static APIType convertApiType(ClassDB::APIType ap) {
-    if(ap==ClassDB::API_NONE)
+APIType convertApiType(ClassDB_APIType ap) {
+    if(ap==ClassDB_APIType::API_NONE)
         return APIType::Invalid;
-    if (ap == ClassDB::API_CORE)
+    if (ap == ClassDB_APIType::API_CORE)
         return APIType::Common;
-    if (ap == ClassDB::API_EDITOR)
+    if (ap == ClassDB_APIType::API_EDITOR)
         return APIType::Editor;
-    if (ap == ClassDB::API_SERVER)
+    if (ap == ClassDB_APIType::API_SERVER)
         return APIType::Server;
     return APIType::Invalid;
 
 }
-static StringView _get_int_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
 
+StringView _get_int_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
     switch (p_meta) {
     case GodotTypeInfo::METADATA_INT_IS_INT8:
         return "int8_t";
@@ -162,13 +234,15 @@ static StringView _get_int_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
         return "uint32_t";
     case GodotTypeInfo::METADATA_INT_IS_UINT64:
         return "uint64_t";
+        case GodotTypeInfo::METADATA_IS_ENTITY_ID:
+            return "RenderingEntity";
     default:
         // Assume INT32
         return "int32_t";
     }
 }
-static StringView _get_float_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
 
+StringView _get_float_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
     switch (p_meta) {
     case GodotTypeInfo::METADATA_REAL_IS_FLOAT:
         return "float";
@@ -183,8 +257,8 @@ static StringView _get_float_type_name_from_meta(GodotTypeInfo::Metadata p_meta)
 #endif
     }
 }
-static StringView _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
 
+StringView _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
     switch (p_meta) {
     case GodotTypeInfo::METADATA_STRING_VIEW:
         return "StringView";
@@ -194,7 +268,7 @@ static StringView _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta
     }
 }
 
-static StringName _get_variant_type_name_from_meta(VariantType tp, GodotTypeInfo::Metadata p_meta) {
+StringName _get_variant_type_name_from_meta(VariantType tp, GodotTypeInfo::Metadata p_meta) {
     if (GodotTypeInfo::METADATA_NON_COW_CONTAINER == p_meta) {
         switch (tp) {
 
@@ -203,7 +277,7 @@ static StringName _get_variant_type_name_from_meta(VariantType tp, GodotTypeInfo
 
         case VariantType::POOL_INT_ARRAY:
             return StringName("PoolIntArray");
-        case VariantType::POOL_REAL_ARRAY:
+        case VariantType::POOL_FLOAT32_ARRAY:
             return StringName("PoolRealArray");
         case VariantType::POOL_STRING_ARRAY:
             return StringName("PoolStringArray");
@@ -218,39 +292,32 @@ static StringName _get_variant_type_name_from_meta(VariantType tp, GodotTypeInfo
     }
     return Variant::interned_type_name(tp);
 }
-static void fill_type_info(const PropertyInfo &arginfo,TypeReference &tgt) {
+void fill_type_info(const PropertyInfo &arginfo, TypeReference &tgt) {
     if (arginfo.type == VariantType::INT && arginfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
         tgt.cname = arginfo.class_name;
         tgt.is_enum = TypeRefKind::Enum;
         tgt.pass_by = TypePassBy::Value;
-    }
-    else if (arginfo.hint == PropertyHint::ResourceType) {
+    } else if (arginfo.hint == PropertyHint::ResourceType) {
         if(arginfo.type==VariantType::ARRAY || arginfo.hint_string.contains(","))
             tgt.cname = "PH:"+arginfo.hint_string;
         else
             tgt.cname = arginfo.hint_string;
         tgt.is_enum = arginfo.type!=VariantType::ARRAY ? TypeRefKind::Simple : TypeRefKind::Array;
         tgt.pass_by = TypePassBy::Reference;
-    }
-    else if (!arginfo.class_name.empty()) {
+    } else if (!arginfo.class_name.empty()) {
         tgt.cname = arginfo.class_name;
         tgt.pass_by = TypePassBy::Reference;
-    }
-    else if (arginfo.type == VariantType::NIL) {
+    } else if (arginfo.type == VariantType::NIL) {
         tgt.cname = "Variant";
         tgt.pass_by = TypePassBy::Value;
-    }
-    else {
+    } else {
         if (arginfo.type == VariantType::INT) {
             tgt.cname = "int";
-        }
-        else if (arginfo.type == VariantType::FLOAT) {
+        } else if (arginfo.type == VariantType::FLOAT) {
             tgt.cname = "float";
-        }
-        else if (arginfo.type == VariantType::STRING) {
+        } else if (arginfo.type == VariantType::STRING) {
             tgt.cname = "String";
-        }
-        else {
+        } else {
 
             tgt.cname = _get_variant_type_name_from_meta(arginfo.type, GodotTypeInfo::METADATA_NONE).asCString();
         }
@@ -262,6 +329,7 @@ static void fill_type_info(const PropertyInfo &arginfo,TypeReference &tgt) {
     }
 }
 
+}
 enum GroupPropStatus {
     NO_GROUP,
     STARTED_GROUP,
@@ -274,11 +342,12 @@ static void add_opaque_types(ReflectionData &rd,ReflectionSource src) {
         return;
     NamespaceInterface *core_ns=nullptr;
     for(auto & ns : rd.namespaces) {
-        if(ns.namespace_name=="Godot") {
+        if(ns.name=="Godot") {
             core_ns = &ns;
             break;
         }
     }
+    assert(core_ns);
     struct {
         const char *name;
         const char *header;
@@ -288,7 +357,6 @@ static void add_opaque_types(ReflectionData &rd,ReflectionSource src) {
         {"StringView","core/string.h"},
         {"StringName","core/string_name.h"},
         {"NodePath","core/node_path.h"},
-        {"ObjectID","core/object_id.h"},
         {"RID","core/rid.h"},
         {"VarArg",""}, // synthetic type
         {"Dictionary",""},
@@ -355,6 +423,10 @@ void fillArgInfoFromProperty(ArgumentInterface &iarg,const PropertyInfo& arginfo
         iarg.type.is_enum = TypeRefKind::Enum;
         iarg.type.pass_by = TypePassBy::Value;
     }
+    else if (arginfo.type == VariantType::INT && arg_meta == GodotTypeInfo::METADATA_IS_ENTITY_ID) {
+        iarg.type.cname = arginfo.class_name.asCString();
+        iarg.type.pass_by = TypePassBy::Value;
+    }
     else if (!arginfo.class_name.empty()) {
         iarg.type.cname = arginfo.class_name.asCString();
         iarg.type.pass_by = arg_pass;
@@ -371,7 +443,7 @@ void fillArgInfoFromProperty(ArgumentInterface &iarg,const PropertyInfo& arginfo
     else {
         if (arginfo.type == VariantType::INT) {
             if(arginfo.hint==PropertyHint::IntIsObjectID) {
-                iarg.type.cname = "ObjectID";
+                iarg.type.cname = arginfo.class_name;
             }
             else
                 iarg.type.cname = _get_int_type_name_from_meta(arg_meta).data();
@@ -409,18 +481,18 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
             class_list.pop_front();
             continue;
         }
-        ClassDB::APIType api_type = ClassDB::get_api_type(type_cname);
+        ClassDB_APIType api_type = ClassDB::get_api_type(type_cname);
 
-        if (api_type == ClassDB::API_NONE) {
+        if (api_type == ClassDB_APIType::API_NONE) {
             class_list.pop_front();
             continue;
         }
         bool editor_only = src==ReflectionSource::Editor;
-        if(editor_only && api_type != ClassDB::API_EDITOR) {
+        if(editor_only && api_type != ClassDB_APIType::API_EDITOR) {
             class_list.pop_front();
             continue;
         }
-        if(!editor_only && api_type==ClassDB::API_EDITOR) {
+        if(!editor_only && api_type==ClassDB_APIType::API_EDITOR) {
             class_list.pop_front();
             continue;
         }
@@ -627,7 +699,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
         // Populate methods
 
         Vector<MethodInfo> virtual_method_list;
-        ClassDB::get_virtual_methods(type_cname, &virtual_method_list, true);
+        ClassDB::get_virtual_methods(type_cname, &virtual_method_list);
 
         Vector<MethodInfo> method_list;
         ClassDB::get_method_list(type_cname, &method_list, true);
@@ -635,8 +707,9 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
         for (const MethodInfo& method_info : method_list) {
             size_t argc = method_info.arguments.size();
 
-            if (method_info.name.empty())
+            if (method_info.name.empty()) {
                 continue;
+            }
             auto cname = method_info.name;
 
             MethodInterface imethod { method_info.name.asCString() , {cname.asCString()} };
@@ -677,7 +750,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
                 imethod.return_type.cname = return_info.class_name.asCString();
                 imethod.return_type.is_enum = TypeRefKind::Enum;
             }
-            else if (!return_info.class_name.empty()) {
+            else if (return_info.type != VariantType::INT && !return_info.class_name.empty()) {
                 imethod.return_type.cname = return_info.class_name;
                 if(return_info.hint == PropertyHint::ResourceType) // assumption -> resource types all return by ref
                     imethod.return_type.pass_by = TypePassBy::RefValue;
@@ -693,22 +766,22 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
                 imethod.return_type.is_enum = return_info.type!=VariantType::ARRAY ? TypeRefKind::Simple : TypeRefKind::Array;
                 imethod.return_type.cname = "PH:"+return_info.hint_string;
             }
-            else if (return_info.type == VariantType::NIL && return_info.usage & PROPERTY_USAGE_NIL_IS_VARIANT) {
-                imethod.return_type.cname = "Variant";
-            }
             else if (return_info.type == VariantType::NIL) {
+                if(return_info.usage & PROPERTY_USAGE_NIL_IS_VARIANT)
+                imethod.return_type.cname = "Variant";
+                else
                 imethod.return_type.cname = "void";
             }
             else {
                 if (return_info.type == VariantType::INT) {
-                    if(return_info.hint==PropertyHint::IntIsObjectID) {
-                        imethod.return_type.cname = "ObjectID";
+                    if(return_info.hint==PropertyHint::IntIsObjectID || (m&&arg_meta[0]==GodotTypeInfo::METADATA_IS_ENTITY_ID)) {
+                        imethod.return_type.cname = return_info.class_name;
                     }
                     else
-                        imethod.return_type.cname = _get_int_type_name_from_meta(arg_meta.size() > 0 ? arg_meta[0] : GodotTypeInfo::METADATA_NONE).data();
+                        imethod.return_type.cname = _get_int_type_name_from_meta(!arg_meta.empty() ? arg_meta[0] : GodotTypeInfo::METADATA_NONE).data();
                 }
                 else if (return_info.type == VariantType::FLOAT) {
-                    imethod.return_type.cname = _get_float_type_name_from_meta(arg_meta.size() > 0 ? arg_meta[0] : GodotTypeInfo::METADATA_NONE).data();
+                    imethod.return_type.cname = _get_float_type_name_from_meta(!arg_meta.empty() ? arg_meta[0] : GodotTypeInfo::METADATA_NONE).data();
                 }
                 else {
                     imethod.return_type.cname = Variant::interned_type_name(return_info.type).asCString();
@@ -790,8 +863,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
             int argc = method_info.arguments.size();
             eastl::array<GodotTypeInfo::Metadata,20> fake_metadata;
             fake_metadata.fill(GodotTypeInfo::METADATA_NONE);
-            for (int i = 0; i < argc; i++) {
-                const PropertyInfo& arginfo = method_info.arguments[i];
+            for (const PropertyInfo &arginfo : method_info.arguments) {
 
                 StringName orig_arg_name = arginfo.name;
 
@@ -808,22 +880,22 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
         Vector<String> constants;
         ClassDB::get_integer_constant_list(type_cname, &constants, true);
 
-        const HashMap<StringName, ClassDB::EnumDescriptor>& enum_map = class_iter->second.enum_map;
+        const HashMap<StringName, ClassDB_EnumDescriptor>& enum_map = class_iter->second.enum_map;
+        const HashMap<StringName, int> &const_map(class_iter->second.constant_map);
         for (const auto& F : enum_map) {
             auto parts = StringUtils::split(F.first, "::");
             if (parts.size() > 1 && itype.name == parts[0]) {
                 parts.pop_front(); // Skip leading type name, this will be fixed below
             }
             String enum_proxy_cname(parts.front().data(), parts.front().size());
-            String enum_proxy_name(enum_proxy_cname);
 
             EnumInterface ienum(enum_proxy_cname);
             ienum.underlying_type = F.second.underlying_type;
             const Vector<StringName>& enum_constants = F.second.enumerators;
             for (const StringName& constant_cname : enum_constants) {
                 String constant_name(constant_cname.asCString());
-                auto value = class_iter->second.constant_map.find(constant_cname);
-                ERR_FAIL_COND_V(value == class_iter->second.constant_map.end(), false);
+                auto value = const_map.find(constant_cname);
+                ERR_FAIL_COND_V(value == const_map.end(), false);
                 constants.erase_first_unsorted(constant_cname.asCString());
 
                 ConstantInterface iconstant(constant_name, value->second);
@@ -842,8 +914,8 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
         }
 
         for (const String& constant_name : constants) {
-            auto value = class_iter->second.constant_map.find(StringName(constant_name));
-            ERR_FAIL_COND_V(value == class_iter->second.constant_map.end(), false);
+            auto value = const_map.find(StringName(constant_name));
+            ERR_FAIL_COND_V(value == const_map.end(), false);
 
             ConstantInterface iconstant(constant_name.c_str(), value->second);
 
@@ -931,7 +1003,7 @@ void _initialize_reflection_data(ReflectionData &rd, ReflectionSource src) {
     rd.namespaces.emplace_back();
 
     auto& current_namespace = rd.namespaces.back();
-    current_namespace.namespace_name = "Godot";
+    current_namespace.name = "Godot";
     if(src==ReflectionSource::Editor) {
         rd.imports.emplace_back(ReflectionData::ImportedData {"GodotCore",VERSION_NUMBER});
         rd.module_name = "GodotEditor";
@@ -940,12 +1012,13 @@ void _initialize_reflection_data(ReflectionData &rd, ReflectionSource src) {
         rd.module_name = "GodotCore";
     rd.api_version = VERSION_NUMBER;
     rd.version = VERSION_NUMBER;
-    ClassDB::APIType api_kind = src == ReflectionSource::Editor ? ClassDB::APIType::API_EDITOR : ClassDB::APIType::API_CORE;
+    ClassDB_APIType api_kind = src == ReflectionSource::Editor ? ClassDB_APIType::API_EDITOR : ClassDB_APIType::API_CORE;
     rd.api_hash = StringUtils::num_uint64(ClassDB::get_api_hash(api_kind),16);
     bool obj_type_ok = _populate_object_type_interfaces(rd,src);
     ERR_FAIL_COND_MSG(!obj_type_ok, "Failed to generate object type interfaces");
 
-    if(src==ReflectionSource::Core) // Only core registers the constants?
+    if(src==ReflectionSource::Core) { // Only core registers the constants?
         _populate_global_constants(rd,src);
+    }
 
 }

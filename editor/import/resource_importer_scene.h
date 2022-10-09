@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  resource_importer_scene.h                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/pair.h"
 #include "core/io/resource_importer.h"
 #include "editor/plugin_interfaces/EditorSceneImporterInterface.h"
 #include "scene/resources/animation.h"
@@ -45,13 +46,13 @@ class GODOT_EXPORT EditorSceneImporter : public EditorSceneImporterInterface,pub
 protected:
     static void _bind_methods();
 public:
-    Node *import_scene_from_other_importer(StringView p_path, uint32_t p_flags, int p_bake_fps);
+    Node *import_scene_from_other_importer(StringView p_path, uint32_t p_flags, int p_bake_fps, uint32_t p_compress_flags);
     Ref<Animation> import_animation_from_other_importer(StringView p_path, uint32_t p_flags, int p_bake_fps);
 
 public:
     uint32_t get_import_flags() const override;
     void get_extensions(Vector<String> &r_extensions) const override;
-    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
+    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, uint32_t p_compress_flags, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
     Ref<Animation> import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) override;
 
     EditorSceneImporter() {}
@@ -106,7 +107,9 @@ class ResourceImporterScene : public ResourceImporter {
     };
 
     void _replace_owner(Node *p_node, Node *p_scene, Node *p_new_owner);
-    Node* _fix_node(Node* p_node, Node* p_root, Map<Ref<Mesh>, List<Ref<Shape>>>& collision_map, LightBakeMode p_light_bake_mode);
+    void _add_shapes(Node *p_node, const Vector<Ref<Shape> > &p_shapes);
+    Node *_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>, Vector<Ref<Shape>>> &collision_map,
+            LightBakeMode p_light_bake_mode, Dequeue<Pair<NodePath, Node *>> &r_node_renames);
 
 public:
     static ResourceImporterScene *get_singleton() { return singleton; }
@@ -129,7 +132,8 @@ public:
 
     void get_import_options(Vector<ImportOption> *r_options, int p_preset = 0) const override;
     bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const override;
-    int get_import_order() const override { return 100; } //after everything
+    // Import scenes *after* everything else (such as textures).
+    int get_import_order() const override { return ResourceImporter::IMPORT_ORDER_SCENE; } //after everything
 
     void _find_meshes(Node *p_node, Map<Ref<ArrayMesh>, Transform> &meshes);
 
@@ -144,7 +148,7 @@ public:
     Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
                  Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
 
-    Node *import_scene_from_other_importer(EditorSceneImporter *p_exception, StringView p_path, uint32_t p_flags, int p_bake_fps);
+    Node *import_scene_from_other_importer(EditorSceneImporter *p_exception, StringView p_path, uint32_t p_flags, int p_bake_fps, uint32_t p_compress_flags);
     Ref<Animation> import_animation_from_other_importer(EditorSceneImporter *p_exception, StringView p_path, uint32_t p_flags, int p_bake_fps);
 
     ResourceImporterScene();
@@ -155,6 +159,6 @@ class EditorSceneImporterESCN : public EditorSceneImporterInterface {
 public:
     uint32_t get_import_flags() const override;
     void get_extensions(Vector<String> &r_extensions) const override;
-    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
-    Ref<Animation> import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) override;
+    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, uint32_t p_compress_flags, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
+    Ref<Animation> import_animation(StringView, uint32_t, int) override;
 };

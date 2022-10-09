@@ -31,6 +31,7 @@
 #include "navigation_2d.h"
 #include "core/method_bind.h"
 #include "core/math/geometry.h"
+#include "servers/navigation_2d_server.h"
 
 #define USE_ENTRY_POINT
 
@@ -40,15 +41,17 @@ IMPL_GDCLASS(Navigation2D)
 
 void Navigation2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_rid"), &Navigation2D::get_rid);
+    BIND_METHOD(Navigation2D,get_rid);
 
     MethodBinder::bind_method(D_METHOD("get_simple_path", {"start", "end", "optimize"}),&Navigation2D::get_simple_path, {DEFVAL(true)});
+    BIND_METHOD(Navigation2D,get_closest_point);
+    BIND_METHOD(Navigation2D,get_closest_point_owner);
 
-    MethodBinder::bind_method(D_METHOD("set_cell_size", {"cell_size"}),&Navigation2D::set_cell_size);
-    MethodBinder::bind_method(D_METHOD("get_cell_size"), &Navigation2D::get_cell_size);
+    BIND_METHOD(Navigation2D,set_cell_size);
+    BIND_METHOD(Navigation2D,get_cell_size);
 
-    MethodBinder::bind_method(D_METHOD("set_edge_connection_margin", {"margin"}),&Navigation2D::set_edge_connection_margin);
-    MethodBinder::bind_method(D_METHOD("get_edge_connection_margin"), &Navigation2D::get_edge_connection_margin);
+    BIND_METHOD(Navigation2D,set_edge_connection_margin);
+    BIND_METHOD(Navigation2D,get_edge_connection_margin);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "cell_size"), "set_cell_size", "get_cell_size");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "edge_connection_margin"), "set_edge_connection_margin", "get_edge_connection_margin");
@@ -76,13 +79,23 @@ void Navigation2D::set_edge_connection_margin(float p_edge_connection_margin) {
     Navigation2DServer::get_singleton()->map_set_edge_connection_margin(map, edge_connection_margin);
 }
 
-Vector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const Vector2 &p_end, bool p_optimize) {
+Vector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const Vector2 &p_end, bool p_optimize) const {
     return Navigation2DServer::get_singleton()->map_get_path(map, p_start, p_end, p_optimize);
 }
 
-Navigation2D::Navigation2D() {
+Vector2 Navigation2D::get_closest_point(const Vector2 &p_point) const {
+	return Navigation2DServer::get_singleton()->map_get_closest_point(map, p_point);
+}
 
-    map = Navigation2DServer::get_singleton()->map_create();
-    set_cell_size(10); // Ten pixels
-    set_edge_connection_margin(100);
+RID Navigation2D::get_closest_point_owner(const Vector2 &p_point) const {
+	return Navigation2DServer::get_singleton()->map_get_closest_point_owner(map, p_point);
+}
+Navigation2D::Navigation2D() {
+	map = Navigation2DServer::get_singleton()->map_create();
+	set_cell_size(1); // One pixel
+	set_edge_connection_margin(1);
+}
+
+Navigation2D::~Navigation2D() {
+    Navigation2DServer::get_singleton()->free_rid(map);
 }

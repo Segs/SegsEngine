@@ -39,6 +39,7 @@ class GODOT_EXPORT CollisionPolygon3D : public Node3D {
 
     GDCLASS(CollisionPolygon3D,Node3D)
 
+    float margin = 0.04f;
 protected:
     AABB aabb;
     Vector<Vector2> polygon;
@@ -70,6 +71,8 @@ public:
 	bool is_disabled() const;
 
 	virtual AABB get_item_rect() const;
+    float get_margin() const;
+    void set_margin(float p_margin);
 
     String get_configuration_warning() const override;
 

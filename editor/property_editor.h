@@ -45,6 +45,7 @@
 #include "scene/gui/texture_rect.h"
 #include "scene/gui/tree.h"
 
+class EditorLocaleDialog;
 class PropertyValueEvaluator;
 class CreateDialog;
 class PropertySelector;
@@ -94,6 +95,7 @@ class CustomPropertyEditor : public Popup {
 
     PopupMenu *menu;
     SceneTreeDialog *scene_tree;
+    EditorLocaleDialog* locale;
     EditorFileDialog *file;
     ConfirmationDialog *error;
     UIString name;
@@ -130,6 +132,7 @@ class CustomPropertyEditor : public Popup {
     PropertyValueEvaluator *evaluator;
 
     void _text_edit_changed();
+    void _locale_selected(StringView p_locale);
     void _file_selected(StringView p_file);
     void _modified(StringView p_string);
 
@@ -150,7 +153,6 @@ class CustomPropertyEditor : public Popup {
     void _drag_easing(const Ref<InputEvent> &p_ev);
 
     void _node_path_selected(NodePath p_path);
-    void show_value_editors(int p_amount);
     void config_value_editors(int p_amount, int p_columns, int p_label_w, const Vector<StringName> &p_strings);
     void config_value_editors_utf8(int p_amount, int p_columns, int p_label_w, const Vector<StringView> &p_strings);
     void config_action_buttons(Span<const StringName> p_strings);

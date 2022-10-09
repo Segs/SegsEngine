@@ -56,6 +56,7 @@ private:
         Color font_color;
         Color symbol_color;
         Color keyword_color;
+        Color control_flow_keyword_color;
         Color basetype_color;
         Color type_color;
         Color comment_color;
@@ -77,7 +78,7 @@ private:
         EDIT_INDENT_RIGHT,
         EDIT_INDENT_LEFT,
         EDIT_DELETE_LINE,
-        EDIT_CLONE_DOWN,
+        EDIT_DUPLICATE_SELECTION,
         EDIT_TO_UPPERCASE,
         EDIT_TO_LOWERCASE,
         EDIT_CAPITALIZE,
@@ -89,6 +90,7 @@ private:
         SEARCH_FIND_PREV,
         SEARCH_REPLACE,
         SEARCH_IN_FILES,
+        REPLACE_IN_FILES,
         SEARCH_GOTO_LINE,
         BOOKMARK_TOGGLE,
         BOOKMARK_GOTO_NEXT,
@@ -102,6 +104,7 @@ protected:
     void _edit_option(int p_op);
     void _make_context_menu(bool p_selection, bool p_can_fold, bool p_is_folded, Vector2 p_position);
     void _text_edit_gui_input(const Ref<InputEvent> &ev);
+    void _prepare_edit_menu();
 
     HashMap<String, SyntaxHighlighter *> highlighters;
     void _change_syntax_highlighter(int p_idx);

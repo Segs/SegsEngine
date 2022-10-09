@@ -42,6 +42,7 @@ class EditorNetworkProfiler : public VBoxContainer {
     GDCLASS(EditorNetworkProfiler, VBoxContainer)
 
 private:
+    HashMap<GameEntity, MultiplayerAPI::ProfilingInfo> nodes_data;
     Button *activate;
     Button *clear_button;
     Tree *counters_display;
@@ -49,8 +50,6 @@ private:
     LineEdit *outgoing_bandwidth_text;
 
     Timer *frame_delay;
-
-    Map<ObjectID, MultiplayerAPI::ProfilingInfo> nodes_data;
 
     void _update_frame();
 

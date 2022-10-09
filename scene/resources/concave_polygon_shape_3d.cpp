@@ -109,6 +109,7 @@ real_t ConcavePolygonShape3D::get_enclosing_radius() const {
 void ConcavePolygonShape3D::set_faces(const PoolVector<Vector3> &p_faces) {
 
     PhysicsServer3D::get_singleton()->shape_set_data(get_shape(), p_faces);
+    _update_shape();
     notify_change_to_owners();
 }
 
@@ -119,8 +120,8 @@ PoolVector<Vector3> ConcavePolygonShape3D::get_faces() const {
 
 void ConcavePolygonShape3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_faces", {"faces"}), &ConcavePolygonShape3D::set_faces);
-    MethodBinder::bind_method(D_METHOD("get_faces"), &ConcavePolygonShape3D::get_faces);
+    BIND_METHOD(ConcavePolygonShape3D,set_faces);
+    BIND_METHOD(ConcavePolygonShape3D,get_faces);
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_faces", "get_faces");
 }
 

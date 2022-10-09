@@ -66,15 +66,18 @@ Navigation2DServer *Navigation2DServer::singleton = nullptr;
         return NavigationServer::get_singleton()->FUNC_NAME(CONV_0(D_0), CONV_1(D_1)); \
     }
 
+#define FORWARD_2_R_C(CONV_R, FUNC_NAME, T_0, D_0, T_1, D_1, CONV_0, CONV_1)                                           \
+    Navigation2DServer::FUNC_NAME(T_0 D_0, T_1 D_1) const {                                                            \
+        return CONV_R(NavigationServer::get_singleton()->FUNC_NAME(CONV_0(D_0), CONV_1(D_1)));                         \
+    }
 #define FORWARD_4_R_C(CONV_R, FUNC_NAME, T_0, D_0, T_1, D_1, T_2, D_2, T_3, D_3, CONV_0, CONV_1, CONV_2, CONV_3)         \
-    Navigation2DServer::FUNC_NAME(T_0 D_0, T_1 D_1, T_2 D_2, T_3 D_3)                                                    \
-            const {                                                                                                      \
-        return CONV_R(NavigationServer::get_singleton()->FUNC_NAME(CONV_0(D_0), CONV_1(D_1), CONV_2(D_2), CONV_3(D_3))); \
+    Navigation2DServer::FUNC_NAME(T_0 D_0, T_1 D_1, T_2 D_2, T_3 D_3) const {                                          \
+        return CONV_R(                                                                                                 \
+                NavigationServer::get_singleton()->FUNC_NAME(CONV_0(D_0), CONV_1(D_1), CONV_2(D_2), CONV_3(D_3)));     \
     }
 
 #define FORWARD_4_C(FUNC_NAME, T_0, D_0, T_1, D_1, T_2, D_2, T_3, D_3, CONV_0, CONV_1, CONV_2, CONV_3)           \
-    Navigation2DServer::FUNC_NAME(T_0 D_0, T_1 D_1, T_2 D_2, T_3 D_3)                                            \
-            const {                                                                                              \
+    Navigation2DServer::FUNC_NAME(T_0 D_0, T_1 D_1, T_2 D_2, T_3 D_3) const {                                          \
         return NavigationServer::get_singleton()->FUNC_NAME(CONV_0(D_0), CONV_1(D_1), CONV_2(D_2), CONV_3(D_3)); \
     }
 
@@ -128,34 +131,36 @@ Ref<NavigationMesh> poly_to_mesh(Ref<NavigationPolygon> d) {
 }
 
 void Navigation2DServer::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("map_create"), &Navigation2DServer::map_create);
-    MethodBinder::bind_method(D_METHOD("map_set_active", {"map", "active"}),&Navigation2DServer::map_set_active);
-    MethodBinder::bind_method(D_METHOD("map_is_active", {"nap"}),&Navigation2DServer::map_is_active);
-    MethodBinder::bind_method(D_METHOD("map_set_cell_size", {"map", "cell_size"}),&Navigation2DServer::map_set_cell_size);
-    MethodBinder::bind_method(D_METHOD("map_get_cell_size", {"map"}),&Navigation2DServer::map_get_cell_size);
-    MethodBinder::bind_method(D_METHOD("map_set_edge_connection_margin", {"map", "margin"}),&Navigation2DServer::map_set_edge_connection_margin);
-    MethodBinder::bind_method(D_METHOD("map_get_edge_connection_margin", {"map"}),&Navigation2DServer::map_get_edge_connection_margin);
-    MethodBinder::bind_method(D_METHOD("map_get_path", {"map", "origin", "destination", "optimize"}),&Navigation2DServer::map_get_path);
+    BIND_METHOD(Navigation2DServer,map_create);
+    BIND_METHOD(Navigation2DServer,map_set_active);
+    BIND_METHOD(Navigation2DServer,map_is_active);
+    BIND_METHOD(Navigation2DServer,map_set_cell_size);
+    BIND_METHOD(Navigation2DServer,map_get_cell_size);
+    BIND_METHOD(Navigation2DServer,map_set_edge_connection_margin);
+    BIND_METHOD(Navigation2DServer,map_get_edge_connection_margin);
+    BIND_METHOD(Navigation2DServer,map_get_path);
 
-    MethodBinder::bind_method(D_METHOD("region_create"), &Navigation2DServer::region_create);
-    MethodBinder::bind_method(D_METHOD("region_set_map", {"region", "map"}),&Navigation2DServer::region_set_map);
-    MethodBinder::bind_method(D_METHOD("region_set_transform", {"region", "transform"}),&Navigation2DServer::region_set_transform);
-    MethodBinder::bind_method(D_METHOD("region_set_navpoly", {"region", "nav_poly"}),&Navigation2DServer::region_set_navpoly);
+    BIND_METHOD(Navigation2DServer,map_get_closest_point);
+    BIND_METHOD(Navigation2DServer,map_get_closest_point_owner);
+    BIND_METHOD(Navigation2DServer,region_create);
+    BIND_METHOD(Navigation2DServer,region_set_map);
+    BIND_METHOD(Navigation2DServer,region_set_transform);
+    BIND_METHOD(Navigation2DServer,region_set_navpoly);
 
-    MethodBinder::bind_method(D_METHOD("agent_create"), &Navigation2DServer::agent_create);
-    MethodBinder::bind_method(D_METHOD("agent_set_map", {"agent", "map"}),&Navigation2DServer::agent_set_map);
-    MethodBinder::bind_method(D_METHOD("agent_set_neighbor_dist", {"agent", "dist"}),&Navigation2DServer::agent_set_neighbor_dist);
-    MethodBinder::bind_method(D_METHOD("agent_set_max_neighbors", {"agent", "count"}),&Navigation2DServer::agent_set_max_neighbors);
-    MethodBinder::bind_method(D_METHOD("agent_set_time_horizon", {"agent", "time"}),&Navigation2DServer::agent_set_time_horizon);
-    MethodBinder::bind_method(D_METHOD("agent_set_radius", {"agent", "radius"}),&Navigation2DServer::agent_set_radius);
-    MethodBinder::bind_method(D_METHOD("agent_set_max_speed", {"agent", "max_speed"}),&Navigation2DServer::agent_set_max_speed);
-    MethodBinder::bind_method(D_METHOD("agent_set_velocity", {"agent", "velocity"}),&Navigation2DServer::agent_set_velocity);
-    MethodBinder::bind_method(D_METHOD("agent_set_target_velocity", {"agent", "target_velocity"}),&Navigation2DServer::agent_set_target_velocity);
-    MethodBinder::bind_method(D_METHOD("agent_set_position", {"agent", "position"}),&Navigation2DServer::agent_set_position);
-    MethodBinder::bind_method(D_METHOD("agent_is_map_changed", {"agent"}),&Navigation2DServer::agent_is_map_changed);
-    MethodBinder::bind_method(D_METHOD("agent_set_callback", {"agent", "callback"}),&Navigation2DServer::agent_set_callback);
+    BIND_METHOD(Navigation2DServer,agent_create);
+    BIND_METHOD(Navigation2DServer,agent_set_map);
+    BIND_METHOD(Navigation2DServer,agent_set_neighbor_dist);
+    BIND_METHOD(Navigation2DServer,agent_set_max_neighbors);
+    BIND_METHOD(Navigation2DServer,agent_set_time_horizon);
+    BIND_METHOD(Navigation2DServer,agent_set_radius);
+    BIND_METHOD(Navigation2DServer,agent_set_max_speed);
+    BIND_METHOD(Navigation2DServer,agent_set_velocity);
+    BIND_METHOD(Navigation2DServer,agent_set_target_velocity);
+    BIND_METHOD(Navigation2DServer,agent_set_position);
+    BIND_METHOD(Navigation2DServer,agent_is_map_changed);
+    BIND_METHOD(Navigation2DServer,agent_set_callback);
 
-    MethodBinder::bind_method(D_METHOD("free", {"object"}),&Navigation2DServer::free);
+    BIND_METHOD(Navigation2DServer,free_rid);
 }
 
 Navigation2DServer::Navigation2DServer() {
@@ -163,7 +168,7 @@ Navigation2DServer::Navigation2DServer() {
 }
 
 Navigation2DServer::~Navigation2DServer() {
-    singleton = NULL;
+    singleton = nullptr;
 }
 
 RID FORWARD_0_C(map_create)
@@ -175,10 +180,14 @@ bool FORWARD_1_C(map_is_active, RID, p_map, rid_to_rid)
 void FORWARD_2_C(map_set_cell_size, RID, p_map, real_t, p_cell_size, rid_to_rid, real_to_real)
 real_t FORWARD_1_C(map_get_cell_size, RID, p_map, rid_to_rid)
 
+void FORWARD_2_C(map_set_cell_height, RID, p_map, real_t, p_cell_height, rid_to_rid, real_to_real);
+real_t FORWARD_1_C(map_get_cell_height, RID, p_map, rid_to_rid);
 void FORWARD_2_C(map_set_edge_connection_margin, RID, p_map, real_t, p_connection_margin, rid_to_rid, real_to_real)
 real_t FORWARD_1_C(map_get_edge_connection_margin, RID, p_map, rid_to_rid)
 
 Vector<Vector2> FORWARD_4_R_C(vector_v3_to_v2, map_get_path, RID, p_map, Vector2, p_origin, Vector2, p_destination, bool, p_optimize, rid_to_rid, v2_to_v3, v2_to_v3, bool_to_bool)
+Vector2 FORWARD_2_R_C(v3_to_v2, map_get_closest_point, RID, p_map, const Vector2 &, p_point, rid_to_rid, v2_to_v3);
+RID FORWARD_2_C(map_get_closest_point_owner, RID, p_map, const Vector2 &, p_point, rid_to_rid, v2_to_v3);
 
 RID FORWARD_0_C(region_create)
 void FORWARD_2_C(region_set_map, RID, p_region, RID, p_map, rid_to_rid, rid_to_rid)
@@ -222,4 +231,4 @@ void Navigation2DServer::agent_set_callback(RID p_agent, Callable&& cb) const
     return NavigationServer::get_singleton()->agent_set_callback(rid_to_rid(p_agent), eastl::move(cb));
 }
 
-void FORWARD_1_C(free, RID, p_object, rid_to_rid)
+void FORWARD_1_C(free_rid, RID, p_object, rid_to_rid)

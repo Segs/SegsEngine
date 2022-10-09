@@ -39,6 +39,7 @@ class MenuButton;
 class EditorFileDialog;
 class ConfirmationDialog;
 class OptionButton;
+class HBoxContainer;
 
 
 class ParticlesEditorBase : public Control {

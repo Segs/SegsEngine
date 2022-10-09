@@ -1,4 +1,4 @@
-# Third party libraries
+﻿# Third party libraries
 
 
 ## assimp
@@ -6,6 +6,17 @@
 - Upstream: http://github.com/assimp/assimp
 - Version: git (308db73d0b3c2d1870cd3e465eaa283692a4cf23, 2019)
 - License: BSD-3-Clause
+
+## brotli
+
+- Upstream: https://github.com/google/brotli
+- Version: git (f4153a09f87cbb9c826d8fc12c74642bb2d879ea, 2022)
+- License: MIT
+
+Files extracted from upstream source:
+
+- `common/`, `dec/` and `include/` folders
+- `LICENSE`
 
 
 ## bullet
@@ -416,18 +427,6 @@ Files extracted from upstream source:
 - src/pcre2_jit_misc.c
 - src/sljit/*
 - AUTHORS and LICENCE
-
-
-## pvrtccompressor
-
-- Upstream: https://bitbucket.org/jthlim/pvrtccompressor
-- Version: hg (cf7177748ee0dcdccfe89716dc11a47d2dc81af5, 2015)
-- License: BSD-3-Clause
-
-Files extracted from upstream source:
-
-- all .cpp and .h files apart from `main.cpp`
-- LICENSE.TXT
 
 
 ## recastnavigation

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  os_server.cpp                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,7 +35,7 @@
 #include "drivers/dummy/texture_loader_dummy.h"
 #include "servers/rendering/rendering_server_raster.h"
 
-#include "main/main.h"
+#include "main/main_class.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,9 +69,6 @@ void OS_Server::initialize_core() {
 
     OS_Unix::initialize_core();
 
-#ifdef __APPLE__
-    SemaphoreOSX::make_default();
-#endif
 }
 
 Error OS_Server::initialize(const VideoMode &p_desired, int p_video_driver, int p_audio_driver) {

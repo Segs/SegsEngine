@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <stdint.h>
 
 enum class ImageUsedChannels : int8_t;
@@ -13,13 +13,10 @@ struct LoadParams {
 struct SaveParams {
     float p_quality = 1.0;
     bool p_greyscale = false; // used by exr saver
+    bool p_lossless = false;
 };
 enum ImageCompressMode : int8_t {
     COMPRESS_S3TC,
-    COMPRESS_PVRTC2,
-    COMPRESS_PVRTC4,
-    COMPRESS_ETC,
-    COMPRESS_ETC2,
     COMPRESS_BPTC,
     COMPRESS_MAX
 };

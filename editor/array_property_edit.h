@@ -37,15 +37,15 @@ class GODOT_EXPORT ArrayPropertyEdit : public RefCounted {
 
     GDCLASS(ArrayPropertyEdit,RefCounted)
 
-    int page;
-    ObjectID obj;
     StringName property;
     String vtypes;
     String subtype_hint_string;
+    int page;
+    GameEntity obj;
     PropertyHint subtype_hint;
     VariantType subtype;
-    Variant get_array() const;
     VariantType default_type;
+    Variant get_array() const;
 
     void _notif_change();
     void _notif_changev(StringName p_v);

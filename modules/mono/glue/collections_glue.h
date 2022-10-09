@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef COLLECTIONS_GLUE_H
-#define COLLECTIONS_GLUE_H
+#pragma once
 
 #include "core/array.h"
 
@@ -78,11 +77,11 @@ Dictionary *godot_icall_Dictionary_Ctor();
 
 void godot_icall_Dictionary_Dtor(Dictionary *ptr);
 
-MonoObject *godot_icall_Dictionary_GetValue(Dictionary *ptr, MonoObject *key);
+MonoObject *godot_icall_Dictionary_GetValue(Dictionary *ptr, MonoString *key);
 
-MonoObject *godot_icall_Dictionary_GetValue_Generic(Dictionary *ptr, MonoObject *key, uint32_t type_encoding, GDMonoClass *type_class);
+MonoObject *godot_icall_Dictionary_GetValue_Generic(Dictionary *ptr, MonoString *key, uint32_t type_encoding, GDMonoClass *type_class);
 
-void godot_icall_Dictionary_SetValue(Dictionary *ptr, MonoObject *key, MonoObject *value);
+void godot_icall_Dictionary_SetValue(Dictionary *ptr, MonoString *key, MonoObject *value);
 
 Array *godot_icall_Dictionary_Keys(Dictionary *ptr);
 
@@ -90,22 +89,22 @@ Array *godot_icall_Dictionary_Values(Dictionary *ptr);
 
 int godot_icall_Dictionary_Count(Dictionary *ptr);
 
-void godot_icall_Dictionary_Add(Dictionary *ptr, MonoObject *key, MonoObject *value);
+void godot_icall_Dictionary_Add(Dictionary *ptr, MonoString*key, MonoObject *value);
 
 void godot_icall_Dictionary_Clear(Dictionary *ptr);
 
-MonoBoolean godot_icall_Dictionary_Contains(Dictionary *ptr, MonoObject *key, MonoObject *value);
+MonoBoolean godot_icall_Dictionary_Contains(Dictionary *ptr, MonoString *key, MonoObject *value);
 
-MonoBoolean godot_icall_Dictionary_ContainsKey(Dictionary *ptr, MonoObject *key);
+MonoBoolean godot_icall_Dictionary_ContainsKey(Dictionary *ptr, MonoString*key);
 Dictionary *godot_icall_Dictionary_Duplicate(Dictionary *ptr, MonoBoolean deep);
 
-MonoBoolean godot_icall_Dictionary_RemoveKey(Dictionary *ptr, MonoObject *key);
+MonoBoolean godot_icall_Dictionary_RemoveKey(Dictionary *ptr, MonoString*key);
 
-MonoBoolean godot_icall_Dictionary_Remove(Dictionary *ptr, MonoObject *key, MonoObject *value);
+MonoBoolean godot_icall_Dictionary_Remove(Dictionary *ptr, MonoString*key, MonoObject *value);
 
-MonoBoolean godot_icall_Dictionary_TryGetValue(Dictionary *ptr, MonoObject *key, MonoObject **value);
+MonoBoolean godot_icall_Dictionary_TryGetValue(Dictionary *ptr, MonoString*key, MonoObject **value);
 
-MonoBoolean godot_icall_Dictionary_TryGetValue_Generic(Dictionary *ptr, MonoObject *key, MonoObject **value, uint32_t type_encoding, GDMonoClass *type_class);
+MonoBoolean godot_icall_Dictionary_TryGetValue_Generic(Dictionary *ptr, MonoString*key, MonoObject **value, uint32_t type_encoding, GDMonoClass *type_class);
 
 void godot_icall_Dictionary_Generic_GetValueTypeInfo(MonoReflectionType *refltype, uint32_t *type_encoding, GDMonoClass **type_class);
 
@@ -115,4 +114,3 @@ MonoString *godot_icall_Dictionary_ToString(Dictionary *ptr);
 
 void godot_register_collections_icalls();
 
-#endif // COLLECTIONS_GLUE_H

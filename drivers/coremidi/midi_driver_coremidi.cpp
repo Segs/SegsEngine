@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  midi_driver_coremidi.cpp                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,6 +36,7 @@
 
 #include <CoreAudio/HostTime.h>
 #include <CoreServices/CoreServices.h>
+#include <stdio.h>
 
 void MIDIDriverCoreMidi::read(const MIDIPacketList *packet_list, void *read_proc_ref_con, void *src_conn_ref_con) {
     MIDIPacket *packet = const_cast<MIDIPacket *>(packet_list->packet);

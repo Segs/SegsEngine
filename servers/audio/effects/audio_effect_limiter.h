@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AUDIO_EFFECT_LIMITER_H
-#define AUDIO_EFFECT_LIMITER_H
+#pragma once
 
 #include "servers/audio/audio_effect.h"
 
@@ -72,10 +71,7 @@ public:
 	float get_soft_clip_ratio() const;
 
 	Ref<AudioEffectInstance> instance() override;
-	void set_volume_db(float p_volume);
-	float get_volume_db() const;
 
 	AudioEffectLimiter();
 };
 
-#endif // AUDIO_EFFECT_LIMITER_H

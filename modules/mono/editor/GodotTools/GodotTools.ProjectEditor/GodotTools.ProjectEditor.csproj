@@ -4,7 +4,11 @@
         <TargetFramework>netstandard2.1</TargetFramework>
 		<LangVersion>7.2</LangVersion>
     </PropertyGroup>
-
+    <ItemGroup>
+      <PackageReference Include="DotNet.Glob" Version="3.1.0" />
+      <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" ExcludeAssets="runtime" PrivateAssets="all" />
+      <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
+    </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\GodotTools.Core\GodotTools.Core.csproj" />
     </ItemGroup>
@@ -17,12 +21,6 @@
     <ItemGroup>
         <None Include="MSBuild.exe" CopyToOutputDirectory="Always" />
     </ItemGroup>
-    <ItemGroup>
-      <Reference Include="Microsoft.Build" />
-      <PackageReference Include="DotNet.Glob" Version="3.1.0" />
-      <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
-      <PackageReference Include="Microsoft.Build" Version="16.6.0" />
-      <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
-    </ItemGroup>
+
 
 </Project>

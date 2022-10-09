@@ -35,14 +35,18 @@
 #include "core/object_tooling.h"
 #include "core/message_queue.h"
 #include "core/method_bind.h"
+#include "core/dictionary.h"
+#include "core/string.h"
 #include "scene/3d/light_3d.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/mesh_library.h"
 #include "scene/resources/surface_tool.h"
+#include "scene/resources/physics_material.h"
 #include "scene/scene_string_names.h"
 #include "servers/navigation_server.h"
 #include "scene/main/scene_tree.h"
 #include "servers/rendering_server.h"
-#include "core/string.h"
+
 IMPL_GDCLASS(GridMap)
 
 using namespace eastl;
@@ -84,11 +88,11 @@ bool GridMap::_set(const StringName &p_name, const Variant &p_value) {
             bm.mesh = refFromVariant<Mesh>(meshes[i]);
             ERR_CONTINUE(not bm.mesh);
             auto vserver=RenderingServer::get_singleton();
-            bm.instance = vserver->instance_create();
+            bm.instance = RID_PRIME(vserver->instance_create());
             vserver->get_singleton()->instance_set_base(bm.instance, bm.mesh->get_rid());
             vserver->instance_attach_object_instance_id(bm.instance, get_instance_id());
             if (is_inside_tree()) {
-                vserver->instance_set_scenario(bm.instance, get_world()->get_scenario());
+                vserver->instance_set_scenario(bm.instance, get_world_3d()->get_scenario());
                 vserver->instance_set_transform(bm.instance, get_global_transform());
             }
             baked_meshes.push_back(bm);
@@ -174,6 +178,7 @@ uint32_t GridMap::get_collision_mask() const {
 
 void GridMap::set_collision_mask_bit(int p_bit, bool p_value) {
 
+    ERR_FAIL_INDEX_MSG(p_bit, 32, "Collision mask bit must be between 0 and 31 inclusive.");
     uint32_t mask = get_collision_mask();
     if (p_value)
         mask |= 1 << p_bit;
@@ -184,24 +189,75 @@ void GridMap::set_collision_mask_bit(int p_bit, bool p_value) {
 
 bool GridMap::get_collision_mask_bit(int p_bit) const {
 
+    ERR_FAIL_INDEX_V_MSG(p_bit, 32,false, "Collision mask bit must be between 0 and 31 inclusive.");
     return get_collision_mask() & (1 << p_bit);
 }
 
 void GridMap::set_collision_layer_bit(int p_bit, bool p_value) {
 
-    uint32_t mask = get_collision_layer();
-    if (p_value)
-        mask |= 1 << p_bit;
-    else
-        mask &= ~(1 << p_bit);
-    set_collision_layer(mask);
+    ERR_FAIL_INDEX_MSG(p_bit, 32, "Collision layer bit must be between 0 and 31 inclusive.");
+    uint32_t layer = get_collision_layer();
+    if (p_value) {
+        layer |= 1 << p_bit;
+    } else {
+        layer &= ~(1 << p_bit);
+    }
+    set_collision_layer(layer);
 }
 
 bool GridMap::get_collision_layer_bit(int p_bit) const {
+    ERR_FAIL_INDEX_V_MSG(p_bit, 32, false, "Collision layer bit must be between 0 and 31 inclusive.");
 
     return get_collision_layer() & (1 << p_bit);
 }
 
+void GridMap::set_physics_material(Ref<PhysicsMaterial> p_material) {
+    physics_material = p_material;
+    _recreate_octant_data();
+}
+
+Ref<PhysicsMaterial> GridMap::get_physics_material() const {
+    return physics_material;
+}
+
+Array GridMap::get_collision_shapes() const {
+    Array shapes;
+    for (const eastl::pair<const OctantKey, Octant *> &E : octant_map) {
+        Octant *g = E.second;
+        RID body = g->static_body;
+        Transform body_xform = PhysicsServer3D::get_singleton()
+                                       ->body_get_state(body, PhysicsServer3D::BODY_STATE_TRANSFORM)
+                                       .as<Transform>();
+        int nshapes = PhysicsServer3D::get_singleton()->body_get_shape_count(body);
+        for (int i = 0; i < nshapes; i++) {
+            RID shape = PhysicsServer3D::get_singleton()->body_get_shape(body, i);
+            Transform xform = PhysicsServer3D::get_singleton()->body_get_shape_transform(body, i);
+            shapes.push_back(body_xform * xform);
+            shapes.push_back(shape);
+        }
+    }
+
+    return shapes;
+}
+
+Vector<CollisionShapeAndTransform> GridMap::get_collision_shapes_ex() const
+{
+    Vector<CollisionShapeAndTransform> shapes;
+    for (const eastl::pair<const OctantKey, Octant *> &E : octant_map) {
+        Octant *g = E.second;
+        RID body = g->static_body;
+        Transform body_xform = PhysicsServer3D::get_singleton()
+                                       ->body_get_state(body, PhysicsServer3D::BODY_STATE_TRANSFORM)
+                                       .as<Transform>();
+        int nshapes = PhysicsServer3D::get_singleton()->body_get_shape_count(body);
+        for (int i = 0; i < nshapes; i++) {
+            RID shape = PhysicsServer3D::get_singleton()->body_get_shape(body, i);
+            Transform xform = PhysicsServer3D::get_singleton()->body_get_shape_transform(body, i);
+            shapes.emplace_back(shape,body_xform * xform);
+        }
+    }
+    return shapes;
+}
 void GridMap::set_mesh_library(const Ref<MeshLibrary> &p_mesh_library) {
 
     if (mesh_library)
@@ -217,6 +273,14 @@ void GridMap::set_mesh_library(const Ref<MeshLibrary> &p_mesh_library) {
 Ref<MeshLibrary> GridMap::get_mesh_library() const {
 
     return mesh_library;
+}
+
+void GridMap::set_use_in_baked_light(bool p_use_baked_light) {
+    use_in_baked_light = p_use_baked_light;
+}
+
+bool GridMap::get_use_in_baked_light() const {
+    return use_in_baked_light;
 }
 
 void GridMap::set_cell_size(const Vector3 &p_size) {
@@ -315,10 +379,18 @@ void GridMap::set_cell_item(int p_x, int p_y, int p_z, int p_item, int p_rot) {
         //create octant because it does not exist
         Octant *g = memnew(Octant);
         g->dirty = true;
-        g->static_body = PhysicsServer3D::get_singleton()->body_create(PhysicsServer3D::BODY_MODE_STATIC);
-        PhysicsServer3D::get_singleton()->body_attach_object_instance_id(g->static_body, get_instance_id());
-        PhysicsServer3D::get_singleton()->body_set_collision_layer(g->static_body, collision_layer);
-        PhysicsServer3D::get_singleton()->body_set_collision_mask(g->static_body, collision_mask);
+        PhysicsServer3D * phys_server = PhysicsServer3D::get_singleton();
+
+        g->static_body = phys_server->body_create(PhysicsServer3D::BODY_MODE_STATIC);
+        phys_server->body_attach_object_instance_id(g->static_body, get_instance_id());
+        phys_server->body_set_collision_layer(g->static_body, collision_layer);
+        phys_server->body_set_collision_mask(g->static_body, collision_mask);
+        if (physics_material) {
+            phys_server->body_set_param(
+                    g->static_body, PhysicsServer3D::BODY_PARAM_FRICTION, physics_material->get_friction());
+            phys_server->body_set_param(
+                    g->static_body, PhysicsServer3D::BODY_PARAM_BOUNCE, physics_material->get_bounce());
+        }
         SceneTree *st = SceneTree::get_singleton();
 
         if (st && st->is_debugging_collisions_hint()) {
@@ -403,7 +475,7 @@ void GridMap::_octant_transform(const OctantKey &p_key) {
     Octant &g = *octant_map[p_key];
     PhysicsServer3D::get_singleton()->body_set_state(g.static_body, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
 
-    if (g.collision_debug_instance.is_valid()) {
+    if (g.collision_debug_instance!=entt::null) {
         RenderingServer::get_singleton()->instance_set_transform(g.collision_debug_instance, get_global_transform());
     }
 
@@ -422,14 +494,14 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
     PhysicsServer3D::get_singleton()->body_clear_shapes(g.static_body);
 
     //erase body shapes debug
-    if (g.collision_debug.is_valid()) {
+    if (g.collision_debug!=entt::null) {
 
         RenderingServer::get_singleton()->mesh_clear(g.collision_debug);
     }
 
     //erase navigation
     for (eastl::pair<const IndexKey,Octant::NavMesh> &E : g.navmesh_ids) {
-        NavigationServer::get_singleton()->free(E.second.region);
+        NavigationServer::get_singleton()->free_rid(E.second.region);
 
     }
     g.navmesh_ids.clear();
@@ -477,7 +549,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
         xform.basis.scale(Vector3(cell_scale, cell_scale, cell_scale));
         if (baked_meshes.empty()) {
             if (mesh_library->get_item_mesh(c.item)) {
-                multimesh_items[c.item].emplace_back(xform,E);
+                multimesh_items[c.item].emplace_back(xform * mesh_library->get_item_mesh_transform(c.item),E);
             }
         }
 
@@ -488,8 +560,8 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
             // add the item's shape
             if (not wr[i].shape)
                 continue;
-            PhysicsServer3D::get_singleton()->body_add_shape(g.static_body, wr[i].shape->get_rid(), xform * wr[i].local_transform);
-            if (g.collision_debug.is_valid()) {
+            PhysicsServer3D::get_singleton()->body_add_shape(g.static_body, wr[i].shape->get_phys_rid(), xform * wr[i].local_transform);
+            if (g.collision_debug!=entt::null) {
                 wr[i].shape->add_vertices_to_array(col_debug, xform * wr[i].local_transform);
             }
         }
@@ -517,7 +589,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
         for (auto &E : multimesh_items) {
             Octant::MultimeshInstance mmi;
 
-            RID mm = RenderingServer::get_singleton()->multimesh_create();
+            RenderingEntity mm = RenderingServer::get_singleton()->multimesh_create();
             RenderingServer::get_singleton()->multimesh_allocate(mm, E.second.size(), RS::MULTIMESH_TRANSFORM_3D, RS::MULTIMESH_COLOR_NONE);
             RenderingServer::get_singleton()->multimesh_set_mesh(mm, mesh_library->get_item_mesh(E.first)->get_rid());
 
@@ -536,11 +608,11 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
                 idx++;
             }
 
-            RID instance = RenderingServer::get_singleton()->instance_create();
+            RenderingEntity instance = RenderingServer::get_singleton()->instance_create();
             RenderingServer::get_singleton()->instance_set_base(instance, mm);
 
             if (is_inside_tree()) {
-                RenderingServer::get_singleton()->instance_set_scenario(instance, get_world()->get_scenario());
+                RenderingServer::get_singleton()->instance_set_scenario(instance, get_world_3d()->get_scenario());
                 RenderingServer::get_singleton()->instance_set_transform(instance, get_global_transform());
             }
 
@@ -580,15 +652,15 @@ void GridMap::_octant_enter_world(const OctantKey &p_key) {
     ERR_FAIL_COND(!octant_map.contains(p_key));
     Octant &g = *octant_map[p_key];
     PhysicsServer3D::get_singleton()->body_set_state(g.static_body, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
-    PhysicsServer3D::get_singleton()->body_set_space(g.static_body, get_world()->get_space());
+    PhysicsServer3D::get_singleton()->body_set_space(g.static_body, get_world_3d()->get_space());
 
-    if (g.collision_debug_instance.is_valid()) {
-        RenderingServer::get_singleton()->instance_set_scenario(g.collision_debug_instance, get_world()->get_scenario());
+    if (g.collision_debug_instance!=entt::null) {
+        RenderingServer::get_singleton()->instance_set_scenario(g.collision_debug_instance, get_world_3d()->get_scenario());
         RenderingServer::get_singleton()->instance_set_transform(g.collision_debug_instance, get_global_transform());
     }
 
     for (int i = 0; i < g.multimesh_instances.size(); i++) {
-        RenderingServer::get_singleton()->instance_set_scenario(g.multimesh_instances[i].instance, get_world()->get_scenario());
+        RenderingServer::get_singleton()->instance_set_scenario(g.multimesh_instances[i].instance, get_world_3d()->get_scenario());
         RenderingServer::get_singleton()->instance_set_transform(g.multimesh_instances[i].instance, get_global_transform());
     }
 
@@ -616,20 +688,20 @@ void GridMap::_octant_exit_world(const OctantKey &p_key) {
     PhysicsServer3D::get_singleton()->body_set_state(g.static_body, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
     PhysicsServer3D::get_singleton()->body_set_space(g.static_body, RID());
 
-    if (g.collision_debug_instance.is_valid()) {
+    if (g.collision_debug_instance!=entt::null) {
 
-        RenderingServer::get_singleton()->instance_set_scenario(g.collision_debug_instance, RID());
+        RenderingServer::get_singleton()->instance_set_scenario(g.collision_debug_instance, entt::null);
     }
 
     for (int i = 0; i < g.multimesh_instances.size(); i++) {
-        RenderingServer::get_singleton()->instance_set_scenario(g.multimesh_instances[i].instance, RID());
+        RenderingServer::get_singleton()->instance_set_scenario(g.multimesh_instances[i].instance, entt::null);
     }
 
     if (navigation) {
         for (eastl::pair<const IndexKey,Octant::NavMesh> &F : g.navmesh_ids) {
 
             if (F.second.region.is_valid()) {
-                NavigationServer::get_singleton()->free(F.second.region);
+                NavigationServer::get_singleton()->free_rid(F.second.region);
                 F.second.region = RID();
             }
         }
@@ -641,16 +713,19 @@ void GridMap::_octant_clean_up(const OctantKey &p_key) {
     ERR_FAIL_COND(!octant_map.contains(p_key));
     Octant &g = *octant_map[p_key];
 
-    if (g.collision_debug.is_valid())
         RenderingServer::get_singleton()->free_rid(g.collision_debug);
-    if (g.collision_debug_instance.is_valid())
+    g.collision_debug = entt::null;
         RenderingServer::get_singleton()->free_rid(g.collision_debug_instance);
+    g.collision_debug_instance = entt::null;
 
+    if (g.static_body.is_valid()) {
     PhysicsServer3D::get_singleton()->free_rid(g.static_body);
+        g.static_body = RID();
+    }
 
-    //erase navigation
+    // Erase navigation
     for (eastl::pair<const IndexKey,Octant::NavMesh> &E : g.navmesh_ids) {
-        NavigationServer::get_singleton()->free(E.second.region);
+        NavigationServer::get_singleton()->free_rid(E.second.region);
     }
     g.navmesh_ids.clear();
 
@@ -687,7 +762,7 @@ void GridMap::_notification(int p_what) {
             }
 
             for (int i = 0; i < baked_meshes.size(); i++) {
-                RenderingServer::get_singleton()->instance_set_scenario(baked_meshes[i].instance, get_world()->get_scenario());
+                RenderingServer::get_singleton()->instance_set_scenario(baked_meshes[i].instance, get_world_3d()->get_scenario());
                 RenderingServer::get_singleton()->instance_set_transform(baked_meshes[i].instance, get_global_transform());
             }
 
@@ -721,7 +796,7 @@ void GridMap::_notification(int p_what) {
             //_update_octants_callback();
             //_update_area_instances();
             for (int i = 0; i < baked_meshes.size(); i++) {
-                RenderingServer::get_singleton()->instance_set_scenario(baked_meshes[i].instance, RID());
+                RenderingServer::get_singleton()->instance_set_scenario(baked_meshes[i].instance, entt::null);
             }
 
         } break;
@@ -743,6 +818,9 @@ void GridMap::_update_visibility() {
             const Octant::MultimeshInstance &mi = octant->multimesh_instances[i];
             RenderingServer::get_singleton()->instance_set_visible(mi.instance, is_visible_in_tree());
         }
+    }
+    for (int i = 0; i < baked_meshes.size(); i++) {
+        RenderingServer::get_singleton()->instance_set_visible(baked_meshes[i].instance, is_visible_in_tree());
     }
 }
 
@@ -808,8 +886,9 @@ void GridMap::_update_octants_callback() {
     }
 
     while (!to_delete.empty()) {
+        memdelete(octant_map[to_delete.front()]);
         octant_map.erase(to_delete.front());
-        to_delete.pop_back();
+        to_delete.pop_front();
     }
 
     _update_visibility();
@@ -818,60 +897,68 @@ void GridMap::_update_octants_callback() {
 
 void GridMap::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_collision_layer", {"layer"}), &GridMap::set_collision_layer);
-    MethodBinder::bind_method(D_METHOD("get_collision_layer"), &GridMap::get_collision_layer);
+    BIND_METHOD(GridMap,set_collision_layer);
+    BIND_METHOD(GridMap,get_collision_layer);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"mask"}), &GridMap::set_collision_mask);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &GridMap::get_collision_mask);
+    BIND_METHOD(GridMap,set_collision_mask);
+    BIND_METHOD(GridMap,get_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", {"bit", "value"}), &GridMap::set_collision_mask_bit);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", {"bit"}), &GridMap::get_collision_mask_bit);
+    BIND_METHOD(GridMap,set_collision_mask_bit);
+    BIND_METHOD(GridMap,get_collision_mask_bit);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_layer_bit", {"bit", "value"}), &GridMap::set_collision_layer_bit);
-    MethodBinder::bind_method(D_METHOD("get_collision_layer_bit", {"bit"}), &GridMap::get_collision_layer_bit);
+    BIND_METHOD(GridMap,set_collision_layer_bit);
+    BIND_METHOD(GridMap,get_collision_layer_bit);
+    BIND_METHOD(GridMap,set_physics_material);
+    BIND_METHOD(GridMap,get_physics_material);
 
-    MethodBinder::bind_method(D_METHOD("set_mesh_library", {"mesh_library"}), &GridMap::set_mesh_library);
-    MethodBinder::bind_method(D_METHOD("get_mesh_library"), &GridMap::get_mesh_library);
+    BIND_METHOD(GridMap,set_mesh_library);
+    BIND_METHOD(GridMap,get_mesh_library);
 
-    MethodBinder::bind_method(D_METHOD("set_cell_size", {"size"}), &GridMap::set_cell_size);
-    MethodBinder::bind_method(D_METHOD("get_cell_size"), &GridMap::get_cell_size);
+    BIND_METHOD(GridMap,set_cell_size);
+    BIND_METHOD(GridMap,get_cell_size);
 
-    MethodBinder::bind_method(D_METHOD("set_cell_scale", {"scale"}), &GridMap::set_cell_scale);
-    MethodBinder::bind_method(D_METHOD("get_cell_scale"), &GridMap::get_cell_scale);
+    BIND_METHOD(GridMap,set_cell_scale);
+    BIND_METHOD(GridMap,get_cell_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_octant_size", {"size"}), &GridMap::set_octant_size);
-    MethodBinder::bind_method(D_METHOD("get_octant_size"), &GridMap::get_octant_size);
+    BIND_METHOD(GridMap,set_octant_size);
+    BIND_METHOD(GridMap,get_octant_size);
 
     MethodBinder::bind_method(D_METHOD("set_cell_item", {"x", "y", "z", "item", "orientation"}), &GridMap::set_cell_item, {DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("get_cell_item", {"x", "y", "z"}), &GridMap::get_cell_item);
-    MethodBinder::bind_method(D_METHOD("get_cell_item_orientation", {"x", "y", "z"}), &GridMap::get_cell_item_orientation);
+    BIND_METHOD(GridMap,get_cell_item);
+    BIND_METHOD(GridMap,get_cell_item_orientation);
 
-    MethodBinder::bind_method(D_METHOD("world_to_map", {"pos"}), &GridMap::world_to_map);
-    MethodBinder::bind_method(D_METHOD("map_to_world", {"x", "y", "z"}), &GridMap::map_to_world);
+    BIND_METHOD(GridMap,world_to_map);
+    BIND_METHOD(GridMap,map_to_world);
 
-    MethodBinder::bind_method(D_METHOD("resource_changed", {"resource"}), &GridMap::resource_changed);
+    BIND_METHOD(GridMap,resource_changed);
 
-    MethodBinder::bind_method(D_METHOD("set_center_x", {"enable"}), &GridMap::set_center_x);
-    MethodBinder::bind_method(D_METHOD("get_center_x"), &GridMap::get_center_x);
-    MethodBinder::bind_method(D_METHOD("set_center_y", {"enable"}), &GridMap::set_center_y);
-    MethodBinder::bind_method(D_METHOD("get_center_y"), &GridMap::get_center_y);
-    MethodBinder::bind_method(D_METHOD("set_center_z", {"enable"}), &GridMap::set_center_z);
-    MethodBinder::bind_method(D_METHOD("get_center_z"), &GridMap::get_center_z);
+    BIND_METHOD(GridMap,set_center_x);
+    BIND_METHOD(GridMap,get_center_x);
+    BIND_METHOD(GridMap,set_center_y);
+    BIND_METHOD(GridMap,get_center_y);
+    BIND_METHOD(GridMap,set_center_z);
+    BIND_METHOD(GridMap,get_center_z);
 
     MethodBinder::bind_method(D_METHOD("set_clip", {"enabled", "clipabove", "floor", "axis"}), &GridMap::set_clip, {DEFVAL(true), DEFVAL(0), DEFVAL(Vector3::AXIS_X)});
 
-    MethodBinder::bind_method(D_METHOD("clear"), &GridMap::clear);
+    BIND_METHOD(GridMap,clear);
 
-    MethodBinder::bind_method(D_METHOD("get_used_cells"), &GridMap::get_used_cells);
+    BIND_METHOD(GridMap,get_used_cells);
+    BIND_METHOD(GridMap,get_cells_used_by_item);
 
-    MethodBinder::bind_method(D_METHOD("get_meshes"), &GridMap::get_meshes);
-    MethodBinder::bind_method(D_METHOD("get_bake_meshes"), &GridMap::get_bake_meshes);
-    MethodBinder::bind_method(D_METHOD("get_bake_mesh_instance", {"idx"}), &GridMap::get_bake_mesh_instance);
+    BIND_METHOD(GridMap,get_meshes);
+    BIND_METHOD(GridMap,get_bake_meshes);
+    BIND_METHOD(GridMap,get_bake_mesh_instance);
 
-    MethodBinder::bind_method(D_METHOD("clear_baked_meshes"), &GridMap::clear_baked_meshes);
+    BIND_METHOD(GridMap,clear_baked_meshes);
     MethodBinder::bind_method(D_METHOD("make_baked_meshes", {"gen_lightmap_uv", "lightmap_uv_texel_size"}), &GridMap::make_baked_meshes, {DEFVAL(false), DEFVAL(0.1)});
 
+    BIND_METHOD(GridMap,set_use_in_baked_light);
+    BIND_METHOD(GridMap,get_use_in_baked_light);
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh_library", PropertyHint::ResourceType, "MeshLibrary"), "set_mesh_library", "get_mesh_library");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "physics_material", PropertyHint::ResourceType, "PhysicsMaterial"), "set_physics_material", "get_physics_material");
+
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_in_baked_light"), "set_use_in_baked_light", "get_use_in_baked_light");
     ADD_GROUP("Cell", "cell_");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "cell_size"), "set_cell_size", "get_cell_size");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_octant_size", PropertyHint::Range, "1,1024,1"), "set_octant_size", "get_octant_size");
@@ -966,7 +1053,19 @@ Vector<PositionedMeshInfo> GridMap::get_positioned_meshes() const
     return res;
 }
 
-Array GridMap::get_meshes() {
+Array GridMap::get_cells_used_by_item(int p_item) const {
+    Array a;
+    for (const auto &E : cell_map) {
+        if (E.second.item == p_item) {
+            Vector3 p(E.first.x, E.first.y, E.first.z);
+            a.push_back(p);
+        }
+    }
+
+    return a;
+}
+
+Array GridMap::get_meshes() const {
 
     if (not mesh_library)
         return Array();
@@ -974,7 +1073,7 @@ Array GridMap::get_meshes() {
     Vector3 ofs = _get_offset();
     Array meshes;
 
-    for (eastl::pair<const IndexKey,Cell> &E : cell_map) {
+    for (const eastl::pair<const IndexKey, Cell> &E : cell_map) {
 
         int id = E.second.item;
         if (!mesh_library->has_item(id))
@@ -1078,7 +1177,7 @@ void GridMap::make_baked_meshes(bool p_gen_lightmap_uv, float p_lightmap_uv_texe
     for (const eastl::pair<const OctantKey, Map<Ref<Material>, Ref<SurfaceTool> > > &E : surface_map) {
 
         Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
-        for (eastl::pair<const Ref<Material>,Ref<SurfaceTool> > F : E.second) {
+        for (const eastl::pair<const Ref<Material>,Ref<SurfaceTool> > &F : E.second) {
             F.second->commit(mesh);
         }
 
@@ -1088,7 +1187,7 @@ void GridMap::make_baked_meshes(bool p_gen_lightmap_uv, float p_lightmap_uv_texe
         RenderingServer::get_singleton()->get_singleton()->instance_set_base(bm.instance, bm.mesh->get_rid());
         RenderingServer::get_singleton()->instance_attach_object_instance_id(bm.instance, get_instance_id());
         if (is_inside_tree()) {
-            RenderingServer::get_singleton()->instance_set_scenario(bm.instance, get_world()->get_scenario());
+            RenderingServer::get_singleton()->instance_set_scenario(bm.instance, get_world_3d()->get_scenario());
             RenderingServer::get_singleton()->instance_set_transform(bm.instance, get_global_transform());
         }
 
@@ -1102,6 +1201,9 @@ void GridMap::make_baked_meshes(bool p_gen_lightmap_uv, float p_lightmap_uv_texe
 }
 
 Array GridMap::get_bake_meshes() {
+    if (!use_in_baked_light) {
+        return Array();
+    }
 
     if (baked_meshes.empty()) {
         make_baked_meshes(true);
@@ -1116,9 +1218,9 @@ Array GridMap::get_bake_meshes() {
     return arr;
 }
 
-RID GridMap::get_bake_mesh_instance(int p_idx) {
+RenderingEntity GridMap::get_bake_mesh_instance(int p_idx) {
 
-    ERR_FAIL_INDEX_V(p_idx, baked_meshes.size(), RID());
+    ERR_FAIL_INDEX_V(p_idx, baked_meshes.size(), entt::null);
     return baked_meshes[p_idx].instance;
 }
 
@@ -1129,6 +1231,7 @@ GridMap::GridMap() {
 
     cell_size = Vector3(2, 2, 2);
     octant_size = 8;
+    use_in_baked_light = false;
     awaiting_update = false;
     _in_tree = false;
     center_x = true;

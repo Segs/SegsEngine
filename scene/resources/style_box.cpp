@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  style_box.cpp                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -71,9 +71,6 @@ float StyleBox::get_margin(Margin p_margin) const {
         return margin[(int)p_margin];
 }
 
-CanvasItem *StyleBox::get_current_item_drawn() const {
-    return CanvasItem::get_current_item_drawn();
-}
 
 Size2 StyleBox::get_minimum_size() const {
 
@@ -96,21 +93,18 @@ Rect2 StyleBox::get_draw_rect(const Rect2 &p_rect) const {
 
 void StyleBox::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("test_mask", {"point", "rect"}), &StyleBox::test_mask);
+    BIND_METHOD(StyleBox,test_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_default_margin", {"margin", "offset"}), &StyleBox::set_default_margin);
-    MethodBinder::bind_method(D_METHOD("get_default_margin", {"margin"}), &StyleBox::get_default_margin);
+    BIND_METHOD(StyleBox,set_default_margin);
+    BIND_METHOD(StyleBox,get_default_margin);
 
-    //MethodBinder::bind_method(D_METHOD("set_default_margin"),&StyleBox::set_default_margin);
-    //MethodBinder::bind_method(D_METHOD("get_default_margin"),&StyleBox::get_default_margin);
 
-    MethodBinder::bind_method(D_METHOD("get_margin", {"margin"}), &StyleBox::get_margin);
-    MethodBinder::bind_method(D_METHOD("get_minimum_size"), &StyleBox::get_minimum_size);
-    MethodBinder::bind_method(D_METHOD("get_center_size"), &StyleBox::get_center_size);
-    MethodBinder::bind_method(D_METHOD("get_offset"), &StyleBox::get_offset);
-    MethodBinder::bind_method(D_METHOD("get_current_item_drawn"), &StyleBox::get_current_item_drawn);
+    BIND_METHOD(StyleBox,get_margin);
+    BIND_METHOD(StyleBox,get_minimum_size);
+    BIND_METHOD(StyleBox,get_center_size);
+    BIND_METHOD(StyleBox,get_offset);
 
-    MethodBinder::bind_method(D_METHOD("draw", {"canvas_item", "rect"}), &StyleBox::draw);
+    BIND_METHOD(StyleBox,draw);
 
     ADD_GROUP("Content Margin", "content_margin_");
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "content_margin_left", PropertyHint::Range, "-1,2048,1"), "set_default_margin", "get_default_margin", (int)Margin::Left);
@@ -189,7 +183,7 @@ float StyleBoxTexture::get_style_margin(Margin p_margin) const {
 Rect2 StyleBoxTexture::get_draw_rect(const Rect2 &p_rect) const {
     return p_rect.grow_individual(expand_margin[(int8_t)Margin::Left], expand_margin[(int8_t)Margin::Top], expand_margin[(int8_t)Margin::Right], expand_margin[(int8_t)Margin::Bottom]);
 }
-void StyleBoxTexture::draw(RID p_canvas_item, const Rect2 &p_rect) const {
+void StyleBoxTexture::draw(RenderingEntity p_canvas_item, const Rect2 &p_rect) const {
     if (not texture)
         return;
 
@@ -203,22 +197,20 @@ void StyleBoxTexture::draw(RID p_canvas_item, const Rect2 &p_rect) const {
     rect.size.x += expand_margin[(int8_t)Margin::Left] + expand_margin[(int8_t)Margin::Right];
     rect.size.y += expand_margin[(int8_t)Margin::Top] + expand_margin[(int8_t)Margin::Bottom];
 
-    RID normal_rid;
+    RenderingEntity normal_rid=entt::null;
     if (normal_map)
         normal_rid = normal_map->get_rid();
 
-    RenderingServer::get_singleton()->canvas_item_add_nine_patch(p_canvas_item, rect, src_rect, texture->get_rid(), Vector2(margin[(int8_t)Margin::Left], margin[(int8_t)Margin::Top]), Vector2(margin[(int8_t)Margin::Right], margin[(int8_t)Margin::Bottom]), RS::NinePatchAxisMode(axis_h), RS::NinePatchAxisMode(axis_v), draw_center, modulate, normal_rid);
+    RenderingServer::get_singleton()->canvas_item_add_nine_patch(p_canvas_item, rect, src_rect, texture->get_rid(),
+        Vector2(margin[(int8_t)Margin::Left], margin[(int8_t)Margin::Top]),
+        Vector2(margin[(int8_t)Margin::Right], margin[(int8_t)Margin::Bottom]), RS::NinePatchAxisMode(axis_h),
+        RS::NinePatchAxisMode(axis_v), draw_center, modulate, normal_rid);
 }
 
 void StyleBoxTexture::set_draw_center(bool p_enabled) {
 
     draw_center = p_enabled;
     emit_changed();
-}
-
-bool StyleBoxTexture::is_draw_center_enabled() const {
-
-    return draw_center;
 }
 
 Size2 StyleBoxTexture::get_center_size() const {
@@ -304,41 +296,36 @@ void StyleBoxTexture::set_modulate(const Color &p_modulate) {
     emit_changed();
 }
 
-Color StyleBoxTexture::get_modulate() const {
-
-    return modulate;
-}
-
 void StyleBoxTexture::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &StyleBoxTexture::set_texture);
-    MethodBinder::bind_method(D_METHOD("get_texture"), &StyleBoxTexture::get_texture);
+    BIND_METHOD(StyleBoxTexture,set_texture);
+    BIND_METHOD(StyleBoxTexture,get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_normal_map", {"normal_map"}), &StyleBoxTexture::set_normal_map);
-    MethodBinder::bind_method(D_METHOD("get_normal_map"), &StyleBoxTexture::get_normal_map);
+    BIND_METHOD(StyleBoxTexture,set_normal_map);
+    BIND_METHOD(StyleBoxTexture,get_normal_map);
 
-    MethodBinder::bind_method(D_METHOD("set_margin_size", {"margin", "size"}), &StyleBoxTexture::set_margin_size);
-    MethodBinder::bind_method(D_METHOD("get_margin_size", {"margin"}), &StyleBoxTexture::get_margin_size);
+    BIND_METHOD(StyleBoxTexture,set_margin_size);
+    BIND_METHOD(StyleBoxTexture,get_margin_size);
 
-    MethodBinder::bind_method(D_METHOD("set_expand_margin_size", {"margin", "size"}), &StyleBoxTexture::set_expand_margin_size);
+    BIND_METHOD(StyleBoxTexture,set_expand_margin_size);
     MethodBinder::bind_method(D_METHOD("set_expand_margin_all", {"size"}), &StyleBoxTexture::set_expand_margin_size_all);
     MethodBinder::bind_method(D_METHOD("set_expand_margin_individual", {"size_left", "size_top", "size_right", "size_bottom"}), &StyleBoxTexture::set_expand_margin_size_individual);
-    MethodBinder::bind_method(D_METHOD("get_expand_margin_size", {"margin"}), &StyleBoxTexture::get_expand_margin_size);
+    BIND_METHOD(StyleBoxTexture,get_expand_margin_size);
 
-    MethodBinder::bind_method(D_METHOD("set_region_rect", {"region"}), &StyleBoxTexture::set_region_rect);
-    MethodBinder::bind_method(D_METHOD("get_region_rect"), &StyleBoxTexture::get_region_rect);
+    BIND_METHOD(StyleBoxTexture,set_region_rect);
+    BIND_METHOD(StyleBoxTexture,get_region_rect);
 
-    MethodBinder::bind_method(D_METHOD("set_draw_center", {"enable"}), &StyleBoxTexture::set_draw_center);
-    MethodBinder::bind_method(D_METHOD("is_draw_center_enabled"), &StyleBoxTexture::is_draw_center_enabled);
+    BIND_METHOD(StyleBoxTexture,set_draw_center);
+    BIND_METHOD(StyleBoxTexture,is_draw_center_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_modulate", {"color"}), &StyleBoxTexture::set_modulate);
-    MethodBinder::bind_method(D_METHOD("get_modulate"), &StyleBoxTexture::get_modulate);
+    BIND_METHOD(StyleBoxTexture,set_modulate);
+    BIND_METHOD(StyleBoxTexture,get_modulate);
 
-    MethodBinder::bind_method(D_METHOD("set_h_axis_stretch_mode", {"mode"}), &StyleBoxTexture::set_h_axis_stretch_mode);
-    MethodBinder::bind_method(D_METHOD("get_h_axis_stretch_mode"), &StyleBoxTexture::get_h_axis_stretch_mode);
+    BIND_METHOD(StyleBoxTexture,set_h_axis_stretch_mode);
+    BIND_METHOD(StyleBoxTexture,get_h_axis_stretch_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_v_axis_stretch_mode", {"mode"}), &StyleBoxTexture::set_v_axis_stretch_mode);
-    MethodBinder::bind_method(D_METHOD("get_v_axis_stretch_mode"), &StyleBoxTexture::get_v_axis_stretch_mode);
+    BIND_METHOD(StyleBoxTexture,set_v_axis_stretch_mode);
+    BIND_METHOD(StyleBoxTexture,get_v_axis_stretch_mode);
 
     ADD_SIGNAL(MethodInfo("texture_changed"));
 
@@ -551,11 +538,11 @@ bool StyleBoxFlat::is_anti_aliased() const {
     return anti_aliased;
 }
 
-void StyleBoxFlat::set_aa_size(const int &p_aa_size) {
-    aa_size = CLAMP(p_aa_size, 1, 5);
+void StyleBoxFlat::set_aa_size(const float &p_aa_size) {
+    aa_size = CLAMP(p_aa_size, 0.01f, 10.0f);
     emit_changed();
 }
-int StyleBoxFlat::get_aa_size() const {
+float StyleBoxFlat::get_aa_size() const {
     return aa_size;
 }
 
@@ -572,14 +559,14 @@ Size2 StyleBoxFlat::get_center_size() const {
     return Size2();
 }
 
-inline void set_inner_corner_radius(const Rect2 style_rect, const Rect2 inner_rect, const int corner_radius[4], int *inner_corner_radius) {
-    int border_left = inner_rect.position.x - style_rect.position.x;
-    int border_top = inner_rect.position.y - style_rect.position.y;
-    int border_right = style_rect.size.width - inner_rect.size.width - border_left;
-    int border_bottom = style_rect.size.height - inner_rect.size.height - border_top;
+inline void set_inner_corner_radius(const Rect2 style_rect, const Rect2 inner_rect, const float corner_radius[4], float *inner_corner_radius) {
+    float border_left = inner_rect.position.x - style_rect.position.x;
+    float border_top = inner_rect.position.y - style_rect.position.y;
+    float border_right = style_rect.size.width - inner_rect.size.width - border_left;
+    float border_bottom = style_rect.size.height - inner_rect.size.height - border_top;
 
-    int rad;
-    //tl
+    float rad;
+    // Top Left
     rad = MIN(border_top, border_left);
     inner_corner_radius[0] = M_MAX(corner_radius[0] - rad, 0);
 
@@ -595,20 +582,17 @@ inline void set_inner_corner_radius(const Rect2 style_rect, const Rect2 inner_re
     rad = MIN(border_bottom, border_left);
     inner_corner_radius[3] = M_MAX(corner_radius[3] - rad, 0);
 }
-inline void draw_ring(Vector<Vector2> &verts, Vector<int> &indices, PoolVector<Color> &colors, const Rect2 &style_rect, const int corner_radius[4],
+inline void draw_ring(Vector<Vector2> &verts, Vector<int> &indices, Vector<Color> &colors, const Rect2 &style_rect, const float corner_radius[4],
         Rect2 ring_rect, Rect2 inner_rect, const Color &inner_color, const Color &outer_color, const int corner_detail, const bool fill_center = false) {
 
     int vert_offset = verts.size();
-    if (!vert_offset) {
-        vert_offset = 0;
-    }
 
-    int adapted_corner_detail = (corner_radius[0] == 0 && corner_radius[1] == 0 && corner_radius[2] == 0 && corner_radius[3] == 0) ? 1 : corner_detail;
+    float adapted_corner_detail = (corner_radius[0] == 0 && corner_radius[1] == 0 && corner_radius[2] == 0 && corner_radius[3] == 0) ? 1 : corner_detail;
 
-    int ring_corner_radius[4];
+    float ring_corner_radius[4];
     set_inner_corner_radius(style_rect, ring_rect, corner_radius, ring_corner_radius);
 
-    //corner radius center points
+    // Corner radius center points.
     const eastl::array<Point2,4> outer_points = {
         Point2(ring_rect.position + Vector2(ring_corner_radius[0], ring_corner_radius[0])), //tl
         Point2(ring_rect.position.x + ring_rect.size.x - ring_corner_radius[1], ring_rect.position.y + ring_corner_radius[1]), //tr
@@ -616,7 +600,7 @@ inline void draw_ring(Vector<Vector2> &verts, Vector<int> &indices, PoolVector<C
         Point2(ring_rect.position.x + ring_corner_radius[3], ring_rect.position.y + ring_rect.size.y - ring_corner_radius[3]), //bl
     };
 
-    int inner_corner_radius[4];
+    float inner_corner_radius[4];
     set_inner_corner_radius(style_rect, inner_rect, corner_radius, inner_corner_radius);
 
     const eastl::array<Point2,4> inner_points = {
@@ -645,14 +629,14 @@ inline void draw_ring(Vector<Vector2> &verts, Vector<int> &indices, PoolVector<C
                 float x = radius * (float)cos((float)corner_index * Math_PI / 2.0f + (float)detail / (float)adapted_corner_detail * Math_PI / 2.0f + Math_PI) + corner_point.x;
                 float y = radius * (float)sin((float)corner_index * Math_PI / 2.0f + (float)detail / (float)adapted_corner_detail * Math_PI / 2.0f + Math_PI) + corner_point.y;
                 verts.emplace_back(x, y);
-                colors.push_back(color);
+                colors.emplace_back(color);
             }
         }
     }
 
     int ring_vert_count = verts.size() - vert_offset;
 
-    //fill the indices and the colors for the border
+    // Fill the indices and the colors for the border.
     for (int i = 0; i < ring_vert_count; i++) {
         indices.push_back(vert_offset + ((i + 0) % ring_vert_count));
         indices.push_back(vert_offset + ((i + 2) % ring_vert_count));
@@ -660,14 +644,14 @@ inline void draw_ring(Vector<Vector2> &verts, Vector<int> &indices, PoolVector<C
     }
 
     if (fill_center) {
-        //fill the indices and the colors for the center
+        // Fill the indices and the colors for the center.
         for (int index = 0; index < ring_vert_count / 2; index += 2) {
             int i = index;
-            //poly 1
+            // Polygon 1.
             indices.push_back(vert_offset + i);
             indices.push_back(vert_offset + ring_vert_count - 4 - i);
             indices.push_back(vert_offset + i + 2);
-            //poly 2
+            // Polygon 2.
             indices.push_back(vert_offset + i);
             indices.push_back(vert_offset + ring_vert_count - 2 - i);
             indices.push_back(vert_offset + ring_vert_count - 4 - i);
@@ -675,11 +659,11 @@ inline void draw_ring(Vector<Vector2> &verts, Vector<int> &indices, PoolVector<C
     }
 }
 
-inline void adapt_values(int p_index_a, int p_index_b, int *adapted_values, const int *p_values, const real_t p_width, const int p_max_a, const int p_max_b) {
+inline void adapt_values(int p_index_a, int p_index_b, float *adapted_values, const float *p_values, const real_t p_width, const float p_max_a, const float p_max_b) {
     if (p_values[p_index_a] + p_values[p_index_b] > p_width) {
 
         float factor = (float)p_width / (float)(p_values[p_index_a] + p_values[p_index_b]);
-        int newValue = (int)(p_values[p_index_a] * factor);
+        float newValue = (float)(p_values[p_index_a] * factor);
 
         if (newValue < adapted_values[p_index_a]) {
             adapted_values[p_index_a] = newValue;
@@ -708,9 +692,8 @@ Rect2 StyleBoxFlat::get_draw_rect(const Rect2 &p_rect) const {
     return draw_rect;
 }
 
-void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
+void StyleBoxFlat::draw(RenderingEntity p_canvas_item, const Rect2 &p_rect) const {
 
-    //PREPARATIONS
     bool draw_border = (border_width[0] > 0) || (border_width[1] > 0) || (border_width[2] > 0) || (border_width[3] > 0);
     bool draw_shadow = (shadow_size > 0);
     if (!draw_border && !draw_center && !draw_shadow) {
@@ -724,7 +707,6 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
 
     bool rounded_corners = (corner_radius[0] > 0) || (corner_radius[1] > 0) || (corner_radius[2] > 0) || (corner_radius[3] > 0);
     bool aa_on = rounded_corners && anti_aliased;
-    float aa_size_grow = 0.5f * ((aa_size + 1) / 2);
 
     bool blend_on = blend_border && draw_border;
 
@@ -733,14 +715,14 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
     Color border_color_inner = blend_on ? border_color_blend : border_color;
 
     //adapt borders (prevent weird overlapping/glitchy drawings)
-    int width = M_MAX(style_rect.size.width, 0);
-    int height = M_MAX(style_rect.size.height, 0);
-    int adapted_border[4] = { INT_MAX, INT_MAX, INT_MAX, INT_MAX };
+    float width = M_MAX(style_rect.size.width, 0);
+    float height = M_MAX(style_rect.size.height, 0);
+    float adapted_border[4] = { 1000000.0f, 1000000.0f, 1000000.0f, 1000000.0f };
     adapt_values((int)Margin::Top, (int)Margin::Bottom, adapted_border, border_width, height, height, height);
     adapt_values((int)Margin::Left, (int)Margin::Right, adapted_border, border_width, width, width, width);
 
     //adapt corners (prevent weird overlapping/glitchy drawings)
-    int adapted_corner[4] = { INT_MAX, INT_MAX, INT_MAX, INT_MAX };
+    float adapted_corner[4] = { 1000000.0f, 1000000.0f, 1000000.0f, 1000000.0f };
     adapt_values(CORNER_TOP_RIGHT, CORNER_BOTTOM_RIGHT, adapted_corner, corner_radius, height, height - adapted_border[(int8_t)Margin::Bottom], height - adapted_border[(int8_t)Margin::Top]);
     adapt_values(CORNER_TOP_LEFT, CORNER_BOTTOM_LEFT, adapted_corner, corner_radius, height, height - adapted_border[(int8_t)Margin::Bottom], height - adapted_border[(int8_t)Margin::Top]);
     adapt_values(CORNER_TOP_LEFT, CORNER_TOP_RIGHT, adapted_corner, corner_radius, width, width - adapted_border[(int8_t)Margin::Right], width - adapted_border[(int8_t)Margin::Left]);
@@ -752,16 +734,16 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
     if (aa_on) {
         for (int i = 0; i < 4; i++) {
             if (border_width[i] > 0) {
-                border_style_rect = border_style_rect.grow_margin((Margin)i, -aa_size_grow);
+                border_style_rect = border_style_rect.grow_margin((Margin)i, -aa_size);
             }
         }
     }
     Vector<Point2> verts;
     Vector<int> indices;
-    PoolVector<Color> colors;
-    PoolVector<Point2> uvs;
+    Vector<Color> colors;
+    Vector<Point2> uvs;
 
-    //DRAW SHADOW
+    // Create shadow
     if (draw_shadow) {
 
         Rect2 shadow_inner_rect = style_rect;
@@ -781,34 +763,34 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
         }
     }
 
-    //DRAW border
-    if (draw_border) {
+    // Create border (no AA).
+    if (draw_border && !aa_on) {
         draw_ring(verts, indices, colors, border_style_rect, adapted_corner,
                 border_style_rect, infill_rect, border_color_inner, border_color, corner_detail);
     }
 
-    //DRAW INFILL
+    // Create infill (no AA).
     if (draw_center && (!aa_on || blend_on || !draw_border)) {
         draw_ring(verts, indices, colors, border_style_rect, adapted_corner,
                 infill_rect, infill_rect, bg_color, bg_color, corner_detail, true);
     }
     if (aa_on) {
-        int aa_border_width[4];
-        int aa_fill_width[4];
+        float aa_border_width[4];
+        float aa_fill_width[4];
         if (draw_border) {
             for (int i = 0; i < 4; i++) {
                 if (border_width[i] > 0) {
-                    aa_border_width[i] = aa_size_grow;
+                    aa_border_width[i] = aa_size;
                     aa_fill_width[i] = 0;
                 } else {
                     aa_border_width[i] = 0;
-                    aa_fill_width[i] = aa_size_grow;
+                    aa_fill_width[i] = aa_size;
                 }
             }
         } else {
             for (int i = 0; i < 4; i++) {
                 aa_border_width[i] = 0;
-                aa_fill_width[i] = aa_size_grow;
+                aa_fill_width[i] = aa_size;
             }
         }
 
@@ -817,45 +799,61 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
 
         if (draw_center) {
             if (!blend_on && draw_border) {
-                //DRAW INFILL WITHIN BORDER AA
+                Rect2 infill_inner_rect_aa = infill_inner_rect.grow_individual(aa_border_width[(int8_t)Margin::Left], aa_border_width[(int8_t)Margin::Top],
+                        aa_border_width[(int8_t)Margin::Right], aa_border_width[(int8_t)Margin::Bottom]);
+                // Create infill within AA border.
                 draw_ring(verts, indices, colors, border_style_rect, adapted_corner,
-                        infill_inner_rect, infill_inner_rect, bg_color, bg_color, corner_detail, true);
+                        infill_inner_rect_aa, infill_inner_rect_aa, bg_color, bg_color, corner_detail, true);
             }
 
             if (!blend_on || !draw_border) {
-                Rect2 infill_aa_rect = infill_rect.grow_individual(aa_fill_width[(int8_t)Margin::Left], aa_fill_width[(int8_t)Margin::Top],
+                Rect2 infill_rect_aa = infill_rect.grow_individual(aa_fill_width[(int8_t)Margin::Left], aa_fill_width[(int8_t)Margin::Top],
                         aa_fill_width[(int8_t)Margin::Right], aa_fill_width[(int8_t)Margin::Bottom]);
 
                 Color alpha_bg = Color(bg_color.r, bg_color.g, bg_color.b, 0);
 
-                //INFILL AA
+                // Create infill fake AA gradient.
                 draw_ring(verts, indices, colors, style_rect, adapted_corner,
-                        infill_aa_rect, infill_rect, bg_color, alpha_bg, corner_detail);
+                        infill_rect_aa, infill_rect, bg_color, alpha_bg, corner_detail);
             }
         }
 
         if (draw_border) {
+            const Rect2 infill_rect_aa =
+                    infill_rect.grow_individual(aa_border_width[(int8_t)Margin::Left], aa_border_width[(int8_t)Margin::Top],
+                            aa_border_width[(int8_t)Margin::Right], aa_border_width[(int8_t)Margin::Bottom]);
+            const Rect2 style_rect_aa =
+                    style_rect.grow_individual(aa_border_width[(int8_t)Margin::Left], aa_border_width[(int8_t)Margin::Top],
+                            aa_border_width[(int8_t)Margin::Right], aa_border_width[(int8_t)Margin::Bottom]);
+            const Rect2 border_style_rect_aa = border_style_rect.grow_individual(aa_border_width[(int8_t)Margin::Left],
+                    aa_border_width[(int8_t)Margin::Top], aa_border_width[(int8_t)Margin::Right],
+                    aa_border_width[(int8_t)Margin::Bottom]);
+
+            // Create border.
+            draw_ring(verts, indices, colors, border_style_rect, adapted_corner, border_style_rect_aa,
+                    ((blend_on) ? infill_rect : infill_rect_aa), border_color_inner, border_color, corner_detail);
             if (!blend_on) {
-                //DRAW INNER BORDER AA
-                draw_ring(verts, indices, colors, border_style_rect, adapted_corner,
-                        infill_rect, infill_inner_rect, border_color_blend, border_color, corner_detail);
+                // Create inner border fake AA gradient.
+                draw_ring(verts, indices, colors, border_style_rect, adapted_corner, infill_rect_aa, infill_rect,
+                        border_color_blend, border_color, corner_detail);
             }
 
-            //DRAW OUTER BORDER AA
-            draw_ring(verts, indices, colors, border_style_rect, adapted_corner,
-                    style_rect, border_style_rect, border_color, border_color_alpha, corner_detail);
+            // Create outer border fake AA gradient.
+            draw_ring(verts, indices, colors, border_style_rect, adapted_corner, style_rect_aa, border_style_rect_aa,
+                    border_color, border_color_alpha, corner_detail);
         }
     }
 
-    //COMPUTE UV COORDINATES
-    Rect2 uv_rect = style_rect.grow(aa_on ? aa_size_grow : 0);
-    uvs.resize(verts.size());
-    auto uv_wr(uvs.write());
+    // Compute UV coordinates.
+    Rect2 uv_rect = style_rect.grow(aa_on ? aa_size : 0);
+    uvs.reserve(verts.size());
     for (int i = 0; i < verts.size(); i++) {
-        uv_wr[i].x = (verts[i].x - uv_rect.position.x) / uv_rect.size.width;
-        uv_wr[i].y = (verts[i].y - uv_rect.position.y) / uv_rect.size.height;
+        uvs.emplace_back(
+                    (verts[i].x - uv_rect.position.x) / uv_rect.size.width,
+                        (verts[i].y - uv_rect.position.y) / uv_rect.size.height
+       );
     }
-    //DRAWING
+    // Draw stylebox.
     RenderingServer *vs = RenderingServer::get_singleton();
     vs->canvas_item_add_triangle_array(p_canvas_item, indices, verts, colors, uvs);
 }
@@ -866,52 +864,52 @@ float StyleBoxFlat::get_style_margin(Margin p_margin) const {
 }
 void StyleBoxFlat::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_bg_color", {"color"}), &StyleBoxFlat::set_bg_color);
-    MethodBinder::bind_method(D_METHOD("get_bg_color"), &StyleBoxFlat::get_bg_color);
+    BIND_METHOD(StyleBoxFlat,set_bg_color);
+    BIND_METHOD(StyleBoxFlat,get_bg_color);
 
-    MethodBinder::bind_method(D_METHOD("set_border_color", {"color"}), &StyleBoxFlat::set_border_color);
-    MethodBinder::bind_method(D_METHOD("get_border_color"), &StyleBoxFlat::get_border_color);
+    BIND_METHOD(StyleBoxFlat,set_border_color);
+    BIND_METHOD(StyleBoxFlat,get_border_color);
 
-    MethodBinder::bind_method(D_METHOD("set_border_width_all", {"width"}), &StyleBoxFlat::set_border_width_all);
-    MethodBinder::bind_method(D_METHOD("get_border_width_min"), &StyleBoxFlat::get_border_width_min);
+    BIND_METHOD(StyleBoxFlat,set_border_width_all);
+    BIND_METHOD(StyleBoxFlat,get_border_width_min);
 
-    MethodBinder::bind_method(D_METHOD("set_border_width", {"margin", "width"}), &StyleBoxFlat::set_border_width);
-    MethodBinder::bind_method(D_METHOD("get_border_width", {"margin"}), &StyleBoxFlat::get_border_width);
+    BIND_METHOD(StyleBoxFlat,set_border_width);
+    BIND_METHOD(StyleBoxFlat,get_border_width);
 
-    MethodBinder::bind_method(D_METHOD("set_border_blend", {"blend"}), &StyleBoxFlat::set_border_blend);
-    MethodBinder::bind_method(D_METHOD("get_border_blend"), &StyleBoxFlat::get_border_blend);
+    BIND_METHOD(StyleBoxFlat,set_border_blend);
+    BIND_METHOD(StyleBoxFlat,get_border_blend);
 
-    MethodBinder::bind_method(D_METHOD("set_corner_radius_individual", {"radius_top_left", "radius_top_right", "radius_bottom_right", "radius_bottom_left"}), &StyleBoxFlat::set_corner_radius_individual);
-    MethodBinder::bind_method(D_METHOD("set_corner_radius_all", {"radius"}), &StyleBoxFlat::set_corner_radius_all);
+    BIND_METHOD(StyleBoxFlat,set_corner_radius_individual);
+    BIND_METHOD(StyleBoxFlat,set_corner_radius_all);
 
-    MethodBinder::bind_method(D_METHOD("set_corner_radius", {"corner", "radius"}), &StyleBoxFlat::set_corner_radius);
-    MethodBinder::bind_method(D_METHOD("get_corner_radius", {"corner"}), &StyleBoxFlat::get_corner_radius);
+    BIND_METHOD(StyleBoxFlat,set_corner_radius);
+    BIND_METHOD(StyleBoxFlat,get_corner_radius);
 
     MethodBinder::bind_method(D_METHOD("set_expand_margin", {"margin", "size"}), &StyleBoxFlat::set_expand_margin_size);
     MethodBinder::bind_method(D_METHOD("set_expand_margin_all", {"size"}), &StyleBoxFlat::set_expand_margin_size_all);
     MethodBinder::bind_method(D_METHOD("set_expand_margin_individual", {"size_left", "size_top", "size_right", "size_bottom"}), &StyleBoxFlat::set_expand_margin_size_individual);
     MethodBinder::bind_method(D_METHOD("get_expand_margin", {"margin"}), &StyleBoxFlat::get_expand_margin_size);
 
-    MethodBinder::bind_method(D_METHOD("set_draw_center", {"draw_center"}), &StyleBoxFlat::set_draw_center);
-    MethodBinder::bind_method(D_METHOD("is_draw_center_enabled"), &StyleBoxFlat::is_draw_center_enabled);
+    BIND_METHOD(StyleBoxFlat,set_draw_center);
+    BIND_METHOD(StyleBoxFlat,is_draw_center_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_shadow_color", {"color"}), &StyleBoxFlat::set_shadow_color);
-    MethodBinder::bind_method(D_METHOD("get_shadow_color"), &StyleBoxFlat::get_shadow_color);
+    BIND_METHOD(StyleBoxFlat,set_shadow_color);
+    BIND_METHOD(StyleBoxFlat,get_shadow_color);
 
-    MethodBinder::bind_method(D_METHOD("set_shadow_size", {"size"}), &StyleBoxFlat::set_shadow_size);
-    MethodBinder::bind_method(D_METHOD("get_shadow_size"), &StyleBoxFlat::get_shadow_size);
+    BIND_METHOD(StyleBoxFlat,set_shadow_size);
+    BIND_METHOD(StyleBoxFlat,get_shadow_size);
 
-    MethodBinder::bind_method(D_METHOD("set_shadow_offset", {"offset"}), &StyleBoxFlat::set_shadow_offset);
-    MethodBinder::bind_method(D_METHOD("get_shadow_offset"), &StyleBoxFlat::get_shadow_offset);
+    BIND_METHOD(StyleBoxFlat,set_shadow_offset);
+    BIND_METHOD(StyleBoxFlat,get_shadow_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_anti_aliased", {"anti_aliased"}), &StyleBoxFlat::set_anti_aliased);
-    MethodBinder::bind_method(D_METHOD("is_anti_aliased"), &StyleBoxFlat::is_anti_aliased);
+    BIND_METHOD(StyleBoxFlat,set_anti_aliased);
+    BIND_METHOD(StyleBoxFlat,is_anti_aliased);
 
-    MethodBinder::bind_method(D_METHOD("set_aa_size", {"size"}), &StyleBoxFlat::set_aa_size);
-    MethodBinder::bind_method(D_METHOD("get_aa_size"), &StyleBoxFlat::get_aa_size);
+    BIND_METHOD(StyleBoxFlat,set_aa_size);
+    BIND_METHOD(StyleBoxFlat,get_aa_size);
 
-    MethodBinder::bind_method(D_METHOD("set_corner_detail", {"detail"}), &StyleBoxFlat::set_corner_detail);
-    MethodBinder::bind_method(D_METHOD("get_corner_detail"), &StyleBoxFlat::get_corner_detail);
+    BIND_METHOD(StyleBoxFlat,set_corner_detail);
+    BIND_METHOD(StyleBoxFlat,get_corner_detail);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "bg_color"), "set_bg_color", "get_bg_color");
 
@@ -950,7 +948,7 @@ void StyleBoxFlat::_bind_methods() {
 
     ADD_GROUP("Anti Aliasing", "anti_aliasing_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "anti_aliasing_enabled"), "set_anti_aliased", "is_anti_aliased");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "anti_aliasing_size", PropertyHint::Range, "1,5,1"), "set_aa_size", "get_aa_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "anti_aliasing_size", PropertyHint::Range, "0.01,10,0.001"), "set_aa_size", "get_aa_size");
 }
 
 StyleBoxFlat::StyleBoxFlat() {
@@ -966,7 +964,7 @@ StyleBoxFlat::StyleBoxFlat() {
     shadow_size = 0;
     shadow_offset = Point2(0, 0);
     corner_detail = 8;
-    aa_size = 1;
+    aa_size = 0.625f;
 
     border_width[0] = 0;
     border_width[1] = 0;
@@ -1028,16 +1026,16 @@ float StyleBoxLine::get_grow_begin() const {
 
 void StyleBoxLine::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_color", {"color"}), &StyleBoxLine::set_color);
-    MethodBinder::bind_method(D_METHOD("get_color"), &StyleBoxLine::get_color);
-    MethodBinder::bind_method(D_METHOD("set_thickness", {"thickness"}), &StyleBoxLine::set_thickness);
-    MethodBinder::bind_method(D_METHOD("get_thickness"), &StyleBoxLine::get_thickness);
-    MethodBinder::bind_method(D_METHOD("set_grow_begin", {"offset"}), &StyleBoxLine::set_grow_begin);
-    MethodBinder::bind_method(D_METHOD("get_grow_begin"), &StyleBoxLine::get_grow_begin);
-    MethodBinder::bind_method(D_METHOD("set_grow_end", {"offset"}), &StyleBoxLine::set_grow_end);
-    MethodBinder::bind_method(D_METHOD("get_grow_end"), &StyleBoxLine::get_grow_end);
-    MethodBinder::bind_method(D_METHOD("set_vertical", {"vertical"}), &StyleBoxLine::set_vertical);
-    MethodBinder::bind_method(D_METHOD("is_vertical"), &StyleBoxLine::is_vertical);
+    BIND_METHOD(StyleBoxLine,set_color);
+    BIND_METHOD(StyleBoxLine,get_color);
+    BIND_METHOD(StyleBoxLine,set_thickness);
+    BIND_METHOD(StyleBoxLine,get_thickness);
+    BIND_METHOD(StyleBoxLine,set_grow_begin);
+    BIND_METHOD(StyleBoxLine,get_grow_begin);
+    BIND_METHOD(StyleBoxLine,set_grow_end);
+    BIND_METHOD(StyleBoxLine,get_grow_end);
+    BIND_METHOD(StyleBoxLine,set_vertical);
+    BIND_METHOD(StyleBoxLine,is_vertical);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "grow_begin", PropertyHint::Range, "-300,300,1"), "set_grow_begin", "get_grow_begin");
@@ -1046,14 +1044,23 @@ void StyleBoxLine::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vertical"), "set_vertical", "is_vertical");
 }
 float StyleBoxLine::get_style_margin(Margin p_margin) const {
-    ERR_FAIL_INDEX_V((int)p_margin, 4, thickness);
-    return thickness;
+    ERR_FAIL_INDEX_V((int)p_margin, 4, 0);
+
+    if (vertical) {
+        if (p_margin == Margin::Left || p_margin == Margin::Right) {
+            return thickness / 2.0f;
+}
+    } else if (p_margin == Margin::Top || p_margin == Margin::Bottom) {
+        return thickness / 2.0f;
+    }
+
+    return 0;
 }
 Size2 StyleBoxLine::get_center_size() const {
     return Size2();
 }
 
-void StyleBoxLine::draw(RID p_canvas_item, const Rect2 &p_rect) const {
+void StyleBoxLine::draw(RenderingEntity p_canvas_item, const Rect2 &p_rect) const {
     RenderingServer *vs = RenderingServer::get_singleton();
     Rect2i r = p_rect;
 

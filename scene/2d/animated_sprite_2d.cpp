@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  animated_sprite_2d.cpp                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -104,7 +104,7 @@ Rect2 AnimatedSprite2D::_get_rect() const {
 
     Point2 ofs = offset;
     if (centered)
-        ofs -= Size2(s) / 2;
+        ofs -= s / 2;
 
     if (s == Size2(0, 0))
         s = Size2(1, 1);
@@ -309,34 +309,34 @@ void SpriteFrames::_set_animations(const Array &p_animations) {
 
 void SpriteFrames::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("add_animation", {"anim"}), &SpriteFrames::add_animation);
-    MethodBinder::bind_method(D_METHOD("has_animation", {"anim"}), &SpriteFrames::has_animation);
-    MethodBinder::bind_method(D_METHOD("remove_animation", {"anim"}), &SpriteFrames::remove_animation);
-    MethodBinder::bind_method(D_METHOD("rename_animation", {"anim", "newname"}), &SpriteFrames::rename_animation);
+    BIND_METHOD(SpriteFrames,add_animation);
+    BIND_METHOD(SpriteFrames,has_animation);
+    BIND_METHOD(SpriteFrames,remove_animation);
+    BIND_METHOD(SpriteFrames,rename_animation);
 
-    MethodBinder::bind_method(D_METHOD("get_animation_names"), &SpriteFrames::get_animation_names);
+    BIND_METHOD(SpriteFrames,get_animation_names);
 
-    MethodBinder::bind_method(D_METHOD("set_animation_speed", {"anim", "speed"}), &SpriteFrames::set_animation_speed);
-    MethodBinder::bind_method(D_METHOD("get_animation_speed", {"anim"}), &SpriteFrames::get_animation_speed);
+    BIND_METHOD(SpriteFrames,set_animation_speed);
+    BIND_METHOD(SpriteFrames,get_animation_speed);
 
-    MethodBinder::bind_method(D_METHOD("set_animation_loop", {"anim", "loop"}), &SpriteFrames::set_animation_loop);
-    MethodBinder::bind_method(D_METHOD("get_animation_loop", {"anim"}), &SpriteFrames::get_animation_loop);
+    BIND_METHOD(SpriteFrames,set_animation_loop);
+    BIND_METHOD(SpriteFrames,get_animation_loop);
 
     MethodBinder::bind_method(D_METHOD("add_frame", {"anim", "frame", "at_position"}), &SpriteFrames::add_frame, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("get_frame_count", {"anim"}), &SpriteFrames::get_frame_count);
-    MethodBinder::bind_method(D_METHOD("get_frame", {"anim", "idx"}), &SpriteFrames::get_frame);
-    MethodBinder::bind_method(D_METHOD("set_frame", {"anim", "idx", "txt"}), &SpriteFrames::set_frame);
-    MethodBinder::bind_method(D_METHOD("remove_frame", {"anim", "idx"}), &SpriteFrames::remove_frame);
-    MethodBinder::bind_method(D_METHOD("clear", {"anim"}), &SpriteFrames::clear);
-    MethodBinder::bind_method(D_METHOD("clear_all"), &SpriteFrames::clear_all);
+    BIND_METHOD(SpriteFrames,get_frame_count);
+    BIND_METHOD(SpriteFrames,get_frame);
+    BIND_METHOD(SpriteFrames,set_frame);
+    BIND_METHOD(SpriteFrames,remove_frame);
+    BIND_METHOD(SpriteFrames,clear);
+    BIND_METHOD(SpriteFrames,clear_all);
 
-    MethodBinder::bind_method(D_METHOD("_set_frames"), &SpriteFrames::_set_frames);
-    MethodBinder::bind_method(D_METHOD("_get_frames"), &SpriteFrames::_get_frames);
+    BIND_METHOD(SpriteFrames,_set_frames);
+    BIND_METHOD(SpriteFrames,_get_frames);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "frames", PropertyHint::None, "", 0), "_set_frames", "_get_frames"); //compatibility
 
-    MethodBinder::bind_method(D_METHOD("_set_animations"), &SpriteFrames::_set_animations);
-    MethodBinder::bind_method(D_METHOD("_get_animations"), &SpriteFrames::_get_animations);
+    BIND_METHOD(SpriteFrames,_set_animations);
+    BIND_METHOD(SpriteFrames,_get_animations);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "animations", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_animations", "_get_animations"); //compatibility
 }
@@ -400,13 +400,14 @@ void AnimatedSprite2D::_notification(int p_what) {
             if (frame < 0)
                 return;
 
-            float speed = frames->get_animation_speed(animation) * speed_scale;
-            if (speed == 0.0f)
-                return; //do nothing
 
             float remaining = get_process_delta_time();
 
             while (remaining) {
+                float speed = frames->get_animation_speed(animation) * speed_scale;
+                if (speed == 0.0f) {
+                    return; // do nothing
+                }
 
                 if (timeout <= 0) {
 
@@ -465,15 +466,14 @@ void AnimatedSprite2D::_notification(int p_what) {
 
             Ref<Texture> normal = frames->get_normal_frame(animation, frame);
 
-            RID ci = get_canvas_item();
+            RenderingEntity ci = get_canvas_item();
 
-            Size2i s;
-            s = texture->get_size();
+            Size2i s = texture->get_size();
             Point2 ofs = offset;
             if (centered)
                 ofs -= s / 2;
 
-            if (Engine::get_singleton()->get_snap_2d_transforms()) {
+            if (Engine::get_singleton()->get_use_gpu_pixel_snap()) {
                 ofs = ofs.floor();
             }
             Rect2 dst_rect(ofs, s);
@@ -611,7 +611,7 @@ void AnimatedSprite2D::_res_changed() {
     update();
 }
 
-void AnimatedSprite2D::_set_playing(bool p_playing) {
+void AnimatedSprite2D::set_playing(bool p_playing) {
 
     if (playing == p_playing)
         return;
@@ -620,7 +620,7 @@ void AnimatedSprite2D::_set_playing(bool p_playing) {
     set_process_internal(playing);
 }
 
-bool AnimatedSprite2D::_is_playing() const {
+bool AnimatedSprite2D::is_playing() const {
 
     return playing;
 }
@@ -631,21 +631,16 @@ void AnimatedSprite2D::play(const StringName &p_animation, const bool p_backward
 
     if (p_animation) {
         set_animation(p_animation);
-        if (backwards && get_frame() == 0)
+        if (frames && backwards && get_frame() == 0)
             set_frame(frames->get_frame_count(p_animation) - 1);
     }
 
-    _set_playing(true);
+    set_playing(true);
 }
 
 void AnimatedSprite2D::stop() {
 
-    _set_playing(false);
-}
-
-bool AnimatedSprite2D::is_playing() const {
-
-    return playing;
+    set_playing(false);
 }
 
 float AnimatedSprite2D::_get_frame_duration() {
@@ -701,38 +696,37 @@ String AnimatedSprite2D::get_configuration_warning() const {
 
 void AnimatedSprite2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_sprite_frames", {"sprite_frames"}), &AnimatedSprite2D::set_sprite_frames);
-    MethodBinder::bind_method(D_METHOD("get_sprite_frames"), &AnimatedSprite2D::get_sprite_frames);
+    BIND_METHOD(AnimatedSprite2D,set_sprite_frames);
+    BIND_METHOD(AnimatedSprite2D,get_sprite_frames);
 
-    MethodBinder::bind_method(D_METHOD("set_animation", {"animation"}), &AnimatedSprite2D::set_animation);
-    MethodBinder::bind_method(D_METHOD("get_animation"), &AnimatedSprite2D::get_animation);
+    BIND_METHOD(AnimatedSprite2D,set_animation);
+    BIND_METHOD(AnimatedSprite2D,get_animation);
 
-    MethodBinder::bind_method(D_METHOD("_set_playing", {"playing"}), &AnimatedSprite2D::_set_playing);
-    MethodBinder::bind_method(D_METHOD("_is_playing"), &AnimatedSprite2D::_is_playing);
+    BIND_METHOD(AnimatedSprite2D,set_playing);
+    MethodBinder::bind_method(D_METHOD("is_playing"), &AnimatedSprite2D::_is_playing);
 
     MethodBinder::bind_method(D_METHOD("play", {"anim", "backwards"}), &AnimatedSprite2D::play, {DEFVAL(StringName()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("stop"), &AnimatedSprite2D::stop);
-    MethodBinder::bind_method(D_METHOD("is_playing"), &AnimatedSprite2D::is_playing);
+    BIND_METHOD(AnimatedSprite2D,stop);
 
-    MethodBinder::bind_method(D_METHOD("set_centered", {"centered"}), &AnimatedSprite2D::set_centered);
-    MethodBinder::bind_method(D_METHOD("is_centered"), &AnimatedSprite2D::is_centered);
+    BIND_METHOD(AnimatedSprite2D,set_centered);
+    BIND_METHOD(AnimatedSprite2D,is_centered);
 
-    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &AnimatedSprite2D::set_offset);
-    MethodBinder::bind_method(D_METHOD("get_offset"), &AnimatedSprite2D::get_offset);
+    BIND_METHOD(AnimatedSprite2D,set_offset);
+    BIND_METHOD(AnimatedSprite2D,get_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_flip_h", {"flip_h"}), &AnimatedSprite2D::set_flip_h);
-    MethodBinder::bind_method(D_METHOD("is_flipped_h"), &AnimatedSprite2D::is_flipped_h);
+    BIND_METHOD(AnimatedSprite2D,set_flip_h);
+    BIND_METHOD(AnimatedSprite2D,is_flipped_h);
 
-    MethodBinder::bind_method(D_METHOD("set_flip_v", {"flip_v"}), &AnimatedSprite2D::set_flip_v);
-    MethodBinder::bind_method(D_METHOD("is_flipped_v"), &AnimatedSprite2D::is_flipped_v);
+    BIND_METHOD(AnimatedSprite2D,set_flip_v);
+    BIND_METHOD(AnimatedSprite2D,is_flipped_v);
 
-    MethodBinder::bind_method(D_METHOD("set_frame", {"frame"}), &AnimatedSprite2D::set_frame);
-    MethodBinder::bind_method(D_METHOD("get_frame"), &AnimatedSprite2D::get_frame);
+    BIND_METHOD(AnimatedSprite2D,set_frame);
+    BIND_METHOD(AnimatedSprite2D,get_frame);
 
-    MethodBinder::bind_method(D_METHOD("set_speed_scale", {"speed_scale"}), &AnimatedSprite2D::set_speed_scale);
-    MethodBinder::bind_method(D_METHOD("get_speed_scale"), &AnimatedSprite2D::get_speed_scale);
+    BIND_METHOD(AnimatedSprite2D,set_speed_scale);
+    BIND_METHOD(AnimatedSprite2D,get_speed_scale);
 
-    MethodBinder::bind_method(D_METHOD("_res_changed"), &AnimatedSprite2D::_res_changed);
+    BIND_METHOD(AnimatedSprite2D,_res_changed);
 
     ADD_SIGNAL(MethodInfo("frame_changed"));
     ADD_SIGNAL(MethodInfo("animation_finished"));
@@ -741,7 +735,7 @@ void AnimatedSprite2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "animation"), "set_animation", "get_animation");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "frame"), "set_frame", "get_frame");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "speed_scale"), "set_speed_scale", "get_speed_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "playing"), "_set_playing", "_is_playing");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "playing"), "set_playing", "is_playing");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "centered"), "set_centered", "is_centered");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_h"), "set_flip_h", "is_flipped_h");

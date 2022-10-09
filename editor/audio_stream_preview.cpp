@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_stream_preview.cpp                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -103,7 +103,7 @@ AudioStreamPreview::AudioStreamPreview() {
 
 ////
 
-void AudioStreamPreviewGenerator::_update_emit(ObjectID p_id) {
+void AudioStreamPreviewGenerator::_update_emit(GameEntity p_id) {
     emit_signal("preview_updated", Variant::from(p_id));
 }
 
@@ -152,8 +152,8 @@ void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
                 min = MIN(min, mix_chunk[j].r);
             }
 
-            uint8_t pfrom = CLAMP((min * 0.5f + 0.5f) * 255, 0, 255);
-            uint8_t pto = CLAMP((max * 0.5f + 0.5f) * 255, 0, 255);
+            uint8_t pfrom = CLAMP<float>((min * 0.5f + 0.5f) * 255, 0, 255);
+            uint8_t pto = CLAMP<float>((max * 0.5f + 0.5f) * 255, 0, 255);
 
             preview->preview->preview[(ofs_write + i) * 2 + 0] = pfrom;
             preview->preview->preview[(ofs_write + i) * 2 + 1] = pto;
@@ -165,7 +165,7 @@ void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
 
     preview->playback->stop();
 
-    preview->generating = false;
+    preview->generating.clear();
 }
 
 Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<AudioStream> &p_stream) {
@@ -176,13 +176,16 @@ Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<
     }
 
     //no preview exists
-    previews.emplace(eastl::make_pair(p_stream->get_instance_id(),eastl::move(Preview())));
+    // perform move-only entry construction ... sigh
+    previews.emplace(eastl::piecewise_construct,
+              eastl::forward_as_tuple(p_stream->get_instance_id()),
+              eastl::forward_as_tuple());
 
 
     Preview *preview = &previews[p_stream->get_instance_id()];
     preview->base_stream = p_stream;
     preview->playback = preview->base_stream->instance_playback();
-    preview->generating = true;
+    preview->generating.set();
     preview->id = p_stream->get_instance_id();
 
     float len_s = preview->base_stream->get_length();
@@ -208,7 +211,7 @@ Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<
 }
 
 void AudioStreamPreviewGenerator::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("generate_preview", {"stream"}), &AudioStreamPreviewGenerator::generate_preview);
+    BIND_METHOD(AudioStreamPreviewGenerator,generate_preview);
 
     ADD_SIGNAL(MethodInfo("preview_updated", PropertyInfo(VariantType::INT, "obj_id")));
 }
@@ -220,18 +223,18 @@ void AudioStreamPreviewGenerator::_notification(int p_what) {
         return;
     }
 
-    Vector<ObjectID> to_erase;
-    for (eastl::pair<const ObjectID,Preview> &E : previews) {
-        if (!E.second.generating) {
+    Vector<GameEntity> to_erase;
+    for (eastl::pair<const GameEntity,Preview> &E : previews) {
+        if (!E.second.generating.is_set()) {
             if (E.second.thread.is_started()) {
                 E.second.thread.wait_to_finish();
             }
-            if (!ObjectDB::get_instance(E.first)) { //no longer in use, get rid of preview
+            if (!object_for_entity(E.first)) { //no longer in use, get rid of preview
                 to_erase.push_back(E.first);
             }
         }
     }
-    for(const ObjectID & oid : to_erase) {
+    for(GameEntity oid : to_erase) {
         previews.erase(oid);
     }
 }

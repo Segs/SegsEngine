@@ -48,22 +48,25 @@ Error gd_mono_connect_signal_awaiter(Object *p_source, const StringName &p_signa
     SignalAwaiterCallable *awaiter_callable = memnew(SignalAwaiterCallable(p_target, p_awaiter, p_signal));
     Callable callable = Callable(awaiter_callable);
 
-    return p_source->connect(p_signal, callable, Vector<Variant>(), ObjectNS::CONNECT_ONESHOT);
+    return p_source->connect(p_signal, callable, ObjectNS::CONNECT_ONESHOT);
 }
 
 bool SignalAwaiterCallable::compare_equal(const CallableCustom *p_a, const CallableCustom *p_b) {
+	// Only called if both instances are of type SignalAwaiterCallable. Static cast is safe.
     const SignalAwaiterCallable *a = static_cast<const SignalAwaiterCallable *>(p_a);
     const SignalAwaiterCallable *b = static_cast<const SignalAwaiterCallable *>(p_b);
+    assert(false);
+    return a->awaiter_handle.handle ==b->awaiter_handle.handle;
+    // if (a->target_id != b->target_id) {
+    //     return false;
+    // }
+    //
+    // if (a->signal != b->signal) {
+    //     return false;
+    // }
+    //
+    // return true;
 
-    if (a->target_id != b->target_id) {
-        return false;
-    }
-
-    if (a->signal != b->signal) {
-        return false;
-    }
-
-    return true;
 }
 
 bool SignalAwaiterCallable::compare_less(const CallableCustom *p_a, const CallableCustom *p_b) {
@@ -75,11 +78,11 @@ bool SignalAwaiterCallable::compare_less(const CallableCustom *p_a, const Callab
 
 uint32_t SignalAwaiterCallable::hash() const {
     uint32_t hash = signal.hash();
-    return hash_djb2_one_64(target_id, hash);
+    return hash_djb2_one_64(entt::to_integral(target_id), hash);
 }
 
 String SignalAwaiterCallable::get_as_text() const {
-    Object *base = ObjectDB::get_instance(target_id);
+    Object *base = object_for_entity(target_id);
     if (base) {
         String class_name = base->get_class();
         Ref<Script> script = refFromRefPtr<Script>(base->get_script());
@@ -100,7 +103,7 @@ CallableCustom::CompareLessFunc SignalAwaiterCallable::get_compare_less_func() c
     return compare_less_func_ptr;
 }
 
-ObjectID SignalAwaiterCallable::get_object() const {
+GameEntity SignalAwaiterCallable::get_object() const {
     return target_id;
 }
 
@@ -109,15 +112,18 @@ void SignalAwaiterCallable::call(const Variant **p_arguments, int p_argcount, Va
     r_return_value = Variant();
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND_MSG(target_id.is_valid() && !ObjectDB::get_instance(target_id),
+    ERR_FAIL_COND_MSG(target_id!=entt::null && !object_for_entity(target_id),
             "Resumed after await, but class instance is gone.");
 #endif
 
-    MonoArray *signal_args = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(MonoObject), p_argcount);
+    MonoArray *signal_args = nullptr;
+    if(p_argcount > 0) {
+        mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(MonoObject), p_argcount);
 
-    for (int i = 0; i < p_argcount; i++) {
-        MonoObject *boxed = GDMonoMarshal::variant_to_mono_object(*p_arguments[i]);
-        mono_array_setref(signal_args, i, boxed);
+        for (int i = 0; i < p_argcount; i++) {
+            MonoObject *boxed = GDMonoMarshal::variant_to_mono_object(*p_arguments[i]);
+            mono_array_setref(signal_args, i, boxed);
+        }
     }
 
     MonoObject *awaiter = awaiter_handle.get_target();
@@ -172,7 +178,7 @@ bool EventSignalCallable::compare_less(const CallableCustom *p_a, const Callable
 
 uint32_t EventSignalCallable::hash() const {
     uint32_t hash = event_signal->field->get_name().hash();
-    return hash_djb2_one_64(owner->get_instance_id(), hash);
+    return hash_djb2_one_64(entt::to_integral(owner->get_instance_id()), hash);
 }
 
 String EventSignalCallable::get_as_text() const {
@@ -194,7 +200,7 @@ CallableCustom::CompareLessFunc EventSignalCallable::get_compare_less_func() con
     return compare_less_func_ptr;
 }
 
-ObjectID EventSignalCallable::get_object() const {
+GameEntity EventSignalCallable::get_object() const {
     return owner->get_instance_id();
 }
 

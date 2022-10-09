@@ -39,24 +39,23 @@
 IMPL_GDCLASS(Container)
 
 void Container::_child_minsize_changed() {
-
-    //Size2 ms = get_combined_minimum_size();
-    //if (ms.width > get_size().width || ms.height > get_size().height) {
+    // Size2 ms = get_combined_minimum_size();
+    // if (ms.width > get_size().width || ms.height > get_size().height) {
     minimum_size_changed();
     queue_sort();
 }
 
 void Container::add_child_notify(Node *p_child) {
-
     Control::add_child_notify(p_child);
 
     Control *control = object_cast<Control>(p_child);
-    if (!control)
+    if (!control) {
         return;
+    }
 
-    control->connect("size_flags_changed",callable_mp(this, &ClassName::queue_sort));
-    control->connect("minimum_size_changed",callable_mp(this, &ClassName::_child_minsize_changed));
-    control->connect("visibility_changed",callable_mp(this, &ClassName::_child_minsize_changed));
+    control->connect("size_flags_changed", callable_mp(this, &ClassName::queue_sort));
+    control->connect("minimum_size_changed", callable_mp(this, &ClassName::_child_minsize_changed));
+    control->connect("visibility_changed", callable_mp(this, &ClassName::_child_minsize_changed));
 
     minimum_size_changed();
     queue_sort();
@@ -66,31 +65,30 @@ void Container::move_child_notify(Node *p_child) {
 
     Control::move_child_notify(p_child);
 
-    if (!object_cast<Control>(p_child))
+    if (!object_cast<Control>(p_child)) {
         return;
+    }
 
     minimum_size_changed();
     queue_sort();
 }
 
 void Container::remove_child_notify(Node *p_child) {
-
     Control::remove_child_notify(p_child);
 
     Control *control = object_cast<Control>(p_child);
     if (!control)
         return;
 
-    control->disconnect("size_flags_changed",callable_mp(this, &ClassName::queue_sort));
-    control->disconnect("minimum_size_changed",callable_mp(this, &ClassName::_child_minsize_changed));
-    control->disconnect("visibility_changed",callable_mp(this, &ClassName::_child_minsize_changed));
+    control->disconnect("size_flags_changed", callable_mp(this, &ClassName::queue_sort));
+    control->disconnect("minimum_size_changed", callable_mp(this, &ClassName::_child_minsize_changed));
+    control->disconnect("visibility_changed", callable_mp(this, &ClassName::_child_minsize_changed));
 
     minimum_size_changed();
     queue_sort();
 }
 
 void Container::_sort_children() {
-
     if (!is_inside_tree())
         return;
 
@@ -100,7 +98,6 @@ void Container::_sort_children() {
 }
 
 void Container::fit_child_in_rect(Control *p_child, const Rect2 &p_rect) {
-
     ERR_FAIL_COND(!p_child);
     ERR_FAIL_COND(p_child->get_parent() != this);
 
@@ -109,28 +106,29 @@ void Container::fit_child_in_rect(Control *p_child, const Rect2 &p_rect) {
 
     if (!(p_child->get_h_size_flags() & SIZE_FILL)) {
         r.size.x = minsize.width;
+        float pos_x_diff = 0.0f;
         if (p_child->get_h_size_flags() & SIZE_SHRINK_END) {
-            r.position.x += p_rect.size.width - minsize.width;
+            pos_x_diff = p_rect.size.width - minsize.width;
         } else if (p_child->get_h_size_flags() & SIZE_SHRINK_CENTER) {
-            r.position.x += Math::floor((p_rect.size.x - minsize.width) / 2);
-        } else {
-            r.position.x += 0;
+            pos_x_diff = Math::floor((p_rect.size.x - minsize.width) / 2);
         }
+        r.position.x += pos_x_diff;
     }
 
     if (!(p_child->get_v_size_flags() & SIZE_FILL)) {
-        r.size.y = minsize.y;
+        r.size.height = minsize.height;
+        float pos_y_diff = 0.0f;
         if (p_child->get_v_size_flags() & SIZE_SHRINK_END) {
-            r.position.y += p_rect.size.height - minsize.height;
+            pos_y_diff = p_rect.size.height - minsize.height;
         } else if (p_child->get_v_size_flags() & SIZE_SHRINK_CENTER) {
-            r.position.y += Math::floor((p_rect.size.y - minsize.height) / 2);
-        } else {
-            r.position.y += 0;
+            pos_y_diff = Math::floor((p_rect.size.height - minsize.height) / 2);
         }
+        r.position.y += pos_y_diff;
     }
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++) {
         p_child->set_anchor(Margin(i), ANCHOR_BEGIN);
+    }
 
     p_child->set_position(r.position);
     p_child->set_size(r.size);
@@ -140,10 +138,7 @@ void Container::fit_child_in_rect(Control *p_child, const Rect2 &p_rect) {
 
 void Container::queue_sort() {
 
-    if (!is_inside_tree())
-        return;
-
-    if (pending_sort) {
+    if (!is_inside_tree() || pending_sort) {
         return;
     }
 
@@ -192,19 +187,17 @@ String Container::get_configuration_warning() const {
 
 void Container::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_sort_children"), &Container::_sort_children);
-    MethodBinder::bind_method(D_METHOD("_child_minsize_changed"), &Container::_child_minsize_changed);
+    BIND_METHOD(Container,_sort_children);
+    BIND_METHOD(Container,_child_minsize_changed);
 
-    MethodBinder::bind_method(D_METHOD("queue_sort"), &Container::queue_sort);
-    MethodBinder::bind_method(D_METHOD("fit_child_in_rect", {"child", "rect"}), &Container::fit_child_in_rect);
+    BIND_METHOD(Container,queue_sort);
+    BIND_METHOD(Container,fit_child_in_rect);
 
     BIND_CONSTANT(NOTIFICATION_SORT_CHILDREN)
     ADD_SIGNAL(MethodInfo("sort_children"));
 }
 
-Container::Container() {
-
-    pending_sort = false;
+Container::Container() : pending_sort(false) {
     // All containers should let mouse events pass by default.
     set_mouse_filter(MOUSE_FILTER_PASS);
 }

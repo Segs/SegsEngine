@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  check_button.cpp                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -71,7 +71,7 @@ void CheckButton::_notification(int p_what) {
         _set_internal_margin(Margin::Right, get_icon_size().width);
     } else if (p_what == NOTIFICATION_DRAW) {
 
-        RID ci = get_canvas_item();
+        RenderingEntity ci = get_canvas_item();
 
         Ref<Texture> on = Control::get_theme_icon(is_disabled() ? StringName("on_disabled") : StringName("on"));
         Ref<Texture> off = Control::get_theme_icon(is_disabled() ? StringName("off_disabled") : StringName("off"));
@@ -93,7 +93,7 @@ void CheckButton::_notification(int p_what) {
 CheckButton::CheckButton() {
 
     set_toggle_mode(true);
-    set_text_align(ALIGN_LEFT);
+    set_text_align(UiTextAlign::ALIGN_LEFT);
 
     _set_internal_margin(Margin::Right, get_icon_size().width);
 }

@@ -1054,6 +1054,7 @@ void Collada::_parse_mesh_geometry(XMLParser &parser, String p_id, String p_name
 
                 MeshData::Vertices vert;
                 String id = parser.get_attribute_value("id");
+                int last_ref = 0;
 
                 while (parser.read() == OK) {
 
@@ -1064,6 +1065,9 @@ void Collada::_parse_mesh_geometry(XMLParser &parser, String p_id, String p_name
                             String semantic = parser.get_attribute_value("semantic");
                             String source = _uri_to_id(parser.get_attribute_value("source"));
 
+                            if (semantic == "TEXCOORD") {
+                                semantic = "TEXCOORD" + StringUtils::num_uint64(last_ref++);
+                            }
                             vert.sources[semantic] = source;
 
                             COLLADA_PRINT(section + " input semantic: " + semantic + " source: " + source);

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  shape_2d_sw.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -147,7 +147,6 @@ public:
         project_range_cast(p_cast, p_normal, p_transform, r_min, r_max);                                                                                         \
     }                                                                                                                                                            \
     _FORCE_INLINE_ void project_range_cast(const Vector2 &p_cast, const Vector2 &p_normal, const Transform2D &p_transform, real_t &r_min, real_t &r_max) const { \
-                                                                                                                                                                 \
         real_t mina, maxa;                                                                                                                                       \
         real_t minb, maxb;                                                                                                                                       \
         Transform2D ofsb = p_transform;                                                                                                                          \
@@ -273,10 +272,7 @@ public:
     DEFAULT_PROJECT_RANGE_CAST
 
     _FORCE_INLINE_ SegmentShape2DSW() {}
-    _FORCE_INLINE_ SegmentShape2DSW(const Vector2 &p_a, const Vector2 &p_b, const Vector2 &p_n) {
-        a = p_a;
-        b = p_b;
-        n = p_n;
+    _FORCE_INLINE_ SegmentShape2DSW(Vector2 p_a, Vector2 p_b, Vector2 p_n) : a(p_a),b(p_b),n(p_n) {
     }
 };
 
@@ -493,10 +489,11 @@ public:
 class ConcaveShape2DSW : public Shape2DSW {
 
 public:
+    // Returns true to stop the query.
+    using QueryCallback = bool (*)(void *, Shape2DSW *);
     bool is_concave() const override { return true; }
-    using Callback = void (*)(void *, Shape2DSW *);
 
-    virtual void cull(const Rect2 &p_local_aabb, Callback p_callback, void *p_userdata) const = 0;
+    virtual void cull(const Rect2 &p_local_aabb, QueryCallback p_callback, void *p_userdata) const = 0;
 };
 
 class ConcavePolygonShape2DSW : public ConcaveShape2DSW {
@@ -553,7 +550,7 @@ public:
     void set_data(const Variant &p_data) override;
     Variant get_data() const override;
 
-    void cull(const Rect2 &p_local_aabb, Callback p_callback, void *p_userdata) const override;
+    void cull(const Rect2 &p_local_aabb, QueryCallback p_callback, void *p_userdata) const override;
 
     DEFAULT_PROJECT_RANGE_CAST
 };

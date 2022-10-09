@@ -113,13 +113,15 @@ float CapsuleShape3D::get_height() const {
 
 void CapsuleShape3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}), &CapsuleShape3D::set_radius);
-    MethodBinder::bind_method(D_METHOD("get_radius"), &CapsuleShape3D::get_radius);
-    MethodBinder::bind_method(D_METHOD("set_height", {"height"}), &CapsuleShape3D::set_height);
-    MethodBinder::bind_method(D_METHOD("get_height"), &CapsuleShape3D::get_height);
+    BIND_METHOD(CapsuleShape3D,set_radius);
+    BIND_METHOD(CapsuleShape3D,get_radius);
+    BIND_METHOD(CapsuleShape3D,set_height);
+    BIND_METHOD(CapsuleShape3D,get_height);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.01,4096,0.01"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height", PropertyHint::Range, "0.01,4096,0.01"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.001,100,0.001,or_greater"),
+            "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height", PropertyHint::Range, "0.001,100,0.001,or_greater"),
+            "set_height", "get_height");
 }
 
 CapsuleShape3D::CapsuleShape3D() :

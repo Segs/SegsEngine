@@ -480,7 +480,7 @@
             </description>
         </method>
         <method name="body_get_object_instance_id" qualifiers="const">
-                  <return type="ObjectID">
+                  <return type="GameEntity">
             </return>
             <argument index="0" name="body" type="RID">
             </argument>

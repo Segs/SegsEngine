@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  visual_shader_nodes.h                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -39,7 +39,7 @@
 
 class GODOT_EXPORT VisualShaderNodeScalarConstant : public VisualShaderNode {
     GDCLASS(VisualShaderNodeScalarConstant,VisualShaderNode)
-    float constant;
+    float constant = 0.0f;
 
 protected:
     static void _bind_methods();
@@ -70,7 +70,7 @@ public:
 class GODOT_EXPORT VisualShaderNodeBooleanConstant : public VisualShaderNode {
     GDCLASS(VisualShaderNodeBooleanConstant,VisualShaderNode)
 
-    bool constant;
+    bool constant = false;
 
 protected:
     static void _bind_methods();
@@ -215,8 +215,8 @@ public:
     };
 
 private:
-    Source source;
-    TextureType texture_type;
+    Source source = SOURCE_TEXTURE;
+    TextureType texture_type = TYPE_DATA;
 
 protected:
     static void _bind_methods();
@@ -265,7 +265,8 @@ class GODOT_EXPORT VisualShaderNodeCubeMap : public VisualShaderNode {
 public:
     enum Source {
         SOURCE_TEXTURE,
-        SOURCE_PORT
+        SOURCE_PORT,
+        SOURCE_UNKNOWN
     };
     enum TextureType {
         TYPE_DATA,
@@ -274,8 +275,8 @@ public:
     };
 
 private:
-    Source source;
-    TextureType texture_type;
+    Source source = SOURCE_TEXTURE;
+    TextureType texture_type = TYPE_DATA;
 
 protected:
     static void _bind_methods();
@@ -300,7 +301,7 @@ public:
     void set_source(Source p_source);
     Source get_source() const;
 
-    void set_cube_map(Ref<CubeMap> p_value);
+    void set_cube_map(const Ref<CubeMap> &p_value);
     Ref<CubeMap> get_cube_map() const;
 
     void set_texture_type(TextureType p_type);
@@ -336,7 +337,7 @@ public:
     };
 
 protected:
-    Operator op;
+    Operator op = OP_ADD;
 
     static void _bind_methods();
 
@@ -1321,6 +1322,7 @@ public:
         HINT_NONE,
         HINT_RANGE,
         HINT_RANGE_STEP,
+        HINT_MAX
     };
 
 private:
@@ -1328,6 +1330,8 @@ private:
     float hint_range_min=0.0f;
     float hint_range_max=1.0f;
     float hint_range_step=0.1f;
+    float default_value=0.0f;
+    bool default_value_enabled=false;
 protected:
     static void _bind_methods();
 
@@ -1357,6 +1361,11 @@ public:
     void set_step(float p_value);
     float get_step() const;
 
+    void set_default_value_enabled(bool p_enabled);
+    bool is_default_value_enabled() const;
+
+    void set_default_value(float p_value);
+    float get_default_value() const;
     Vector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeScalarUniform();
@@ -1364,14 +1373,20 @@ public:
 
 ///////////////////////////////////////
 
-class VisualShaderNodeBooleanUniform : public VisualShaderNodeUniform {
+class GODOT_EXPORT VisualShaderNodeBooleanUniform : public VisualShaderNodeUniform {
     GDCLASS(VisualShaderNodeBooleanUniform,VisualShaderNodeUniform)
 
+private:
+    bool default_value_enabled=false;
+    bool default_value=false;
+
+protected:
+    static void _bind_methods();
 
 public:
     StringView get_caption() const override;
 
-    int get_input_port_count() const override;
+    int get_input_port_count() const override { return 0; }
     PortType get_input_port_type(int p_port) const override;
     StringName get_input_port_name(int p_port) const override;
 
@@ -1381,15 +1396,28 @@ public:
 
     String generate_global(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
     String generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    void set_default_value_enabled(bool p_enabled);
+    bool is_default_value_enabled() const;
+
+    void set_default_value(bool p_value);
+    bool get_default_value() const;
+
+    Vector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeBooleanUniform();
 };
 
 ///////////////////////////////////////
 
-class VisualShaderNodeColorUniform : public VisualShaderNodeUniform {
+class GODOT_EXPORT  VisualShaderNodeColorUniform : public VisualShaderNodeUniform {
     GDCLASS(VisualShaderNodeColorUniform,VisualShaderNodeUniform)
 
+private:
+    bool default_value_enabled=false;
+    Color default_value = Color(1,1,1,1);
+
+protected:
+    static void _bind_methods();
 
 public:
     StringView get_caption() const override;
@@ -1405,14 +1433,27 @@ public:
     String generate_global(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
     String generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
+    void set_default_value_enabled(bool p_enabled);
+    bool is_default_value_enabled() const;
+
+    void set_default_value(const Color &p_value);
+    Color get_default_value() const;
+
+    Vector<StringName> get_editable_properties() const override;
     VisualShaderNodeColorUniform();
 };
 
 ///////////////////////////////////////
 
-class VisualShaderNodeVec3Uniform : public VisualShaderNodeUniform {
+class GODOT_EXPORT  VisualShaderNodeVec3Uniform : public VisualShaderNodeUniform {
     GDCLASS(VisualShaderNodeVec3Uniform,VisualShaderNodeUniform)
 
+private:
+    bool default_value_enabled=false;
+    Vector3 default_value;
+
+protected:
+    static void _bind_methods();
 
 public:
     StringView get_caption() const override;
@@ -1428,13 +1469,26 @@ public:
     String generate_global(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
     String generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
+	void set_default_value_enabled(bool p_enabled);
+    bool is_default_value_enabled() const;
+
+    void set_default_value(const Vector3 &p_value);
+    Vector3 get_default_value() const;
+
+    Vector<StringName> get_editable_properties() const override;
     VisualShaderNodeVec3Uniform();
 };
 
 ///////////////////////////////////////
 
-class VisualShaderNodeTransformUniform : public VisualShaderNodeUniform {
+class GODOT_EXPORT VisualShaderNodeTransformUniform : public VisualShaderNodeUniform {
     GDCLASS(VisualShaderNodeTransformUniform,VisualShaderNodeUniform)
+private:
+    bool default_value_enabled = false;
+    Transform default_value = Transform(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0);
+
+protected:
+    static void _bind_methods();
 
 
 public:
@@ -1450,6 +1504,13 @@ public:
 
     String generate_global(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
     String generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    void set_default_value_enabled(bool p_enabled);
+    bool is_default_value_enabled() const;
+
+    void set_default_value(const Transform &p_value);
+    Transform get_default_value() const;
+
+    Vector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeTransformUniform();
 };
@@ -1495,6 +1556,7 @@ public:
     String generate_global(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
     String generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
     bool is_code_generated() const override;
+    bool is_show_prop_names() const override { return false; }
 
     Vector<StringName> get_editable_properties() const override;
 
@@ -1510,7 +1572,7 @@ public:
 
 ///////////////////////////////////////
 
-class VisualShaderNodeTextureUniformTriplanar : public VisualShaderNodeTextureUniform {
+class GODOT_EXPORT VisualShaderNodeTextureUniformTriplanar : public VisualShaderNodeTextureUniform {
     GDCLASS(VisualShaderNodeTextureUniformTriplanar,VisualShaderNodeTextureUniform)
 
 
@@ -1558,7 +1620,7 @@ public:
 /// IF
 ///////////////////////////////////////
 
-class VisualShaderNodeIf : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeIf : public VisualShaderNode {
     GDCLASS(VisualShaderNodeIf,VisualShaderNode)
 
 

@@ -35,6 +35,7 @@
 /* Implementation for MSVC-Windows */
 
 // don't pollute my namespace!
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #define ATOMIC_CONDITIONAL_INCREMENT_BODY(m_pw, m_win_type, m_win_cmpxchg, m_cpp_type) \

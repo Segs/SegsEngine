@@ -119,17 +119,17 @@ float AudioEffectLimiter::get_soft_clip_ratio() const {
 
 void AudioEffectLimiter::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_ceiling_db", {"ceiling"}), &AudioEffectLimiter::set_ceiling_db);
-    MethodBinder::bind_method(D_METHOD("get_ceiling_db"), &AudioEffectLimiter::get_ceiling_db);
+    BIND_METHOD(AudioEffectLimiter,set_ceiling_db);
+    BIND_METHOD(AudioEffectLimiter,get_ceiling_db);
 
-    MethodBinder::bind_method(D_METHOD("set_threshold_db", {"threshold"}), &AudioEffectLimiter::set_threshold_db);
-    MethodBinder::bind_method(D_METHOD("get_threshold_db"), &AudioEffectLimiter::get_threshold_db);
+    BIND_METHOD(AudioEffectLimiter,set_threshold_db);
+    BIND_METHOD(AudioEffectLimiter,get_threshold_db);
 
-    MethodBinder::bind_method(D_METHOD("set_soft_clip_db", {"soft_clip"}), &AudioEffectLimiter::set_soft_clip_db);
-    MethodBinder::bind_method(D_METHOD("get_soft_clip_db"), &AudioEffectLimiter::get_soft_clip_db);
+    BIND_METHOD(AudioEffectLimiter,set_soft_clip_db);
+    BIND_METHOD(AudioEffectLimiter,get_soft_clip_db);
 
-    MethodBinder::bind_method(D_METHOD("set_soft_clip_ratio", {"soft_clip"}), &AudioEffectLimiter::set_soft_clip_ratio);
-    MethodBinder::bind_method(D_METHOD("get_soft_clip_ratio"), &AudioEffectLimiter::get_soft_clip_ratio);
+    BIND_METHOD(AudioEffectLimiter,set_soft_clip_ratio);
+    BIND_METHOD(AudioEffectLimiter,get_soft_clip_ratio);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "ceiling_db", PropertyHint::Range, "-20,-0.1,0.1"), "set_ceiling_db", "get_ceiling_db");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "threshold_db", PropertyHint::Range, "-30,0,0.1"), "set_threshold_db", "get_threshold_db");

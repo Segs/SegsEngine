@@ -35,9 +35,11 @@
 #include "core/io/image_loader.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_file_dialog.h"
 #include "editor/editor_node.h"
 #include "editor/scene_tree_dock.h"
 #include "scene/2d/cpu_particles_2d.h"
+#include "scene/gui/menu_button.h"
 #include "scene/gui/separator.h"
 #include "scene/resources/particles_material.h"
 
@@ -68,6 +70,28 @@ void Particles2DEditorPlugin::_file_selected(StringView p_file) {
 
     source_emission_file = p_file;
     emission_mask->popup_centered_minsize();
+}
+
+void Particles2DEditorPlugin::_selection_changed() {
+    const Vector<Node *> &selected_nodes = editor->get_editor_selection()->get_selected_node_list();
+
+    if (selected_particles.empty() && selected_nodes.empty()) {
+        return;
+    }
+
+    for (int i = 0; i < selected_particles.size(); i++) {
+        GpuParticle2D_Tools::set_show_visibility_rect(selected_particles[i],false);
+    }
+
+    selected_particles.clear();
+
+    for (int i = 0; i < selected_nodes.size(); i++) {
+        auto *selected_particle = object_cast<GPUParticles2D>(selected_nodes[i]);
+        if (selected_particle != nullptr) {
+            GpuParticle2D_Tools::set_show_visibility_rect(selected_particle,true);
+            selected_particles.push_back(selected_particle);
+        }
+    }
 }
 
 void Particles2DEditorPlugin::_menu_callback(int p_idx) {
@@ -171,8 +195,8 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
     if (img->is_compressed()) {
         img->decompress();
     }
-    img->convert(Image::FORMAT_RGBA8);
-    ERR_FAIL_COND(img->get_format() != Image::FORMAT_RGBA8);
+    img->convert(ImageData::FORMAT_RGBA8);
+    ERR_FAIL_COND(img->get_format() != ImageData::FORMAT_RGBA8);
     Size2i s = Size2(img->get_width(), img->get_height());
     ERR_FAIL_COND(s.width == 0 || s.height == 0);
 
@@ -294,7 +318,7 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
     }
 
     img = make_ref_counted<Image>();
-    img->create(w, h, false, Image::FORMAT_RGF, texdata);
+    img->create(w, h, false, ImageData::FORMAT_RGF, texdata);
 
     Ref<ImageTexture> imgt(make_ref_counted<ImageTexture>());
     imgt->create_from_image(img, 0);
@@ -316,7 +340,7 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
         }
 
         img = make_ref_counted<Image>();
-        img->create(w, h, false, Image::FORMAT_RGBA8, colordata);
+        img->create(w, h, false, ImageData::FORMAT_RGBA8, colordata);
 
         imgt = make_ref_counted<ImageTexture>();
         imgt->create_from_image(img, 0);
@@ -339,7 +363,7 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
         }
 
         img = make_ref_counted<Image>();
-        img->create(w, h, false, Image::FORMAT_RGF, normdata);
+        img->create(w, h, false, ImageData::FORMAT_RGF, normdata);
 
         imgt = make_ref_counted<ImageTexture>();
         imgt->create_from_image(img, 0);
@@ -357,6 +381,8 @@ void Particles2DEditorPlugin::_notification(int p_what) {
         menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_callback));
         menu->set_button_icon(menu->get_popup()->get_theme_icon("GPUParticles2D", "EditorIcons"));
         file->connect("file_selected",callable_mp(this, &ClassName::_file_selected));
+        EditorNode::get_singleton()->get_editor_selection()->connect("selection_changed", callable_mp(this, &ClassName::_selection_changed));
+
     }
 }
 

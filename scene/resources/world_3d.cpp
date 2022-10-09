@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  world.cpp                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -37,13 +37,14 @@
 #include "scene/3d/visibility_notifier_3d.h"
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
+#include "servers/navigation_server.h"
 
 IMPL_GDCLASS(World3D)
 RES_BASE_EXTENSION_IMPL(World3D,"world")
-typedef uint32_t SpatialPartitionID;
+using SpatialPartitionID = uint32_t;
 struct SpatialIndexer {
 
-    BVH_Manager<VisibilityNotifier3D> octree;
+    BVH_Manager<VisibilityNotifier3D *> octree;
 
     struct NotifierData {
 
@@ -73,7 +74,8 @@ struct SpatialIndexer {
 
         ERR_FAIL_COND(notifiers.contains(p_notifier));
         notifiers[p_notifier].aabb = p_rect;
-        notifiers[p_notifier].id = octree.create(p_notifier, p_rect);
+        //TODO: use p_notifier->is_visible() below?
+        notifiers[p_notifier].id = octree.create(p_notifier,true, 0,1, p_rect);
         changed = true;
     }
 
@@ -160,9 +162,11 @@ struct SpatialIndexer {
 
             Camera3D *c = E.first;
 
+            Vector3 cam_pos = c->get_global_transform().origin;
             Frustum planes = c->get_frustum();
+            bool cam_is_ortho = c->get_projection() == Camera3D::PROJECTION_ORTHOGONAL;
 
-            int culled = octree.cull_convex(planes, cull.data(), cull.size());
+            int culled = octree.cull_convex(planes, cull,nullptr);
 
             VisibilityNotifier3D **ptr = cull.data();
 
@@ -173,6 +177,18 @@ struct SpatialIndexer {
 
                 //notifiers in frustum
 
+                // check and remove notifiers that have a max range
+                VisibilityNotifier3D &nt = *ptr[i];
+                if (nt.is_max_distance_active() && !cam_is_ortho) {
+                    Vector3 offset = nt.get_world_aabb_center() - cam_pos;
+                    if ((offset.length_squared() >= nt.get_max_distance_squared()) && !nt.inside_max_distance_leadin()) {
+                        // unordered remove
+                        cull[i] = cull[culled - 1];
+                        culled--;
+                        i--;
+                        continue;
+                    }
+                }
                 HashMap<VisibilityNotifier3D *, uint64_t>::iterator H = E.second.notifiers.find(ptr[i]);
                 if (H==E.second.notifiers.end()) {
 
@@ -262,9 +278,13 @@ RID World3D::get_space() const {
 
     return physics_space;
 }
-RID World3D::get_scenario() const {
+RenderingEntity World3D::get_scenario() const {
 
     return renderer_scene;
+}
+
+RID World3D::get_navigation_map() const {
+    return navigation_map;
 }
 
 void World3D::set_environment(const Ref<Environment> &p_environment) {
@@ -272,7 +292,7 @@ void World3D::set_environment(const Ref<Environment> &p_environment) {
         return;
     }
     environment = p_environment;
-    RenderingServer::get_singleton()->scenario_set_environment(renderer_scene, environment ? environment->get_rid() : RID());
+    RenderingServer::get_singleton()->scenario_set_environment(renderer_scene, environment ? environment->get_rid() : entt::null);
 
     emit_changed();
 }
@@ -288,7 +308,7 @@ void World3D::set_fallback_environment(const Ref<Environment> &p_environment) {
     }
 
     fallback_environment = p_environment;
-    RenderingServer::get_singleton()->scenario_set_fallback_environment(renderer_scene, fallback_environment ? fallback_environment->get_rid() : RID());
+    RenderingServer::get_singleton()->scenario_set_fallback_environment(renderer_scene, fallback_environment ? fallback_environment->get_rid() : entt::null);
 
     emit_changed();
 }
@@ -312,18 +332,21 @@ void World3D::get_camera_list(Vector<Camera3D *> *r_cameras) {
 
 void World3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_space"), &World3D::get_space);
-    MethodBinder::bind_method(D_METHOD("get_scenario"), &World3D::get_scenario);
-    MethodBinder::bind_method(D_METHOD("set_environment", {"env"}), &World3D::set_environment);
-    MethodBinder::bind_method(D_METHOD("get_environment"), &World3D::get_environment);
-    MethodBinder::bind_method(D_METHOD("set_fallback_environment", {"env"}), &World3D::set_fallback_environment);
-    MethodBinder::bind_method(D_METHOD("get_fallback_environment"), &World3D::get_fallback_environment);
-    MethodBinder::bind_method(D_METHOD("get_direct_space_state"), &World3D::get_direct_space_state);
+    BIND_METHOD(World3D, get_space);
+    BIND_METHOD(World3D, get_scenario);
+    BIND_METHOD(World3D, get_navigation_map);
+    BIND_METHOD(World3D, set_environment);
+    BIND_METHOD(World3D, get_environment);
+    BIND_METHOD(World3D, set_fallback_environment);
+    BIND_METHOD(World3D, get_fallback_environment);
+    BIND_METHOD(World3D, get_direct_space_state);
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "environment", PropertyHint::ResourceType, "Environment"), "set_environment", "get_environment");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "fallback_environment", PropertyHint::ResourceType, "Environment"), "set_fallback_environment", "get_fallback_environment");
     ADD_PROPERTY(PropertyInfo(VariantType::_RID, "space", PropertyHint::None, "", 0), "", "get_space");
     ADD_PROPERTY(PropertyInfo(VariantType::_RID, "scenario", PropertyHint::None, "", 0), "", "get_scenario");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "direct_space_state", PropertyHint::ResourceType, "PhysicsDirectSpaceState3D", 0), "", "get_direct_space_state");
+    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "navigation_map", PropertyHint::None, "", 0), "", "get_navigation_map");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "direct_space_state", PropertyHint::ResourceType, "PhysicsDirectSpaceState3D", 0), "",
+            "get_direct_space_state");
 }
 
 World3D::World3D() {
@@ -338,6 +361,14 @@ World3D::World3D() {
     ProjectSettings::get_singleton()->set_custom_property_info("physics/3d/default_linear_damp", PropertyInfo(VariantType::FLOAT, "physics/3d/default_linear_damp", PropertyHint::Range, "-1,100,0.001,or_greater"));
     PhysicsServer3D::get_singleton()->area_set_param(physics_space, PhysicsServer3D::AREA_PARAM_ANGULAR_DAMP, GLOBAL_DEF("physics/3d/default_angular_damp", 0.1));
     ProjectSettings::get_singleton()->set_custom_property_info("physics/3d/default_angular_damp", PropertyInfo(VariantType::FLOAT, "physics/3d/default_angular_damp", PropertyHint::Range, "-1,100,0.001,or_greater"));
+    	// Create default navigation map
+    navigation_map = NavigationServer::get_singleton()->map_create();
+    NavigationServer::get_singleton()->map_set_active(navigation_map, true);
+    NavigationServer::get_singleton()->map_set_up(navigation_map, T_GLOBAL_DEF("navigation/3d/default_map_up", Vector3(0, 1, 0)));
+    NavigationServer::get_singleton()->map_set_cell_size(navigation_map, T_GLOBAL_DEF("navigation/3d/default_cell_size", 0.25f));
+    NavigationServer::get_singleton()->map_set_cell_height(navigation_map, T_GLOBAL_DEF("navigation/3d/default_cell_height", 0.25f));
+    NavigationServer::get_singleton()->map_set_edge_connection_margin(
+            navigation_map, T_GLOBAL_DEF("navigation/3d/default_edge_connection_margin", 0.25f));
 
 #ifdef _3D_DISABLED
     indexer = NULL;

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  collision_object_2d_sw.cpp                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -48,8 +48,6 @@ void CollisionObject2DSW::add_shape(Shape2DSW *p_shape, const Transform2D &p_tra
     if (!pending_shape_update_list.in_list()) {
         Physics2DServerSW::get()->pending_shape_update_list.add(&pending_shape_update_list);
     }
-    // _update_shapes();
-    // _shapes_changed();
 }
 
 void CollisionObject2DSW::set_shape(int p_index, Shape2DSW *p_shape) {
@@ -63,8 +61,6 @@ void CollisionObject2DSW::set_shape(int p_index, Shape2DSW *p_shape) {
     if (!pending_shape_update_list.in_list()) {
         Physics2DServerSW::get()->pending_shape_update_list.add(&pending_shape_update_list);
     }
-    // _update_shapes();
-    // _shapes_changed();
 }
 
 void CollisionObject2DSW::set_shape_metadata(int p_index, const Variant &p_metadata) {
@@ -83,11 +79,9 @@ void CollisionObject2DSW::set_shape_transform(int p_index, const Transform2D &p_
     if (!pending_shape_update_list.in_list()) {
         Physics2DServerSW::get()->pending_shape_update_list.add(&pending_shape_update_list);
     }
-    // _update_shapes();
-    // _shapes_changed();
 }
 
-void CollisionObject2DSW::set_shape_as_disabled(int p_idx, bool p_disabled) {
+void CollisionObject2DSW::set_shape_disabled(int p_idx, bool p_disabled) {
     ERR_FAIL_INDEX(p_idx, shapes.size());
 
     CollisionObject2DSW::Shape &shape = shapes[p_idx];
@@ -105,12 +99,10 @@ void CollisionObject2DSW::set_shape_as_disabled(int p_idx, bool p_disabled) {
         if (!pending_shape_update_list.in_list()) {
             Physics2DServerSW::get()->pending_shape_update_list.add(&pending_shape_update_list);
         }
-        //_update_shapes();
     } else if (!p_disabled && shape.bpid == 0) {
         if (!pending_shape_update_list.in_list()) {
             Physics2DServerSW::get()->pending_shape_update_list.add(&pending_shape_update_list);
         }
-        //_update_shapes(); // automatically adds shape with bpid == 0
     }
 }
 
@@ -144,8 +136,6 @@ void CollisionObject2DSW::remove_shape(int p_index) {
     if (!pending_shape_update_list.in_list()) {
         Physics2DServerSW::get()->pending_shape_update_list.add(&pending_shape_update_list);
     }
-    // _update_shapes();
-    // _shapes_changed();
 }
 
 void CollisionObject2DSW::_set_static(bool p_static) {
@@ -203,6 +193,22 @@ void CollisionObject2DSW::_update_shapes() {
     }
 }
 
+void CollisionObject2DSW::_recheck_shapes() {
+    if (!space) {
+        return;
+    }
+
+    for (const Shape &s : shapes) {
+        if (s.disabled) {
+            continue;
+        }
+
+        if (s.bpid != 0) {
+            space->get_broadphase()->recheck_pairs(s.bpid);
+        }
+    }
+}
+
 void CollisionObject2DSW::_update_shapes_with_motion(const Vector2 &p_motion) {
 
     if (!space)
@@ -211,12 +217,8 @@ void CollisionObject2DSW::_update_shapes_with_motion(const Vector2 &p_motion) {
     for (int i = 0; i < shapes.size(); i++) {
 
         Shape &s = shapes[i];
-        if (s.disabled)
+        if (s.disabled) {
             continue;
-
-        if (s.bpid == 0) {
-            s.bpid = space->get_broadphase()->create(this, i);
-            space->get_broadphase()->set_static(s.bpid, _static);
         }
 
         //not quite correct, should compute the next matrix..
@@ -225,6 +227,11 @@ void CollisionObject2DSW::_update_shapes_with_motion(const Vector2 &p_motion) {
         shape_aabb = xform.xform(shape_aabb);
         shape_aabb = shape_aabb.merge(Rect2(shape_aabb.position + p_motion, shape_aabb.size)); //use motion
         s.aabb_cache = shape_aabb;
+
+        if (s.bpid == 0) {
+            s.bpid = space->get_broadphase()->create(this, i, shape_aabb, _static);
+            space->get_broadphase()->set_static(s.bpid, _static);
+        }
 
         space->get_broadphase()->move(s.bpid, shape_aabb);
     }
@@ -267,8 +274,8 @@ CollisionObject2DSW::CollisionObject2DSW(Type p_type) :
     _static = true;
     type = p_type;
     space = nullptr;
-    instance_id = 0;
-    canvas_instance_id = 0;
+    instance_id = entt::null;
+    canvas_instance_id = entt::null;
     collision_mask = 1;
     collision_layer = 1;
     pickable = true;

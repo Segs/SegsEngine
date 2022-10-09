@@ -38,6 +38,7 @@
 #include "core/os/file_access.h"
 #include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
+#include "core/script_language.h"
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "scene/main/viewport.h"
@@ -74,17 +75,25 @@ void EditorAutoloadSettings::_notification(int p_what) {
 }
 
 bool EditorAutoloadSettings::_autoload_name_is_valid(const StringName &p_name, String *r_error) {
+    using namespace StringUtils;
+    if (!is_valid_identifier(p_name)) {
+        if (r_error) {
+            *r_error = TTR("Invalid name.") + " ";
+            if (!p_name.empty() && is_numeric(left(p_name,1))) {
+                *r_error += TTR("Cannot begin with a digit.");
+            } else {
+                *r_error += TTR("Valid characters:") + " a-z, A-Z, 0-9 or _";
+            }
 
-    if (!StringUtils::is_valid_identifier(p_name)) {
-        if (r_error)
-            *r_error = TTR("Invalid name.") + "\n" + TTR("Valid characters:") + " a-z, A-Z, 0-9 or _";
+            *r_error = TTR("Invalid name.") + " " + TTR("Valid characters:") + " a-z, A-Z, 0-9 or _";
+        }
 
         return false;
     }
 
     if (ClassDB::class_exists(p_name)) {
         if (r_error)
-            *r_error = TTR("Invalid name.") + "\n" + TTR("Must not collide with an existing engine class name.");
+            *r_error = TTR("Invalid name.") + " " + TTR("Must not collide with an existing engine class name.");
 
         return false;
     }
@@ -92,7 +101,7 @@ bool EditorAutoloadSettings::_autoload_name_is_valid(const StringName &p_name, S
     for (int i = 0; i < int(VariantType::VARIANT_MAX); i++) {
         if (Variant::get_type_name(VariantType(i)) == p_name) {
             if (r_error)
-                *r_error = TTR("Invalid name.") + "\n" + TTR("Must not collide with an existing built-in type name.");
+                *r_error = TTR("Invalid name.") + " " + TTR("Must not collide with an existing built-in type name.");
 
             return false;
         }
@@ -101,7 +110,7 @@ bool EditorAutoloadSettings::_autoload_name_is_valid(const StringName &p_name, S
     for (int i = 0; i < GlobalConstants::get_global_constant_count(); i++) {
         if (GlobalConstants::get_global_constant_name(i) == p_name) {
             if (r_error)
-                *r_error = TTR("Invalid name.") + "\n" + TTR("Must not collide with an existing global constant name.");
+                *r_error = TTR("Invalid name.") + " " + TTR("Must not collide with an existing global constant name.");
 
             return false;
         }
@@ -113,7 +122,7 @@ bool EditorAutoloadSettings::_autoload_name_is_valid(const StringName &p_name, S
         for (const String &E : keywords) {
             if (E == p_name) {
                 if (r_error)
-                    *r_error = TTR("Invalid name.") + "\n" + TTR("Keyword cannot be used as an autoload name.");
+                    *r_error = TTR("Invalid name.") + " " + TTR("Keyword cannot be used as an autoload name.");
 
                 return false;
             }
@@ -336,7 +345,7 @@ void EditorAutoloadSettings::_autoload_file_callback(StringView p_path) {
 
 void EditorAutoloadSettings::_autoload_text_entered(StringView p_name) {
 
-    if (!autoload_add_path->get_line_edit()->get_text().empty() && _autoload_name_is_valid(StringName(p_name), NULL)) {
+    if (!autoload_add_path->get_line_edit()->get_text().empty() && _autoload_name_is_valid(StringName(p_name), nullptr)) {
         _autoload_add();
     }
 }
@@ -344,13 +353,16 @@ void EditorAutoloadSettings::_autoload_text_entered(StringView p_name) {
 void EditorAutoloadSettings::_autoload_path_text_changed(StringView p_path) {
 
     add_autoload->set_disabled(
-            p_path.empty() || !_autoload_name_is_valid(StringName(autoload_add_name->get_text()), NULL));
+            p_path.empty() || !_autoload_name_is_valid(StringName(autoload_add_name->get_text()), nullptr));
 }
 
 void EditorAutoloadSettings::_autoload_text_changed(StringView p_name) {
 
-    add_autoload->set_disabled(
-            autoload_add_path->get_line_edit()->get_text().empty() || !_autoload_name_is_valid(StringName(p_name), NULL));
+    String error_string;
+    bool is_name_valid = _autoload_name_is_valid(StringName(p_name), &error_string);
+    add_autoload->set_disabled(!autoload_add_path->get_line_edit()->get_text().empty() || !is_name_valid);
+    error_message->set_text(error_string);
+    error_message->set_visible(!autoload_add_name->get_text().empty() && !is_name_valid);
 }
 
 Node *EditorAutoloadSettings::_create_autoload(StringView p_path) {
@@ -364,7 +376,7 @@ Node *EditorAutoloadSettings::_create_autoload(StringView p_path) {
         Ref<Script> s = dynamic_ref_cast<Script>(res);
         StringName ibt = s->get_instance_base_type();
         bool valid_type = ClassDB::is_parent_class(ibt, "Node");
-        ERR_FAIL_COND_V_MSG(!valid_type, nullptr, String("Script does not inherit a Node: ") + p_path + ".");
+        ERR_FAIL_COND_V_MSG(!valid_type, nullptr, String("Script does not inherit from Node: ") + p_path + ".");
 
         Object *obj = ClassDB::instance(ibt);
 
@@ -693,12 +705,16 @@ bool EditorAutoloadSettings::autoload_add(const StringName &p_name, StringView p
 
     const StringView path = p_path;
     if (!FileAccess::exists(path)) {
-        EditorNode::get_singleton()->show_warning(TTR("Invalid path.") + "\n" + TTR("File does not exist."));
+        EditorNode::get_singleton()->show_warning(
+                String(TTR("Can't add autoload:")) + "\n" +
+                FormatVE(TTR("%.*s is an invalid path. File does not exist.").asCString(), path.size(), path.data()));
         return false;
     }
 
     if (!StringUtils::begins_with(path,"res://")) {
-        EditorNode::get_singleton()->show_warning(TTR("Invalid path.") + "\n" + TTR("Not in resource path."));
+        EditorNode::get_singleton()->show_warning(
+                String(TTR("Can't add autoload:")) + "\n" +
+                FormatVE(TTR("%.*s is an invalid path. Not in resource path (res://).").asCString(), path.size(), path.data()));
         return false;
     }
 
@@ -831,6 +847,11 @@ EditorAutoloadSettings::EditorAutoloadSettings() {
 
     HBoxContainer *hbc = memnew(HBoxContainer);
     add_child(hbc);
+    error_message = memnew(Label);
+    error_message->hide();
+    error_message->set_align(Label::Align::ALIGN_RIGHT);
+    error_message->add_theme_color_override("font_color", EditorNode::get_singleton()->get_gui_base()->get_theme_color("error_color", "Editor"));
+    add_child(error_message);
 
     Label *l = memnew(Label);
     l->set_text(TTR("Path:"));
@@ -872,15 +893,16 @@ EditorAutoloadSettings::EditorAutoloadSettings() {
 
     tree->set_column_title(0, TTR("Name"));
     tree->set_column_expand(0, true);
-    tree->set_column_min_width(0, 100);
+    tree->set_column_min_width(0, 100 * EDSCALE);
 
     tree->set_column_title(1, TTR("Path"));
     tree->set_column_expand(1, true);
-    tree->set_column_min_width(1, 100);
+    tree->set_column_min_width(1, 100 * EDSCALE);
 
-    tree->set_column_title(2, TTR("Singleton"));
+    tree->set_column_title(2, TTR("Global Variable"));
     tree->set_column_expand(2, false);
-    tree->set_column_min_width(2, 80 * EDSCALE);
+    // Reserve enough space for translations of "Global Variable" which may be longer.
+    tree->set_column_min_width(2, 150 * EDSCALE);
 
     tree->set_column_expand(3, false);
     tree->set_column_min_width(3, 120 * EDSCALE);

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  mono_gc_handle.h                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -79,7 +79,7 @@ struct MonoGCHandleData {
     static MonoGCHandleData new_weak_handle(MonoObject *p_object);
 };
 
-class MonoGCHandleRef : public RefCounted {
+class GODOT_EXPORT MonoGCHandleRef final : public RefCounted {
     GDCLASS(MonoGCHandleRef, RefCounted)
 
     MonoGCHandleData data;
@@ -102,5 +102,5 @@ public:
     MonoGCHandleRef(const MonoGCHandleData &p_gc_handle_data) :
             data(p_gc_handle_data) {
     }
-    ~MonoGCHandleRef() { release(); }
+    ~MonoGCHandleRef() final { release(); }
 };

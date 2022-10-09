@@ -88,7 +88,7 @@ class GODOT_EXPORT VehicleWheel3D : public Node3D {
         Vector3 m_wheelDirectionWS; //direction in worldspace
         Vector3 m_wheelAxleWS; // axle in worldspace
         bool m_isInContact = false;
-        PhysicsBody3D *m_groundObject; //could be general void* ptr
+        PhysicsBody3D *m_groundObject = nullptr; //could be general void* ptr
     } m_raycastInfo;
 
     void _update(PhysicsDirectBodyState3D *s);
@@ -129,6 +129,8 @@ public:
     bool is_used_as_steering() const;
 
     bool is_in_contact() const;
+
+    Node3D *get_contact_body() const;
 
     void set_roll_influence(float p_value);
     float get_roll_influence() const;

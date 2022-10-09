@@ -433,44 +433,44 @@ void VideoPlayer::_validate_property(PropertyInfo &p_property) const {
 
 void VideoPlayer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_stream", {"stream"}), &VideoPlayer::set_stream);
-    MethodBinder::bind_method(D_METHOD("get_stream"), &VideoPlayer::get_stream);
+    BIND_METHOD(VideoPlayer,set_stream);
+    BIND_METHOD(VideoPlayer,get_stream);
 
-    MethodBinder::bind_method(D_METHOD("play"), &VideoPlayer::play);
-    MethodBinder::bind_method(D_METHOD("stop"), &VideoPlayer::stop);
+    BIND_METHOD(VideoPlayer,play);
+    BIND_METHOD(VideoPlayer,stop);
 
-    MethodBinder::bind_method(D_METHOD("is_playing"), &VideoPlayer::is_playing);
+    BIND_METHOD(VideoPlayer,is_playing);
 
-    MethodBinder::bind_method(D_METHOD("set_paused", {"paused"}), &VideoPlayer::set_paused);
-    MethodBinder::bind_method(D_METHOD("is_paused"), &VideoPlayer::is_paused);
+    BIND_METHOD(VideoPlayer,set_paused);
+    BIND_METHOD(VideoPlayer,is_paused);
 
-    MethodBinder::bind_method(D_METHOD("set_volume", {"volume"}), &VideoPlayer::set_volume);
-    MethodBinder::bind_method(D_METHOD("get_volume"), &VideoPlayer::get_volume);
+    BIND_METHOD(VideoPlayer,set_volume);
+    BIND_METHOD(VideoPlayer,get_volume);
 
-    MethodBinder::bind_method(D_METHOD("set_volume_db", {"db"}), &VideoPlayer::set_volume_db);
-    MethodBinder::bind_method(D_METHOD("get_volume_db"), &VideoPlayer::get_volume_db);
+    BIND_METHOD(VideoPlayer,set_volume_db);
+    BIND_METHOD(VideoPlayer,get_volume_db);
 
-    MethodBinder::bind_method(D_METHOD("set_audio_track", {"track"}), &VideoPlayer::set_audio_track);
-    MethodBinder::bind_method(D_METHOD("get_audio_track"), &VideoPlayer::get_audio_track);
+    BIND_METHOD(VideoPlayer,set_audio_track);
+    BIND_METHOD(VideoPlayer,get_audio_track);
 
-    MethodBinder::bind_method(D_METHOD("get_stream_name"), &VideoPlayer::get_stream_name);
+    BIND_METHOD(VideoPlayer,get_stream_name);
 
-    MethodBinder::bind_method(D_METHOD("set_stream_position", {"position"}), &VideoPlayer::set_stream_position);
-    MethodBinder::bind_method(D_METHOD("get_stream_position"), &VideoPlayer::get_stream_position);
+    BIND_METHOD(VideoPlayer,set_stream_position);
+    BIND_METHOD(VideoPlayer,get_stream_position);
 
-    MethodBinder::bind_method(D_METHOD("set_autoplay", {"enabled"}), &VideoPlayer::set_autoplay);
-    MethodBinder::bind_method(D_METHOD("has_autoplay"), &VideoPlayer::has_autoplay);
+    BIND_METHOD(VideoPlayer,set_autoplay);
+    BIND_METHOD(VideoPlayer,has_autoplay);
 
-    MethodBinder::bind_method(D_METHOD("set_expand", {"enable"}), &VideoPlayer::set_expand);
-    MethodBinder::bind_method(D_METHOD("has_expand"), &VideoPlayer::has_expand);
+    BIND_METHOD(VideoPlayer,set_expand);
+    BIND_METHOD(VideoPlayer,has_expand);
 
-    MethodBinder::bind_method(D_METHOD("set_buffering_msec", {"msec"}), &VideoPlayer::set_buffering_msec);
-    MethodBinder::bind_method(D_METHOD("get_buffering_msec"), &VideoPlayer::get_buffering_msec);
+    BIND_METHOD(VideoPlayer,set_buffering_msec);
+    BIND_METHOD(VideoPlayer,get_buffering_msec);
 
-    MethodBinder::bind_method(D_METHOD("set_bus", {"bus"}), &VideoPlayer::set_bus);
-    MethodBinder::bind_method(D_METHOD("get_bus"), &VideoPlayer::get_bus);
+    BIND_METHOD(VideoPlayer,set_bus);
+    BIND_METHOD(VideoPlayer,get_bus);
 
-    MethodBinder::bind_method(D_METHOD("get_video_texture"), &VideoPlayer::get_video_texture);
+    BIND_METHOD(VideoPlayer,get_video_texture);
 
     ADD_SIGNAL(MethodInfo("finished"));
 

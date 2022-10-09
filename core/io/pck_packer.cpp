@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  pck_packer.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,6 +34,7 @@
 #include "core/os/file_access.h"
 #include "core/version.h"
 #include "core/method_bind.h"
+#include "core/version_generated.gen.h"
 
 IMPL_GDCLASS(PCKPacker)
 
@@ -63,7 +64,7 @@ static void _pad(FileAccess *p_file, int p_bytes) {
 void PCKPacker::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("pck_start", {"pck_name", "alignment"}), &PCKPacker::pck_start, {DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("add_file", {"pck_path", "source_path"}), &PCKPacker::add_file);
+    BIND_METHOD(PCKPacker,add_file);
     MethodBinder::bind_method(D_METHOD("flush", {"verbose"}), &PCKPacker::flush, {DEFVAL(false)});
 }
 
@@ -150,7 +151,7 @@ Error PCKPacker::flush(bool p_verbose) {
         uint64_t to_write = files[i].size;
         while (to_write > 0) {
 
-            int read = src->get_buffer(buf, MIN(to_write, buf_max));
+            uint64_t read = src->get_buffer(buf, MIN(to_write, buf_max));
             file->store_buffer(buf, read);
             to_write -= read;
         }

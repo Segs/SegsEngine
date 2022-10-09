@@ -112,15 +112,15 @@ void fromJson(const QJsonObject& src, const char* name, Vector<T>& tgt) {
     assert(src[name].isArray());
     QJsonArray arr = src[name].toArray();
     tgt.reserve(arr.size());
-    for (int i = 0; i < arr.size(); ++i) {
+    for (auto && i : arr) {
         T ci;
-        ci.fromJson(arr[i].toObject());
-        tgt.emplace_back(ci);
+        ci.fromJson(i.toObject());
+        tgt.emplace_back(eastl::move(ci));
+    }
     }
 
 }
 
-}
 void ConstantInterface::toJson(QJsonObject& obj) const {
     obj["name"] = name.c_str();
     obj["value"] = value;
@@ -131,7 +131,7 @@ void ConstantInterface::fromJson(const QJsonObject& obj) {
 }
 
 void EnumInterface::toJson(QJsonObject& obj) const {
-    obj["cname"] = cname.c_str();
+    obj["name"] = cname.c_str();
     if(!underlying_type.empty() && underlying_type!="int32_t") {
         obj["underlying_type"] = underlying_type.c_str();
     }
@@ -139,20 +139,20 @@ void EnumInterface::toJson(QJsonObject& obj) const {
 }
 void EnumInterface::fromJson(const QJsonObject& obj) {
 
-    cname = obj["cname"].toString().toUtf8().data();
+    cname = obj["name"].toString().toUtf8().data();
     if(obj.contains("underlying_type")) {
         underlying_type = obj["underlying_type"].toString().toUtf8().data();
-    }
-    else
+    } else
         underlying_type = "int32_t";
     ::fromJson(obj, "constants", constants);
 }
 
 
 void PropertyInterface::toJson(QJsonObject &obj) const {
-    obj["cname"] = cname.c_str();
+    obj["name"] = cname.c_str();
     if(!hint_str.empty())
         obj["hint_string"] = hint_str.c_str();
+    if (max_property_index != -1)
     obj["max_property_index"] = max_property_index;
     QJsonArray prop_infos;
     if(max_property_index!=-1) {
@@ -172,8 +172,7 @@ void PropertyInterface::toJson(QJsonObject &obj) const {
 
             prop_infos.push_back(entry_enc);
         }
-    }
-    else {
+    } else {
         QJsonObject entry_enc;
         QJsonObject enc_type;
         indexed_entries.front().entry_type.toJson(enc_type);
@@ -187,7 +186,7 @@ void PropertyInterface::toJson(QJsonObject &obj) const {
 }
 
 void PropertyInterface::fromJson(const QJsonObject &obj) {
-    cname = obj["cname"].toString().toUtf8().data();
+    cname = obj["name"].toString().toUtf8().data();
     hint_str = obj["hint_string"].toString("").toUtf8().data();
     max_property_index = obj["max_property_index"].toInt(-1);
 
@@ -212,14 +211,16 @@ void PropertyInterface::fromJson(const QJsonObject &obj) {
 }
 
 void TypeReference::toJson(QJsonObject &obj) const {
-    obj["cname"] = cname.c_str();
+    obj["name"] = cname.c_str();
+    setJsonIfNonDefault(obj, "template_arg", template_argument);
     setJsonIfNonDefault(obj, "is_enum", (int8_t)is_enum);
     if (pass_by != TypePassBy::Value)
         obj["pass_by"] = (int8_t)pass_by;
 }
 
 void TypeReference::fromJson(const QJsonObject &obj) {
-    cname = obj["cname"].toString().toUtf8().data();
+    cname = obj["name"].toString().toUtf8().data();
+    template_argument = obj["template_arg"].toString().toUtf8().data();
 
     getJsonOrDefault(obj, "is_enum", is_enum);
 
@@ -366,17 +367,19 @@ void TypeInterface::toJson(QJsonObject &obj) const {
         obj["memory_own"] = memory_own;
     if(ret_as_byref_arg)
         obj["ret_as_byref_arg"] = ret_as_byref_arg;
+    QJsonObject contents;
 
     if(!constants.empty())
-        ::toJson(obj, "constants", constants);
+        ::toJson(contents, "constants", constants);
     if(!enums.empty())
-        ::toJson(obj, "enums", enums);
+        ::toJson(contents, "enums", enums);
     if(!properties.empty())
-        ::toJson(obj, "properties", properties);
+        ::toJson(contents, "properties", properties);
     if(!methods.empty())
-        ::toJson(obj, "methods", methods);
+        ::toJson(contents, "functions", methods);
     if(!signals_.empty())
-        ::toJson(obj, "signals", signals_);
+        ::toJson(contents, "signals", signals_);
+    obj["contents"] = contents;
 
 }
 
@@ -395,16 +398,17 @@ void TypeInterface::fromJson(const QJsonObject &obj) {
     is_opaque_type = obj["is_opaque_type"].toBool(false);
     memory_own = obj["memory_own"].toBool(false);
     ret_as_byref_arg = obj["ret_as_byref_arg"].toBool(false);
-    if(obj.contains("constants"))
-        ::fromJson(obj,"constants",constants);
-    if(obj.contains("enums"))
-        ::fromJson(obj, "enums", enums);
-    if(obj.contains("properties"))
-        ::fromJson(obj, "properties", properties);
-    if(obj.contains("methods"))
-        ::fromJson(obj, "methods", methods);
-    if(obj.contains("signals"))
-        ::fromJson(obj, "signals", signals_);
+    QJsonObject contents = obj["contents"].toObject();
+    if(contents.contains("constants"))
+        ::fromJson(contents,"constants",constants);
+    if(contents.contains("enums"))
+        ::fromJson(contents, "enums", enums);
+    if(contents.contains("properties"))
+        ::fromJson(contents, "properties", properties);
+    if(contents.contains("functions"))
+        ::fromJson(contents, "functions", methods);
+    if(contents.contains("signals"))
+        ::fromJson(contents, "signals", signals_);
 }
 
 const TypeInterface * NamespaceInterface::_get_type_or_null(const TypeReference &p_typeref) const {
@@ -441,7 +445,7 @@ void NamespaceInterface::toJson(QJsonObject &obj) const {
         v.toJson(entry);
         enum_arr.push_back(entry);
     }
-    root_obj["global_enums"] = enum_arr;
+    root_obj["enums"] = enum_arr;
 
     QJsonArray globals_arr;
     for (const auto& v : global_constants) {
@@ -449,7 +453,7 @@ void NamespaceInterface::toJson(QJsonObject &obj) const {
         v.toJson(entry);
         globals_arr.push_back(entry);
     }
-    root_obj["global_constants"] = globals_arr;
+    root_obj["constants"] = globals_arr;
 
     QJsonArray global_funcs_arr;
     for (const auto& v : global_functions) {
@@ -457,7 +461,7 @@ void NamespaceInterface::toJson(QJsonObject &obj) const {
         v.toJson(entry);
         global_funcs_arr.push_back(entry);
     }
-    root_obj["global_functions"] = global_funcs_arr;
+    root_obj["functions"] = global_funcs_arr;
 
     QJsonArray types_arr;
     for (const auto& type : obj_types) {
@@ -466,29 +470,29 @@ void NamespaceInterface::toJson(QJsonObject &obj) const {
         type.second.toJson(entry);
         types_arr.push_back(entry);
     }
-    root_obj["obj_types"] = types_arr;
+    root_obj["subtypes"] = types_arr;
 
-    obj["name"] = namespace_name.c_str();
+    obj["name"] = name.c_str();
     obj["required_header"] = required_header.c_str();
-    obj["namespace_contents"] = root_obj;
+    obj["contents"] = root_obj;
 }
 
 void NamespaceInterface::fromJson(const QJsonObject &obj)
 {
-    namespace_name = obj["name"].toString().toUtf8().data();
+    name = obj["name"].toString().toUtf8().data();
     required_header = obj["required_header"].toString().toUtf8().data();
-    QJsonObject root_obj = obj["namespace_contents"].toObject();
+    QJsonObject root_obj = obj["contents"].toObject();
 
-    QJsonArray enum_arr = root_obj["global_enums"].toArray();
+    QJsonArray enum_arr = root_obj["enums"].toArray();
     global_enums.reserve(enum_arr.size());
 
-    for (const auto& v : enum_arr) {
+    for (auto&& v : enum_arr) {
         EnumInterface entry;
         entry.fromJson(v.toObject());
         global_enums.emplace_back(eastl::move(entry));
     }
 
-    QJsonArray globals_arr = root_obj["global_constants"].toArray();
+    QJsonArray globals_arr = root_obj["constants"].toArray();
     global_constants.reserve(globals_arr.size());
     for (const auto& v : globals_arr) {
         ConstantInterface global;
@@ -496,7 +500,7 @@ void NamespaceInterface::fromJson(const QJsonObject &obj)
         global_constants.emplace_back(eastl::move(global));
     }
 
-    QJsonArray global_funcs_arr = root_obj["global_functions"].toArray();
+    QJsonArray global_funcs_arr = root_obj["functions"].toArray();
     global_constants.reserve(global_funcs_arr.size());
     for (const auto& v : global_funcs_arr) {
         MethodInterface global;
@@ -505,10 +509,10 @@ void NamespaceInterface::fromJson(const QJsonObject &obj)
     }
 
 
-    QJsonArray types_arr = root_obj["obj_types"].toArray();
+    QJsonArray types_arr = root_obj["subtypes"].toArray();
     obj_types.reserve(types_arr.size());
 
-    for (const auto& type : types_arr) {
+    for (auto&& type : types_arr) {
 
         QJsonObject entry;
         TypeInterface type_iface;
@@ -527,11 +531,11 @@ bool ReflectionData::load_from_file(StringView os_path) {
     inFile.close();
 
     QJsonParseError parse_error;
-    QJsonDocument doc = QJsonDocument::fromJson(data, &parse_error);
-    if (doc.isNull() || !doc.isObject()) {
+    QJsonDocument src_doc = QJsonDocument::fromJson(data, &parse_error);
+    if (src_doc.isNull() || !src_doc.isObject()) {
         return false;
     }
-    QJsonObject root = doc.object();
+    QJsonObject root = src_doc.object();
     module_name = qPrintable(root.value("module_name").toString());
     api_version = qPrintable(root.value("api_version").toString());
     version = qPrintable(root.value("version").toString());

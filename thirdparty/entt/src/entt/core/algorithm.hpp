@@ -1,24 +1,21 @@
 #ifndef ENTT_CORE_ALGORITHM_HPP
 #define ENTT_CORE_ALGORITHM_HPP
 
-
-#include "EASTL/utility.h"
-#include "EASTL/iterator.h"
-#include "EASTL/sort.h"
-#include "EASTL/vector.h"
-#include "EASTL/functional.h"
+#include <algorithm>
+#include <functional>
+#include <iterator>
+#include <utility>
+#include <vector>
 #include "utility.hpp"
-
 
 namespace entt {
 
-
 /**
- * @brief Function object to wrap `eastl::sort` in a class type.
+ * @brief Function object to wrap `std::sort` in a class type.
  *
- * Unfortunately, `eastl::sort` cannot be passed as template argument to a class
+ * Unfortunately, `std::sort` cannot be passed as template argument to a class
  * template or a function template.<br/>
- * This class fills the gap by wrapping some flavors of `eastl::sort` in a
+ * This class fills the gap by wrapping some flavors of `std::sort` in a
  * function object.
  */
 struct std_sort {
@@ -35,12 +32,11 @@ struct std_sort {
      * @param compare A valid comparison function object.
      * @param args Arguments to forward to the sort function, if any.
      */
-    template<typename It, typename Compare = eastl::less<>, typename... Args>
-    void operator()(It first, It last, Compare compare = Compare{}, Args &&... args) const {
-        eastl::sort(eastl::forward<Args>(args)..., eastl::move(first), eastl::move(last), eastl::move(compare));
+    template<typename It, typename Compare = std::less<>, typename... Args>
+    void operator()(It first, It last, Compare compare = Compare{}, Args &&...args) const {
+        std::sort(std::forward<Args>(args)..., std::move(first), std::move(last), std::move(compare));
     }
 };
-
 
 /*! @brief Function object for performing insertion sort. */
 struct insertion_sort {
@@ -55,33 +51,31 @@ struct insertion_sort {
      * @param last An iterator past the last element of the range to sort.
      * @param compare A valid comparison function object.
      */
-    template<typename It, typename Compare = eastl::less<>>
+    template<typename It, typename Compare = std::less<>>
     void operator()(It first, It last, Compare compare = Compare{}) const {
         if(first < last) {
-            for(auto it = first+1; it < last; ++it) {
-                auto value = eastl::move(*it);
+            for(auto it = first + 1; it < last; ++it) {
+                auto value = std::move(*it);
                 auto pre = it;
 
-                for(; pre > first && compare(value, *(pre-1)); --pre) {
-                    *pre = eastl::move(*(pre-1));
+                for(; pre > first && compare(value, *(pre - 1)); --pre) {
+                    *pre = std::move(*(pre - 1));
                 }
 
-                *pre = eastl::move(value);
+                *pre = std::move(value);
             }
         }
     }
 };
-
 
 /**
  * @brief Function object for performing LSD radix sort.
  * @tparam Bit Number of bits processed per pass.
  * @tparam N Maximum number of bits to sort.
  */
-//SEGS: use eastl::radix_sort instead?
 template<std::size_t Bit, std::size_t N>
 struct radix_sort {
-    static_assert((N % Bit) == 0);
+    static_assert((N % Bit) == 0, "The maximum number of bits to sort must be a multiple of the number of bits processed per pass");
 
     /**
      * @brief Sorts the elements in a range.
@@ -105,24 +99,24 @@ struct radix_sort {
             static constexpr auto buckets = 1 << Bit;
             static constexpr auto passes = N / Bit;
 
-            using value_type = typename eastl::iterator_traits<It>::value_type;
-            eastl::vector<value_type> aux(eastl::distance(first, last));
+            using value_type = typename std::iterator_traits<It>::value_type;
+            std::vector<value_type> aux(std::distance(first, last));
 
-            auto part = [getter = eastl::move(getter)](auto from, auto to, auto out, auto start) {
+            auto part = [getter = std::move(getter)](auto from, auto to, auto out, auto start) {
                 std::size_t index[buckets]{};
                 std::size_t count[buckets]{};
 
-                eastl::for_each(from, to, [&getter, &count, start](const value_type &item) {
-                    ++count[(getter(item) >> start) & mask];
-                });
+                for(auto it = from; it != to; ++it) {
+                    ++count[(getter(*it) >> start) & mask];
+                }
 
-                eastl::for_each(eastl::next(eastl::begin(index)), eastl::end(index), [index = eastl::begin(index), count = eastl::begin(count)](auto &item) mutable {
-                    item = *(index++) + *(count++);
-                });
+                for(std::size_t pos{}, end = buckets - 1u; pos < end; ++pos) {
+                    index[pos + 1u] = index[pos] + count[pos];
+                }
 
-                eastl::for_each(from, to, [&getter, &out, &index, start](value_type &item) {
-                    out[index[(getter(item) >> start) & mask]++] = eastl::move(item);
-                });
+                for(auto it = from; it != to; ++it) {
+                    out[index[(getter(*it) >> start) & mask]++] = std::move(*it);
+                }
             };
 
             for(std::size_t pass = 0; pass < (passes & ~1); pass += 2) {
@@ -132,14 +126,12 @@ struct radix_sort {
 
             if constexpr(passes & 1) {
                 part(first, last, aux.begin(), (passes - 1) * Bit);
-                eastl::move(aux.begin(), aux.end(), first);
+                std::move(aux.begin(), aux.end(), first);
             }
         }
     }
 };
 
-
-}
-
+} // namespace entt
 
 #endif

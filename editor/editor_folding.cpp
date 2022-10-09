@@ -258,7 +258,7 @@ void EditorFolding::_do_object_unfolds(Object *p_object, Set<RES> &resources) {
                     }
                 }
             } else { //path
-                int last = StringUtils::find_last(E.name,'/');
+                int last = StringUtils::rfind(E.name,'/');
                 if (last != -1) {
                     bool can_revert = EditorPropertyRevert::can_property_revert(p_object, E.name);
                     if (can_revert) {

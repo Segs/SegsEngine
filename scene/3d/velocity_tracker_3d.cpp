@@ -123,11 +123,11 @@ void VelocityTracker3D::reset(const Vector3 &p_new_pos) {
 
 void VelocityTracker3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_track_physics_step", {"enable"}), &VelocityTracker3D::set_track_physics_step);
-    MethodBinder::bind_method(D_METHOD("is_tracking_physics_step"), &VelocityTracker3D::is_tracking_physics_step);
-    MethodBinder::bind_method(D_METHOD("update_position", {"position"}), &VelocityTracker3D::update_position);
-    MethodBinder::bind_method(D_METHOD("get_tracked_linear_velocity"), &VelocityTracker3D::get_tracked_linear_velocity);
-    MethodBinder::bind_method(D_METHOD("reset", {"position"}), &VelocityTracker3D::reset);
+    BIND_METHOD(VelocityTracker3D,set_track_physics_step);
+    BIND_METHOD(VelocityTracker3D,is_tracking_physics_step);
+    BIND_METHOD(VelocityTracker3D,update_position);
+    BIND_METHOD(VelocityTracker3D,get_tracked_linear_velocity);
+    BIND_METHOD(VelocityTracker3D,reset);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "track_physics_step"), "set_track_physics_step", "is_tracking_physics_step");
 }

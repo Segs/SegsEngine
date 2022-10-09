@@ -5,24 +5,28 @@
 #include "core/translation.h"
 
 #ifdef TOOLS_ENABLED
-StringName TTR(StringView p_text) {
+StringName TTR(StringView p_text,StringView p_context) {
 
     if (TranslationServer::get_singleton()) {
-        return TranslationServer::get_singleton()->tool_translate(StringName(p_text));
+        return TranslationServer::get_singleton()->tool_translate(StringName(p_text),StringName(p_context));
     }
 
     return StringName(p_text);
 }
 
-String TTRS(StringView p_text) {
+String TTRS(StringView p_text,StringView p_context) {
 
     if (TranslationServer::get_singleton()) {
-        return String(TranslationServer::get_singleton()->tool_translate(StringName(p_text)));
+        return String(TranslationServer::get_singleton()->tool_translate(StringName(p_text),StringName(p_context)));
     }
 
     return String(p_text);
 }
 
+/* DTR is used for the documentation, handling descriptions extracted from the XML.
+ * It also replaces `$DOCS_URL` with the actual URL to the documentation's branch,
+ * to allow dehardcoding it in the XML and doing proper substitutions everywhere.
+ */
 StringName DTR(StringView p_text) {
     using namespace StringUtils;
     if (TranslationServer::get_singleton()) {
@@ -40,7 +44,7 @@ StringName DTR(StringView p_text) {
 StringName RTR(const char *p_text) {
 
     if (TranslationServer::get_singleton()) {
-        StringName rtr(TranslationServer::get_singleton()->tool_translate(StringName(p_text)));
+        StringName rtr(TranslationServer::get_singleton()->tool_translate(StringName(p_text),StringName()));
         if (rtr.empty() || rtr == p_text) {
             return TranslationServer::get_singleton()->translate(StringName(p_text));
         }

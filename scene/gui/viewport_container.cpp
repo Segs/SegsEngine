@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  viewport_container.cpp                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -60,6 +60,7 @@ Size2 ViewportContainer::get_minimum_size() const {
 void ViewportContainer::set_stretch(bool p_enable) {
 
     stretch = p_enable;
+    minimum_size_changed();
     queue_sort();
     update();
 }
@@ -148,11 +149,12 @@ void ViewportContainer::_notification(int p_what) {
 }
 
 void ViewportContainer::_input(const Ref<InputEvent> &p_event) {
+    ERR_FAIL_COND(!p_event);
 
     if (Engine::get_singleton()->is_editor_hint())
         return;
 
-    Transform2D xform = get_global_transform();
+    Transform2D xform = get_global_transform_with_canvas();
 
     if (stretch) {
         Transform2D scale_xf;
@@ -173,11 +175,12 @@ void ViewportContainer::_input(const Ref<InputEvent> &p_event) {
 }
 
 void ViewportContainer::_unhandled_input(const Ref<InputEvent> &p_event) {
+    ERR_FAIL_COND(!p_event);
 
     if (Engine::get_singleton()->is_editor_hint())
         return;
 
-    Transform2D xform = get_global_transform();
+    Transform2D xform = get_global_transform_with_canvas();
 
     if (stretch) {
         Transform2D scale_xf;
@@ -199,13 +202,13 @@ void ViewportContainer::_unhandled_input(const Ref<InputEvent> &p_event) {
 
 void ViewportContainer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_unhandled_input", {"event"}), &ViewportContainer::_unhandled_input);
-    MethodBinder::bind_method(D_METHOD("_input", {"event"}), &ViewportContainer::_input);
-    MethodBinder::bind_method(D_METHOD("set_stretch", {"enable"}), &ViewportContainer::set_stretch);
-    MethodBinder::bind_method(D_METHOD("is_stretch_enabled"), &ViewportContainer::is_stretch_enabled);
+    BIND_METHOD(ViewportContainer,_unhandled_input);
+    BIND_METHOD(ViewportContainer,_input);
+    BIND_METHOD(ViewportContainer,set_stretch);
+    BIND_METHOD(ViewportContainer,is_stretch_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_stretch_shrink", {"amount"}), &ViewportContainer::set_stretch_shrink);
-    MethodBinder::bind_method(D_METHOD("get_stretch_shrink"), &ViewportContainer::get_stretch_shrink);
+    BIND_METHOD(ViewportContainer,set_stretch_shrink);
+    BIND_METHOD(ViewportContainer,get_stretch_shrink);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stretch"), "set_stretch", "is_stretch_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "stretch_shrink"), "set_stretch_shrink", "get_stretch_shrink");

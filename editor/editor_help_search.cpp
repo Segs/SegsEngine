@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_help_search.cpp                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,8 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "editor_feature_profile.h"
 #include "editor_help_search.h"
+
+#include "editor/editor_settings.h"
+#include "editor_feature_profile.h"
+
 
 #include "core/callable_method_pointer.h"
 #include "core/doc_support/doc_data.h"
@@ -60,7 +63,7 @@ class EditorHelpSearch::Runner : public RefCounted {
         Vector<DocContents::MethodDoc *> defined_signals;
         Vector<DocContents::ConstantDoc *> constants;
         Vector<DocContents::PropertyDoc *> properties;
-        Vector<DocContents::PropertyDoc *> theme_properties;
+        Vector<DocContents::ThemeItemDoc *> theme_properties;
 
         bool required() {
             return name || !methods.empty() || !defined_signals.empty() || !constants.empty() || !properties.empty() || !theme_properties.empty();
@@ -83,6 +86,7 @@ class EditorHelpSearch::Runner : public RefCounted {
     HashMap<String, ClassMatch>::iterator iterator_match;
     TreeItem *root_item;
     TreeItem *matched_item;
+    float match_highest_score = 0;
 
     bool _is_class_disabled_by_feature_profile(const String &p_class);
 
@@ -103,7 +107,7 @@ class EditorHelpSearch::Runner : public RefCounted {
     TreeItem *_create_signal_item(TreeItem *p_parent, const DocContents::ClassDoc *p_class_doc, const DocContents::MethodDoc *p_doc);
     TreeItem *_create_constant_item(TreeItem *p_parent, const DocContents::ClassDoc *p_class_doc, const DocContents::ConstantDoc *p_doc);
     TreeItem *_create_property_item(TreeItem *p_parent, const DocContents::ClassDoc *p_class_doc, const DocContents::PropertyDoc *p_doc);
-    TreeItem *_create_theme_property_item(TreeItem *p_parent, const DocContents::ClassDoc *p_class_doc, const DocContents::PropertyDoc *p_doc);
+    TreeItem *_create_theme_property_item(TreeItem *p_parent, const DocContents::ClassDoc *p_class_doc, const DocContents::ThemeItemDoc *p_doc);
     TreeItem *_create_member_item(TreeItem *p_parent, const StringName &p_class_name, StringView p_icon, const String &p_name, StringView p_type, StringView p_metatype, StringView p_tooltip);
 
 public:
@@ -205,7 +209,7 @@ void EditorHelpSearch::_notification(int p_what) {
                 if (search->work()) {
                     // Search done.
 
-                    // Only point to the perfect match if it's a new search, and not just reopening a old one.
+                    // Only point to the match if it's a new search, and not just reopening a old one.
                     if (!old_search)
                         results_tree->ensure_cursor_is_visible();
                     else
@@ -323,7 +327,7 @@ EditorHelpSearch::EditorHelpSearch() {
     results_tree->set_hide_root(true);
     results_tree->set_select_mode(Tree::SELECT_ROW);
     results_tree->connect("item_activated",callable_mp(this, &ClassName::_confirmed));
-    results_tree->connect("item_selected", callable_mp((BaseButton *)get_ok(), &BaseButton::set_disabled), varray(false));
+    results_tree->connect("item_selected", callable_gen(get_ok(),[okb=get_ok()]() { okb->set_disabled(false); }));
     vbox->add_child(results_tree, true);
 }
 
@@ -392,6 +396,7 @@ bool EditorHelpSearch::Runner::_phase_match_classes_init() {
     iterator_doc = EditorHelp::get_doc_data()->class_list.begin();
     matches.clear();
     matched_item = nullptr;
+    match_highest_score = 0;
 
     return true;
 }
@@ -414,24 +419,25 @@ bool EditorHelpSearch::Runner::_phase_match_classes() {
         // Match members if the term is long enough.
         if (term.length() > 1) {
             if (search_flags & SEARCH_METHODS) {
-                for (int i = 0; i < class_doc.methods.size(); i++) {
-                    String method_name = (search_flags & SEARCH_CASE_SENSITIVE) ? class_doc.methods[i].name : class_doc.methods[i].name.to_lower();
-                    if (method_name.contains(term) ||
-                            (term.starts_with(".") && method_name.starts_with(term.right(1))) ||
+                for (auto & method : class_doc.methods) {
+                    String method_name = (search_flags & SEARCH_CASE_SENSITIVE) ? method.name : method.name.to_lower();
+                    if (method_name.contains(term) || (term.starts_with(".") && method_name.starts_with(term.substr(1))) ||
                             (term.ends_with("(") && method_name.ends_with(strip_edges(term.left(term.length() - 1)))) ||
                             (term.starts_with(".") && term.ends_with("(") && method_name == strip_edges(term.substr(1, term.length() - 2)))) {
-                        match.methods.push_back(const_cast<DocContents::MethodDoc *>(&class_doc.methods[i]));
+                        match.methods.push_back(const_cast<DocContents::MethodDoc *>(&method));
                     }
                 }
             }
             if (search_flags & SEARCH_SIGNALS)
-                for (int i = 0; i < class_doc.defined_signals.size(); i++)
-                    if (_match_string(term, class_doc.defined_signals[i].name))
-                        match.defined_signals.push_back(const_cast<DocContents::MethodDoc *>(&class_doc.defined_signals[i]));
+                for (int i = 0; i < class_doc.defined_signals.size(); i++) {
+                    if (_match_string(term, class_doc.defined_signals[i].name)) {
+                        match.defined_signals.push_back(&class_doc.defined_signals[i]);
+                    }
+                }
             if (search_flags & SEARCH_CONSTANTS)
                 for (int i = 0; i < class_doc.constants.size(); i++)
                     if (_match_string(term, class_doc.constants[i].name))
-                        match.constants.push_back(const_cast<DocContents::ConstantDoc *>(&class_doc.constants[i]));
+                        match.constants.push_back(&class_doc.constants[i]);
             if (search_flags & SEARCH_PROPERTIES)
                 for (int i = 0; i < class_doc.properties.size(); i++)
                     if (_match_string(term, class_doc.properties[i].name) || _match_string(term, class_doc.properties[i].getter) || _match_string(term, class_doc.properties[i].setter))
@@ -439,7 +445,7 @@ bool EditorHelpSearch::Runner::_phase_match_classes() {
             if (search_flags & SEARCH_THEME_ITEMS)
                 for (int i = 0; i < class_doc.theme_properties.size(); i++)
                     if (_match_string(term, class_doc.theme_properties[i].name))
-                        match.theme_properties.push_back(const_cast<DocContents::PropertyDoc *>(&class_doc.theme_properties[i]));
+                        match.theme_properties.push_back(const_cast<DocContents::ThemeItemDoc *>(&class_doc.theme_properties[i]));
         }
     }
 
@@ -514,6 +520,21 @@ bool EditorHelpSearch::Runner::_match_string(const String &p_term, const String 
 }
 
 void EditorHelpSearch::Runner::_match_item(TreeItem *p_item, StringView p_text) {
+    float inverse_length = 1.f / float(p_text.length());
+
+    // Favor types where search term is a substring close to the start of the type.
+    float w = 0.5f;
+    int pos = StringUtils::findn(p_text,term);
+    float score = (pos != String::npos) ? 1.0f - w * MIN(1, 3 * pos * inverse_length) : eastl::max(0.f, .9f - w);
+
+    // Favor shorter items: they resemble the search term more.
+    w = 0.1f;
+    score *= (1 - w) + w * (term.length() * inverse_length);
+
+    if (match_highest_score == 0 || score > match_highest_score) {
+        matched_item = p_item;
+        match_highest_score = score;
+    }
 
     if (!matched_item) {
         if (search_flags & SEARCH_CASE_SENSITIVE) {
@@ -554,7 +575,7 @@ TreeItem *EditorHelpSearch::Runner::_create_class_item(TreeItem *p_parent, const
         icon = ui_service->get_theme_icon(snn, "EditorIcons");
     else if (ClassDB::class_exists(snn) && ClassDB::is_parent_class(snn, "Object"))
         icon = ui_service->get_theme_icon("Object", "EditorIcons");
-    StringName tooltip(StringUtils::strip_edges(StringView((p_doc->brief_description))));
+    StringName tooltip(DTR(StringUtils::strip_edges(StringView((p_doc->brief_description)))));
 
     TreeItem *item = results_tree->create_item(p_parent);
     item->set_icon(0, icon);
@@ -595,10 +616,12 @@ TreeItem *EditorHelpSearch::Runner::_create_signal_item(TreeItem *p_parent, cons
     for (int i = 0; i < p_doc->arguments.size(); i++) {
         const DocContents::ArgumentDoc &arg = p_doc->arguments[i];
         tooltip += arg.type + " " + arg.name;
-        if (!arg.default_value.empty())
+        if (!arg.default_value.empty()) {
             tooltip += " = " + arg.default_value;
-        if (i < p_doc->arguments.size() - 1)
+        }
+        if (i < p_doc->arguments.size() - 1) {
             tooltip += ", ";
+        }
     }
     tooltip += ')';
     return _create_member_item(p_parent, StringName((p_class_doc->name)), "MemberSignal", (p_doc->name),
@@ -622,7 +645,7 @@ TreeItem *EditorHelpSearch::Runner::_create_property_item(TreeItem *p_parent, co
             (p_doc->name), "Property", "property", (tooltip));
 }
 
-TreeItem *EditorHelpSearch::Runner::_create_theme_property_item(TreeItem *p_parent, const DocContents::ClassDoc *p_class_doc, const DocContents::PropertyDoc *p_doc) {
+TreeItem *EditorHelpSearch::Runner::_create_theme_property_item(TreeItem *p_parent, const DocContents::ClassDoc *p_class_doc, const DocContents::ThemeItemDoc *p_doc) {
 
     String tooltip = p_doc->type + " " + p_class_doc->name + "." + p_doc->name;
     return _create_member_item(p_parent, StringName((p_class_doc->name)), "MemberTheme", (p_doc->name),

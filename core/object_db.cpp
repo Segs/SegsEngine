@@ -1,10 +1,11 @@
-#include "object_db.h"
+﻿#include "object_db.h"
 
 #include "object.h"
+#include "core/ecs_registry.h"
 #include "core/error_list.h"
 #include "core/error_macros.h"
 #include "core/hash_map.h"
-#include "core/object_id.h"
+#include "core/hash_set.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/string.h"
@@ -12,92 +13,40 @@
 #include "core/hash_map.h"
 #include "core/os/rw_lock.h"
 
-namespace  {
-HashMap<ObjectID, Object *> *s_instances=nullptr;
-HashMap<Object *, ObjectID, Hasher<Object *>> instance_checks;
-uint64_t s_instance_counter;
-RWLock s_odb_rw_lock;
+#include "entt/entity/registry.hpp"
 
+
+
+namespace ObjectDB {
+
+bool is_valid_object(Object *obj)
+{
+    return obj && object_for_entity(obj->get_instance_id())==obj;
 }
 
-ObjectID ObjectDB::add_instance(Object *p_object) {
-
-    ERR_FAIL_COND_V(p_object->get_instance_id().is_valid(), ObjectID());
-
-    RWLockWrite guard(s_odb_rw_lock);
-    ObjectID instance_id(++s_instance_counter);
-    (*s_instances)[instance_id] = p_object;
-    instance_checks[p_object] = instance_id;
-
-    return instance_id;
+void cleanup() {
+    if (game_object_registry.registry.empty()) {
+        return; // nothing to report.
 }
-
-void ObjectDB::remove_instance(Object *p_object) {
-
-    RWLockWrite guard(s_odb_rw_lock);
-
-    (*s_instances).erase(p_object->get_instance_id());
-    instance_checks.erase(p_object);
-}
-Object *ObjectDB::get_instance(ObjectID p_instance_id) {
-    RWLockRead guard(s_odb_rw_lock);
-
-    auto iter= (*s_instances).find(p_instance_id);
-    Object *obj = iter!=(*s_instances).end() ? iter->second : nullptr;
-
-    return obj;
-}
-
-void ObjectDB::debug_objects(DebugFunc p_func) {
-
-    RWLockRead guard(s_odb_rw_lock);
-
-    for(const auto &e : (*s_instances)) {
-
-        p_func(e.second);
-    }
-}
-
-int ObjectDB::get_object_count() {
-    RWLockRead guard(s_odb_rw_lock);
-    int count = (*s_instances).size();
-
-    return count;
-}
-
-bool ObjectDB::instance_validate(Object *p_ptr) {
-    RWLockRead guard(s_odb_rw_lock);
-
-    bool exists = instance_checks.contains(p_ptr);
-
-    return exists;
-}
-
-void ObjectDB::setup() {
-
-    s_instances = new HashMap<ObjectID, Object *>();
-}
-
-void ObjectDB::cleanup() {
-
-    RWLockWrite guard(s_odb_rw_lock);
-    if (!(*s_instances).empty()) {
 
         WARN_PRINT("ObjectDB Instances still exist!");
         if (OS::get_singleton()->is_stdout_verbose()) {
-            for (const auto &e : (*s_instances)) {
+        game_object_registry.registry.each([](const GameEntity ent) {
                 String node_name;
+            ObjectLink *link = game_object_registry.registry.try_get<ObjectLink>(ent);
+            Object *obj = link ? link->object : nullptr;
+            if (obj) {
 #ifdef DEBUG_ENABLED
-                const char *name = e.second->get_dbg_name();
+                const char *name = obj->get_dbg_name();
                 if (name) {
-                    node_name = FormatVE(" - %s name: %s",e.second->get_class_name().asCString(),name);
+                    node_name = FormatVE(" - %s name: %s", obj->get_class_name().asCString(), name);
                 }
 #endif
-                print_line(FormatVE("Leaked instance: %s:%p:%s", e.second->get_class(), e.second,node_name.c_str()));
+                print_line(FormatVE("Leaked instance(%x): %s:%p:%s",entt::to_integral(ent), obj->get_class(), obj, node_name.c_str()));
+            } else {
+                print_line(FormatVE("Leaked non-Object instance: %d", entt::to_integral(ent)));
             }
+        });
         }
     }
-    s_instances->clear();
-    instance_checks.clear();
-    delete s_instances;
 }

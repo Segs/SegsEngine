@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  convex_polygon_shape_2d.cpp                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -50,7 +50,7 @@ void ConvexPolygonShape2D::_update_shape() {
     if (Geometry::is_polygon_clockwise(final_points)) { //needs to be counter clockwise
         eastl::reverse(final_points.begin(),final_points.end());
     }
-    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), final_points);
+    PhysicsServer2D::get_singleton()->shape_set_data(get_phys_rid(), final_points);
     emit_changed();
 }
 
@@ -75,9 +75,9 @@ Span<const Vector2> ConvexPolygonShape2D::get_points() const {
 
 void ConvexPolygonShape2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_point_cloud", {"point_cloud"}), &ConvexPolygonShape2D::set_point_cloud);
-    MethodBinder::bind_method(D_METHOD("set_points", {"points"}), &ConvexPolygonShape2D::set_points);
-    MethodBinder::bind_method(D_METHOD("get_points"), &ConvexPolygonShape2D::get_points);
+    BIND_METHOD(ConvexPolygonShape2D,set_point_cloud);
+    BIND_METHOD(ConvexPolygonShape2D,set_points);
+    BIND_METHOD(ConvexPolygonShape2D,get_points);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "points"), "set_points", "get_points");
 }
@@ -90,11 +90,19 @@ real_t ConvexPolygonShape2D::get_enclosing_radius() const {
     return Math::sqrt(r);
 }
 
-void ConvexPolygonShape2D::draw(const RID &p_to_rid, const Color &p_color) {
+void ConvexPolygonShape2D::draw(RenderingEntity p_to_rid, const Color &p_color) {
+    if (points.size() < 3) {
+        return;
+    }
 
-    PoolVector<Color> col;
+    Vector<Color> col;
     col.push_back(p_color);
     RenderingServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
+    if (is_collision_outline_enabled()) {
+        RenderingServer::get_singleton()->canvas_item_add_polyline(p_to_rid, points, col, 1.0, true);
+        // Draw the last segment as it's not drawn by `canvas_item_add_polyline()`.
+        RenderingServer::get_singleton()->canvas_item_add_line(p_to_rid, points[points.size() - 1], points[0], p_color, 1.0, true);
+    }
 }
 
 Rect2 ConvexPolygonShape2D::get_rect() const {

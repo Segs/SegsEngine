@@ -85,8 +85,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef EASTL_VERSION
-	#define EASTL_VERSION   "3.16.07"
-	#define EASTL_VERSION_N  31607
+	#define EASTL_VERSION   "3.19.03"
+	#define EASTL_VERSION_N  31903
 #endif
 
 
@@ -140,13 +140,7 @@
 //
 #if !defined(EA_CPP14_CONSTEXPR)
 
-    #if defined(EA_COMPILER_MSVC_2015)
-        #define EA_CPP14_CONSTEXPR  // not supported
-        #define EA_NO_CPP14_CONSTEXPR
-    #elif defined(__GNUC__) && (EA_COMPILER_VERSION < 9000)   // Before GCC 9.0
-        #define EA_CPP14_CONSTEXPR  // not supported
-        #define EA_NO_CPP14_CONSTEXPR
-    #elif defined(EA_COMPILER_CPP14_ENABLED)
+    #if defined(EA_COMPILER_CPP14_ENABLED)
         #define EA_CPP14_CONSTEXPR constexpr
     #else
         #define EA_CPP14_CONSTEXPR  // not supported
@@ -186,7 +180,7 @@ namespace eastl
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef EASTL_DEBUG
-	#if defined(EA_DEBUG) || defined(_DEBUG)
+    #if defined(EA_DEBUG) || defined(_DEBUG)
         #define EASTL_DEBUG 1
     #else
         #define EASTL_DEBUG 0
@@ -247,11 +241,11 @@ namespace eastl
 ///////////////////////////////////////////////////////////////////////////////
 // EASTL_IF_NOT_DLL
 //
-// Utility to include expressions only for static builds. 
+// Utility to include expressions only for static builds.
 //
 #ifndef EASTL_IF_NOT_DLL
 #if EASTL_DLL
-#define EASTL_IF_NOT_DLL(x) 
+#define EASTL_IF_NOT_DLL(x)
 #else
 #define EASTL_IF_NOT_DLL(x) x
 #endif
@@ -637,12 +631,12 @@ namespace eastl
             #include <signal.h>
             #include <unistd.h>
             #define EASTL_DEBUG_BREAK() kill( getpid(), SIGINT )
-		#elif defined(EA_PROCESSOR_ARM64) && defined(__GNUC__)
-			#define EASTL_DEBUG_BREAK() asm("brk 10")
-		#elif defined(EA_PROCESSOR_ARM) && defined(__GNUC__)
-			#define EASTL_DEBUG_BREAK() asm("BKPT 10")     // The 10 is arbitrary. It's just a unique id.
-		#elif defined(EA_PROCESSOR_ARM) && defined(__ARMCC_VERSION)
-			#define EASTL_DEBUG_BREAK() __breakpoint(10)
+        #elif defined(EA_PROCESSOR_ARM64) && defined(__GNUC__)
+            #define EASTL_DEBUG_BREAK() asm("brk 10")
+        #elif defined(EA_PROCESSOR_ARM) && defined(__GNUC__)
+            #define EASTL_DEBUG_BREAK() asm("BKPT 10")     // The 10 is arbitrary. It's just a unique id.
+        #elif defined(EA_PROCESSOR_ARM) && defined(__ARMCC_VERSION)
+            #define EASTL_DEBUG_BREAK() __breakpoint(10)
         #elif defined(EA_PROCESSOR_POWERPC)               // Generic PowerPC.
             #define EASTL_DEBUG_BREAK() asm(".long 0")    // This triggers an exception by executing opcode 0x00000000.
         #elif (defined(EA_PROCESSOR_X86) || defined(EA_PROCESSOR_X86_64)) && defined(EA_ASM_STYLE_INTEL)
@@ -815,7 +809,7 @@ namespace eastl
 // Controls whether bitset uses size_t or eastl_size_t.
 //
 #ifndef EASTL_BITSET_SIZE_T
-    #define EASTL_BITSET_SIZE_T 1
+	#define EASTL_BITSET_SIZE_T 1
 #endif
 
 
@@ -907,15 +901,15 @@ namespace eastl
 		#define EASTL_BITSET_WORD_TYPE_DEFAULT uint128_t
 		#define EASTL_BITSET_WORD_SIZE_DEFAULT 16
 	#elif (EA_PLATFORM_WORD_SIZE == 8)
-        #define EASTL_BITSET_WORD_TYPE_DEFAULT uint64_t
-        #define EASTL_BITSET_WORD_SIZE_DEFAULT 8
-    #elif (EA_PLATFORM_WORD_SIZE == 4)
-        #define EASTL_BITSET_WORD_TYPE_DEFAULT uint32_t
-        #define EASTL_BITSET_WORD_SIZE_DEFAULT 4
-    #else
-        #define EASTL_BITSET_WORD_TYPE_DEFAULT uint16_t
-        #define EASTL_BITSET_WORD_SIZE_DEFAULT 2
-    #endif
+		#define EASTL_BITSET_WORD_TYPE_DEFAULT uint64_t
+		#define EASTL_BITSET_WORD_SIZE_DEFAULT 8
+	#elif (EA_PLATFORM_WORD_SIZE == 4)
+		#define EASTL_BITSET_WORD_TYPE_DEFAULT uint32_t
+		#define EASTL_BITSET_WORD_SIZE_DEFAULT 4
+	#else
+		#define EASTL_BITSET_WORD_TYPE_DEFAULT uint16_t
+		#define EASTL_BITSET_WORD_SIZE_DEFAULT 2
+	#endif
 #endif
 
 
@@ -1009,7 +1003,7 @@ namespace eastl
 ///////////////////////////////////////////////////////////////////////////////
 // EASTL_OPERATOR_EQUALS_OTHER_ENABLED
 //
-// Defined as 0 or 1. Default is 0 until such day that it's deemeed safe.
+// Defined as 0 or 1. Default is 0 until such day that it's deemed safe.
 // When enabled, enables operator= for other char types, e.g. for code
 // like this:
 //     eastl::string8  s8;
@@ -1275,7 +1269,7 @@ namespace eastl
 // useful macro identifier for our type traits implementation.
 //
 #ifndef EASTL_COMPILER_INTRINSIC_TYPE_TRAITS_AVAILABLE
-    #if defined(_MSC_VER) && (_MSC_VER >= 1500) // VS2008 or later
+    #if defined(_MSC_VER) && (_MSC_VER >= 1500) && !defined(EA_COMPILER_CLANG_CL) // VS2008 or later
         #pragma warning(push, 0)
             #include <yvals.h>
         #pragma warning(pop)
@@ -1284,9 +1278,9 @@ namespace eastl
         #else
             #define EASTL_COMPILER_INTRINSIC_TYPE_TRAITS_AVAILABLE 0
         #endif
-    #elif defined(EA_COMPILER_CLANG) && defined(__APPLE__) && defined(_CXXCONFIG) // Apple clang but with GCC's libstdc++.
+    #elif defined(__clang__) && defined(__APPLE__) && defined(_CXXCONFIG) // Apple clang but with GCC's libstdc++.
         #define EASTL_COMPILER_INTRINSIC_TYPE_TRAITS_AVAILABLE 0
-    #elif defined(EA_COMPILER_CLANG)
+    #elif defined(__clang__)
         #define EASTL_COMPILER_INTRINSIC_TYPE_TRAITS_AVAILABLE 1
     #elif defined(EA_COMPILER_GNUC) && (EA_COMPILER_VERSION >= 4003) && !defined(__GCCXML__)
         #define EASTL_COMPILER_INTRINSIC_TYPE_TRAITS_AVAILABLE 1
@@ -1326,7 +1320,7 @@ namespace eastl
 //
 // Defined as 0 or 1; default is 1.
 // Specifies whether the min and max algorithms are available.
-// It may be useful to disable the min and max algorithems because sometimes
+// It may be useful to disable the min and max algorithms because sometimes
 // #defines for min and max exist which would collide with EASTL min and max.
 // Note that there are already alternative versions of min and max in EASTL
 // with the min_alt and max_alt functions. You can use these without colliding
@@ -1542,7 +1536,7 @@ namespace eastl
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef EASTL_ALIGN_OF
-	#define EASTL_ALIGN_OF alignof
+    #define EASTL_ALIGN_OF alignof
 #endif
 
 
@@ -1835,14 +1829,14 @@ typedef EASTL_SSIZE_T eastl_ssize_t; // Signed version of eastl_size_t. Concept 
 
 
 /// EASTL_HAS_UNIQUE_OBJECT_REPRESENTATIONS_AVAILABLE
-#if defined(_MSC_VER) && (_MSC_VER >= 1913)  // VS2017+
-    #define EASTL_HAS_UNIQUE_OBJECT_REPRESENTATIONS_AVAILABLE 1
-#elif defined(EA_COMPILER_CLANG)
+#if defined(__clang__)
     #if !__is_identifier(__has_unique_object_representations)
         #define EASTL_HAS_UNIQUE_OBJECT_REPRESENTATIONS_AVAILABLE 1
     #else
         #define EASTL_HAS_UNIQUE_OBJECT_REPRESENTATIONS_AVAILABLE 0
     #endif
+#elif defined(_MSC_VER) && (_MSC_VER >= 1913)  // VS2017+
+    #define EASTL_HAS_UNIQUE_OBJECT_REPRESENTATIONS_AVAILABLE 1
 #else
     #define EASTL_HAS_UNIQUE_OBJECT_REPRESENTATIONS_AVAILABLE 0
 #endif
@@ -1855,3 +1849,31 @@ typedef EASTL_SSIZE_T eastl_ssize_t; // Signed version of eastl_size_t. Concept 
 #ifndef EASTL_ENABLE_PAIR_FIRST_ELEMENT_CONSTRUCTOR
 	#define EASTL_ENABLE_PAIR_FIRST_ELEMENT_CONSTRUCTOR 0
 #endif
+/// EASTL_SYSTEM_BIG_ENDIAN_STATEMENT
+/// EASTL_SYSTEM_LITTLE_ENDIAN_STATEMENT
+/// These macros allow you to write endian specific macros as statements.
+/// This allows endian specific code to be macro expanded from within other macros
+///
+#if defined(EA_SYSTEM_BIG_ENDIAN)
+	#define EASTL_SYSTEM_BIG_ENDIAN_STATEMENT(...) __VA_ARGS__
+#else
+	#define EASTL_SYSTEM_BIG_ENDIAN_STATEMENT(...)
+#endif
+
+#if defined(EA_SYSTEM_LITTLE_ENDIAN)
+	#define EASTL_SYSTEM_LITTLE_ENDIAN_STATEMENT(...) __VA_ARGS__
+#else
+	#define EASTL_SYSTEM_LITTLE_ENDIAN_STATEMENT(...)
+#endif
+
+/// EASTL_CONSTEXPR_BIT_CAST_SUPPORTED
+/// eastl::bit_cast, in order to be implemented as constexpr, requires explicit compiler support.
+/// This macro defines whether it's possible for bit_cast to be constexpr.
+///
+#if (defined(EA_COMPILER_MSVC) && defined(EA_COMPILER_MSVC_VERSION_14_26) && EA_COMPILER_VERSION >= EA_COMPILER_MSVC_VERSION_14_26) \
+	|| EA_COMPILER_HAS_BUILTIN(__builtin_bit_cast)
+	#define EASTL_CONSTEXPR_BIT_CAST_SUPPORTED 1
+#else
+	#define EASTL_CONSTEXPR_BIT_CAST_SUPPORTED 0
+#endif
+

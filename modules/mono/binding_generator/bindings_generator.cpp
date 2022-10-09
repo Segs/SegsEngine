@@ -33,6 +33,9 @@
 #include <QStringBuilder>
 //get_remote_node -> nodepath
 //get_shape_owners -> array
+void _err_flush_stdout() {
+    fflush(stdout);
+}
 
 struct TypemapRegistrationPass : public ReflectionVisitorBase {
 public:
@@ -134,6 +137,15 @@ int main(int argc, char **argv) {
     const QStringList args = parser.positionalArguments();
     if (args.size() != 3) {
         parser.showHelp(-1);
+    }
+    // add the source json's path to search paths - if it's empty, just add local dir to search paths
+    QFileInfo src_fi(args[0]);
+    QString p(src_fi.path());
+    if (src_fi.path().isEmpty()) {
+        search_paths.emplace_back(qPrintable(app.applicationDirPath()));
+    } else {
+        search_paths.emplace_back(qPrintable(src_fi.path()));
+        
     }
 
     for(const QString & val : parser.values(ImportOption)) {

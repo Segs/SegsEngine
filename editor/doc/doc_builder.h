@@ -34,4 +34,4 @@
 #include "core/string.h"
 
 class DocData;
-void GODOT_EXPORT generate_docs_from_running_program(DocData &doc,bool p_basic_types = false);
+GODOT_EXPORT void generate_docs_from_running_program(DocData &doc,bool p_basic_types = false);

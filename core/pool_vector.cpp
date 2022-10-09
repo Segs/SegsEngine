@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  pool_vector.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,6 +32,7 @@
 #include "core/math/vector2.h"
 #include "core/math/vector3.h"
 #include "core/os/mutex.h"
+#include "core/os/mutex.h"
 
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) PoolVector<Vector2>;
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) PoolVector<Vector3>;
@@ -42,7 +43,7 @@ MemoryPool::Alloc *MemoryPool::allocs = nullptr;
 MemoryPool::Alloc *MemoryPool::free_list = nullptr;
 uint32_t MemoryPool::alloc_count = 0;
 uint32_t MemoryPool::allocs_used = 0;
-Mutex *MemoryPool::alloc_mutex = nullptr;
+static Mutex alloc_mutex;
 
 size_t MemoryPool::total_memory = 0;
 size_t MemoryPool::max_memory = 0;
@@ -60,73 +61,67 @@ void MemoryPool::setup(uint32_t p_max_allocs) {
 
     free_list = &allocs[0];
 
-    alloc_mutex = memnew(Mutex);
 }
 
 void MemoryPool::cleanup() {
 
-    if(allocs_used > 0)
-    {
-        printf("1");
-    }
     memdelete_arr(allocs);
-    memdelete(alloc_mutex);
     ERR_FAIL_COND_MSG(allocs_used > 0, "There are still MemoryPool allocs in use at exit!");
 }
 
-bool MemoryPool::do_alloc_block(MemoryPool::Alloc *&alloc)
+bool MemoryPool::do_alloc_block(Alloc *&alloc)
 {
-    MemoryPool::alloc_mutex->lock();
-    if (MemoryPool::allocs_used == MemoryPool::alloc_count) {
-        MemoryPool::alloc_mutex->unlock();
+    alloc_mutex.lock();
+    if (allocs_used == alloc_count) {
+        alloc_mutex.unlock();
         ERR_FAIL_V_MSG(false,"All memory pool allocations are in use, can't COW.");
     }
 
-    MemoryPool::Alloc *old_alloc = alloc;
+    Alloc *old_alloc = alloc;
 
     //take one from the free list
-    alloc = MemoryPool::free_list;
-    MemoryPool::free_list = alloc->free_list;
+    alloc = free_list;
+    free_list = alloc->free_list;
     //increment the used counter
-    MemoryPool::allocs_used++;
+    allocs_used++;
 
     //copy the alloc data
     alloc->size = old_alloc ? old_alloc->size : 0;
     alloc->refcount.init();
-    alloc->lock = 0;
+    alloc->lock.set(0);
 
 #ifdef DEBUG_ENABLED
-    MemoryPool::total_memory += alloc->size;
-    if (MemoryPool::total_memory > MemoryPool::max_memory) {
-        MemoryPool::max_memory = MemoryPool::total_memory;
+    total_memory += alloc->size;
+    if (total_memory > max_memory) {
+        max_memory = total_memory;
     }
 #endif
 
-    MemoryPool::alloc_mutex->unlock();
+    alloc_mutex.unlock();
     alloc->mem = memalloc(alloc->size);
     return true;
 }
 
-void MemoryPool::releaseBlock(MemoryPool::Alloc *alloc) {
+void MemoryPool::releaseBlock(Alloc *alloc) {
     memfree(alloc->mem);
     alloc->mem = nullptr;
     alloc->size = 0;
 
-    alloc_mutex->lock();
+    alloc_mutex.lock();
     alloc->free_list = free_list;
     free_list = alloc;
     allocs_used--;
-    alloc_mutex->unlock();
+    alloc_mutex.unlock();
 }
 
 #ifdef DEBUG_ENABLED
 void MemoryPool::doUpdate(int delta)
 {
-    alloc_mutex->lock();
+    alloc_mutex.lock();
     total_memory += delta;
     if (total_memory > max_memory) {
         max_memory = total_memory;
     }
-    alloc_mutex->unlock();
+    alloc_mutex.unlock();
 }
 #endif

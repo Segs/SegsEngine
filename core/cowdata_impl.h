@@ -6,31 +6,21 @@
 class Object;
 
 
-template <class T> T *CowData<T>::_get_data() const {
-
-    if (!_ptr) return nullptr;
-    return reinterpret_cast<T *>(_ptr);
-}
 template <class T> uint32_t *CowData<T>::_get_size() const {
 
     if (!_ptr) return nullptr;
 
     return reinterpret_cast<uint32_t *>(_ptr) - 1;
 }
-template <class T> uint32_t *CowData<T>::_get_refcount() const {
-
-    if (!_ptr) return nullptr;
-
-    return reinterpret_cast<uint32_t *>(_ptr) - 2;
-}
 
 template <class T> void CowData<T>::_unref(void *p_data) {
 
     if (!p_data) return;
 
-    uint32_t *refc = _get_refcount();
+    SafeNumeric<uint32_t> *refc = _get_refcount();
 
-    if (atomic_decrement(refc) > 0) return; // still in use
+    if (refc->decrement() > 0)
+        return; // still in use
     // clean up
     if constexpr(!eastl::is_trivially_destructible<T>::value) {
             uint32_t *count = _get_size();
@@ -43,22 +33,25 @@ template <class T> void CowData<T>::_unref(void *p_data) {
         }
 
     // free mem
-    Memory::free_static((uint8_t *)p_data, true);
+    Memory::free((uint8_t *)p_data, true);
 }
 
-template <class T> void CowData<T>::_copy_on_write() {
+template <class T> 
+uint32_t CowData<T>::_copy_on_write() {
 
-    if (!_ptr) return;
+    if (!_ptr)
+        return 0;
 
-    uint32_t *refc = _get_refcount();
+    SafeNumeric<uint32_t> *refc = _get_refcount();
 
-    if (unlikely(*refc > 1)) {
+    uint32_t rc = refc->get();
+    if (likely(rc > 1)) {
         /* in use by more than me */
         uint32_t current_size = *_get_size();
 
-        uint32_t *mem_new = (uint32_t *)Memory::alloc_static(_get_alloc_size(current_size), true);
+        uint32_t *mem_new = (uint32_t *)Memory::alloc(_get_alloc_size(current_size), true);
 
-        *(mem_new - 2) = 1; // refcount
+        new (mem_new - 2, sizeof(uint32_t), "") SafeNumeric<uint32_t>(1); //refcount
         *(mem_new - 1) = current_size; // size
 
         T *_data = (T *)(mem_new);
@@ -68,15 +61,17 @@ template <class T> void CowData<T>::_copy_on_write() {
         else {
             for (uint32_t i = 0; i < current_size; i++) {
                 if constexpr(eastl::is_base_of<Object, T>::value)
-                    memnew_placement(&_data[i], T(_get_data()[i]));
+                    memnew_placement(&_data[i], T(_ptr[i]));
                 else
-                    memnew_placement_basic(&_data[i], T(_get_data()[i]));
+                    memnew_placement_basic(&_data[i], T(_ptr[i]));
             }
         }
 
         _unref(_ptr);
         _ptr = _data;
+        rc = 1;
     }
+    return rc;
 }
 
 template <class T> Error CowData<T>::resize(int p_size) {
@@ -96,7 +91,7 @@ template <class T> Error CowData<T>::resize(int p_size) {
     }
 
     // possibly changing size, copy on write
-    _copy_on_write();
+    uint32_t rc=_copy_on_write();
 
     size_t current_alloc_size = _get_alloc_size(current_size);
     size_t alloc_size;
@@ -106,16 +101,17 @@ template <class T> Error CowData<T>::resize(int p_size) {
         if (alloc_size != current_alloc_size) {
             if (current_size == 0) {
                 // alloc from scratch
-                uint32_t *ptr = (uint32_t *)Memory::alloc_static(alloc_size, true);
+                uint32_t *ptr = (uint32_t *)Memory::alloc(alloc_size, true);
                 ERR_FAIL_COND_V(!ptr, ERR_OUT_OF_MEMORY);
                 *(ptr - 1) = 0; // size, currently none
-                *(ptr - 2) = 1; // refcount
+                new (ptr - 2, sizeof(uint32_t), "") SafeNumeric<uint32_t>(1); //refcount
 
                 _ptr = (T *)ptr;
 
             } else {
-                void *_ptrnew = (T *)Memory::realloc_static(_ptr, alloc_size, true);
+                uint32_t *_ptrnew = (uint32_t *)Memory::realloc(_ptr, alloc_size, true);
                 ERR_FAIL_COND_V(!_ptrnew, ERR_OUT_OF_MEMORY);
+                new (_ptrnew - 2, sizeof(uint32_t), "") SafeNumeric<uint32_t>(rc); //refcount
                 _ptr = (T *)(_ptrnew);
             }
         }
@@ -123,13 +119,12 @@ template <class T> Error CowData<T>::resize(int p_size) {
         // construct the newly created elements
 
         if constexpr(!eastl::is_trivially_constructible<T>::value) {
-                T *elems = _get_data();
 
                 for (int i = *_get_size(); i < p_size; i++) {
                     if constexpr(eastl::is_base_of<Object, T>::value)
-                        memnew_placement(&elems[i], T);
+                    memnew_placement(&_ptr[i], T);
                     else
-                        memnew_placement_basic(&elems[i], T);
+                    memnew_placement_basic(&_ptr[i], T);
                 }
             }
 
@@ -140,14 +135,15 @@ template <class T> Error CowData<T>::resize(int p_size) {
         if constexpr(!eastl::is_trivially_destructible<T>::value) {
                 // deinitialize no longer needed elements
                 for (uint32_t i = p_size; i < *_get_size(); i++) {
-                    T *t = &_get_data()[i];
+                    T *t = &_ptr[i];
                     t->~T();
                 }
             }
 
         if (alloc_size != current_alloc_size) {
-            void *_ptrnew = (T *)Memory::realloc_static(_ptr, alloc_size, true);
+            uint32_t *_ptrnew = (uint32_t *)Memory::realloc(_ptr, alloc_size, true);
             ERR_FAIL_COND_V(!_ptrnew, ERR_OUT_OF_MEMORY);
+            new (_ptrnew - 2, sizeof(uint32_t), "") SafeNumeric<uint32_t>(rc); //refcount
 
             _ptr = (T *)(_ptrnew);
         }
@@ -179,16 +175,20 @@ template <class T> void CowData<T>::_ref(const CowData *p_from) {
     _ref(*p_from);
 }
 
-template <class T> void CowData<T>::_ref(const CowData &p_from) {
+template <class T>
+void CowData<T>::_ref(const CowData &p_from) {
 
-    if (_ptr == p_from._ptr) return; // self assign, do nothing.
+    if (_ptr == p_from._ptr)
+        return; // self assign, do nothing.
 
     _unref(_ptr);
     _ptr = nullptr;
 
-    if (!p_from._ptr) return; // nothing to do
+    if (!p_from._ptr) {
+        return; // nothing to do
+    }
 
-    if (atomic_conditional_increment(p_from._get_refcount()) > 0) { // could reference
+    if (p_from._get_refcount()->conditional_increment() > 0) { // could reference
         _ptr = p_from._ptr;
     }
 }
@@ -229,7 +229,7 @@ const T &CowData<T>::get(int p_index) const {
 
     CRASH_BAD_INDEX(p_index, size());
 
-    return _get_data()[p_index];
+    return _ptr[p_index];
 }
 
 template <class T>
@@ -237,6 +237,6 @@ T &CowData<T>::get_m(int p_index) {
 
     CRASH_BAD_INDEX(p_index, size());
     _copy_on_write();
-    return _get_data()[p_index];
+    return _ptr[p_index];
 }
 

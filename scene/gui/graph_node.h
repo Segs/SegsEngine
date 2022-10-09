@@ -116,10 +116,18 @@ public:
     void clear_slot(int p_idx);
     void clear_all_slots();
     bool is_slot_enabled_left(int p_idx) const;
+    void set_slot_enabled_left(int p_idx, bool p_enable_left);
+
+    void set_slot_type_left(int p_idx, int p_type_left);
     int get_slot_type_left(int p_idx) const;
+    void set_slot_color_left(int p_idx, const Color &p_color_left);
     Color get_slot_color_left(int p_idx) const;
     bool is_slot_enabled_right(int p_idx) const;
+    void set_slot_enabled_right(int p_idx, bool p_enable_right);
+
+    void set_slot_type_right(int p_idx, int p_type_right);
     int get_slot_type_right(int p_idx) const;
+    void set_slot_color_right(int p_idx, const Color &p_color_right);
     Color get_slot_color_right(int p_idx) const;
 
     void set_title(StringView p_title);

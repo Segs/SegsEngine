@@ -13,8 +13,9 @@ foreach(tgt ${global_targets})
     )
     target_sources(${tgt}_engine PRIVATE ${sources} )
     set(NO_UNITY_SOURCES ${sources} PARENT_SCOPE)
-
-    #target_sources(segs_${tgt} PRIVATE "godot_res.rc")
+	if(WIN32)
+		target_sources(segs_${tgt} PRIVATE "godot_res.rc")
+	endif()
     target_link_libraries(${tgt}_engine PRIVATE ${tgt}_modules ${tgt}_core ${LIBRARIES} ${OPENGL_LIBRARIES})
 
     target_compile_definitions(${tgt}_engine PRIVATE ${godot_${tgt}_DEFINES})

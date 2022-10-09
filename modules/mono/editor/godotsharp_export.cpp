@@ -83,7 +83,7 @@ Error get_assembly_dependencies(GDMonoAssembly *p_assembly, MonoAssemblyName *re
     for (int i = 0; i < mono_image_get_table_rows(image, MONO_TABLE_ASSEMBLYREF); i++) {
         AssemblyRefInfo ref_info = get_assemblyref_name(image, i);
 
-        const String &ref_name = ref_info.name;
+        const StringName ref_name(ref_info.name);
 
 		if (r_assembly_dependencies.has(ref_name)) {
             continue;
@@ -92,7 +92,7 @@ Error get_assembly_dependencies(GDMonoAssembly *p_assembly, MonoAssemblyName *re
         mono_assembly_get_assemblyref(image, i, reusable_aname);
 
         GDMonoAssembly *ref_assembly = nullptr;
-        if (!GDMono::get_singleton()->load_assembly(ref_name, reusable_aname, &ref_assembly, /* refonly: */ true, p_search_dirs)) {
+        if (!GDMono::get_singleton()->load_assembly(ref_info.name, reusable_aname, &ref_assembly, /* refonly: */ true, p_search_dirs)) {
             ERR_FAIL_V_MSG(ERR_CANT_RESOLVE, "Cannot load assembly (refonly): '" + ref_name + "'.");
         }
 
@@ -122,8 +122,8 @@ Error get_exported_assembly_dependencies(const Dictionary &p_initial_assemblies,
         r_assembly_dependencies["mscorlib"] = PathUtils::simplify_path(PathUtils::plus_file(p_custom_bcl_dir,"mscorlib.dll"));
     }
 
-    for (const Variant *key = p_initial_assemblies.next(); key; key = p_initial_assemblies.next(key)) {
-        String assembly_name = key->as<String>();
+    for (const StringName *key = p_initial_assemblies.next(); key; key = p_initial_assemblies.next(key)) {
+        StringName assembly_name = *key;
         String assembly_path = p_initial_assemblies[*key].as<String>();
 
         GDMonoAssembly *assembly = nullptr;

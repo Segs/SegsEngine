@@ -47,6 +47,8 @@ public:
         FLAG_TRANSPARENT,
         FLAG_SHADED,
         FLAG_DOUBLE_SIDED,
+        FLAG_DISABLE_DEPTH_TEST,
+        FLAG_FIXED_SIZE,
         FLAG_MAX
 
     };
@@ -71,14 +73,15 @@ private:
     bool vflip;
 
     Color modulate;
+    int render_priority = 0;
     float opacity;
 
     Vector3::Axis axis;
     float pixel_size;
     AABB aabb;
 
-    RID mesh;
-    RID material;
+    RenderingEntity mesh;
+    RenderingEntity material;
 
     bool flags[FLAG_MAX];
     AlphaCutMode alpha_cut;
@@ -93,13 +96,14 @@ protected:
     void _notification(int p_what);
     static void _bind_methods();
     virtual void _draw() = 0;
+    void draw_texture_rect(const Ref<Texture> &p_texture, Rect2 p_dst_rect, Rect2 p_src_rect);
     _FORCE_INLINE_ void set_aabb(const AABB &p_aabb) { aabb = p_aabb; }
-    _FORCE_INLINE_ RID &get_mesh() { return mesh; }
-    _FORCE_INLINE_ RID &get_material() { return material; }
+    RenderingEntity get_mesh() const { return mesh; }
+    RenderingEntity get_material() const { return material; }
 
     uint32_t mesh_surface_offsets[RS::ARRAY_MAX];
+    uint32_t mesh_stride[RS::ARRAY_MAX];
     PoolByteArray mesh_buffer;
-    uint32_t mesh_stride;
     uint32_t mesh_surface_format;
 
     void _queue_update();
@@ -117,17 +121,13 @@ public:
     void set_flip_v(bool p_flip);
     bool is_flipped_v() const;
 
-    void set_region(bool p_region);
-    bool is_region() const;
-
-    void set_region_rect(const Rect2 &p_region_rect);
-    Rect2 get_region_rect() const;
-
     void set_modulate(const Color &p_color);
     Color get_modulate() const;
 
     void set_opacity(float p_amount);
     float get_opacity() const;
+    void set_render_priority(int p_priority);
+    int get_render_priority() const;
 
     void set_pixel_size(float p_amount);
     float get_pixel_size() const;

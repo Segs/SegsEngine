@@ -106,7 +106,6 @@ private:
     Vector<PackSourceInterface *> sources;
 
     PackedDir *root;
-    //Map<String,PackedDir*> dirs;
 
     static PackedData *singleton;
     bool disabled;
@@ -189,7 +188,11 @@ public:
     Error rename(StringView p_from, StringView p_to) override;
     Error remove(StringView p_name) override;
 
-    size_t get_space_left() override;
+    bool is_link(StringView /*p_file*/) override { return false; }
+    String read_link(StringView p_file) override { return String(p_file); }
+    Error create_link(StringView /*p_source*/, StringView /*p_target*/) override { return FAILED; }
+
+    uint64_t get_space_left() override;
 
     String get_filesystem_type() const override;
 

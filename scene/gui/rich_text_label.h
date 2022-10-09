@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  rich_text_label.h                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,6 +34,7 @@
 #include "scene/gui/scroll_bar.h"
 #include "core/string.h"
 
+class InputEventMouseButton;
 struct RichTextItem;
 struct RichTextItemFrame;
 struct RichTextItemMeta;
@@ -51,7 +52,13 @@ public:
         ALIGN_RIGHT,
         ALIGN_FILL
     };
+    enum InlineAlign {
 
+        INLINE_ALIGN_TOP,
+        INLINE_ALIGN_CENTER,
+        INLINE_ALIGN_BASELINE,
+        INLINE_ALIGN_BOTTOM
+    };
     enum ListType {
 
         LIST_NUMBERS,
@@ -136,15 +143,16 @@ private:
     struct Selection {
 
         RichTextItem *click;
+        RichTextItem *from;
+        RichTextItem *to;
         int click_char;
 
-        RichTextItem *from;
         int from_char;
-        RichTextItem *to;
         int to_char;
 
         bool active; // anything selected? i.e. from, to, etc. valid?
         bool enabled; // allow selections?
+        bool drag_attempt;
     };
 
     Selection selection;
@@ -152,9 +160,12 @@ private:
     int visible_characters;
     float percent_visible;
     bool use_bbcode;
+    bool deselect_on_focus_loss_enabled;
     String bbcode;
     int fixed_width;
+    bool fit_content_height; 
 
+    bool _is_click_inside_selection() const;
     int _process_line(RichTextItemFrame *p_frame, const Vector2 &p_ofs, int &y, int p_width, int p_line, ProcessMode p_mode, const Ref<Font> &p_base_font, const Color &p_base_color, const Color &p_font_color_shadow, bool p_shadow_as_outline, const Point2 &shadow_ofs, const Point2i &p_click_pos = Point2i(), RichTextItem **r_click_item = nullptr, int *r_click_char = nullptr, bool *r_outside = nullptr, int p_char_count = 0);
     void _find_click(RichTextItemFrame *p_frame, const Point2i &p_click, RichTextItem **r_click_item = nullptr, int *r_click_char = nullptr, bool *r_outside = nullptr);
 
@@ -177,11 +188,16 @@ private:
     void _gui_input(const Ref<InputEvent>& p_event);
     RichTextItem *_get_next_item(RichTextItem *p_item, bool p_free = false);
     RichTextItem *_get_prev_item(RichTextItem *p_item, bool p_free = false);
+    bool handle_mouse_button(const InputEventMouseButton *b);
 
     Rect2 _get_text_rect();
+    void process_line_text_item(RichTextItemFrame *p_frame, const Vector2 &p_ofs, int &y, int p_width, int p_line,
+            ProcessMode p_mode, const Ref<Font> &p_base_font, const Color &p_base_color,
+            const Color &p_font_color_shadow, bool p_shadow_as_outline, const Point2 &shadow_ofs,
+            const Point2i &p_click_pos, RichTextItem **r_click_item, int *r_click_char, bool *r_outside,
+            int p_char_count);
     Ref<RichTextEffect> _get_custom_effect_by_code(StringView p_bbcode_identifier);
 
-    void _update_all_lines();
 
 public:
     virtual Dictionary parse_expressions_for_values(const PoolVector<String> &p_expressions);
@@ -193,7 +209,7 @@ public:
     String get_text();
     void add_text(StringView p_text);
     void add_text_uistring(const UIString &p_text);
-    void add_image(const Ref<Texture> &p_image, const int p_width = 0, const int p_height = 0);
+    void add_image(const Ref<Texture> &p_image, const int p_width = 0, const int p_height = 0, InlineAlign p_align = INLINE_ALIGN_BASELINE);
     void add_newline();
     bool remove_line(const int p_line);
     void push_font(const Ref<Font> &p_font);
@@ -251,11 +267,15 @@ public:
     VScrollBar *get_v_scroll() { return vscroll; }
 
     CursorShape get_cursor_shape(const Point2 &p_pos) const override;
+    Variant get_drag_data(const Point2 &p_point) override;
 
     void set_selection_enabled(bool p_enabled);
     bool is_selection_enabled() const;
     String get_selected_text();
     void selection_copy();
+    void set_deselect_on_focus_loss_enabled(bool p_enabled);
+    bool is_deselect_on_focus_loss_enabled() const;
+    void deselect();
 
     Error parse_bbcode(StringView p_bbcode);
     Error append_bbcode(StringView p_bbcode);

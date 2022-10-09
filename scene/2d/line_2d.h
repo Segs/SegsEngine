@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  line_2d.h                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,37 +34,56 @@
 
 class Curve;
 
-class GODOT_EXPORT Line2D : public Node2D {
-
-    GDCLASS(Line2D,Node2D)
-
-public:
-    enum LineJointMode : int8_t {
+enum class Line2DJointMode : int8_t {
         LINE_JOINT_SHARP = 0,
         LINE_JOINT_BEVEL,
         LINE_JOINT_ROUND
     };
 
-    enum LineCapMode : int8_t {
+enum class Line2DCapMode : int8_t {
         LINE_CAP_NONE = 0,
         LINE_CAP_BOX,
         LINE_CAP_ROUND
     };
 
-    enum LineTextureMode : int8_t {
+enum class Line2DTextureMode : int8_t {
         LINE_TEXTURE_NONE = 0,
         LINE_TEXTURE_TILE,
         LINE_TEXTURE_STRETCH
     };
+struct Line2DDrawableComponent {
+    Vector<Vector2> _points;
+    Color _default_color;
+    Ref<Curve> _curve;
+    Ref<Gradient> _gradient;
+    Ref<Texture> _texture;
+    float _width;
+    float _sharp_limit;
+    int _round_precision;
+    Line2DJointMode _joint_mode;
+    Line2DCapMode _begin_cap_mode;
+    Line2DCapMode _end_cap_mode;
+    Line2DTextureMode _texture_mode;
+    bool _antialiased;
 
+    Line2DDrawableComponent(const Line2DDrawableComponent &) = delete;
+    Line2DDrawableComponent &operator=(const Line2DDrawableComponent &) = delete;
+    Line2DDrawableComponent(Line2DDrawableComponent &&) = default;
+    Line2DDrawableComponent &operator=(Line2DDrawableComponent &&) = default;
+};
+class GODOT_EXPORT Line2D : public Node2D {
+
+    GDCLASS(Line2D,Node2D)
+
+public:
     Line2D();
 #ifdef TOOLS_ENABLED
     Rect2 _edit_get_rect() const override;
     bool _edit_use_rect() const override;
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
 #endif
-    void set_points(const PoolVector<Vector2> &p_points);
-    PoolVector<Vector2> get_points() const;
+    void set_points(Span<const Vector2> p_points);
+    Span<const Vector2> get_points() const;
 
     void set_point_position(int i, Vector2 pos);
     Vector2 get_point_position(int i) const;
@@ -91,17 +110,17 @@ public:
     void set_texture(const Ref<Texture> &texture);
     Ref<Texture> get_texture() const;
 
-    void set_texture_mode(const LineTextureMode mode);
-    LineTextureMode get_texture_mode() const;
+    void set_texture_mode(const Line2DTextureMode mode);
+    Line2DTextureMode get_texture_mode() const;
 
-    void set_joint_mode(LineJointMode mode);
-    LineJointMode get_joint_mode() const;
+    void set_joint_mode(Line2DJointMode mode);
+    Line2DJointMode get_joint_mode() const;
 
-    void set_begin_cap_mode(LineCapMode mode);
-    LineCapMode get_begin_cap_mode() const;
+    void set_begin_cap_mode(Line2DCapMode mode);
+    Line2DCapMode get_begin_cap_mode() const;
 
-    void set_end_cap_mode(LineCapMode mode);
-    LineCapMode get_end_cap_mode() const;
+    void set_end_cap_mode(Line2DCapMode mode);
+    Line2DCapMode get_end_cap_mode() const;
 
     void set_sharp_limit(float limit);
     float get_sharp_limit() const;
@@ -121,18 +140,4 @@ private:
     void _gradient_changed();
     void _curve_changed();
 
-private:
-    PoolVector<Vector2> _points;
-    LineJointMode _joint_mode;
-    LineCapMode _begin_cap_mode;
-    LineCapMode _end_cap_mode;
-    LineTextureMode _texture_mode;
-    float _width;
-    Ref<Curve> _curve;
-    Color _default_color;
-    Ref<Gradient> _gradient;
-    Ref<Texture> _texture;
-    float _sharp_limit;
-    int _round_precision;
-    bool _antialiased;
 };

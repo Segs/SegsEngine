@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  bit_map.cpp                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -45,7 +45,7 @@ void BitMap::create(const Size2 &p_size) {
 
     width = p_size.width;
     height = p_size.height;
-    bitmask.resize(((width * height) / 8) + 1);
+    bitmask.resize((((width * height)-1) / 8) + 1);
     memset(bitmask.write().ptr(), 0, bitmask.size());
 }
 
@@ -53,8 +53,8 @@ void BitMap::create_from_image_alpha(const Ref<Image> &p_image, float p_threshol
 
     ERR_FAIL_COND(not p_image || p_image->is_empty());
     Ref<Image> img(dynamic_ref_cast<Image>(p_image->duplicate()));
-    img->convert(Image::FORMAT_LA8);
-    ERR_FAIL_COND(img->get_format() != Image::FORMAT_LA8);
+    img->convert(ImageData::FORMAT_LA8);
+    ERR_FAIL_COND(img->get_format() != ImageData::FORMAT_LA8);
 
     create(Size2(img->get_width(), img->get_height()));
 
@@ -363,8 +363,9 @@ static float perpendicular_distance(const Vector2 &i, const Vector2 &start, cons
 }
 
 static Vector<Vector2> rdp(const Vector<Vector2> &v, float optimization) {
-    if (v.size() < 3)
+    if (v.size() < 3) {
         return v;
+    }
 
     int index = -1;
     float dist = 0;
@@ -376,29 +377,28 @@ static Vector<Vector2> rdp(const Vector<Vector2> &v, float optimization) {
             index = static_cast<int>(i);
         }
     }
-    if (dist > optimization) {
-
-        Vector<Vector2> left, right;
-        left.resize(index);
-        for (int i = 0; i < index; i++) {
-            left[i] = v[i];
-        }
-        right.resize(v.size() - index);
-        for (size_t i = 0; i < right.size(); i++) {
-            right[i] = v[index + i];
-        }
-        Vector<Vector2> r1 = rdp(left, optimization);
-        Vector<Vector2> r2 = rdp(right, optimization);
-
-        size_t middle = r1.size();
-        r1.resize(r1.size() + r2.size());
-        for (size_t i = 0; i < r2.size(); i++) {
-            r1[middle + i] = r2[i];
-        }
-        return r1;
-    } else {
+    if (dist <= optimization) {
         return {v.front(),v.back()};
     }
+
+    Vector<Vector2> left, right;
+    left.resize(index);
+    for (int i = 0; i < index; i++) {
+        left[i] = v[i];
+    }
+    right.resize(v.size() - index);
+    for (size_t i = 0; i < right.size(); i++) {
+        right[i] = v[index + i];
+    }
+    Vector<Vector2> r1 = rdp(left, optimization);
+    Vector<Vector2> r2 = rdp(right, optimization);
+
+    size_t middle = r1.size();
+    r1.resize(r1.size() + r2.size());
+    for (size_t i = 0; i < r2.size(); i++) {
+        r1[middle + i] = r2[i];
+    }
+    return r1;
 }
 
 static Vector<Vector2> reduce(const Vector<Vector2> &points, const Rect2i &rect, float epsilon) {
@@ -411,7 +411,7 @@ static Vector<Vector2> reduce(const Vector<Vector2> &points, const Rect2i &rect,
     }
 
     float maxEp = MIN(rect.size.width, rect.size.height);
-    float ep = CLAMP(epsilon, 0.0, maxEp / 2);
+    float ep = CLAMP(epsilon, 0.0f, maxEp / 2);
     Vector<Vector2> result(rdp(points, ep));
 
     Vector2 last = result[result.size() - 1];
@@ -637,7 +637,7 @@ void BitMap::resize(const Size2 &p_new_size) {
 Ref<Image> BitMap::convert_to_image() const {
 
     Ref<Image> image(make_ref_counted<Image>());
-    image->create(width, height, false, Image::FORMAT_L8);
+    image->create(width, height, false, ImageData::FORMAT_L8);
     image->lock();
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
@@ -673,21 +673,23 @@ void BitMap::blit(const Vector2 &p_pos, const Ref<BitMap> &p_bitmap) {
 
 void BitMap::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("create", {"size"}), &BitMap::create);
+    BIND_METHOD(BitMap,create);
     MethodBinder::bind_method(D_METHOD("create_from_image_alpha", {"image", "threshold"}), &BitMap::create_from_image_alpha, {DEFVAL(0.1)});
 
-    MethodBinder::bind_method(D_METHOD("set_bit", {"position", "bit"}), &BitMap::set_bit);
-    MethodBinder::bind_method(D_METHOD("get_bit", {"position"}), &BitMap::get_bit);
+    BIND_METHOD(BitMap,set_bit);
+    BIND_METHOD(BitMap,get_bit);
 
-    MethodBinder::bind_method(D_METHOD("set_bit_rect", {"rect", "bit"}), &BitMap::set_bit_rect);
-    MethodBinder::bind_method(D_METHOD("get_true_bit_count"), &BitMap::get_true_bit_count);
+    BIND_METHOD(BitMap,set_bit_rect);
+    BIND_METHOD(BitMap,get_true_bit_count);
 
-    MethodBinder::bind_method(D_METHOD("get_size"), &BitMap::get_size);
+    BIND_METHOD(BitMap,get_size);
+    BIND_METHOD(BitMap,resize);
 
-    MethodBinder::bind_method(D_METHOD("_set_data"), &BitMap::_set_data);
-    MethodBinder::bind_method(D_METHOD("_get_data"), &BitMap::_get_data);
+    BIND_METHOD(BitMap,_set_data);
+    BIND_METHOD(BitMap,_get_data);
 
-    MethodBinder::bind_method(D_METHOD("grow_mask", {"pixels", "rect"}), &BitMap::grow_mask);
+    BIND_METHOD(BitMap,grow_mask);
+    BIND_METHOD(BitMap,convert_to_image);
     MethodBinder::bind_method(D_METHOD("opaque_to_polygons", {"rect", "epsilon"}), &BitMap::opaque_to_polygons, {DEFVAL(2.0)});
 
     ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");

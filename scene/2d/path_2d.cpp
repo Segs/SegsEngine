@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  path_2d.cpp                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,6 +32,7 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/engine.h"
+#include "core/math/geometry.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/translation_helpers.h"
@@ -97,10 +98,16 @@ bool Path2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance
 
 void Path2D::_notification(int p_what) {
 
-    if (p_what == NOTIFICATION_DRAW && curve) {
+    if (p_what != NOTIFICATION_DRAW || !curve) {
+        return;
+    }
         //draw the curve!!
 
         if (!Engine::get_singleton()->is_editor_hint() && !get_tree()->is_debugging_navigation_hint()) {
+        return;
+    }
+
+    if (curve->get_point_count() < 2) {
             return;
         }
 
@@ -111,19 +118,16 @@ void Path2D::_notification(int p_what) {
 #endif
         const Color color = Color(1.0, 1.0, 1.0, 1.0);
 
+	_cached_draw_pts.reserve(curve->get_point_count() * 8);
         for (int i = 0; i < curve->get_point_count(); i++) {
 
-            Vector2 prev_p = curve->get_point_position(i);
-
-            for (int j = 1; j <= 8; j++) {
-
-                real_t frac = j / 8.0;
+        for (int j = 0; j < 8; j++) {
+            real_t frac = j * (1.0 / 8.0);
                 Vector2 p = curve->interpolate(i, frac);
-                draw_line(prev_p, p, color, line_width, true);
-                prev_p = p;
+            _cached_draw_pts.emplace_back(p);
             }
         }
-    }
+    draw_polyline(_cached_draw_pts, color, line_width, true);
 }
 
 void Path2D::_curve_changed() {
@@ -159,9 +163,9 @@ Ref<Curve2D> Path2D::get_curve() const {
 
 void Path2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_curve", {"curve"}), &Path2D::set_curve);
-    MethodBinder::bind_method(D_METHOD("get_curve"), &Path2D::get_curve);
-    MethodBinder::bind_method(D_METHOD("_curve_changed"), &Path2D::_curve_changed);
+    BIND_METHOD(Path2D,set_curve);
+    BIND_METHOD(Path2D,get_curve);
+    BIND_METHOD(Path2D,_curve_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "curve", PropertyHint::ResourceType, "Curve2D"), "set_curve", "get_curve");
 }
@@ -191,7 +195,7 @@ void PathFollow2D::_update_transform() {
     if (loop)
         bounded_offset = Math::fposmod(bounded_offset, path_length);
     else
-        bounded_offset = CLAMP(bounded_offset, 0, path_length);
+        bounded_offset = CLAMP<float>(bounded_offset, 0, path_length);
 
     Vector2 pos = c->interpolate_baked(bounded_offset, cubic);
 
@@ -300,29 +304,29 @@ String PathFollow2D::get_configuration_warning() const {
 
 void PathFollow2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &PathFollow2D::set_offset);
-    MethodBinder::bind_method(D_METHOD("get_offset"), &PathFollow2D::get_offset);
+    BIND_METHOD(PathFollow2D,set_offset);
+    BIND_METHOD(PathFollow2D,get_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_h_offset", {"h_offset"}), &PathFollow2D::set_h_offset);
-    MethodBinder::bind_method(D_METHOD("get_h_offset"), &PathFollow2D::get_h_offset);
+    BIND_METHOD(PathFollow2D,set_h_offset);
+    BIND_METHOD(PathFollow2D,get_h_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_v_offset", {"v_offset"}), &PathFollow2D::set_v_offset);
-    MethodBinder::bind_method(D_METHOD("get_v_offset"), &PathFollow2D::get_v_offset);
+    BIND_METHOD(PathFollow2D,set_v_offset);
+    BIND_METHOD(PathFollow2D,get_v_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_unit_offset", {"unit_offset"}), &PathFollow2D::set_unit_offset);
-    MethodBinder::bind_method(D_METHOD("get_unit_offset"), &PathFollow2D::get_unit_offset);
+    BIND_METHOD(PathFollow2D,set_unit_offset);
+    BIND_METHOD(PathFollow2D,get_unit_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_rotate", {"enable"}), &PathFollow2D::set_rotate);
-    MethodBinder::bind_method(D_METHOD("is_rotating"), &PathFollow2D::is_rotating);
+    BIND_METHOD(PathFollow2D,set_rotate);
+    BIND_METHOD(PathFollow2D,is_rotating);
 
-    MethodBinder::bind_method(D_METHOD("set_cubic_interpolation", {"enable"}), &PathFollow2D::set_cubic_interpolation);
-    MethodBinder::bind_method(D_METHOD("get_cubic_interpolation"), &PathFollow2D::get_cubic_interpolation);
+    BIND_METHOD(PathFollow2D,set_cubic_interpolation);
+    BIND_METHOD(PathFollow2D,get_cubic_interpolation);
 
-    MethodBinder::bind_method(D_METHOD("set_loop", {"loop"}), &PathFollow2D::set_loop);
-    MethodBinder::bind_method(D_METHOD("has_loop"), &PathFollow2D::has_loop);
+    BIND_METHOD(PathFollow2D,set_loop);
+    BIND_METHOD(PathFollow2D,has_loop);
 
-    MethodBinder::bind_method(D_METHOD("set_lookahead", {"lookahead"}), &PathFollow2D::set_lookahead);
-    MethodBinder::bind_method(D_METHOD("get_lookahead"), &PathFollow2D::get_lookahead);
+    BIND_METHOD(PathFollow2D,set_lookahead);
+    BIND_METHOD(PathFollow2D,get_lookahead);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "offset", PropertyHint::Range, "0,10000,0.01,or_lesser,or_greater"), "set_offset", "get_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "unit_offset", PropertyHint::Range, "0,1,0.0001,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_unit_offset", "get_unit_offset");
@@ -348,7 +352,7 @@ void PathFollow2D::set_offset(float p_offset) {
                 }
 
             } else {
-                offset = CLAMP(offset, 0, path_length);
+                offset = CLAMP<float>(offset, 0, path_length);
             }
         }
 

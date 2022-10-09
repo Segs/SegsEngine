@@ -2,7 +2,7 @@
 #include <cstdint>
 
 namespace RenderingServerEnums {
-enum {
+enum : int {
 
     NO_INDEX_ARRAY = -1,
     ARRAY_WEIGHTS_SIZE = 4,
@@ -13,7 +13,7 @@ enum {
 
 /* TEXTURE API */
 
-enum TextureFlags {
+enum TextureFlags : uint32_t {
     TEXTURE_FLAG_MIPMAPS = 1, /// Enable automatic mipmap generation - when available
     TEXTURE_FLAG_REPEAT = 2, /// Repeat texture (Tiling), otherwise Clamping
     TEXTURE_FLAG_FILTER = 4, /// Create texture with linear (or available) filter
@@ -101,8 +101,11 @@ enum ArrayFormat {
     ARRAY_FLAG_USE_2D_VERTICES = ARRAY_COMPRESS_INDEX << 1,
     ARRAY_FLAG_USE_16_BIT_BONES = ARRAY_COMPRESS_INDEX << 2,
     ARRAY_FLAG_USE_DYNAMIC_UPDATE = ARRAY_COMPRESS_INDEX << 3,
+    ARRAY_FLAG_USE_OCTAHEDRAL_COMPRESSION = ARRAY_COMPRESS_INDEX << 4,
 
-    ARRAY_COMPRESS_DEFAULT = ARRAY_COMPRESS_NORMAL | ARRAY_COMPRESS_TANGENT | ARRAY_COMPRESS_COLOR | ARRAY_COMPRESS_TEX_UV | ARRAY_COMPRESS_TEX_UV2 | ARRAY_COMPRESS_WEIGHTS
+    ARRAY_COMPRESS_DEFAULT = ARRAY_COMPRESS_NORMAL | ARRAY_COMPRESS_TANGENT | ARRAY_COMPRESS_COLOR |
+                             ARRAY_COMPRESS_TEX_UV | ARRAY_COMPRESS_TEX_UV2 | ARRAY_COMPRESS_WEIGHTS |
+                             ARRAY_FLAG_USE_OCTAHEDRAL_COMPRESSION
 
 };
 
@@ -153,6 +156,7 @@ enum LightParam  : int8_t {
 
     LIGHT_PARAM_ENERGY,
     LIGHT_PARAM_INDIRECT_ENERGY,
+    LIGHT_PARAM_SIZE,
     LIGHT_PARAM_SPECULAR,
     LIGHT_PARAM_RANGE,
     LIGHT_PARAM_ATTENUATION,
@@ -286,7 +290,8 @@ enum EnvironmentToneMapper : int8_t {
     ENV_TONE_MAPPER_LINEAR,
     ENV_TONE_MAPPER_REINHARD,
     ENV_TONE_MAPPER_FILMIC,
-    ENV_TONE_MAPPER_ACES
+    ENV_TONE_MAPPER_ACES,
+    ENV_TONE_MAPPER_ACES_FITTED
 };
 enum EnvironmentSSAOQuality : int8_t {
     ENV_SSAO_QUALITY_LOW,
@@ -372,6 +377,7 @@ enum RenderInfo : int8_t {
     INFO_VERTICES_IN_FRAME,
     INFO_MATERIAL_CHANGES_IN_FRAME,
     INFO_SHADER_CHANGES_IN_FRAME,
+    INFO_SHADER_COMPILES_IN_FRAME,
     INFO_SURFACE_CHANGES_IN_FRAME,
     INFO_DRAW_CALLS_IN_FRAME,
     INFO_2D_ITEMS_IN_FRAME,
@@ -387,6 +393,48 @@ enum RenderInfo : int8_t {
 enum Features : int8_t {
     FEATURE_SHADERS,
     FEATURE_MULTITHREADED,
+};
+/* ROOMS AND PORTALS API */
+// Portals
+enum InstancePortalMode : int8_t {
+    INSTANCE_PORTAL_MODE_STATIC, // not moving within a room
+    INSTANCE_PORTAL_MODE_DYNAMIC, //  moving within room
+    INSTANCE_PORTAL_MODE_ROAMING, // moving between rooms
+    INSTANCE_PORTAL_MODE_GLOBAL, // frustum culled only
+    INSTANCE_PORTAL_MODE_IGNORE, // don't show at all - e.g. manual bounds, hidden portals
+};
+// Rooms
+enum RoomsDebugFeature {
+    ROOMS_DEBUG_SPRAWL,
+    ROOMS_DEBUG_MAX,
+};
+
+// Occluders
+enum OccluderType {
+    OCCLUDER_TYPE_UNDEFINED,
+    OCCLUDER_TYPE_SPHERE,
+    OCCLUDER_TYPE_MESH,
+    OCCLUDER_TYPE_NUM_TYPES,
+};
+
+// Change priority
+enum ChangedPriority : int8_t {
+    CHANGED_PRIORITY_ANY = 0,
+    CHANGED_PRIORITY_LOW,
+    CHANGED_PRIORITY_HIGH,
+};
+
+
+enum RenderTargetFlags  : int8_t {
+    RENDER_TARGET_VFLIP,
+    RENDER_TARGET_TRANSPARENT,
+    RENDER_TARGET_NO_3D_EFFECTS,
+    RENDER_TARGET_NO_3D,
+    RENDER_TARGET_NO_SAMPLING,
+    RENDER_TARGET_HDR,
+    RENDER_TARGET_KEEP_3D_LINEAR,
+    RENDER_TARGET_USE_32_BPC_DEPTH,
+    RENDER_TARGET_FLAG_MAX
 };
 
 }

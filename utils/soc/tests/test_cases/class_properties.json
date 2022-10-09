@@ -1,0 +1,154 @@
+{
+  "api_hash": "",
+  "api_version": "",
+  "dependencies": [],
+  "module_name": "",
+  "namespaces": [
+    {
+      "contents": {
+        "subtypes": [
+          {
+            "contents": {
+                "fields": [
+                    {
+                        "name": "texture",
+                        "type": {
+                            "name": "Ref",
+                            "template_arg": "Texture"
+                        }
+                    },
+                    {
+                        "name": "delay_sec",
+                        "type": {
+                            "name": "float"
+                        }
+                    }
+                ]
+            },
+            "name": "Frame",
+            "required_header": "class_properties.h"
+          },
+          {
+            "contents": {
+              "properties": [
+                {
+                  "name": "val1",
+                  "subfields": [
+                    {
+                      "getter": "get_val1",
+                      "type": {
+                        "name": "Vector<int>"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "label",
+                  "subfields": [
+                    {
+                      "getter": "get_label",
+                      "setter": "set_label",
+                      "type": {
+                        "name": "String"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "tester",
+                  "subfields": [
+                    {
+                      "getter": "get_tester",
+                      "setter": "set_tester",
+                      "type": {
+                        "name": "int"
+                      }
+                    }
+                  ],
+                  "usage": "STORAGE|EDITOR|INTERNAL|DO_NOT_SHARE_ON_DUPLICATE"
+                },
+                {
+                  "max_property_index": -2,
+                  "name": "clip_to",
+                  "subfields": [
+                    {
+                      "getter": "is_clip_to_areas_enabled",
+                      "name": "areas",
+                      "setter": "set_clip_to_areas",
+                      "type": {
+                        "name": "bool"
+                      }
+                    },
+                    {
+                      "getter": "is_clip_to_bodies_enabled",
+                      "name": "bodies",
+                      "setter": "set_clip_to_bodies",
+                      "type": {
+                        "name": "bool"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "frames",
+                  "subfields": [
+                    {
+                      "getter": "get_frame",
+                      "setter": "set_frame",
+                      "type": {
+                        "name": "Frame[256]"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "blend_points",
+                  "subfields": [
+                    {
+                      "getter": "get_point",
+                      "setter": "set_point",
+                      "type": {
+                        "name": "BlendPoint[64]"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "subtypes": [
+              {
+                  "contents": {
+                      "fields": [
+                          {
+                              "name": "name",
+                              "type": { "name": "StringName" }
+                          },
+                          {
+                              "name": "node",
+                              "type": {
+                                  "name": "Ref",
+                                  "template_arg": "AnimationRootNode"
+                              }
+                          },
+                          {
+                              "name": "position",
+                              "type": {
+                                  "name": "float"
+                              }
+                          }
+                      ]
+                  },
+                  "name": "BlendPoint",
+                  "required_header": "class_properties.h"
+                }
+              ]
+            },
+            "name": "Propertied",
+            "required_header": "class_properties.h"
+          }
+        ]
+      },
+      "name": "GodotCore"
+    }
+  ],
+  "version": ""
+}

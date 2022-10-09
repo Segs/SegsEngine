@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  grid_map.h                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -37,6 +37,13 @@
 
 //heh heh, godotsphir!! this shares no code and the design is completely different with previous projects i've done..
 //should scale better with hardware that supports instancing
+
+class PhysicsMaterial;
+struct CollisionShapeAndTransform {
+    RID shape;
+    Transform transform;
+    constexpr CollisionShapeAndTransform(RID s,Transform z) : shape(s),transform(z) {}
+};
 
 class GODOT_EXPORT GridMap : public Node3D {
 
@@ -99,8 +106,8 @@ class GODOT_EXPORT GridMap : public Node3D {
         };
 
         struct MultimeshInstance {
-            RID instance;
-            RID multimesh;
+            RenderingEntity instance=entt::null;
+            RenderingEntity multimesh=entt::null;
             struct Item {
                 int index;
                 Transform transform;
@@ -112,8 +119,8 @@ class GODOT_EXPORT GridMap : public Node3D {
 
         Vector<MultimeshInstance> multimesh_instances;
         HashSet<IndexKey> cells;
-        RID collision_debug;
-        RID collision_debug_instance;
+        RenderingEntity collision_debug=entt::null;
+        RenderingEntity collision_debug_instance=entt::null;
 
         bool dirty;
         RID static_body;
@@ -139,9 +146,20 @@ class GODOT_EXPORT GridMap : public Node3D {
         //OctantKey(const IndexKey& p_k, int p_item) { indexkey=p_k.key; item=p_item; }
         OctantKey() { key = 0; }
     };
+    struct BakeLight {
 
+        RS::LightType type;
+        Vector3 pos;
+        Vector3 dir;
+        float param[RS::LIGHT_PARAM_MAX];
+    };
+    struct BakedMesh {
+        Ref<Mesh> mesh;
+        RenderingEntity instance=entt::null;
+    };
     uint32_t collision_layer;
     uint32_t collision_mask;
+    Ref<PhysicsMaterial> physics_material;
 
     Transform last_transform;
 
@@ -160,25 +178,17 @@ class GODOT_EXPORT GridMap : public Node3D {
     Vector3::Axis clip_axis;
 
     Ref<MeshLibrary> mesh_library;
+    bool use_in_baked_light;
 
     Map<OctantKey, Octant *> octant_map;
     HashMap<IndexKey, Cell> cell_map;
+    Vector<BakedMesh> baked_meshes;
+    bool awaiting_update;
 
     void _recreate_octant_data();
 
-    struct BakeLight {
 
-        RS::LightType type;
-        Vector3 pos;
-        Vector3 dir;
-        float param[RS::LIGHT_PARAM_MAX];
-    };
-    struct BakedMesh {
-        Ref<Mesh> mesh;
-        RID instance;
-    };
 
-    Vector<BakedMesh> baked_meshes;
 
     _FORCE_INLINE_ Vector3 _octant_get_offset(const OctantKey &p_key) const {
 
@@ -191,7 +201,6 @@ class GODOT_EXPORT GridMap : public Node3D {
     bool _octant_update(const OctantKey &p_key);
     void _octant_clean_up(const OctantKey &p_key);
     void _octant_transform(const OctantKey &p_key);
-    bool awaiting_update;
 
     void _queue_octants_dirty();
     void _update_octants_callback();
@@ -228,9 +237,16 @@ public:
     void set_collision_mask_bit(int p_bit, bool p_value);
     bool get_collision_mask_bit(int p_bit) const;
 
+    void set_physics_material(Ref<PhysicsMaterial> p_material);
+    Ref<PhysicsMaterial> get_physics_material() const;
+
+    Array get_collision_shapes() const;
+    Vector<CollisionShapeAndTransform> get_collision_shapes_ex() const;
     void set_mesh_library(const Ref<MeshLibrary> &p_mesh_library);
     Ref<MeshLibrary> get_mesh_library() const;
 
+    void set_use_in_baked_light(bool p_use_baked_light);
+    bool get_use_in_baked_light() const;
     void set_cell_size(const Vector3 &p_size);
     Vector3 get_cell_size() const;
 
@@ -257,8 +273,9 @@ public:
     float get_cell_scale() const;
 
     Array get_used_cells() const;
+    Array get_cells_used_by_item(int p_item) const;
     Vector<PositionedMeshInfo> get_positioned_meshes() const;
-    Array get_meshes();
+    Array get_meshes() const;
 
     void clear_baked_meshes();
     void make_baked_meshes(bool p_gen_lightmap_uv = false, float p_lightmap_uv_texel_size = 0.1);
@@ -266,7 +283,7 @@ public:
     void clear();
 
     Array get_bake_meshes();
-    RID get_bake_mesh_instance(int p_idx);
+    RenderingEntity get_bake_mesh_instance(int p_idx);
 
     GridMap();
     ~GridMap() override;

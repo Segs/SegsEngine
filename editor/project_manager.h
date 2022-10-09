@@ -50,25 +50,28 @@ class ProjectManager : public Control {
     Button *rename_btn;
     Button *run_btn;
 
-    EditorAssetLibrary *asset_library;
+    EditorAssetLibrary *asset_library = nullptr;
 
     ProjectListFilter *project_filter;
     ProjectListFilter *project_order_filter;
+    Label *loading_label;
 
     FileDialog *scan_dir;
     ConfirmationDialog *language_restart_ask;
     ConfirmationDialog *erase_ask;
+    Label *erase_ask_label;
+    CheckBox *delete_project_contents;
     ConfirmationDialog *erase_missing_ask;
     ConfirmationDialog *multi_open_ask;
     ConfirmationDialog *multi_run_ask;
     ConfirmationDialog *multi_scan_ask;
     ConfirmationDialog *ask_update_settings;
-    ConfirmationDialog *open_templates;
+    ConfirmationDialog *open_templates = nullptr;
     AcceptDialog *run_error_diag;
     AcceptDialog *dialog_error;
     ProjectDialog *npdialog;
 
-    HBoxContainer *projects_hb;
+    HBoxContainer *local_projects_hb;
     TabContainer *tabs;
     ProjectList *_project_list;
 
@@ -93,7 +96,6 @@ class ProjectManager : public Control {
     void _update_project_buttons();
     void _language_selected(int p_id);
     void _restart_confirm();
-    void _exit_dialog();
     void _scan_begin(StringView p_base);
     void _global_menu_action(const Variant &p_id, const Variant &p_meta);
 
@@ -102,7 +104,6 @@ class ProjectManager : public Control {
     void _load_recent_projects();
     void _on_project_created(StringView dir);
     void _on_projects_updated();
-    void _update_scroll_position(const UIString &dir);
     void _scan_dir(StringView path, Vector<String> *r_projects);
 
     void _install_project(StringView p_zip_path, StringView p_title);
@@ -114,6 +115,7 @@ class ProjectManager : public Control {
 
     void _on_order_option_changed();
     void _on_filter_option_changed();
+    void _on_tab_changed(int p_tab);
 
 protected:
     void _notification(int p_what);
@@ -139,7 +141,7 @@ private:
     friend class ProjectManager;
 
     OptionButton *filter_option;
-    LineEdit *search_box;
+    LineEdit *search_box=nullptr;
     bool has_search_box;
     FilterOption _current_filter;
 
@@ -154,6 +156,9 @@ public:
     void _setup_filters(const Vector<String> &options);
     void add_filter_option();
     void add_search_box();
+    // May return `nullptr` if the search box wasn't created yet, so check for validity
+    // before using the returned value.
+    LineEdit *get_search_box() const;
     void set_filter_size(int h_size);
     UIString get_search_term();
     String get_search_term_utf8() const;

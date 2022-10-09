@@ -45,19 +45,20 @@ class GDMonoProperty : public IMonoClassMember {
 
 	bool attrs_fetched;
 	MonoCustomAttrInfo *attributes;
+    unsigned int param_buffer_size;
 
 public:
-	virtual GDMonoClass *get_enclosing_class() const final { return owner; }
+    GDMonoClass *get_enclosing_class() const final { return owner; }
 
-	virtual MemberType get_member_type() const final { return MEMBER_TYPE_PROPERTY; }
+    MemberType get_member_type() const final { return MEMBER_TYPE_PROPERTY; }
 
-	virtual const StringName &get_name() const final { return name; }
+    const StringName &get_name() const final { return name; }
 
-	virtual bool is_static() final;
-	virtual Visibility get_visibility() final;
+    bool is_static() final;
+    Visibility get_visibility() final;
 
-	virtual bool has_attribute(GDMonoClass *p_attr_class) final;
-	virtual MonoObject *get_attribute(GDMonoClass *p_attr_class) final;
+    bool has_attribute(GDMonoClass *p_attr_class) final;
+    MonoObject *get_attribute(GDMonoClass *p_attr_class) final;
 	void fetch_attributes();
 
 	bool has_getter();
@@ -65,9 +66,8 @@ public:
 
 	_FORCE_INLINE_ ManagedType get_type() const { return type; }
 
-	void set_value(MonoObject *p_object, MonoObject *p_value, MonoException **r_exc = NULL);
-	void set_value(MonoObject *p_object, void **p_params, MonoException **r_exc = NULL);
-	MonoObject *get_value(MonoObject *p_object, MonoException **r_exc = NULL);
+	void set_value_from_variant(MonoObject *p_object, const Variant &p_value, MonoException **r_exc = nullptr);
+	MonoObject *get_value(MonoObject *p_object, MonoException **r_exc = nullptr);
 
 	bool get_bool_value(MonoObject *p_object);
 	int get_int_value(MonoObject *p_object);

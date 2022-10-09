@@ -39,11 +39,11 @@ IMPL_GDCLASS(WebRTCMultiplayer)
 void WebRTCMultiplayer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("initialize", {"peer_id", "server_compatibility"}), &WebRTCMultiplayer::initialize, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("add_peer", {"peer", "peer_id", "unreliable_lifetime"}), &WebRTCMultiplayer::add_peer, {DEFVAL(1)});
-    MethodBinder::bind_method(D_METHOD("remove_peer", {"peer_id"}), &WebRTCMultiplayer::remove_peer);
-    MethodBinder::bind_method(D_METHOD("has_peer", {"peer_id"}), &WebRTCMultiplayer::has_peer);
-    MethodBinder::bind_method(D_METHOD("get_peer", {"peer_id"}), &WebRTCMultiplayer::get_peer);
-    MethodBinder::bind_method(D_METHOD("get_peers"), &WebRTCMultiplayer::get_peers);
-    MethodBinder::bind_method(D_METHOD("close"), &WebRTCMultiplayer::close);
+    BIND_METHOD(WebRTCMultiplayer,remove_peer);
+    BIND_METHOD(WebRTCMultiplayer,has_peer);
+    BIND_METHOD(WebRTCMultiplayer,get_peer);
+    BIND_METHOD(WebRTCMultiplayer,get_peers);
+    BIND_METHOD(WebRTCMultiplayer,close);
 }
 
 void WebRTCMultiplayer::set_transfer_mode(TransferMode p_mode) {
@@ -230,7 +230,7 @@ Dictionary WebRTCMultiplayer::get_peers() {
     for (eastl::pair<const int,Ref<ConnectedPeer> > &E : peer_map) {
         Dictionary d;
         _peer_to_dict(E.second, d);
-        out[E.first] = d;
+        out[StringName(StringUtils::num(E.first))] = d;
     }
     return out;
 }

@@ -274,6 +274,7 @@ void SurfaceTool::add_triangle_fan(const PoolVector<Vector3> &p_vertices, const 
 void SurfaceTool::add_index(int p_index) {
 
     ERR_FAIL_COND(!begun);
+    ERR_FAIL_COND(p_index < 0);
 
     format |= Mesh::ARRAY_FORMAT_INDEX;
     index_array.push_back(p_index);
@@ -493,7 +494,7 @@ void SurfaceTool::deindex() {
 }
 
 void SurfaceTool::_create_list(const Ref<Mesh> &p_existing, int p_surface, Vector<Vertex> *r_vertex, Vector<int> *r_index, int &lformat) {
-
+    ERR_FAIL_COND_MSG(!p_existing, "First argument in SurfaceTool::_create_list() must be a valid object of type Mesh");
     SurfaceArrays arr = p_existing->surface_get_arrays(p_surface);
     _create_list_from_arrays(arr, r_vertex, r_index, lformat);
 }
@@ -943,34 +944,34 @@ void SurfaceTool::clear() {
 
 void SurfaceTool::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("begin", {"primitive"}), &SurfaceTool::begin);
+    BIND_METHOD(SurfaceTool,begin);
 
-    MethodBinder::bind_method(D_METHOD("add_vertex", {"vertex"}), &SurfaceTool::add_vertex);
-    MethodBinder::bind_method(D_METHOD("add_color", {"color"}), &SurfaceTool::add_color);
-    MethodBinder::bind_method(D_METHOD("add_normal", {"normal"}), &SurfaceTool::add_normal);
-    MethodBinder::bind_method(D_METHOD("add_tangent", {"tangent"}), &SurfaceTool::add_tangent);
-    MethodBinder::bind_method(D_METHOD("add_uv", {"uv"}), &SurfaceTool::add_uv);
-    MethodBinder::bind_method(D_METHOD("add_uv2", {"uv2"}), &SurfaceTool::add_uv2);
-    MethodBinder::bind_method(D_METHOD("add_bones", {"bones"}), &SurfaceTool::add_bones);
-    MethodBinder::bind_method(D_METHOD("add_weights", {"weights"}), &SurfaceTool::add_weights);
-    MethodBinder::bind_method(D_METHOD("add_smooth_group", {"smooth"}), &SurfaceTool::add_smooth_group);
+    BIND_METHOD(SurfaceTool,add_vertex);
+    BIND_METHOD(SurfaceTool,add_color);
+    BIND_METHOD(SurfaceTool,add_normal);
+    BIND_METHOD(SurfaceTool,add_tangent);
+    BIND_METHOD(SurfaceTool,add_uv);
+    BIND_METHOD(SurfaceTool,add_uv2);
+    BIND_METHOD(SurfaceTool,add_bones);
+    BIND_METHOD(SurfaceTool,add_weights);
+    BIND_METHOD(SurfaceTool,add_smooth_group);
 
     MethodBinder::bind_method(D_METHOD("add_triangle_fan", {"vertices", "uvs", "colors", "uv2s", "normals", "tangents"}), &SurfaceTool::add_triangle_fan, {DEFVAL(Vector<Vector2>()), DEFVAL(Vector<Color>()), DEFVAL(Vector<Vector2>()), DEFVAL(Vector<Vector3>()), DEFVAL(Vector<Plane>())});
 
-    MethodBinder::bind_method(D_METHOD("add_index", {"index"}), &SurfaceTool::add_index);
+    BIND_METHOD(SurfaceTool,add_index);
 
-    MethodBinder::bind_method(D_METHOD("index"), &SurfaceTool::index);
-    MethodBinder::bind_method(D_METHOD("deindex"), &SurfaceTool::deindex);
+    BIND_METHOD(SurfaceTool,index);
+    BIND_METHOD(SurfaceTool,deindex);
     MethodBinder::bind_method(D_METHOD("generate_normals", {"flip"}), &SurfaceTool::generate_normals, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("generate_tangents"), &SurfaceTool::generate_tangents);
+    BIND_METHOD(SurfaceTool,generate_tangents);
 
-    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &SurfaceTool::set_material);
+    BIND_METHOD(SurfaceTool,set_material);
 
-    MethodBinder::bind_method(D_METHOD("clear"), &SurfaceTool::clear);
+    BIND_METHOD(SurfaceTool,clear);
 
-    MethodBinder::bind_method(D_METHOD("create_from", {"existing", "surface"}), &SurfaceTool::create_from);
-    MethodBinder::bind_method(D_METHOD("create_from_blend_shape", {"existing", "surface", "blend_shape"}), &SurfaceTool::create_from_blend_shape);
-    MethodBinder::bind_method(D_METHOD("append_from", {"existing", "surface", "transform"}), &SurfaceTool::append_from);
+    BIND_METHOD(SurfaceTool,create_from);
+    BIND_METHOD(SurfaceTool,create_from_blend_shape);
+    BIND_METHOD(SurfaceTool,append_from);
     MethodBinder::bind_method(D_METHOD("commit", {"existing", "flags"}), &SurfaceTool::commit, {DEFVAL(Variant()), DEFVAL(Mesh::ARRAY_COMPRESS_DEFAULT)});
     MethodBinder::bind_method(D_METHOD("commit_to_arrays"), &SurfaceTool::_commit_to_arrays);
 }

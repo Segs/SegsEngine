@@ -92,7 +92,7 @@
 
 #endif
 
-//should always inline, except in some cases because it makes debugging harder
+// Should always inline, except in dev builds because it makes debugging harder.
 #ifndef _FORCE_INLINE_
 
 #ifdef DISABLE_FORCED_INLINE
@@ -157,8 +157,8 @@ constexpr T SGN(T m_v) {
 #define M_MAX(m_a, m_b) (((m_a) > (m_b)) ? (m_a) : (m_b))
 #endif
 
-template <class T,class M=T,class X=T>
-T CLAMP(T m_a,M m_min, X m_max) {
+template <class T>
+T CLAMP(T m_a,T m_min, T m_max) {
     return (((m_a) < (m_min)) ? (m_min) : (((m_a) > (m_max)) ? m_max : m_a));
 }
 
@@ -341,6 +341,7 @@ struct _GlobalLock {
 #undef unlikely
 #define unlikely(x) __builtin_expect(!!(x), 0)
 #else
+// TODO: when we switch to C++20, use [[likely]] and [[unlikely]]
 #define likely(x) x
 #define unlikely(x) x
 #endif

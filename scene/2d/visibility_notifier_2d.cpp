@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  visibility_notifier_2d.cpp                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -126,7 +126,7 @@ void VisibilityNotifier2D::_notification(int p_what) {
 
             if (Engine::get_singleton()->is_editor_hint()) {
 
-                draw_rect(rect, Color(1, 0.5, 1, 0.2));
+                draw_rect_filled(rect, Color(1, 0.5, 1, 0.2));
             }
         } break;
         case NOTIFICATION_EXIT_TREE: {
@@ -143,9 +143,9 @@ bool VisibilityNotifier2D::is_on_screen() const {
 
 void VisibilityNotifier2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_rect", {"rect"}), &VisibilityNotifier2D::set_rect);
-    MethodBinder::bind_method(D_METHOD("get_rect"), &VisibilityNotifier2D::get_rect);
-    MethodBinder::bind_method(D_METHOD("is_on_screen"), &VisibilityNotifier2D::is_on_screen);
+    BIND_METHOD(VisibilityNotifier2D,set_rect);
+    BIND_METHOD(VisibilityNotifier2D,get_rect);
+    BIND_METHOD(VisibilityNotifier2D,is_on_screen);
 
     ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "rect"), "set_rect", "get_rect");
 
@@ -234,7 +234,7 @@ void VisibilityEnabler2D::_find_nodes(Node *p_node) {
 
     if (add) {
 
-        p_node->connect(SceneStringNames::tree_exiting, callable_mp(this, &VisibilityEnabler2D::_node_removed), varray(Variant(p_node)), ObjectNS::CONNECT_ONESHOT);
+        p_node->connect(SceneStringNames::tree_exiting, callable_gen(this, [=]() { _node_removed(p_node);}), ObjectNS::CONNECT_ONESHOT);
         nodes[p_node] = meta;
         _change_node_state(p_node, false);
     }
@@ -274,11 +274,11 @@ void VisibilityEnabler2D::_notification(int p_what) {
 
         if (enabler[ENABLER_PARENT_PHYSICS_PROCESS] && get_parent()) {
             get_parent()->connect(SceneStringNames::ready,
-                    callable_mp(get_parent(), &Node::set_physics_process), make_binds(false), ObjectNS::CONNECT_ONESHOT);
+                    callable_gen(get_parent(),[par=get_parent()]() {par->set_physics_process(false);}), ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
         if (enabler[ENABLER_PARENT_PROCESS] && get_parent()) {
             get_parent()->connect(SceneStringNames::ready,
-                    callable_mp(get_parent(), &Node::set_process), make_binds(false), ObjectNS::CONNECT_ONESHOT);
+                    callable_gen(get_parent(),[par=get_parent()]() {par->set_process(false);}), ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
 
     }
@@ -364,8 +364,8 @@ String VisibilityEnabler2D::get_configuration_warning() const {
 
 void VisibilityEnabler2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_enabler", {"enabler", "enabled"}), &VisibilityEnabler2D::set_enabler);
-    MethodBinder::bind_method(D_METHOD("is_enabler_enabled", {"enabler"}), &VisibilityEnabler2D::is_enabler_enabled);
+    BIND_METHOD(VisibilityEnabler2D,set_enabler);
+    BIND_METHOD(VisibilityEnabler2D,is_enabler_enabled);
 
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "pause_animations"), "set_enabler", "is_enabler_enabled", ENABLER_PAUSE_ANIMATIONS);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "freeze_bodies"), "set_enabler", "is_enabler_enabled", ENABLER_FREEZE_BODIES);

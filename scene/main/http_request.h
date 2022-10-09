@@ -59,7 +59,7 @@ private:
 
     void _redirect_request(StringView p_new_url);
 public: // slots
-    void _request_done(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
+    void _request_done(int p_status, int p_code, const PoolStringArray &p_headers, const PoolByteArray &p_data);
 
 protected:
     void _notification(int p_what);
@@ -68,6 +68,7 @@ protected:
 public:
     //! connects to a full url and perform request
     Error request(StringView p_url, const Vector<String> &p_custom_headers = {}, bool p_ssl_validate_domain = true, HTTPClient::Method p_method = HTTPClient::METHOD_GET, StringView p_request_data = {});
+    Error request_raw(StringView p_url, const Vector<String> &p_custom_headers = {}, bool p_ssl_validate_domain = true, HTTPClient::Method p_method = HTTPClient::METHOD_GET, Span<const uint8_t> p_request_data_raw = {}); //connects to a full url and perform request
     void cancel_request();
     HTTPClient::Status get_http_client_status() const;
 
@@ -96,6 +97,9 @@ public:
 
     int get_downloaded_bytes() const;
     int get_body_size() const;
+    // Use empty string or -1 to unset.
+    void set_http_proxy(const String &p_host, int p_port);
+    void set_https_proxy(const String &p_host, int p_port);
 
     HTTPRequest();
     ~HTTPRequest() override;

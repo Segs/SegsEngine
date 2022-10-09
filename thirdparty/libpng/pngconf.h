@@ -1,9 +1,9 @@
 
 /* pngconf.h - machine-configurable file for libpng
  *
- * libpng version 1.6.37
+ * libpng version 1.6.38
  *
- * Copyright (c) 2018-2019 Cosmin Truta
+ * Copyright (c) 2018-2022 Cosmin Truta
  * Copyright (c) 1998-2002,2004,2006-2016,2018 Glenn Randers-Pehrson
  * Copyright (c) 1996-1997 Andreas Dilger
  * Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.
@@ -180,8 +180,8 @@
  * compiler-specific macros to the values required to change the calling
  * conventions of the various functions.
  */
-#if defined(_Windows) || defined(_WINDOWS) || defined(WIN32) ||\
-    defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+#if defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || \
+    defined(__CYGWIN__)
   /* Windows system (DOS doesn't support DLLs).  Includes builds under Cygwin or
    * MinGW on any architecture currently supported by Windows.  Also includes
    * Watcom builds but these need special treatment because they are not
@@ -380,8 +380,13 @@
 #        define PNG_DEPRECATED __attribute__((__deprecated__))
 #      endif
 #      ifndef PNG_PRIVATE
+#        if 0 /* Doesn't work so we use deprecated instead*/
+#          define PNG_PRIVATE \
+            __attribute__((warning("This function is not exported by libpng.")))
+#        else
 #          define PNG_PRIVATE \
             __attribute__((__deprecated__))
+#        endif
 #      endif
 #      if ((__GNUC__ > 3) || !defined(__GNUC_MINOR__) || (__GNUC_MINOR__ >= 1))
 #        ifndef PNG_RESTRICT

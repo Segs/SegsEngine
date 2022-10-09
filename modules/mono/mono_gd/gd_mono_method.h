@@ -41,15 +41,16 @@ class GDMonoMethod : public IMonoClassMember {
 
     StringName name;
 
-    int params_count;
+	uint16_t params_count;
+	unsigned int params_buffer_size = 0;
     ManagedType return_type;
     Vector<ManagedType> param_types;
 
-    bool method_info_fetched;
+	bool method_info_fetched = false;
     MethodInfo method_info;
 
-    bool attrs_fetched;
-    MonoCustomAttrInfo *attributes;
+	bool attrs_fetched = false;
+	MonoCustomAttrInfo *attributes = nullptr;
 
     void _update_signature();
     void _update_signature(MonoMethodSignature *p_method_sig);
@@ -73,14 +74,14 @@ public:
     MonoObject *get_attribute(GDMonoClass *p_attr_class) final;
     void fetch_attributes();
 
-    _FORCE_INLINE_ MonoMethod *get_mono_ptr() { return mono_method; }
+    _FORCE_INLINE_ MonoMethod *get_mono_ptr() const { return mono_method; }
 
-    _FORCE_INLINE_ int get_parameters_count() { return params_count; }
-    _FORCE_INLINE_ ManagedType get_return_type() { return return_type; }
+    _FORCE_INLINE_ uint16_t get_parameters_count() const { return params_count; }
+	_FORCE_INLINE_ ManagedType get_return_type() const { return return_type; }
 
-    MonoObject *invoke(MonoObject *p_object, const Variant **p_params, MonoException **r_exc = NULL);
-    MonoObject *invoke(MonoObject *p_object, MonoException **r_exc = NULL);
-    MonoObject *invoke_raw(MonoObject *p_object, void **p_params, MonoException **r_exc = NULL);
+    MonoObject *invoke(MonoObject *p_object, const Variant **p_params, MonoException **r_exc = nullptr) const;
+    MonoObject *invoke(MonoObject *p_object, MonoException **r_exc = nullptr) const;
+    MonoObject *invoke_raw(MonoObject *p_object, void **p_params, MonoException **r_exc = nullptr) const;
 
     String get_full_name(bool p_signature = false) const;
     String get_full_name_no_class() const;

@@ -43,7 +43,7 @@ class GODOT_EXPORT TreeItem : public Object {
     GDCLASS(TreeItem,Object)
 
 public:
-    enum TreeCellMode {
+    enum TreeCellMode : int8_t {
 
         CELL_MODE_STRING, ///< just a string
         CELL_MODE_CHECK, ///< string + check
@@ -52,7 +52,7 @@ public:
         CELL_MODE_CUSTOM, ///< Contains a custom value, show a string, and an edit button
     };
 
-    enum TextAlign {
+    enum TextAlign  : int8_t {
         ALIGN_LEFT,
         ALIGN_CENTER,
         ALIGN_RIGHT
@@ -63,43 +63,39 @@ private:
 
     struct Cell {
 
-        TreeCellMode mode;
+        struct Button {
+            Color color = { 1,1,1,1 };
+            Ref<Texture> texture;
+            String tooltip;
+            int id=0;
+            bool disabled=false;
+        };
+        Variant meta;
+        Rect2i icon_region;
 
         Ref<Texture> icon;
-        Rect2i icon_region;
+        Color color;
+        Color bg_color;
+        Color icon_color;
+        Vector<Button> buttons;
         String text;
         String suffix;
+        Callable custom_draw;
+        String tooltip;
         double min, max, step, val;
         int icon_max_w;
+        TextAlign text_align;
+        TreeCellMode mode;
         bool expr;
         bool checked;
         bool editable;
         bool selected;
         bool selectable;
         bool custom_color;
-        Color color;
         bool custom_bg_color;
         bool custom_bg_outline;
-        Color bg_color;
         bool custom_button;
         bool expand_right;
-        Color icon_color;
-
-        TextAlign text_align;
-
-        Variant meta;
-        StringName tooltip;
-        Callable custom_draw;
-
-        struct Button {
-            Color color = { 1,1,1,1 };
-            Ref<Texture> texture;
-            StringName tooltip;
-            int id=0;
-            bool disabled=false;
-        };
-
-        Vector<Button> buttons;
 
         Cell() {
 
@@ -123,7 +119,7 @@ private:
         }
 
         Size2 get_icon_size() const;
-        void draw_icon(const RID &p_where, const Point2 &p_pos, const Size2 &p_size = Size2(), const Color &p_color = Color()) const;
+        void draw_icon(RenderingEntity p_where, const Point2 &p_pos, const Size2 &p_size = Size2(), const Color &p_color = Color()) const;
     };
 
     Vector<Cell> cells;
@@ -162,8 +158,7 @@ public:
 
     void set_text_utf8(int p_column, StringView p_text);
     void set_text(int p_column, const StringName &p_text);
-    String get_text_ui(int p_column) const;
-    String get_text(int p_column) const;
+    const String &get_text(int p_column) const;
 
     void set_suffix(int p_column, String p_suffix);
     String get_suffix(int p_column) const;
@@ -182,7 +177,7 @@ public:
 
     void add_button(int p_column, const Ref<Texture> &p_button, int p_id = -1, bool p_disabled = false, const StringName &p_tooltip = StringName());
     int get_button_count(int p_column) const;
-    StringName get_button_tooltip(int p_column, int p_idx) const;
+    const String & get_button_tooltip(int p_column, int p_idx) const;
     Ref<Texture> get_button(int p_column, int p_idx) const;
     int get_button_id(int p_column, int p_idx) const;
     void erase_button(int p_column, int p_idx);
@@ -245,7 +240,7 @@ public:
     bool is_custom_set_as_button(int p_column) const;
 
     void set_tooltip(int p_column, const StringName &p_tooltip);
-    StringName get_tooltip(int p_column) const;
+    const String & get_tooltip(int p_column) const;
 
     void clear_children();
 
@@ -285,94 +280,6 @@ public:
     };
 
 private:
-    friend class TreeItem;
-
-    TreeItem *root;
-    TreeItem *popup_edited_item;
-    TreeItem *selected_item;
-    TreeItem *edited_item;
-
-    TreeItem *drop_mode_over;
-    int drop_mode_section;
-
-    TreeItem *single_select_defer;
-    int single_select_defer_column;
-
-    int pressed_button;
-    bool pressing_for_editor;
-    //String pressing_for_editor_text;
-    Vector2 pressing_pos;
-    Rect2 pressing_item_rect;
-
-    float range_drag_base;
-    bool range_drag_enabled;
-    Vector2 range_drag_capture_pos;
-
-    bool propagate_mouse_activated;
-
-    //TreeItem *cursor_item;
-    //int cursor_column;
-
-    Rect2 custom_popup_rect;
-    int edited_col;
-    int selected_col;
-    int popup_edited_item_col;
-    bool hide_root;
-    SelectMode select_mode;
-
-    int blocked;
-
-    int drop_mode_flags;
-
-    struct ColumnInfo {
-
-        int min_width;
-        bool expand;
-        StringName title;
-        ColumnInfo() {
-            min_width = 1;
-            expand = true;
-        }
-    };
-
-    bool show_column_titles;
-    LineEdit *text_editor;
-    HSlider *value_editor;
-    bool updating_value_editor;
-    int64_t focus_in_id;
-    PopupMenu *popup_menu;
-
-    Vector<ColumnInfo> columns;
-
-    Timer *range_click_timer;
-    TreeItem *range_item_last;
-    bool range_up_last;
-    void _range_click_timeout();
-
-    int compute_item_height(TreeItem *p_item) const;
-    int get_item_height(TreeItem *p_item) const;
-    //void draw_item_text(String p_text,const Ref<Texture>& p_icon,int p_icon_max_w,bool p_tool,Rect2i p_rect,const Color& p_color);
-    void draw_item_rect(const TreeItem::Cell &p_cell, const Rect2i &p_rect, const Color &p_color, const Color &p_icon_color);
-    int draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 &p_draw_size, TreeItem *p_item);
-    void select_single_item(TreeItem *p_selected, TreeItem *p_current, int p_col, TreeItem *p_prev = nullptr, bool *r_in_range = nullptr, bool p_force_deselect = false);
-    int propagate_mouse_event(const Point2i &p_pos, int x_ofs, int y_ofs, bool p_doubleclick, TreeItem *p_item, int p_button, const Ref<InputEventWithModifiers> &p_mod);
-    void text_editor_enter(const String &p_text);
-    void _text_editor_modal_close();
-    void value_editor_changed(double p_value);
-
-    void popup_select(int p_option);
-
-    void _gui_input(Ref<InputEvent> p_event);
-    void _notification(int p_what);
-
-    Size2 get_minimum_size() const override;
-
-    void item_edited(int p_column, TreeItem *p_item, bool p_lmb = true);
-    void item_changed(int p_column, TreeItem *p_item);
-    void item_selected(int p_column, TreeItem *p_item);
-    void item_deselected(int p_column, TreeItem *p_item);
-
-    void propagate_set_columns(TreeItem *p_item);
 
     struct Cache {
         enum ClickType : int8_t {
@@ -437,41 +344,61 @@ private:
 
         ClickType click_type=Cache::CLICK_NONE;
         ClickType hover_type=Cache::CLICK_NONE;
+    };
+    struct ColumnInfo {
 
-    } cache;
+        StringName title;
+        int min_width = 1;
+        bool expand = true;
+    };
 
-    int _get_title_button_height() const;
+    friend class TreeItem;
+    Cache cache;
 
-    void _scroll_moved(float p_value);
+    TreeItem *root;
+    TreeItem *popup_edited_item;
+    TreeItem *selected_item;
+    TreeItem *edited_item;
+    TreeItem *drop_mode_over;
+    TreeItem *single_select_defer;
+    TreeItem *range_item_last;
+    Timer *range_click_timer;
+    LineEdit *text_editor;
     HScrollBar *h_scroll;
     VScrollBar *v_scroll;
+    HSlider *value_editor;
+    PopupMenu *popup_menu;
 
-    Size2 get_internal_min_size() const;
-    void update_cache();
-    void update_scrollbars();
-
-    Rect2 search_item_rect(TreeItem *p_from, TreeItem *p_item);
-    //Rect2 get_item_rect(TreeItem *p_item);
-    uint64_t last_keypress;
+    Vector<ColumnInfo> columns;
     String incr_search;
-    bool cursor_can_exit_tree;
-    void _do_incr_search(const String &p_add);
+    Vector2 last_speed;
+    Vector2 pressing_pos;
+    Rect2 pressing_item_rect;
+    Vector2 range_drag_capture_pos;
+    Rect2 custom_popup_rect;
+    SelectMode select_mode;
+    uint64_t last_keypress;
+    int64_t focus_in_id;
 
-    TreeItem *_search_item_text(TreeItem *p_at, StringView p_find, int *r_col, bool p_selectable, bool p_backwards = false);
-
-    TreeItem *_find_item_at_pos(TreeItem *p_item, const Point2 &p_pos, int &r_column, int &h, int &section) const;
-
-    /*	float drag_speed;
-    float drag_accum;
-
-    float last_drag_accum;
-    float last_drag_time;
-    float time_since_motion;*/
-
+    float range_drag_base;
     float drag_speed;
     float drag_from;
     float drag_accum;
-    Vector2 last_speed;
+
+    int blocked;
+    int drop_mode_flags;
+    int edited_col;
+    int selected_col;
+    int popup_edited_item_col;
+    int drop_mode_section;
+    int single_select_defer_column;
+    int pressed_button;
+
+    bool cursor_can_exit_tree;
+    bool range_drag_enabled;
+    bool propagate_mouse_activated;
+    bool hide_root;
+    bool pressing_for_editor;
     bool drag_touching;
     bool drag_touching_deaccel;
     bool click_handled;
@@ -483,7 +410,46 @@ private:
     bool force_edit_checkbox_only_on_checkbox;
 
     bool hide_folding;
+    bool show_column_titles;
+    bool updating_value_editor;
+    bool range_up_last;
 
+    void _range_click_timeout();
+    int compute_item_height(TreeItem *p_item) const;
+    int get_item_height(TreeItem *p_item) const;
+    //void draw_item_text(String p_text,const Ref<Texture>& p_icon,int p_icon_max_w,bool p_tool,Rect2i p_rect,const Color& p_color);
+    void draw_item_rect(const TreeItem::Cell &p_cell, const Rect2i &p_rect, const Color &p_color, const Color &p_icon_color);
+    int draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 &p_draw_size, TreeItem *p_item);
+    void select_single_item(TreeItem *p_selected, TreeItem *p_current, int p_col, TreeItem *p_prev = nullptr, bool *r_in_range = nullptr, bool p_force_deselect = false);
+    int propagate_mouse_event(const Point2i &p_pos, int x_ofs, int y_ofs, bool p_doubleclick, TreeItem *p_item, int p_button, const Ref<InputEventWithModifiers> &p_mod);
+    void text_editor_enter(const String &p_text);
+    void _text_editor_modal_close();
+    void value_editor_changed(double p_value);
+
+    void popup_select(int p_option);
+
+    void _gui_input(Ref<InputEvent> p_event);
+    void _notification(int p_what);
+
+    Size2 get_minimum_size() const override;
+
+    void item_edited(int p_column, TreeItem *p_item, bool p_lmb = true);
+    void item_changed(int p_column, TreeItem *p_item);
+    void item_selected(int p_column, TreeItem *p_item);
+    void item_deselected(int p_column, TreeItem *p_item);
+
+    void propagate_set_columns(TreeItem *p_item);
+
+
+    int _get_title_button_height() const;
+    void _scroll_moved(float p_value);
+    Size2 get_internal_min_size() const;
+    void update_cache();
+    void update_scrollbars();
+    Rect2 search_item_rect(TreeItem *p_from, TreeItem *p_item);
+    void _do_incr_search(const String &p_add);
+    TreeItem *_search_item_text(TreeItem *p_at, StringView p_find, int *r_col, bool p_selectable, bool p_backwards = false);
+    TreeItem *_find_item_at_pos(TreeItem *p_item, const Point2 &p_pos, int &r_column, int &h, int &section) const;
     int _count_selected_items(TreeItem *p_from) const;
     void _go_left();
     void _go_right();
@@ -506,9 +472,12 @@ public:
     Rect2 _get_item_rect(Object *p_item, int p_column) const {
         return get_item_rect(object_cast<TreeItem>(p_item), p_column);
     }
+    void _scroll_to_item(Object *p_item) {
+        scroll_to_item(object_cast<TreeItem>(p_item));
+    }
 
 public:
-    StringName get_tooltip(const Point2 &p_pos) const override;
+    const String & get_tooltip(const Point2 &p_pos) const override;
 
     TreeItem *get_item_at_position(const Point2 &p_pos) const;
     int get_column_at_position(const Point2 &p_pos) const;

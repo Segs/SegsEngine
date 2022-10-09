@@ -28,6 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "core/error_macros.h"
 #include "core/string_utils.inl"
 #if defined(WINDOWS_ENABLED)
 
@@ -38,6 +39,7 @@
 #include "core/ustring.h"
 
 #include <cstdio>
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <QStorageInfo>
 
@@ -183,9 +185,9 @@ String DirAccessWindows::get_current_dir_without_drive() {
     String dir = get_current_dir();
 
     if (_get_root_string().empty()) {
-        int p = current_dir.find(":");
-        if (p != -1) {
-            dir = dir.right(p + 1);
+        auto p = current_dir.find(":");
+        if (p != String::npos) {
+            dir = dir.substr(p + 1);
         }
     }
 
@@ -221,15 +223,15 @@ bool DirAccessWindows::dir_exists(StringView _dir) {
 }
 
 Error DirAccessWindows::rename(StringView _path, StringView _new_path) {
-
     String p_path(_path);
     String p_new_path(_new_path);
     if (PathUtils::is_rel_path(p_path))
-        p_path = PathUtils::plus_file(get_current_dir(),p_path);
+        p_path = PathUtils::plus_file(get_current_dir(), p_path);
 
     p_path = fix_path(p_path);
 
-    if (PathUtils::is_rel_path(p_new_path)) p_new_path = PathUtils::plus_file(get_current_dir(),p_new_path);
+    if (PathUtils::is_rel_path(p_new_path))
+        p_new_path = PathUtils::plus_file(get_current_dir(), p_new_path);
 
     p_new_path = fix_path(p_new_path);
     return QFile::rename(StringUtils::from_utf8(p_path), StringUtils::from_utf8(p_new_path)) ? OK : FAILED;
@@ -282,37 +284,29 @@ FileType DirAccessWindows::get_file_type(const String& p_file) const {
     return (attr&FILE_ATTRIBUTE_DIRECTORY)?FILE_TYPE_
 }
 */
-size_t DirAccessWindows::get_space_left() {
+uint64_t DirAccessWindows::get_space_left() {
 
     uint64_t bytes = 0;
     if (!GetDiskFreeSpaceEx(nullptr, (PULARGE_INTEGER)&bytes, nullptr, nullptr)) return 0;
 
     // this is either 0 or a value in bytes.
-    return (size_t)bytes;
+    return bytes;
 }
 
 String DirAccessWindows::get_filesystem_type() const {
     String path = fix_path(const_cast<DirAccessWindows *>(this)->get_current_dir());
     int unit_end = StringUtils::find(path,":");
-    ERR_FAIL_COND_V(unit_end == -1, String());
+    ERR_FAIL_COND_V(unit_end == -1, {});
     String unit = String(StringUtils::substr(path,0, unit_end + 1)) + "\\";
     QStorageInfo info(StringUtils::from_utf8(path));
     return StringUtils::to_utf8(info.fileSystemType());
 }
 
-DirAccessWindows::DirAccessWindows() {
+DirAccessWindows::DirAccessWindows() : current_dir(".")  {
 
     p = memnew(DirAccessWindowsPrivate);
     p->h = INVALID_HANDLE_VALUE;
-    current_dir = ".";
 
-    drive_count = 0;
-
-#ifdef UWP_ENABLED
-    Windows::Storage::StorageFolder ^ install_folder = Windows::ApplicationModel::Package::Current->InstalledLocation;
-    change_dir(install_folder->Path->Data());
-
-#else
 
     DWORD mask = GetLogicalDrives();
 
@@ -326,7 +320,6 @@ DirAccessWindows::DirAccessWindows() {
     }
 
     DirAccessWindows::change_dir(".");
-#endif
 }
 
 DirAccessWindows::~DirAccessWindows() {

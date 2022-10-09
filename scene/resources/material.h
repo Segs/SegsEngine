@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  material.h                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,7 +31,6 @@
 #pragma once
 
 #include "core/resource.h"
-#include "core/self_list.h"
 #include "scene/resources/shader_enums.h"
 #include "core/color.h"
 #include "core/rid.h"
@@ -55,12 +54,12 @@ class GODOT_EXPORT Material : public Resource {
     RES_BASE_EXTENSION("material")
     OBJ_SAVE_TYPE(Material)
 
-    RID material;
     Ref<Material> next_pass;
+    RenderingEntity material;
     int render_priority;
 
 protected:
-    _FORCE_INLINE_ RID _get_material() const { return material; }
+    _FORCE_INLINE_ RenderingEntity _get_material() const { return material; }
     static void _bind_methods();
     virtual bool _can_do_next_pass() const { return false; }
 
@@ -79,7 +78,7 @@ public:
     void set_render_priority(int p_priority);
     int get_render_priority() const;
 
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     virtual RenderingServerEnums::ShaderMode get_shader_mode() const = 0;
     Material();
@@ -102,8 +101,6 @@ public:
 protected:
 
     static void _bind_methods();
-
-    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
 
     bool _can_do_next_pass() const override;
 
@@ -212,6 +209,7 @@ public:
         FLAG_ENSURE_CORRECT_NORMALS,
         FLAG_DISABLE_AMBIENT_LIGHT,
         FLAG_USE_SHADOW_TO_OPACITY,
+        FLAG_ALBEDO_TEXTURE_SDF,
         FLAG_MAX
     };
 
@@ -257,10 +255,14 @@ public:
         DISTANCE_FADE_PIXEL_DITHER,
         DISTANCE_FADE_OBJECT_DITHER,
     };
+    enum AsyncMode : uint8_t {
+        ASYNC_MODE_VISIBLE,
+        ASYNC_MODE_HIDDEN,
+    };
 
 private:
     struct ShaderData {
-        RID shader;
+        RenderingEntity shader;
         int users;
     };
     union MaterialKey {
@@ -288,7 +290,7 @@ private:
 
         uint64_t key;
 
-        bool operator==(const MaterialKey &p_key) const {
+        bool operator==(MaterialKey p_key) const {
             return key == p_key.key;
         }
     private:
@@ -298,11 +300,11 @@ private:
 
 
     static HashMap<MaterialKey, ShaderData> shader_map;
-    static Mutex *material_mutex;
 
     MaterialKey current_key;
 
     bool is_dirty_element;
+    bool is_initialized = false;
 
     Color albedo;
     float specular;
@@ -362,6 +364,7 @@ private:
     DiffuseMode diffuse_mode;
     BillboardMode billboard_mode;
     EmissionOperator emission_op;
+    AsyncMode async_mode;
 
     TextureChannel metallic_texture_channel;
     TextureChannel roughness_texture_channel;
@@ -370,6 +373,7 @@ private:
     eastl::bitset<FEATURE_MAX,uint16_t> features;
 
     Ref<Texture> textures[TEXTURE_MAX];
+    bool force_vertex_shading = false;
 
     _FORCE_INLINE_ void _validate_feature(StringView text, Feature feature, PropertyInfo &property) const;
     void _update_shader();
@@ -378,8 +382,6 @@ private:
     enum {
         MAX_MATERIALS_FOR_2D = 128
     };
-
-    static Ref<SpatialMaterial> materials_for_2d[MAX_MATERIALS_FOR_2D]; //used by Sprite3D and other stuff
 
     void _validate_high_end(StringView text, PropertyInfo &property) const;
     _FORCE_INLINE_ MaterialKey _compute_key() const {
@@ -590,13 +592,16 @@ public:
     void set_refraction_texture_channel(TextureChannel p_channel);
     TextureChannel get_refraction_texture_channel() const;
 
+    void set_async_mode(AsyncMode p_mode);
+    AsyncMode get_async_mode() const;
+
     static void init_shaders();
     static void finish_shaders();
     static void flush_changes();
 
-    static RID get_material_rid_for_2d(bool p_shaded, bool p_transparent, bool p_double_sided, bool p_cut_alpha, bool p_opaque_prepass, bool p_billboard = false, bool p_billboard_y = false);
+    static RenderingEntity get_material_rid_for_2d(bool p_shaded, bool p_transparent, bool p_double_sided, bool p_cut_alpha, bool p_opaque_prepass, bool p_billboard = false, bool p_billboard_y = false, bool p_no_depth_test = false, bool p_fixed_size = false, bool p_sdf = false);
 
-    RID get_shader_rid() const;
+    RenderingEntity get_shader_rid() const;
 
     RenderingServerEnums::ShaderMode get_shader_mode() const override;
 

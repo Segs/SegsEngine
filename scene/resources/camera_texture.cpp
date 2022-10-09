@@ -1,4 +1,4 @@
-#include "camera_texture.h"
+﻿#include "camera_texture.h"
 
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
@@ -8,14 +8,14 @@
 IMPL_GDCLASS(CameraTexture)
 
 void CameraTexture::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_camera_feed_id", {"feed_id"}), &CameraTexture::set_camera_feed_id);
-    MethodBinder::bind_method(D_METHOD("get_camera_feed_id"), &CameraTexture::get_camera_feed_id);
+    BIND_METHOD(CameraTexture,set_camera_feed_id);
+    BIND_METHOD(CameraTexture,get_camera_feed_id);
 
-    MethodBinder::bind_method(D_METHOD("set_which_feed", {"which_feed"}), &CameraTexture::set_which_feed);
-    MethodBinder::bind_method(D_METHOD("get_which_feed"), &CameraTexture::get_which_feed);
+    BIND_METHOD(CameraTexture,set_which_feed);
+    BIND_METHOD(CameraTexture,get_which_feed);
 
-    MethodBinder::bind_method(D_METHOD("set_camera_active", {"active"}), &CameraTexture::set_camera_active);
-    MethodBinder::bind_method(D_METHOD("get_camera_active"), &CameraTexture::get_camera_active);
+    BIND_METHOD(CameraTexture,set_camera_active);
+    BIND_METHOD(CameraTexture,get_camera_active);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "camera_feed_id"), "set_camera_feed_id", "get_camera_feed_id");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "which_feed"), "set_which_feed", "get_which_feed");
@@ -37,12 +37,12 @@ bool CameraTexture::has_alpha() const {
     return false;
 }
 
-RID CameraTexture::get_rid() const {
+RenderingEntity CameraTexture::get_rid() const {
     Ref<CameraFeed> feed = CameraServer::get_singleton()->get_feed_by_id(camera_feed_id);
     if (feed) {
         return feed->get_texture(which_feed);
     } else {
-        return RID();
+        return entt::null;
     }
 }
 

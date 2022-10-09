@@ -277,6 +277,13 @@ namespace eastl
 		return (a.c == b.c);
 	}
 
+#if defined(EA_COMPILER_HAS_THREE_WAY_COMPARISON)
+	template <typename T, typename Container> requires std::three_way_comparable<Container>
+	inline synth_three_way_result<T> operator<=>(const stack<T, Container>& a, const stack<T, Container>& b)
+	{
+		return a.c <=> b.c;
+	}
+#endif
 
 	template <typename T, typename Container>
 	inline bool operator!=(const stack<T, Container>& a, const stack<T, Container>& b)

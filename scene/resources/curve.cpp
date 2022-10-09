@@ -89,7 +89,7 @@ int Curve::add_point(Vector2 p_pos, real_t left_tangent, real_t right_tangent, T
             _points.push_back(Point(p_pos, left_tangent, right_tangent, left_mode, right_mode));
             ret = 1;
         } else {
-            _points.insert(0, Point(p_pos, left_tangent, right_tangent, left_mode, right_mode));
+            _points.insert(nullptr, Point(p_pos, left_tangent, right_tangent, left_mode, right_mode));
             ret = 0;
         }
 
@@ -99,7 +99,7 @@ int Curve::add_point(Vector2 p_pos, real_t left_tangent, real_t right_tangent, T
 
         if (i == 0 && p_pos.x < _points[0].pos.x) {
             // Insert before anything else
-            _points.insert(0, Point(p_pos, left_tangent, right_tangent, left_mode, right_mode));
+            _points.insert(nullptr, Point(p_pos, left_tangent, right_tangent, left_mode, right_mode));
             ret = 0;
         } else {
             // Insert between i and i+1
@@ -505,33 +505,33 @@ void Curve::ensure_default_setup(float p_min, float p_max) {
 
 void Curve::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_point_count"), &Curve::get_point_count);
+    BIND_METHOD(Curve,get_point_count);
     MethodBinder::bind_method(D_METHOD("add_point", {"position", "left_tangent", "right_tangent", "left_mode", "right_mode"}), &Curve::add_point, {DEFVAL(0), DEFVAL(0), DEFVAL(TANGENT_FREE), DEFVAL(TANGENT_FREE)});
-    MethodBinder::bind_method(D_METHOD("remove_point", {"index"}), &Curve::remove_point);
-    MethodBinder::bind_method(D_METHOD("clear_points"), &Curve::clear_points);
-    MethodBinder::bind_method(D_METHOD("get_point_position", {"index"}), &Curve::get_point_position);
-    MethodBinder::bind_method(D_METHOD("set_point_value", {"index", "y"}), &Curve::set_point_value);
-    MethodBinder::bind_method(D_METHOD("set_point_offset", {"index", "offset"}), &Curve::set_point_offset);
-    MethodBinder::bind_method(D_METHOD("interpolate", {"offset"}), &Curve::interpolate);
-    MethodBinder::bind_method(D_METHOD("interpolate_baked", {"offset"}), &Curve::interpolate_baked);
-    MethodBinder::bind_method(D_METHOD("get_point_left_tangent", {"index"}), &Curve::get_point_left_tangent);
-    MethodBinder::bind_method(D_METHOD("get_point_right_tangent", {"index"}), &Curve::get_point_right_tangent);
-    MethodBinder::bind_method(D_METHOD("get_point_left_mode", {"index"}), &Curve::get_point_left_mode);
-    MethodBinder::bind_method(D_METHOD("get_point_right_mode", {"index"}), &Curve::get_point_right_mode);
-    MethodBinder::bind_method(D_METHOD("set_point_left_tangent", {"index", "tangent"}), &Curve::set_point_left_tangent);
-    MethodBinder::bind_method(D_METHOD("set_point_right_tangent", {"index", "tangent"}), &Curve::set_point_right_tangent);
-    MethodBinder::bind_method(D_METHOD("set_point_left_mode", {"index", "mode"}), &Curve::set_point_left_mode);
-    MethodBinder::bind_method(D_METHOD("set_point_right_mode", {"index", "mode"}), &Curve::set_point_right_mode);
-    MethodBinder::bind_method(D_METHOD("get_min_value"), &Curve::get_min_value);
-    MethodBinder::bind_method(D_METHOD("set_min_value", {"min"}), &Curve::set_min_value);
-    MethodBinder::bind_method(D_METHOD("get_max_value"), &Curve::get_max_value);
-    MethodBinder::bind_method(D_METHOD("set_max_value", {"max"}), &Curve::set_max_value);
-    MethodBinder::bind_method(D_METHOD("clean_dupes"), &Curve::clean_dupes);
-    MethodBinder::bind_method(D_METHOD("bake"), &Curve::bake);
-    MethodBinder::bind_method(D_METHOD("get_bake_resolution"), &Curve::get_bake_resolution);
-    MethodBinder::bind_method(D_METHOD("set_bake_resolution", {"resolution"}), &Curve::set_bake_resolution);
-    MethodBinder::bind_method(D_METHOD("get_data"), &Curve::get_data);
-    MethodBinder::bind_method(D_METHOD("set_data", {"data"}), &Curve::set_data);
+    BIND_METHOD(Curve,remove_point);
+    BIND_METHOD(Curve,clear_points);
+    BIND_METHOD(Curve,get_point_position);
+    BIND_METHOD(Curve,set_point_value);
+    BIND_METHOD(Curve,set_point_offset);
+    BIND_METHOD(Curve,interpolate);
+    BIND_METHOD(Curve,interpolate_baked);
+    BIND_METHOD(Curve,get_point_left_tangent);
+    BIND_METHOD(Curve,get_point_right_tangent);
+    BIND_METHOD(Curve,get_point_left_mode);
+    BIND_METHOD(Curve,get_point_right_mode);
+    BIND_METHOD(Curve,set_point_left_tangent);
+    BIND_METHOD(Curve,set_point_right_tangent);
+    BIND_METHOD(Curve,set_point_left_mode);
+    BIND_METHOD(Curve,set_point_right_mode);
+    BIND_METHOD(Curve,get_min_value);
+    BIND_METHOD(Curve,set_min_value);
+    BIND_METHOD(Curve,get_max_value);
+    BIND_METHOD(Curve,set_max_value);
+    BIND_METHOD(Curve,clean_dupes);
+    BIND_METHOD(Curve,bake);
+    BIND_METHOD(Curve,get_bake_resolution);
+    BIND_METHOD(Curve,set_bake_resolution);
+    BIND_METHOD(Curve,get_data);
+    BIND_METHOD(Curve,set_data);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "min_value", PropertyHint::Range, "-1024,1024,0.01"), "set_min_value", "get_min_value");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "max_value", PropertyHint::Range, "-1024,1024,0.01"), "set_max_value", "get_max_value");
@@ -993,31 +993,31 @@ PoolVector2Array Curve2D::tessellate(int p_max_stages, float p_tolerance) const 
 
 void Curve2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_point_count"), &Curve2D::get_point_count);
+    BIND_METHOD(Curve2D,get_point_count);
     MethodBinder::bind_method(D_METHOD("add_point", {"position", "in", "out", "at_position"}), &Curve2D::add_point, {DEFVAL(Vector2()), DEFVAL(Vector2()), DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("set_point_position", {"idx", "position"}), &Curve2D::set_point_position);
-    MethodBinder::bind_method(D_METHOD("get_point_position", {"idx"}), &Curve2D::get_point_position);
-    MethodBinder::bind_method(D_METHOD("set_point_in", {"idx", "position"}), &Curve2D::set_point_in);
-    MethodBinder::bind_method(D_METHOD("get_point_in", {"idx"}), &Curve2D::get_point_in);
-    MethodBinder::bind_method(D_METHOD("set_point_out", {"idx", "position"}), &Curve2D::set_point_out);
-    MethodBinder::bind_method(D_METHOD("get_point_out", {"idx"}), &Curve2D::get_point_out);
-    MethodBinder::bind_method(D_METHOD("remove_point", {"idx"}), &Curve2D::remove_point);
-    MethodBinder::bind_method(D_METHOD("clear_points"), &Curve2D::clear_points);
-    MethodBinder::bind_method(D_METHOD("interpolate", {"idx", "t"}), &Curve2D::interpolate);
-    MethodBinder::bind_method(D_METHOD("interpolatef", {"fofs"}), &Curve2D::interpolatef);
+    BIND_METHOD(Curve2D,set_point_position);
+    BIND_METHOD(Curve2D,get_point_position);
+    BIND_METHOD(Curve2D,set_point_in);
+    BIND_METHOD(Curve2D,get_point_in);
+    BIND_METHOD(Curve2D,set_point_out);
+    BIND_METHOD(Curve2D,get_point_out);
+    BIND_METHOD(Curve2D,remove_point);
+    BIND_METHOD(Curve2D,clear_points);
+    BIND_METHOD(Curve2D,interpolate);
+    BIND_METHOD(Curve2D,interpolatef);
     //MethodBinder::bind_method(D_METHOD("bake","subdivs"),&Curve2D::bake,{DEFVAL(10)});
-    MethodBinder::bind_method(D_METHOD("set_bake_interval", {"distance"}), &Curve2D::set_bake_interval);
-    MethodBinder::bind_method(D_METHOD("get_bake_interval"), &Curve2D::get_bake_interval);
+    BIND_METHOD(Curve2D,set_bake_interval);
+    BIND_METHOD(Curve2D,get_bake_interval);
 
-    MethodBinder::bind_method(D_METHOD("get_baked_length"), &Curve2D::get_baked_length);
+    BIND_METHOD(Curve2D,get_baked_length);
     MethodBinder::bind_method(D_METHOD("interpolate_baked", {"offset", "cubic"}), &Curve2D::interpolate_baked, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("get_baked_points"), &Curve2D::get_baked_points);
-    MethodBinder::bind_method(D_METHOD("get_closest_point", {"to_point"}), &Curve2D::get_closest_point);
-    MethodBinder::bind_method(D_METHOD("get_closest_offset", {"to_point"}), &Curve2D::get_closest_offset);
+    BIND_METHOD(Curve2D,get_baked_points);
+    BIND_METHOD(Curve2D,get_closest_point);
+    BIND_METHOD(Curve2D,get_closest_offset);
     MethodBinder::bind_method(D_METHOD("tessellate", {"max_stages", "tolerance_degrees"}), &Curve2D::tessellate, {DEFVAL(5), DEFVAL(4)});
 
-    MethodBinder::bind_method(D_METHOD("_get_data"), &Curve2D::_get_data);
-    MethodBinder::bind_method(D_METHOD("_set_data"), &Curve2D::_set_data);
+    BIND_METHOD(Curve2D,_get_data);
+    BIND_METHOD(Curve2D,_set_data);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_interval", PropertyHint::Range, "0.01,512,0.01"), "set_bake_interval", "get_bake_interval");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "_data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
@@ -1672,38 +1672,38 @@ PoolVector3Array Curve3D::tessellate(int p_max_stages, float p_tolerance) const 
 
 void Curve3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_point_count"), &Curve3D::get_point_count);
+    BIND_METHOD(Curve3D,get_point_count);
     MethodBinder::bind_method(D_METHOD("add_point", {"position", "in", "out", "at_position"}), &Curve3D::add_point, {DEFVAL(Vector3()), DEFVAL(Vector3()), DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("set_point_position", {"idx", "position"}), &Curve3D::set_point_position);
-    MethodBinder::bind_method(D_METHOD("get_point_position", {"idx"}), &Curve3D::get_point_position);
-    MethodBinder::bind_method(D_METHOD("set_point_tilt", {"idx", "tilt"}), &Curve3D::set_point_tilt);
-    MethodBinder::bind_method(D_METHOD("get_point_tilt", {"idx"}), &Curve3D::get_point_tilt);
-    MethodBinder::bind_method(D_METHOD("set_point_in", {"idx", "position"}), &Curve3D::set_point_in);
-    MethodBinder::bind_method(D_METHOD("get_point_in", {"idx"}), &Curve3D::get_point_in);
-    MethodBinder::bind_method(D_METHOD("set_point_out", {"idx", "position"}), &Curve3D::set_point_out);
-    MethodBinder::bind_method(D_METHOD("get_point_out", {"idx"}), &Curve3D::get_point_out);
-    MethodBinder::bind_method(D_METHOD("remove_point", {"idx"}), &Curve3D::remove_point);
-    MethodBinder::bind_method(D_METHOD("clear_points"), &Curve3D::clear_points);
-    MethodBinder::bind_method(D_METHOD("interpolate", {"idx", "t"}), &Curve3D::interpolate);
-    MethodBinder::bind_method(D_METHOD("interpolatef", {"fofs"}), &Curve3D::interpolatef);
+    BIND_METHOD(Curve3D,set_point_position);
+    BIND_METHOD(Curve3D,get_point_position);
+    BIND_METHOD(Curve3D,set_point_tilt);
+    BIND_METHOD(Curve3D,get_point_tilt);
+    BIND_METHOD(Curve3D,set_point_in);
+    BIND_METHOD(Curve3D,get_point_in);
+    BIND_METHOD(Curve3D,set_point_out);
+    BIND_METHOD(Curve3D,get_point_out);
+    BIND_METHOD(Curve3D,remove_point);
+    BIND_METHOD(Curve3D,clear_points);
+    BIND_METHOD(Curve3D,interpolate);
+    BIND_METHOD(Curve3D,interpolatef);
     //MethodBinder::bind_method(D_METHOD("bake","subdivs"),&Curve3D::bake,{DEFVAL(10)});
-    MethodBinder::bind_method(D_METHOD("set_bake_interval", {"distance"}), &Curve3D::set_bake_interval);
-    MethodBinder::bind_method(D_METHOD("get_bake_interval"), &Curve3D::get_bake_interval);
-    MethodBinder::bind_method(D_METHOD("set_up_vector_enabled", {"enable"}), &Curve3D::set_up_vector_enabled);
-    MethodBinder::bind_method(D_METHOD("is_up_vector_enabled"), &Curve3D::is_up_vector_enabled);
+    BIND_METHOD(Curve3D,set_bake_interval);
+    BIND_METHOD(Curve3D,get_bake_interval);
+    BIND_METHOD(Curve3D,set_up_vector_enabled);
+    BIND_METHOD(Curve3D,is_up_vector_enabled);
 
-    MethodBinder::bind_method(D_METHOD("get_baked_length"), &Curve3D::get_baked_length);
+    BIND_METHOD(Curve3D,get_baked_length);
     MethodBinder::bind_method(D_METHOD("interpolate_baked", {"offset", "cubic"}), &Curve3D::interpolate_baked, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("interpolate_baked_up_vector", {"offset", "apply_tilt"}), &Curve3D::interpolate_baked_up_vector, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("get_baked_points"), &Curve3D::get_baked_points);
-    MethodBinder::bind_method(D_METHOD("get_baked_tilts"), &Curve3D::get_baked_tilts);
-    MethodBinder::bind_method(D_METHOD("get_baked_up_vectors"), &Curve3D::get_baked_up_vectors);
-    MethodBinder::bind_method(D_METHOD("get_closest_point", {"to_point"}), &Curve3D::get_closest_point);
-    MethodBinder::bind_method(D_METHOD("get_closest_offset", {"to_point"}), &Curve3D::get_closest_offset);
+    BIND_METHOD(Curve3D,get_baked_points);
+    BIND_METHOD(Curve3D,get_baked_tilts);
+    BIND_METHOD(Curve3D,get_baked_up_vectors);
+    BIND_METHOD(Curve3D,get_closest_point);
+    BIND_METHOD(Curve3D,get_closest_offset);
     MethodBinder::bind_method(D_METHOD("tessellate", {"max_stages", "tolerance_degrees"}), &Curve3D::tessellate, {DEFVAL(5), DEFVAL(4)});
 
-    MethodBinder::bind_method(D_METHOD("_get_data"), &Curve3D::_get_data);
-    MethodBinder::bind_method(D_METHOD("_set_data"), &Curve3D::_set_data);
+    BIND_METHOD(Curve3D,_get_data);
+    BIND_METHOD(Curve3D,_set_data);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_interval", PropertyHint::Range, "0.01,512,0.01"), "set_bake_interval", "get_bake_interval");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "_data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");

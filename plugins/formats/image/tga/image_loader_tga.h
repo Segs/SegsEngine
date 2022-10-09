@@ -74,8 +74,8 @@ class ImageLoaderTGA : public QObject, public ImageFormatLoader {
         uint8_t pixel_depth;
         uint8_t image_descriptor;
     };
-    static Error decode_tga_rle(const uint8_t *p_compressed_buffer, size_t p_pixel_size, uint8_t *p_uncompressed_buffer, size_t p_output_size);
-    static Error convert_to_image(ImageData &p_image, const uint8_t *p_buffer, const tga_header_s &p_header, const uint8_t *p_palette, const bool p_is_monochrome);
+    static Error decode_tga_rle(const uint8_t *p_compressed_buffer, size_t p_pixel_size, uint8_t *p_uncompressed_buffer, size_t p_output_size, size_t p_input_size);
+    static Error convert_to_image(ImageData &p_image, const uint8_t *p_buffer, const tga_header_s &p_header, const uint8_t *p_palette, const bool p_is_monochrome, size_t p_input_size);
 
 public:
     Error load_image(ImageData &tgt_image, FileAccess *f, LoadParams params={}) override;

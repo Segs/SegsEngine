@@ -1,4 +1,4 @@
-#include "resource_manager.h"
+﻿#include "resource_manager.h"
 
 #include "core/io/resource_saver.h"
 #include "core/io/resource_loader.h"
@@ -23,12 +23,24 @@
 #include "EASTL/deque.h"
 /// Note: resource manager private data is using default 'new'/'delete'
 namespace {
+//used to track paths being loaded in a thread, avoids cyclic recursion
+struct LoadingMapKey {
+    String path;
+    Thread::ID thread;
+    bool operator==(const LoadingMapKey &p_key) const {
+        return (thread == p_key.thread && path == p_key.path);
+    }
+    operator size_t() { // used by eastl::hash as a default
+        return StringUtils::hash(path) + std::hash<Thread::ID>()(thread);
+    }
+};
+
 struct ResourceManagerPriv {
     Mutex loading_map_mutex;
-    HashMap<LoadingMapKey, int, Hasher<LoadingMapKey> > loading_map;
+    HashMap<LoadingMapKey, int > loading_map;
     eastl::deque<Ref<ResourceFormatSaver>> s_savers;
     eastl::deque<Ref<ResourceFormatLoader>> s_loaders;
-    ResourceSavedCallback save_callback;
+    ResourceSavedCallback save_callback = nullptr;
 
     Ref<ResourceFormatLoader> _find_custom_resource_format_loader(StringView path) {
         for (const auto & ldr : s_loaders) {
@@ -100,11 +112,10 @@ struct ResourceManagerPriv {
         ERR_FAIL_COND_V_MSG(found, RES(),
                     String("Failed loading resource: ") +p_path+". Make sure resources have been imported by opening the project in the editor at least once.");
 
-    #ifdef TOOLS_ENABLED
-        FileAccessRef file_check = FileAccess::create(FileAccess::ACCESS_RESOURCES);
-        ERR_FAIL_COND_V_MSG(!file_check->file_exists(p_path), RES(), "Resource file not found: " + p_path + ".");
-    #endif
-        ERR_FAIL_V_MSG(RES(), "No loader found for resource: " + String(p_path) + ".");
+        if(!Tooling::check_resource_manager_load(p_path)) {
+            ERR_FAIL_V_MSG(RES(), "Resource file not found: " + p_path + ".");
+        }
+        ERR_FAIL_V_MSG(RES(), "No loader found for resource: " + p_path + ".");
     }
 
 };
@@ -126,8 +137,8 @@ class ResourceFormatLoaderWrap final : public ResourceFormatLoader {
 protected:
     ResourceLoaderInterface* m_wrapped;
 public:
-    RES load(StringView p_path, StringView p_original_path = StringView(), Error* r_error = nullptr) override {
-        return m_wrapped->load(p_path, p_original_path, r_error);
+    RES load(StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr, bool p_no_subresource_cache = false) override {
+        return m_wrapped->load(p_path, p_original_path, r_error, p_no_subresource_cache);
     }
     void get_recognized_extensions(Vector<String>& p_extensions) const final {
         m_wrapped->get_recognized_extensions(p_extensions);
@@ -161,39 +172,28 @@ String _path_remap(StringView p_path, bool* r_translation_remapped=nullptr) {
 
         // To find the path of the remapped resource, we extract the locale name after
         // the last ':' to match the project locale.
-        // We also fall back in case of regional locales as done in TranslationServer::translate
-        // (e.g. 'ru_RU' -> 'ru' if the former has no specific mapping).
+        // An extra remap may still be necessary afterwards due to the text -> binary converter on export.
 
         String locale = TranslationServer::get_singleton()->get_locale();
         ERR_FAIL_COND_V_MSG(locale.length() < 2, new_path, "Could not remap path '" + p_path + "' for translation as configured locale '" + locale + "' is invalid.");
-        String lang(TranslationServer::get_language_code(locale));
 
         Vector<String>& res_remaps = translation_remaps[new_path];
-        bool near_match = false;
 
-        for (size_t i = 0; i < res_remaps.size(); i++) {
-            auto split = res_remaps[i].rfind(':');
-            if (split == String::npos) {
+		int best_score = 0;
+        for (int i = 0; i < res_remaps.size(); i++) {
+            int split = res_remaps[i].rfind(":");
+            if (split == -1) {
                 continue;
             }
 
-            StringView l = strip_edges(right(res_remaps[i], split + 1));
-            if (locale == l) { // Exact match.
+            String l(strip_edges(right(res_remaps[i],split + 1)));
+            int score = TranslationServer::get_singleton()->compare_locales(locale, l);
+            if (score > 0 && score >= best_score) {
                 new_path = res_remaps[i].left(split);
-                break;
+                best_score = score;
+                if (score == 10) {
+                    break; // Exact match, skip the rest.
             }
-            else if (near_match) {
-                continue; // Already found near match, keep going for potential exact match.
-            }
-
-            // No exact match (e.g. locale 'ru_RU' but remap is 'ru'), let's look further
-            // for a near match (same language code, i.e. first 2 or 3 letters before
-            // regional code, if included).
-            if (lang == TranslationServer::get_language_code(l)) {
-                // Language code matches, that's a near match. Keep looking for exact match.
-                near_match = true;
-                new_path = res_remaps[i].left(split);
-                continue;
             }
         }
 
@@ -204,12 +204,10 @@ String _path_remap(StringView p_path, bool* r_translation_remapped=nullptr) {
 
     if (path_remaps.contains(new_path)) {
         new_path = path_remaps[new_path];
-    }
-
-    if (new_path == p_path) { // Did not remap.
+    } else {
         // Try file remap.
         Error err;
-        FileAccessRef f = FileAccess::open(String(p_path) + ".remap", FileAccess::READ, &err);
+        FileAccessRef f = FileAccess::open(new_path + ".remap", FileAccess::READ, &err);
 
         if (!f)
             return new_path;
@@ -282,9 +280,10 @@ void ResourceManager::add_resource_format_saver(const Ref<ResourceFormatSaver>& 
         D()->s_savers.push_back(p_format_saver);
     }
 }
-Error ResourceManager::save(StringView p_path, const RES& p_resource, uint32_t p_flags) {
 
-    StringView extension = PathUtils::get_extension(p_path);
+Error ResourceManager::save_impl(StringView p_path, const RES& p_resource, uint32_t p_flags) {
+
+    const StringView extension = PathUtils::get_extension(p_path);
     Error err = ERR_FILE_UNRECOGNIZED;
 
     for (const Ref<ResourceFormatSaver>& s : D()->s_savers) {
@@ -309,24 +308,18 @@ Error ResourceManager::save(StringView p_path, const RES& p_resource, uint32_t p
 
         String local_path = ProjectSettings::get_singleton()->localize_path(p_path);
 
-        RES rwcopy(p_resource);
-        if (p_flags & FLAG_CHANGE_PATH)
-            rwcopy->set_path(local_path);
+        if (p_flags & FLAG_CHANGE_PATH) {
+            p_resource->set_path(local_path);
+        }
 
         err = s->save(p_path, p_resource, p_flags);
 
         if (err == OK) {
 
             Object_set_edited(p_resource.get(), false);
-#ifdef TOOLS_ENABLED
-            if (timestamp_on_save) {
-                uint64_t mt = FileAccess::get_modified_time(p_path);
-                p_resource->set_last_modified_time(mt);
+            if (p_flags & FLAG_CHANGE_PATH) {
+                p_resource->set_path(old_path);
             }
-#endif
-
-            if (p_flags & FLAG_CHANGE_PATH)
-                rwcopy->set_path(old_path);
 
             if (D()->save_callback && StringUtils::begins_with(p_path, "res://"))
                 D()->save_callback(p_resource, p_path);
@@ -507,7 +500,10 @@ void ResourceManager::get_recognized_extensions_for_type(StringView p_type, Vect
         v->get_recognized_extensions_for_type(p_type, p_extensions);
     }
 }
-RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_cache, Error* r_error) {
+/**
+ * @returns true if the resource was not in cache and an attempt was made to load it.
+ */
+bool ResourceManager::load_impl(RES &p_res, StringView p_path, StringView p_type_hint, bool p_no_cache, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_CANT_OPEN;
@@ -528,29 +524,29 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
         Resource* rptr = ResourceCache::get_unguarded(local_path);
 
         if (rptr) {
-            RES res(rptr);
+            p_res = RES(rptr);
             // it is possible this resource was just freed in a thread. If so, this referencing will not work and
             // resource is considered not cached
-            if (res) {
+            if (p_res) {
                 //referencing is fine
                 if (r_error)
                     *r_error = OK;
                 ResourceCache::lock.read_unlock();
                 D()->_remove_from_loading_map(local_path);
-                return res;
+                return false;
             }
         }
         ResourceCache::lock.read_unlock();
     }
 
     bool xl_remapped = false;
-    String path = _path_remap(local_path, &xl_remapped);
+    const String path = _path_remap(local_path, &xl_remapped);
 
     if (path.empty()) {
         if (!p_no_cache) {
             D()->_remove_from_loading_map(local_path);
         }
-        ERR_FAIL_V_MSG(RES(), "Remapping '" + local_path + "' failed.");
+        ERR_FAIL_V_MSG(false, "Remapping '" + local_path + "' failed.");
     }
 
     print_verbose("Loading resource: " + path);
@@ -561,7 +557,7 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
             D()->_remove_from_loading_map(local_path);
         }
         print_verbose("Failed loading resource: " + path);
-        return RES();
+        return false;
     }
     if (!p_no_cache)
         res->set_path(local_path);
@@ -571,13 +567,6 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
 
     Object_set_edited(res.get(), false);
 
-#ifdef TOOLS_ENABLED
-    if (timestamp_on_load) {
-        uint64_t mt = FileAccess::get_modified_time(path);
-        //printf("mt %s: %lli\n",remapped_path.utf8().get_data(),mt);
-        res->set_last_modified_time(mt);
-    }
-#endif
 
     if (!p_no_cache) {
         D()->_remove_from_loading_map(local_path);
@@ -586,7 +575,7 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
     if (_loaded_callback) {
         _loaded_callback(res, p_path);
     }
-
+    p_res = res;
     return res;
 }
 
@@ -597,7 +586,7 @@ RES ResourceManager::load_internal(StringView p_path, StringView p_original_path
 
 bool ResourceManager::exists(StringView p_path, StringView p_type_hint) {
 
-    String local_path=normalized_resource_path(p_path);
+    const String local_path=normalized_resource_path(p_path);
 
     if (ResourceCache::has(local_path)) {
 
@@ -716,7 +705,7 @@ void ResourceManager::add_resource_format_loader(ResourceLoaderInterface* p_form
 void ResourceManager::remove_resource_format_loader(const ResourceLoaderInterface* p_format_loader) {
 
     if (unlikely(not p_format_loader)) {
-        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Null p_format_loader in remove_resource_format_loader.");
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Null p_format_loader in remove_resource_format_loader.",{});
         return;
     }
     ERR_FAIL_COND_MSG(D() == nullptr, "ResourceManager was already destructed");
@@ -731,7 +720,7 @@ void ResourceManager::remove_resource_format_loader(const ResourceLoaderInterfac
 void ResourceManager::remove_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader) {
 
     if (unlikely(not p_format_loader)) {
-        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Null p_format_loader in remove_resource_format_loader.");
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Null p_format_loader in remove_resource_format_loader.",{});
         return;
     }
     ERR_FAIL_COND_MSG(D()==nullptr,"ResourceManager was already destructed");
@@ -742,9 +731,9 @@ void ResourceManager::remove_resource_format_loader(const Ref<ResourceFormatLoad
 
 int ResourceManager::get_import_order(StringView p_path) {
 
-    String path = _path_remap(p_path);
+    const String path = _path_remap(p_path);
 
-    String local_path=normalized_resource_path(path);
+    const String local_path=normalized_resource_path(path);
 
     for (auto & s_loader : D()->s_loaders) {
 
@@ -920,8 +909,8 @@ void ResourceRemapper::load_translation_remaps() {
         return;
 
     Dictionary remaps = ProjectSettings::get_singleton()->getT<Dictionary>("locale/translation_remaps");
-    Vector<Variant> keys(remaps.get_key_list());
-    for (const Variant& E : keys) {
+    auto keys(remaps.get_key_list());
+    for (const auto & E : keys) {
 
         Array langs = remaps[E].as<Array>();
         Vector<String> lang_remaps;
@@ -930,7 +919,7 @@ void ResourceRemapper::load_translation_remaps() {
             lang_remaps.emplace_back(langs[i].as<String>());
         }
 
-        translation_remaps[E.as<String>()] = lang_remaps;
+        translation_remaps[E.asCString()] = lang_remaps;
     }
 }
 

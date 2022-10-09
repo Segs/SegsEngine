@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  packed_data_container.h                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -44,7 +44,7 @@ class GODOT_EXPORT PackedDataContainer : public Resource {
 
     struct DictKey {
         uint32_t hash;
-        Variant key;
+        StringName key;
         bool operator<(const DictKey &p_key) const { return hash < p_key.hash; }
     };
 
@@ -100,5 +100,5 @@ public:
     int size() const;
     Variant getvar(const Variant &p_key, bool *r_valid = nullptr) const override;
 
-    PackedDataContainerRef() {}
+    PackedDataContainerRef();
 };

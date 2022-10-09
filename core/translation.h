@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  translation.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -62,10 +62,23 @@ public:
     void get_message_list(List<StringName> *r_messages) const;
     int get_message_count() const;
 
+    // Not exposed to scripting. For easy usage of `ContextTranslation`.
+    virtual void add_context_message(const StringName &p_src_text, const StringName &p_xlated_text, const StringName &p_context);
+    virtual StringName get_context_message(const StringName &p_src_text, const StringName &p_context) const;
     Translation();
 };
 
-class GODOT_EXPORT TranslationServer : public Object {
+class GODOT_EXPORT ContextTranslation : public Translation {
+    GDCLASS(ContextTranslation, Translation);
+
+    HashMap<StringName, HashMap<StringName, StringName>> context_translation_map;
+
+public:
+    void add_context_message(const StringName &p_src_text, const StringName &p_xlated_text, const StringName &p_context) override;
+    StringName get_context_message(const StringName &p_src_text, const StringName &p_context) const override;
+};
+
+class GODOT_EXPORT TranslationServer final : public Object {
 
     GDCLASS(TranslationServer,Object)
 
@@ -73,7 +86,6 @@ class GODOT_EXPORT TranslationServer : public Object {
     String fallback;
 
     HashSet<Ref<Translation> > translations;
-    HashMap<String, String> locale_name_map;
     Ref<Translation> tool_translation;
     Ref<Translation> doc_translation;
 
@@ -83,6 +95,22 @@ class GODOT_EXPORT TranslationServer : public Object {
     bool _load_translations(const StringName &p_from);
 
     static void _bind_methods();
+    struct LocaleScriptInfo {
+        String name;
+        String script;
+        String default_country;
+        HashSet<String> supported_countries;
+    };
+    static Vector<LocaleScriptInfo> locale_script_info;
+
+    static HashMap<String, String> language_map;
+    static HashMap<String, String> script_map;
+    static HashMap<String, String> locale_rename_map;
+    static HashMap<String, String> country_name_map;
+    static HashMap<String, String> country_rename_map;
+    static HashMap<String, String> variant_map;
+
+    void init_locale_info();
 
 public:
     _FORCE_INLINE_ static TranslationServer *get_singleton() { return singleton; }
@@ -93,6 +121,18 @@ public:
     void set_locale(StringView p_locale);
     const String &get_locale() const;
 
+    int compare_locales(StringView  p_locale_a, StringView p_locale_b) const;
+    String standardize_locale(StringView p_locale) const;
+
+    Vector<String> get_all_languages() const;
+    String get_language_name(const String &p_language) const;
+
+    Vector<String> get_all_scripts() const;
+    String get_script_name(const String &p_script) const;
+
+    Vector<String> get_all_countries() const;
+    String get_country_name(const String &p_country) const;
+
     String get_locale_name(StringView p_locale) const;
 
     Array get_loaded_locales() const;
@@ -102,17 +142,12 @@ public:
 
     StringName translate(StringView p_message) const;
 
-    static Vector<String> get_all_locales();
-    static Vector<String> get_all_locale_names();
-    static bool is_locale_valid(StringView p_locale);
-    static String standardize_locale(StringView p_locale);
-    static StringView get_language_code(StringView p_locale);
     void set_tool_translation(const Ref<Translation> &p_translation);
-    StringName tool_translate(const StringName &p_message) const;
+    StringName tool_translate(const StringName &p_message, const StringName &p_context) const;
 
     void set_doc_translation(const Ref<Translation> &p_translation);
-
     StringName doc_translate(const StringName &p_message) const;
+
     void setup();
 
     void clear();

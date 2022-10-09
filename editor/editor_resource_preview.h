@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_resource_preview.h                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,6 +32,7 @@
 
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
+#include "core/os/mutex.h"
 #include "core/string.h"
 #include "core/list.h"
 #include "core/map.h"
@@ -66,7 +67,6 @@ class GODOT_EXPORT EditorResourcePreview : public Node {
         Ref<Resource> resource;
         String path;
         Callable callable;
-        Variant userdata;
     };
     struct Item {
         Ref<Texture> preview;
@@ -78,16 +78,16 @@ class GODOT_EXPORT EditorResourcePreview : public Node {
 
     List<QueueItem> queue;
 
-    Mutex *preview_mutex;
-    Semaphore *preview_sem;
+    Mutex preview_mutex;
+    Semaphore preview_sem;
     Thread thread;
-    volatile bool exit;
-    volatile bool exited;
+    SafeFlag exit;
+    SafeFlag exited;
     int order;
     Map<String, Item> cache;
     Vector<Ref<EditorResourcePreviewGenerator> > preview_generators;
 
-    void _preview_ready(StringView p_str, const Ref<Texture> &p_texture, const Ref<Texture> &p_small_texture, const Callable &callit, const Variant &p_ud);
+    void _preview_ready(StringView p_str, const Ref<Texture> &p_texture, const Ref<Texture> &p_small_texture, const Callable &callit);
     void _generate_preview(Ref<ImageTexture> &r_texture, Ref<ImageTexture> &r_small_texture, const QueueItem &p_item, StringView cache_base);
 
     static void _thread_func(void *ud);
@@ -100,9 +100,11 @@ protected:
 public:
     static EditorResourcePreview *get_singleton();
 
-    //callback function is callback(String p_path,Ref<Texture> preview,Variant udata) preview null if could not load
-    void queue_resource_preview(StringView p_path, const Callable &callback, const Variant &p_userdata);
-    void queue_edited_resource_preview(const Ref<Resource> &p_res, const Callable &entry, const Variant &p_userdata);
+    // p_receiver_func callback has signature (String p_path, Ref<Texture> p_preview, Ref<Texture> p_preview_small, Variant p_userdata)
+    // p_preview will be null if there was an error
+    void queue_resource_preview(StringView p_path, const Callable &callback);
+    void queue_edited_resource_preview(const Ref<Resource> &p_res, const Callable &callback);
+    void queue_edited_resource_preview_lambda(const Ref<Resource> &p_res, Object *owner, eastl::function<void (const String &, const Ref<Texture> &, const Ref<Texture> &)> &&cb);
 
     void add_preview_generator(const Ref<EditorResourcePreviewGenerator> &p_generator);
     void remove_preview_generator(const Ref<EditorResourcePreviewGenerator> &p_generator);

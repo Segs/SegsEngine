@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  physics_2d_server_wrap_mt.h                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -50,13 +50,12 @@ class Physics2DServerWrapMT : public PhysicsServer2D {
     Thread::ID main_thread;
     Thread thread;
     Mutex alloc_mutex;
-    Semaphore *step_sem;
+    Semaphore step_sem;
     mutable PhysicsServer2D *physics_server_2d;
-    int step_pending;
     int pool_max_size;
 
-    volatile bool exit;
-    volatile bool step_thread_up;
+    SafeFlag exit;
+    SafeFlag step_thread_up;
     bool create_thread;
     bool first_frame;
 
@@ -66,7 +65,6 @@ class Physics2DServerWrapMT : public PhysicsServer2D {
 
 
     void thread_step(real_t p_delta);
-    void thread_flush();
 
     void thread_exit();
 
@@ -152,11 +150,11 @@ public:
     FUNC2(area_remove_shape, RID, int);
     FUNC1(area_clear_shapes, RID);
 
-    FUNC2(area_attach_object_instance_id, RID, ObjectID);
-    FUNC1RC(ObjectID, area_get_object_instance_id, RID);
+    FUNC2(area_attach_object_instance_id, RID, GameEntity);
+    FUNC1RC(GameEntity, area_get_object_instance_id, RID);
 
-    FUNC2(area_attach_canvas_instance_id, RID, ObjectID);
-    FUNC1RC(ObjectID, area_get_canvas_instance_id, RID);
+    FUNC2(area_attach_canvas_instance_id, RID, GameEntity);
+    FUNC1RC(GameEntity, area_get_canvas_instance_id, RID);
 
     FUNC3(area_set_param, RID, AreaParameter, const Variant &);
     FUNC2(area_set_transform, RID, const Transform2D &);
@@ -214,11 +212,11 @@ public:
     FUNC2(body_remove_shape, RID, int);
     FUNC1(body_clear_shapes, RID);
 
-    FUNC2(body_attach_object_instance_id, RID, ObjectID);
-    FUNC1RC(ObjectID, body_get_object_instance_id, RID);
+    FUNC2(body_attach_object_instance_id, RID, GameEntity);
+    FUNC1RC(GameEntity, body_get_object_instance_id, RID);
 
-    FUNC2(body_attach_canvas_instance_id, RID, ObjectID);
-    FUNC1RC(ObjectID, body_get_canvas_instance_id, RID);
+    FUNC2(body_attach_canvas_instance_id, RID, GameEntity);
+    FUNC1RC(GameEntity, body_get_canvas_instance_id, RID);
 
     FUNC2(body_set_continuous_collision_detection_mode, RID, CCDMode);
     FUNC1RC(CCDMode, body_get_continuous_collision_detection_mode, RID);
@@ -276,17 +274,8 @@ public:
 
     FUNC2(body_set_pickable, RID, bool);
 
-    bool body_test_motion(RID p_body, const Transform2D &p_from, const Vector2 &p_motion, bool p_infinite_inertia, real_t p_margin = 0.001, MotionResult *r_result = nullptr, bool p_exclude_raycast_shapes = true) override {
-
-        ERR_FAIL_COND_V(main_thread != Thread::get_caller_id(), false);
-        return physics_server_2d->body_test_motion(p_body, p_from, p_motion, p_infinite_inertia, p_margin, r_result, p_exclude_raycast_shapes);
-    }
-
-    int body_test_ray_separation(RID p_body, const Transform2D &p_transform, bool p_infinite_inertia, Vector2 &r_recover_motion, SeparationResult *r_results, int p_result_max, float p_margin = 0.001) override {
-
-        ERR_FAIL_COND_V(main_thread != Thread::get_caller_id(), false);
-        return physics_server_2d->body_test_ray_separation(p_body, p_transform, p_infinite_inertia, r_recover_motion, r_results, p_result_max, p_margin);
-    }
+    FUNC8R(bool, body_test_motion, RID, const Transform2D &, const Vector2 &, bool, real_t, MotionResult *, bool, const Set<RID> &);
+    FUNC7R(int, body_test_ray_separation, RID, const Transform2D &, bool, Vector2 &, SeparationResult *, int, float);
 
     // this function only works on physics process, errors and returns null otherwise
     PhysicsDirectBodyState2D *body_get_direct_state(RID p_body) override {
@@ -325,6 +314,7 @@ public:
 
     FUNC1(free_rid, RID);
     FUNC1(set_active, bool);
+    FUNC1(set_collision_iterations, int);
 
     void init() override;
     void step(real_t p_step) override;

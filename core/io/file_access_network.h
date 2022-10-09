@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  file_access_network.h                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -51,18 +51,18 @@ class FileAccessNetworkClient {
     Thread thread;
     Mutex mutex;
     Mutex blockrequest_mutex;
-    int last_id;
+    int32_t last_id;
 
     bool quit;
 
     void _thread_func();
     static void _thread_func(void *s);
 
-    void put_32(int p_32);
+    void put_32(int32_t p_32);
     void put_64(int64_t p_64);
-    int get_32();
+    int32_t get_32();
     int64_t get_64();
-    int lockcount;
+
     void lock_mutex();
     void unlock_mutex();
 
@@ -87,22 +87,22 @@ class FileAccessNetwork : public FileAccess {
     mutable Semaphore page_sem;
     mutable Mutex buffer_mutex;
     bool opened;
-    size_t total_size;
-    mutable size_t pos;
-    int id;
+    uint64_t total_size;
+    mutable uint64_t pos;
+    int32_t id;
     mutable bool eof_flag;
-    mutable int last_page;
+    mutable int32_t last_page;
     mutable uint8_t *last_page_buff;
 
-    int page_size;
-    int read_ahead;
+    int32_t page_size;
+    int32_t read_ahead;
     uint64_t exists_modtime;
     void *m_priv;
 
     friend class FileAccessNetworkClient;
-    void _queue_page(int p_page) const;
-    void _respond(size_t p_len, Error p_status);
-    void _set_block(int p_offset, const Vector<uint8_t> &p_block);
+    void _queue_page(int32_t p_page) const;
+    void _respond(uint64_t p_len, Error p_status);
+    void _set_block(uint64_t p_offset, const Vector<uint8_t> &p_block);
 
 public:
     enum Command {
@@ -132,7 +132,7 @@ public:
     bool eof_reached() const override; ///< reading passed EOF
 
     uint8_t get_8() const override; ///< get a byte
-    int get_buffer(uint8_t *p_dst, int p_length) const override;
+    uint64_t get_buffer(uint8_t *p_dst, uint64_t p_length) const override;
 
     Error get_error() const override; ///< get last error
 

@@ -77,7 +77,7 @@ namespace GodotTools.Build
                 {
                     case BuildTool.DotnetCli:
                     {
-                        string dotnetCliPath = OS.PathWhich("dotnet");
+                        string dotnetCliPath = FindBuildEngineOnUnix("dotnet");
                         if (!string.IsNullOrEmpty(dotnetCliPath))
                             return (dotnetCliPath, BuildTool.DotnetCli);
                         GD.PushError("Cannot find dotnet CLI executable. Fallback to MSBuild from Mono.");
@@ -100,7 +100,11 @@ namespace GodotTools.Build
                 if (OS.IsOSX)
                 {
                     result.Add("/Library/Frameworks/Mono.framework/Versions/Current/bin/");
+                    result.Add("/opt/local/bin/");
                     result.Add("/usr/local/var/homebrew/linked/mono/bin/");
+                    result.Add("/usr/local/bin/");
+                    result.Add("/usr/local/bin/dotnet/");
+                    result.Add("/usr/local/share/dotnet/");
                 }
 
                 result.Add("/opt/novell/mono/bin/");

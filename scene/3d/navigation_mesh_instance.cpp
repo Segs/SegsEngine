@@ -45,12 +45,14 @@ IMPL_GDCLASS(NavigationMeshInstance)
 
 void NavigationMeshInstance::set_enabled(bool p_enabled) {
 
-    if (enabled == p_enabled)
+    if (enabled == p_enabled) {
         return;
+    }
     enabled = p_enabled;
 
-    if (!is_inside_tree())
+    if (!is_inside_tree()) {
         return;
+    }
 
     if (!enabled) {
 
@@ -171,24 +173,24 @@ Ref<NavigationMesh> NavigationMeshInstance::get_navigation_mesh() const {
 }
 
 struct BakeThreadsArgs {
-    NavigationMeshInstance *nav_mesh_instance;
+    NavigationMeshInstance *nav_region;
 };
 
 void _bake_navigation_mesh(void *p_user_data) {
     BakeThreadsArgs *args = static_cast<BakeThreadsArgs *>(p_user_data);
 
-    if (args->nav_mesh_instance->get_navigation_mesh()) {
-        Ref<NavigationMesh> nav_mesh((NavigationMesh *)args->nav_mesh_instance->get_navigation_mesh()->duplicate().get());
+    if (args->nav_region->get_navigation_mesh()) {
+        Ref<NavigationMesh> nav_mesh((NavigationMesh *)args->nav_region->get_navigation_mesh()->duplicate().get());
 
-        NavigationServer::get_singleton()->region_bake_navmesh(nav_mesh, args->nav_mesh_instance);
-        args->nav_mesh_instance->call_deferred([nmi=args->nav_mesh_instance,nm=eastl::move(nav_mesh)]() mutable {
+        NavigationServer::get_singleton()->region_bake_navmesh(nav_mesh, args->nav_region);
+        args->nav_region->call_deferred([nmi=args->nav_region,nm=eastl::move(nav_mesh)]() mutable {
             nmi->_bake_finished(eastl::move(nm));
         } );
         memdelete(args);
     } else {
 
         ERR_PRINT("Can't bake the navigation mesh if the `NavigationMesh` resource doesn't exist");
-        args->nav_mesh_instance->call_deferred([nmi=args->nav_mesh_instance]() mutable {
+        args->nav_region->call_deferred([nmi=args->nav_region]() mutable {
             nmi->_bake_finished({});
         } );
         memdelete(args);
@@ -199,7 +201,7 @@ void NavigationMeshInstance::bake_navigation_mesh() {
     ERR_FAIL_COND(bake_thread.is_started());
 
     BakeThreadsArgs *args = memnew(BakeThreadsArgs);
-    args->nav_mesh_instance = this;
+    args->nav_region = this;
 
     bake_thread.start(_bake_navigation_mesh, args);
 }
@@ -245,14 +247,14 @@ String NavigationMeshInstance::get_configuration_warning() const {
 
 void NavigationMeshInstance::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_navigation_mesh", {"navmesh"}),&NavigationMeshInstance::set_navigation_mesh);
-    MethodBinder::bind_method(D_METHOD("get_navigation_mesh"), &NavigationMeshInstance::get_navigation_mesh);
+    BIND_METHOD(NavigationMeshInstance,set_navigation_mesh);
+    BIND_METHOD(NavigationMeshInstance,get_navigation_mesh);
 
-    MethodBinder::bind_method(D_METHOD("set_enabled", {"enabled"}),&NavigationMeshInstance::set_enabled);
-    MethodBinder::bind_method(D_METHOD("is_enabled"), &NavigationMeshInstance::is_enabled);
+    BIND_METHOD(NavigationMeshInstance,set_enabled);
+    BIND_METHOD(NavigationMeshInstance,is_enabled);
 
-    MethodBinder::bind_method(D_METHOD("bake_navigation_mesh"), &NavigationMeshInstance::bake_navigation_mesh);
-    MethodBinder::bind_method(D_METHOD("_bake_finished", {"nav_mesh"}),&NavigationMeshInstance::_bake_finished);
+    BIND_METHOD(NavigationMeshInstance,bake_navigation_mesh);
+    BIND_METHOD(NavigationMeshInstance,_bake_finished);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "navmesh", PropertyHint::ResourceType, "NavigationMesh"), "set_navigation_mesh", "get_navigation_mesh");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enabled"), "set_enabled", "is_enabled");
@@ -268,16 +270,14 @@ void NavigationMeshInstance::_changed_callback(Object *p_changed, StringName p_p
 
 NavigationMeshInstance::NavigationMeshInstance() {
 
-    enabled = true;
     set_notify_transform(true);
     region = NavigationServer::get_singleton()->region_create();
 
-    navigation = nullptr;
-    debug_view = nullptr;
 }
 
 NavigationMeshInstance::~NavigationMeshInstance() {
-    if (navmesh)
+    if (navmesh) {
         Object_remove_change_receptor(navmesh.get(),this);
-    NavigationServer::get_singleton()->free(region);
+    }
+    NavigationServer::get_singleton()->free_rid(region);
 }

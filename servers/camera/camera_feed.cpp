@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  camera_feed.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -45,19 +45,19 @@ void CameraFeed::_bind_methods() {
     // The setters prefixed with _ are only exposed so we can have feeds through GDNative!
     // They should not be called by the end user.
 
-    MethodBinder::bind_method(D_METHOD("get_id"), &CameraFeed::get_id);
-    MethodBinder::bind_method(D_METHOD("get_name"), &CameraFeed::get_name);
+    BIND_METHOD(CameraFeed,get_id);
+    BIND_METHOD(CameraFeed,get_name);
     MethodBinder::bind_method(D_METHOD("_set_name", {"name"}), &CameraFeed::set_name);
 
-    MethodBinder::bind_method(D_METHOD("is_active"), &CameraFeed::is_active);
-    MethodBinder::bind_method(D_METHOD("set_active", {"active"}), &CameraFeed::set_active);
+    BIND_METHOD(CameraFeed,is_active);
+    BIND_METHOD(CameraFeed,set_active);
 
-    MethodBinder::bind_method(D_METHOD("get_position"), &CameraFeed::get_position);
+    BIND_METHOD(CameraFeed,get_position);
     MethodBinder::bind_method(D_METHOD("_set_position", {"position"}), &CameraFeed::set_position);
 
     // Note, for transform some feeds may override what the user sets (such as ARKit)
-    MethodBinder::bind_method(D_METHOD("get_transform"), &CameraFeed::get_transform);
-    MethodBinder::bind_method(D_METHOD("set_transform", {"transform"}), &CameraFeed::set_transform);
+    BIND_METHOD(CameraFeed,get_transform);
+    BIND_METHOD(CameraFeed,set_transform);
 
     MethodBinder::bind_method(D_METHOD("_set_RGB_img", {"rgb_img"}), &CameraFeed::set_RGB_img);
     MethodBinder::bind_method(D_METHOD("_set_YCbCr_img", {"ycbcr_img"}), &CameraFeed::set_YCbCr_img);
@@ -139,7 +139,7 @@ void CameraFeed::set_transform(const Transform2D &p_transform) {
     transform = p_transform;
 }
 
-RID CameraFeed::get_texture(CameraServer::FeedImage p_which) {
+RenderingEntity CameraFeed::get_texture(CameraServer::FeedImage p_which) {
     return texture[p_which];
 }
 
@@ -182,7 +182,8 @@ CameraFeed::~CameraFeed() {
     vs->free_rid(texture[CameraServer::FEED_CBCR_IMAGE]);
 }
 
-void CameraFeed::set_RGB_img(Ref<Image> p_rgb_img) {
+void CameraFeed::set_RGB_img(const Ref<Image> &p_rgb_img) {
+    ERR_FAIL_COND(not p_rgb_img);
     if (active) {
         RenderingServer *vs = RenderingServer::get_singleton();
 
@@ -194,7 +195,7 @@ void CameraFeed::set_RGB_img(Ref<Image> p_rgb_img) {
             base_width = new_width;
             base_height = new_height;
 
-            vs->texture_allocate(texture[CameraServer::FEED_RGBA_IMAGE], new_width, new_height, 0, Image::FORMAT_RGB8, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAGS_DEFAULT);
+            vs->texture_allocate(texture[CameraServer::FEED_RGBA_IMAGE], new_width, new_height, 0, ImageData::FORMAT_RGB8, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAGS_DEFAULT);
         }
 
         vs->texture_set_data(texture[CameraServer::FEED_RGBA_IMAGE], p_rgb_img);
@@ -202,7 +203,8 @@ void CameraFeed::set_RGB_img(Ref<Image> p_rgb_img) {
     }
 }
 
-void CameraFeed::set_YCbCr_img(Ref<Image> p_ycbcr_img) {
+void CameraFeed::set_YCbCr_img(const Ref<Image> &p_ycbcr_img) {
+    ERR_FAIL_COND(not p_ycbcr_img);
     if (active) {
         RenderingServer *vs = RenderingServer::get_singleton();
 
@@ -214,7 +216,7 @@ void CameraFeed::set_YCbCr_img(Ref<Image> p_ycbcr_img) {
             base_width = new_width;
             base_height = new_height;
 
-            vs->texture_allocate(texture[CameraServer::FEED_RGBA_IMAGE], new_width, new_height, 0, Image::FORMAT_RGB8, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAGS_DEFAULT);
+            vs->texture_allocate(texture[CameraServer::FEED_RGBA_IMAGE], new_width, new_height, 0, ImageData::FORMAT_RGB8, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAGS_DEFAULT);
         }
 
         vs->texture_set_data(texture[CameraServer::FEED_RGBA_IMAGE], p_ycbcr_img);
@@ -222,7 +224,8 @@ void CameraFeed::set_YCbCr_img(Ref<Image> p_ycbcr_img) {
     }
 }
 
-void CameraFeed::set_YCbCr_imgs(Ref<Image> p_y_img, Ref<Image> p_cbcr_img) {
+void CameraFeed::set_YCbCr_imgs(const Ref<Image> &p_y_img, const Ref<Image> &p_cbcr_img) {
+    ERR_FAIL_COND(not p_y_img || not p_cbcr_img);
     if (active) {
         RenderingServer *vs = RenderingServer::get_singleton();
 
@@ -240,10 +243,10 @@ void CameraFeed::set_YCbCr_imgs(Ref<Image> p_y_img, Ref<Image> p_cbcr_img) {
             base_width = new_y_width;
             base_height = new_y_height;
 
-            vs->texture_allocate(texture[CameraServer::FEED_Y_IMAGE], new_y_width, new_y_height, 0, Image::FORMAT_R8, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAG_USED_FOR_STREAMING);
+            vs->texture_allocate(texture[CameraServer::FEED_Y_IMAGE], new_y_width, new_y_height, 0, ImageData::FORMAT_R8, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAG_USED_FOR_STREAMING);
 
             ///@TODO GLES2 doesn't support FORMAT_RG8, need to do some form of conversion
-            vs->texture_allocate(texture[CameraServer::FEED_CBCR_IMAGE], new_cbcr_width, new_cbcr_height, 0, Image::FORMAT_RG8, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAG_USED_FOR_STREAMING);
+            vs->texture_allocate(texture[CameraServer::FEED_CBCR_IMAGE], new_cbcr_width, new_cbcr_height, 0, ImageData::FORMAT_RG8, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAG_USED_FOR_STREAMING);
         }
 
         vs->texture_set_data(texture[CameraServer::FEED_Y_IMAGE], p_y_img);

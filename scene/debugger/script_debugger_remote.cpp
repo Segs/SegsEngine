@@ -109,7 +109,7 @@ void ScriptDebuggerRemote::_put_variable(StringView p_name, const Variant &p_var
     packet_peer_stream->put_var(p_name);
 
     Variant var = p_variable;
-    if (p_variable.get_type() == VariantType::OBJECT && !ObjectDB::instance_validate(p_variable.as<Object *>())) {
+    if (p_variable.get_type() == VariantType::OBJECT && p_variable.as<Object *>()==nullptr) {
         var = Variant();
     }
 
@@ -126,9 +126,9 @@ void ScriptDebuggerRemote::_put_variable(StringView p_name, const Variant &p_var
     }
 }
 
-void ScriptDebuggerRemote::_save_node(ObjectID id, StringView p_path) {
+void ScriptDebuggerRemote::_save_node(GameEntity id, StringView p_path) {
 
-    Node *node = object_cast<Node>(ObjectDB::get_instance(id));
+    Node *node = object_cast<Node>(object_for_entity(id));
     ERR_FAIL_COND(!node);
 
     Ref<PackedScene> ps(make_ref_counted<PackedScene>());
@@ -284,11 +284,11 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
                 _send_video_memory();
             } else if (command == "inspect_object") {
 
-                ObjectID id = cmd[1].as<ObjectID>();
+                GameEntity id = cmd[1].as<GameEntity>();
                 _send_object_id(id);
             } else if (command == "set_object_property") {
 
-                _set_object_property(cmd[1].as<ObjectID>(), cmd[2].as<String>(), cmd[3]);
+                _set_object_property(cmd[1].as<GameEntity>(), cmd[2].as<String>(), cmd[3]);
 
             } else if (command == "override_camera_2D:set") {
                 bool enforce = cmd[1].as<bool>();
@@ -335,7 +335,7 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
                     remove_breakpoint(cmd[2].as<int>(), cmd[1].as<StringName>());
 
             } else if (command == "save_node") {
-                _save_node(cmd[1].as<ObjectID>(), cmd[2].as<StringName>().asCString());
+                _save_node(cmd[1].as<GameEntity>(), cmd[2].as<StringName>().asCString());
             } else {
                 _parse_live_edit(cmd);
             }
@@ -362,7 +362,7 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
 
 void ScriptDebuggerRemote::_get_output() {
 
-    mutex->lock();
+    MutexGuard guard(mutex);
     if (!output_strings.empty()) {
 
         locking = true;
@@ -457,7 +457,6 @@ void ScriptDebuggerRemote::_get_output() {
         errors.pop_front();
         locking = false;
     }
-    mutex->unlock();
 }
 
 void ScriptDebuggerRemote::line_poll() {
@@ -544,11 +543,11 @@ bool ScriptDebuggerRemote::_parse_live_edit(const Array &p_command) {
 
     } else if (cmdstr == "live_remove_and_keep_node") {
 
-        scene_tree->debug()->_live_edit_remove_and_keep_node_func(p_command[1].as<NodePath>(), p_command[2].as<ObjectID>());
+        scene_tree->debug()->_live_edit_remove_and_keep_node_func(p_command[1].as<NodePath>(), p_command[2].as<GameEntity>());
 
     } else if (cmdstr == "live_restore_node") {
 
-        scene_tree->debug()->_live_edit_restore_node_func(p_command[1].as<ObjectID>(), p_command[2].as<NodePath>(), p_command[3].as<int>());
+        scene_tree->debug()->_live_edit_restore_node_func(p_command[1].as<GameEntity>(), p_command[2].as<NodePath>(), p_command[3].as<int>());
 
     } else if (cmdstr == "live_duplicate_node") {
 
@@ -570,72 +569,70 @@ bool ScriptDebuggerRemote::_parse_live_edit(const Array &p_command) {
 #endif
 }
 
-void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
+void ScriptDebuggerRemote::_send_object_id(GameEntity p_id) {
+    using ScriptMemberMap = Map<const Script *, HashSet<StringName>>;
+    using ScriptConstantsMap = Map<const Script *, HashMap<StringName, Variant>>;
 
-    using ScriptMemberMap = Map<const Script *, HashSet<StringName> >;
-    using ScriptConstantsMap = Map<const Script *, HashMap<StringName, Variant> >;
-
-    Object *obj = ObjectDB::get_instance(p_id);
+    Object *obj = object_for_entity(p_id);
     if (!obj)
         return;
 
     using PropertyDesc = Pair<PropertyInfo, Variant>;
     List<PropertyDesc> properties;
 
-if (ScriptInstance *si = obj->get_script_instance()) {
-    if (si->get_script()) {
+    if (ScriptInstance *si = obj->get_script_instance()) {
+        if (si->get_script()) {
+            ScriptMemberMap members;
+            members[si->get_script().get()] = HashSet<StringName>();
+            si->get_script()->get_members(&(members[si->get_script().get()]));
 
-        ScriptMemberMap members;
-        members[si->get_script().get()] = HashSet<StringName>();
-        si->get_script()->get_members(&(members[si->get_script().get()]));
+            ScriptConstantsMap constants;
+            constants[si->get_script().get()] = HashMap<StringName, Variant>();
+            si->get_script()->get_constants(&(constants[si->get_script().get()]));
 
-        ScriptConstantsMap constants;
-        constants[si->get_script().get()] = HashMap<StringName, Variant>();
-        si->get_script()->get_constants(&(constants[si->get_script().get()]));
+            Ref<Script> base = si->get_script()->get_base_script();
+            while (base) {
+                members[base.get()] = HashSet<StringName>();
+                base->get_members(&(members[base.get()]));
 
-        Ref<Script> base = si->get_script()->get_base_script();
-        while (base) {
+                constants[base.get()] = HashMap<StringName, Variant>();
+                base->get_constants(&(constants[base.get()]));
 
-            members[base.get()] = HashSet<StringName>();
-            base->get_members(&(members[base.get()]));
+                base = base->get_base_script();
+            }
 
-            constants[base.get()] = HashMap<StringName, Variant>();
-            base->get_constants(&(constants[base.get()]));
-
-            base = base->get_base_script();
-        }
-
-        for (const eastl::pair<const Script *, HashSet<StringName>> &sm : members) {
-            for (const StringName &E : sm.second) {
-                Variant m;
-                if (si->get(E, m)) {
-                    String script_path(sm.first == si->get_script().get() ?
-                                                  String() :
-                                                  String(PathUtils::get_file(sm.first->get_path())) + "/");
-                    PropertyInfo pi(
-                            m.get_type(), StringName("Members/" + script_path + E.asCString()));
-                    properties.push_back(PropertyDesc(pi, m));
+            for (const eastl::pair<const Script *const, HashSet<StringName>> &sm : members) {
+                for (const StringName &E : sm.second) {
+                    Variant m;
+                    if (si->get(E, m)) {
+                        String script_path(sm.first == si->get_script().get() ?
+                                                   String() :
+                                                   String(PathUtils::get_file(sm.first->get_path())) + "/");
+                        PropertyInfo pi(m.get_type(), StringName("Members/" + script_path + E.asCString()));
+                        properties.push_back(PropertyDesc(pi, m));
+                    }
                 }
             }
-        }
 
-        for (const auto &sc : constants) {
-            for (const eastl::pair<const StringName, Variant> &E : sc.second) {
-                String script_path(sc.first == si->get_script().get() ?
-                                             String() :
-                                             String(PathUtils::get_file(sc.first->get_path())) + "/");
-                if (E.second.get_type() == VariantType::OBJECT) {
-                    Variant id = Variant::from(E.second.as<Object *>()->get_instance_id());
-                    PropertyInfo pi(id.get_type(), StringName("Constants/" + String(E.first)), PropertyHint::ObjectID, "Object");
-                    properties.push_back(PropertyDesc(pi, id));
-                } else {
-                    PropertyInfo pi(E.second.get_type(), StringName("Constants/" + script_path + E.first.asCString()));
-                    properties.push_back(PropertyDesc(pi, E.second));
+            for (const auto &sc : constants) {
+                for (const eastl::pair<const StringName, Variant> &E : sc.second) {
+                    String script_path(sc.first == si->get_script().get() ?
+                                               String() :
+                                               String(PathUtils::get_file(sc.first->get_path())) + "/");
+                    if (E.second.get_type() == VariantType::OBJECT) {
+                        Variant id = Variant::from(E.second.as<Object *>()->get_instance_id());
+                        PropertyInfo pi(id.get_type(), StringName("Constants/" + String(E.first)),
+                                PropertyHint::ObjectID, "Object");
+                        properties.push_back(PropertyDesc(pi, id));
+                    } else {
+                        PropertyInfo pi(
+                                E.second.get_type(), StringName("Constants/" + script_path + E.first.asCString()));
+                        properties.push_back(PropertyDesc(pi, E.second));
+                    }
                 }
             }
         }
     }
-}
 
     if (Node *node = object_cast<Node>(obj)) {
         // in some cases node will not be in tree here
@@ -653,10 +650,11 @@ if (ScriptInstance *si = obj->get_script_instance()) {
         if (Script *s = object_cast<Script>(res)) {
             HashMap<StringName, Variant> constants;
             s->get_constants(&constants);
-            for (eastl::pair<const StringName,Variant> &E : constants) {
+            for (eastl::pair<const StringName, Variant> &E : constants) {
                 if (E.second.get_type() == VariantType::OBJECT) {
                     Variant id = Variant::from(E.second.as<Object *>()->get_instance_id());
-                    PropertyInfo pi(id.get_type(), StringName("Constants/" + String(E.first)), PropertyHint::ObjectID, "Object");
+                    PropertyInfo pi(id.get_type(), StringName("Constants/" + String(E.first)), PropertyHint::ObjectID,
+                            "Object");
                     properties.push_front(PropertyDesc(pi, E.second));
                 } else {
                     PropertyInfo pi(E.second.get_type(), StringName("Constants/" + String(E.first)));
@@ -668,7 +666,7 @@ if (ScriptInstance *si = obj->get_script_instance()) {
 
     Vector<PropertyInfo> pinfo;
     obj->get_property_list(&pinfo, true);
-    for(PropertyInfo &E : pinfo ) {
+    for (PropertyInfo &E : pinfo) {
         if (E.usage & (PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CATEGORY)) {
             properties.push_back(PropertyDesc(E, obj->get(E.name)));
         }
@@ -690,10 +688,10 @@ if (ScriptInstance *si = obj->get_script_instance()) {
         prop.push_back(pi.name);
         prop.push_back(int(pi.type));
 
-        //only send information that can be sent..
-        int len = 0; //test how big is this to encode
+        // only send information that can be sent..
+        int len = 0; // test how big is this to encode
         encode_variant(var, nullptr, len);
-        if (len > packet_peer_stream->get_output_buffer_max_size()) { //limit to max size
+        if (len > packet_peer_stream->get_output_buffer_max_size()) { // limit to max size
             prop.push_back(PropertyHint::ObjectTooBig);
             prop.push_back("");
             prop.push_back(pi.usage);
@@ -703,7 +701,7 @@ if (ScriptInstance *si = obj->get_script_instance()) {
             prop.push_back(pi.hint_string);
             prop.push_back(pi.usage);
 
-            if (res) {
+            if (res  && !res->get_path().empty()) {
                 var = res->get_path();
             }
 
@@ -719,9 +717,9 @@ if (ScriptInstance *si = obj->get_script_instance()) {
     packet_peer_stream->put_var(send_props);
 }
 
-void ScriptDebuggerRemote::_set_object_property(ObjectID p_id, const String &p_property, const Variant &p_value) {
+void ScriptDebuggerRemote::_set_object_property(GameEntity p_id, const String &p_property, const Variant &p_value) {
 
-    Object *obj = ObjectDB::get_instance(p_id);
+    Object *obj = object_for_entity(p_id);
     if (!obj)
         return;
     //TODO: SEGS: fix this madness..
@@ -773,11 +771,11 @@ void ScriptDebuggerRemote::_poll_events() {
             _send_video_memory();
         } else if (command == "inspect_object") {
 
-            ObjectID id = cmd[1].as<ObjectID>();
+            GameEntity id = cmd[1].as<GameEntity>();
             _send_object_id(id);
         } else if (command == "set_object_property") {
 
-            _set_object_property(cmd[1].as<ObjectID>(), cmd[2].as<String>(), cmd[3]);
+            _set_object_property(cmd[1].as<GameEntity>(), cmd[2].as<String>(), cmd[3]);
 
         } else if (command == "start_profiling") {
 
@@ -789,7 +787,7 @@ void ScriptDebuggerRemote::_poll_events() {
             profiler_function_signature_map.clear();
             profiling = true;
             frame_time = 0;
-            idle_time = 0;
+            process_time = 0;
             physics_time = 0;
             physics_frame_time = 0;
 
@@ -879,7 +877,7 @@ void ScriptDebuggerRemote::_send_profiling_data(bool p_for_frame) {
 
     packet_peer_stream->put_var(Engine::get_singleton()->get_idle_frames()); //total frame time
     packet_peer_stream->put_var(frame_time); //total frame time
-    packet_peer_stream->put_var(idle_time); //idle frame time
+    packet_peer_stream->put_var(process_time); //idle frame time
     packet_peer_stream->put_var(physics_time); //fixed frame time
     packet_peer_stream->put_var(physics_frame_time); //fixed frame time
 
@@ -1013,7 +1011,7 @@ void ScriptDebuggerRemote::_send_network_bandwidth_usage() {
 
 void ScriptDebuggerRemote::send_message(const String &p_message, const Array &p_args) {
 
-    mutex->lock();
+    MutexGuard guard(mutex);
     if (!locking && tcp_client->is_connected_to_host()) {
 
         if (messages.size() >= max_messages_per_frame) {
@@ -1025,7 +1023,6 @@ void ScriptDebuggerRemote::send_message(const String &p_message, const Array &p_
             messages.push_back(msg);
         }
     }
-    mutex->unlock();
 }
 
 void ScriptDebuggerRemote::send_error(StringView p_func, StringView p_file, int p_line, StringView p_err, StringView p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) {
@@ -1071,7 +1068,7 @@ void ScriptDebuggerRemote::send_error(StringView p_func, StringView p_file, int 
         err_count++;
     }
 
-    mutex->lock();
+    MutexGuard guard(mutex);
 
     if (!locking && tcp_client->is_connected_to_host()) {
 
@@ -1090,7 +1087,6 @@ void ScriptDebuggerRemote::send_error(StringView p_func, StringView p_file, int 
         }
     }
 
-    mutex->unlock();
 }
 
 void ScriptDebuggerRemote::_print_handler(void *p_this, const String &p_string, bool p_error) {
@@ -1119,7 +1115,7 @@ void ScriptDebuggerRemote::_print_handler(void *p_this, const String &p_string, 
     sdr->char_count += allowed_chars;
     bool overflowed = sdr->char_count >= sdr->max_cps;
 
-    sdr->mutex->lock();
+    MutexGuard guard(sdr->mutex);
     if (!sdr->locking && sdr->tcp_client->is_connected_to_host()) {
 
         if (overflowed)
@@ -1137,7 +1133,6 @@ void ScriptDebuggerRemote::_print_handler(void *p_this, const String &p_string, 
             sdr->output_strings.emplace_back(eastl::move(overflow_string));
         }
     }
-    sdr->mutex->unlock();
 }
 
 void ScriptDebuggerRemote::request_quit() {
@@ -1181,10 +1176,10 @@ void ScriptDebuggerRemote::profiling_end() {
     //ignores this, uses it via connection
 }
 
-void ScriptDebuggerRemote::profiling_set_frame_times(float p_frame_time, float p_idle_time, float p_physics_time, float p_physics_frame_time) {
+void ScriptDebuggerRemote::profiling_set_frame_times(float p_frame_time, float p_process_time, float p_physics_time, float p_physics_frame_time) {
 
     frame_time = p_frame_time;
-    idle_time = p_idle_time;
+    process_time = p_process_time;
     physics_time = p_physics_time;
     physics_frame_time = p_physics_frame_time;
 }
@@ -1212,12 +1207,12 @@ ScriptDebuggerRemote::ScriptDebuggerRemote() :
         last_net_bandwidth_time(0),
         performance(Engine::get_singleton()->get_named_singleton(StringName("Performance"))),
         requested_quit(false),
-        mutex(memnew(Mutex)),
         max_messages_per_frame(GLOBAL_GET("network/limits/debugger_stdout/max_messages_per_frame").as<int>()),
         n_messages_dropped(0),
         max_errors_per_second(GLOBAL_GET("network/limits/debugger_stdout/max_errors_per_second").as<int>()),
         max_warnings_per_second(GLOBAL_GET("network/limits/debugger_stdout/max_warnings_per_second").as<int>()),
         n_errors_dropped(0),
+        n_warnings_dropped(0),
         max_cps(GLOBAL_GET("network/limits/debugger_stdout/max_chars_per_second").as<int>()),
         char_count(0),
         err_count(0),
@@ -1249,5 +1244,4 @@ ScriptDebuggerRemote::~ScriptDebuggerRemote() {
 
     remove_print_handler(&phl);
     remove_error_handler(&eh);
-    memdelete(mutex);
 }

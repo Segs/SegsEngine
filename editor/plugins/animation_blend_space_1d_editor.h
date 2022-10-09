@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ANIMATION_BLEND_SPACE_1D_EDITOR_H
-#define ANIMATION_BLEND_SPACE_1D_EDITOR_H
+#pragma once
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
@@ -110,7 +109,6 @@ class GODOT_EXPORT AnimationNodeBlendSpace1DEditor : public AnimationTreeNodeEdi
 	void _edit_point_pos(double);
 	void _open_editor();
 
-	void _goto_parent();
 
 	EditorFileDialog *open_file;
 	Ref<AnimationNode> file_loaded;
@@ -135,4 +133,3 @@ public:
 	AnimationNodeBlendSpace1DEditor();
 };
 
-#endif // ANIMATION_BLEND_SPACE_1D_EDITOR_H

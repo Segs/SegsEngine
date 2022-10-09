@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  compressed_translation.cpp                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,162 +30,12 @@
 
 #include "compressed_translation.h"
 
+#include "object_tooling.h"
 #include "core/method_bind.h"
-#include "core/pair.h"
-
-extern "C" {
-#include "thirdparty/misc/smaz.h"
-}
-
-struct _PHashTranslationCmp {
-
-    int orig_len;
-    String compressed;
-    int offset;
-};
+#include "io/compression.h"
 
 void PHashTranslation::generate(const Ref<Translation> &p_from) {
-#ifdef TOOLS_ENABLED
-    List<StringName> keys;
-    p_from->get_message_list(&keys);
-
-    size_t size = Math::larger_prime(keys.size());
-
-    Vector<Vector<Pair<int, String> > > buckets;
-    Vector<HashMap<uint32_t, int> > table;
-    Vector<uint32_t> hfunc_table;
-    Vector<_PHashTranslationCmp> compressed;
-
-    table.resize(size);
-    hfunc_table.resize(size);
-    buckets.resize(size);
-    compressed.resize(keys.size());
-
-    int idx = 0;
-    int total_compression_size = 0;
-    int total_string_size = 0;
-
-    for (const StringName &E : keys) {
-
-        //hash string
-        StringView cs(E);
-        uint32_t h = hash(0, E.asCString());
-        Pair<int, String> p;
-        p.first = idx;
-        p.second = cs;
-        buckets[h % size].push_back(p);
-
-        //compress string
-        StringView src_s(p_from->get_message(E));
-        _PHashTranslationCmp ps;
-        ps.orig_len = src_s.size();
-        ps.offset = total_compression_size;
-
-        if (ps.orig_len != 0) {
-            String dst_s;
-            dst_s.resize(src_s.size());
-            int ret = smaz_compress(src_s.data(), src_s.size(), dst_s.data(), src_s.size());
-            if (ret >= src_s.size()) {
-                //if compressed is larger than original, just use original
-                ps.orig_len = src_s.size();
-                ps.compressed = src_s;
-            } else {
-                dst_s.resize(ret);
-                //ps.orig_len=;
-                ps.compressed = dst_s;
-            }
-        } else {
-            ps.orig_len = 1;
-            ps.compressed.resize(1);
-            ps.compressed[0] = 0;
-        }
-
-        compressed[idx] = ps;
-        total_compression_size += ps.compressed.size();
-        total_string_size += src_s.size();
-        idx++;
-    }
-
-    int bucket_table_size = 0;
-
-    for (size_t i = 0; i < size; i++) {
-
-        const Vector<Pair<int, String> > &b = buckets[i];
-        HashMap<uint32_t, int> &t = table[i];
-
-        if (b.empty()) {
-            continue;
-        }
-
-        int d = 1;
-        int item = 0;
-
-        while (item < b.size()) {
-
-            uint32_t slot = hash(d, b[item].second.data());
-            if (t.contains(slot)) {
-
-                item = 0;
-                d++;
-                t.clear();
-            } else {
-                t[slot] = b[item].first;
-                item++;
-            }
-        }
-
-        hfunc_table[i] = d;
-        bucket_table_size += 2 + b.size() * 4;
-    }
-
-    ERR_FAIL_COND(bucket_table_size == 0);
-
-    hash_table.resize(size);
-    bucket_table.resize(bucket_table_size);
-
-    auto &htwb = hash_table;
-    auto &btwb = bucket_table;
-
-    uint32_t *htw = (uint32_t *)&htwb[0];
-    uint32_t *btw = (uint32_t *)&btwb[0];
-
-    int btindex = 0;
-    int collisions = 0;
-
-    for (size_t i = 0; i < size; i++) {
-
-        const HashMap<uint32_t, int> &t = table[i];
-        if (t.empty()) {
-            htw[i] = 0xFFFFFFFF; //nothing
-            continue;
-        } else if (t.size() > 1) {
-            collisions += t.size() - 1;
-        }
-
-        htw[i] = btindex;
-        btw[btindex++] = t.size();
-        btw[btindex++] = hfunc_table[i];
-
-        for (const eastl::pair<const uint32_t, int> &E : t) {
-
-            btw[btindex++] = E.first;
-            btw[btindex++] = compressed[E.second].offset;
-            btw[btindex++] = compressed[E.second].compressed.size();
-            btw[btindex++] = compressed[E.second].orig_len;
-        }
-    }
-
-    strings.resize(total_compression_size);
-    Vector<uint8_t> &cw = strings;
-
-    for (auto & i : compressed) {
-        memcpy(&cw[i.offset], i.compressed.data(), i.compressed.size());
-    }
-
-    ERR_FAIL_COND(btindex != bucket_table_size);
-    set_locale(p_from->get_locale());
-
-#endif
+    Tooling::generate_phash_translation(*this, p_from);
 }
 
 bool PHashTranslation::_set(const StringName &p_name, const Variant &p_value) {
@@ -198,34 +48,36 @@ bool PHashTranslation::_set(const StringName &p_name, const Variant &p_value) {
         strings = p_value.as<Vector<uint8_t>>();
     } else if (p_name == "load_from") {
         generate(refFromVariant<Translation>(p_value));
-    } else
+    } else {
         return false;
+    }
 
     return true;
 }
 
 bool PHashTranslation::_get(const StringName &p_name, Variant &r_ret) const {
 
-    if (p_name == "hash_table")
+    if (p_name == "hash_table") {
         r_ret = hash_table;
-    else if (p_name == "bucket_table")
+    } else if (p_name == "bucket_table") {
         r_ret = bucket_table;
-    else if (p_name == "strings")
+    } else if (p_name == "strings") {
         r_ret = strings;
-    else
+    } else {
         return false;
+    }
 
     return true;
 }
 
 StringName PHashTranslation::get_message(const StringName &p_src_text) const {
+    const size_t htsize = hash_table.size();
 
-    size_t htsize = hash_table.size();
-
-    if (htsize == 0)
+    if (htsize == 0) {
         return StringName();
+    }
 
-    uint32_t h = hash(0, p_src_text.asCString());
+    uint32_t h = phash_calculate(0, p_src_text.asCString());
 
     const uint32_t *htptr = (const uint32_t *)hash_table.data();
     const uint32_t *btptr = (const uint32_t *)bucket_table.data();
@@ -239,7 +91,7 @@ StringName PHashTranslation::get_message(const StringName &p_src_text) const {
 
     const Bucket &bucket = *(const Bucket *)&btptr[p];
 
-    h = hash(bucket.func, p_src_text.asCString());
+    h = phash_calculate(bucket.func, p_src_text.asCString());
 
     int idx = -1;
 
@@ -264,7 +116,8 @@ StringName PHashTranslation::get_message(const StringName &p_src_text) const {
     } else {
 
         rstr.resize(bucket.elem[idx].uncomp_size + 1);
-        smaz_decompress(&sptr[bucket.elem[idx].str_offset], bucket.elem[idx].comp_size, rstr.data(), bucket.elem[idx].uncomp_size);
+        Compression::decompress_short_string(&sptr[bucket.elem[idx].str_offset], bucket.elem[idx].comp_size, rstr.data(),
+                bucket.elem[idx].uncomp_size);
     }
     return StringName(rstr);
 }
@@ -274,14 +127,15 @@ void PHashTranslation::_get_property_list(Vector<PropertyInfo> *p_list) const {
     p_list->push_back(PropertyInfo(VariantType::POOL_INT_ARRAY, "hash_table"));
     p_list->push_back(PropertyInfo(VariantType::POOL_INT_ARRAY, "bucket_table"));
     p_list->push_back(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "strings"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "load_from", PropertyHint::ResourceType, "Translation", PROPERTY_USAGE_EDITOR));
+    p_list->push_back(PropertyInfo(
+            VariantType::OBJECT, "load_from", PropertyHint::ResourceType, "Translation", PROPERTY_USAGE_EDITOR));
 }
 
 IMPL_GDCLASS(PHashTranslation)
 
 void PHashTranslation::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("generate", {"from"}), &PHashTranslation::generate);
+    BIND_METHOD(PHashTranslation,generate);
 }
 
 PHashTranslation::PHashTranslation() = default;

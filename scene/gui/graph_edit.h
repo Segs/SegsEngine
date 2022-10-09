@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  graph_edit.h                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -107,6 +107,7 @@ public:
     };
 
 private:
+    Label *zoom_label;
     ToolButton *zoom_minus;
     ToolButton *zoom_reset;
     ToolButton *zoom_plus;
@@ -115,17 +116,12 @@ private:
     SpinBox *snap_amount;
     Button *minimap_button;
 
-    void _zoom_minus();
-    void _zoom_reset();
-    void _zoom_plus();
-
     HScrollBar *h_scroll;
     VScrollBar *v_scroll;
 
     float port_grab_distance_horizontal;
     float port_grab_distance_vertical;
 
-    bool connecting;
     StringName connecting_from;
     int connecting_index;
     int connecting_type;
@@ -135,31 +131,36 @@ private:
     int connecting_target_index;
 
     Vector2 drag_accum;
+    Vector2 click_pos;
     Point2 drag_origin; // Workaround for GH-5907
 
-    float zoom;
+    float zoom = 1.0f;
+    float zoom_step = 1.2;
+    float zoom_min;
+    float zoom_max;
 
     Point2 box_selecting_from;
     Point2 box_selecting_to;
     Rect2 box_selecting_rect;
-    Vector<GraphNode *> previus_selected;
-
-    bool connecting_out;
-    bool connecting_target;
-    bool just_disconnected;
-    bool dragging;
-    bool just_selected;
-    bool moving_selection;
-    bool box_selecting;
-    bool box_selection_mode_additive;
-    bool setting_scroll_ofs;
-    bool right_disconnects;
-    bool updating;
-    bool awaiting_scroll_offset_update;
+    Vector<GraphNode *> previous_selected;
     List<Connection> connections;
     Control *connections_layer;
     GraphEditFilter *top_layer;
     GraphEditMinimap *minimap;
+    bool connecting=false;
+    bool connecting_out=false;
+    bool connecting_target=false;
+    bool just_disconnected=false;
+    bool connecting_valid = false;
+    bool dragging = false;
+    bool just_selected = false;
+    bool moving_selection = false;
+    bool box_selecting = false;
+    bool box_selection_mode_additive = false;
+    bool setting_scroll_ofs = false;
+    bool right_disconnects = false;
+    bool updating = false;
+    bool awaiting_scroll_offset_update = false;
     bool lines_on_bg;
 
     struct ConnType {
@@ -199,6 +200,7 @@ public:
 
     void _graph_node_raised(Node *p_gn);
     void _graph_node_moved(Node *p_gn);
+    void _graph_node_slot_updated(int p_index, Node *p_gn);
 
     void _update_scroll();
     void _scroll_moved(double);
@@ -206,7 +208,7 @@ public:
 
     void _top_layer_input(const Ref<InputEvent> &p_ev);
 
-    bool is_in_hot_zone(const Vector2 &pos, const Vector2 &p_mouse_pos);
+    bool is_in_hot_zone(const Vector2 &pos, const Vector2 &p_mouse_pos, const Vector2i &p_port_size, bool p_left);
 
     void _top_layer_draw();
     void _connections_layer_draw();
@@ -226,6 +228,10 @@ private:
     void _minimap_toggled();
     bool _check_clickable_control(Control *p_control, const Vector2 &pos);
 
+    void _zoom_minus();
+    void _zoom_reset();
+    void _zoom_plus();
+    void _update_zoom_label();
 protected:
     static void _bind_methods();
     void add_child_notify(Node *p_child) override;
@@ -248,6 +254,17 @@ public:
     void set_zoom(float p_zoom);
     void set_zoom_custom(float p_zoom, const Vector2 &p_center);
     float get_zoom() const;
+    void set_zoom_min(float p_zoom_min);
+    float get_zoom_min() const;
+
+    void set_zoom_max(float p_zoom_max);
+    float get_zoom_max() const;
+
+    void set_zoom_step(float p_zoom_step);
+    float get_zoom_step() const;
+
+    void set_show_zoom_label(bool p_enable);
+    bool is_showing_zoom_label() const;
 
     void set_minimap_size(Vector2 p_size);
     Vector2 get_minimap_size() const;

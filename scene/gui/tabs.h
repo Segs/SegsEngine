@@ -79,7 +79,6 @@ private:
     Vector<Tab> tabs;
     int current;
     int previous;
-    int _get_top_margin() const;
     TabAlign tab_align;
     int rb_hover;
     bool rb_pressing;
@@ -112,6 +111,7 @@ protected:
     Variant get_drag_data(const Point2 &p_point) override;
     bool can_drop_data(const Point2 &p_point, const Variant &p_data) const override;
     void drop_data(const Point2 &p_point, const Variant &p_data) override;
+public: // exposed to scripting
     int get_tab_idx_at_point(const Point2 &p_point) const;
 
 public:

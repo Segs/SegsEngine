@@ -42,6 +42,7 @@ class AcceptDialog;
 class OptionButton;
 class Button;
 class HSplitContainer;
+class HBoxContainer;
 
 class VersionControlEditorPlugin : public EditorPlugin {
 
@@ -118,6 +119,7 @@ private:
     void _update_stage_status();
     void _update_commit_status();
     void _update_commit_button();
+    void _commit_message_gui_input(const Ref<InputEvent> &p_event);
 
     friend class EditorVCSInterface;
 

@@ -194,8 +194,8 @@ private:
     void _save_to_recent();
     //callback function is callback(String p_path,Ref<Texture> preview,Variant udata) preview null if could not load
 
-    void _thumbnail_result(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
-    void _thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
+    void _thumbnail_result(StringView p_path, const Ref<Texture> &p_preview);
+    void _thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview);
     void _request_single_thumbnail(StringView p_path);
 
     void _unhandled_input(const Ref<InputEvent> &p_event);

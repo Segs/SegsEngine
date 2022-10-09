@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  pck_packer.h                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -48,7 +48,7 @@ class GODOT_EXPORT PCKPacker : public RefCounted {
 
         String path;
         String src_path;
-        int size;
+        uint64_t size;
         uint64_t offset_offset;
     };
     Vector<File> files;

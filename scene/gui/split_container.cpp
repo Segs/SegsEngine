@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  split_container.cpp                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -49,9 +49,7 @@ Control *SplitContainer::_getch(int p_idx) const {
 
     for (int i = 0; i < get_child_count(); i++) {
         Control *c = object_cast<Control>(get_child(i));
-        if (!c || !c->is_visible_in_tree())
-            continue;
-        if (c->is_set_as_top_level())
+        if (!c || !c->is_visible() || c->is_set_as_top_level())
             continue;
 
         if (idx == p_idx)
@@ -106,7 +104,7 @@ void SplitContainer::_resort() {
     // Compute the final middle separation
     middle_sep = no_offset_middle_sep;
     if (!collapsed) {
-        int clamped_split_offset = CLAMP(split_offset, ms_first[axis] - no_offset_middle_sep, (get_size()[axis] - ms_second[axis] - sep) - no_offset_middle_sep);
+        int clamped_split_offset = CLAMP<float>(split_offset, ms_first[axis] - no_offset_middle_sep, (get_size()[axis] - ms_second[axis] - sep) - no_offset_middle_sep);
         middle_sep += clamped_split_offset;
         if (should_clamp_split_offset) {
             split_offset = clamped_split_offset;
@@ -185,11 +183,13 @@ void SplitContainer::_notification(int p_what) {
             if (!_getch(0) || !_getch(1))
                 return;
 
-            if (collapsed || (!dragging && !mouse_inside && get_theme_constant("autohide")))
+            if (collapsed || (!dragging && !mouse_inside && get_theme_constant("autohide"))) {
                 return;
+            }
 
-            if (dragger_visibility != DRAGGER_VISIBLE)
+            if (dragger_visibility != DRAGGER_VISIBLE) {
                 return;
+            }
 
             int sep = dragger_visibility != DRAGGER_HIDDEN_COLLAPSED ? get_theme_constant("separation") : 0;
             Ref<Texture> tex = get_theme_icon("grabber");
@@ -214,35 +214,32 @@ void SplitContainer::_gui_input(const Ref<InputEvent> &p_event) {
 
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb) {
+    if (mb && (mb->get_button_index() == BUTTON_LEFT)) {
 
-        if (mb->get_button_index() == BUTTON_LEFT) {
+        if (mb->is_pressed()) {
 
-            if (mb->is_pressed()) {
+            int sep = get_theme_constant("separation");
 
-                int sep = get_theme_constant("separation");
+            if (vertical) {
 
-                if (vertical) {
+                if (mb->get_position().y > middle_sep && mb->get_position().y < middle_sep + sep) {
 
-                    if (mb->get_position().y > middle_sep && mb->get_position().y < middle_sep + sep) {
-
-                        dragging = true;
-                        drag_from = mb->get_position().y;
-                        drag_ofs = split_offset;
-                    }
-                } else {
-
-                    if (mb->get_position().x > middle_sep && mb->get_position().x < middle_sep + sep) {
-
-                        dragging = true;
-                        drag_from = mb->get_position().x;
-                        drag_ofs = split_offset;
-                    }
+                    dragging = true;
+                    drag_from = mb->get_position().y;
+                    drag_ofs = split_offset;
                 }
             } else {
 
-                dragging = false;
+                if (mb->get_position().x > middle_sep && mb->get_position().x < middle_sep + sep) {
+
+                    dragging = true;
+                    drag_from = mb->get_position().x;
+                    drag_ofs = split_offset;
+                }
             }
+        } else {
+
+            dragging = false;
         }
     }
 
@@ -284,12 +281,14 @@ Control::CursorShape SplitContainer::get_cursor_shape(const Point2 &p_pos) const
 
         if (vertical) {
 
-            if (p_pos.y > middle_sep && p_pos.y < middle_sep + sep)
+            if (p_pos.y > middle_sep && p_pos.y < middle_sep + sep) {
                 return CURSOR_VSPLIT;
+            }
         } else {
 
-            if (p_pos.x > middle_sep && p_pos.x < middle_sep + sep)
+            if (p_pos.x > middle_sep && p_pos.x < middle_sep + sep) {
                 return CURSOR_HSPLIT;
+            }
         }
     }
 
@@ -298,8 +297,9 @@ Control::CursorShape SplitContainer::get_cursor_shape(const Point2 &p_pos) const
 
 void SplitContainer::set_split_offset(int p_offset) {
 
-    if (split_offset == p_offset)
+    if (split_offset == p_offset) {
         return;
+    }
 
     split_offset = p_offset;
 
@@ -319,8 +319,9 @@ void SplitContainer::clamp_split_offset() {
 
 void SplitContainer::set_collapsed(bool p_collapsed) {
 
-    if (collapsed == p_collapsed)
+    if (collapsed == p_collapsed) {
         return;
+    }
 
     collapsed = p_collapsed;
     queue_sort();
@@ -345,17 +346,17 @@ bool SplitContainer::is_collapsed() const {
 
 void SplitContainer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_gui_input"), &SplitContainer::_gui_input);
+    BIND_METHOD(SplitContainer,_gui_input);
 
-    MethodBinder::bind_method(D_METHOD("set_split_offset", {"offset"}), &SplitContainer::set_split_offset);
-    MethodBinder::bind_method(D_METHOD("get_split_offset"), &SplitContainer::get_split_offset);
-    MethodBinder::bind_method(D_METHOD("clamp_split_offset"), &SplitContainer::clamp_split_offset);
+    BIND_METHOD(SplitContainer,set_split_offset);
+    BIND_METHOD(SplitContainer,get_split_offset);
+    BIND_METHOD(SplitContainer,clamp_split_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_collapsed", {"collapsed"}), &SplitContainer::set_collapsed);
-    MethodBinder::bind_method(D_METHOD("is_collapsed"), &SplitContainer::is_collapsed);
+    BIND_METHOD(SplitContainer,set_collapsed);
+    BIND_METHOD(SplitContainer,is_collapsed);
 
-    MethodBinder::bind_method(D_METHOD("set_dragger_visibility", {"mode"}), &SplitContainer::set_dragger_visibility);
-    MethodBinder::bind_method(D_METHOD("get_dragger_visibility"), &SplitContainer::get_dragger_visibility);
+    BIND_METHOD(SplitContainer,set_dragger_visibility);
+    BIND_METHOD(SplitContainer,get_dragger_visibility);
 
     ADD_SIGNAL(MethodInfo("dragged", PropertyInfo(VariantType::INT, "offset")));
 

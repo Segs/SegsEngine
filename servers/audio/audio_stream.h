@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_stream.h                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,7 +36,7 @@
 #include "servers/audio_server.h"
 #include "core/hash_set.h"
 
-class AudioStreamPlayback : public RefCounted {
+class GODOT_EXPORT AudioStreamPlayback : public RefCounted {
 
     GDCLASS(AudioStreamPlayback,RefCounted)
 

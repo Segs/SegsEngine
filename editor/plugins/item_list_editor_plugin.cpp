@@ -30,15 +30,18 @@
 
 #include "item_list_editor_plugin.h"
 
-#include "core/io/resource_loader.h"
 #include "core/callable_method_pointer.h"
+#include "core/io/resource_loader.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
-#include "core/translation_helpers.h"
 #include "core/string_formatter.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_scale.h"
-#include "scene/main/scene_tree.h"
+#include "editor/editor_settings.h"
+#include "scene/gui/dialogs.h"
 #include "scene/gui/item_list.h"
+#include "scene/gui/tool_button.h"
+#include "scene/main/scene_tree.h"
 
 using namespace eastl;
 
@@ -241,7 +244,7 @@ int ItemListItemListPlugin::get_flags() const {
 
 void ItemListItemListPlugin::set_item_text(int p_idx, const StringName &p_text) { pp->set_item_text(p_idx, p_text); }
 
-StringName ItemListItemListPlugin::get_item_text(int p_idx) const { return pp->get_item_text(p_idx); }
+const String &ItemListItemListPlugin::get_item_text(int p_idx) const { return pp->get_item_text(p_idx); }
 
 void ItemListItemListPlugin::set_item_icon(int p_idx, const Ref<Texture> &p_tex) { pp->set_item_icon(p_idx, p_tex); }
 
@@ -286,14 +289,20 @@ void ItemListEditor::_node_removed(Node *p_node) {
 }
 
 void ItemListEditor::_notification(int p_notification) {
+    switch (p_notification) {
+        case NOTIFICATION_ENTER_TREE:
+        case NOTIFICATION_THEME_CHANGED: {
+            add_button->set_button_icon(get_theme_icon("Add", "EditorIcons"));
+            del_button->set_button_icon(get_theme_icon("Remove", "EditorIcons"));
+        } break;
 
-    if (p_notification == NOTIFICATION_ENTER_TREE || p_notification == NOTIFICATION_THEME_CHANGED) {
+        case NOTIFICATION_READY: {
+            get_tree()->connect("node_removed", callable_mp(this, &ClassName::_node_removed));
+        } break;
 
-        add_button->set_button_icon(get_theme_icon("Add", "EditorIcons"));
-        del_button->set_button_icon(get_theme_icon("Remove", "EditorIcons"));
-    } else if (p_notification == NOTIFICATION_READY) {
-
-        get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
+        case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
+            property_editor->set_property_name_style(EditorPropertyNameProcessor::get_settings_style());
+        } break;
     }
 }
 
@@ -370,10 +379,7 @@ bool ItemListEditor::handles(Object *p_object) const {
 void ItemListEditor::_bind_methods() {
 }
 
-ItemListEditor::ItemListEditor() {
-
-    selected_idx = -1;
-    item_list = nullptr;
+ItemListEditor::ItemListEditor() : item_list(nullptr), selected_idx(-1) {
 
     toolbar_button = memnew(ToolButton);
     toolbar_button->set_text(TTR("Items"));
@@ -407,6 +413,7 @@ ItemListEditor::ItemListEditor() {
     property_editor = memnew(EditorInspector);
     vbc->add_child(property_editor);
     property_editor->set_v_size_flags(SIZE_EXPAND_FILL);
+    property_editor->set_property_name_style(EditorPropertyNameProcessor::get_settings_style());
 }
 
 ItemListEditor::~ItemListEditor() {

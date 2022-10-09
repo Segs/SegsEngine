@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  dir_access.h                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -50,12 +50,13 @@ private:
     AccessType _access_type = ACCESS_FILESYSTEM;
     static CreateFunc create_func[ACCESS_MAX]; ///< set this to instance a filesystem object
 
-    Error _copy_dir(DirAccess *p_target_da, StringView p_to, int p_chmod_flags);
+    Error _copy_dir(DirAccess *p_target_da, StringView p_to, int p_chmod_flags, bool p_copy_links);
 
 protected:
     String _get_root_path() const;
-    String _get_root_string() const;
+    virtual String _get_root_string() const;
 
+    AccessType get_access_type() const { return _access_type; }
     String fix_path(StringView p_path) const;
     bool next_is_dir;
 
@@ -88,12 +89,15 @@ public:
     virtual bool file_exists(StringView p_file) = 0;
     virtual bool dir_exists(StringView p_dir) = 0;
     static bool exists(StringView  p_dir);
-    virtual size_t get_space_left() = 0;
+    virtual uint64_t get_space_left() = 0;
 
-    Error copy_dir(StringView p_from, StringView p_to, int p_chmod_flags = -1);
+    Error copy_dir(StringView p_from, StringView p_to, int p_chmod_flags = -1, bool p_copy_links = false);
     virtual Error copy(StringView p_from, StringView p_to, int p_chmod_flags = -1);
     virtual Error rename(StringView p_from, StringView p_to) = 0;
     virtual Error remove(StringView p_name) = 0;
+    virtual bool is_link(StringView p_file) = 0;
+    virtual String read_link(StringView p_file) = 0;
+    virtual Error create_link(StringView p_source, StringView p_target) = 0;
 
     // Meant for editor code when we want to quickly remove a file without custom
     // handling (e.g. removing a cache file).
@@ -116,6 +120,9 @@ public:
 
     DirAccess() = default;
     virtual ~DirAccess() = default;
+    // non-copyable
+    DirAccess(const DirAccess &) = delete;
+    DirAccess &operator=(const DirAccess &) = delete;
 };
 
 struct DirAccessRef {
@@ -131,4 +138,7 @@ struct DirAccessRef {
     ~DirAccessRef() {
         memdelete(f);
     }
+    // non-copyable
+    DirAccessRef(const DirAccessRef &) = delete;
+    DirAccessRef &operator=(const DirAccessRef &) = delete;
 };

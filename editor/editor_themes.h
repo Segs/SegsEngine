@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_themes.h                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,3 +35,5 @@
 Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme = Ref<Theme>());
 
 Ref<Theme> create_custom_theme(const Ref<Theme>& p_theme = Ref<Theme>());
+
+Ref<ImageTexture> create_unscaled_default_project_icon();

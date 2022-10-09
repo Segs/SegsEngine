@@ -108,7 +108,7 @@ void rcFilterLedgeSpans(rcContext* ctx, const int walkableHeight, const int walk
 				int minh = MAX_HEIGHT;
 
 				// Min and max height of accessible neighbours.
-                int asmin = s->smin;
+                int asmin = s->smin; //SEGS: changed from s->smin
 				int asmax = s->smax;
 
 				for (int dir = 0; dir < 4; ++dir)

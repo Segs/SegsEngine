@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  os.cpp                                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,7 +30,8 @@
 
 #include "os.h"
 
-//#include "core/image.h"
+#include "core/ecs_registry.h"
+#include "core/external_profiler.h"
 #include "core/method_enum_caster.h"
 #include "core/object_db.h"
 #include "core/os/dir_access.h"
@@ -41,13 +42,14 @@
 #include "core/print_string.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
-#include "core/type_info.h"
 #include "core/string_utils.inl"
-#include "servers/audio_server.h"
+#include "core/type_info.h"
 #include "core/version_generated.gen.h"
+#include "servers/audio_server.h"
 
 #include "EASTL/fixed_hash_set.h"
 #include "EASTL/string_view.h"
+#include "entt/entity/registry.hpp"
 #include <QtCore/QStandardPaths>
 #include <QtCore/QDir>
 
@@ -69,7 +71,7 @@ OS *OS::get_singleton() {
     return singleton;
 }
 
-uint32_t OS::get_ticks_msec() const {
+uint64_t OS::get_ticks_msec() const {
     return get_ticks_usec() / 1000;
 }
 
@@ -104,6 +106,9 @@ uint64_t OS::get_system_time_secs() const {
 }
 uint64_t OS::get_system_time_msecs() const {
     return 0;
+}
+double OS::get_subsecond_unix_time() const {
+    return 0.0;
 }
 void OS::debug_break(){
 
@@ -155,6 +160,10 @@ bool OS::is_in_low_processor_usage_mode() const {
     return low_processor_usage_mode;
 }
 
+void OS::set_update_vital_only(bool p_enabled) {
+    _update_vital_only = p_enabled;
+}
+
 void OS::set_low_processor_usage_mode_sleep_usec(int p_usec) {
 
     low_processor_usage_mode_sleep_usec = p_usec;
@@ -174,6 +183,17 @@ String OS::get_clipboard() const {
     return _local_clipboard;
 }
 
+bool OS::has_clipboard() const {
+    return !get_clipboard().empty();
+}
+
+void OS::set_clipboard_primary(const String &p_text) {
+    _primary_clipboard = p_text;
+}
+
+String OS::get_clipboard_primary() const {
+    return _primary_clipboard;
+}
 String OS::get_executable_path() const {
 
     return _execpath;
@@ -184,10 +204,10 @@ String OS::working_directory() const {
 }
 
 Error OS::execute_utf8(StringView p_path, const Vector<String> &p_arguments, bool p_blocking,
-        OS::ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
+        OS::ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex, bool p_open_console) {
     //TODO: SEGS: use QProcess ?
 
-    return execute(p_path, p_arguments,p_blocking,r_child_id,r_pipe,r_exitcode,read_stderr,p_pipe_mutex);
+    return execute(p_path, p_arguments,p_blocking,r_child_id,r_pipe,r_exitcode,read_stderr,p_pipe_mutex,p_open_console);
 }
 
 int OS::get_process_id() const {
@@ -216,35 +236,14 @@ void OS::dump_memory_to_file(const char *p_file) {
 
 static FileAccess *_OSPRF = nullptr;
 
-static void _OS_printres(Object *p_obj) {
-
-    Resource *res = object_cast<Resource>(p_obj);
-    if (!res)
-        return;
-
-    String str = FormatVE("%zu%s:%s - %s",(uint64_t)res->get_instance_id(),res->get_class(),res->get_name().c_str(),res->get_path().c_str());
-    if (_OSPRF)
+static void _OS_printres(Resource *res) {
+    String str = FormatVE("%zu%s:%s - %s", (uint64_t)entt::to_integral(res->get_instance_id()), res->get_class(), res->get_name().c_str(),
+            res->get_path().c_str());
+    if (_OSPRF) {
         _OSPRF->store_line(str);
-    else
+    } else {
         print_line(str);
-}
-
-bool OS::has_virtual_keyboard() const {
-
-    return false;
-}
-
-void OS::show_virtual_keyboard(const String &p_existing_text, const Rect2 &p_screen_rect, int p_max_input_length) {
-}
-
-void OS::hide_virtual_keyboard() {
-}
-
-int OS::get_virtual_keyboard_height() const {
-    return 0;
-}
-
-void OS::set_cursor_shape(CursorShape p_shape) {
+    }
 }
 
 OS::CursorShape OS::get_cursor_shape() const {
@@ -267,7 +266,17 @@ void OS::print_all_resources(StringView p_to_file) {
         }
     }
 
-    ObjectDB::debug_objects(_OS_printres);
+    {
+        game_object_registry.lock_registry();
+        game_object_registry.registry.each([](const GameEntity ent) {
+            ObjectLink *link = game_object_registry.registry.try_get<ObjectLink>(ent);
+            Resource *obj = link ? object_cast<Resource>(link->object) : nullptr;
+            if (obj) {
+                _OS_printres(obj);
+            }
+        });
+        game_object_registry.unlock_registry();
+    }
 
     if (!p_to_file.empty()) {
 
@@ -304,6 +313,11 @@ int OS::get_exit_code() const {
 void OS::set_exit_code(int p_code) {
 
     _exit_code = p_code;
+    _is_custom_exit_code = true;
+}
+
+bool OS::is_custom_exit_code() {
+    return _is_custom_exit_code;
 }
 
 const char *OS::get_locale() const {
@@ -311,6 +325,15 @@ const char *OS::get_locale() const {
     return "en";
 }
 
+// Non-virtual helper to extract the 2 or 3-letter language code from
+// `get_locale()` in a way that's consistent for all platforms.
+String OS::get_locale_language() const {
+    return String(StringUtils::left(StringView(get_locale()),3)).replaced("_", "");
+}
+// Embedded PCK offset.
+uint64_t OS::get_embedded_pck_offset() const {
+    return 0;
+}
 // Helper function to ensure that a dir name/path will be valid on the OS
 String OS::get_safe_dir_name(StringView p_dir_name, bool p_allow_dir_separator) const {
 
@@ -340,7 +363,7 @@ String OS::get_godot_dir_name() const {
 
 // OS equivalent of XDG_DATA_HOME
 String OS::get_data_path() const {
-    return qPrintable(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).front());
+    return qPrintable(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).constFirst());
 }
 
 // OS equivalent of XDG_CONFIG_HOME
@@ -349,13 +372,18 @@ String OS::get_config_path() const {
 #ifdef Q_OS_WIN
     return get_data_path();
 #else
-    return qPrintable(QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).front());
+    return qPrintable(QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).constFirst());
 #endif
 }
 
 // OS equivalent of XDG_CACHE_HOME
 String OS::get_cache_path() const {
-    return qPrintable(QStandardPaths::standardLocations(QStandardPaths::CacheLocation).front());
+    return qPrintable(QStandardPaths::standardLocations(QStandardPaths::CacheLocation).constFirst());
+}
+
+// Path to macOS .app bundle embedded icon
+String OS::get_bundle_icon_path() const {
+    return String();
 }
 
 // OS specific path for user://
@@ -384,6 +412,11 @@ String OS::get_system_dir(SystemDir p_dir) {
         default: ;
     }
     return StringUtils::to_utf8(QStandardPaths::standardLocations(translated).front());
+}
+
+Error OS::move_to_trash(StringView p_path) {
+    bool result = QFile::moveToTrash(StringUtils::from_utf8(p_path));
+    return result ? OK : FAILED;
 }
 
 Error OS::shell_open(StringView p_uri) {
@@ -603,6 +636,13 @@ bool OS::is_vsync_via_compositor_enabled() const {
     return _vsync_via_compositor;
 }
 
+void OS::set_delta_smoothing(bool p_enabled) {
+    _delta_smoothing_enabled = p_enabled;
+}
+
+bool OS::is_delta_smoothing_enabled() const {
+    return _delta_smoothing_enabled;
+}
 void OS::set_has_server_feature_callback(HasServerFeatureCallback p_callback) {
 
     has_server_feature_callback = p_callback;
@@ -664,7 +704,9 @@ void OS::unregister_feature(const char *name)
 
 void OS::center_window() {
 
-    if (is_window_fullscreen()) return;
+    if (is_window_fullscreen()) {
+        return;
+    }
 
     Point2 sp = get_screen_position(get_current_screen());
     Size2 scr = get_screen_size(get_current_screen());
@@ -774,24 +816,20 @@ void OS::add_frame_delay(bool p_can_draw) {
 }
 
 OS::OS() {
-    void *volatile stack_bottom;
 
     restart_on_exit = false;
     singleton = this;
     _keep_screen_on = true; // set default value to true, because this had been true before godot 2.0.
     low_processor_usage_mode = false;
     low_processor_usage_mode_sleep_usec = 10000;
-    _verbose_stdout = false;
-    _debug_stdout = false;
-    _no_window = false;
     _exit_code = 0;
     _orientation = SCREEN_LANDSCAPE;
+    _delta_smoothing_enabled = false;
 
     _render_thread_mode = RENDER_THREAD_SAFE;
 
     _allow_hidpi = false;
     _allow_layered = false;
-    _stack_bottom = (void *)(&stack_bottom);
 
     _logger = nullptr;
 

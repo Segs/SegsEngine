@@ -34,7 +34,6 @@
 #include "core/reference.h"                  // for Ref
 #include "servers/rendering/rasterizer.h"  // for Rasterizer, RasterizerCanvas ...
 class Image;
-class RID;
 class RasterizerCanvasGLES3;
 class RasterizerSceneGLES3;
 class RasterizerStorageGLES3;
@@ -50,7 +49,8 @@ class RasterizerGLES3 : public Rasterizer {
     RasterizerCanvasGLES3 *canvas;
     RasterizerSceneGLES3 *scene;
 
-    double time_total;
+    double time_total = 0;
+    float time_scale=1.0f;
 
 public:
     RasterizerStorage *get_storage() override;
@@ -58,14 +58,15 @@ public:
     RasterizerScene *get_scene() override;
 
     void set_boot_image(const Ref<Image> &p_image, const Color &p_color, bool p_scale, bool p_use_filter = true) override;
+	void set_shader_time_scale(float p_scale) override;
 
     void initialize() override;
     void begin_frame(double frame_step) override;
-    void set_current_render_target(RID p_render_target) override;
+    void set_current_render_target(RenderingEntity p_render_target) override;
     void restore_render_target(bool p_3d_was_drawn) override;
     void clear_render_target(const Color &p_color) override;
-    void blit_render_target_to_screen(RID p_render_target, const Rect2 &p_screen_rect, int p_screen = 0) override;
-    void output_lens_distorted_to_screen(RID p_render_target, const Rect2 &p_screen_rect, float p_k1, float p_k2, const Vector2 &p_eye_center, float p_oversample) override;
+    void blit_render_target_to_screen(RenderingEntity p_render_target, const Rect2 &p_screen_rect, int p_screen = 0) override;
+    void output_lens_distorted_to_screen(RenderingEntity p_render_target, const Rect2 &p_screen_rect, float p_k1, float p_k2, const Vector2 &p_eye_center, float p_oversample) override;
     void end_frame(bool p_swap_buffers) override;
     void finalize() override;
 
@@ -73,9 +74,10 @@ public:
     static void make_current();
     static void register_config();
 
-//  bool is_low_end() const override { return false; }
+    static bool gl_check_errors();
 
-    const char *gl_check_for_error(bool p_print_error = true) override;
+    RasterizerGLES3(const RasterizerGLES3 &) = delete;
+    RasterizerGLES3 &operator=(const RasterizerGLES3 &) = delete;
 
     RasterizerGLES3();
     ~RasterizerGLES3() override;

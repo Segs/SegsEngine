@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+﻿///////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Electronic Arts Inc. All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +30,7 @@
 //      trick of using: basic_string<char>(x).swap(x);
 //    - basic_string has a force_size() function, which unilaterally moves the string
 //      end position (mpEnd) to the given location. Useful for when the user writes
-//      into the string via some extenal means such as C strcpy or sprintf.
+//      into the string via some external means such as C strcpy or sprintf.
 //    - basic_string substr() deviates from the standard and returns a string with
 //		a copy of this->get_allocator()
 ///////////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@
 //    - A reference count needs to exist with the string, which increases string memory usage.
 //    - With thread safety, atomic operations and mutex locks are expensive, especially
 //      on weaker memory systems such as console gaming platforms.
-//    - All non-const string accessor functions need to do a sharing check the the
+//    - All non-const string accessor functions need to do a sharing check then the
 //      first such check needs to detach the string. Similarly, all string assignments
 //      need to do a sharing check as well. If you access the string before doing an
 //      assignment, the assignment doesn't result in a shared string, because the string
@@ -116,14 +116,12 @@ EA_RESTORE_GCC_WARNING()
 EA_RESTORE_ALL_VC_WARNINGS()
 
 
-#ifdef _MSC_VER
-    #pragma warning(push)
-    #pragma warning(disable: 4530)  // C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
-    #pragma warning(disable: 4267)  // 'argument' : conversion from 'size_t' to 'const uint32_t', possible loss of data. This is a bogus warning resulting from a bug in VC++.
-    #pragma warning(disable: 4480)  // nonstandard extension used: specifying underlying type for enum
-    #pragma warning(disable: 4571)  // catch(...) semantics changed since Visual C++ 7.1; structured exceptions (SEH) are no longer caught.
-    #pragma warning(disable: 4702)  // unreachable code
-#endif
+// 4530 - C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+// 4480 - nonstandard extension used: specifying underlying type for enum
+// 4571 - catch(...) semantics changed since Visual C++ 7.1; structured exceptions (SEH) are no longer caught.
+// 4267 - 'argument' : conversion from 'size_t' to 'const uint32_t', possible loss of data. This is a bogus warning resulting from a bug in VC++.
+// 4702 - unreachable code
+EA_DISABLE_VC_WARNING(4530 4480 4571 4267 4702);
 
 #include <EASTL/internal/char_traits.h>
 #include <EASTL/string_view.h>
@@ -294,7 +292,7 @@ namespace eastl
         typedef ptrdiff_t                                       difference_type;
         typedef Allocator                                       allocator_type;
 
-    static const size_type npos     = (size_type)-1;      /// 'npos' means non-valid position or simply non-position.
+	static const EA_CONSTEXPR size_type npos     = (size_type)-1;      /// 'npos' means non-valid position or simply non-position.
 
     public:
         // CtorDoNotInitialize exists so that we can create a constructor that allocates but doesn't
@@ -303,7 +301,12 @@ namespace eastl
 
         // CtorSprintf exists so that we can create a constructor that accepts printf-style
         // arguments but also doesn't collide with any other constructor declaration.
-        struct CtorSprintf{};
+		#ifdef EA_PLATFORM_MINGW
+			// Workaround for MinGW compiler bug: variadic arguments are corrupted if empty object is passed before it
+			struct CtorSprintf{ int dummy; };
+		#else
+            struct CtorSprintf{};
+		#endif
 
         // CtorConvert exists so that we can have a constructor that implements string encoding
         // conversion, such as between UCS2 char16_t and UTF8 char8_t.
@@ -2138,7 +2141,9 @@ namespace eastl
         }
 
         if(nReturnValue >= 0)
+		{
             internalLayout().SetSize(nInitialSize + nReturnValue);
+		}
 
         #if EASTL_VA_COPY_ENABLED
             // va_end for arguments will be called by the caller.
@@ -4077,6 +4082,11 @@ namespace eastl
         return ((a.size() == b.size()) && (memcmp(a.data(), b.data(), (size_t)a.size() * sizeof(typename basic_string<T, Allocator>::value_type)) == 0));
     }
     template <typename T, typename Allocator>
+    inline bool operator!=(const basic_string<T, Allocator>& a, typename basic_string<T, Allocator>::view_type b)
+    {
+        return !(a == b);
+    }
+    template <typename T, typename Allocator>
     inline bool operator<(const basic_string<T, Allocator>& a, typename basic_string<T, Allocator>::view_type b)
     {
         return basic_string<T, Allocator>::compare(a.begin(), a.end(), b.begin(), b.end()) < 0;
@@ -4232,7 +4242,9 @@ namespace eastl
 //    typedef basic_string<char32_t> string32;
 
     /// ISO mandated string types
-//    typedef basic_string<char8_t>  u8string;    // Actually not a C++11 type, but added for consistency.
+#if EA_CHAR8_UNIQUE
+    typedef basic_string<char8_t>  u8string;    // Actually not a C++11 type, but added for consistency.
+#endif
 //    typedef basic_string<char16_t> u16string;
 //    typedef basic_string<char32_t> u32string;
 
@@ -4253,9 +4265,9 @@ namespace eastl
         size_t operator()(const string& x) const
         {
             const unsigned char* p = (const unsigned char*)x.c_str(); // To consider: limit p to at most 256 chars.
-            unsigned int c, result = 2166136261U; // We implement an FNV-like string hash.
-            while((c = *p++) != 0) // Using '!=' disables compiler warnings.
-                result = (result * 16777619) ^ c;
+            uint32_t c, result = 2166136261U;   // FNV1a hash. Perhaps the best string hash. Intentionally uint32_t instead of size_t, so the behavior is the same regardless of size.
+            while((c = *p++) != 0)     // Using '!=' disables compiler warnings.
+                result = (result ^ c) * 16777619;
             return (size_t)result;
         }
     };
@@ -4407,7 +4419,5 @@ namespace eastl
 } // namespace eastl
 
 
-#ifdef _MSC_VER
-    #pragma warning(pop)
-#endif
+EA_RESTORE_VC_WARNING();
 

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  rendering_server_raster.cpp                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,6 +30,7 @@
 
 #include "rendering_server_raster.h"
 
+#include "renderer_instance_component.h"
 #include "core/external_profiler.h"
 #include "core/os/os.h"
 #include "core/ecs_registry.h"
@@ -40,7 +41,7 @@
 
 // careful, these may run in different threads than the visual server
 
-int RenderingServerRaster::changes = 0;
+int RenderingServerRaster::changes[2] = {0};
 
 /* BLACK BARS */
 
@@ -52,7 +53,7 @@ void RenderingServerRaster::black_bars_set_margins(int p_left, int p_top, int p_
     black_margin[(int8_t)Margin::Bottom] = p_bottom;
 }
 
-void RenderingServerRaster::black_bars_set_images(RID p_left, RID p_top, RID p_right, RID p_bottom) {
+void RenderingServerRaster::black_bars_set_images(RenderingEntity p_left, RenderingEntity p_top, RenderingEntity p_right, RenderingEntity p_bottom) {
 
     black_image[(int8_t)Margin::Left] = p_left;
     black_image[(int8_t)Margin::Top] = p_top;
@@ -65,20 +66,28 @@ void RenderingServerRaster::_draw_margins() {
     VSG::canvas_render->draw_window_margins(black_margin, black_image);
 }
 
+void RenderingServerRaster::set_ent_debug_name(RenderingEntity p1, StringView p2) const
+{
+    if(p1==entt::null) {
+        return;
+    }
+    if(p2.empty()) {
+        VSG::ecs->registry.remove<RenderingEntityName>(p1);
+    } else {
+        strncpy(VSG::ecs->registry.emplace<RenderingEntityName>(p1).name,p2.data(),std::min<int>(63,p2.size()));
+    }
+}
+
 /* FREE */
 
-void RenderingServerRaster::free_rid(RID p_rid) {
-
-    if (VSG::storage->free(p_rid))
-        return;
-    if (VSG::canvas->free(p_rid))
-        return;
-    if (VSG::viewport->free(p_rid))
-        return;
-    if (VSG::scene->free(p_rid))
-        return;
-    if (VSG::scene_render->free(p_rid))
-        return;
+void RenderingServerRaster::free_rid(RenderingEntity p_rid) {
+    if(p_rid!=entt::null) {
+        bool needs_update  = VSG::ecs->registry.any_of<RenderingScenarioComponent,RenderingInstanceComponent>(p_rid);
+        VSG::storage->free(p_rid);
+        if(needs_update) {
+            //update_dirty_instances(); //in case something changed this
+        }
+    }
 }
 
 /* EVENT QUEUING */
@@ -92,11 +101,14 @@ void RenderingServerRaster::request_frame_drawn_callback(Callable&& cb) {
 
 void RenderingServerRaster::draw(bool p_swap_buffers, double frame_step) {
     SCOPE_AUTONAMED;
+    VSG::bvh_nodes_created = 0;
+    VSG::bvh_nodes_destroyed = 0;
 
     //needs to be done before changes is reset to 0, to not force the editor to redraw
     RenderingServer::get_singleton()->emit_signal("frame_pre_draw");
 
-    changes = 0;
+    changes[0] = 0;
+    changes[1] = 0;
 
     VSG::rasterizer->begin_frame(frame_step);
     PROFILER_STARTFRAME("viewport");
@@ -131,11 +143,22 @@ void RenderingServerRaster::draw(bool p_swap_buffers, double frame_step) {
         SCOPE_PROFILE("frame_post_draw");
         RenderingServer::get_singleton()->emit_signal("frame_post_draw");
     }
+    PROFILE_VALUE("BVH_Created",VSG::bvh_nodes_created);
+    PROFILE_VALUE("BVH_Destroyed",VSG::bvh_nodes_destroyed);
 }
 
-bool RenderingServerRaster::has_changed() const {
-
-    return changes > 0;
+bool RenderingServerRaster::has_changed(RenderingServerEnums::ChangedPriority p_priority) const {
+    switch (p_priority) {
+        default: {
+            return (changes[0] > 0) || (changes[1] > 0);
+        } break;
+        case RS::CHANGED_PRIORITY_LOW: {
+            return changes[0] > 0;
+        } break;
+        case RS::CHANGED_PRIORITY_HIGH: {
+            return changes[1] > 0;
+        } break;
+    }
 }
 void RenderingServerRaster::init() {
 
@@ -148,7 +171,7 @@ void RenderingServerRaster::finish() {
 
 /* STATUS INFORMATION */
 
-int RenderingServerRaster::get_render_info(RS::RenderInfo p_info) {
+uint64_t RenderingServerRaster::get_render_info(RS::RenderInfo p_info) {
 
     return VSG::storage->get_render_info(p_info);
 }
@@ -170,6 +193,10 @@ void RenderingServerRaster::set_boot_image(const Ref<Image> &p_image, const Colo
 }
 void RenderingServerRaster::set_default_clear_color(const Color &p_color) {
     VSG::viewport->set_default_clear_color(p_color);
+}
+
+void RenderingServerRaster::set_shader_time_scale(float p_scale) {
+    VSG::rasterizer->set_shader_time_scale(p_scale);
 }
 
 bool RenderingServerRaster::has_feature(RS::Features p_feature) const {
@@ -196,21 +223,40 @@ void RenderingServerRaster::call_set_use_vsync(bool p_enable) {
 // }
 RenderingServerRaster::RenderingServerRaster() {
     submission_thread_singleton = this;
-    VSG::canvas = memnew(VisualServerCanvas);
+    VSG::ecs = new("ECS_Registry<RenderingEntity,true>") ECS_Registry<RenderingEntity,true>();
+    VSG::ecs->initialize();
+    VSG::canvas = memnew(RenderingServerCanvas);
     VSG::viewport = memnew(VisualServerViewport);
     VSG::scene = memnew(VisualServerScene);
     VSG::rasterizer = Rasterizer::create();
     VSG::storage = VSG::rasterizer->get_storage();
     VSG::canvas_render = VSG::rasterizer->get_canvas();
     VSG::scene_render = VSG::rasterizer->get_scene();
-    VSG::ecs = memnew(ECS_Registry);
 
     for (int i = 0; i < 4; i++) {
         black_margin[i] = 0;
-        black_image[i] = RID();
+        black_image[i] = entt::null;
     }
 }
 
+#ifdef DEBUG_ENABLED
+static void check_rendering_entity_leaks() {
+    if (VSG::ecs->registry.empty()) {
+        return; // nothing to report.
+    }
+    WARN_PRINT("Rendering instances still exist!");
+    if (OS::get_singleton()->is_stdout_verbose()) {
+        VSG::ecs->registry.each([](const RenderingEntity ent) {
+            if(!VSG::ecs->registry.orphan(ent)) {
+                printf("Leaked Rendering instance: %x", entt::to_integral(ent));
+            }
+            else {
+                printf("Orphaned Rendering entity: %x", entt::to_integral(ent));
+            }
+        });
+    }
+}
+#endif
 RenderingServerRaster::~RenderingServerRaster() {
     submission_thread_singleton = nullptr;
 
@@ -218,5 +264,8 @@ RenderingServerRaster::~RenderingServerRaster() {
     memdelete(VSG::viewport);
     memdelete(VSG::rasterizer);
     memdelete(VSG::scene);
+#ifdef DEBUG_ENABLED
+    check_rendering_entity_leaks();
+#endif
     memdelete(VSG::ecs);
 }

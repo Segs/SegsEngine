@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  file_access_encrypted.cpp                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -79,7 +79,7 @@ Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, Span<const uint8_t
 
         data.resize(ds);
 
-        uint32_t blen = p_base->get_buffer(data.data(), ds);
+        uint64_t blen = p_base->get_buffer(data.data(), ds);
         ERR_FAIL_COND_V(blen != ds, ERR_FILE_CORRUPT);
 
         CryptoCore::AESContext ctx;
@@ -224,9 +224,9 @@ uint8_t FileAccessEncrypted::get_8() const {
     pos++;
     return b;
 }
-int FileAccessEncrypted::get_buffer(uint8_t *p_dst, int p_length) const {
-
-    ERR_FAIL_COND_V_MSG(writing, 0, "File has not been opened in read mode.");
+uint64_t FileAccessEncrypted::get_buffer(uint8_t *p_dst, uint64_t p_length) const {
+    ERR_FAIL_COND_V(!p_dst && p_length > 0, -1);
+    ERR_FAIL_COND_V_MSG(writing, -1, "File has not been opened in read mode.");
 
     size_t to_copy = eastl::min(size_t(p_length), size_t(data.size() - pos));
     for (size_t i = 0; i < to_copy; i++) {
@@ -246,20 +246,21 @@ Error FileAccessEncrypted::get_error() const {
     return eofed ? ERR_FILE_EOF : OK;
 }
 
-void FileAccessEncrypted::store_buffer(const uint8_t *p_src, int p_length) {
+void FileAccessEncrypted::store_buffer(const uint8_t *p_src, uint64_t p_length) {
 
     ERR_FAIL_COND_MSG(!writing, "File has not been opened in write mode.");
+    ERR_FAIL_COND(!p_src);
 
     if (pos < data.size()) {
 
-        for (int i = 0; i < p_length; i++) {
+        for (uint64_t i = 0; i < p_length; i++) {
 
             store_8(p_src[i]);
         }
     } else if (pos == data.size()) {
 
         data.resize(pos + p_length);
-        for (int i = 0; i < p_length; i++) {
+        for (uint64_t i = 0; i < p_length; i++) {
 
             data[pos + i] = p_src[i];
         }
@@ -311,12 +312,6 @@ Error FileAccessEncrypted::_set_unix_permissions(StringView p_file, uint32_t p_p
 }
 
 FileAccessEncrypted::FileAccessEncrypted() {
-
-    file = nullptr;
-    pos = 0;
-    eofed = false;
-    mode = MODE_MAX;
-    writing = false;
 }
 
 FileAccessEncrypted::~FileAccessEncrypted() {

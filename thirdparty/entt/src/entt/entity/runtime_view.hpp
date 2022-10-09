@@ -1,23 +1,114 @@
 #ifndef ENTT_ENTITY_RUNTIME_VIEW_HPP
 #define ENTT_ENTITY_RUNTIME_VIEW_HPP
 
-
-#include <cassert>
-#include "EASTL/iterator.h"
-#include "EASTL/vector.h"
-#include "EASTL/utility.h"
-#include "EASTL/algorithm.h"
-#include "EASTL/type_traits.h"
+#include <algorithm>
+#include <iterator>
+#include <type_traits>
+#include <utility>
+#include <vector>
 #include "../config/config.h"
-#include "sparse_set.hpp"
+#include "entity.hpp"
 #include "fwd.hpp"
-
+#include "sparse_set.hpp"
 
 namespace entt {
 
+/**
+ * @cond TURN_OFF_DOXYGEN
+ * Internal details not to be documented.
+ */
+
+namespace internal {
+
+template<typename Type,typename Allocator>
+class runtime_view_iterator final {
+    [[nodiscard]] bool valid() const {
+        return (!tombstone_check || *it != tombstone)
+               && std::all_of(++pools->begin(), pools->end(), [entt = *it](const auto *curr) { return curr->contains(entt); })
+               && std::none_of(filter->cbegin(), filter->cend(), [entt = *it](const auto *curr) { return curr && curr->contains(entt); });
+    }
+
+public:
+    using iterator_type = typename Type::iterator;
+    using difference_type = typename iterator_type::difference_type;
+    using value_type = typename iterator_type::value_type;
+    using pointer = typename iterator_type::pointer;
+    using reference = typename iterator_type::reference;
+    using iterator_category = std::bidirectional_iterator_tag;
+
+    runtime_view_iterator() ENTT_NOEXCEPT = default;
+
+    runtime_view_iterator(const std::vector<const Type *> &cpools, const std::vector<const Type *> &ignore, iterator_type curr) ENTT_NOEXCEPT
+        : pools{&cpools},
+          filter{&ignore},
+          it{curr},
+          tombstone_check{pools->size() == 1u && (*pools)[0u]->policy() == deletion_policy::in_place} {
+        if(it != (*pools)[0]->end() && !valid()) {
+            ++(*this);
+        }
+    }
+
+    runtime_view_iterator &operator++() {
+        while(++it != (*pools)[0]->end() && !valid()) {}
+        return *this;
+    }
+
+    runtime_view_iterator operator++(int) {
+        runtime_view_iterator orig = *this;
+        return ++(*this), orig;
+    }
+
+    runtime_view_iterator &operator--() ENTT_NOEXCEPT {
+        while(--it != (*pools)[0]->begin() && !valid()) {}
+        return *this;
+    }
+
+    runtime_view_iterator operator--(int) ENTT_NOEXCEPT {
+        runtime_view_iterator orig = *this;
+        return operator--(), orig;
+    }
+
+    [[nodiscard]] pointer operator->() const {
+        return it.operator->();
+    }
+
+    [[nodiscard]] reference operator*() const {
+        return *operator->();
+    }
+
+    [[nodiscard]] bool operator==(const runtime_view_iterator &other) const ENTT_NOEXCEPT {
+        return it == other.it;
+    }
+
+    [[nodiscard]] bool operator!=(const runtime_view_iterator &other) const ENTT_NOEXCEPT {
+        return !(*this == other);
+    }
+
+private:
+    const eastl::vector<const Type *,Allocator> *pools;
+    const eastl::vector<const Type *,Allocator> *filter;
+    iterator_type it;
+    bool tombstone_check;
+};
+
+} // namespace internal
 
 /**
- * @brief Runtime view.
+ * Internal details not to be documented.
+ * @endcond
+ */
+
+/**
+ * @brief Runtime view implementation.
+ *
+ * Primary template isn't defined on purpose. All the specializations give a
+ * compile-time error, but for a few reasonable cases.
+ */
+template<typename>
+struct basic_runtime_view;
+
+/**
+ * @brief Generic runtime view.
  *
  * Runtime views iterate over those entities that have at least all the given
  * components in their bags. During initialization, a runtime view looks at the
@@ -53,121 +144,55 @@ namespace entt {
  * In any other case, attempting to use a view results in undefined behavior.
  *
  * @tparam Entity A valid entity type (see entt_traits for more details).
+ * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Entity, typename Allocator = EASTLAllocatorType>
-class basic_runtime_view {
-    /*! @brief A registry is allowed to create views. */
-    friend class basic_registry<Entity,Allocator>;
-
-    using underlying_iterator = typename sparse_set<Entity, Allocator>::iterator;
-
-    class view_iterator final {
-        friend class basic_runtime_view<Entity>;
-
-        using direct_type = eastl::vector<const sparse_set<Entity,Allocator> *,Allocator>;
-
-        view_iterator(const direct_type &all, underlying_iterator curr) ENTT_NOEXCEPT
-            : pools{&all},
-              it{curr}
-        {
-            if(it != (*pools)[0]->end() && !valid()) {
-                ++(*this);
-            }
-        }
-
-        bool valid() const {
-            return eastl::all_of(pools->begin()++, pools->end(), [entt = *it](const auto *curr) {
-                return curr->contains(entt);
-            });
-        }
-
-    public:
-        using difference_type = typename underlying_iterator::difference_type;
-        using value_type = typename underlying_iterator::value_type;
-        using pointer = typename underlying_iterator::pointer;
-        using reference = typename underlying_iterator::reference;
-        using iterator_category = eastl::bidirectional_iterator_tag;
-
-        view_iterator() ENTT_NOEXCEPT = default;
-
-        view_iterator & operator++() {
-            while(++it != (*pools)[0]->end() && !valid());
-            return *this;
-        }
-
-        view_iterator operator++(int) {
-            view_iterator orig = *this;
-            return operator++(), orig;
-        }
-
-        view_iterator & operator--() ENTT_NOEXCEPT {
-            while(--it != (*pools)[0]->begin() && !valid());
-            return *this;
-        }
-
-        view_iterator operator--(int) ENTT_NOEXCEPT {
-            view_iterator orig = *this;
-            return operator--(), orig;
-        }
-
-        bool operator==(const view_iterator &other) const ENTT_NOEXCEPT {
-            return other.it == it;
-        }
-
-        bool operator!=(const view_iterator &other) const ENTT_NOEXCEPT {
-            return !(*this == other);
-        }
-
-        pointer operator->() const {
-            return it.operator->();
-        }
-
-        reference operator*() const {
-            return *operator->();
-        }
-
-    private:
-        const direct_type *pools;
-        underlying_iterator it;
-    };
-
-    basic_runtime_view(eastl::vector<const sparse_set<Entity,Allocator> *,Allocator> others) ENTT_NOEXCEPT
-        : pools{eastl::move(others)}
-    {
-        const auto it = eastl::min_element(pools.begin(), pools.end(), [](const auto *lhs, const auto *rhs) {
-            return (!lhs && rhs) || (lhs && rhs && lhs->size() < rhs->size());
-        });
-
-        // brings the best candidate (if any) on front of the vector
-        eastl::rotate(pools.begin(), it, pools.end());
-    }
-
-    bool valid() const {
-        return !pools.empty() && pools.front();
-    }
-
-public:
+template<typename Entity, typename Allocator>
+struct basic_runtime_view<basic_sparse_set<Entity, Allocator>> {
     /*! @brief Underlying entity identifier. */
     using entity_type = Entity;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
-    /*! @brief Input iterator type. */
-    using iterator = view_iterator;
+    /*! @brief Common type among all storage types. */
+    using base_type = basic_sparse_set<Entity, Allocator>;
+    /*! @brief Bidirectional iterator type. */
+    using iterator = internal::runtime_view_iterator<base_type,Allocator>;
+
+    /*! @brief Default constructor to use to create empty, invalid views. */
+    basic_runtime_view() ENTT_NOEXCEPT
+        : pools{},
+          filter{} {}
 
     /**
-     * @brief Estimates the number of entities that have the given components.
-     * @return Estimated number of entities that have the given components.
+     * @brief Appends an opaque storage object to a runtime view.
+     * @param base An opaque reference to a storage object.
+     * @return This runtime view.
      */
-    size_type size() const {
-        return valid() ? pools.front()->size() : size_type{};
+    basic_runtime_view &iterate(const base_type &base) {
+        if(pools.empty() || !(base.size() < pools[0u]->size())) {
+            pools.push_back(&base);
+        } else {
+            pools.push_back(std::exchange(pools[0u], &base));
+        }
+
+        return *this;
     }
 
     /**
-     * @brief Checks if the view is definitely empty.
-     * @return True if the view is definitely empty, false otherwise.
+     * @brief Adds an opaque storage object as a filter of a runtime view.
+     * @param base An opaque reference to a storage object.
+     * @return This runtime view.
      */
-    bool empty() const {
-        return !valid() || pools.front()->empty();
+    basic_runtime_view &exclude(const base_type &base) {
+        filter.push_back(&base);
+        return *this;
+    }
+
+    /**
+     * @brief Estimates the number of entities iterated by the view.
+     * @return Estimated number of entities iterated by the view.
+     */
+    [[nodiscard]] size_type size_hint() const {
+        return pools.empty() ? size_type{} : pools.front()->size();
     }
 
     /**
@@ -178,20 +203,10 @@ public:
      * components. If the view is empty, the returned iterator will be equal to
      * `end()`.
      *
-     * @note
-     * Input iterators stay true to the order imposed to the underlying data
-     * structures.
-     *
      * @return An iterator to the first entity that has the given components.
      */
-    iterator begin() const {
-        iterator it{};
-
-        if(valid()) {
-            it = { pools, pools[0]->begin() };
-        }
-
-        return it;
+    [[nodiscard]] iterator begin() const {
+        return pools.empty() ? iterator{} : iterator{pools, filter, pools[0]->begin()};
     }
 
     /**
@@ -202,32 +217,22 @@ public:
      * has the given components. Attempting to dereference the returned iterator
      * results in undefined behavior.
      *
-     * @note
-     * Input iterators stay true to the order imposed to the underlying data
-     * structures.
-     *
      * @return An iterator to the entity following the last entity that has the
      * given components.
      */
-    iterator end() const {
-        iterator it{};
-
-        if(valid()) {
-            it = { pools, pools[0]->end() };
-        }
-
-        return it;
+    [[nodiscard]] iterator end() const {
+        return pools.empty() ? iterator{} : iterator{pools, filter, pools[0]->end()};
     }
 
     /**
      * @brief Checks if a view contains an entity.
-     * @param entt A valid entity identifier.
+     * @param entt A valid identifier.
      * @return True if the view contains the given entity, false otherwise.
      */
-    bool contains(const entity_type entt) const {
-        return valid() && eastl::all_of(pools.cbegin(), pools.cend(), [entt](const auto *view) {
-            return view->find(entt) != view->end();
-        });
+    [[nodiscard]] bool contains(const entity_type entt) const {
+        return !pools.empty()
+               && std::all_of(pools.cbegin(), pools.cend(), [entt](const auto *curr) { return curr->contains(entt); })
+               && std::none_of(filter.cbegin(), filter.cend(), [entt](const auto *curr) { return curr && curr->contains(entt); });
     }
 
     /**
@@ -253,11 +258,10 @@ public:
     }
 
 private:
-    eastl::vector<const sparse_set<Entity,Allocator> *,Allocator> pools;
+    eastl::vector<const base_type *,Allocator> pools;
+    eastl::vector<const base_type *,Allocator> filter;
 };
 
-
-}
-
+} // namespace entt
 
 #endif

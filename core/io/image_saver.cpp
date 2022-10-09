@@ -95,7 +95,7 @@ Error ImageSaver::save_image(StringView p_file, const Ref<Image> &p_image, FileA
 
         if (!g_saver->can_save(extension))
             continue;
-        ImageData result_data(static_cast<ImageData>(*p_image));
+        const ImageData &result_data(p_image->img_data());
         Error err = g_saver->save_image(result_data, f, {p_quality,false});
         if (err != OK) {
             ERR_PRINT("Error saving image: " + String(p_file));
@@ -124,7 +124,7 @@ Error ImageSaver::save_image(StringView ext, const Ref<Image> & p_image, Vector<
 
         if (!g_saver->can_save(ext))
             continue;
-        Error err = g_saver->save_image(*p_image, tgt, {p_quality,false});
+        Error err = g_saver->save_image(p_image->img_data(), tgt, {p_quality,false});
         if (err != OK) {
             ERR_PRINT("Error loading image from memory");
         }

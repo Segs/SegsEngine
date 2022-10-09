@@ -36,9 +36,8 @@
 
 Error AudioDriverDummy::init() {
 
-    active = false;
-    thread_exited = false;
-    exit_thread = false;
+	active.clear();
+    exit_thread.clear();
     samples_in = nullptr;
 
     mix_rate = T_GLOBAL_GET<uint32_t>("audio/mix_rate");
@@ -61,26 +60,25 @@ void AudioDriverDummy::thread_func(void *p_udata) {
 
     uint64_t usdelay = (ad->buffer_frames / float(ad->mix_rate)) * 1000000;
 
-    while (!ad->exit_thread) {
-
-        if (ad->active) {
+	while (!ad->exit_thread.is_set()) {
+        if (ad->active.is_set()) {
 
             ad->lock();
+            ad->start_counting_ticks();
 
             ad->audio_server_process(ad->buffer_frames, ad->samples_in);
 
+            ad->stop_counting_ticks();
             ad->unlock();
-        };
+        }
 
         OS::get_singleton()->delay_usec(usdelay);
-    };
-
-    ad->thread_exited = true;
+    }
 }
 
 void AudioDriverDummy::start() {
 
-    active = true;
+    active.set();
 }
 
 int AudioDriverDummy::get_mix_rate() const {
@@ -105,7 +103,7 @@ void AudioDriverDummy::unlock() {
 void AudioDriverDummy::finish() {
 
     if (thread.is_started()) {
-        exit_thread = true;
+        exit_thread.set();
         thread.wait_to_finish();
 
     }
@@ -113,7 +111,7 @@ void AudioDriverDummy::finish() {
 
     if (samples_in) {
         memdelete_arr(samples_in);
-    };
+    }
 }
 
 AudioDriverDummy::AudioDriverDummy() {

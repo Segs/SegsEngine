@@ -49,11 +49,9 @@ class GODOT_EXPORT AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditor
         String name;
         String type;
         Ref<Script> script;
+        int input_port_count;
         AddOption() = default;
-        AddOption(String p_name, String p_type) :
-                name(eastl::move(p_name)),
-                type(eastl::move(p_type)) {
-        }
+        AddOption(String p_name, String p_type, int p_input_port_count = 0);
     };
     HashMap<StringName, ProgressBar *> animations;
     Vector<EditorProperty *> visible_properties;
@@ -63,6 +61,8 @@ class GODOT_EXPORT AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditor
     Ref<AnimationNodeBlendTree> blend_tree;
     Ref<AnimationNode> _filter_edit;
     Ref<AnimationNode> file_loaded;
+    String to_node = "";
+    String from_node = "";
     GraphEdit *graph;
     MenuButton *add_node;
     PanelContainer *error_panel;
@@ -72,14 +72,14 @@ class GODOT_EXPORT AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditor
     Tree *filters;
     CheckBox *filter_enabled;
     EditorFileDialog *open_file;
+    int to_slot = -1;
     bool use_popup_menu_position;
     bool updating;
-
 
     void _update_graph();
 
     void _add_node(int p_idx);
-    void _update_options_menu();
+    void _update_options_menu(bool p_has_input_ports=false);
 
     static AnimationNodeBlendTreeEditor *singleton;
 
@@ -97,12 +97,16 @@ class GODOT_EXPORT AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditor
     void _anim_selected(int p_index, Array p_options, const StringName &p_node);
     void _delete_request(const StringName &p_which);
     void _delete_nodes_request();
-    void _popup_request(const Vector2 &p_position);
 
     bool _update_filters(const Ref<AnimationNode> &anode);
     void _edit_filters(const StringName &p_which);
     void _filter_edited();
     void _filter_toggled();
+
+    void _popup(bool p_has_input_ports, const Vector2 &p_popup_position, const Vector2 &p_node_position);
+    void _popup_request(const Vector2 &p_position);
+    void _connection_to_empty(const StringName &p_from, int p_from_slot, const Vector2 &p_release_position);
+    void _connection_from_empty(const StringName &p_to, int p_to_slot, const Vector2 &p_release_position);
 
     void _property_changed(const StringName &p_property, const Variant &p_value, StringView p_field, bool p_changing);
     void _removed_from_graph();

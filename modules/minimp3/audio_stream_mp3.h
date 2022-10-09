@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AUDIO_STREAM_MP3_H
-#define AUDIO_STREAM_MP3_H
+#pragma once
 
 #include "core/io/resource_loader.h"
 #include "servers/audio/audio_stream.h"
@@ -95,16 +94,14 @@ public:
     void set_loop_offset(float p_seconds);
     float get_loop_offset() const;
 
-    virtual Ref<AudioStreamPlayback> instance_playback();
-    virtual String get_stream_name() const;
+    Ref<AudioStreamPlayback> instance_playback() override;
+    String get_stream_name() const override;
 
     void set_data(const PoolVector<uint8_t> &p_data);
     PoolVector<uint8_t> get_data() const;
 
-    virtual float get_length() const;
+    float get_length() const override;
 
     AudioStreamMP3();
-    virtual ~AudioStreamMP3();
+    ~AudioStreamMP3() override;
 };
-
-#endif // AUDIO_STREAM_MP3_H

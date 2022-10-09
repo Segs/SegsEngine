@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  rendering_server_globals.cpp                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,8 +34,11 @@ RasterizerStorage *VisualServerGlobals::storage = nullptr;
 RasterizerCanvas *VisualServerGlobals::canvas_render = nullptr;
 RasterizerScene *VisualServerGlobals::scene_render = nullptr;
 Rasterizer *VisualServerGlobals::rasterizer = nullptr;
-ECS_Registry *VisualServerGlobals::ecs = nullptr;
+ECS_Registry<RenderingEntity,true> *VisualServerGlobals::ecs = nullptr;
 
-VisualServerCanvas *VisualServerGlobals::canvas = nullptr;
+RenderingServerCanvas *VisualServerGlobals::canvas = nullptr;
 VisualServerViewport *VisualServerGlobals::viewport = nullptr;
 VisualServerScene *VisualServerGlobals::scene = nullptr;
+
+int64_t VisualServerGlobals::bvh_nodes_created;
+int64_t VisualServerGlobals::bvh_nodes_destroyed;

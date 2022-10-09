@@ -1,3 +1,5 @@
+﻿#pragma once
+
 /*************************************************************************/
 /*  memory.h                                                             */
 /*************************************************************************/
@@ -28,34 +30,32 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#pragma once
 
 #include "core/godot_export.h"
-#include "core/external_profiler.h"
+#include "core/safe_refcount.h"
+//#include "core/external_profiler.h"
 
+#include "EASTL/type_traits.h"
 #include <stdint.h>
 #include <cstddef>
 
 class GODOT_EXPORT Memory {
 
-    static uint64_t alloc_count;
+    static SafeNumeric<uint64_t> alloc_count;
 public:
     Memory() = delete;
 
-    static void *alloc_static(size_t p_bytes, bool p_pad_align = false);
-    static void *realloc_static(void *p_memory, size_t p_bytes, bool p_pad_align = false);
-    static void free_static(void *p_ptr, bool p_pad_align = false);
+    static void *alloc(size_t p_bytes, bool p_pad_align);
+    static void *alloc(size_t p_bytes) { return alloc(p_bytes,false); }
+    static void *realloc(void *p_memory, size_t p_bytes, bool p_pad_align = false);
+    static void free(void *p_ptr, bool p_pad_align = false);
 
     static uint64_t get_mem_available();
     static uint64_t get_mem_usage();
     static uint64_t get_mem_max_usage();
 };
 
-class GODOT_EXPORT DefaultAllocator {
-public:
-    static void *alloc(size_t p_memory) { return Memory::alloc_static(p_memory, false); }
-    static void free(void *p_ptr) { Memory::free_static(p_ptr, false); }
-};
+using DefaultAllocator = Memory;
 class wrap_allocator
 {
 public:
@@ -66,18 +66,18 @@ public:
     constexpr wrap_allocator& operator=(const wrap_allocator& x) noexcept = default;
 
     void* allocate(size_t n, int /*flags*/ = 0) {
-        void *res=Memory::alloc_static(n, false);
+        void *res=Memory::alloc(n, false);
         //TRACE_ALLOC_N(res,n,"wrap_alloc");
         return res;
     }
     void* allocate(size_t n, size_t /*alignment*/, size_t /*offset*/, int /*flags*/ = 0) {
-        void *res=Memory::alloc_static(n, false);
+        void *res=Memory::alloc(n, false);
         //TRACE_ALLOC_N(res,n,"wrap_alloc");
         return res;
     }
     void  deallocate(void* p, size_t /*n*/) {
         //TRACE_FREE_N(p,"wrap_alloc");
-        return Memory::free_static(p, false);
+        Memory::free(p, false);
     }
 
     constexpr inline bool operator==(const wrap_allocator&)
@@ -106,9 +106,9 @@ GODOT_EXPORT void operator delete(void *p_mem, void *(*p_allocfunc)(size_t p_siz
 GODOT_EXPORT void operator delete(void *p_mem, void *p_pointer, size_t check, const char *p_description);
 #endif
 
-#define memalloc(m_size) Memory::alloc_static(m_size)
-#define memrealloc(m_mem, m_size) Memory::realloc_static(m_mem, m_size)
-#define memfree(m_size) Memory::free_static(m_size)
+#define memalloc(m_size) Memory::alloc(m_size)
+#define memrealloc(m_mem, m_size) Memory::realloc(m_mem, m_size)
+#define memfree(m_mem) Memory::free(m_mem)
 
 inline void postinitialize_handler(void *) {}
 
@@ -143,10 +143,10 @@ void memdelete(T *p_class) {
     if(!p_class) // follow standard delete x; logic.
         return;
     predelete_handler(p_class);
-    if constexpr(!__has_trivial_destructor(T))
+    if constexpr(!eastl::is_trivially_destructible_v<T>)
         p_class->~T();
 
-    Memory::free_static(p_class, false);
+    Memory::free(p_class, false);
 }
 
 template <class T, class A>
@@ -154,7 +154,7 @@ void memdelete_allocator(T *p_class) {
 
     predelete_handler(p_class);
 
-    if constexpr(!__has_trivial_destructor(T))
+    if constexpr(!eastl::is_trivially_destructible_v<T>)
         p_class->~T();
 
     A::free(p_class);
@@ -178,11 +178,11 @@ T *memnew_arr_template(size_t p_elements, const char *p_descr = "") {
     std::vector, and the PoolVector class, so it should be safe.*/
 
     size_t len = sizeof(T) * p_elements;
-    uint64_t *mem = (uint64_t *)Memory::alloc_static(len, true);
+    uint64_t *mem = (uint64_t *)Memory::alloc(len, true);
 
     *(mem - 1) = p_elements;
 
-    if constexpr(!__has_trivial_constructor(T)) {
+    if constexpr (!eastl::is_trivially_constructible_v<T>) {
         T *elems = (T *)mem;
 
         /* call operator new */
@@ -204,7 +204,7 @@ void memdelete_arr(T *p_class) {
 
     uint64_t *ptr = (uint64_t *)p_class;
 
-     if constexpr(!__has_trivial_destructor(T)) {
+     if constexpr (!eastl::is_trivially_destructible_v<T>) {
         uint64_t elem_count = *(ptr - 1);
 
         for (uint64_t i = 0; i < elem_count; i++) {
@@ -212,6 +212,6 @@ void memdelete_arr(T *p_class) {
         }
     }
 
-    Memory::free_static(ptr, true);
+    Memory::free(ptr, true);
 }
 

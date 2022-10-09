@@ -407,7 +407,8 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                     SET_FROM_STRUCT(Transform);
                 } break;
                 case VariantType::COLOR: {
-                    SET_FROM_STRUCT(Color);
+                    GDMonoMarshal::M_Color from = MARSHALLED_OUT(Color, p_value.as<Color>());
+                    mono_field_set_value(p_object, mono_field, &from);
                 } break;
                 case VariantType::STRING_NAME: {
                     MonoObject *managed = GDMonoUtils::create_managed_from((StringName)p_value);
@@ -448,7 +449,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                 case VariantType::POOL_INT_ARRAY: {
                     SET_FROM_ARRAY(PoolIntArray);
                 } break;
-                case VariantType::POOL_REAL_ARRAY: {
+                case VariantType::POOL_FLOAT32_ARRAY: {
                     SET_FROM_ARRAY(PoolRealArray);
                 } break;
                 case VariantType::POOL_STRING_ARRAY: {

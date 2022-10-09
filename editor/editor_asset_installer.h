@@ -38,7 +38,9 @@ class EditorAssetInstaller : public ConfirmationDialog {
     GDCLASS(EditorAssetInstaller,ConfirmationDialog)
 
     Tree *tree;
+    Label *asset_contents;
     String package_path;
+    String asset_name;
     AcceptDialog *error;
     HashMap<String, TreeItem *> status_map;
     bool updating;
@@ -52,6 +54,10 @@ protected:
 
 public:
     void open(StringView p_path, int p_depth = 0);
+
+    void set_asset_name(StringView p_asset_name);
+    String get_asset_name() const;
+
     EditorAssetInstaller();
 };
 

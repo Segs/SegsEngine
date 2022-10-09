@@ -58,8 +58,9 @@ void EditorRunNative::_notification(int p_what) {
                     Ref<ImageTexture> small_icon(make_ref_counted<ImageTexture>());
                     small_icon->create_from_image(im, 0);
                     MenuButton *mb = memnew(MenuButton);
-                    mb->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_run_native), varray(i));
-                    mb->connect("pressed",callable_mp(this, &ClassName::_run_native), varray(-1, i));
+                    auto id_lambda=[=](int id) { _run_native(id,i); };
+                    mb->get_popup()->connect("id_pressed",callable_gen(this, id_lambda));
+                    mb->connectF("pressed",this,[=]() { _run_native(-1, i); });
                     mb->set_button_icon(small_icon);
                     add_child(mb);
                     menus[i] = mb;
@@ -70,7 +71,7 @@ void EditorRunNative::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_PROCESS) {
 
-        bool changed = EditorExport::get_singleton()->poll_export_platforms() || first;
+        bool changed = first;
 
         if (changed) {
 
@@ -78,23 +79,7 @@ void EditorRunNative::_notification(int p_what) {
 
                 Ref<EditorExportPlatform> eep = EditorExport::get_singleton()->get_export_platform(E.first);
                 MenuButton *mb = E.second;
-                int dc = eep->get_options_count();
-
-                if (dc == 0) {
-                    mb->hide();
-                } else {
-                    mb->get_popup()->clear();
-                    mb->show();
-                    if (dc == 1) {
-                        mb->set_tooltip_utf8(eep->get_options_tooltip());
-                    } else {
-                        mb->set_tooltip_utf8(eep->get_options_tooltip());
-                        for (int i = 0; i < dc; i++) {
-                            mb->get_popup()->add_icon_item(eep->get_option_icon(i), eep->get_option_label(i));
-                            mb->get_popup()->set_item_tooltip(mb->get_popup()->get_item_count() - 1, eep->get_option_tooltip(i));
-                        }
-                    }
-                }
+                mb->hide();
             }
 
             first = false;
@@ -114,12 +99,7 @@ void EditorRunNative::_run_native(int p_idx, int p_platform) {
     ERR_FAIL_COND(not eep);
 
     if (p_idx == -1) {
-        if (eep->get_options_count() == 1) {
-            menus[p_platform]->get_popup()->hide();
-            p_idx = 0;
-        } else {
-            return;
-        }
+        return;
     }
 
     Ref<EditorExportPreset> preset;
@@ -154,6 +134,9 @@ void EditorRunNative::_run_native(int p_idx, int p_platform) {
         flags |= EditorExportPlatform::DEBUG_FLAG_VIEW_NAVIGATION;
     }
 
+    if (debug_shader_fallbacks) {
+        flags |= EditorExportPlatform::DEBUG_FLAG_SHADER_FALLBACKS;
+    }
     eep->run(preset, p_idx, flags);
 }
 
@@ -208,13 +191,14 @@ bool EditorRunNative::get_debug_navigation() const {
     return debug_navigation;
 }
 
+void EditorRunNative::set_debug_shader_fallbacks(bool p_debug) {
+    debug_shader_fallbacks = p_debug;
+}
+
+bool EditorRunNative::get_debug_shader_fallbacks() const {
+    return debug_shader_fallbacks;
+}
+
 EditorRunNative::EditorRunNative() {
     set_process(true);
-    first = true;
-    deploy_dumb = false;
-    deploy_debug_remote = false;
-    debug_collisions = false;
-    debug_navigation = false;
-    resume_idx = 0;
-    resume_platform = 0;
 }

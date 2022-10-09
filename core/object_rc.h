@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  object_rc.h                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,11 +30,11 @@
 
 #pragma once
 
-#ifdef DEBUG_ENABLED
+#include "core/forward_decls.h"
+#include "core/engine_entities.h"
 
 #include "core/os/memory.h"
 #include "core/typedefs.h"
-#include "core/object_id.h"
 
 #include <atomic>
 
@@ -50,7 +50,7 @@ public:
     // This is for allowing debug builds to check for instance ID validity,
     // so warnings are shown in debug builds when a stray Variant (one pointing
     // to a released Object) would have happened.
-    const ObjectID instance_id;
+    const GameEntity instance_id;
 
     _FORCE_INLINE_ void increment() {
         _users.fetch_add(1, std::memory_order_relaxed);
@@ -69,7 +69,7 @@ public:
         return _ptr.load(std::memory_order_acquire);
     }
 
-    _FORCE_INLINE_ ObjectRC(Object *p_object,ObjectID self_id) :
+    _FORCE_INLINE_ ObjectRC(Object *p_object,GameEntity self_id) :
             instance_id(self_id) {
         // 1 (the Object) + 1 (the first user)
         _users.store(2, std::memory_order_relaxed);
@@ -77,4 +77,3 @@ public:
     }
 };
 
-#endif

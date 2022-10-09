@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #pragma once
+#define WIN32_LEAN_AND_MEAN
 
 #include "context_gl_windows.h"
 #include "core/os/input.h"
@@ -49,7 +50,9 @@
 
 #include <fcntl.h>
 #include <io.h>
+#include <shellapi.h>
 #include <stdio.h>
+
 #include <windows.h>
 #include <windowsx.h>
 
@@ -180,6 +183,7 @@ class OS_Windows : public OS {
 
     uint32_t move_timer_id;
 
+    Ref<Image> icon;
     HCURSOR hCursor;
 
     Size2 min_size;
@@ -198,6 +202,7 @@ class OS_Windows : public OS {
     Vector2 im_position;
 
     MouseMode mouse_mode;
+    int restore_mouse_trails;
     bool alt_mem;
     bool gr_mem;
     bool shift_mem;
@@ -244,6 +249,8 @@ protected:
 
     void initialize_core() override;
     virtual Error initialize(const VideoMode &p_desired, int p_video_driver, int p_audio_driver);
+    bool is_offscreen_gl_available() const override;
+    void set_offscreen_gl_current(bool p_current) override;
 
     void set_main_loop(MainLoop *p_main_loop) override;
     void delete_main_loop() override;
@@ -267,7 +274,6 @@ protected:
     bool minimized;
     bool borderless;
     bool window_focused;
-    bool console_visible;
     bool was_maximized;
 
 public:
@@ -277,7 +283,7 @@ public:
     String get_stdin_string(bool p_block) override;
 
     void set_mouse_mode(MouseMode p_mode) override;
-    MouseMode get_mouse_mode() const;
+    MouseMode get_mouse_mode() const override;
 
     void warp_mouse_position(const Point2 &p_to) override;
     Point2 get_mouse_position() const override;
@@ -296,6 +302,7 @@ public:
     Point2 get_screen_position(int p_screen = -1) const override;
     Size2 get_screen_size(int p_screen = -1) const override;
     int get_screen_dpi(int p_screen = -1) const override;
+    float get_screen_refresh_rate(int p_screen = -1) const override;
 
     Point2 get_window_position() const override;
     void set_window_position(const Point2 &p_position) override;
@@ -317,8 +324,6 @@ public:
     void set_window_always_on_top(bool p_enabled) override;
     bool is_window_always_on_top() const override;
     bool is_window_focused() const override;
-    void set_console_visible(bool p_enabled) override;
-    bool is_console_visible() const override;
     void request_attention() override;
     void *get_native_handle(int p_handle_type) override;
 
@@ -333,6 +338,7 @@ public:
     Error get_dynamic_library_symbol_handle(void *p_library_handle, StringView p_name, void *&p_symbol_handle, bool p_optional = false) override;
 
     MainLoop *get_main_loop() const override;
+    uint64_t get_embedded_pck_offset() const override;
 
     String get_name() const override;
 
@@ -342,6 +348,7 @@ public:
     uint64_t get_unix_time() const override;
     uint64_t get_system_time_secs() const override;
     uint64_t get_system_time_msecs() const override;
+    double get_subsecond_unix_time() const override;
 
     bool can_draw() const override;
     Error set_cwd(StringView p_cwd) override;
@@ -349,7 +356,7 @@ public:
     void delay_usec(uint32_t p_usec) const override;
     uint64_t get_ticks_usec() const override;
 
-    Error execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
+    Error execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr, bool p_open_console = false) override;
     Error kill(const ProcessID &p_pid) override;
     int get_process_id() const override;
 
@@ -409,8 +416,6 @@ public:
     void initialize_debugging() override;
 
     void force_process_input() override;
-
-    Error move_to_trash(StringView p_path) override;
 
     void process_and_drop_events() override;
 

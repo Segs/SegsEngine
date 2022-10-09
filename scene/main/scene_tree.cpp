@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  scene_tree.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,6 +35,7 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/deque.h"
+#include "core/ecs_registry.h"
 #include "core/external_profiler.h"
 #include "core/input/input_default.h"
 #include "core/io/marshalls.h"
@@ -57,6 +58,7 @@
 #include "scene/resources/mesh.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/scene_string_names.h"
+#include "servers/navigation_server.h"
 #include "servers/physics_server_2d.h"
 #include "servers/physics_server_3d.h"
 
@@ -79,7 +81,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
     String live_edit_scene;
 
     HashMap<String, HashSet<Node *>> live_scene_edit_cache;
-    HashMap<Node *, HashMap<ObjectID, Node *>> live_edit_remove_list;
+    HashMap<Node *, HashMap<GameEntity, Node *>> live_edit_remove_list;
 
     SceneTreeDebugAccessor(SceneTree *p) : m_parent(p) {
 
@@ -87,11 +89,11 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
 
     }
 
-    void _live_edit_node_path_func(const NodePath &p_path, int p_id) { live_edit_node_path_cache[p_id] = p_path; }
+    void _live_edit_node_path_func(const NodePath &p_path, int p_id) final { live_edit_node_path_cache[p_id] = p_path; }
 
-    void _live_edit_res_path_func(StringView p_path, int p_id) { live_edit_resource_cache[p_id] = p_path; }
+    void _live_edit_res_path_func(StringView p_path, int p_id) final { live_edit_resource_cache[p_id] = p_path; }
 
-    void _live_edit_node_set_func(int p_id, const StringName &p_prop, const Variant &p_value) {
+    void _live_edit_node_set_func(int p_id, const StringName &p_prop, const Variant &p_value) final {
 
         if (!live_edit_node_path_cache.contains(p_id)) return;
 
@@ -114,13 +116,13 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         }
     }
 
-    void _live_edit_node_set_res_func(int p_id, const StringName &p_prop, StringView p_value) {
+    void _live_edit_node_set_res_func(int p_id, const StringName &p_prop, StringView p_value) final {
 
         RES r(gResourceManager().load(p_value));
         if (not r) return;
         _live_edit_node_set_func(p_id, p_prop, r);
     }
-    void _live_edit_node_call_func(int p_id, const StringName &p_method, VARIANT_ARG_DECLARE) {
+    void _live_edit_node_call_func(int p_id, const StringName &p_method, VARIANT_ARG_DECLARE) final {
 
         if (!live_edit_node_path_cache.contains(p_id)) return;
 
@@ -142,7 +144,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
             n2->call_va(p_method, VARIANT_ARG_PASS);
         }
     }
-    void _live_edit_res_set_func(int p_id, const StringName &p_prop, const Variant &p_value) {
+    void _live_edit_res_set_func(int p_id, const StringName &p_prop, const Variant &p_value) final {
 
         if (!live_edit_resource_cache.contains(p_id)) return;
 
@@ -155,13 +157,13 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
 
         r->set(p_prop, p_value);
     }
-    void _live_edit_res_set_res_func(int p_id, const StringName &p_prop, StringView p_value) {
+    void _live_edit_res_set_res_func(int p_id, const StringName &p_prop, StringView p_value) final {
 
         RES r(gResourceManager().load(p_value));
         if (not r) return;
         _live_edit_res_set_func(p_id, p_prop, r);
     }
-    void _live_edit_res_call_func(int p_id, const StringName &p_method, VARIANT_ARG_DECLARE) {
+    void _live_edit_res_call_func(int p_id, const StringName &p_method, VARIANT_ARG_DECLARE) final {
 
         if (!live_edit_resource_cache.contains(p_id)) return;
 
@@ -175,13 +177,13 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         r->call_va(p_method, VARIANT_ARG_PASS);
     }
 
-    void _live_edit_root_func(const NodePath &p_scene_path, StringView p_scene_from) {
+    void _live_edit_root_func(const NodePath &p_scene_path, StringView p_scene_from) final {
 
         live_edit_root = p_scene_path;
         live_edit_scene = p_scene_from;
     }
 
-    void _live_edit_create_node_func(const NodePath &p_parent, const String &p_type, const String &p_name) {
+    void _live_edit_create_node_func(const NodePath &p_parent, const String &p_type, const String &p_name) final {
 
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
@@ -206,7 +208,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
             n2->add_child(no);
         }
     }
-    void _live_edit_instance_node_func(const NodePath &p_parent, StringView p_path, const String &p_name) {
+    void _live_edit_instance_node_func(const NodePath &p_parent, StringView p_path, const String &p_name) final {
 
         Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(gResourceManager().load(p_path));
 
@@ -235,7 +237,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
             n2->add_child(no);
         }
     }
-    void _live_edit_remove_node_func(const NodePath &p_at) {
+    void _live_edit_remove_node_func(const NodePath &p_at) final {
 
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root))
@@ -265,7 +267,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
             F = N;
         }
     }
-    void _live_edit_remove_and_keep_node_func(const NodePath &p_at, ObjectID p_keep_id) {
+    void _live_edit_remove_and_keep_node_func(const NodePath &p_at, GameEntity p_keep_id) final {
 
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root))
@@ -296,7 +298,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
             F = N;
         }
     }
-    void _live_edit_restore_node_func(ObjectID p_id, const NodePath &p_at, int p_at_pos) {
+    void _live_edit_restore_node_func(GameEntity p_id, const NodePath &p_at, int p_at_pos) final {
 
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
@@ -319,11 +321,11 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
 
             Node *n2 = n->get_node(p_at);
 
-            HashMap<Node *, HashMap<ObjectID, Node *>>::iterator EN = live_edit_remove_list.find(n);
+            HashMap<Node *, HashMap<GameEntity, Node *>>::iterator EN = live_edit_remove_list.find(n);
 
             if (EN == live_edit_remove_list.end()) continue;
 
-            HashMap<ObjectID, Node *>::iterator FN = EN->second.find(p_id);
+            HashMap<GameEntity, Node *>::iterator FN = EN->second.find(p_id);
 
             if (FN == EN->second.end()) continue;
             n2->add_child(FN->second);
@@ -337,7 +339,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
             F = N;
         }
     }
-    void _live_edit_duplicate_node_func(const NodePath &p_at, const String &p_new_name) {
+    void _live_edit_duplicate_node_func(const NodePath &p_at, const String &p_new_name) final {
 
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root))
@@ -364,7 +366,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         }
     }
     void _live_edit_reparent_node_func(
-            const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos) {
+            const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos) final {
 
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
@@ -389,10 +391,10 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
             if (p_at_pos >= 0) nto->move_child(nfrom, p_at_pos);
         }
     }
-    HashMap<String, HashSet<Node *>> &get_live_scene_edit_cache() {
+    HashMap<String, HashSet<Node *>> &get_live_scene_edit_cache() final {
         return live_scene_edit_cache;
     }
-    HashMap<Node *, HashMap<ObjectID, Node *>> &get_live_edit_remove_list() {
+    HashMap<Node *, HashMap<GameEntity, Node *>> &get_live_edit_remove_list() final {
         return live_edit_remove_list;
     }
 
@@ -420,8 +422,8 @@ void SceneTree::_debugger_request_tree() {
 
 void SceneTreeTimer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_time_left", {"time"}), &SceneTreeTimer::set_time_left);
-    MethodBinder::bind_method(D_METHOD("get_time_left"), &SceneTreeTimer::get_time_left);
+    BIND_METHOD(SceneTreeTimer,set_time_left);
+    BIND_METHOD(SceneTreeTimer,get_time_left);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "time_left"), "set_time_left", "get_time_left");
 
@@ -442,6 +444,14 @@ void SceneTreeTimer::set_pause_mode_process(bool p_pause_mode_process) {
 
 bool SceneTreeTimer::is_pause_mode_process() {
     return process_pause;
+}
+
+void SceneTreeTimer::set_ignore_time_scale(bool p_ignore) {
+    ignore_time_scale = p_ignore;
+}
+
+bool SceneTreeTimer::is_ignore_time_scale() {
+    return ignore_time_scale;
 }
 
 void SceneTreeTimer::release_connections() {
@@ -469,7 +479,7 @@ HashMap<String, HashSet<Node *> > &SceneTree::get_live_scene_edit_cache()
 {
     return m_debug_data->get_live_scene_edit_cache();
 }
-HashMap<Node *, HashMap<ObjectID, Node *> > &SceneTree::get_live_edit_remove_list() {
+HashMap<Node *, HashMap<GameEntity, Node *> > &SceneTree::get_live_edit_remove_list() {
     return m_debug_data->get_live_edit_remove_list();
 }
 #endif
@@ -519,20 +529,27 @@ void SceneTree::remove_from_group(const StringName &p_group, Node *p_node) {
 
 void SceneTree::make_group_changed(const StringName &p_group) {
     HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
-    if (E!=group_map.end())
+    if (E!=group_map.end()) {
         E->second.changed = true;
+    }
 }
 
 void SceneTree::flush_transform_notifications() {
 
-    IntrusiveListNode<Node> *n = xform_change_list.first();
-    while (n) {
+    // view over all dirty components
+    auto dirty_entries=game_object_registry.registry.view<DirtXFormMarker,SceneTreeLink>();
 
-        Node *node = n->self();
-        IntrusiveListNode<Node> *nx = n->next();
-        xform_change_list.remove(n);
-        n = nx;
-        node->notification(NOTIFICATION_TRANSFORM_CHANGED);
+    for(auto [entt, link]: dirty_entries.each()) {
+        // skip other trees.
+        if(this!=link.my_tree) {
+            continue;
+        }
+
+        mark_clean_xform(entt);
+        // in tree, and dirty.
+        Node *n = (Node *)object_for_entity(entt);
+        assert(n->is_class_ptr(Node::get_class_ptr_static()));
+        n->notification(NOTIFICATION_TRANSFORM_CHANGED);
     }
 }
 
@@ -827,6 +844,7 @@ void SceneTree::input_event(const Ref<InputEvent> &p_event) {
 }
 
 void SceneTree::init() {
+    ERR_FAIL_COND(!root);
 
     initialized = true;
     root->_set_tree(this);
@@ -849,6 +867,9 @@ bool SceneTree::iteration(float p_time) {
     emit_signal("physics_frame");
 
     _notify_group_pause(SceneStringNames::physics_process_internal, Node::NOTIFICATION_INTERNAL_PHYSICS_PROCESS);
+    if (T_GLOBAL_GET<bool>("physics/common/enable_pause_aware_picking")) {
+        call_group_flags(GROUP_CALL_REALTIME, "_viewports", "_process_picking", true);
+    }
     _notify_group_pause(SceneStringNames::physics_process, Node::NOTIFICATION_PHYSICS_PROCESS);
     _flush_ugc();
     MessageQueue::get_singleton()->flush(); //small little hack
@@ -895,7 +916,7 @@ bool SceneTree::idle(float p_time) {
     _notify_group_pause("idle_process_internal", Node::NOTIFICATION_INTERNAL_PROCESS);
     _notify_group_pause("idle_process", Node::NOTIFICATION_PROCESS);
 
-    Size2 win_size = Size2(OS::get_singleton()->get_window_size().width, OS::get_singleton()->get_window_size().height);
+    Size2 win_size = OS::get_singleton()->get_window_size();
 
     if (win_size != last_screen_size) {
 
@@ -917,14 +938,18 @@ bool SceneTree::idle(float p_time) {
 
     auto L = timers.empty() ? nullptr : &timers.back(); //last element
     //break on last, so if new timers were added during list traversal, ignore them.
-    for (auto E = timers.begin(); E!=timers.end() && (&(*E) == L);) {
+    for (auto E = timers.begin(); E!=timers.end() && (&(*E) != L);) {
 
         if (pause && !(*E)->is_pause_mode_process()) {
             ++E;
             continue;
         }
         float time_left = (*E)->get_time_left();
+        if (E->get()->is_ignore_time_scale()) {
+            time_left -= Engine::get_singleton()->get_idle_frame_step();
+        } else {
         time_left -= p_time;
+        }
         (*E)->set_time_left(time_left);
 
         if (time_left < 0) {
@@ -939,6 +964,7 @@ bool SceneTree::idle(float p_time) {
 
     _call_idle_callbacks();
 
+    ProjectSettings::get_singleton()->update();
 #ifdef TOOLS_ENABLED
 
     if (Engine::get_singleton()->is_editor_hint()) {
@@ -946,7 +972,7 @@ bool SceneTree::idle(float p_time) {
         String env_path = ProjectSettings::get_singleton()->getT<String>("rendering/environment/default_environment");
         env_path =StringUtils::strip_edges( env_path); //user may have added a space or two
         StringView cpath;
-        Ref<Environment> fallback = get_root()->get_world()->get_fallback_environment();
+        Ref<Environment> fallback = get_root()->get_world_3d()->get_fallback_environment();
         if (fallback) {
             cpath = fallback->get_path();
         }
@@ -961,7 +987,7 @@ bool SceneTree::idle(float p_time) {
             } else {
                 fallback.unref();
             }
-            get_root()->get_world()->set_fallback_environment(fallback);
+            get_root()->get_world_3d()->set_fallback_environment(fallback);
         }
     }
 
@@ -982,11 +1008,15 @@ void SceneTree::finish() {
 
     if (root) {
         root->_set_tree(nullptr);
-        root->_propagate_after_exit_tree();
+        root->_propagate_after_exit_branch(true);
         memdelete(root); //delete root
         root = nullptr;
     }
-    // cleanup timers
+    // In case deletion of some objects was queued when destructing the `root`.
+    // E.g. if `queue_free()` was called for some node outside the tree when handling NOTIFICATION_PREDELETE for some node in the tree.
+    _flush_delete_queue();
+
+    // Cleanup timers.
     for (const Ref<SceneTreeTimer> &E : timers) {
         E->release_connections();
     }
@@ -998,6 +1028,9 @@ void SceneTree::quit(int p_exit_code) {
         // Override the exit code if a positive argument is given (the default is `-1`).
         // This is a shorthand for calling `set_exit_code()` on the OS singleton then quitting.
         OS::get_singleton()->set_exit_code(p_exit_code);
+    } else if (!OS::get_singleton()->is_custom_exit_code()) {
+        // Must customize exit code, otherwise it will default to a non-zero value
+        OS::get_singleton()->set_exit_code(EXIT_SUCCESS);
     }
 
     _quit = true;
@@ -1042,7 +1075,7 @@ void SceneTree::_notification(int p_notification) {
         } break;
         case NOTIFICATION_WM_UNFOCUS_REQUEST: {
 
-            notify_group_flags(GROUP_CALL_REALTIME | GROUP_CALL_MULTILEVEL, "input", NOTIFICATION_WM_UNFOCUS_REQUEST);
+            notify_group_flags(GROUP_CALL_REALTIME, "input", NOTIFICATION_WM_UNFOCUS_REQUEST);
 
             get_root()->propagate_notification(p_notification);
 
@@ -1064,11 +1097,6 @@ void SceneTree::_notification(int p_notification) {
         default:
             break;
     }
-}
-
-void SceneTree::set_auto_accept_quit(bool p_enable) {
-
-    accept_quit = p_enable;
 }
 
 void SceneTree::set_quit_on_go_back(bool p_enable) {
@@ -1254,6 +1282,7 @@ void SceneTree::set_pause(bool p_enabled) {
     if (p_enabled == pause)
         return;
     pause = p_enabled;
+    NavigationServer::get_singleton()->set_active(!p_enabled);
     PhysicsServer3D::get_singleton()->set_active(!p_enabled);
     PhysicsServer2D::get_singleton()->set_active(!p_enabled);
     if (get_root())
@@ -1384,7 +1413,7 @@ Variant SceneTree::_call_group_flags(const Variant **p_args, int p_argcount, Cal
     StringName method = p_args[2]->as<StringName>();
     Variant v[VARIANT_ARG_MAX];
 
-    for (int i = 0; i < MIN(p_argcount - 3, 5); i++) {
+    for (int i = 0; i < MIN(p_argcount - 3, VARIANT_ARG_MAX); i++) {
 
         v[i] = *p_args[i + 3];
     }
@@ -1398,8 +1427,8 @@ Variant SceneTree::_call_group(const Variant **p_args, int p_argcount, Callable:
     r_error.error = Callable::CallError::CALL_OK;
 
     ERR_FAIL_COND_V(p_argcount < 2, Variant());
-    ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING && p_args[1]->get_type() != VariantType::STRING_NAME, Variant());
-    ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING && p_args[2]->get_type() != VariantType::STRING_NAME, Variant());
+    ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING_NAME, Variant());
+    ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING_NAME, Variant());
 
     StringName group = p_args[0]->as<StringName>();
     StringName method = p_args[1]->as<StringName>();
@@ -1450,7 +1479,7 @@ bool SceneTree::has_group(const StringName &p_identifier) const {
 
     return group_map.contains(p_identifier);
 }
-void SceneTree::get_nodes_in_group(const StringName &p_group, Deque<Node *> *p_list) {
+void SceneTree::get_nodes_in_group(const StringName &p_group, Dequeue<Node *> *p_list) {
 
     HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
@@ -1469,10 +1498,10 @@ void SceneTree::get_nodes_in_group(const StringName &p_group, Deque<Node *> *p_l
 
 void SceneTree::_flush_delete_queue() {
 
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
-    for(ObjectID id : delete_queue) {
-        Object *obj = ObjectDB::get_instance(id);
+    for(GameEntity id : delete_queue) {
+        Object *obj = object_for_entity(id);
         memdelete(obj);
     }
     delete_queue.clear();
@@ -1480,7 +1509,7 @@ void SceneTree::_flush_delete_queue() {
 
 void SceneTree::queue_delete(Object *p_object) {
 
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
     ERR_FAIL_NULL(p_object);
     p_object->deleteLater();
     delete_queue.push_back(p_object->get_instance_id());
@@ -1495,17 +1524,17 @@ void SceneTree::_update_root_rect() {
 
     if (stretch_mode == STRETCH_MODE_DISABLED) {
 
-        _update_font_oversampling(1.0);
-        root->set_size((last_screen_size / stretch_shrink).floor());
+        _update_font_oversampling(stretch_scale);
+        root->set_size(last_screen_size.floor());
         root->set_attach_to_screen_rect(Rect2(Point2(), last_screen_size));
-        root->set_size_override_stretch(false);
-        root->set_size_override(false, Size2());
+        root->set_size_override_stretch(true);
+        root->set_size_override(true, (last_screen_size / stretch_scale).floor());
         root->update_canvas_items();
         return; //user will take care
     }
 
     //actual screen video mode
-    Size2 video_mode = Size2(OS::get_singleton()->get_window_size().width, OS::get_singleton()->get_window_size().height);
+    Size2 video_mode = OS::get_singleton()->get_window_size();
     Size2 desired_res = stretch_min;
 
     Size2 viewport_size;
@@ -1514,11 +1543,6 @@ void SceneTree::_update_root_rect() {
     float viewport_aspect = desired_res.aspect();
     float video_mode_aspect = video_mode.aspect();
 
-    if (use_font_oversampling && stretch_aspect == STRETCH_ASPECT_IGNORE) {
-        WARN_PRINT("Font oversampling only works with the stretch modes \"Keep Width\", \"Keep Height\" and \"Expand\", "
-                   "not \"Ignore\". To remove this warning, disable Rendering > Quality > Dynamic Fonts > Use Oversampling "
-                   "in the Project Settings.");
-    }
 
     if (stretch_aspect == STRETCH_ASPECT_IGNORE || Math::is_equal_approx(viewport_aspect, video_mode_aspect)) {
         //same aspect or ignore aspect
@@ -1578,42 +1602,37 @@ void SceneTree::_update_root_rect() {
     switch (stretch_mode) {
         case STRETCH_MODE_DISABLED: {
             // Already handled above
-            _update_font_oversampling(1.0);
         } break;
         case STRETCH_MODE_2D: {
 
-            _update_font_oversampling(screen_size.x / viewport_size.x); //screen / viewport radio drives oversampling
-            root->set_size((screen_size / stretch_shrink).floor());
+            _update_font_oversampling((screen_size.x / viewport_size.x) * stretch_scale); //screen / viewport ratio drives oversampling
+            root->set_size(screen_size.floor());
             root->set_attach_to_screen_rect(Rect2(margin, screen_size));
             root->set_size_override_stretch(true);
-            root->set_size_override(true, (viewport_size / stretch_shrink).floor());
+            root->set_size_override(true, (viewport_size / stretch_scale).floor());
             root->update_canvas_items(); //force them to update just in case
 
         } break;
         case STRETCH_MODE_VIEWPORT: {
 
             _update_font_oversampling(1.0);
-            root->set_size((viewport_size / stretch_shrink).floor());
+            root->set_size((viewport_size / stretch_scale).floor());
             root->set_attach_to_screen_rect(Rect2(margin, screen_size));
             root->set_size_override_stretch(false);
             root->set_size_override(false, Size2());
             root->update_canvas_items(); //force them to update just in case
 
-            if (use_font_oversampling) {
-                WARN_PRINT("Font oversampling does not work in \"Viewport\" stretch mode, only \"2D\". To remove this warning, "
-                           "disable Rendering > Quality > Dynamic Fonts > Use Oversampling in the Project Settings.");
-            }
 
         } break;
     }
 }
 
-void SceneTree::set_screen_stretch(StretchMode p_mode, StretchAspect p_aspect, const Size2 &p_minsize, real_t p_shrink) {
+void SceneTree::set_screen_stretch(StretchMode p_mode, StretchAspect p_aspect, const Size2 &p_minsize, real_t p_scale) {
 
     stretch_mode = p_mode;
     stretch_aspect = p_aspect;
     stretch_min = p_minsize;
-    stretch_shrink = p_shrink;
+    stretch_scale = p_scale;
     _update_root_rect();
 }
 
@@ -1815,34 +1834,34 @@ bool SceneTree::is_refusing_new_network_connections() const {
 
 void SceneTree::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_root"), &SceneTree::get_root);
-    MethodBinder::bind_method(D_METHOD("has_group", {"name"}), &SceneTree::has_group);
+    BIND_METHOD(SceneTree,get_root);
+    BIND_METHOD(SceneTree,has_group);
 
-    MethodBinder::bind_method(D_METHOD("set_auto_accept_quit", {"enabled"}), &SceneTree::set_auto_accept_quit);
-    MethodBinder::bind_method(D_METHOD("set_quit_on_go_back", {"enabled"}), &SceneTree::set_quit_on_go_back);
+    BIND_METHOD(SceneTree,set_auto_accept_quit);
+    BIND_METHOD(SceneTree,set_quit_on_go_back);
 
-    MethodBinder::bind_method(D_METHOD("set_debug_collisions_hint", {"enable"}), &SceneTree::set_debug_collisions_hint);
-    MethodBinder::bind_method(D_METHOD("is_debugging_collisions_hint"), &SceneTree::is_debugging_collisions_hint);
-    MethodBinder::bind_method(D_METHOD("set_debug_navigation_hint", {"enable"}), &SceneTree::set_debug_navigation_hint);
-    MethodBinder::bind_method(D_METHOD("is_debugging_navigation_hint"), &SceneTree::is_debugging_navigation_hint);
+    BIND_METHOD(SceneTree,set_debug_collisions_hint);
+    BIND_METHOD(SceneTree,is_debugging_collisions_hint);
+    BIND_METHOD(SceneTree,set_debug_navigation_hint);
+    BIND_METHOD(SceneTree,is_debugging_navigation_hint);
 
-    MethodBinder::bind_method(D_METHOD("set_edited_scene_root", {"scene"}), &SceneTree::set_edited_scene_root);
-    MethodBinder::bind_method(D_METHOD("get_edited_scene_root"), &SceneTree::get_edited_scene_root);
+    BIND_METHOD(SceneTree,set_edited_scene_root);
+    BIND_METHOD(SceneTree,get_edited_scene_root);
 
-    MethodBinder::bind_method(D_METHOD("set_pause", {"enable"}), &SceneTree::set_pause);
-    MethodBinder::bind_method(D_METHOD("is_paused"), &SceneTree::is_paused);
-    MethodBinder::bind_method(D_METHOD("set_input_as_handled"), &SceneTree::set_input_as_handled);
-    MethodBinder::bind_method(D_METHOD("is_input_handled"), &SceneTree::is_input_handled);
+    BIND_METHOD(SceneTree,set_pause);
+    BIND_METHOD(SceneTree,is_paused);
+    BIND_METHOD(SceneTree,set_input_as_handled);
+    BIND_METHOD(SceneTree,is_input_handled);
 
     MethodBinder::bind_method(D_METHOD("create_timer", {"time_sec", "pause_mode_process"}), &SceneTree::create_timer, {DEFVAL(true)});
 
-    MethodBinder::bind_method(D_METHOD("get_node_count"), &SceneTree::get_node_count);
-    MethodBinder::bind_method(D_METHOD("get_frame"), &SceneTree::get_frame);
+    BIND_METHOD(SceneTree,get_node_count);
+    BIND_METHOD(SceneTree,get_frame);
     MethodBinder::bind_method(D_METHOD("quit", {"exit_code"}), &SceneTree::quit, {DEFVAL(-1)});
 
-    MethodBinder::bind_method(D_METHOD("set_screen_stretch", {"mode", "aspect", "minsize", "shrink"}), &SceneTree::set_screen_stretch, {DEFVAL(1)});
+    MethodBinder::bind_method(D_METHOD("set_screen_stretch", {"mode", "aspect", "minsize", "scale"}), &SceneTree::set_screen_stretch, {DEFVAL(1.0f)});
 
-    MethodBinder::bind_method(D_METHOD("queue_delete", {"obj"}), &SceneTree::queue_delete);
+    BIND_METHOD(SceneTree,queue_delete);
 
     MethodInfo mi("call_group_flags",
                   PropertyInfo(VariantType::INT, "flags"),
@@ -1851,8 +1870,8 @@ void SceneTree::_bind_methods() {
 
     MethodBinder::bind_vararg_method("call_group_flags", &SceneTree::_call_group_flags, eastl::move(mi));
 
-    MethodBinder::bind_method(D_METHOD("notify_group_flags", {"call_flags", "group", "notification"}), &SceneTree::notify_group_flags);
-    MethodBinder::bind_method(D_METHOD("set_group_flags", {"call_flags", "group", "property", "value"}), &SceneTree::set_group_flags);
+    BIND_METHOD(SceneTree,notify_group_flags);
+    BIND_METHOD(SceneTree,set_group_flags);
 
     MethodInfo mi2("call_group",
                    PropertyInfo(VariantType::STRING_NAME, "group"),
@@ -1860,37 +1879,37 @@ void SceneTree::_bind_methods() {
 
     MethodBinder::bind_vararg_method( "call_group", &SceneTree::_call_group, eastl::move(mi2));
 
-    MethodBinder::bind_method(D_METHOD("notify_group", {"group", "notification"}), &SceneTree::notify_group);
-    MethodBinder::bind_method(D_METHOD("set_group", {"group", "property", "value"}), &SceneTree::set_group);
+    BIND_METHOD(SceneTree,notify_group);
+    BIND_METHOD(SceneTree,set_group);
 
     MethodBinder::bind_method(D_METHOD("get_nodes_in_group", {"group"}), &SceneTree::_get_nodes_in_group);
 
-    MethodBinder::bind_method(D_METHOD("set_current_scene", {"child_node"}), &SceneTree::set_current_scene);
-    MethodBinder::bind_method(D_METHOD("get_current_scene"), &SceneTree::get_current_scene);
+    BIND_METHOD(SceneTree,set_current_scene);
+    BIND_METHOD(SceneTree,get_current_scene);
 
-    MethodBinder::bind_method(D_METHOD("change_scene", {"path"}), &SceneTree::change_scene);
-    MethodBinder::bind_method(D_METHOD("change_scene_to", {"packed_scene"}), &SceneTree::change_scene_to);
+    BIND_METHOD(SceneTree,change_scene);
+    BIND_METHOD(SceneTree,change_scene_to);
 
-    MethodBinder::bind_method(D_METHOD("reload_current_scene"), &SceneTree::reload_current_scene);
+    BIND_METHOD(SceneTree,reload_current_scene);
 
-    MethodBinder::bind_method(D_METHOD("_change_scene"), &SceneTree::_change_scene);
+    BIND_METHOD(SceneTree,_change_scene);
 
-    MethodBinder::bind_method(D_METHOD("set_multiplayer", {"multiplayer"}), &SceneTree::set_multiplayer);
-    MethodBinder::bind_method(D_METHOD("get_multiplayer"), &SceneTree::get_multiplayer);
-    MethodBinder::bind_method(D_METHOD("set_multiplayer_poll_enabled", {"enabled"}), &SceneTree::set_multiplayer_poll_enabled);
-    MethodBinder::bind_method(D_METHOD("is_multiplayer_poll_enabled"), &SceneTree::is_multiplayer_poll_enabled);
-    MethodBinder::bind_method(D_METHOD("set_network_peer", {"peer"}), &SceneTree::set_network_peer);
-    MethodBinder::bind_method(D_METHOD("get_network_peer"), &SceneTree::get_network_peer);
-    MethodBinder::bind_method(D_METHOD("is_network_server"), &SceneTree::is_network_server);
-    MethodBinder::bind_method(D_METHOD("has_network_peer"), &SceneTree::has_network_peer);
-    MethodBinder::bind_method(D_METHOD("get_network_connected_peers"), &SceneTree::get_network_connected_peers);
-    MethodBinder::bind_method(D_METHOD("get_network_unique_id"), &SceneTree::get_network_unique_id);
-    MethodBinder::bind_method(D_METHOD("get_rpc_sender_id"), &SceneTree::get_rpc_sender_id);
-    MethodBinder::bind_method(D_METHOD("set_refuse_new_network_connections", {"refuse"}), &SceneTree::set_refuse_new_network_connections);
-    MethodBinder::bind_method(D_METHOD("is_refusing_new_network_connections"), &SceneTree::is_refusing_new_network_connections);
+    BIND_METHOD(SceneTree,set_multiplayer);
+    BIND_METHOD(SceneTree,get_multiplayer);
+    BIND_METHOD(SceneTree,set_multiplayer_poll_enabled);
+    BIND_METHOD(SceneTree,is_multiplayer_poll_enabled);
+    BIND_METHOD(SceneTree,set_network_peer);
+    BIND_METHOD(SceneTree,get_network_peer);
+    BIND_METHOD(SceneTree,is_network_server);
+    BIND_METHOD(SceneTree,has_network_peer);
+    BIND_METHOD(SceneTree,get_network_connected_peers);
+    BIND_METHOD(SceneTree,get_network_unique_id);
+    BIND_METHOD(SceneTree,get_rpc_sender_id);
+    BIND_METHOD(SceneTree,set_refuse_new_network_connections);
+    BIND_METHOD(SceneTree,is_refusing_new_network_connections);
 
-    MethodBinder::bind_method(D_METHOD("set_use_font_oversampling", {"enable"}), &SceneTree::set_use_font_oversampling);
-    MethodBinder::bind_method(D_METHOD("is_using_font_oversampling"), &SceneTree::is_using_font_oversampling);
+    BIND_METHOD(SceneTree,set_use_font_oversampling);
+    BIND_METHOD(SceneTree,is_using_font_oversampling);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "debug_collisions_hint"), "set_debug_collisions_hint", "is_debugging_collisions_hint");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "debug_navigation_hint"), "set_debug_navigation_hint", "is_debugging_navigation_hint");
@@ -1916,7 +1935,10 @@ void SceneTree::_bind_methods() {
     ADD_SIGNAL(MethodInfo("physics_frame"));
 
     ADD_SIGNAL(MethodInfo("files_dropped", PropertyInfo(VariantType::POOL_STRING_ARRAY, "files"), PropertyInfo(VariantType::INT, "screen")));
-    ADD_SIGNAL(MethodInfo("global_menu_action", PropertyInfo(VariantType::NIL, "id"), PropertyInfo(VariantType::NIL, "meta")));
+    ADD_SIGNAL(MethodInfo("global_menu_action",
+                          PropertyInfo(VariantType::NIL, "id",PropertyHint::None,"",PROPERTY_USAGE_NIL_IS_VARIANT),
+                          PropertyInfo(VariantType::NIL, "meta",PropertyHint::None,"",PROPERTY_USAGE_NIL_IS_VARIANT))
+               );
     ADD_SIGNAL(MethodInfo("network_peer_connected", PropertyInfo(VariantType::INT, "id")));
     ADD_SIGNAL(MethodInfo("network_peer_disconnected", PropertyInfo(VariantType::INT, "id")));
     ADD_SIGNAL(MethodInfo("connected_to_server"));
@@ -1969,42 +1991,7 @@ bool SceneTree::is_using_font_oversampling() const {
     return use_font_oversampling;
 }
 
-void SceneTree::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
-    using namespace PathUtils;
-
-    if (p_function != "change_scene")
-        return;
-
-    DirAccessRef dir_access = DirAccess::create(DirAccess::ACCESS_RESOURCES);
-    Vector<String> directories;
-    directories.push_back(dir_access->get_current_dir());
-
-    while (!directories.empty()) {
-        dir_access->change_dir(directories.back());
-        directories.pop_back();
-
-        dir_access->list_dir_begin();
-        String filename = dir_access->get_next();
-
-        while (!filename.empty()) {
-            if (filename == "." || filename == "..") {
-                filename = dir_access->get_next();
-                continue;
-            }
-
-            if (dir_access->dir_exists(filename)) {
-                directories.push_back(plus_file(dir_access->get_current_dir(),filename));
-            } else if (StringUtils::ends_with(filename,".tscn") || StringUtils::ends_with(filename,".scn")) {
-                r_options->push_back("\"" + plus_file(dir_access->get_current_dir(),filename) + "\"");
-            }
-
-            filename = dir_access->get_next();
-        }
-    }
-}
 SceneTree::SceneTree() {
-    __thread__safe__.reset(new Mutex);
-
     if (singleton == nullptr)
         singleton = this;
 
@@ -2019,12 +2006,14 @@ SceneTree::SceneTree() {
     debug_collisions_hint = false;
     debug_navigation_hint = false;
 #endif
-    debug_collisions_color = T_GLOBAL_DEF("debug/shapes/collision/shape_color", Color(0.0, 0.6f, 0.7f, 0.5));
+    debug_collisions_color = T_GLOBAL_DEF("debug/shapes/collision/shape_color", Color(0.0, 0.6f, 0.7f, 0.42));
     debug_collision_contact_color = T_GLOBAL_DEF("debug/shapes/collision/contact_color", Color(1.0, 0.2f, 0.1f, 0.8f));
     debug_navigation_color = T_GLOBAL_DEF("debug/shapes/navigation/geometry_color", Color(0.1f, 1.0, 0.7f, 0.4f));
     debug_navigation_disabled_color = T_GLOBAL_DEF("debug/shapes/navigation/disabled_geometry_color", Color(1.0, 0.7f, 0.1f, 0.4f));
     collision_debug_contacts = T_GLOBAL_DEF<int>("debug/shapes/collision/max_contacts_displayed", 10000);
     ProjectSettings::get_singleton()->set_custom_property_info("debug/shapes/collision/max_contacts_displayed", PropertyInfo(VariantType::INT, "debug/shapes/collision/max_contacts_displayed", PropertyHint::Range, "0,20000,1")); // No negative
+
+    GLOBAL_DEF("debug/shapes/collision/draw_2d_outlines", true);
 
     tree_version = 1;
     physics_process_time = 1;
@@ -2050,24 +2039,31 @@ SceneTree::SceneTree() {
     root = memnew(Viewport);
     root->set_name("root");
     root->set_handle_input_locally(false);
-    if (not root->get_world())
-        root->set_world(make_ref_counted<World3D>());
+    if (not root->get_world_3d()) {
+        root->set_world_3d(make_ref_counted<World3D>());
+    }
 
     // Initialize network state
     multiplayer_poll = true;
     set_multiplayer(make_ref_counted<MultiplayerAPI>());
 
-    //root->set_world_2d( Ref<World2D>( memnew( World2D )));
     root->set_as_audio_listener(true);
     root->set_as_audio_listener_2d(true);
     current_scene = nullptr;
 
     int ref_atlas_size = T_GLOBAL_DEF<int>("rendering/quality/reflections/atlas_size", 2048,true);
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/reflections/atlas_size", PropertyInfo(VariantType::INT, "rendering/quality/reflections/atlas_size", PropertyHint::Range, "0,8192,or_greater")); //next_power_of_2 will return a 0 as min value
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/reflections/atlas_size",
+            PropertyInfo(VariantType::INT, "rendering/quality/reflections/atlas_size", PropertyHint::Range,
+                    "0,8192,1,or_greater")); // next_power_of_2 will return a 0 as min value.
     int ref_atlas_subdiv = T_GLOBAL_DEF<int>("rendering/quality/reflections/atlas_subdiv", 8,true);
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/reflections/atlas_subdiv", PropertyInfo(VariantType::INT, "rendering/quality/reflections/atlas_subdiv", PropertyHint::Range, "0,32,or_greater")); //next_power_of_2 will return a 0 as min value
-    Viewport::MSAA msaa_mode = T_GLOBAL_DEF< Viewport::MSAA>("rendering/quality/filters/msaa", Viewport::MSAA::MSAA_DISABLED);
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/filters/msaa", PropertyInfo(VariantType::INT, "rendering/quality/filters/msaa", PropertyHint::Enum, "Disabled,2x,4x,8x,16x,AndroidVR 2x,AndroidVR 4x"));
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/reflections/atlas_subdiv",
+            PropertyInfo(VariantType::INT, "rendering/quality/reflections/atlas_subdiv", PropertyHint::Range,
+                    "0,32,1,or_greater")); // next_power_of_2 will return a 0 as min value.
+    Viewport::MSAA msaa_mode =
+            T_GLOBAL_DEF<Viewport::MSAA>("rendering/quality/filters/msaa", Viewport::MSAA::MSAA_DISABLED);
+    ProjectSettings::get_singleton()->set_custom_property_info(
+            "rendering/quality/filters/msaa", PropertyInfo(VariantType::INT, "rendering/quality/filters/msaa",
+                                                      PropertyHint::Enum, "Disabled,2x,4x,8x,16x"));
     root->set_msaa(msaa_mode);
 
     const bool use_fxaa = T_GLOBAL_DEF<bool>("rendering/quality/filters/use_fxaa", false);
@@ -2076,12 +2072,19 @@ SceneTree::SceneTree() {
     const bool use_debanding = T_GLOBAL_DEF<bool>("rendering/quality/filters/use_debanding", false);
     root->set_use_debanding(use_debanding);
 
-    GLOBAL_DEF_RST("rendering/quality/depth/hdr", true);
+    const float sharpen_intensity = T_GLOBAL_DEF<float>("rendering/quality/filters/sharpen_intensity",0.0f);
+    root->set_sharpen_intensity(sharpen_intensity);
 
-    bool hdr = GLOBAL_GET("rendering/quality/depth/hdr").as<bool>();
+    GLOBAL_DEF("rendering/quality/depth/hdr", true);
+
+    const bool hdr = GLOBAL_GET("rendering/quality/depth/hdr").as<bool>();
     root->set_hdr(hdr);
+    GLOBAL_DEF("rendering/quality/depth/use_32_bpc_depth", false);
 
-    RenderingServer::get_singleton()->scenario_set_reflection_atlas_size(root->get_world()->get_scenario(), ref_atlas_size, ref_atlas_subdiv);
+    const bool use_32_bpc_depth = T_GLOBAL_GET<bool>("rendering/quality/depth/use_32_bpc_depth");
+    root->set_use_32_bpc_depth(use_32_bpc_depth);
+
+    RenderingServer::get_singleton()->scenario_set_reflection_atlas_size(root->get_world_3d()->get_scenario(), ref_atlas_size, ref_atlas_subdiv);
 
     { //load default fallback environment
         //get possible extensions
@@ -2102,7 +2105,7 @@ SceneTree::SceneTree() {
         if (!env_path.empty()) {
             Ref<Environment> env = dynamic_ref_cast<Environment>(gResourceManager().load(env_path));
             if (env) {
-                root->get_world()->set_fallback_environment(env);
+                root->get_world_3d()->set_fallback_environment(env);
             } else {
                 if (Engine::get_singleton()->is_editor_hint()) {
                     //file was erased, clear the field.
@@ -2117,9 +2120,9 @@ SceneTree::SceneTree() {
 
     stretch_mode = STRETCH_MODE_DISABLED;
     stretch_aspect = STRETCH_ASPECT_IGNORE;
-    stretch_shrink = 1;
+    stretch_scale = 1.0;
 
-    last_screen_size = Size2(OS::get_singleton()->get_window_size().width, OS::get_singleton()->get_window_size().height);
+    last_screen_size = OS::get_singleton()->get_window_size();
     _update_root_rect();
 
     if (ScriptDebugger::get_singleton()) {
@@ -2141,7 +2144,7 @@ SceneTree::SceneTree() {
 SceneTree::~SceneTree() {
     if (root) {
         root->_set_tree(nullptr);
-        root->_propagate_after_exit_tree();
+        root->_propagate_after_exit_branch(true);
         memdelete(root);
     }
 

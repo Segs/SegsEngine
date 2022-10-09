@@ -30,10 +30,11 @@
 
 #include "image_loader_webp.h"
 
-#include "core/image_data.h"
+#include "core/image.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
+#include "core/project_settings.h"
 
 #include <cstdlib>
 #include <webp/decode.h>
@@ -53,9 +54,9 @@ static Vector<uint8_t> _webp_lossy_pack(const ImageData &p_image, float p_qualit
     size_t dst_size = 0;
     if (p_image.format == ImageData::FORMAT_RGB8) {
 
-        dst_size = WebPEncodeRGB(r.ptr(), s.width, s.height, 3 * s.width, CLAMP(p_quality * 100.0f, 0, 100.0), &dst_buff);
+        dst_size = WebPEncodeRGB(r.ptr(), s.width, s.height, 3 * s.width, CLAMP(p_quality * 100.0f, 0.0f, 100.0f), &dst_buff);
     } else {
-        dst_size = WebPEncodeRGBA(r.ptr(), s.width, s.height, 4 * s.width, CLAMP(p_quality * 100.0f, 0, 100.0), &dst_buff);
+        dst_size = WebPEncodeRGBA(r.ptr(), s.width, s.height, 4 * s.width, CLAMP(p_quality * 100.0f, 0.0f, 100.0f), &dst_buff);
     }
 
     ERR_FAIL_COND_V(dst_size == 0, Vector<uint8_t>());
@@ -66,7 +67,71 @@ static Vector<uint8_t> _webp_lossy_pack(const ImageData &p_image, float p_qualit
     dst[2] = 'B';
     dst[3] = 'P';
     memcpy(dst.data()+4, dst_buff, dst_size);
-    free(dst_buff);
+    WebPFree(dst_buff);
+    return dst;
+}
+
+static Vector<uint8_t> _webp_lossless_pack(const ImageData &p_image) {
+    ERR_FAIL_COND_V(p_image.data.empty(), {});
+
+    int compression_level = ProjectSettings::get_singleton()->getT<int>("rendering/misc/lossless_compression/webp_compression_level");
+    compression_level = CLAMP(compression_level, 0, 9);
+
+    Image img(eastl::move(ImageData(p_image)));
+
+    if (img.detect_alpha()) {
+        img.convert(ImageData::FORMAT_RGBA8);
+    } else {
+        img.convert(ImageData::FORMAT_RGB8);
+    }
+
+    Size2 s(img.get_width(), img.get_height());
+    PoolVector<uint8_t> data = img.get_data();
+    PoolVector<uint8_t>::Read r = data.read();
+
+    // we need to use the more complex API in order to access the 'exact' flag...
+
+    WebPConfig config;
+    WebPPicture pic;
+    if (!WebPConfigInit(&config) || !WebPConfigLosslessPreset(&config, compression_level) || !WebPPictureInit(&pic)) {
+        ERR_FAIL_V({});
+    }
+
+    WebPMemoryWriter wrt;
+    config.exact = 1;
+    pic.use_argb = 1;
+    pic.width = s.width;
+    pic.height = s.height;
+    pic.writer = WebPMemoryWrite;
+    pic.custom_ptr = &wrt;
+    WebPMemoryWriterInit(&wrt);
+
+    bool success_import = false;
+    if (img.get_format() == ImageData::FORMAT_RGB8) {
+        success_import = WebPPictureImportRGB(&pic, r.ptr(), 3 * s.width);
+    } else {
+        success_import = WebPPictureImportRGBA(&pic, r.ptr(), 4 * s.width);
+    }
+    bool success_encode = false;
+    if (success_import) {
+        success_encode = WebPEncode(&config, &pic);
+    }
+    WebPPictureFree(&pic);
+
+    if (!success_encode) {
+        WebPMemoryWriterClear(&wrt);
+        ERR_FAIL_V_MSG({}, "WebP packing failed.");
+    }
+
+    // copy from wrt
+    Vector<uint8_t> dst;
+    dst.resize(4 + wrt.size);
+    dst[0] = 'W';
+    dst[1] = 'E';
+    dst[2] = 'B';
+    dst[3] = 'P';
+    memcpy(dst.data()+4, wrt.mem, wrt.size);
+    WebPMemoryWriterClear(&wrt);
     return dst;
 }
 
@@ -102,7 +167,7 @@ Error webp_load_image_from_buffer(ImageData &p_image, const uint8_t *p_buffer, i
 Error ImageLoaderWEBP::load_image(ImageData &p_image, FileAccess *f, LoadParams params) {
 
     PoolVector<uint8_t> src_image;
-    int src_image_len = f->get_len();
+    uint64_t src_image_len = f->get_len();
     ERR_FAIL_COND_V(src_image_len == 0, ERR_FILE_CORRUPT);
     src_image.resize(src_image_len);
 
@@ -119,14 +184,24 @@ Error ImageLoaderWEBP::load_image(ImageData &p_image, FileAccess *f, LoadParams 
 
 Error ImageLoaderWEBP::save_image(const ImageData &p_image, Vector<uint8_t> &tgt, SaveParams params)
 {
+    if(params.p_lossless)
+        tgt = _webp_lossless_pack(p_image);
+    else
     tgt = _webp_lossy_pack(p_image,params.p_quality);
     return tgt.size()==0 ? ERR_CANT_CREATE : OK;
 }
 Error ImageLoaderWEBP::save_image(const ImageData &p_image, FileAccess *p_fileaccess, SaveParams params)
 {
-    Vector<uint8_t> tgt = _webp_lossy_pack(p_image,params.p_quality);
-    if(tgt.size()==0)
+    Vector<uint8_t> tgt;
+    if(params.p_lossless) {
+        tgt = _webp_lossless_pack(p_image);
+    }
+    else {
+        tgt = _webp_lossy_pack(p_image,params.p_quality);
+    }
+    if(tgt.empty()) {
         return ERR_CANT_CREATE;
+    }
     p_fileaccess->store_buffer(tgt.data(), tgt.size());
     if (p_fileaccess->get_error() != OK && p_fileaccess->get_error() != ERR_FILE_EOF) {
         return ERR_CANT_CREATE;

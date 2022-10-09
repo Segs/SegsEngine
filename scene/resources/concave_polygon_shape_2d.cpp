@@ -58,13 +58,13 @@ bool ConcavePolygonShape2D::_edit_is_selected_on_click(const Point2 &p_point, fl
 
 void ConcavePolygonShape2D::set_segments(const PoolVector<Vector2> &p_segments) {
 
-    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), Variant(p_segments));
+    PhysicsServer2D::get_singleton()->shape_set_data(get_phys_rid(), Variant(p_segments));
     emit_changed();
 }
 
 PoolVector<Vector2> ConcavePolygonShape2D::get_segments() const {
 
-    return PhysicsServer2D::get_singleton()->shape_get_data(get_rid()).as<PoolVector<Vector2>>();
+    return PhysicsServer2D::get_singleton()->shape_get_data(get_phys_rid()).as<PoolVector<Vector2>>();
 }
 
 real_t ConcavePolygonShape2D::get_enclosing_radius() const {
@@ -78,7 +78,7 @@ real_t ConcavePolygonShape2D::get_enclosing_radius() const {
 }
 
 
-void ConcavePolygonShape2D::draw(const RID &p_to_rid, const Color &p_color) {
+void ConcavePolygonShape2D::draw(RenderingEntity p_to_rid, const Color &p_color) {
 
     PoolVector<Vector2> s = get_segments();
     int len = s.size();
@@ -113,8 +113,8 @@ Rect2 ConcavePolygonShape2D::get_rect() const {
 
 void ConcavePolygonShape2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_segments", {"segments"}), &ConcavePolygonShape2D::set_segments);
-    MethodBinder::bind_method(D_METHOD("get_segments"), &ConcavePolygonShape2D::get_segments);
+    BIND_METHOD(ConcavePolygonShape2D,set_segments);
+    BIND_METHOD(ConcavePolygonShape2D,get_segments);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "segments"), "set_segments", "get_segments");
 }

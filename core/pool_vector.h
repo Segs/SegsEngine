@@ -40,17 +40,13 @@
 #include "EASTL/type_traits.h"
 
 class Object;
-namespace std {
-class recursive_mutex;
-}
-using Mutex = std::recursive_mutex;
 
 struct GODOT_EXPORT MemoryPool {
 
     struct Alloc {
 
         SafeRefCount refcount;
-        uint32_t lock = 0;
+        SafeNumeric<uint32_t> lock {0};
         void *mem = nullptr;
         size_t size = 0;
         Alloc *free_list = nullptr;
@@ -61,7 +57,6 @@ struct GODOT_EXPORT MemoryPool {
     static Alloc *free_list;
     static uint32_t alloc_count;
     static uint32_t allocs_used;
-    static Mutex *alloc_mutex;
     static size_t total_memory;
     static size_t max_memory;
 
@@ -204,7 +199,7 @@ class PoolVector {
         _FORCE_INLINE_ void _ref(MemoryPool::Alloc *p_alloc) {
             alloc = p_alloc;
             if (alloc) {
-                if (atomic_increment(&alloc->lock) == 1) {
+                if (alloc->lock.increment() == 1) {
                 }
 
                 mem = (T *)alloc->mem;
@@ -214,7 +209,7 @@ class PoolVector {
         _FORCE_INLINE_ void _unref() {
 
             if (alloc) {
-                if (atomic_decrement(&alloc->lock) == 0) {
+                if (alloc->lock.decrement() == 0) {
                 }
 
                 mem = nullptr;
@@ -387,7 +382,7 @@ public:
 
         return OK;
     }
-    bool is_locked() const { return alloc && alloc->lock > 0; }
+    bool is_locked() const { return alloc && alloc->lock.get() > 0; }
 
     const T & operator[](int p_index) const;
 
@@ -487,7 +482,7 @@ Error PoolVector<T>::resize(int p_size) {
             return ERR_OUT_OF_MEMORY;
     } else {
 
-        ERR_FAIL_COND_V_MSG(alloc->lock > 0, ERR_LOCKED, "Can't resize PoolVector if locked."); //can't resize if locked!
+        ERR_FAIL_COND_V_MSG(alloc->lock.get() > 0, ERR_LOCKED, "Can't resize PoolVector if locked."); //can't resize if locked!
     }
 
     size_t new_size = sizeof(T) * p_size;

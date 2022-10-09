@@ -42,7 +42,7 @@
 #include "editor/editor_settings.h"
 #include "editor/plugins/script_editor_plugin.h"
 #include "editor/script_editor_debugger.h"
-#include "main/main.h"
+#include "main/main_class.h"
 #include "../csharp_script.h"
 #include "glue/cs_glue_version.gen.h"
 #include "../godotsharp_dirs.h"
@@ -52,6 +52,7 @@
 #include "code_completion.h"
 #include "godotsharp_export.h"
 #include "script_class_parser.h"
+#include "core/version_generated.gen.h"
 
 MonoString *godot_icall_GodotSharpDirs_ResDataDir() {
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_res_data_dir());
@@ -104,6 +105,14 @@ MonoString *godot_icall_GodotSharpDirs_MonoSolutionsDir() {
 MonoString *godot_icall_GodotSharpDirs_BuildLogsDirs() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_build_logs_dir());
+#else
+    return nullptr;
+#endif
+}
+
+MonoString *godot_icall_GodotSharpDirs_ProjectAssemblyName() {
+#ifdef TOOLS_ENABLED
+    return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_project_assembly_name());
 #else
     return nullptr;
 #endif
@@ -256,11 +265,11 @@ void godot_icall_Internal_GodotMainIteration() {
 }
 
 uint64_t godot_icall_Internal_GetCoreApiHash() {
-    return ClassDB::get_api_hash(ClassDB::API_CORE);
+    return ClassDB::get_api_hash(ClassDB_APIType::API_CORE);
 }
 
 uint64_t godot_icall_Internal_GetEditorApiHash() {
-    return ClassDB::get_api_hash(ClassDB::API_EDITOR);
+    return ClassDB::get_api_hash(ClassDB_APIType::API_EDITOR);
 }
 
 MonoBoolean godot_icall_Internal_IsAssembliesReloadingNeeded() {
@@ -385,6 +394,7 @@ void register_editor_internal_calls() {
     mono_add_internal_call("GodotTools.Internals.GodotSharpDirs::internal_MonoLogsDir", (void *)godot_icall_GodotSharpDirs_MonoLogsDir);
     mono_add_internal_call("GodotTools.Internals.GodotSharpDirs::internal_MonoSolutionsDir", (void *)godot_icall_GodotSharpDirs_MonoSolutionsDir);
     mono_add_internal_call("GodotTools.Internals.GodotSharpDirs::internal_BuildLogsDirs", (void *)godot_icall_GodotSharpDirs_BuildLogsDirs);
+    mono_add_internal_call("GodotTools.Internals.GodotSharpDirs::internal_ProjectAssemblyName", (void *)godot_icall_GodotSharpDirs_ProjectAssemblyName);
     mono_add_internal_call("GodotTools.Internals.GodotSharpDirs::internal_ProjectSlnPath", (void *)godot_icall_GodotSharpDirs_ProjectSlnPath);
     mono_add_internal_call("GodotTools.Internals.GodotSharpDirs::internal_ProjectCsProjPath", (void *)godot_icall_GodotSharpDirs_ProjectCsProjPath);
     mono_add_internal_call("GodotTools.Internals.GodotSharpDirs::internal_DataEditorToolsDir", (void *)godot_icall_GodotSharpDirs_DataEditorToolsDir);

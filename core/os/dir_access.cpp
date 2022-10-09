@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  dir_access.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -40,18 +40,24 @@ String DirAccess::_get_root_path() const {
 
     switch (_access_type) {
 
-        case ACCESS_RESOURCES: return ProjectSettings::get_singleton()->get_resource_path();
-        case ACCESS_USERDATA: return OS::get_singleton()->get_user_data_dir();
-        default: return String();
+        case ACCESS_RESOURCES:
+            return ProjectSettings::get_singleton()->get_resource_path();
+        case ACCESS_USERDATA:
+            return OS::get_singleton()->get_user_data_dir();
+        default:
+            return String();
     }
 }
 String DirAccess::_get_root_string() const {
 
     switch (_access_type) {
 
-        case ACCESS_RESOURCES: return "res://";
-        case ACCESS_USERDATA: return "user://";
-        default: return String();
+        case ACCESS_RESOURCES:
+            return "res://";
+        case ACCESS_USERDATA:
+            return "user://";
+        default:
+            return String();
     }
 }
 
@@ -160,13 +166,19 @@ Error DirAccess::make_dir_recursive(StringView p_dir) {
 
     String base;
 
-    if (StringUtils::begins_with(full_dir,"res://"))
+    if (StringUtils::begins_with(full_dir,"res://")) {
         base = "res://";
-    else if (StringUtils::begins_with(full_dir,"user://"))
+    } else if (StringUtils::begins_with(full_dir,"user://")) {
         base = "user://";
-    else if (StringUtils::begins_with(full_dir,"/"))
+    } else if (PathUtils::is_network_share_path(full_dir)) {
+        int pos = full_dir.find("/", 2);
+        ERR_FAIL_COND_V(pos < 0, ERR_INVALID_PARAMETER);
+        pos = full_dir.find("/", pos + 1);
+        ERR_FAIL_COND_V(pos < 0, ERR_INVALID_PARAMETER);
+        base = full_dir.substr(0, pos + 1);
+    } else if (StringUtils::begins_with(full_dir,"/")) {
         base = "/";
-    else if (StringUtils::contains(full_dir,":/")) {
+    } else if (StringUtils::contains(full_dir,":/")) {
         base = StringUtils::substr(full_dir,0, StringUtils::find(full_dir,":/") + 2);
     } else {
         ERR_FAIL_V(ERR_INVALID_PARAMETER);
@@ -184,7 +196,7 @@ Error DirAccess::make_dir_recursive(StringView p_dir) {
         Error err = make_dir(curpath);
         if (err != OK && err != ERR_ALREADY_EXISTS) {
 
-            ERR_FAIL_V(err);
+            ERR_FAIL_V_MSG(err, "Could not create directory: " + curpath);
         }
     }
 
@@ -227,7 +239,8 @@ String DirAccess::fix_path(StringView p_path) const {
 
             return String(p_path);
         }
-        case ACCESS_MAX: break; // Can't happen, but silences warning
+        case ACCESS_MAX:
+            break; // Can't happen, but silences warning
     }
 
     return String(p_path);
@@ -309,12 +322,16 @@ Error DirAccess::copy(StringView p_from, StringView p_to, int p_chmod_flags) {
         ERR_PRINT("Failed to open " + String(p_to));
         return err;
     }
+    constexpr size_t copy_buffer_limit = 65536; // 64 KB
 
     fsrc->seek_end(0);
     size_t size = fsrc->get_position();
     fsrc->seek(0);
     err = OK;
-    while (size--) {
+    size_t buffer_size = MIN(size * sizeof(uint8_t), copy_buffer_limit);
+    FixedVector<uint8_t,copy_buffer_limit> buffer;
+    buffer.resize(buffer_size);
+    while (size > 0) {
 
         if (fsrc->get_error() != OK) {
             err = fsrc->get_error();
@@ -325,7 +342,14 @@ Error DirAccess::copy(StringView p_from, StringView p_to, int p_chmod_flags) {
             break;
         }
 
-        fdst->store_8(fsrc->get_8());
+		int bytes_read = fsrc->get_buffer(buffer.data(), buffer_size);
+        if (bytes_read <= 0) {
+            err = FAILED;
+            break;
+        }
+        fdst->store_buffer(buffer.data(), bytes_read);
+
+        size -= bytes_read;
     }
 
     if (err == OK && p_chmod_flags != -1) {
@@ -359,9 +383,7 @@ class DirChanger {
     String original_dir;
 
 public:
-    DirChanger(DirAccess *p_da, StringView p_dir) :
-        da(p_da),
-        original_dir(p_da->get_current_dir()) {
+    DirChanger(DirAccess *p_da, StringView p_dir) : da(p_da), original_dir(p_da->get_current_dir()) {
         p_da->change_dir(p_dir);
     }
 
@@ -370,7 +392,7 @@ public:
     }
 };
 
-Error DirAccess::_copy_dir(DirAccess *p_target_da, StringView  p_to, int p_chmod_flags) {
+Error DirAccess::_copy_dir(DirAccess *p_target_da, StringView p_to, int p_chmod_flags, bool p_copy_links) {
     Vector<StringView> dirs;
 
     String curdir = get_current_dir();
@@ -411,7 +433,7 @@ Error DirAccess::_copy_dir(DirAccess *p_target_da, StringView  p_to, int p_chmod
 
         Error err = change_dir(rel_path);
         ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot change current directory to '" + String(rel_path) + "'.");
-        err = _copy_dir(p_target_da, String(p_to) + rel_path + "/", p_chmod_flags);
+        err = _copy_dir(p_target_da, String(p_to) + rel_path + "/", p_chmod_flags, p_copy_links);
         if (err) {
             change_dir("..");
             ERR_FAIL_V_MSG(err, "Failed to copy recursively.");
@@ -423,7 +445,7 @@ Error DirAccess::_copy_dir(DirAccess *p_target_da, StringView  p_to, int p_chmod
     return OK;
 }
 
-Error DirAccess::copy_dir(StringView  p_from, StringView p_to, int p_chmod_flags) {
+Error DirAccess::copy_dir(StringView p_from, StringView p_to, int p_chmod_flags, bool p_copy_links) {
     ERR_FAIL_COND_V_MSG(!dir_exists(p_from), ERR_FILE_NOT_FOUND, "Source directory doesn't exist.");
 
     DirAccess *target_da = DirAccess::create_for_path(p_to);
@@ -443,7 +465,7 @@ Error DirAccess::copy_dir(StringView  p_from, StringView p_to, int p_chmod_flags
     if (!p_to.ends_with('/')) {
         p_to_fix.push_back('/');
     }
-    err = _copy_dir(target_da, p_to_fix, p_chmod_flags);
+    err = _copy_dir(target_da, p_to_fix, p_chmod_flags, p_copy_links);
 
     memdelete(target_da);
 

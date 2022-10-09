@@ -36,13 +36,13 @@
 class DictionaryPropertyEdit : public RefCounted {
 	GDCLASS(DictionaryPropertyEdit,RefCounted)
 
-	ObjectID obj;
+	GameEntity obj;
 	StringName property;
 
 	void _notif_change();
 	void _notif_changev(const String &p_v);
-	void _set_key(const Variant &p_old_key, const Variant &p_new_key);
-	void _set_value(const Variant &p_key, const Variant &p_value);
+    void _set_key(const StringName &p_old_key, const StringName &p_new_key);
+    void _set_value(const StringName &p_key, const Variant &p_value);
 
 	Dictionary get_dictionary() const;
 

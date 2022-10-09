@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SKELETON_2D_EDITOR_PLUGIN_H
-#define SKELETON_2D_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/editor_plugin.h"
 #include "scene/2d/skeleton_2d.h"
@@ -39,48 +38,46 @@ class AcceptDialog;
 
 class Skeleton2DEditor : public Control {
 
-	GDCLASS(Skeleton2DEditor,Control)
+    GDCLASS(Skeleton2DEditor,Control)
 
-	enum Menu {
-		MENU_OPTION_MAKE_REST,
-		MENU_OPTION_SET_REST,
-	};
+    enum Menu {
+        MENU_OPTION_SET_REST,
+        MENU_OPTION_MAKE_REST,
+    };
 
-	Skeleton2D *node;
+    Skeleton2D *node;
 
     class MenuButton *options;
-	AcceptDialog *err_dialog;
+    AcceptDialog *err_dialog;
 
-	void _menu_option(int p_option);
+    void _menu_option(int p_option);
 
-	//void _create_uv_lines();
-	friend class Skeleton2DEditorPlugin;
+    //void _create_uv_lines();
+    friend class Skeleton2DEditorPlugin;
 
 protected:
-	void _node_removed(Node *p_node);
-	static void _bind_methods();
+    void _node_removed(Node *p_node);
+    static void _bind_methods();
 
 public:
-	void edit(Skeleton2D *p_sprite);
-	Skeleton2DEditor();
+    void edit(Skeleton2D *p_sprite);
+    Skeleton2DEditor();
 };
 
 class Skeleton2DEditorPlugin : public EditorPlugin {
 
-	GDCLASS(Skeleton2DEditorPlugin,EditorPlugin)
+    GDCLASS(Skeleton2DEditorPlugin,EditorPlugin)
 
-	Skeleton2DEditor *sprite_editor;
-	EditorNode *editor;
+    Skeleton2DEditor *sprite_editor;
+    EditorNode *editor;
 
 public:
     StringView get_name() const override { return "Skeleton2D"; }
-	bool has_main_screen() const override { return false; }
-	void edit(Object *p_object) override;
-	bool handles(Object *p_object) const override;
-	void make_visible(bool p_visible) override;
+    bool has_main_screen() const override { return false; }
+    void edit(Object *p_object) override;
+    bool handles(Object *p_object) const override;
+    void make_visible(bool p_visible) override;
 
-	Skeleton2DEditorPlugin(EditorNode *p_node);
-	~Skeleton2DEditorPlugin() override;
+    Skeleton2DEditorPlugin(EditorNode *p_node);
+    ~Skeleton2DEditorPlugin() override;
 };
-
-#endif // SKELETON_2D_EDITOR_PLUGIN_H

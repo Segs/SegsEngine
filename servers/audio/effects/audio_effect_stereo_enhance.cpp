@@ -141,14 +141,14 @@ float AudioEffectStereoEnhance::get_surround() const {
 
 void AudioEffectStereoEnhance::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_pan_pullout", {"amount"}), &AudioEffectStereoEnhance::set_pan_pullout);
-    MethodBinder::bind_method(D_METHOD("get_pan_pullout"), &AudioEffectStereoEnhance::get_pan_pullout);
+    BIND_METHOD(AudioEffectStereoEnhance,set_pan_pullout);
+    BIND_METHOD(AudioEffectStereoEnhance,get_pan_pullout);
 
-    MethodBinder::bind_method(D_METHOD("set_time_pullout", {"amount"}), &AudioEffectStereoEnhance::set_time_pullout);
-    MethodBinder::bind_method(D_METHOD("get_time_pullout"), &AudioEffectStereoEnhance::get_time_pullout);
+    BIND_METHOD(AudioEffectStereoEnhance,set_time_pullout);
+    BIND_METHOD(AudioEffectStereoEnhance,get_time_pullout);
 
-    MethodBinder::bind_method(D_METHOD("set_surround", {"amount"}), &AudioEffectStereoEnhance::set_surround);
-    MethodBinder::bind_method(D_METHOD("get_surround"), &AudioEffectStereoEnhance::get_surround);
+    BIND_METHOD(AudioEffectStereoEnhance,set_surround);
+    BIND_METHOD(AudioEffectStereoEnhance,get_surround);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pan_pullout", PropertyHint::Range, "0,4,0.01"), "set_pan_pullout", "get_pan_pullout");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "time_pullout_ms", PropertyHint::Range, "0,50,0.01"), "set_time_pullout", "get_time_pullout");

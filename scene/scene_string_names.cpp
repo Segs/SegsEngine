@@ -83,6 +83,8 @@ StringName SceneStringNames::doubledot;
 StringName SceneStringNames::draw;
 StringName SceneStringNames::drop_data;
 StringName SceneStringNames::finished;
+StringName SceneStringNames::loop_finished;
+StringName SceneStringNames::step_finished;
 StringName SceneStringNames::focus_entered;
 StringName SceneStringNames::focus_exited;
 StringName SceneStringNames::frame_changed;
@@ -105,6 +107,8 @@ StringName SceneStringNames::parameters_base_path;
 StringName SceneStringNames::playback_active;
 StringName SceneStringNames::playback_speed;
 StringName SceneStringNames::ready;
+StringName SceneStringNames::child_entered_tree;
+StringName SceneStringNames::child_exiting_tree;
 StringName SceneStringNames::resized;
 StringName SceneStringNames::rotate;
 StringName SceneStringNames::rotation_mode;
@@ -160,6 +164,8 @@ void SceneStringNames::free() {
     tree_entered = {};
     tree_exiting = {};
     ready = {};
+    child_entered_tree = {};
+    child_exiting_tree = {};
     size_flags_changed = {};
     minimum_size_changed = {};
     sleeping_state_changed = {};
@@ -169,6 +175,8 @@ void SceneStringNames::free() {
     focus_exited = {};
     sort_children = {};
     finished = {};
+    loop_finished = {};
+    step_finished = {};
     animation_finished = {};
     animation_changed = {};
     animation_started = {};
@@ -262,12 +270,16 @@ void SceneStringNames::create() {
     tree_exiting = StringName("tree_exiting");
     tree_exited = StringName("tree_exited");
     ready = StringName("ready");
+    child_entered_tree = StringName("child_entered_tree");
+    child_exiting_tree = StringName("child_exiting_tree");
     item_rect_changed = StringName("item_rect_changed");
     size_flags_changed = StringName("size_flags_changed");
     minimum_size_changed = StringName("minimum_size_changed");
     sleeping_state_changed = StringName("sleeping_state_changed");
 
     finished = StringName("finished");
+    loop_finished = StringName("loop_finished");
+    step_finished = StringName("step_finished");
 
     animation_finished = StringName("animation_finished");
     animation_changed = StringName("animation_changed");

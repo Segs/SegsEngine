@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  script_create_dialog.cpp                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -62,7 +62,7 @@ void ScriptCreateDialog::_notification(int p_what) {
             String last_lang = EditorSettings::get_singleton()->get_project_metadataT<String>("script_setup", "last_selected_language", "");
             if (!last_lang.empty()) {
                 for (int i = 0; i < language_menu->get_item_count(); i++) {
-                    if (language_menu->get_item_text_utf8(i) == last_lang) {
+                    if (language_menu->get_item_text(i) == last_lang) {
                         language_menu->select(i);
                         current_language = i;
                         break;
@@ -83,7 +83,7 @@ void ScriptCreateDialog::_notification(int p_what) {
 
 void ScriptCreateDialog::_path_hbox_sorted() {
     if (is_visible()) {
-        int filename_start_pos = StringUtils::find_last(initial_bp,'/') + 1;
+        int filename_start_pos = StringUtils::rfind(initial_bp,'/') + 1;
         int filename_end_pos = initial_bp.length();
 
         if (!is_built_in) {
@@ -233,6 +233,14 @@ StringName ScriptCreateDialog::_validate_path(StringView p_path, bool p_file_mus
     return StringName();
 }
 
+String ScriptCreateDialog::_get_class_name() const {
+    using namespace PathUtils;
+    if (has_named_classes) {
+        return class_name->get_text();
+    } else {
+        return String(get_basename(get_file(ProjectSettings::get_singleton()->localize_path(file_path->get_text()))));
+    }
+}
 void ScriptCreateDialog::_class_name_changed(StringView p_name) {
 
     is_class_name_valid = _validate_class(class_name->get_text_ui());
@@ -251,7 +259,7 @@ void ScriptCreateDialog::_parent_name_changed(StringView p_parent) {
 
 void ScriptCreateDialog::_template_changed(int p_template) {
 
-    StringName selected_template = p_template == 0 ? StringName() : template_menu->get_item_text(p_template);
+    StringName selected_template = p_template == 0 ? StringName() : StringName(template_menu->get_item_text(p_template));
     EditorSettings::get_singleton()->set_project_metadata("script_setup", "last_selected_template", selected_template);
     if (p_template == 0) {
         //default
@@ -283,13 +291,7 @@ void ScriptCreateDialog::ok_pressed() {
 
 void ScriptCreateDialog::_create_new() {
 
-    String cname_param;
-
-    if (has_named_classes) {
-        cname_param = class_name->get_text();
-    } else {
-        cname_param = PathUtils::get_basename(PathUtils::get_file(ProjectSettings::get_singleton()->localize_path(file_path->get_text())));
-    }
+    String cname_param = _get_class_name();
 
     Ref<Script> scr;
     if (!script_template.empty()) {
@@ -311,7 +313,9 @@ void ScriptCreateDialog::_create_new() {
             scr->set_name(cname);
     }
 
-    if (!is_built_in) {
+    if (is_built_in) {
+        scr->set_name(internal_name->get_text());
+    } else {
         String lpath = ProjectSettings::get_singleton()->localize_path(file_path->get_text());
         scr->set_path(lpath);
         Error err = gResourceManager().save(lpath, scr, ResourceManager::FLAG_CHANGE_PATH);
@@ -450,7 +454,7 @@ void ScriptCreateDialog::_lang_changed(int l) {
         }
         // Reselect last selected template
         for (int i = 0; i < template_menu->get_item_count(); i++) {
-            StringName ti = template_menu->get_item_text(i);
+            StringName ti(template_menu->get_item_text(i));
             if (language_menu->get_item_text(language_menu->get_selected()) == last_lang && last_template == ti) {
                 template_menu->select(i);
                 break;
@@ -555,7 +559,7 @@ void ScriptCreateDialog::_file_selected(const String &p_file) {
         _path_changed(p);
 
         String filename(PathUtils::get_basename(PathUtils::get_file(p)));
-        auto select_start = StringUtils::find_last(p,filename);
+        auto select_start = StringUtils::rfind(p,filename);
         file_path->select(select_start, select_start + filename.length());
         file_path->set_cursor_position(select_start + filename.length());
         file_path->grab_focus();
@@ -688,6 +692,14 @@ void ScriptCreateDialog::_update_dialog() {
     // Is Script created or loaded from existing file?
 
     builtin_warning_label->set_visible(is_built_in);
+    path_controls[0]->set_visible(!is_built_in);
+    path_controls[1]->set_visible(!is_built_in);
+    name_controls[0]->set_visible(is_built_in);
+    name_controls[1]->set_visible(is_built_in);
+
+    // Check if the script name is the same as the parent class.
+    // This warning isn't relevant if the script is built-in.
+    script_name_warning_label->set_visible(!is_built_in && _get_class_name() == parent_name->get_text());
 
     if (is_built_in) {
         get_ok()->set_text(TTR("Create"));
@@ -724,6 +736,8 @@ void ScriptCreateDialog::_update_dialog() {
     }
 
     get_ok()->set_disabled(!script_ok);
+    set_size(Vector2());
+    minimum_size_changed();
 }
 
 void ScriptCreateDialog::_bind_methods() {
@@ -747,6 +761,7 @@ ScriptCreateDialog::ScriptCreateDialog() {
     /* Error Messages Field */
 
     VBoxContainer *vb = memnew(VBoxContainer);
+    vb->set_custom_minimum_size(Size2(340, 30) * EDSCALE);
 
     error_label = memnew(Label);
     vb->add_child(error_label);
@@ -755,13 +770,23 @@ ScriptCreateDialog::ScriptCreateDialog() {
     vb->add_child(path_error_label);
 
     builtin_warning_label = memnew(Label);
+    builtin_warning_label->set_custom_minimum_size(Size2(340, 10) * EDSCALE);
     builtin_warning_label->set_text(
             TTR("Note: Built-in scripts have some limitations and can't be edited using an external editor."));
     vb->add_child(builtin_warning_label);
     builtin_warning_label->set_autowrap(true);
     builtin_warning_label->hide();
 
+    script_name_warning_label = memnew(Label);
+    script_name_warning_label->set_custom_minimum_size(Size2(340, 10) * EDSCALE);
+    script_name_warning_label->set_text(
+            TTR("Warning: Having the script name be the same as a built-in type is usually not desired."));
+    vb->add_child(script_name_warning_label);
+    script_name_warning_label->add_theme_color_override("font_color", Color(1, 0.85, 0.4));
+    script_name_warning_label->set_autowrap(true);
+    script_name_warning_label->hide();
     status_panel = memnew(PanelContainer);
+    status_panel->set_custom_minimum_size(Size2(350, 40) * EDSCALE);
     status_panel->set_h_size_flags(Control::SIZE_FILL);
     status_panel->add_child(vb);
 
@@ -819,7 +844,7 @@ ScriptCreateDialog::ScriptCreateDialog() {
     hb->add_child(parent_search_button);
     parent_browse_button = memnew(Button);
     parent_browse_button->set_flat(true);
-    parent_browse_button->connect("pressed",callable_mp(this, &ClassName::_browse_path), varray(true, false));
+    parent_browse_button->connectF("pressed",this,[=]() { _browse_path(true, false); });
     hb->add_child(parent_browse_button);
     gc->add_child(memnew(Label(TTR("Inherits:"))));
     gc->add_child(hb);
@@ -859,11 +884,26 @@ ScriptCreateDialog::ScriptCreateDialog() {
     hb->add_child(file_path);
     path_button = memnew(Button);
     path_button->set_flat(true);
-    path_button->connect("pressed",callable_mp(this, &ClassName::_browse_path), varray(false, true));
+    path_button->connectF("pressed",this,[=]() { _browse_path(false, true); });
     hb->add_child(path_button);
-    gc->add_child(memnew(Label(TTR("Path:"))));
+    Label *label = memnew(Label(TTR("Path:")));
+    gc->add_child(label);
     gc->add_child(hb);
     re_check_path = false;
+    path_controls[0] = label;
+    path_controls[1] = hb;
+
+    /* Name */
+
+    internal_name = memnew(LineEdit);
+    internal_name->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+    label = memnew(Label(TTR("Name:")));
+    gc->add_child(label);
+    gc->add_child(internal_name);
+    name_controls[0] = label;
+    name_controls[1] = internal_name;
+    label->hide();
+    internal_name->hide();
 
     /* Dialog Setup */
 

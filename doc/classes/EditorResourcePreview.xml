@@ -35,8 +35,6 @@
             </argument>
             <argument index="1" name="callback" type="Callable">
             </argument>
-            <argument index="2" name="userdata" type="Variant">
-            </argument>
             <description>
                 Queue a resource being edited for preview (using an instance). Once the preview is ready, your callback will be called either containing the preview texture or an empty texture (if no preview was possible). Callback arguments must have the format: (path,texture,userdata). Userdata can be anything.
             </description>
@@ -47,8 +45,6 @@
             <argument index="0" name="path" type="String">
             </argument>
             <argument index="1" name="callback" type="Callable">
-            </argument>
-            <argument index="2" name="userdata" type="Variant">
             </argument>
             <description>
                 Queue a resource file for preview (using a path). Once the preview is ready, your callback will be called either containing the preview texture or an empty texture (if no preview was possible). Callback arguments must have the format: (path,texture,userdata). Userdata can be anything.

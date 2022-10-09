@@ -28,13 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RESOURCE_PRELOADER_EDITOR_PLUGIN_H
-#define RESOURCE_PRELOADER_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "scene/gui/dialogs.h"
 #include "scene/gui/file_dialog.h"
+#include "scene/gui/panel_container.h"
 #include "scene/gui/tree.h"
 #include "scene/main/resource_preloader.h"
 
@@ -60,7 +60,6 @@ class ResourcePreloaderEditor : public PanelContainer {
     ResourcePreloader *preloader;
 
     void _load_pressed();
-    void _load_scene_pressed();
     void _files_load_request(const Vector<String> &p_paths);
     void _paste_pressed();
     void _remove_resource(const StringName &p_to_remove);
@@ -104,5 +103,3 @@ public:
     ResourcePreloaderEditorPlugin(EditorNode *p_node);
     ~ResourcePreloaderEditorPlugin() override;
 };
-
-#endif // RESOURCE_PRELOADER_EDITOR_PLUGIN_H

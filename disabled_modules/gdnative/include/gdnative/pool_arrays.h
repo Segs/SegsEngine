@@ -47,7 +47,7 @@ typedef struct {
 
 typedef godot_pool_array_read_access godot_pool_byte_array_read_access;
 typedef godot_pool_array_read_access godot_pool_int_array_read_access;
-typedef godot_pool_array_read_access godot_pool_real_array_read_access;
+typedef godot_pool_array_read_access godot_POOL_FLOAT32_ARRAY_read_access;
 typedef godot_pool_array_read_access godot_pool_string_array_read_access;
 typedef godot_pool_array_read_access godot_pool_vector2_array_read_access;
 typedef godot_pool_array_read_access godot_pool_vector3_array_read_access;
@@ -63,7 +63,7 @@ typedef struct {
 
 typedef godot_pool_array_write_access godot_pool_byte_array_write_access;
 typedef godot_pool_array_write_access godot_pool_int_array_write_access;
-typedef godot_pool_array_write_access godot_pool_real_array_write_access;
+typedef godot_pool_array_write_access godot_POOL_FLOAT32_ARRAY_write_access;
 typedef godot_pool_array_write_access godot_pool_string_array_write_access;
 typedef godot_pool_array_write_access godot_pool_vector2_array_write_access;
 typedef godot_pool_array_write_access godot_pool_vector3_array_write_access;
@@ -93,13 +93,13 @@ typedef struct {
 
 /////// PoolRealArray
 
-#define GODOT_POOL_REAL_ARRAY_SIZE sizeof(void *)
+#define GODOT_POOL_FLOAT32_ARRAY_SIZE sizeof(void *)
 
-#ifndef GODOT_CORE_API_GODOT_POOL_REAL_ARRAY_TYPE_DEFINED
-#define GODOT_CORE_API_GODOT_POOL_REAL_ARRAY_TYPE_DEFINED
+#ifndef GODOT_CORE_API_GODOT_POOL_FLOAT32_ARRAY_TYPE_DEFINED
+#define GODOT_CORE_API_GODOT_POOL_FLOAT32_ARRAY_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_POOL_REAL_ARRAY_SIZE];
-} godot_pool_real_array;
+	uint8_t _dont_touch_that[GODOT_POOL_FLOAT32_ARRAY_SIZE];
+} godot_POOL_FLOAT32_ARRAY;
 #endif
 
 /////// PoolStringArray
@@ -228,35 +228,35 @@ void GDAPI godot_pool_int_array_destroy(godot_pool_int_array *p_self);
 
 // real
 
-void GDAPI godot_pool_real_array_new(godot_pool_real_array *r_dest);
-void GDAPI godot_pool_real_array_new_copy(godot_pool_real_array *r_dest, const godot_pool_real_array *p_src);
-void GDAPI godot_pool_real_array_new_with_array(godot_pool_real_array *r_dest, const godot_array *p_a);
+void GDAPI godot_POOL_FLOAT32_ARRAY_new(godot_POOL_FLOAT32_ARRAY *r_dest);
+void GDAPI godot_POOL_FLOAT32_ARRAY_new_copy(godot_POOL_FLOAT32_ARRAY *r_dest, const godot_POOL_FLOAT32_ARRAY *p_src);
+void GDAPI godot_POOL_FLOAT32_ARRAY_new_with_array(godot_POOL_FLOAT32_ARRAY *r_dest, const godot_array *p_a);
 
-void GDAPI godot_pool_real_array_append(godot_pool_real_array *p_self, const godot_real p_data);
+void GDAPI godot_POOL_FLOAT32_ARRAY_append(godot_POOL_FLOAT32_ARRAY *p_self, const godot_real p_data);
 
-void GDAPI godot_pool_real_array_append_array(godot_pool_real_array *p_self, const godot_pool_real_array *p_array);
+void GDAPI godot_POOL_FLOAT32_ARRAY_append_array(godot_POOL_FLOAT32_ARRAY *p_self, const godot_POOL_FLOAT32_ARRAY *p_array);
 
-godot_error GDAPI godot_pool_real_array_insert(godot_pool_real_array *p_self, const godot_int p_idx, const godot_real p_data);
+godot_error GDAPI godot_POOL_FLOAT32_ARRAY_insert(godot_POOL_FLOAT32_ARRAY *p_self, const godot_int p_idx, const godot_real p_data);
 
-void GDAPI godot_pool_real_array_invert(godot_pool_real_array *p_self);
+void GDAPI godot_POOL_FLOAT32_ARRAY_invert(godot_POOL_FLOAT32_ARRAY *p_self);
 
-void GDAPI godot_pool_real_array_push_back(godot_pool_real_array *p_self, const godot_real p_data);
+void GDAPI godot_POOL_FLOAT32_ARRAY_push_back(godot_POOL_FLOAT32_ARRAY *p_self, const godot_real p_data);
 
-void GDAPI godot_pool_real_array_remove(godot_pool_real_array *p_self, const godot_int p_idx);
+void GDAPI godot_POOL_FLOAT32_ARRAY_remove(godot_POOL_FLOAT32_ARRAY *p_self, const godot_int p_idx);
 
-void GDAPI godot_pool_real_array_resize(godot_pool_real_array *p_self, const godot_int p_size);
+void GDAPI godot_POOL_FLOAT32_ARRAY_resize(godot_POOL_FLOAT32_ARRAY *p_self, const godot_int p_size);
 
-godot_pool_real_array_read_access GDAPI *godot_pool_real_array_read(const godot_pool_real_array *p_self);
+godot_POOL_FLOAT32_ARRAY_read_access GDAPI *godot_POOL_FLOAT32_ARRAY_read(const godot_POOL_FLOAT32_ARRAY *p_self);
 
-godot_pool_real_array_write_access GDAPI *godot_pool_real_array_write(godot_pool_real_array *p_self);
+godot_POOL_FLOAT32_ARRAY_write_access GDAPI *godot_POOL_FLOAT32_ARRAY_write(godot_POOL_FLOAT32_ARRAY *p_self);
 
-void GDAPI godot_pool_real_array_set(godot_pool_real_array *p_self, const godot_int p_idx, const godot_real p_data);
-godot_real GDAPI godot_pool_real_array_get(const godot_pool_real_array *p_self, const godot_int p_idx);
+void GDAPI godot_POOL_FLOAT32_ARRAY_set(godot_POOL_FLOAT32_ARRAY *p_self, const godot_int p_idx, const godot_real p_data);
+godot_real GDAPI godot_POOL_FLOAT32_ARRAY_get(const godot_POOL_FLOAT32_ARRAY *p_self, const godot_int p_idx);
 
-godot_int GDAPI godot_pool_real_array_size(const godot_pool_real_array *p_self);
-godot_bool GDAPI godot_pool_real_array_empty(const godot_pool_real_array *p_self);
+godot_int GDAPI godot_POOL_FLOAT32_ARRAY_size(const godot_POOL_FLOAT32_ARRAY *p_self);
+godot_bool GDAPI godot_POOL_FLOAT32_ARRAY_empty(const godot_POOL_FLOAT32_ARRAY *p_self);
 
-void GDAPI godot_pool_real_array_destroy(godot_pool_real_array *p_self);
+void GDAPI godot_POOL_FLOAT32_ARRAY_destroy(godot_POOL_FLOAT32_ARRAY *p_self);
 
 // string
 
@@ -400,10 +400,10 @@ const godot_int GDAPI *godot_pool_int_array_read_access_ptr(const godot_pool_int
 void GDAPI godot_pool_int_array_read_access_operator_assign(godot_pool_int_array_read_access *p_read, godot_pool_int_array_read_access *p_other);
 void GDAPI godot_pool_int_array_read_access_destroy(godot_pool_int_array_read_access *p_read);
 
-godot_pool_real_array_read_access GDAPI *godot_pool_real_array_read_access_copy(const godot_pool_real_array_read_access *p_other);
-const godot_real GDAPI *godot_pool_real_array_read_access_ptr(const godot_pool_real_array_read_access *p_read);
-void GDAPI godot_pool_real_array_read_access_operator_assign(godot_pool_real_array_read_access *p_read, godot_pool_real_array_read_access *p_other);
-void GDAPI godot_pool_real_array_read_access_destroy(godot_pool_real_array_read_access *p_read);
+godot_POOL_FLOAT32_ARRAY_read_access GDAPI *godot_POOL_FLOAT32_ARRAY_read_access_copy(const godot_POOL_FLOAT32_ARRAY_read_access *p_other);
+const godot_real GDAPI *godot_POOL_FLOAT32_ARRAY_read_access_ptr(const godot_POOL_FLOAT32_ARRAY_read_access *p_read);
+void GDAPI godot_POOL_FLOAT32_ARRAY_read_access_operator_assign(godot_POOL_FLOAT32_ARRAY_read_access *p_read, godot_POOL_FLOAT32_ARRAY_read_access *p_other);
+void GDAPI godot_POOL_FLOAT32_ARRAY_read_access_destroy(godot_POOL_FLOAT32_ARRAY_read_access *p_read);
 
 godot_pool_string_array_read_access GDAPI *godot_pool_string_array_read_access_copy(const godot_pool_string_array_read_access *p_other);
 const godot_string GDAPI *godot_pool_string_array_read_access_ptr(const godot_pool_string_array_read_access *p_read);
@@ -439,10 +439,10 @@ godot_int GDAPI *godot_pool_int_array_write_access_ptr(const godot_pool_int_arra
 void GDAPI godot_pool_int_array_write_access_operator_assign(godot_pool_int_array_write_access *p_write, godot_pool_int_array_write_access *p_other);
 void GDAPI godot_pool_int_array_write_access_destroy(godot_pool_int_array_write_access *p_write);
 
-godot_pool_real_array_write_access GDAPI *godot_pool_real_array_write_access_copy(const godot_pool_real_array_write_access *p_other);
-godot_real GDAPI *godot_pool_real_array_write_access_ptr(const godot_pool_real_array_write_access *p_write);
-void GDAPI godot_pool_real_array_write_access_operator_assign(godot_pool_real_array_write_access *p_write, godot_pool_real_array_write_access *p_other);
-void GDAPI godot_pool_real_array_write_access_destroy(godot_pool_real_array_write_access *p_write);
+godot_POOL_FLOAT32_ARRAY_write_access GDAPI *godot_POOL_FLOAT32_ARRAY_write_access_copy(const godot_POOL_FLOAT32_ARRAY_write_access *p_other);
+godot_real GDAPI *godot_POOL_FLOAT32_ARRAY_write_access_ptr(const godot_POOL_FLOAT32_ARRAY_write_access *p_write);
+void GDAPI godot_POOL_FLOAT32_ARRAY_write_access_operator_assign(godot_POOL_FLOAT32_ARRAY_write_access *p_write, godot_POOL_FLOAT32_ARRAY_write_access *p_other);
+void GDAPI godot_POOL_FLOAT32_ARRAY_write_access_destroy(godot_POOL_FLOAT32_ARRAY_write_access *p_write);
 
 godot_pool_string_array_write_access GDAPI *godot_pool_string_array_write_access_copy(const godot_pool_string_array_write_access *p_other);
 godot_string GDAPI *godot_pool_string_array_write_access_ptr(const godot_pool_string_array_write_access *p_write);

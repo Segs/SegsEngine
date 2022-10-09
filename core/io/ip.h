@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  ip.h                                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -66,6 +66,12 @@ public:
 
     using ResolverID = int;
 
+    struct Interface_Info {
+        String name;
+        String name_friendly;
+        uint64_t index;
+        Vector<IP_Address> ip_addresses;
+    };
 private:
     _IP_ResolverPrivate *resolver;
 
@@ -73,7 +79,6 @@ protected:
     static IP *singleton;
     static void _bind_methods();
 
-    virtual IP_Address _resolve_hostname(StringView p_hostname, Type p_type = TYPE_ANY) = 0;
 
     static IP *(*_create)();
 
@@ -81,25 +86,21 @@ public:
     Array _get_local_addresses() const;
     Array _get_local_interfaces() const;
 
-public:
-    struct Interface_Info {
-        String name;
-        String name_friendly;
-        uint64_t index;
-        Vector<IP_Address> ip_addresses;
-    };
 
     IP_Address resolve_hostname(StringView p_hostname, Type p_type = TYPE_ANY);
+    Array resolve_hostname_addresses(StringView p_hostname, Type p_type = TYPE_ANY);
     // async resolver hostname
     ResolverID resolve_hostname_queue_item(const String &p_hostname, Type p_type = TYPE_ANY);
     ResolverStatus get_resolve_item_status(ResolverID p_id) const;
     IP_Address get_resolve_item_address(ResolverID p_id) const;
-    virtual void get_local_addresses(Vector<IP_Address> *r_addresses) const;
-    virtual void get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const = 0;
     void erase_resolve_item(ResolverID p_id);
 
+    Array get_resolve_item_addresses(ResolverID p_id) const;
     void clear_cache(const String &p_hostname = String());
 
+    virtual void get_local_addresses(Vector<IP_Address> *r_addresses) const;
+    virtual void get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const = 0;
+    virtual void _resolve_hostname(Vector<IP_Address> &r_addresses, StringView p_hostname, Type p_type = TYPE_ANY) = 0;
     static IP *get_singleton();
 
     static IP *create();

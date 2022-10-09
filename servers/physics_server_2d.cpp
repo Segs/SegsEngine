@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  physics_server_2d.cpp                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -41,7 +41,6 @@
 IMPL_GDCLASS(PhysicsDirectBodyState2D)
 IMPL_GDCLASS(PhysicsShapeQueryParameters2D)
 IMPL_GDCLASS(PhysicsDirectSpaceState2D)
-IMPL_GDCLASS(PhysicsShapeQueryResult2D)
 IMPL_GDCLASS(PhysicsServer2D)
 IMPL_GDCLASS(Physics2DTestMotionResult)
 
@@ -114,54 +113,55 @@ void PhysicsDirectBodyState2D::integrate_forces() {
 
 Object *PhysicsDirectBodyState2D::get_contact_collider_object(int p_contact_idx) const {
 
-    ObjectID objid = get_contact_collider_id(p_contact_idx);
-    Object *obj = ObjectDB::get_instance(objid);
+    GameEntity objid = get_contact_collider_id(p_contact_idx);
+    Object *obj = object_for_entity(objid);
     return obj;
 }
 
 void PhysicsDirectBodyState2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_total_gravity"), &PhysicsDirectBodyState2D::get_total_gravity);
-    MethodBinder::bind_method(D_METHOD("get_total_linear_damp"), &PhysicsDirectBodyState2D::get_total_linear_damp);
-    MethodBinder::bind_method(D_METHOD("get_total_angular_damp"), &PhysicsDirectBodyState2D::get_total_angular_damp);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_total_gravity);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_total_linear_damp);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_total_angular_damp);
 
-    MethodBinder::bind_method(D_METHOD("get_inverse_mass"), &PhysicsDirectBodyState2D::get_inverse_mass);
-    MethodBinder::bind_method(D_METHOD("get_inverse_inertia"), &PhysicsDirectBodyState2D::get_inverse_inertia);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_inverse_mass);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_inverse_inertia);
 
-    MethodBinder::bind_method(D_METHOD("set_linear_velocity", {"velocity"}), &PhysicsDirectBodyState2D::set_linear_velocity);
-    MethodBinder::bind_method(D_METHOD("get_linear_velocity"), &PhysicsDirectBodyState2D::get_linear_velocity);
+    BIND_METHOD(PhysicsDirectBodyState2D,set_linear_velocity);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_linear_velocity);
 
-    MethodBinder::bind_method(D_METHOD("set_angular_velocity", {"velocity"}), &PhysicsDirectBodyState2D::set_angular_velocity);
-    MethodBinder::bind_method(D_METHOD("get_angular_velocity"), &PhysicsDirectBodyState2D::get_angular_velocity);
+    BIND_METHOD(PhysicsDirectBodyState2D,set_angular_velocity);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_angular_velocity);
 
-    MethodBinder::bind_method(D_METHOD("set_transform", {"transform"}), &PhysicsDirectBodyState2D::set_transform);
-    MethodBinder::bind_method(D_METHOD("get_transform"), &PhysicsDirectBodyState2D::get_transform);
+    BIND_METHOD(PhysicsDirectBodyState2D,set_transform);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_transform);
 
-    MethodBinder::bind_method(D_METHOD("add_central_force", {"force"}), &PhysicsDirectBodyState2D::add_central_force);
-    MethodBinder::bind_method(D_METHOD("add_force", {"offset", "force"}), &PhysicsDirectBodyState2D::add_force);
-    MethodBinder::bind_method(D_METHOD("add_torque", {"torque"}), &PhysicsDirectBodyState2D::add_torque);
-    MethodBinder::bind_method(D_METHOD("apply_central_impulse", {"impulse"}), &PhysicsDirectBodyState2D::apply_central_impulse);
-    MethodBinder::bind_method(D_METHOD("apply_torque_impulse", {"impulse"}), &PhysicsDirectBodyState2D::apply_torque_impulse);
-    MethodBinder::bind_method(D_METHOD("apply_impulse", {"offset", "impulse"}), &PhysicsDirectBodyState2D::apply_impulse);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_velocity_at_local_position);
+    BIND_METHOD(PhysicsDirectBodyState2D,add_central_force);
+    BIND_METHOD(PhysicsDirectBodyState2D,add_force);
+    BIND_METHOD(PhysicsDirectBodyState2D,add_torque);
+    BIND_METHOD(PhysicsDirectBodyState2D,apply_central_impulse);
+    BIND_METHOD(PhysicsDirectBodyState2D,apply_torque_impulse);
+    BIND_METHOD(PhysicsDirectBodyState2D,apply_impulse);
 
-    MethodBinder::bind_method(D_METHOD("set_sleep_state", {"enabled"}), &PhysicsDirectBodyState2D::set_sleep_state);
-    MethodBinder::bind_method(D_METHOD("is_sleeping"), &PhysicsDirectBodyState2D::is_sleeping);
+    BIND_METHOD(PhysicsDirectBodyState2D,set_sleep_state);
+    BIND_METHOD(PhysicsDirectBodyState2D,is_sleeping);
 
-    MethodBinder::bind_method(D_METHOD("get_contact_count"), &PhysicsDirectBodyState2D::get_contact_count);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_contact_count);
 
-    MethodBinder::bind_method(D_METHOD("get_contact_local_position", {"contact_idx"}), &PhysicsDirectBodyState2D::get_contact_local_position);
-    MethodBinder::bind_method(D_METHOD("get_contact_local_normal", {"contact_idx"}), &PhysicsDirectBodyState2D::get_contact_local_normal);
-    MethodBinder::bind_method(D_METHOD("get_contact_local_shape", {"contact_idx"}), &PhysicsDirectBodyState2D::get_contact_local_shape);
-    MethodBinder::bind_method(D_METHOD("get_contact_collider", {"contact_idx"}), &PhysicsDirectBodyState2D::get_contact_collider);
-    MethodBinder::bind_method(D_METHOD("get_contact_collider_position", {"contact_idx"}), &PhysicsDirectBodyState2D::get_contact_collider_position);
-    MethodBinder::bind_method(D_METHOD("get_contact_collider_id", {"contact_idx"}), &PhysicsDirectBodyState2D::get_contact_collider_id);
-    MethodBinder::bind_method(D_METHOD("get_contact_collider_object", {"contact_idx"}), &PhysicsDirectBodyState2D::get_contact_collider_object);
-    MethodBinder::bind_method(D_METHOD("get_contact_collider_shape", {"contact_idx"}), &PhysicsDirectBodyState2D::get_contact_collider_shape);
-    MethodBinder::bind_method(D_METHOD("get_contact_collider_shape_metadata", {"contact_idx"}), &PhysicsDirectBodyState2D::get_contact_collider_shape_metadata);
-    MethodBinder::bind_method(D_METHOD("get_contact_collider_velocity_at_position", {"contact_idx"}), &PhysicsDirectBodyState2D::get_contact_collider_velocity_at_position);
-    MethodBinder::bind_method(D_METHOD("get_step"), &PhysicsDirectBodyState2D::get_step);
-    MethodBinder::bind_method(D_METHOD("integrate_forces"), &PhysicsDirectBodyState2D::integrate_forces);
-    MethodBinder::bind_method(D_METHOD("get_space_state"), &PhysicsDirectBodyState2D::get_space_state);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_contact_local_position);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_contact_local_normal);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_contact_local_shape);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_contact_collider);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_contact_collider_position);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_contact_collider_id);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_contact_collider_object);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_contact_collider_shape);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_contact_collider_shape_metadata);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_contact_collider_velocity_at_position);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_step);
+    BIND_METHOD(PhysicsDirectBodyState2D,integrate_forces);
+    BIND_METHOD(PhysicsDirectBodyState2D,get_space_state);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "step"), "", "get_step");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "inverse_mass"), "", "get_inverse_mass");
@@ -182,7 +182,7 @@ PhysicsDirectBodyState2D::PhysicsDirectBodyState2D() {}
 void PhysicsShapeQueryParameters2D::set_shape(const RES &p_shape) {
 
     ERR_FAIL_COND(not p_shape);
-    shape = p_shape->get_rid();
+    shape = p_shape->get_phys_rid();
 }
 
 void PhysicsShapeQueryParameters2D::set_shape_rid(const RID &p_shape) {
@@ -222,11 +222,11 @@ float PhysicsShapeQueryParameters2D::get_margin() const {
     return margin;
 }
 
-void PhysicsShapeQueryParameters2D::set_collision_mask(int p_collision_mask) {
+void PhysicsShapeQueryParameters2D::set_collision_mask(uint32_t p_collision_mask) {
 
     collision_mask = p_collision_mask;
 }
-int PhysicsShapeQueryParameters2D::get_collision_mask() const {
+uint32_t PhysicsShapeQueryParameters2D::get_collision_mask() const {
 
     return collision_mask;
 }
@@ -245,7 +245,7 @@ PoolVector<RID> PhysicsShapeQueryParameters2D::get_exclude() const {
     int idx = 0;
     auto wr(ret.write());
     for (const RID &E : exclude) {
-        wr[idx] = E;
+        wr[idx++] = E;
     }
     return ret;
 }
@@ -268,30 +268,30 @@ bool PhysicsShapeQueryParameters2D::is_collide_with_areas_enabled() const {
 
 void PhysicsShapeQueryParameters2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_shape", {"shape"}), &PhysicsShapeQueryParameters2D::set_shape);
-    MethodBinder::bind_method(D_METHOD("set_shape_rid", {"shape"}), &PhysicsShapeQueryParameters2D::set_shape_rid);
-    MethodBinder::bind_method(D_METHOD("get_shape_rid"), &PhysicsShapeQueryParameters2D::get_shape_rid);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,set_shape);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,set_shape_rid);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,get_shape_rid);
 
-    MethodBinder::bind_method(D_METHOD("set_transform", {"transform"}), &PhysicsShapeQueryParameters2D::set_transform);
-    MethodBinder::bind_method(D_METHOD("get_transform"), &PhysicsShapeQueryParameters2D::get_transform);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,set_transform);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,get_transform);
 
-    MethodBinder::bind_method(D_METHOD("set_motion", {"motion"}), &PhysicsShapeQueryParameters2D::set_motion);
-    MethodBinder::bind_method(D_METHOD("get_motion"), &PhysicsShapeQueryParameters2D::get_motion);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,set_motion);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,get_motion);
 
-    MethodBinder::bind_method(D_METHOD("set_margin", {"margin"}), &PhysicsShapeQueryParameters2D::set_margin);
-    MethodBinder::bind_method(D_METHOD("get_margin"), &PhysicsShapeQueryParameters2D::get_margin);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,set_margin);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,get_margin);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"collision_masks"}), &PhysicsShapeQueryParameters2D::set_collision_mask);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &PhysicsShapeQueryParameters2D::get_collision_mask);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,set_collision_mask);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,get_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_exclude", {"exclude"}), &PhysicsShapeQueryParameters2D::set_exclude);
-    MethodBinder::bind_method(D_METHOD("get_exclude"), &PhysicsShapeQueryParameters2D::get_exclude);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,set_exclude);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,get_exclude);
 
-    MethodBinder::bind_method(D_METHOD("set_collide_with_bodies", {"enable"}), &PhysicsShapeQueryParameters2D::set_collide_with_bodies);
-    MethodBinder::bind_method(D_METHOD("is_collide_with_bodies_enabled"), &PhysicsShapeQueryParameters2D::is_collide_with_bodies_enabled);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,set_collide_with_bodies);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,is_collide_with_bodies_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_collide_with_areas", {"enable"}), &PhysicsShapeQueryParameters2D::set_collide_with_areas);
-    MethodBinder::bind_method(D_METHOD("is_collide_with_areas_enabled"), &PhysicsShapeQueryParameters2D::is_collide_with_areas_enabled);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,set_collide_with_areas);
+    BIND_METHOD(PhysicsShapeQueryParameters2D,is_collide_with_areas_enabled);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers2DPhysics), "set_collision_mask", "get_collision_mask");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "exclude", PropertyHint::None, (itos(int8_t(VariantType::_RID)) + ":")), "set_exclude", "get_exclude");
@@ -376,7 +376,9 @@ Array PhysicsDirectSpaceState2D::_cast_motion(const Ref<PhysicsShapeQueryParamet
     return ret;
 }
 
-Array PhysicsDirectSpaceState2D::_intersect_point_impl(const Vector2 &p_point, int p_max_results, const Array &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas, bool p_filter_by_canvas, ObjectID p_canvas_instance_id) {
+Array PhysicsDirectSpaceState2D::_intersect_point_impl(const Vector2 &p_point, int p_max_results,
+        const Array &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas,
+        bool p_filter_by_canvas, GameEntity p_canvas_instance_id) {
 
     HashSet<RID> exclude;
 
@@ -417,7 +419,7 @@ Array PhysicsDirectSpaceState2D::_intersect_point(const Vector2 &p_point, int p_
     return _intersect_point_impl(p_point, p_max_results, p_exclude, p_layers, p_collide_with_bodies, p_collide_with_areas);
 }
 
-Array PhysicsDirectSpaceState2D::_intersect_point_on_canvas(const Vector2 &p_point, ObjectID p_canvas_intance_id, int p_max_results, const Array &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas) {
+Array PhysicsDirectSpaceState2D::_intersect_point_on_canvas(const Vector2 &p_point, GameEntity p_canvas_intance_id, int p_max_results, const Array &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
     return _intersect_point_impl(p_point, p_max_results, p_exclude, p_layers, p_collide_with_bodies, p_collide_with_areas, true, p_canvas_intance_id);
 }
@@ -475,39 +477,6 @@ void PhysicsDirectSpaceState2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_rest_info", {"shape"}), &PhysicsDirectSpaceState2D::_get_rest_info);
 }
 
-int PhysicsShapeQueryResult2D::get_result_count() const {
-
-    return result.size();
-}
-RID PhysicsShapeQueryResult2D::get_result_rid(int p_idx) const {
-
-    return result[p_idx].rid;
-}
-ObjectID PhysicsShapeQueryResult2D::get_result_object_id(int p_idx) const {
-
-    return result[p_idx].collider_id;
-}
-Object *PhysicsShapeQueryResult2D::get_result_object(int p_idx) const {
-
-    return result[p_idx].collider;
-}
-int PhysicsShapeQueryResult2D::get_result_object_shape(int p_idx) const {
-
-    return result[p_idx].shape;
-}
-
-PhysicsShapeQueryResult2D::PhysicsShapeQueryResult2D() {
-}
-
-void PhysicsShapeQueryResult2D::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("get_result_count"), &PhysicsShapeQueryResult2D::get_result_count);
-    MethodBinder::bind_method(D_METHOD("get_result_rid", {"idx"}), &PhysicsShapeQueryResult2D::get_result_rid);
-    MethodBinder::bind_method(D_METHOD("get_result_object_id", {"idx"}), &PhysicsShapeQueryResult2D::get_result_object_id);
-    MethodBinder::bind_method(D_METHOD("get_result_object", {"idx"}), &PhysicsShapeQueryResult2D::get_result_object);
-    MethodBinder::bind_method(D_METHOD("get_result_object_shape", {"idx"}), &PhysicsShapeQueryResult2D::get_result_object_shape);
-}
-
 ///////////////////////////////
 
 Vector2 Physics2DTestMotionResult::get_motion() const {
@@ -531,7 +500,7 @@ Vector2 Physics2DTestMotionResult::get_collider_velocity() const {
 
     return result.collider_velocity;
 }
-ObjectID Physics2DTestMotionResult::get_collider_id() const {
+GameEntity Physics2DTestMotionResult::get_collider_id() const {
 
     return result.collider_id;
 }
@@ -541,7 +510,7 @@ RID Physics2DTestMotionResult::get_collider_rid() const {
 }
 
 Object *Physics2DTestMotionResult::get_collider() const {
-    return ObjectDB::get_instance(result.collider_id);
+    return object_for_entity(result.collider_id);
 }
 
 int Physics2DTestMotionResult::get_collider_shape() const {
@@ -549,17 +518,32 @@ int Physics2DTestMotionResult::get_collider_shape() const {
     return result.collider_shape;
 }
 
+real_t Physics2DTestMotionResult::get_collision_depth() const {
+    return result.collision_depth;
+}
+
+real_t Physics2DTestMotionResult::get_collision_safe_fraction() const {
+    return result.collision_safe_fraction;
+}
+
+real_t Physics2DTestMotionResult::get_collision_unsafe_fraction() const {
+    return result.collision_unsafe_fraction;
+}
+
 void Physics2DTestMotionResult::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_motion"), &Physics2DTestMotionResult::get_motion);
-    MethodBinder::bind_method(D_METHOD("get_motion_remainder"), &Physics2DTestMotionResult::get_motion_remainder);
-    MethodBinder::bind_method(D_METHOD("get_collision_point"), &Physics2DTestMotionResult::get_collision_point);
-    MethodBinder::bind_method(D_METHOD("get_collision_normal"), &Physics2DTestMotionResult::get_collision_normal);
-    MethodBinder::bind_method(D_METHOD("get_collider_velocity"), &Physics2DTestMotionResult::get_collider_velocity);
-    MethodBinder::bind_method(D_METHOD("get_collider_id"), &Physics2DTestMotionResult::get_collider_id);
-    MethodBinder::bind_method(D_METHOD("get_collider_rid"), &Physics2DTestMotionResult::get_collider_rid);
-    MethodBinder::bind_method(D_METHOD("get_collider"), &Physics2DTestMotionResult::get_collider);
-    MethodBinder::bind_method(D_METHOD("get_collider_shape"), &Physics2DTestMotionResult::get_collider_shape);
+    BIND_METHOD(Physics2DTestMotionResult,get_motion);
+    BIND_METHOD(Physics2DTestMotionResult,get_motion_remainder);
+    BIND_METHOD(Physics2DTestMotionResult,get_collision_point);
+    BIND_METHOD(Physics2DTestMotionResult,get_collision_normal);
+    BIND_METHOD(Physics2DTestMotionResult,get_collider_velocity);
+    BIND_METHOD(Physics2DTestMotionResult,get_collider_id);
+    BIND_METHOD(Physics2DTestMotionResult,get_collider_rid);
+    BIND_METHOD(Physics2DTestMotionResult,get_collider);
+    BIND_METHOD(Physics2DTestMotionResult,get_collider_shape);
+    BIND_METHOD(Physics2DTestMotionResult,get_collision_depth);
+    BIND_METHOD(Physics2DTestMotionResult,get_collision_safe_fraction);
+    BIND_METHOD(Physics2DTestMotionResult,get_collision_unsafe_fraction);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "motion"), "", "get_motion");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "motion_remainder"), "", "get_motion_remainder");
@@ -570,173 +554,174 @@ void Physics2DTestMotionResult::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::_RID, "collider_rid"), "", "get_collider_rid");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "collider"), "", "get_collider");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collider_shape"), "", "get_collider_shape");
-}
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "collision_depth"), "", "get_collision_depth");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "collision_safe_fraction"), "", "get_collision_safe_fraction");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "collision_unsafe_fraction"), "", "get_collision_unsafe_fraction");
 
-Physics2DTestMotionResult::Physics2DTestMotionResult() {
-
-    colliding = false;
-    result.collider_id = 0;
-    result.collider_shape = 0;
 }
 
 ///////////////////////////////////////
 
-bool PhysicsServer2D::_body_test_motion(RID p_body, const Transform2D &p_from, const Vector2 &p_motion, bool p_infinite_inertia, float p_margin, const Ref<Physics2DTestMotionResult> &p_result) {
+bool PhysicsServer2D::_body_test_motion(RID p_body, const Transform2D &p_from, const Vector2 &p_motion, bool p_infinite_inertia, float p_margin, const Ref<Physics2DTestMotionResult> &p_result, bool p_exclude_raycast_shapes, const Vector<RID> &p_exclude) {
 
     MotionResult *r = nullptr;
     if (p_result)
         r = p_result->get_result_ptr();
-    return body_test_motion(p_body, p_from, p_motion, p_infinite_inertia, p_margin, r);
+    Set<RID> exclude(p_exclude.begin(),p_exclude.end());
+    return body_test_motion(p_body, p_from, p_motion, p_infinite_inertia, p_margin, r, p_exclude_raycast_shapes, exclude);
 }
 
 void PhysicsServer2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("line_shape_create"), &PhysicsServer2D::line_shape_create);
-    MethodBinder::bind_method(D_METHOD("ray_shape_create"), &PhysicsServer2D::ray_shape_create);
-    MethodBinder::bind_method(D_METHOD("segment_shape_create"), &PhysicsServer2D::segment_shape_create);
-    MethodBinder::bind_method(D_METHOD("circle_shape_create"), &PhysicsServer2D::circle_shape_create);
-    MethodBinder::bind_method(D_METHOD("rectangle_shape_create"), &PhysicsServer2D::rectangle_shape_create);
-    MethodBinder::bind_method(D_METHOD("capsule_shape_create"), &PhysicsServer2D::capsule_shape_create);
-    MethodBinder::bind_method(D_METHOD("convex_polygon_shape_create"), &PhysicsServer2D::convex_polygon_shape_create);
-    MethodBinder::bind_method(D_METHOD("concave_polygon_shape_create"), &PhysicsServer2D::concave_polygon_shape_create);
+    BIND_METHOD(PhysicsServer2D,line_shape_create);
+    BIND_METHOD(PhysicsServer2D,ray_shape_create);
+    BIND_METHOD(PhysicsServer2D,segment_shape_create);
+    BIND_METHOD(PhysicsServer2D,circle_shape_create);
+    BIND_METHOD(PhysicsServer2D,rectangle_shape_create);
+    BIND_METHOD(PhysicsServer2D,capsule_shape_create);
+    BIND_METHOD(PhysicsServer2D,convex_polygon_shape_create);
+    BIND_METHOD(PhysicsServer2D,concave_polygon_shape_create);
 
-    MethodBinder::bind_method(D_METHOD("shape_set_data", {"shape", "data"}), &PhysicsServer2D::shape_set_data);
+    BIND_METHOD(PhysicsServer2D,shape_set_data);
 
-    MethodBinder::bind_method(D_METHOD("shape_get_type", {"shape"}), &PhysicsServer2D::shape_get_type);
-    MethodBinder::bind_method(D_METHOD("shape_get_data", {"shape"}), &PhysicsServer2D::shape_get_data);
+    BIND_METHOD(PhysicsServer2D,shape_get_type);
+    BIND_METHOD(PhysicsServer2D,shape_get_data);
 
-    MethodBinder::bind_method(D_METHOD("space_create"), &PhysicsServer2D::space_create);
-    MethodBinder::bind_method(D_METHOD("space_set_active", {"space", "active"}), &PhysicsServer2D::space_set_active);
-    MethodBinder::bind_method(D_METHOD("space_is_active", {"space"}), &PhysicsServer2D::space_is_active);
-    MethodBinder::bind_method(D_METHOD("space_set_param", {"space", "param", "value"}), &PhysicsServer2D::space_set_param);
-    MethodBinder::bind_method(D_METHOD("space_get_param", {"space", "param"}), &PhysicsServer2D::space_get_param);
-    MethodBinder::bind_method(D_METHOD("space_get_direct_state", {"space"}), &PhysicsServer2D::space_get_direct_state);
+    BIND_METHOD(PhysicsServer2D,space_create);
+    BIND_METHOD(PhysicsServer2D,space_set_active);
+    BIND_METHOD(PhysicsServer2D,space_is_active);
+    BIND_METHOD(PhysicsServer2D,space_set_param);
+    BIND_METHOD(PhysicsServer2D,space_get_param);
+    BIND_METHOD(PhysicsServer2D,space_get_direct_state);
 
-    MethodBinder::bind_method(D_METHOD("area_create"), &PhysicsServer2D::area_create);
-    MethodBinder::bind_method(D_METHOD("area_set_space", {"area", "space"}), &PhysicsServer2D::area_set_space);
-    MethodBinder::bind_method(D_METHOD("area_get_space", {"area"}), &PhysicsServer2D::area_get_space);
+    BIND_METHOD(PhysicsServer2D,area_create);
+    BIND_METHOD(PhysicsServer2D,area_set_space);
+    BIND_METHOD(PhysicsServer2D,area_get_space);
 
-    MethodBinder::bind_method(D_METHOD("area_set_space_override_mode", {"area", "mode"}), &PhysicsServer2D::area_set_space_override_mode);
-    MethodBinder::bind_method(D_METHOD("area_get_space_override_mode", {"area"}), &PhysicsServer2D::area_get_space_override_mode);
+    BIND_METHOD(PhysicsServer2D,area_set_space_override_mode);
+    BIND_METHOD(PhysicsServer2D,area_get_space_override_mode);
 
     MethodBinder::bind_method(D_METHOD("area_add_shape", {"area", "shape", "transform", "disabled"}), &PhysicsServer2D::area_add_shape, {DEFVAL(Transform2D()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("area_set_shape", {"area", "shape_idx", "shape"}), &PhysicsServer2D::area_set_shape);
-    MethodBinder::bind_method(D_METHOD("area_set_shape_transform", {"area", "shape_idx", "transform"}), &PhysicsServer2D::area_set_shape_transform);
-    MethodBinder::bind_method(D_METHOD("area_set_shape_disabled", {"area", "shape_idx", "disabled"}), &PhysicsServer2D::area_set_shape_disabled);
+    BIND_METHOD(PhysicsServer2D,area_set_shape);
+    BIND_METHOD(PhysicsServer2D,area_set_shape_transform);
+    BIND_METHOD(PhysicsServer2D,area_set_shape_disabled);
 
-    MethodBinder::bind_method(D_METHOD("area_get_shape_count", {"area"}), &PhysicsServer2D::area_get_shape_count);
-    MethodBinder::bind_method(D_METHOD("area_get_shape", {"area", "shape_idx"}), &PhysicsServer2D::area_get_shape);
-    MethodBinder::bind_method(D_METHOD("area_get_shape_transform", {"area", "shape_idx"}), &PhysicsServer2D::area_get_shape_transform);
+    BIND_METHOD(PhysicsServer2D,area_get_shape_count);
+    BIND_METHOD(PhysicsServer2D,area_get_shape);
+    BIND_METHOD(PhysicsServer2D,area_get_shape_transform);
 
-    MethodBinder::bind_method(D_METHOD("area_remove_shape", {"area", "shape_idx"}), &PhysicsServer2D::area_remove_shape);
-    MethodBinder::bind_method(D_METHOD("area_clear_shapes", {"area"}), &PhysicsServer2D::area_clear_shapes);
+    BIND_METHOD(PhysicsServer2D,area_remove_shape);
+    BIND_METHOD(PhysicsServer2D,area_clear_shapes);
 
-    MethodBinder::bind_method(D_METHOD("area_set_collision_layer", {"area", "layer"}), &PhysicsServer2D::area_set_collision_layer);
-    MethodBinder::bind_method(D_METHOD("area_set_collision_mask", {"area", "mask"}), &PhysicsServer2D::area_set_collision_mask);
+    BIND_METHOD(PhysicsServer2D,area_set_collision_layer);
+    BIND_METHOD(PhysicsServer2D,area_set_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("area_set_param", {"area", "param", "value"}), &PhysicsServer2D::area_set_param);
-    MethodBinder::bind_method(D_METHOD("area_set_transform", {"area", "transform"}), &PhysicsServer2D::area_set_transform);
+    BIND_METHOD(PhysicsServer2D,area_set_param);
+    BIND_METHOD(PhysicsServer2D,area_set_transform);
 
-    MethodBinder::bind_method(D_METHOD("area_get_param", {"area", "param"}), &PhysicsServer2D::area_get_param);
-    MethodBinder::bind_method(D_METHOD("area_get_transform", {"area"}), &PhysicsServer2D::area_get_transform);
+    BIND_METHOD(PhysicsServer2D,area_get_param);
+    BIND_METHOD(PhysicsServer2D,area_get_transform);
 
-    MethodBinder::bind_method(D_METHOD("area_attach_object_instance_id", {"area", "id"}), &PhysicsServer2D::area_attach_object_instance_id);
-    MethodBinder::bind_method(D_METHOD("area_get_object_instance_id", {"area"}), &PhysicsServer2D::area_get_object_instance_id);
+    BIND_METHOD(PhysicsServer2D,area_attach_object_instance_id);
+    BIND_METHOD(PhysicsServer2D,area_get_object_instance_id);
 
-    MethodBinder::bind_method(D_METHOD("area_attach_canvas_instance_id", {"area", "id"}), &PhysicsServer2D::area_attach_canvas_instance_id);
-    MethodBinder::bind_method(D_METHOD("area_get_canvas_instance_id", {"area"}), &PhysicsServer2D::area_get_canvas_instance_id);
+    BIND_METHOD(PhysicsServer2D,area_attach_canvas_instance_id);
+    BIND_METHOD(PhysicsServer2D,area_get_canvas_instance_id);
 
-    MethodBinder::bind_method(D_METHOD("area_set_monitor_callback", {"area", "callback"}), &PhysicsServer2D::area_set_monitor_callback);
-    MethodBinder::bind_method(D_METHOD("area_set_area_monitor_callback", {"area", "callback"}), &PhysicsServer2D::area_set_area_monitor_callback);
-    MethodBinder::bind_method(D_METHOD("area_set_monitorable", {"area", "monitorable"}), &PhysicsServer2D::area_set_monitorable);
+    BIND_METHOD(PhysicsServer2D,area_set_monitor_callback);
+    BIND_METHOD(PhysicsServer2D,area_set_area_monitor_callback);
+    BIND_METHOD(PhysicsServer2D,area_set_monitorable);
 
-    MethodBinder::bind_method(D_METHOD("body_create"), &PhysicsServer2D::body_create);
+    BIND_METHOD(PhysicsServer2D,body_create);
 
-    MethodBinder::bind_method(D_METHOD("body_set_space", {"body", "space"}), &PhysicsServer2D::body_set_space);
-    MethodBinder::bind_method(D_METHOD("body_get_space", {"body"}), &PhysicsServer2D::body_get_space);
+    BIND_METHOD(PhysicsServer2D,body_set_space);
+    BIND_METHOD(PhysicsServer2D,body_get_space);
 
-    MethodBinder::bind_method(D_METHOD("body_set_mode", {"body", "mode"}), &PhysicsServer2D::body_set_mode);
-    MethodBinder::bind_method(D_METHOD("body_get_mode", {"body"}), &PhysicsServer2D::body_get_mode);
+    BIND_METHOD(PhysicsServer2D,body_set_mode);
+    BIND_METHOD(PhysicsServer2D,body_get_mode);
 
     MethodBinder::bind_method(D_METHOD("body_add_shape", {"body", "shape", "transform", "disabled"}), &PhysicsServer2D::body_add_shape, {DEFVAL(Transform2D()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("body_set_shape", {"body", "shape_idx", "shape"}), &PhysicsServer2D::body_set_shape);
-    MethodBinder::bind_method(D_METHOD("body_set_shape_transform", {"body", "shape_idx", "transform"}), &PhysicsServer2D::body_set_shape_transform);
-    MethodBinder::bind_method(D_METHOD("body_set_shape_metadata", {"body", "shape_idx", "metadata"}), &PhysicsServer2D::body_set_shape_metadata);
+    BIND_METHOD(PhysicsServer2D,body_set_shape);
+    BIND_METHOD(PhysicsServer2D,body_set_shape_transform);
+    BIND_METHOD(PhysicsServer2D,body_set_shape_metadata);
 
-    MethodBinder::bind_method(D_METHOD("body_get_shape_count", {"body"}), &PhysicsServer2D::body_get_shape_count);
-    MethodBinder::bind_method(D_METHOD("body_get_shape", {"body", "shape_idx"}), &PhysicsServer2D::body_get_shape);
-    MethodBinder::bind_method(D_METHOD("body_get_shape_transform", {"body", "shape_idx"}), &PhysicsServer2D::body_get_shape_transform);
-    MethodBinder::bind_method(D_METHOD("body_get_shape_metadata", {"body", "shape_idx"}), &PhysicsServer2D::body_get_shape_metadata);
+    BIND_METHOD(PhysicsServer2D,body_get_shape_count);
+    BIND_METHOD(PhysicsServer2D,body_get_shape);
+    BIND_METHOD(PhysicsServer2D,body_get_shape_transform);
+    BIND_METHOD(PhysicsServer2D,body_get_shape_metadata);
 
-    MethodBinder::bind_method(D_METHOD("body_remove_shape", {"body", "shape_idx"}), &PhysicsServer2D::body_remove_shape);
-    MethodBinder::bind_method(D_METHOD("body_clear_shapes", {"body"}), &PhysicsServer2D::body_clear_shapes);
+    BIND_METHOD(PhysicsServer2D,body_remove_shape);
+    BIND_METHOD(PhysicsServer2D,body_clear_shapes);
 
-    MethodBinder::bind_method(D_METHOD("body_set_shape_disabled", {"body", "shape_idx", "disabled"}), &PhysicsServer2D::body_set_shape_disabled);
-    MethodBinder::bind_method(D_METHOD("body_set_shape_as_one_way_collision", {"body", "shape_idx", "enable", "margin"}), &PhysicsServer2D::body_set_shape_as_one_way_collision);
+    BIND_METHOD(PhysicsServer2D,body_set_shape_disabled);
+    BIND_METHOD(PhysicsServer2D,body_set_shape_as_one_way_collision);
 
-    MethodBinder::bind_method(D_METHOD("body_attach_object_instance_id", {"body", "id"}), &PhysicsServer2D::body_attach_object_instance_id);
-    MethodBinder::bind_method(D_METHOD("body_get_object_instance_id", {"body"}), &PhysicsServer2D::body_get_object_instance_id);
+    BIND_METHOD(PhysicsServer2D,body_attach_object_instance_id);
+    BIND_METHOD(PhysicsServer2D,body_get_object_instance_id);
 
-    MethodBinder::bind_method(D_METHOD("body_attach_canvas_instance_id", {"body", "id"}), &PhysicsServer2D::body_attach_canvas_instance_id);
-    MethodBinder::bind_method(D_METHOD("body_get_canvas_instance_id", {"body"}), &PhysicsServer2D::body_get_canvas_instance_id);
+    BIND_METHOD(PhysicsServer2D,body_attach_canvas_instance_id);
+    BIND_METHOD(PhysicsServer2D,body_get_canvas_instance_id);
 
-    MethodBinder::bind_method(D_METHOD("body_set_continuous_collision_detection_mode", {"body", "mode"}), &PhysicsServer2D::body_set_continuous_collision_detection_mode);
-    MethodBinder::bind_method(D_METHOD("body_get_continuous_collision_detection_mode", {"body"}), &PhysicsServer2D::body_get_continuous_collision_detection_mode);
+    BIND_METHOD(PhysicsServer2D,body_set_continuous_collision_detection_mode);
+    BIND_METHOD(PhysicsServer2D,body_get_continuous_collision_detection_mode);
 
-    MethodBinder::bind_method(D_METHOD("body_set_collision_layer", {"body", "layer"}), &PhysicsServer2D::body_set_collision_layer);
-    MethodBinder::bind_method(D_METHOD("body_get_collision_layer", {"body"}), &PhysicsServer2D::body_get_collision_layer);
+    BIND_METHOD(PhysicsServer2D,body_set_collision_layer);
+    BIND_METHOD(PhysicsServer2D,body_get_collision_layer);
 
-    MethodBinder::bind_method(D_METHOD("body_set_collision_mask", {"body", "mask"}), &PhysicsServer2D::body_set_collision_mask);
-    MethodBinder::bind_method(D_METHOD("body_get_collision_mask", {"body"}), &PhysicsServer2D::body_get_collision_mask);
+    BIND_METHOD(PhysicsServer2D,body_set_collision_mask);
+    BIND_METHOD(PhysicsServer2D,body_get_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("body_set_param", {"body", "param", "value"}), &PhysicsServer2D::body_set_param);
-    MethodBinder::bind_method(D_METHOD("body_get_param", {"body", "param"}), &PhysicsServer2D::body_get_param);
+    BIND_METHOD(PhysicsServer2D,body_set_param);
+    BIND_METHOD(PhysicsServer2D,body_get_param);
 
-    MethodBinder::bind_method(D_METHOD("body_set_state", {"body", "state", "value"}), &PhysicsServer2D::body_set_state);
-    MethodBinder::bind_method(D_METHOD("body_get_state", {"body", "state"}), &PhysicsServer2D::body_get_state);
+    BIND_METHOD(PhysicsServer2D,body_set_state);
+    BIND_METHOD(PhysicsServer2D,body_get_state);
 
-    MethodBinder::bind_method(D_METHOD("body_apply_central_impulse", {"body", "impulse"}), &PhysicsServer2D::body_apply_central_impulse);
-    MethodBinder::bind_method(D_METHOD("body_apply_torque_impulse", {"body", "impulse"}), &PhysicsServer2D::body_apply_torque_impulse);
-    MethodBinder::bind_method(D_METHOD("body_apply_impulse", {"body", "position", "impulse"}), &PhysicsServer2D::body_apply_impulse);
-    MethodBinder::bind_method(D_METHOD("body_add_central_force", {"body", "force"}), &PhysicsServer2D::body_add_central_force);
-    MethodBinder::bind_method(D_METHOD("body_add_force", {"body", "offset", "force"}), &PhysicsServer2D::body_add_force);
-    MethodBinder::bind_method(D_METHOD("body_add_torque", {"body", "torque"}), &PhysicsServer2D::body_add_torque);
-    MethodBinder::bind_method(D_METHOD("body_set_axis_velocity", {"body", "axis_velocity"}), &PhysicsServer2D::body_set_axis_velocity);
+    BIND_METHOD(PhysicsServer2D,body_apply_central_impulse);
+    BIND_METHOD(PhysicsServer2D,body_apply_torque_impulse);
+    BIND_METHOD(PhysicsServer2D,body_apply_impulse);
+    BIND_METHOD(PhysicsServer2D,body_add_central_force);
+    BIND_METHOD(PhysicsServer2D,body_add_force);
+    BIND_METHOD(PhysicsServer2D,body_add_torque);
+    BIND_METHOD(PhysicsServer2D,body_set_axis_velocity);
 
-    MethodBinder::bind_method(D_METHOD("body_add_collision_exception", {"body", "excepted_body"}), &PhysicsServer2D::body_add_collision_exception);
-    MethodBinder::bind_method(D_METHOD("body_remove_collision_exception", {"body", "excepted_body"}), &PhysicsServer2D::body_remove_collision_exception);
+    BIND_METHOD(PhysicsServer2D,body_add_collision_exception);
+    BIND_METHOD(PhysicsServer2D,body_remove_collision_exception);
 
-    MethodBinder::bind_method(D_METHOD("body_set_max_contacts_reported", {"body", "amount"}), &PhysicsServer2D::body_set_max_contacts_reported);
-    MethodBinder::bind_method(D_METHOD("body_get_max_contacts_reported", {"body"}), &PhysicsServer2D::body_get_max_contacts_reported);
+    BIND_METHOD(PhysicsServer2D,body_set_max_contacts_reported);
+    BIND_METHOD(PhysicsServer2D,body_get_max_contacts_reported);
 
-    MethodBinder::bind_method(D_METHOD("body_set_omit_force_integration", {"body", "enable"}), &PhysicsServer2D::body_set_omit_force_integration);
-    MethodBinder::bind_method(D_METHOD("body_is_omitting_force_integration", {"body"}), &PhysicsServer2D::body_is_omitting_force_integration);
+    BIND_METHOD(PhysicsServer2D,body_set_omit_force_integration);
+    BIND_METHOD(PhysicsServer2D,body_is_omitting_force_integration);
 
-    MethodBinder::bind_method(D_METHOD("body_set_force_integration_callback", {"body", "callback"}), &PhysicsServer2D::body_set_force_integration_callback);
+    BIND_METHOD(PhysicsServer2D,body_set_force_integration_callback);
 
-    MethodBinder::bind_method(D_METHOD("body_test_motion", {"body", "from", "motion", "infinite_inertia", "margin", "result"}), &PhysicsServer2D::_body_test_motion, {DEFVAL(0.08), DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("body_test_motion", { "body", "from", "motion", "infinite_inertia", "margin",
+                                                                   "result", "exclude_raycast_shapes", "exclude" }),
+            &PhysicsServer2D::_body_test_motion, { DEFVAL(0.08f), DEFVAL(Variant()),DEFVAL(true), DEFVAL(Array()) });
 
-    MethodBinder::bind_method(D_METHOD("body_get_direct_state", {"body"}), &PhysicsServer2D::body_get_direct_state);
+    BIND_METHOD(PhysicsServer2D,body_get_direct_state);
 
     /* JOINT API */
 
-    MethodBinder::bind_method(D_METHOD("joint_set_param", {"joint", "param", "value"}), &PhysicsServer2D::joint_set_param);
-    MethodBinder::bind_method(D_METHOD("joint_get_param", {"joint", "param"}), &PhysicsServer2D::joint_get_param);
+    BIND_METHOD(PhysicsServer2D,joint_set_param);
+    BIND_METHOD(PhysicsServer2D,joint_get_param);
 
     MethodBinder::bind_method(D_METHOD("pin_joint_create", {"anchor", "body_a", "body_b"}), &PhysicsServer2D::pin_joint_create, {DEFVAL(RID())});
     MethodBinder::bind_method(D_METHOD("groove_joint_create", {"groove1_a", "groove2_a", "anchor_b", "body_a", "body_b"}), &PhysicsServer2D::groove_joint_create, {DEFVAL(RID()), DEFVAL(RID())});
     MethodBinder::bind_method(D_METHOD("damped_spring_joint_create", {"anchor_a", "anchor_b", "body_a", "body_b"}), &PhysicsServer2D::damped_spring_joint_create, {DEFVAL(RID())});
 
-    MethodBinder::bind_method(D_METHOD("damped_string_joint_set_param", {"joint", "param", "value"}), &PhysicsServer2D::damped_string_joint_set_param);
-    MethodBinder::bind_method(D_METHOD("damped_string_joint_get_param", {"joint", "param"}), &PhysicsServer2D::damped_string_joint_get_param);
+    BIND_METHOD(PhysicsServer2D,damped_string_joint_set_param);
+    BIND_METHOD(PhysicsServer2D,damped_string_joint_get_param);
 
-    MethodBinder::bind_method(D_METHOD("joint_get_type", {"joint"}), &PhysicsServer2D::joint_get_type);
+    BIND_METHOD(PhysicsServer2D,joint_get_type);
 
-    MethodBinder::bind_method(D_METHOD("free_rid", {"rid"}), &PhysicsServer2D::free_rid);
+    BIND_METHOD(PhysicsServer2D,free_rid);
 
-    MethodBinder::bind_method(D_METHOD("set_active", {"active"}), &PhysicsServer2D::set_active);
+    BIND_METHOD(PhysicsServer2D,set_active);
+    BIND_METHOD(PhysicsServer2D,set_collision_iterations);
 
-    MethodBinder::bind_method(D_METHOD("get_process_info", {"process_info"}), &PhysicsServer2D::get_process_info);
+    BIND_METHOD(PhysicsServer2D,get_process_info);
 
     BIND_ENUM_CONSTANT(SPACE_PARAM_CONTACT_RECYCLE_RADIUS);
     BIND_ENUM_CONSTANT(SPACE_PARAM_CONTACT_MAX_SEPARATION);
@@ -745,7 +730,6 @@ void PhysicsServer2D::_bind_methods() {
     BIND_ENUM_CONSTANT(SPACE_PARAM_BODY_ANGULAR_VELOCITY_SLEEP_THRESHOLD);
     BIND_ENUM_CONSTANT(SPACE_PARAM_BODY_TIME_TO_SLEEP);
     BIND_ENUM_CONSTANT(SPACE_PARAM_CONSTRAINT_DEFAULT_BIAS);
-    BIND_ENUM_CONSTANT(SPACE_PARAM_TEST_MOTION_MIN_CONTACT_DEPTH);
 
     BIND_ENUM_CONSTANT(SHAPE_LINE);
     BIND_ENUM_CONSTANT(SHAPE_RAY);

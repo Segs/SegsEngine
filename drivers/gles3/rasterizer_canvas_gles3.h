@@ -33,19 +33,19 @@
 #include "rasterizer_canvas_batcher.h"
 #include "rasterizer_canvas_base_gles3.h"
 
-class RasterizerCanvasGLES3 : public RasterizerCanvasBaseGLES3, public RasterizerCanvasBatcher<RasterizerCanvasGLES3, RasterizerStorageGLES3> {
-    friend class RasterizerCanvasBatcher<RasterizerCanvasGLES3, RasterizerStorageGLES3>;
+class RasterizerCanvasGLES3 : public RasterizerCanvasBaseGLES3, public RasterizerCanvasBatcher<RasterizerCanvasGLES3> {
+    friend class RasterizerCanvasBatcher<RasterizerCanvasGLES3>;
 
 private:
     struct BatchGLData {
         // for batching
-        GLuint batch_vertex_array[5];
+        GLMultiVAOHandle<5> batch_vertex_array;
     } batch_gl_data;
 
 public:
-    virtual void canvas_render_items_begin(const Color &p_modulate, Light3D *p_light, const Transform2D &p_base_transform);
+    virtual void canvas_render_items_begin(const Color &p_modulate, Span<RasterizerCanvasLight3DComponent *> p_lights, const Transform2D &p_base_transform);
     virtual void canvas_render_items_end();
-    virtual void canvas_render_items(Item *p_item_list, int p_z, const Color &p_modulate, Light3D *p_light, const Transform2D &p_base_transform);
+    virtual void canvas_render_items(Dequeue<Item *> &p_item_list, int p_z, const Color &p_modulate, Span<RasterizerCanvasLight3DComponent *> p_light, const Transform2D &p_base_transform);
     virtual void canvas_begin();
     virtual void canvas_end();
 
@@ -54,22 +54,20 @@ private:
     void _legacy_canvas_render_item(Item *p_ci, RenderItemState &r_ris);
 
     // high level batch funcs
-    void canvas_render_items_implementation(Item *p_item_list, int p_z, const Color &p_modulate, Light3D *p_light, const Transform2D &p_base_transform);
+    void canvas_render_items_implementation(const Dequeue<Item *> &p_item_list, int p_z, const Color &p_modulate, Span<RasterizerCanvasLight3DComponent *> p_light, const Transform2D &p_base_transform);
     void render_joined_item(const BItemJoined &p_bij, RenderItemState &r_ris);
     bool try_join_item(Item *p_ci, RenderItemState &r_ris, bool &r_batch_break);
-    void render_batches(Item::Command *const *p_commands, Item *p_current_clip, bool &r_reclip, RasterizerStorageGLES3::Material *p_material);
+    void render_batches(Item *p_current_clip, bool &r_reclip, RasterizerMaterialComponent *p_material);
 
     // low level batch funcs
     void _batch_upload_buffers();
     void _batch_render_prepare();
-    void _batch_render_generic(const Batch &p_batch, RasterizerStorageGLES3::Material *p_material);
-    void _batch_render_lines(const Batch &p_batch, RasterizerStorageGLES3::Material *p_material, bool p_anti_alias);
+    void _batch_render_generic(const Batch &p_batch, RasterizerMaterialComponent *p_material);
+    void _batch_render_lines(const Batch &p_batch, RasterizerMaterialComponent *p_material, bool p_anti_alias);
 
     // funcs used from rasterizer_canvas_batcher template
     void gl_enable_scissor(int p_x, int p_y, int p_width, int p_height) const;
     void gl_disable_scissor() const;
-
-    void gl_checkerror();
 
 public:
 

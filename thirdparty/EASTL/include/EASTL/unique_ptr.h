@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+﻿///////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Electronic Arts Inc. All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -386,6 +386,11 @@ namespace eastl
 			static_assert(!eastl::is_reference<deleter_type>::value, "deleter_type reference refers to an rvalue deleter. The reference will probably become invalid before used. Change the deleter_type to not be a reference or construct with permanent deleter.");
 		}
 
+        unique_ptr(std::nullptr_t, typename eastl::remove_reference<deleter_type>::type&& deleter) EA_NOEXCEPT
+            : mPair(pointer(), eastl::move(deleter))
+        {
+            static_assert(!eastl::is_reference<deleter_type>::value, "deleter_type reference refers to an rvalue deleter. The reference will probably become invalid before used. Change the deleter_type to not be a reference or construct with permanent deleter.");
+        }
 		unique_ptr(this_type&& x) EA_NOEXCEPT
 			: mPair(x.release(), eastl::forward<deleter_type>(x.get_deleter())) {}
 

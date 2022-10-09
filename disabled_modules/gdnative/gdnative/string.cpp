@@ -272,11 +272,11 @@ godot_int GDAPI godot_string_findn_from(const godot_string *p_self, godot_string
     return StringUtils::findn(*self,*what, p_from);
 }
 
-godot_int GDAPI godot_string_find_last(const godot_string *p_self, godot_string p_what) {
+godot_int GDAPI godot_string_rfind(const godot_string *p_self, godot_string p_what) {
     const String *self = (const String *)p_self;
     String *what = (String *)&p_what;
 
-    return StringUtils::find_last(*self,*what);
+    return StringUtils::rfind(*self,*what);
 }
 
 godot_string GDAPI godot_string_format(const godot_string *p_self, const godot_variant *p_values) {

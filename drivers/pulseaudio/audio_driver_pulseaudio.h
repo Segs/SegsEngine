@@ -34,6 +34,7 @@
 
 #include "core/os/mutex.h"
 #include "core/os/thread.h"
+#include "core/safe_refcount.h"
 #include "servers/audio_server.h"
 
 #include <pulse/pulseaudio.h>
@@ -89,7 +90,7 @@ class AudioDriverPulseAudio : public AudioDriver {
     Error capture_init_device();
     void capture_finish_device();
 
-    void detect_channels(bool capture = false);
+    Error detect_channels(bool capture = false);
 
     static void thread_func(void *p_udata);
 

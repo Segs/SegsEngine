@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  class_db.h                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -47,7 +47,7 @@ class MethodBind;
 template<class T>
 using Vector = eastl::vector<T,wrap_allocator>;
 
-#define DEFVAL(m_defval) Variant(m_defval)
+#define DEFVAL(m_defval) Variant::from(m_defval)
 
 //#define SIMPLE_METHODDEF
 
@@ -61,18 +61,18 @@ struct MethodDefinition {
     MethodDefinition() = default;
     MethodDefinition(const char *p_name) :
             name(p_name) {}
-    MethodDefinition(StringName p_name,int count=0) :
-            name(p_name),arg_count(count) {}
+    MethodDefinition(StringName &&p_name,int count=0) :
+            name(eastl::move(p_name)),arg_count(count) {}
     MethodDefinition(MethodDefinition &&d) noexcept = default;
     int parameterCount() const { return arg_count; } //args.size();
 };
 
-inline MethodDefinition D_METHOD(StringName p_name) {
-    return MethodDefinition {p_name,0};
+inline MethodDefinition D_METHOD(StringName &&p_name,int count=0) {
+    return MethodDefinition(eastl::move(p_name),count);
 }
 template<int N>
-inline MethodDefinition D_METHOD(StringName p_name, const char * const(&)[N]) {
-    return MethodDefinition { p_name, N};
+inline MethodDefinition D_METHOD(StringName &&p_name, const char * const(&)[N]) {
+    return MethodDefinition(eastl::move(p_name), N);
 }
 
 #else
@@ -100,87 +100,77 @@ void register_custom_data_to_otdb() {
     //NOTE: remember to override this when needed
 }
 
-class GODOT_EXPORT ClassDB {
-public:
-    enum APIType {
-        API_INVALID=-1,
-        API_CORE,
-        API_EDITOR,
-        API_CLIENT,
-        API_SERVER, // server only APIs ?
-        API_NONE
-    };
 
-public:
-    struct PropertySetGet {
-        StringName setter;
-        StringName getter;
-        MethodBind *_setptr;
-        MethodBind *_getptr;
-        int index;
-        VariantType type;
-    };
-    struct EnumDescriptor {
-        StringName underlying_type;
-        Vector<StringName> enumerators;
-    };
-
-    struct ClassInfo {
-        APIType api = API_NONE;
-        ClassInfo *inherits_ptr=nullptr;
-        const void *class_ptr=nullptr;
-        HashMap<StringName, MethodBind *> method_map;
-        HashMap<StringName, int> constant_map;
-        HashMap<StringName, EnumDescriptor > enum_map;
-        HashMap<StringName, MethodInfo> signal_map;
-        Vector<PropertyInfo> property_list;
+enum ClassDB_APIType {
+    API_INVALID=-1,
+    API_CORE,
+    API_EDITOR,
+    API_CLIENT,
+    API_SERVER, // server only APIs ?
+    API_NONE
+};
+struct ClassDB_EnumDescriptor {
+    StringName underlying_type;
+    Vector<StringName> enumerators;
+};
+struct ClassDB_PropertySetGet {
+    StringName setter;
+    StringName getter;
+    MethodBind *_setptr;
+    MethodBind *_getptr;
+    int index;
+    VariantType type;
+};
+struct ClassDB_ClassInfo {
+    ClassDB_APIType api = API_NONE;
+    ClassDB_ClassInfo *inherits_ptr=nullptr;
+    const void *class_ptr=nullptr;
+    HashMap<StringName, MethodBind *> method_map;
+    HashMap<StringName, int> constant_map;
+    HashMap<StringName, ClassDB_EnumDescriptor > enum_map;
+    HashMap<StringName, MethodInfo> signal_map;
+    Vector<PropertyInfo> property_list;
 #ifdef DEBUG_METHODS_ENABLED
-        Vector<StringName> constant_order;
-        Vector<StringName> method_order;
-        HashSet<StringName> methods_in_properties;
-        Vector<MethodInfo> virtual_methods;
-        StringName category;
+    Vector<StringName> constant_order;
+    Vector<StringName> method_order;
+    HashSet<StringName> methods_in_properties;
+    Vector<MethodInfo> virtual_methods;
+    StringName category;
 #endif
-        HashMap<StringName, PropertySetGet> property_setget;
-        String usage_header;
+    HashMap<StringName, ClassDB_PropertySetGet> property_setget;
+    String usage_header;
+    Object *(*creation_func)() = nullptr;
 
-        StringName inherits;
-        StringName name;
-        bool disabled=false;
-        bool exposed=false;
-        bool is_namespace=false;
-        HashMap<StringName, MethodInfo> &class_signal_map() {return signal_map;}
-        Object *(*creation_func)() = nullptr;
+    StringName inherits;
+    StringName name;
+    bool disabled=false;
+    bool exposed=false;
+    bool is_namespace=false;
+    HashMap<StringName, MethodInfo> &class_signal_map() {return signal_map;}
 
-        ClassInfo();
-        ~ClassInfo();
-    };
+    ClassDB_ClassInfo();
+    ~ClassDB_ClassInfo();
+};
 
-    struct NamespaceInfo {
-        static HashMap<StringName, ClassInfo> classes;
-        Vector<NamespaceInfo *> nested_namespaces;
-    };
+class GODOT_EXPORT ClassDB final {
+public:
 
     template <class T>
     static Object *creator() {
         return memnew(T);
     }
 
-    static RWLock lock;
-    static HashMap<StringName, NamespaceInfo> namespaces;
-    static HashMap<StringName, ClassInfo> classes;
-    static HashMap<StringName, StringName> resource_base_extensions;
-    static HashMap<StringName, StringName> compat_classes;
+    static HashMap<StringName, ClassDB_ClassInfo> classes;
 
 #ifdef DEBUG_METHODS_ENABLED
     static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const MethodDefinition &method_name, std::initializer_list<Variant> def_vals);
     static void _set_class_header(const StringName &p_class, StringView header_file);
 #else
-//    static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const char *method_name, std::initializer_list<Variant> p_defs);
-//    static void _set_class_header(const StringName &, const char *) {}
+    static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const char *method_name, std::initializer_list<Variant> p_defs);
+    static void _set_class_header(const StringName &, const char *) {}
 #endif
 
-    static APIType current_api;
+    static ClassDB_APIType current_api;
 
     static void _add_class2(const StringName &p_class, const StringName &p_inherits);
 
@@ -191,28 +181,14 @@ public:
     // DO NOT USE THIS!!!!!! NEEDS TO BE PUBLIC BUT DO NOT USE NO MATTER WHAT!!!
     template <class T,class PARENT>
     static void _add_class() {
-        if constexpr(std::is_same_v<PARENT,void>)
+        if constexpr(eastl::is_same_v<PARENT,void>)
         {
             _add_class2(T::get_class_static_name(), StringName());
         }
         else
             _add_class2(T::get_class_static_name(), PARENT::get_class_static_name());
     }
-    static void add_namespace(StringName ns,StringView header_file) {
-        GLOBAL_LOCK_FUNCTION
-        ERR_FAIL_COND(classes.find(ns)!=classes.end());
-        classes[ns] = ClassInfo();
-        ClassInfo &ti = classes[ns];
-        ti.name = ns;
-        ti.inherits = StringName();
-        ti.api = current_api;
-        ti.inherits_ptr=nullptr;
-        ti.exposed = true;
-        ti.is_namespace=true;
-#ifdef DEBUG_METHODS_ENABLED
-        ti.usage_header=header_file;
-#endif
-    }
+    static void add_namespace(const StringName &ns,StringView header_file);
     template <class T>
     static void register_class() {
 
@@ -220,7 +196,7 @@ public:
         T::initialize_class();
         auto iter = classes.find(T::get_class_static_name());
         ERR_FAIL_COND(iter==classes.end());
-        ClassInfo &ci(iter->second);
+        ClassDB_ClassInfo &ci(iter->second);
         ci.creation_func = &creator<T>;
         ci.exposed = true;
         ci.class_ptr = T::get_class_ptr_static();
@@ -234,7 +210,7 @@ public:
         T::initialize_class();
         auto iter = classes.find(T::get_class_static_name());
         ERR_FAIL_COND(iter==classes.end());
-        ClassInfo &ci(iter->second);
+        ClassDB_ClassInfo &ci(iter->second);
         ci.exposed = true;
         ci.class_ptr = T::get_class_ptr_static();
         //nothing
@@ -253,13 +229,13 @@ public:
         T::initialize_class();
         auto iter = classes.find(T::get_class_static_name());
         ERR_FAIL_COND(iter==classes.end());
-        ClassInfo &ci(iter->second);
+        ClassDB_ClassInfo &ci(iter->second);
         ci.exposed = true;
         ci.class_ptr = T::get_class_ptr_static();
         ci.creation_func = &_create_ptr_func<T>;
         T::register_custom_data_to_otdb();
     }
-    static bool bind_helper(MethodBind *bind,const char * instance_type,const StringName &p_name);
+    static bool bind_helper(MethodBind *bind, const StringName &p_name);
     static bool can_bind(const StringName &classname, const StringName &p_name);
 
     static void get_class_list(Vector<StringName> *p_classes);
@@ -272,9 +248,9 @@ public:
     static bool is_parent_class(const StringName &p_class, const StringName &p_inherits);
     static bool can_instance(const StringName &p_class);
     static Object *instance(const StringName &p_class);
-    static APIType get_api_type(const StringName &p_class);
+    static ClassDB_APIType get_api_type(const StringName &p_class);
 
-    static uint64_t get_api_hash(APIType p_api);
+    static uint64_t get_api_hash(ClassDB_APIType p_api);
 
     static void add_signal(StringName p_class, MethodInfo && p_signal);
     static bool has_signal(StringName p_class, StringName p_signal);
@@ -301,8 +277,8 @@ public:
     static MethodBind *get_method(StringName p_class, StringName p_name);
     static HashMap<StringName, MethodInfo> *get_signal_list(const StringName& p_class);
 
-    static void add_virtual_method(const StringName &p_class, const MethodInfo &p_method, bool p_virtual = true);
-    static void get_virtual_methods(const StringName &p_class, Vector<MethodInfo> *p_methods, bool p_no_inheritance = false);
+    static void add_virtual_method(const StringName &p_class, const MethodInfo &p_method);
+    static void get_virtual_methods(const StringName &p_class, Vector<MethodInfo> *p_methods);
 
     static void register_enum_type(const StringName &p_class,const StringName &p_enum,const StringName &p_underlying_type);
     static void bind_integer_constant(const StringName &p_class, const StringName &p_enum, const StringName &p_name, int p_constant);
@@ -328,8 +304,8 @@ public:
 
     static void add_compatibility_class(const StringName &p_class, const StringName &p_fallback);
 
-    static void set_current_api(APIType p_api);
-    static APIType get_current_api();
+    static void set_current_api(ClassDB_APIType p_api);
+    static ClassDB_APIType get_current_api();
     static void cleanup_defaults();
     static void cleanup();
 };
@@ -381,12 +357,5 @@ public:
 
 #endif
 
-#ifdef TOOLS_ENABLED
 #define BIND_VMETHOD(m_method) \
-    ClassDB::add_virtual_method(get_class_static_name(), m_method)
-
-#else
-
-#define BIND_VMETHOD(m_method)
-
-#endif
+    Tooling::add_virtual_method(get_class_static_name(), m_method)

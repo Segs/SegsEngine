@@ -45,6 +45,9 @@ Rect2 MeshInstance2D::_edit_get_rect() const {
 
     return Node2D::_edit_get_rect();
 }
+bool MeshInstance2D::_edit_use_rect() const {
+    return mesh!=nullptr;
+}
 #endif
 
 void MeshInstance2D::_notification(int p_what) {
@@ -58,14 +61,14 @@ void MeshInstance2D::_notification(int p_what) {
 
 void MeshInstance2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_mesh", {"mesh"}), &MeshInstance2D::set_mesh);
-    MethodBinder::bind_method(D_METHOD("get_mesh"), &MeshInstance2D::get_mesh);
+    BIND_METHOD(MeshInstance2D,set_mesh);
+    BIND_METHOD(MeshInstance2D,get_mesh);
 
-    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &MeshInstance2D::set_texture);
-    MethodBinder::bind_method(D_METHOD("get_texture"), &MeshInstance2D::get_texture);
+    BIND_METHOD(MeshInstance2D,set_texture);
+    BIND_METHOD(MeshInstance2D,get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_normal_map", {"normal_map"}), &MeshInstance2D::set_normal_map);
-    MethodBinder::bind_method(D_METHOD("get_normal_map"), &MeshInstance2D::get_normal_map);
+    BIND_METHOD(MeshInstance2D,set_normal_map);
+    BIND_METHOD(MeshInstance2D,get_normal_map);
 
     ADD_SIGNAL(MethodInfo("texture_changed"));
 
@@ -112,5 +115,4 @@ Ref<Texture> MeshInstance2D::get_texture() const {
 }
 
 
-MeshInstance2D::MeshInstance2D() {
-}
+MeshInstance2D::MeshInstance2D() = default;

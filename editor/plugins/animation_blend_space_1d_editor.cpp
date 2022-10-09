@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  animation_blend_space_1d_editor.cpp                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -37,7 +37,9 @@
 #include "core/translation_helpers.h"
 #include "core/resource/resource_manager.h"
 #include "editor/editor_scale.h"
+#include "editor/editor_settings.h"
 #include "scene/animation/animation_blend_tree.h"
+#include "scene/gui/panel_container.h"
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 #include "EASTL/sort.h"
@@ -94,7 +96,7 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_gui_input(const Ref<InputEven
                 continue;
 
             int idx = menu->get_item_count();
-            menu->add_item(StringName(FormatVE("Add %s", name.c_str())), idx);
+            menu->add_item(StringName(FormatVE(TTR("Add %s").asCString(), name.c_str())), idx);
             menu->set_item_metadata(idx, E);
         }
 
@@ -218,7 +220,7 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_draw() {
 
     if (blend_space_draw->has_focus()) {
         Color color = get_theme_color("accent_color", "Editor");
-        blend_space_draw->draw_rect(Rect2(Point2(), s), color, false);
+        blend_space_draw->draw_rect_stroke(Rect2(Point2(), s), color);
     }
 
     blend_space_draw->draw_line(Point2(1, s.height - 1), Point2(s.width - 1, s.height - 1), linecolor);
@@ -617,21 +619,21 @@ AnimationNodeBlendSpace1DEditor::AnimationNodeBlendSpace1DEditor() {
     top_hb->add_child(tool_blend);
     tool_blend->set_pressed(true);
     tool_blend->set_tooltip(TTR("Set the blending position within the space"));
-    tool_blend->connect("pressed",callable_mp(this, &ClassName::_tool_switch), varray(3));
+    tool_blend->connectF("pressed",this,[=]() { _tool_switch(3); });
 
     tool_select = memnew(ToolButton);
     tool_select->set_toggle_mode(true);
     tool_select->set_button_group(bg);
     top_hb->add_child(tool_select);
     tool_select->set_tooltip(TTR("Select and move points, create points with RMB."));
-    tool_select->connect("pressed",callable_mp(this, &ClassName::_tool_switch), varray(0));
+    tool_select->connectF("pressed",this,[=]() { _tool_switch(0); });
 
     tool_create = memnew(ToolButton);
     tool_create->set_toggle_mode(true);
     tool_create->set_button_group(bg);
     top_hb->add_child(tool_create);
     tool_create->set_tooltip(TTR("Create points."));
-    tool_create->connect("pressed",callable_mp(this, &ClassName::_tool_switch), varray(1));
+    tool_create->connectF("pressed",this,[=]() { _tool_switch(1); });
 
     tool_erase_sep = memnew(VSeparator);
     top_hb->add_child(tool_erase_sep);
@@ -670,7 +672,7 @@ AnimationNodeBlendSpace1DEditor::AnimationNodeBlendSpace1DEditor() {
     open_editor = memnew(Button);
     edit_hb->add_child(open_editor);
     open_editor->set_text(TTR("Open Editor"));
-    open_editor->connect("pressed",callable_mp(this, &ClassName::_open_editor), varray(),ObjectNS::CONNECT_QUEUED);
+    open_editor->connect("pressed",callable_mp(this, &ClassName::_open_editor), ObjectNS::CONNECT_QUEUED);
 
     edit_hb->hide();
     open_editor->hide();

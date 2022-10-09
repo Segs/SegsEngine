@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  resource_importer_texture_atlas.h                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -63,8 +63,6 @@ public:
 
     ResourceImporterTextureAtlas();
 
-    // ResourceImporterInterface interface
-    // ResourceImporterInterface defaults
 public:
     float get_priority() const override {return 10.0f;}
     int get_import_order() const override {return 0;}

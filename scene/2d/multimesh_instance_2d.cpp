@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "multimesh_instance_2d.h"
+#include "core/callable_method_pointer.h"
+#include "core/core_string_names.h"
 #include "core/method_bind.h"
 #include "core/math/aabb.h"
 #include "core/object_tooling.h"
@@ -59,14 +61,14 @@ void MultiMeshInstance2D::_notification(int p_what) {
 
 void MultiMeshInstance2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_multimesh", {"multimesh"}), &MultiMeshInstance2D::set_multimesh);
-    MethodBinder::bind_method(D_METHOD("get_multimesh"), &MultiMeshInstance2D::get_multimesh);
+    BIND_METHOD(MultiMeshInstance2D,set_multimesh);
+    BIND_METHOD(MultiMeshInstance2D,get_multimesh);
 
-    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &MultiMeshInstance2D::set_texture);
-    MethodBinder::bind_method(D_METHOD("get_texture"), &MultiMeshInstance2D::get_texture);
+    BIND_METHOD(MultiMeshInstance2D,set_texture);
+    BIND_METHOD(MultiMeshInstance2D,get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_normal_map", {"normal_map"}), &MultiMeshInstance2D::set_normal_map);
-    MethodBinder::bind_method(D_METHOD("get_normal_map"), &MultiMeshInstance2D::get_normal_map);
+    BIND_METHOD(MultiMeshInstance2D,set_normal_map);
+    BIND_METHOD(MultiMeshInstance2D,get_normal_map);
 
     ADD_SIGNAL(MethodInfo("texture_changed"));
 
@@ -77,7 +79,16 @@ void MultiMeshInstance2D::_bind_methods() {
 
 void MultiMeshInstance2D::set_multimesh(const Ref<MultiMesh> &p_multimesh) {
 
+    // Cleanup previous connection if any.
+    if (multimesh) {
+        multimesh->disconnect_all(CoreStringNames::get_singleton()->changed, this->get_instance_id());
+    }
     multimesh = p_multimesh;
+    // Connect to the multimesh so the AABB can update when instance transforms are changed.
+    if (multimesh) {
+        multimesh->connect(
+                CoreStringNames::get_singleton()->changed, callable_mp((CanvasItem *)this, &CanvasItem::update));
+    }
     update();
 }
 
@@ -112,8 +123,5 @@ Ref<Texture> MultiMeshInstance2D::get_normal_map() const {
     return normal_map;
 }
 
-MultiMeshInstance2D::MultiMeshInstance2D() {
-}
-
-MultiMeshInstance2D::~MultiMeshInstance2D() {
-}
+MultiMeshInstance2D::MultiMeshInstance2D() = default;
+MultiMeshInstance2D::~MultiMeshInstance2D() = default;

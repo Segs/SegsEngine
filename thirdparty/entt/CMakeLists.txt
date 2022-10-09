@@ -1,4 +1,4 @@
-# SegsEngine: removed docs , testing code and conan
+﻿# SegsEngine: removed docs , testing code and conan
 
 #
 # EnTT
@@ -44,14 +44,14 @@ message(VERBOSE "* ${PROJECT_NAME} v${PROJECT_VERSION} (${CMAKE_BUILD_TYPE})")
 message(VERBOSE "* Copyright (c) 2017-2020 Michele Caini <michele.caini@gmail.com>")
 message(VERBOSE "*")
 
-option(USE_LIBCPP "Use libc++ by adding -stdlib=libc++ flag if availbale." ON)
+option(USE_LIBCPP "Use libc++ by adding -stdlib=libc++ flag if availbale." OFF)
 option(USE_ASAN "Use address sanitizer by adding -fsanitize=address -fno-omit-frame-pointer flags" OFF)
 option(USE_COMPILE_OPTIONS "Use compile options from EnTT." ON)
 
 #
 # Compiler stuff
 #
-
+set(HAS_LIBCPP FALSE)
 if(NOT WIN32 AND USE_LIBCPP)
     include(CheckCXXSourceCompiles)
     include(CMakePushCheckState)
@@ -147,51 +147,3 @@ install(
 install(DIRECTORY src/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 export(PACKAGE EnTT)
-#
-# Tests
-#
-
-#option(BUILD_TESTING "Enable testing with ctest." OFF)
-
-#if(BUILD_TESTING)
-#    option(FIND_GTEST_PACKAGE "Enable finding gtest package." OFF)
-#    option(BUILD_BENCHMARK "Build benchmark." OFF)
-#    option(BUILD_LIB "Build lib example." OFF)
-#    option(BUILD_SNAPSHOT "Build snapshot example." OFF)
-#
-#    enable_testing()
-#    add_subdirectory(test)
-#endif()
-
-
-#
-# Documentation
-#
-
-#option(BUILD_DOCS "Enable building with documentation." OFF)
-#
-#if(BUILD_DOCS)
-#    find_package(Doxygen 1.8)
-#
-#    if(DOXYGEN_FOUND)
-#        add_subdirectory(docs)
-#    endif()
-#endif()
-
-#
-# AOB
-#
-
-#add_custom_target(
-#    aob
-#    SOURCES
-#        .github/workflows/build.yml
-#        .github/workflows/coverage.yml
-#        .github/workflows/deploy.yml
-#        .github/FUNDING.yml
-#        AUTHORS
-#        CONTRIBUTING.md
-#        LICENSE
-#        README.md
-#        TODO
-#)

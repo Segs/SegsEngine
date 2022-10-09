@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  geometry.h                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -41,11 +41,11 @@ class GODOT_EXPORT Geometry {
 public:
     Geometry() = delete;
 
-    static real_t get_closest_points_between_segments(const Vector2 &p1, const Vector2 &q1, const Vector2 &p2, const Vector2 &q2, Vector2 &c1, Vector2 &c2) {
+    static real_t get_closest_points_between_segments(Vector2 p1, Vector2 q1, Vector2 p2, Vector2 q2, Vector2 &c1, Vector2 &c2) {
 
-        Vector2 d1 = q1 - p1; // Direction vector of segment S1.
-        Vector2 d2 = q2 - p2; // Direction vector of segment S2.
-        Vector2 r = p1 - p2;
+        const Vector2 d1 = q1 - p1; // Direction vector of segment S1.
+        const Vector2 d2 = q2 - p2; // Direction vector of segment S2.
+        const Vector2 r = p1 - p2;
         real_t a = d1.dot(d1); // Squared length of segment S1, always nonnegative.
         real_t e = d2.dot(d2); // Squared length of segment S2, always nonnegative.
         real_t f = d2.dot(r);
@@ -99,89 +99,9 @@ public:
         return Math::sqrt((c1 - c2).dot(c1 - c2));
     }
 
-    static void get_closest_points_between_segments(const Vector3 &p1, const Vector3 &p2, const Vector3 &q1, const Vector3 &q2, Vector3 &c1, Vector3 &c2) {
-
-// Do the function 'd' as defined by pb. I think is is dot product of some sort.
-#define d_of(m, n, o, p) ((m.x - n.x) * (o.x - p.x) + (m.y - n.y) * (o.y - p.y) + (m.z - n.z) * (o.z - p.z))
-
-        // Calculate the parametric position on the 2 curves, mua and mub.
-        real_t mua = (d_of(p1, q1, q2, q1) * d_of(q2, q1, p2, p1) - d_of(p1, q1, p2, p1) * d_of(q2, q1, q2, q1)) / (d_of(p2, p1, p2, p1) * d_of(q2, q1, q2, q1) - d_of(q2, q1, p2, p1) * d_of(q2, q1, p2, p1));
-        real_t mub = (d_of(p1, q1, q2, q1) + mua * d_of(q2, q1, p2, p1)) / d_of(q2, q1, q2, q1);
-
-        // Clip the value between [0..1] constraining the solution to lie on the original curves.
-        if (mua < 0) mua = 0;
-        if (mub < 0) mub = 0;
-        if (mua > 1) mua = 1;
-        if (mub > 1) mub = 1;
-        c1 = p1.linear_interpolate(p2, mua);
-        c2 = q1.linear_interpolate(q2, mub);
-    }
-
-    static real_t get_closest_distance_between_segments(const Vector3 &p_from_a, const Vector3 &p_to_a, const Vector3 &p_from_b, const Vector3 &p_to_b) {
-        Vector3 u = p_to_a - p_from_a;
-        Vector3 v = p_to_b - p_from_b;
-        Vector3 w = p_from_a - p_to_a;
-        real_t a = u.dot(u); // Always >= 0
-        real_t b = u.dot(v);
-        real_t c = v.dot(v); // Always >= 0
-        real_t d = u.dot(w);
-        real_t e = v.dot(w);
-        real_t D = a * c - b * b; // Always >= 0
-        real_t sc, sN, sD = D; // sc = sN / sD, default sD = D >= 0
-        real_t tc, tN, tD = D; // tc = tN / tD, default tD = D >= 0
-
-        // Compute the line parameters of the two closest points.
-        if (D < CMP_EPSILON) { // The lines are almost parallel.
-            sN = 0.0; // Force using point P0 on segment S1
-            sD = 1.0; // to prevent possible division by 0.0 later.
-            tN = e;
-            tD = c;
-        } else { // Get the closest points on the infinite lines
-            sN = (b * e - c * d);
-            tN = (a * e - b * d);
-            if (sN < 0.0f) { // sc < 0 => the s=0 edge is visible.
-                sN = 0.0;
-                tN = e;
-                tD = c;
-            } else if (sN > sD) { // sc > 1 => the s=1 edge is visible.
-                sN = sD;
-                tN = e + b;
-                tD = c;
-            }
-        }
-
-        if (tN < 0.0f) { // tc < 0 => the t=0 edge is visible.
-            tN = 0.0;
-            // Recompute sc for this edge.
-            if (-d < 0.0f)
-                sN = 0.0;
-            else if (-d > a)
-                sN = sD;
-            else {
-                sN = -d;
-                sD = a;
-            }
-        } else if (tN > tD) { // tc > 1 => the t=1 edge is visible.
-            tN = tD;
-            // Recompute sc for this edge.
-            if ((-d + b) < 0.0f)
-                sN = 0;
-            else if ((-d + b) > a)
-                sN = sD;
-            else {
-                sN = (-d + b);
-                sD = a;
-            }
-        }
-        // Finally do the division to get sc and tc.
-        sc = (Math::is_zero_approx(sN) ? 0.0f : sN / sD);
-        tc = (Math::is_zero_approx(tN) ? 0.0f : tN / tD);
-
-        // Get the difference of the two closest points.
-        Vector3 dP = w + (sc * u) - (tc * v); // = S1(sc) - S2(tc)
-
-        return dP.length(); // Return the closest distance.
-    }
+	static void get_closest_points_between_segments(
+            const Vector3 &p_p0, const Vector3 &p_p1, const Vector3 &p_q0, const Vector3 &p_q1, Vector3 &r_ps, Vector3 &r_qt);
+    static real_t get_closest_distance_between_segments(const Vector3 &p_p0, const Vector3 &p_p1, const Vector3 &p_q0, const Vector3 &p_q1);
 
     static bool ray_intersects_triangle(const Vector3 &p_from, const Vector3 &p_dir, const Vector3 &p_v0, const Vector3 &p_v1, const Vector3 &p_v2, Vector3 *r_res = nullptr) {
         Vector3 e1 = p_v1 - p_v0;
@@ -291,27 +211,32 @@ public:
         return true;
     }
 
-    static bool segment_intersects_cylinder(const Vector3 &p_from, const Vector3 &p_to, real_t p_height, real_t p_radius, Vector3 *r_res = nullptr, Vector3 *r_norm = nullptr) {
+    static bool segment_intersects_cylinder(const Vector3 &p_from, const Vector3 &p_to, real_t p_height, real_t p_radius, Vector3 *r_res = nullptr, Vector3 *r_norm = nullptr, int p_cylinder_axis = 2) {
 
         Vector3 rel = (p_to - p_from);
         real_t rel_l = rel.length();
         if (rel_l < CMP_EPSILON)
             return false; // Both points are the same.
 
+        ERR_FAIL_COND_V(p_cylinder_axis < 0 || p_cylinder_axis > 2, false);
+        Vector3 cylinder_axis;
+        cylinder_axis[p_cylinder_axis] = 1.0;
         // First check if they are parallel.
         Vector3 normal = (rel / rel_l);
-        Vector3 crs = normal.cross(Vector3(0, 0, 1));
+        Vector3 crs = normal.cross(cylinder_axis);
         real_t crs_l = crs.length();
 
-        Vector3 z_dir;
+        Vector3 axis_dir;
 
         if (crs_l < CMP_EPSILON) {
-            z_dir = Vector3(1, 0, 0); // Any x/y vector OK.
+            Vector3 side_axis;
+            side_axis[(p_cylinder_axis + 1) % 3] = 1.0; // Any side axis OK.
+            axis_dir = side_axis;
         } else {
-            z_dir = crs / crs_l;
+            axis_dir = crs / crs_l;
         }
 
-        real_t dist = z_dir.dot(p_from);
+        real_t dist = axis_dir.dot(p_from);
 
         if (dist >= p_radius)
             return false; // Too far away.
@@ -322,10 +247,10 @@ public:
             return false; // Avoid numerical error.
         Size2 size(Math::sqrt(w2), p_height * 0.5f);
 
-        Vector3 x_dir = z_dir.cross(Vector3(0, 0, 1)).normalized();
+        Vector3 side_dir = axis_dir.cross(cylinder_axis).normalized();
 
-        Vector2 from2D(x_dir.dot(p_from), p_from.z);
-        Vector2 to2D(x_dir.dot(p_to), p_to.z);
+        Vector2 from2D(side_dir.dot(p_from), p_from[p_cylinder_axis]);
+        Vector2 to2D(side_dir.dot(p_to), p_to[p_cylinder_axis]);
 
         real_t min = 0, max = 1;
 
@@ -371,10 +296,12 @@ public:
         Vector3 res_normal = result;
 
         if (axis == 0) {
-            res_normal.z = 0;
+            res_normal[p_cylinder_axis] = 0;
         } else {
-            res_normal.x = 0;
-            res_normal.y = 0;
+            int axis_side = (p_cylinder_axis + 1) % 3;
+            res_normal[axis_side] = 0;
+            axis_side = (axis_side + 1) % 3;
+            res_normal[axis_side] = 0;
         }
 
         res_normal.normalize();
@@ -511,8 +438,13 @@ public:
         const auto dot11 = v1.dot(v1);
         const auto dot12 = v1.dot(v2);
 
+        // Check for divide by zero
+        float denom = dot00 * dot11 - dot01 * dot01;
+        if (denom == 0.0) {
+            return Vector3(0.0, 0.0, 0.0);
+        }
         // Compute barycentric coordinates
-        const auto invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
+        const auto invDenom = 1.0f / denom;
         const auto b2 = (dot11 * dot02 - dot01 * dot12) * invDenom;
         const auto b1 = (dot00 * dot12 - dot01 * dot02) * invDenom;
         const auto b0 = 1.0f - b2 - b1;
@@ -743,7 +675,8 @@ public:
 
             return {polygon.begin(),polygon.end()}; // No changes.
 
-        } else if (inside_count == 0) {
+        }
+        if (inside_count == 0) {
 
             return {}; // Empty.
         }
@@ -803,17 +736,17 @@ public:
         END_ROUND
     };
 
-    static Vector<Vector<Point2> > merge_polygons_2d(const Vector<Point2> &p_polygon_a, const Vector<Point2> &p_polygon_b) {
+    static Vector<Vector<Point2> > merge_polygons_2d(const Vector<Point2> &p_polygon_a, Span<const Vector2> p_polygon_b) {
 
         return _polypaths_do_operation(OPERATION_UNION, p_polygon_a, p_polygon_b);
     }
 
-    static Vector<Vector<Point2> > clip_polygons_2d(const Vector<Point2> &p_polygon_a, const Vector<Point2> &p_polygon_b) {
+    static Vector<Vector<Point2> > clip_polygons_2d(const Vector<Point2> &p_polygon_a, Span<const Vector2> p_polygon_b) {
 
         return _polypaths_do_operation(OPERATION_DIFFERENCE, p_polygon_a, p_polygon_b);
     }
 
-    static Vector<Vector<Point2> > intersect_polygons_2d(const Vector<Point2> &p_polygon_a, const Vector<Point2> &p_polygon_b) {
+    static Vector<Vector<Point2> > intersect_polygons_2d(Span<const Vector2> p_polygon_a, Span<const Vector2> p_polygon_b) {
 
         return _polypaths_do_operation(OPERATION_INTERSECTION, p_polygon_a, p_polygon_b);
     }
@@ -828,7 +761,7 @@ public:
         return _polypaths_do_operation(OPERATION_DIFFERENCE, p_polyline, p_polygon, true);
     }
 
-    static Vector<Vector<Point2> > intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
+    static Vector<Vector<Point2> > intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, Span<const Vector2> p_polygon) {
 
         return _polypaths_do_operation(OPERATION_INTERSECTION, p_polyline, p_polygon, true);
     }
@@ -932,6 +865,7 @@ public:
         Vector<Vector3> vertices;
 
         void optimize_vertices();
+        void clear();
     };
 
     _FORCE_INLINE_ static int get_uv84_normal_bit(const Vector3 &p_vector) {
@@ -994,6 +928,8 @@ public:
     static PoolVector<Plane> build_box_planes(const Vector3 &p_extents);
     static PoolVector<Plane> build_cylinder_planes(real_t p_radius, real_t p_height, int p_sides, Vector3::Axis p_axis = Vector3::AXIS_Z);
     static PoolVector<Plane> build_capsule_planes(real_t p_radius, real_t p_height, int p_sides, int p_lats, Vector3::Axis p_axis = Vector3::AXIS_Z);
+    static void sort_polygon_winding(Vector<Vector2> &r_verts, bool p_clockwise = true);
+    static real_t find_polygon_area(Span<const Vector3> p_verts);
 
     static void make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_result, Size2i &r_size);
     struct PackRectsResult {
@@ -1001,9 +937,31 @@ public:
         int y;
         bool packed;
     };
+    static Vector<PackRectsResult> partial_pack_rects(const Vector<Vector2i> &p_sizes, const Size2i &p_atlas_size);
 
-    static FixedVector<Vector3,8,false> compute_convex_mesh_points(Span<const Plane,6> p_planes);
+    static FixedVector<Vector3,8,false> compute_convex_mesh_points_6(Span<const Plane,6> p_planes, real_t p_epsilon = CMP_EPSILON);
+    static Vector<Vector3> compute_convex_mesh_points(Span<const Plane> p_planes, real_t p_epsilon = CMP_EPSILON);
+    static bool convex_hull_intersects_convex_hull(
+            const Plane *p_planes_a, int p_plane_count_a, const Plane *p_planes_b, int p_plane_count_b);
+    static real_t calculate_convex_hull_volume(const Geometry::MeshData &p_md);
 private:
-    static Vector<Vector<Point2> > _polypaths_do_operation(PolyBooleanOperation p_op, const Vector<Point2> &p_polypath_a, const Vector<Point2> &p_polypath_b, bool is_a_open = false);
+    static Vector<Vector<Point2> > _polypaths_do_operation(PolyBooleanOperation p_op, Span<const Point2> p_polypath_a, Span<const Point2> p_polypath_b, bool is_a_open = false);
     static Vector<Vector<Point2> > _polypath_offset(const Vector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type);
+};
+
+// Occluder Meshes contain convex faces which may contain 0 to many convex holes.
+// (holes are analogous to portals)
+struct OccluderMeshData {
+    struct Hole {
+        Vector<uint32_t> indices;
+    };
+    struct Face {
+        Plane plane;
+        bool two_way = false;
+        Vector<uint32_t> indices;
+        Vector<Hole> holes;
+    };
+    Vector<Face> faces;
+    Vector<Vector3> vertices;
+    void clear();
 };

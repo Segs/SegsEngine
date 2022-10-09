@@ -35,6 +35,7 @@
 #include "scene/2d/camera_2d.h"
 #include "scene/2d/visibility_notifier_2d.h"
 #include "scene/main/viewport.h"
+#include "servers/navigation_2d_server.h"
 #include "servers/physics_server_2d.h"
 #include "servers/rendering_server.h"
 
@@ -314,7 +315,7 @@ void World2D::_update() {
     indexer->_update();
 }
 
-RID World2D::get_canvas() {
+RenderingEntity World2D::get_canvas() {
     return canvas;
 }
 
@@ -322,6 +323,9 @@ RID World2D::get_space() {
     return space;
 }
 
+RID World2D::get_navigation_map() const {
+    return navigation_map;
+}
 void World2D::get_viewport_list(Vector<Viewport *> *r_viewports) {
     for (const eastl::pair<Viewport *const, SpatialIndexer2D::ViewportData> &E : indexer->viewports) {
         r_viewports->push_back(E.first);
@@ -329,13 +333,15 @@ void World2D::get_viewport_list(Vector<Viewport *> *r_viewports) {
 }
 
 void World2D::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("get_canvas"), &World2D::get_canvas);
-    MethodBinder::bind_method(D_METHOD("get_space"), &World2D::get_space);
+    BIND_METHOD(World2D,get_canvas);
+    BIND_METHOD(World2D,get_space);
+    BIND_METHOD(World2D,get_navigation_map);
 
-    MethodBinder::bind_method(D_METHOD("get_direct_space_state"), &World2D::get_direct_space_state);
+    BIND_METHOD(World2D,get_direct_space_state);
 
     ADD_PROPERTY(PropertyInfo(VariantType::_RID, "canvas", PropertyHint::None, "", 0), "", "get_canvas");
     ADD_PROPERTY(PropertyInfo(VariantType::_RID, "space", PropertyHint::None, "", 0), "", "get_space");
+    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "navigation_map", PropertyHint::None, "", 0), "", "get_navigation_map");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "direct_space_state", PropertyHint::ResourceType,
                          "PhysicsDirectSpaceState2D", 0),
             "", "get_direct_space_state");
@@ -365,11 +371,19 @@ World2D::World2D() {
     ProjectSettings::get_singleton()->set_custom_property_info(
             "physics/2d/default_angular_damp", PropertyInfo(VariantType::FLOAT, "physics/2d/default_angular_damp",
                                                        PropertyHint::Range, "-1,100,0.001,or_greater"));
+    	// Create default navigation map
+    navigation_map = Navigation2DServer::get_singleton()->map_create();
+    Navigation2DServer::get_singleton()->map_set_active(navigation_map, true);
+    Navigation2DServer::get_singleton()->map_set_cell_size(navigation_map, T_GLOBAL_DEF("navigation/2d/default_cell_size", 1.0f));
+    Navigation2DServer::get_singleton()->map_set_cell_height(navigation_map, T_GLOBAL_DEF("navigation/2d/default_cell_height", 1.0f));
+    Navigation2DServer::get_singleton()->map_set_edge_connection_margin(
+            navigation_map, T_GLOBAL_DEF("navigation/2d/default_edge_connection_margin", 1.0f));
     indexer = memnew(SpatialIndexer2D);
 }
 
 World2D::~World2D() {
     RenderingServer::get_singleton()->free_rid(canvas);
     PhysicsServer2D::get_singleton()->free_rid(space);
+    Navigation2DServer::get_singleton()->free_rid(navigation_map);
     memdelete(indexer);
 }

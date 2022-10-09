@@ -45,24 +45,9 @@ class ResourceFormatLoader;
 class ResourceInteractiveLoader;
 class ResourceLoaderInterface;
 
-//used to track paths being loaded in a thread, avoids cyclic recursion
-struct LoadingMapKey {
-    String path;
-    Thread::ID thread;
-    bool operator==(const LoadingMapKey &p_key) const {
-        return (thread == p_key.thread && path == p_key.path);
-    }
-};
-template<>
-struct Hasher<LoadingMapKey> {
-    uint32_t operator()(const LoadingMapKey &p_key) const { return StringUtils::hash(p_key.path) + Hasher<Thread::ID>()(p_key.thread); }
-};
-
-
-
 using ResourceLoadErrorNotify = void (*)(void *, StringView);
 using DependencyErrorNotify = void (*)(void *, StringView, StringView, StringView);
 using ResourceLoaderImport = Error (*)(StringView);
 using ResourceLoadedCallback = void (*)(RES, StringView );
 
-extern GODOT_EXPORT ResourceLoaderImport g_import_func;
+GODOT_EXPORT extern ResourceLoaderImport g_import_func; // use this when old godot code does ResourceLoader::import

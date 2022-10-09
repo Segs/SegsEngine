@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  http_request.cpp                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,16 +31,15 @@
 #include "http_request.h"
 
 #include "core/callable_method_pointer.h"
+#include "core/method_bind.h"
+#include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/os/thread.h"
-#include "core/method_bind.h"
-#include "core/os/thread.h"
 #include "core/pool_vector.h"
-#include "core/os/file_access.h"
+#include "core/safe_refcount.h"
 #include "core/string_utils.h"
 #include "scene/main/timer.h"
 
-#include <atomic>
 
 IMPL_GDCLASS(HTTPRequest)
 
@@ -57,12 +56,12 @@ struct HTTPRequestData
     PoolVector<String> response_headers;
     String request_string;
     String url;
-    String request_data;
+    Vector<uint8_t> request_data;
     String download_to_file;
     Ref<HTTPClient> client;
     FileAccess *file;
     Thread thread;
-    std::atomic<int> downloaded;
+    SafeNumeric<int> downloaded;
     int port;
     int response_code;
     int body_len;
@@ -71,9 +70,9 @@ struct HTTPRequestData
     int max_redirects;
     int timeout;
     HTTPClient::Method method;
-    std::atomic<bool> use_threads;
-    std::atomic<bool> thread_done;
-    std::atomic<bool> thread_request_quit;
+    SafeFlag use_threads;
+    SafeFlag thread_done;
+    SafeFlag thread_request_quit;
     bool requesting;
     bool validate_ssl;
     bool use_ssl;
@@ -92,9 +91,6 @@ void initialize(HTTPRequestData &d) {
     d.request_sent = false;
     d.requesting = false;
     d.client = make_ref_counted<HTTPClient>();
-    d.use_threads = false;
-    d.thread_done = false;
-    d.downloaded = 0;
     d.body_size_limit = -1;
     d.file = nullptr;
     d.timeout = 0;
@@ -116,7 +112,7 @@ Error _parse_url(HTTPRequestData &impl,StringView p_url) {
     impl.got_response = false;
     impl.body_len = -1;
     impl.body.resize(0);
-    impl.downloaded = 0;
+    impl.downloaded.set(0);
     impl.redirections = 0;
 
     String url_lower(StringUtils::to_lower(impl.url));
@@ -165,7 +161,7 @@ bool _handle_response(HTTPRequestData &impl,HTTPRequest *tgt,bool *ret_value) {
     List<String> rheaders;
     impl.client->get_response_headers(&rheaders);
     impl.response_headers.resize(0);
-    impl.downloaded = 0;
+    impl.downloaded.set(0);
     for (const String &E : rheaders) {
         impl.response_headers.push_back(E);
     }
@@ -205,7 +201,7 @@ bool _handle_response(HTTPRequestData &impl,HTTPRequest *tgt,bool *ret_value) {
                 impl.got_response = false;
                 impl.body_len = -1;
                 impl.body.resize(0);
-                impl.downloaded = 0;
+                impl.downloaded.set(0);
                 impl.redirections = new_redirs;
                 *ret_value = false;
                 return true;
@@ -271,7 +267,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
             } else {
                 // Did not request yet, do request
 
-                Error err = impl.client->request(impl.method, (impl.request_string), impl.headers, impl.request_data);
+                Error err = impl.client->request_raw(impl.method, (impl.request_string), impl.headers, impl.request_data);
                 if (err != OK) {
                     tgt->call_deferred([tgt]() { tgt->_request_done(HTTPRequest::RESULT_CONNECTION_ERROR, 0, {}, {}); });
                     return true;
@@ -322,9 +318,13 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
             }
 
             impl.client->poll();
+            if (impl.client->get_status() != HTTPClient::STATUS_BODY) {
+                return false;
+            }
 
             PoolByteArray chunk = impl.client->read_response_body_chunk();
-            impl.downloaded += chunk.size();
+            if(chunk.size()) {
+                impl.downloaded.add(chunk.size());
 
             if (impl.file) {
                 PoolByteArray::Read r = chunk.read();
@@ -336,21 +336,23 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
             } else {
                 impl.body.append_array(chunk);
             }
+            }
 
-            if (impl.body_size_limit >= 0 && impl.downloaded > impl.body_size_limit) {
+            if (impl.body_size_limit >= 0 && impl.downloaded.get() > impl.body_size_limit) {
                 tgt->call_deferred([tgt, rc = impl.response_code, rh = impl.response_headers]() { tgt->_request_done(HTTPRequest::RESULT_BODY_SIZE_LIMIT_EXCEEDED, rc, rh, {}); });
                 return true;
             }
 
             if (impl.body_len >= 0) {
 
-                if (impl.downloaded == impl.body_len) {
+                if (impl.downloaded.get() == impl.body_len) {
                     tgt->call_deferred([tgt, rc = impl.response_code, rh = impl.response_headers,bd=impl.body]() { tgt->_request_done(HTTPRequest::RESULT_SUCCESS, rc, rh, bd); });
                     return true;
                 }
             } else if (impl.client->get_status() == HTTPClient::STATUS_DISCONNECTED) {
                 // We read till EOF, with no errors. Request is done.
                 tgt->call_deferred([tgt, rc = impl.response_code, rh = impl.response_headers, bd = impl.body]() { tgt->_request_done(HTTPRequest::RESULT_SUCCESS, rc, rh, bd); });
+                return true;
             }
 
             return false;
@@ -379,7 +381,7 @@ static void _thread_func(void *p_userdata) {
     if (err != OK) {
         hr->call_deferred([hr]() { hr->_request_done(HTTPRequest::RESULT_CANT_CONNECT, 0, {}, {}); });
     } else {
-        while (!hrdat->thread_request_quit) {
+        while (!hrdat->thread_request_quit.is_set()) {
 
             bool exit = _update_connection(*hrdat,hr);
             if (exit)
@@ -388,7 +390,7 @@ static void _thread_func(void *p_userdata) {
         }
     }
 
-    hrdat->thread_done = true;
+    hrdat->thread_done.set();
 }
 } // end of anonymous namespace
 void HTTPRequest::_redirect_request(StringView /*p_new_url*/) {
@@ -396,6 +398,10 @@ void HTTPRequest::_redirect_request(StringView /*p_new_url*/) {
 
 #define IMPLD() ((HTTPRequestData*)m_impl)
 Error HTTPRequest::request(StringView p_url, const Vector<String> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, StringView p_request_data) {
+        return request_raw(p_url, p_custom_headers, p_ssl_validate_domain, p_method, {(const uint8_t *)p_request_data.data(),p_request_data.size()});
+}
+
+Error HTTPRequest::request_raw(StringView p_url, const Vector<String> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, Span<const uint8_t> p_request_data_raw) {
 
     ERR_FAIL_COND_V(!is_inside_tree(), ERR_UNCONFIGURED);
     ERR_FAIL_COND_V_MSG(IMPLD()->requesting, ERR_BUSY, "HTTPRequest is processing a request. Wait for completion or cancel it before attempting a new one.");
@@ -415,14 +421,14 @@ Error HTTPRequest::request(StringView p_url, const Vector<String> &p_custom_head
 
     IMPLD()->headers = p_custom_headers;
 
-    IMPLD()->request_data = p_request_data;
+    IMPLD()->request_data.assign(p_request_data_raw.begin(),p_request_data_raw.end());
 
     IMPLD()->requesting = true;
 
-    if (IMPLD()->use_threads) {
+    if (IMPLD()->use_threads.is_set()) {
 
-        IMPLD()->thread_done = false;
-        IMPLD()->thread_request_quit = false;
+        IMPLD()->thread_done.clear();
+        IMPLD()->thread_request_quit.clear();
         IMPLD()->client->set_blocking_mode(true);
         IMPLD()->thread.start(_thread_func, this);
     } else {
@@ -448,10 +454,10 @@ void HTTPRequest::cancel_request() {
     if (!IMPLD()->requesting)
         return;
 
-    if (!IMPLD()->use_threads) {
+    if (!IMPLD()->use_threads.is_set()) {
         set_process_internal(false);
     } else {
-        IMPLD()->thread_request_quit = true;
+        IMPLD()->thread_request_quit.set();
         IMPLD()->thread.wait_to_finish();
     }
 
@@ -465,17 +471,17 @@ void HTTPRequest::cancel_request() {
     IMPLD()->requesting = false;
 }
 
-void HTTPRequest::_request_done(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data) {
+void HTTPRequest::_request_done(int p_status, int p_code, const PoolStringArray &p_headers, const PoolByteArray &p_data) {
 
     cancel_request();
-    emit_signal("request_completed", p_status, p_code, headers, p_data);
+    emit_signal("request_completed", p_status, p_code, p_headers, p_data);
 }
 
 void HTTPRequest::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_INTERNAL_PROCESS) {
 
-        if (IMPLD()->use_threads)
+        if (IMPLD()->use_threads.is_set())
             return;
         bool done = _update_connection(*IMPLD(),this);
         if (done) {
@@ -495,12 +501,12 @@ void HTTPRequest::_notification(int p_what) {
 void HTTPRequest::set_use_threads(bool p_use) {
 
     ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED);
-    IMPLD()->use_threads = p_use;
+    IMPLD()->use_threads.set_to(p_use);
 }
 
 bool HTTPRequest::is_using_threads() const {
 
-    return IMPLD()->use_threads;
+    return IMPLD()->use_threads.is_set();
 }
 
 void HTTPRequest::set_body_size_limit(int p_bytes) {
@@ -513,6 +519,14 @@ void HTTPRequest::set_body_size_limit(int p_bytes) {
 int HTTPRequest::get_body_size_limit() const {
 
     return IMPLD()->body_size_limit;
+}
+
+void HTTPRequest::set_http_proxy(const String &p_host, int p_port) {
+    IMPLD()->client->set_http_proxy(p_host, p_port);
+}
+
+void HTTPRequest::set_https_proxy(const String &p_host, int p_port) {
+    IMPLD()->client->set_https_proxy(p_host, p_port);
 }
 
 void HTTPRequest::set_download_file(StringView p_file) {
@@ -554,7 +568,7 @@ int HTTPRequest::get_max_redirects() const {
 
 int HTTPRequest::get_downloaded_bytes() const {
 
-    return IMPLD()->downloaded;
+    return IMPLD()->downloaded.get();
 }
 int HTTPRequest::get_body_size() const {
     return IMPLD()->body_len;
@@ -580,31 +594,41 @@ void HTTPRequest::_timeout() {
 
 void HTTPRequest::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("request", {"url", "custom_headers", "ssl_validate_domain", "method", "request_data"}), &HTTPRequest::request, {DEFVAL(PoolStringArray()), DEFVAL(true), DEFVAL(HTTPClient::METHOD_GET), DEFVAL(StringView())});
-    MethodBinder::bind_method(D_METHOD("cancel_request"), &HTTPRequest::cancel_request);
+    MethodBinder::bind_method(
+            D_METHOD("request", { "url", "custom_headers", "ssl_validate_domain", "method", "request_data" }),
+            &HTTPRequest::request,
+            { DEFVAL(PoolStringArray()), DEFVAL(true), DEFVAL(HTTPClient::METHOD_GET), DEFVAL(StringView("")) });
 
-    MethodBinder::bind_method(D_METHOD("get_http_client_status"), &HTTPRequest::get_http_client_status);
+    MethodBinder::bind_method(
+            D_METHOD("request_raw", { "url", "custom_headers", "ssl_validate_domain", "method", "request_data_raw" }),
+            &HTTPRequest::request_raw,
+            { DEFVAL(PoolStringArray()), DEFVAL(true), DEFVAL(HTTPClient::METHOD_GET), DEFVAL(PoolByteArray()) });
+    BIND_METHOD(HTTPRequest,cancel_request);
 
-    MethodBinder::bind_method(D_METHOD("set_use_threads", {"enable"}), &HTTPRequest::set_use_threads);
-    MethodBinder::bind_method(D_METHOD("is_using_threads"), &HTTPRequest::is_using_threads);
+    BIND_METHOD(HTTPRequest,get_http_client_status);
 
-    MethodBinder::bind_method(D_METHOD("set_body_size_limit", {"bytes"}), &HTTPRequest::set_body_size_limit);
-    MethodBinder::bind_method(D_METHOD("get_body_size_limit"), &HTTPRequest::get_body_size_limit);
+    BIND_METHOD(HTTPRequest,set_use_threads);
+    BIND_METHOD(HTTPRequest,is_using_threads);
 
-    MethodBinder::bind_method(D_METHOD("set_max_redirects", {"amount"}), &HTTPRequest::set_max_redirects);
-    MethodBinder::bind_method(D_METHOD("get_max_redirects"), &HTTPRequest::get_max_redirects);
+    BIND_METHOD(HTTPRequest,set_body_size_limit);
+    BIND_METHOD(HTTPRequest,get_body_size_limit);
 
-    MethodBinder::bind_method(D_METHOD("set_download_file", {"path"}), &HTTPRequest::set_download_file);
-    MethodBinder::bind_method(D_METHOD("get_download_file"), &HTTPRequest::get_download_file);
+    BIND_METHOD(HTTPRequest,set_max_redirects);
+    BIND_METHOD(HTTPRequest,get_max_redirects);
 
-    MethodBinder::bind_method(D_METHOD("get_downloaded_bytes"), &HTTPRequest::get_downloaded_bytes);
-    MethodBinder::bind_method(D_METHOD("get_body_size"), &HTTPRequest::get_body_size);
+    BIND_METHOD(HTTPRequest,set_download_file);
+    BIND_METHOD(HTTPRequest,get_download_file);
 
-    MethodBinder::bind_method(D_METHOD("set_timeout", {"timeout"}), &HTTPRequest::set_timeout);
-    MethodBinder::bind_method(D_METHOD("get_timeout"), &HTTPRequest::get_timeout);
+    BIND_METHOD(HTTPRequest,get_downloaded_bytes);
+    BIND_METHOD(HTTPRequest,get_body_size);
 
-    MethodBinder::bind_method(D_METHOD("set_download_chunk_size"), &HTTPRequest::set_download_chunk_size);
-    MethodBinder::bind_method(D_METHOD("get_download_chunk_size"), &HTTPRequest::get_download_chunk_size);
+    BIND_METHOD(HTTPRequest,set_timeout);
+    BIND_METHOD(HTTPRequest,get_timeout);
+
+    BIND_METHOD(HTTPRequest,set_download_chunk_size);
+    BIND_METHOD(HTTPRequest,get_download_chunk_size);
+    BIND_METHOD(HTTPRequest,set_http_proxy);
+    BIND_METHOD(HTTPRequest,set_https_proxy);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "download_file", PropertyHint::File), "set_download_file", "get_download_file");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "download_chunk_size", PropertyHint::Range, "256,16777216"), "set_download_chunk_size", "get_download_chunk_size");

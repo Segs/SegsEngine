@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  texture_region_editor_plugin.cpp                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -39,6 +39,11 @@
 #include "core/os/keyboard.h"
 #include "core/translation_helpers.h"
 #include "scene/gui/check_box.h"
+#include "scene/gui/option_button.h"
+#include "scene/gui/panel.h"
+#include "scene/gui/separator.h"
+#include "scene/gui/tool_button.h"
+
 
 IMPL_GDCLASS(TextureRegionEditor)
 IMPL_GDCLASS(TextureRegionEditorPlugin)
@@ -85,9 +90,10 @@ void TextureRegionEditor::_region_draw() {
     RenderingServer::get_singleton()->canvas_item_add_set_transform(edit_draw->get_canvas_item(), mtx);
     edit_draw->draw_texture(base_tex, Point2());
     RenderingServer::get_singleton()->canvas_item_add_set_transform(edit_draw->get_canvas_item(), Transform2D());
+    const Color color = get_theme_color("mono_color", "Editor");
 
     if (snap_mode == SNAP_GRID) {
-        Color grid_color = Color(1.0, 1.0, 1.0, 0.15f);
+        const Color grid_color = Color(color.r, color.g, color.b, color.a * 0.15);
         Size2 s = edit_draw->get_size();
         int last_cell = 0;
 
@@ -107,7 +113,7 @@ void TextureRegionEditor::_region_draw() {
                     if (i == 0)
                         last_cell = cell;
                     if (last_cell != cell)
-                        edit_draw->draw_rect(Rect2(i - snap_separation.x * draw_zoom, 0, snap_separation.x * draw_zoom, s.height), grid_color);
+                        edit_draw->draw_rect_filled(Rect2(i - snap_separation.x * draw_zoom, 0, snap_separation.x * draw_zoom, s.height), grid_color);
                     last_cell = cell;
                 }
         }
@@ -128,7 +134,7 @@ void TextureRegionEditor::_region_draw() {
                     if (i == 0)
                         last_cell = cell;
                     if (last_cell != cell)
-                        edit_draw->draw_rect(Rect2(0, i - snap_separation.y * draw_zoom, s.width, snap_separation.y * draw_zoom), grid_color);
+                        edit_draw->draw_rect_filled(Rect2(0, i - snap_separation.y * draw_zoom, s.width, snap_separation.y * draw_zoom), grid_color);
                     last_cell = cell;
                 }
         }
@@ -164,7 +170,6 @@ void TextureRegionEditor::_region_draw() {
         mtx.basis_xform(raw_endpoints[3])
     };
 
-    Color color = get_theme_color("mono_color", "Editor");
     for (int i = 0; i < 4; i++) {
 
         int prev = (i + 3) % 4;
@@ -472,16 +477,38 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
 
             if (edited_margin >= 0) {
                 float new_margin = 0;
-                if (edited_margin == 0)
+                if (snap_mode != SNAP_GRID) {
+                    if (edited_margin == 0) {
                     new_margin = prev_margin + (mm->get_position().y - drag_from.y) / draw_zoom;
-                else if (edited_margin == 1)
+                    } else if (edited_margin == 1) {
                     new_margin = prev_margin - (mm->get_position().y - drag_from.y) / draw_zoom;
-                else if (edited_margin == 2)
+                    } else if (edited_margin == 2) {
                     new_margin = prev_margin + (mm->get_position().x - drag_from.x) / draw_zoom;
-                else if (edited_margin == 3)
+                    } else if (edited_margin == 3) {
                     new_margin = prev_margin - (mm->get_position().x - drag_from.x) / draw_zoom;
-                else
+                    } else {
                     ERR_PRINT("Unexpected edited_margin");
+                    }
+
+                    if (snap_mode == SNAP_PIXEL) {
+                        new_margin = Math::round(new_margin);
+                    }
+                } else {
+                    Vector2 pos_snapped = snap_point(mtx.affine_inverse().xform(mm->get_position()));
+                    Rect2 rect_rounded = Rect2(rect.position.round(), rect.size.round());
+
+                    if (edited_margin == 0) {
+                        new_margin = pos_snapped.y - rect_rounded.position.y;
+                    } else if (edited_margin == 1) {
+                        new_margin = rect_rounded.size.y + rect_rounded.position.y - pos_snapped.y;
+                    } else if (edited_margin == 2) {
+                        new_margin = pos_snapped.x - rect_rounded.position.x;
+                    } else if (edited_margin == 3) {
+                        new_margin = rect_rounded.size.x + rect_rounded.position.x - pos_snapped.x;
+                    } else {
+                        ERR_PRINT("Unexpected edited_margin");
+                    }
+                }
 
                 if (new_margin < 0)
                     new_margin = 0;
@@ -782,7 +809,7 @@ void TextureRegionEditor::_node_removed(Object *p_obj) {
 }
 
 void TextureRegionEditor::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("_update_rect"), &TextureRegionEditor::_update_rect);
+    BIND_METHOD(TextureRegionEditor,_update_rect);
 }
 
 bool TextureRegionEditor::is_stylebox() {
@@ -876,7 +903,6 @@ void TextureRegionEditor::_edit_region() {
     if (cache_map.contains(texture->get_rid())) {
         autoslice_cache = cache_map[texture->get_rid()];
         autoslice_is_dirty = false;
-        return;
     } else {
         if (is_visible() && snap_mode == SNAP_AUTOSLICE) {
             _update_autoslice();
@@ -973,7 +999,7 @@ TextureRegionEditor::TextureRegionEditor(EditorNode *p_editor) {
     hb_grid->add_child(sb_step_y);
 
     hb_grid->add_child(memnew(VSeparator));
-    hb_grid->add_child(memnew(Label(TTR("Sep.:"))));
+    hb_grid->add_child(memnew(Label(TTR("Separation:"))));
 
     sb_sep_x = memnew(SpinBox);
     sb_sep_x->set_min(0);
@@ -1109,7 +1135,7 @@ void TextureRegionEditorPlugin::set_state(const Dictionary &p_state) {
 }
 
 void TextureRegionEditorPlugin::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("_editor_visiblity_changed"), &TextureRegionEditorPlugin::_editor_visiblity_changed);
+    BIND_METHOD(TextureRegionEditorPlugin,_editor_visiblity_changed);
 }
 
 TextureRegionEditorPlugin::TextureRegionEditorPlugin(EditorNode *p_node) {

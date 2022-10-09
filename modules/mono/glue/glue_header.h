@@ -53,7 +53,7 @@
 #include "../mono_gd/gd_mono_utils.h"
 
 #define GODOTSHARP_INSTANCE_OBJECT(m_instance, m_type) \
-    static ClassDB::ClassInfo *ci = nullptr;              \
+    static ClassDB_ClassInfo *ci = nullptr;              \
     if (!ci) {                                         \
         ci = &ClassDB::classes.find(m_type)->second;    \
     }                                                  \

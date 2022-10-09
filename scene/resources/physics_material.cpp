@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  physics_material.cpp                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,21 +36,21 @@ RES_BASE_EXTENSION_IMPL(PhysicsMaterial,"phymat")
 
 void PhysicsMaterial::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_friction", {"friction"}), &PhysicsMaterial::set_friction);
-    MethodBinder::bind_method(D_METHOD("get_friction"), &PhysicsMaterial::get_friction);
+    BIND_METHOD(PhysicsMaterial,set_friction);
+    BIND_METHOD(PhysicsMaterial,get_friction);
 
-    MethodBinder::bind_method(D_METHOD("set_rough", {"rough"}), &PhysicsMaterial::set_rough);
-    MethodBinder::bind_method(D_METHOD("is_rough"), &PhysicsMaterial::is_rough);
+    BIND_METHOD(PhysicsMaterial,set_rough);
+    BIND_METHOD(PhysicsMaterial,is_rough);
 
-    MethodBinder::bind_method(D_METHOD("set_bounce", {"bounce"}), &PhysicsMaterial::set_bounce);
-    MethodBinder::bind_method(D_METHOD("get_bounce"), &PhysicsMaterial::get_bounce);
+    BIND_METHOD(PhysicsMaterial,set_bounce);
+    BIND_METHOD(PhysicsMaterial,get_bounce);
 
-    MethodBinder::bind_method(D_METHOD("set_absorbent", {"absorbent"}), &PhysicsMaterial::set_absorbent);
-    MethodBinder::bind_method(D_METHOD("is_absorbent"), &PhysicsMaterial::is_absorbent);
+    BIND_METHOD(PhysicsMaterial,set_absorbent);
+    BIND_METHOD(PhysicsMaterial,is_absorbent);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "friction",PropertyHint::Range,"0,1,0.01"), "set_friction", "get_friction");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "friction",PropertyHint::Range,"0,1,0.01,or_greater"), "set_friction", "get_friction");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rough"), "set_rough", "is_rough");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bounce",PropertyHint::Range,"0,1,0.01"), "set_bounce", "get_bounce");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bounce",PropertyHint::Range,"0,1,0.01,or_greater"), "set_bounce", "get_bounce");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "absorbent"), "set_absorbent", "is_absorbent");
 }
 

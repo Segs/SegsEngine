@@ -39,7 +39,7 @@ class GODOT_EXPORT RayCast2D : public Node2D {
 
 	bool enabled;
 	bool collided;
-	ObjectID against;
+	GameEntity against;
 	int against_shape;
 	Vector2 collision_point;
 	Vector2 collision_normal;

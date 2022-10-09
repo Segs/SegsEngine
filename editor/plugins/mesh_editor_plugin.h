@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef MESH_EDITOR_PLUGIN_H
-#define MESH_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
@@ -39,6 +38,7 @@
 #include "scene/resources/material.h"
 #include "scene/gui/viewport_container.h"
 
+class TextureButton;
 
 class MeshEditor : public ViewportContainer {
 
@@ -91,5 +91,3 @@ public:
 
     MeshEditorPlugin(EditorNode *p_node);
 };
-
-#endif

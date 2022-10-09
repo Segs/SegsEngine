@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_stream_editor_plugin.cpp                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,12 +32,16 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/io/resource_loader.h"
+#include "core/os/keyboard.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/project_settings.h"
 #include "editor/audio_stream_preview.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
+#include "scene/gui/box_container.h"
+#include "scene/gui/label.h"
+#include "scene/gui/tool_button.h"
 #include "scene/resources/font.h"
 #include "servers/rendering_server.h"
 
@@ -93,13 +97,12 @@ void AudioStreamEditor::_draw_preview() {
         lines.emplace_back(i + 1, rect.position.y + max * rect.size.y);
     }
 
-    Vector<Color> color;
-    color.push_back(get_theme_color("contrast_color_2", "Editor"));
+    Color color[1] = {get_theme_color("contrast_color_2", "Editor")};
 
     RenderingServer::get_singleton()->canvas_item_add_multiline(_preview->get_canvas_item(), lines, color);
 }
 
-void AudioStreamEditor::_preview_changed(ObjectID p_which) {
+void AudioStreamEditor::_preview_changed(GameEntity p_which) {
 
     if (stream && stream->get_instance_id() == p_which) {
         _preview->update();
@@ -116,6 +119,8 @@ void AudioStreamEditor::_changed_callback(Object *p_changed, StringName p_prop) 
 void AudioStreamEditor::_play() {
 
     if (_player->is_playing()) {
+        // '_pausing' variable indicates that we want to pause the audio player, not stop it. See '_on_finished()'.
+        _pausing = true;
         _player->stop();
         _play_button->set_button_icon(get_theme_icon("MainPlay", "EditorIcons"));
         set_process(false);
@@ -138,10 +143,13 @@ void AudioStreamEditor::_stop() {
 void AudioStreamEditor::_on_finished() {
 
     _play_button->set_button_icon(get_theme_icon("MainPlay", "EditorIcons"));
-    if (_current == _player->get_stream()->get_length()) {
+    if (!_pausing) {
         _current = 0;
         _indicator->update();
+    } else {
+        _pausing = false;
     }
+    set_process(false);
 }
 
 void AudioStreamEditor::_draw_indicator() {
@@ -153,22 +161,27 @@ void AudioStreamEditor::_draw_indicator() {
     Rect2 rect = _preview->get_rect();
     float len = stream->get_length();
     float ofs_x = _current / len * rect.size.width;
-    _indicator->draw_line(Point2(ofs_x, 0), Point2(ofs_x, rect.size.height), get_theme_color("accent_color", "Editor"), 1);
+    const Color color = get_theme_color("accent_color", "Editor");
+    _indicator->draw_line(Point2(ofs_x, 0), Point2(ofs_x, rect.size.height), color, Math::round(2 * EDSCALE));
+    _indicator->draw_texture(
+            get_theme_icon("TimelineIndicator", "EditorIcons"),
+            Point2(ofs_x - get_theme_icon("TimelineIndicator", "EditorIcons")->get_width() * 0.5, 0),
+            color);
 
-    _current_label->set_text(StringName(StringUtils::pad_decimals(StringUtils::num(_current, 2),2) + " /"));
+    _current_label->set_text(StringUtils::pad_decimals(StringUtils::num(_current, 2),2) + " /");
 }
 
 void AudioStreamEditor::_on_input_indicator(const Ref<InputEvent>& p_event) {
-    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
+    const Ref<InputEventMouseButton> mb(dynamic_ref_cast<InputEventMouseButton>(p_event));
 
-    if (mb) {
+    if (mb && mb->get_button_index() == BUTTON_LEFT) {
         if (mb->is_pressed()) {
             _seek_to(mb->get_position().x);
         }
         _dragging = mb->is_pressed();
     }
 
-    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
+    const Ref<InputEventMouseMotion> mm(dynamic_ref_cast<InputEventMouseMotion>(p_event));
 
     if (mm) {
         if (_dragging) {
@@ -179,7 +192,7 @@ void AudioStreamEditor::_on_input_indicator(const Ref<InputEvent>& p_event) {
 
 void AudioStreamEditor::_seek_to(real_t p_x) {
     _current = p_x / _preview->get_rect().size.x * stream->get_length();
-    _current = CLAMP(_current, 0, stream->get_length());
+    _current = CLAMP<float>(_current, 0, stream->get_length());
     _player->seek(_current);
     _indicator->update();
 }
@@ -205,19 +218,17 @@ void AudioStreamEditor::edit(const Ref<AudioStream>& p_stream) {
 
 void AudioStreamEditor::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_preview_changed"), &AudioStreamEditor::_preview_changed);
-    MethodBinder::bind_method(D_METHOD("_play"), &AudioStreamEditor::_play);
-    MethodBinder::bind_method(D_METHOD("_stop"), &AudioStreamEditor::_stop);
-    MethodBinder::bind_method(D_METHOD("_draw_preview"), &AudioStreamEditor::_draw_preview);
-    MethodBinder::bind_method(D_METHOD("_draw_indicator"), &AudioStreamEditor::_draw_indicator);
-    MethodBinder::bind_method(D_METHOD("_on_input_indicator"), &AudioStreamEditor::_on_input_indicator);
+    BIND_METHOD(AudioStreamEditor,_preview_changed);
+    BIND_METHOD(AudioStreamEditor,_play);
+    BIND_METHOD(AudioStreamEditor,_stop);
+    BIND_METHOD(AudioStreamEditor,_draw_preview);
+    BIND_METHOD(AudioStreamEditor,_draw_indicator);
+    BIND_METHOD(AudioStreamEditor,_on_input_indicator);
 }
 
 AudioStreamEditor::AudioStreamEditor() {
 
     set_custom_minimum_size(Size2(1, 100)*EDSCALE);
-    _current = 0;
-    _dragging = false;
 
     _player = memnew(AudioStreamPlayer);
     _player->connect("finished",callable_mp(this, &ClassName::_on_finished));
@@ -246,6 +257,7 @@ AudioStreamEditor::AudioStreamEditor() {
     hbox->add_child(_play_button);
     _play_button->set_focus_mode(Control::FOCUS_NONE);
     _play_button->connect("pressed",callable_mp(this, &ClassName::_play));
+    _play_button->set_shortcut(ED_SHORTCUT("inspector/audio_preview_play_pause", TTR("Audio Preview Play/Pause"), KEY_SPACE));
 
     _stop_button = memnew(ToolButton);
     hbox->add_child(_stop_button);

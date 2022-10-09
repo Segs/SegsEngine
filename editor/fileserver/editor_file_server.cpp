@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_file_server.cpp                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -85,7 +85,7 @@ void EditorFileServer::_subthread_start(void *s) {
         err = cd->connection->get_data((uint8_t *)passutf8.data(), passlen);
         if (err != OK) {
             _close_client(cd);
-            ERR_FAIL_COND(err != OK);
+            ERR_FAIL_MSG("err != OK");
         }
         passutf8[passlen] = 0;
         String s2(passutf8.data());
@@ -246,8 +246,7 @@ void EditorFileServer::_subthread_start(void *s) {
                 cd->files[id]->seek(offset);
                 Vector<uint8_t> buf;
                 buf.resize(blocklen);
-                int read = cd->files[id]->get_buffer(buf.data(), blocklen);
-                ERR_CONTINUE(read < 0);
+                auto read = cd->files[id]->get_buffer(buf.data(), blocklen);
 
                 print_verbose("GET BLOCK - offset: " + itos(offset) + ", blocklen: " + itos(blocklen));
 
@@ -319,8 +318,8 @@ void EditorFileServer::_thread_start(void *s) {
 void EditorFileServer::start() {
 
     stop();
-    port = EDITOR_DEF("filesystem/file_server/port", 6010).as<int>();
-    password = EDITOR_DEF("filesystem/file_server/password", "").as<String>();
+    port = EDITOR_GET_T<int>("filesystem/file_server/port");
+    password = EDITOR_GET_T<String>("filesystem/file_server/password");
     cmd = CMD_ACTIVATE;
 }
 

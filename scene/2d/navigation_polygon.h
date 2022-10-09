@@ -31,8 +31,9 @@
 #pragma once
 
 #include "scene/2d/node_2d.h"
-#include "scene/resources/navigation_mesh.h"
+#include "core/os/mutex.h"
 
+class NavigationMesh;
 class GODOT_EXPORT NavigationPolygon : public Resource {
 
     GDCLASS(NavigationPolygon,Resource)
@@ -45,9 +46,9 @@ class GODOT_EXPORT NavigationPolygon : public Resource {
     Vector<PoolVector<Vector2> > outlines;
 
     mutable Rect2 item_rect;
-    mutable bool rect_cache_dirty;
+    mutable bool rect_cache_dirty=true;
 
-    Mutex *navmesh_generation;
+    Mutex navmesh_generation;
     // Navigation mesh
     Ref<NavigationMesh> navmesh;
 protected:
@@ -87,6 +88,7 @@ public:
     const Ref<NavigationMesh> &get_mesh();
 
     NavigationPolygon();
+    ~NavigationPolygon() override;
 };
 
 class Navigation2D;

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  skeleton_editor_plugin.cpp                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,6 +36,7 @@
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/physics_body_3d.h"
 #include "scene/3d/physics_joint_3d.h"
+#include "scene/gui/menu_button.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/capsule_shape_3d.h"
 #include "scene/resources/sphere_shape_3d.h"
@@ -88,7 +89,7 @@ void SkeletonEditor::create_physical_skeleton() {
 
                 bones_infos[parent].physical_bone = create_physical_bone(parent, bone_id, bones_infos);
 
-                ur->create_action(TTR("Create physical bones"));
+                ur->create_action(TTR("Create physical bones"), UndoRedo::MERGE_ALL);
                 ur->add_do_method(skeleton, "add_child", Variant(bones_infos[parent].physical_bone));
                 ur->add_do_reference(bones_infos[parent].physical_bone);
                 ur->add_undo_method(skeleton, "remove_child", Variant(bones_infos[parent].physical_bone));
@@ -109,8 +110,9 @@ void SkeletonEditor::create_physical_skeleton() {
 }
 
 PhysicalBone3D *SkeletonEditor::create_physical_bone(int bone_id, int bone_child_id, const Vector<SkeletonEditor::BoneInfo> &bones_infos) {
+    const Transform child_rest = skeleton->get_bone_rest(bone_child_id);
 
-    real_t half_height(skeleton->get_bone_rest(bone_child_id).origin.length() * 0.5);
+    real_t half_height(child_rest.origin.length() * 0.5);
     real_t radius(half_height * 0.2);
 
     CapsuleShape3D *bone_shape_capsule = memnew(CapsuleShape3D);
@@ -121,11 +123,16 @@ PhysicalBone3D *SkeletonEditor::create_physical_bone(int bone_id, int bone_child
     bone_shape->set_shape(Ref<Shape>(bone_shape_capsule,DoNotAddRef));
 
     Transform capsule_transform;
-    capsule_transform.basis = Basis(Vector3(1, 0, 0), Vector3(0, 0, 1), Vector3(0, -1, 0));
     bone_shape->set_transform(capsule_transform);
+    Vector3 up = Vector3(0, 1, 0);
+    if (up.cross(child_rest.origin).length() == 0) {
+        up = Vector3(0, 0, 1);
+    }
+
 
     Transform body_transform;
-    body_transform.origin = Vector3(0, 0, -half_height);
+    body_transform.set_look_at(Vector3(0, 0, 0), child_rest.origin, up);
+    body_transform.origin = body_transform.basis.xform(Vector3(0, 0, -half_height));
 
     Transform joint_transform;
     joint_transform.origin = Vector3(0, 0, half_height);
@@ -167,7 +174,7 @@ SkeletonEditor::SkeletonEditor() {
     Node3DEditor::get_singleton()->add_control_to_menu_panel(options);
 
     options->set_text(TTR("Skeleton"));
-    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("Skeleton", "EditorIcons"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("Skeleton3D", "EditorIcons"));
 
     options->get_popup()->add_item(TTR("Create physical skeleton"), MENU_OPTION_CREATE_PHYSICAL_SKELETON);
 

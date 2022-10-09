@@ -33,6 +33,7 @@
 #include "core/object_db.h"
 #include "core/object_tooling.h"
 #include "editor_node.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(DictionaryPropertyEdit)
 
@@ -44,16 +45,16 @@ void DictionaryPropertyEdit::_notif_changev(const String &p_v) {
     Object_change_notify(this,StringName(p_v));
 }
 
-void DictionaryPropertyEdit::_set_key(const Variant &p_old_key, const Variant &p_new_key) {
+void DictionaryPropertyEdit::_set_key(const StringName&p_old_key, const StringName &p_new_key) {
 
     // TODO: Set key of a dictionary is not allowed yet
 }
 
-void DictionaryPropertyEdit::_set_value(const Variant &p_key, const Variant &p_value) {
+void DictionaryPropertyEdit::_set_value(const StringName &p_key, const Variant &p_value) {
 
     Dictionary dict = get_dictionary();
     dict[p_key] = p_value;
-    Object *o = ObjectDB::get_instance(obj);
+    Object *o = object_for_entity(obj);
     if (!o)
         return;
 
@@ -62,7 +63,7 @@ void DictionaryPropertyEdit::_set_value(const Variant &p_key, const Variant &p_v
 
 Dictionary DictionaryPropertyEdit::get_dictionary() const {
 
-    Object *o = ObjectDB::get_instance(obj);
+    Object *o = object_for_entity(obj);
     if (!o)
         return Dictionary();
     Variant dict = o->get(property);
@@ -75,19 +76,17 @@ void DictionaryPropertyEdit::_get_property_list(Vector<PropertyInfo> *p_list) co
 
     Dictionary dict = get_dictionary();
 
-    Array keys = dict.keys();
-    keys.sort();
+    auto keys = dict.get_key_list();
+    eastl::sort(keys.begin(), keys.end(), WrapAlphaCompare());
 
     for (int i = 0; i < keys.size(); i++) {
         String index = itos(i);
 
-        const Variant &key = keys[i];
-        PropertyInfo pi(key.get_type(), StringName(index + ": key"));
-        p_list->push_back(pi);
+        const auto &key = keys[i];
+        p_list->emplace_back(VariantType::STRING_NAME, StringName(index + ": key"));
 
         const Variant &value = dict[key];
-        pi = PropertyInfo(value.get_type(), StringName(index + ": value"));
-        p_list->push_back(pi);
+        p_list->emplace_back(value.get_type(), StringName(index + ": value"));
     }
 }
 
@@ -99,7 +98,7 @@ void DictionaryPropertyEdit::edit(Object *p_obj, const StringName &p_prop) {
 
 Node *DictionaryPropertyEdit::get_node() {
 
-    Object *o = ObjectDB::get_instance(obj);
+    Object *o = object_for_entity(obj);
     if (!o)
         return nullptr;
 
@@ -112,18 +111,18 @@ bool DictionaryPropertyEdit::_dont_undo_redo() {
 
 void DictionaryPropertyEdit::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_set_key"), &DictionaryPropertyEdit::_set_key);
-    MethodBinder::bind_method(D_METHOD("_set_value"), &DictionaryPropertyEdit::_set_value);
-    MethodBinder::bind_method(D_METHOD("_notif_change"), &DictionaryPropertyEdit::_notif_change);
-    MethodBinder::bind_method(D_METHOD("_notif_changev"), &DictionaryPropertyEdit::_notif_changev);
-    MethodBinder::bind_method(D_METHOD("_dont_undo_redo"), &DictionaryPropertyEdit::_dont_undo_redo);
+    BIND_METHOD(DictionaryPropertyEdit,_set_key);
+    BIND_METHOD(DictionaryPropertyEdit,_set_value);
+    BIND_METHOD(DictionaryPropertyEdit,_notif_change);
+    BIND_METHOD(DictionaryPropertyEdit,_notif_changev);
+    BIND_METHOD(DictionaryPropertyEdit,_dont_undo_redo);
 }
 
 bool DictionaryPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
     using namespace eastl;
     Dictionary dict = get_dictionary();
-    Array keys = dict.keys();
-    keys.sort();
+    auto keys = dict.get_key_list();
+    eastl::sort(keys.begin(),keys.end(),WrapAlphaCompare());
 
     String pn(p_name);
     auto slash = StringUtils::find(pn,": ");
@@ -144,7 +143,7 @@ bool DictionaryPropertyEdit::_set(const StringName &p_name, const Variant &p_val
 
             return true;
         } else if (type == "value"_sv && index < keys.size()) {
-            const Variant &key = keys[index];
+            const auto &key = keys[index];
             if (dict.has(key)) {
 
                 Variant value = dict[key];
@@ -169,8 +168,8 @@ bool DictionaryPropertyEdit::_get(const StringName &p_name, Variant &r_ret) cons
     using namespace eastl;
 
     Dictionary dict = get_dictionary();
-    Array keys = dict.keys();
-    keys.sort();
+    auto keys = dict.get_key_list();
+    eastl::sort(keys.begin(),keys.end(),WrapAlphaCompare());
 
     String pn(p_name);
     auto slash = StringUtils::find(pn,": ");
@@ -184,7 +183,7 @@ bool DictionaryPropertyEdit::_get(const StringName &p_name, Variant &r_ret) cons
             r_ret = keys[index];
             return true;
         } else if (type == "value"_sv && index < keys.size()) {
-            const Variant &key = keys[index];
+            const auto &key = keys[index];
             if (dict.has(key)) {
                 r_ret = dict[key];
                 return true;
@@ -196,5 +195,5 @@ bool DictionaryPropertyEdit::_get(const StringName &p_name, Variant &r_ret) cons
 }
 
 DictionaryPropertyEdit::DictionaryPropertyEdit() {
-    obj = 0;
+    obj = entt::null;
 }

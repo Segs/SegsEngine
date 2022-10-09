@@ -211,7 +211,7 @@ void EditorPropertyRootMotion::update_property() {
 
     NodePath p = get_edited_object()->getT<NodePath>(get_edited_property());
 
-    assign->set_tooltip_utf8((String)p);
+    assign->set_tooltip((String)p);
     if (p == NodePath()) {
         assign->set_button_icon(Ref<Texture>());
         assign->set_text(TTR("Assign..."));
@@ -231,7 +231,7 @@ void EditorPropertyRootMotion::update_property() {
 
     if (!base_node || !base_node->has_node(p)) {
         assign->set_button_icon(Ref<Texture>());
-        assign->set_text_utf8((String)p);
+        assign->set_text((String)p);
         return;
     }
 

@@ -39,8 +39,10 @@ struct LegacyGLHeaderStruct
 };
 bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruct &header_data,int depth)
 {
+    QRegularExpression ifdef_regex(".*#ifdef (\\S+).*");
     QTextStream text_input;
     QFile fs(filename);
+    ifdef_regex.optimize();
     if(!fs.open(QFile::ReadOnly)) {
         return false;
     }
@@ -97,7 +99,7 @@ bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruc
             QString ifdefline;
             if (line.indexOf("#ifdef ") != -1)
             {
-                ifdefline = QString(line).replace("#ifdef ", "").trimmed();
+                ifdefline = QString(line).replace(ifdef_regex, "\\1").trimmed();
             }
             else
             {
@@ -105,7 +107,7 @@ bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruc
                 ifdefline = ifdefline.replace(")", "").trimmed();
             }
 
-            if (line.indexOf("_EN_") != -1)
+            if (line.contains("_EN_"))
             {
                 QString enumbase = ifdefline.mid(0,ifdefline.indexOf("_EN_"));
                 ifdefline = ifdefline.replace("_EN_", "_");
@@ -303,6 +305,10 @@ void build_legacygl_header(const QString &filename, const char *include, bool ou
         for(const auto &x : header_data.uniforms)
             fd << "\t\t" + x.toUpper() + ",\n";
         fd << "\t};\n\n";
+    }
+        bool supports_ubershader = header_data.uniforms.contains("ubershader_flags");
+    if(supports_ubershader) {
+        fd << "\tint get_ubershader_flags_uniform() const override { return Uniforms::UBERSHADER_FLAGS; }\n\n";
     }
 
     fd << "\tint get_uniform(Uniforms p_uniform) const { return _get_uniform(p_uniform); }\n\n";

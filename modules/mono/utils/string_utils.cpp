@@ -149,7 +149,7 @@ bool is_csharp_keyword(StringView p_name) {
             "do" ,"double" ,"else" ,"enum" ,
             "event" ,"explicit" ,"extern" ,"false" ,
             "finally" ,"fixed" ,"float" ,"for" ,
-            "forech" ,"goto" ,"if" ,"implicit" ,
+            "foreach" ,"goto" ,"if" ,"implicit" ,
             "in" ,"int" ,"interface" ,"internal" ,
             "is" ,"lock" ,"long" ,"namespace" ,
             "new" ,"null" ,"object" ,"operator" ,

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  multi_node_edit.cpp                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -53,22 +53,31 @@ bool MultiNodeEdit::_set_impl(const StringName &p_name, const Variant &p_value, 
         name = "script";
     }
 
+    Node *node_path_target = nullptr;
+    if (p_value.get_type() == VariantType::NODE_PATH && p_value != NodePath()) {
+        node_path_target = es->get_node(p_value.as<NodePath>());
+    }
+
     UndoRedo *ur = EditorNode::get_undo_redo();
 
     ur->create_action(TTR("MultiNode Set") + " " + name, UndoRedo::MERGE_ENDS);
     for (const NodePath &E : nodes) {
 
-        if (!es->has_node(E))
+        if (!es->has_node(E)) {
             continue;
+        }
 
         Node *n = es->get_node(E);
-        if (!n)
+        if (!n) {
             continue;
+        }
 
         if (p_value.get_type() == VariantType::NODE_PATH) {
-            Node *tonode = n->get_node(p_value.as<NodePath>());
-            NodePath p_path = n->get_path_to(tonode);
-            ur->add_do_property(n, name, p_path);
+            NodePath path;
+            if (node_path_target) {
+                path = n->get_path_to(node_path_target);
+            }
+            ur->add_do_property(n, name, path);
         } else {
             Variant new_value;
             if (p_field.empty()) {

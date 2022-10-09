@@ -254,7 +254,7 @@ EditorSubScene::EditorSubScene() {
     //tree->connect("nothing_selected",callable_mp(this, &ClassName::_deselect_items));
     tree->connect("cell_selected",callable_mp(this, &ClassName::_selected_changed));
 
-    tree->connect("item_activated",callable_gen(this,[this] () { _ok_pressed(); }), make_binds(), ObjectNS::CONNECT_QUEUED);
+    tree->connect("item_activated",callable_gen(this,[this] () { _ok_pressed(); }), ObjectNS::CONNECT_QUEUED);
 
     file_dialog = memnew(EditorFileDialog);
     Vector<String> extensions;

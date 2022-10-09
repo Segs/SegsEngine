@@ -28,9 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SEGMENT_SHAPE_2D_H
-#define SEGMENT_SHAPE_2D_H
-
+#pragma once
 #include "scene/resources/shape_2d.h"
 
 class GODOT_EXPORT SegmentShape2D : public Shape2D {
@@ -58,7 +56,7 @@ public:
     real_t get_enclosing_radius() const override {
         return (a + b).length();
     }
-    void draw(const RID &p_to_rid, const Color &p_color) override;
+    void draw(RenderingEntity p_to_rid, const Color &p_color) override;
     Rect2 get_rect() const override;
 
     SegmentShape2D();
@@ -86,10 +84,9 @@ public:
         return length;
     }
 
-    void draw(const RID &p_to_rid, const Color &p_color) override;
+    void draw(RenderingEntity p_to_rid, const Color &p_color) override;
     Rect2 get_rect() const override;
 
     RayShape2D();
 };
 
-#endif // SEGMENT_SHAPE_2D_H

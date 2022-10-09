@@ -32,12 +32,23 @@
 #include "scene/resources/style_box.h"
 #include "scene/resources/font.h"
 #include "core/method_bind.h"
+#include "core/translation.h"
+#include "core/object_tooling.h"
 
 IMPL_GDCLASS(LinkButton)
 VARIANT_ENUM_CAST(LinkButton::UnderlineMode);
 
 void LinkButton::set_text(StringView p_text)
 {
+    if (text == p_text) {
+        return;
+    }
+    text = p_text;
+    xl_text = tr(p_text);
+    update();
+    Object_change_notify(this); //,"text"
+    minimum_size_changed();
+
     text = p_text;
     update();
     minimum_size_changed();
@@ -60,16 +71,20 @@ LinkButton::UnderlineMode LinkButton::get_underline_mode() const {
 
 Size2 LinkButton::get_minimum_size() const {
 
-    return get_theme_font("font")->get_string_size(text);
+    return get_theme_font("font")->get_string_size(xl_text);
 }
 
 void LinkButton::_notification(int p_what) {
 
     switch (p_what) {
-
+        case NOTIFICATION_TRANSLATION_CHANGED: {
+            xl_text = tr(text);
+            minimum_size_changed();
+            update();
+        } break;
         case NOTIFICATION_DRAW: {
 
-            RID ci = get_canvas_item();
+            RenderingEntity ci = get_canvas_item();
             Size2 size = get_size();
             Color color;
             bool do_underline = false;
@@ -78,7 +93,11 @@ void LinkButton::_notification(int p_what) {
 
                 case DRAW_NORMAL: {
 
+                if (has_focus()) {
+                    color = get_theme_color("font_color_focus");
+                } else {
                     color = get_theme_color("font_color");
+                }
                     do_underline = underline_mode == UNDERLINE_MODE_ALWAYS;
                 } break;
                 case DRAW_HOVER_PRESSED:
@@ -114,11 +133,11 @@ void LinkButton::_notification(int p_what) {
 
             Ref<Font> font = get_theme_font("font");
 
-            draw_string(font, Vector2(0, font->get_ascent()), text, color);
+            draw_string(font, Vector2(0, font->get_ascent()), xl_text, color);
 
             if (do_underline) {
                 int underline_spacing = get_theme_constant("underline_spacing");
-                int width = font->get_string_size(text).width;
+                int width = font->get_string_size(xl_text).width;
                 int y = font->get_ascent() + underline_spacing;
 
                 draw_line(Vector2(0, y), Vector2(width, y), color);
@@ -130,11 +149,11 @@ void LinkButton::_notification(int p_what) {
 
 void LinkButton::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &LinkButton::set_text);
-    MethodBinder::bind_method(D_METHOD("get_text"), &LinkButton::get_text);
+    BIND_METHOD(LinkButton,set_text);
+    BIND_METHOD(LinkButton,get_text);
 
-    MethodBinder::bind_method(D_METHOD("set_underline_mode", {"underline_mode"}), &LinkButton::set_underline_mode);
-    MethodBinder::bind_method(D_METHOD("get_underline_mode"), &LinkButton::get_underline_mode);
+    BIND_METHOD(LinkButton,set_underline_mode);
+    BIND_METHOD(LinkButton,get_underline_mode);
 
     BIND_ENUM_CONSTANT(UNDERLINE_MODE_ALWAYS);
     BIND_ENUM_CONSTANT(UNDERLINE_MODE_ON_HOVER);

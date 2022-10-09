@@ -44,14 +44,14 @@ WebSocketPeer::~WebSocketPeer() {
 }
 
 void WebSocketPeer::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("get_write_mode"), &WebSocketPeer::get_write_mode);
-    MethodBinder::bind_method(D_METHOD("set_write_mode", {"mode"}), &WebSocketPeer::set_write_mode);
-    MethodBinder::bind_method(D_METHOD("is_connected_to_host"), &WebSocketPeer::is_connected_to_host);
-    MethodBinder::bind_method(D_METHOD("was_string_packet"), &WebSocketPeer::was_string_packet);
+    BIND_METHOD(WebSocketPeer,get_write_mode);
+    BIND_METHOD(WebSocketPeer,set_write_mode);
+    BIND_METHOD(WebSocketPeer,is_connected_to_host);
+    BIND_METHOD(WebSocketPeer,was_string_packet);
     MethodBinder::bind_method(D_METHOD("close", {"code", "reason"}), &WebSocketPeer::close, {DEFVAL(1000), DEFVAL("")});
-    MethodBinder::bind_method(D_METHOD("get_connected_host"), &WebSocketPeer::get_connected_host);
-    MethodBinder::bind_method(D_METHOD("get_connected_port"), &WebSocketPeer::get_connected_port);
-    MethodBinder::bind_method(D_METHOD("set_no_delay", {"enabled"}), &WebSocketPeer::set_no_delay);
+    BIND_METHOD(WebSocketPeer,get_connected_host);
+    BIND_METHOD(WebSocketPeer,get_connected_port);
+    BIND_METHOD(WebSocketPeer,set_no_delay);
 
     BIND_ENUM_CONSTANT(WRITE_MODE_TEXT);
     BIND_ENUM_CONSTANT(WRITE_MODE_BINARY);

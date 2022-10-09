@@ -50,7 +50,7 @@ void NinePatchRect::_notification(int p_what) {
 
         texture->get_rect_region(rect, src_rect, rect, src_rect);
 
-        RID ci = get_canvas_item();
+        RenderingEntity ci = get_canvas_item();
         RenderingServer::get_singleton()->canvas_item_add_nine_patch(ci, rect, src_rect, texture->get_rid(), Vector2(margin[(int8_t)Margin::Left], margin[(int8_t)Margin::Top]), Vector2(margin[(int8_t)Margin::Right], margin[(int8_t)Margin::Bottom]), RS::NinePatchAxisMode(axis_h), RS::NinePatchAxisMode(axis_v), draw_center);
     }
 }
@@ -61,18 +61,18 @@ Size2 NinePatchRect::get_minimum_size() const {
 }
 void NinePatchRect::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &NinePatchRect::set_texture);
-    MethodBinder::bind_method(D_METHOD("get_texture"), &NinePatchRect::get_texture);
-    MethodBinder::bind_method(D_METHOD("set_patch_margin", {"margin", "value"}), &NinePatchRect::set_patch_margin);
-    MethodBinder::bind_method(D_METHOD("get_patch_margin", {"margin"}), &NinePatchRect::get_patch_margin);
-    MethodBinder::bind_method(D_METHOD("set_region_rect", {"rect"}), &NinePatchRect::set_region_rect);
-    MethodBinder::bind_method(D_METHOD("get_region_rect"), &NinePatchRect::get_region_rect);
-    MethodBinder::bind_method(D_METHOD("set_draw_center", {"draw_center"}), &NinePatchRect::set_draw_center);
-    MethodBinder::bind_method(D_METHOD("is_draw_center_enabled"), &NinePatchRect::is_draw_center_enabled);
-    MethodBinder::bind_method(D_METHOD("set_h_axis_stretch_mode", {"mode"}), &NinePatchRect::set_h_axis_stretch_mode);
-    MethodBinder::bind_method(D_METHOD("get_h_axis_stretch_mode"), &NinePatchRect::get_h_axis_stretch_mode);
-    MethodBinder::bind_method(D_METHOD("set_v_axis_stretch_mode", {"mode"}), &NinePatchRect::set_v_axis_stretch_mode);
-    MethodBinder::bind_method(D_METHOD("get_v_axis_stretch_mode"), &NinePatchRect::get_v_axis_stretch_mode);
+    BIND_METHOD(NinePatchRect,set_texture);
+    BIND_METHOD(NinePatchRect,get_texture);
+    BIND_METHOD(NinePatchRect,set_patch_margin);
+    BIND_METHOD(NinePatchRect,get_patch_margin);
+    BIND_METHOD(NinePatchRect,set_region_rect);
+    BIND_METHOD(NinePatchRect,get_region_rect);
+    BIND_METHOD(NinePatchRect,set_draw_center);
+    BIND_METHOD(NinePatchRect,is_draw_center_enabled);
+    BIND_METHOD(NinePatchRect,set_h_axis_stretch_mode);
+    BIND_METHOD(NinePatchRect,get_h_axis_stretch_mode);
+    BIND_METHOD(NinePatchRect,set_v_axis_stretch_mode);
+    BIND_METHOD(NinePatchRect,get_v_axis_stretch_mode);
 
     ADD_SIGNAL(MethodInfo("texture_changed"));
 

@@ -39,23 +39,81 @@ class GODOT_EXPORT EditorVCSInterface : public Object {
     GDCLASS(EditorVCSInterface, Object)
 
     bool is_initialized;
+public:
+    enum ChangeType {
+        CHANGE_TYPE_NEW = 0,
+        CHANGE_TYPE_MODIFIED = 1,
+        CHANGE_TYPE_RENAMED = 2,
+        CHANGE_TYPE_DELETED = 3,
+        CHANGE_TYPE_TYPECHANGE = 4,
+        CHANGE_TYPE_UNMERGED = 5
+    };
+
+    enum TreeArea {
+        TREE_AREA_COMMIT = 0,
+        TREE_AREA_STAGED = 1,
+        TREE_AREA_UNSTAGED = 2
+    };
+
+    struct DiffLine {
+        int new_line_no;
+        int old_line_no;
+        String content;
+        String status;
+
+        String old_text;
+        String new_text;
+    };
+
+    struct DiffHunk {
+        int new_start;
+        int old_start;
+        int new_lines;
+        int old_lines;
+        Vector<DiffLine> diff_lines;
+    };
+
+    struct DiffFile {
+        String new_file;
+        String old_file;
+        Vector<DiffHunk> diff_hunks;
+    };
+
+    struct Commit {
+        String author;
+        String msg;
+        String id;
+        int64_t unix_timestamp;
+        int64_t offset_minutes;
+    };
+
+    struct StatusFile {
+        TreeArea area;
+        ChangeType change_type;
+        String file_path;
+    };
 
 protected:
     static EditorVCSInterface *singleton;
 
     static void _bind_methods();
+    DiffLine _convert_diff_line(Dictionary p_diff_line);
+    DiffHunk _convert_diff_hunk(Dictionary p_diff_hunk);
+    DiffFile _convert_diff_file(Dictionary p_diff_file);
+    Commit _convert_commit(Dictionary p_commit);
+    StatusFile _convert_status_file(Dictionary p_status_file);
 
     // Implemented by addons as end points for the proxy functions
-    bool _initialize(StringView p_project_root_path);
-    bool _is_vcs_initialized();
-    Dictionary _get_modified_files_data();
-    void _stage_file(StringView p_file_path);
-    void _unstage_file(StringView p_file_path);
-    void _commit(StringView p_msg);
-    Array _get_file_diff(StringView p_file_path);
-    bool _shut_down();
-    String _get_project_name();
-    String _get_vcs_name();
+    virtual bool _initialize(StringView p_project_root_path);
+    virtual bool _is_vcs_initialized();
+    virtual Dictionary _get_modified_files_data();
+    virtual void _stage_file(StringView p_file_path);
+    virtual void _unstage_file(StringView p_file_path);
+    virtual void _commit(StringView p_msg);
+    virtual Array _get_file_diff(StringView p_file_path);
+    virtual bool _shut_down();
+    virtual String _get_project_name();
+    virtual String _get_vcs_name();
 
 public:
     static EditorVCSInterface *get_singleton();

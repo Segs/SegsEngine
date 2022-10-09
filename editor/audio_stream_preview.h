@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AUDIO_STREAM_PREVIEW_H
-#define AUDIO_STREAM_PREVIEW_H
+#pragma once
 
 #include "core/hash_map.h"
 #include "core/os/thread.h"
@@ -62,16 +61,16 @@ class GODOT_EXPORT AudioStreamPreviewGenerator : public Node {
         Ref<AudioStreamPreview> preview;
         Ref<AudioStream> base_stream;
         Ref<AudioStreamPlayback> playback;
-        volatile bool generating;
-        ObjectID id;
+        SafeFlag generating;
+        GameEntity id;
         Thread thread;
     };
 
-    HashMap<ObjectID, Preview> previews;
+    HashMap<GameEntity, Preview> previews;
 
     static void _preview_thread(void *p_preview);
 
-    void _update_emit(ObjectID p_id);
+    void _update_emit(GameEntity p_id);
 
 protected:
     void _notification(int p_what);
@@ -84,5 +83,3 @@ public:
 
     AudioStreamPreviewGenerator();
 };
-
-#endif // AUDIO_STREAM_PREVIEW_H

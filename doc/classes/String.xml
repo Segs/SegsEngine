@@ -341,7 +341,7 @@
                 Finds the first occurrence of a substring. Returns the starting position of the substring or -1 if not found. Optionally, the initial search index can be passed.
             </description>
         </method>
-        <method name="find_last">
+        <method name="rfind">
             <return type="int">
             </return>
             <argument index="0" name="what" type="String">

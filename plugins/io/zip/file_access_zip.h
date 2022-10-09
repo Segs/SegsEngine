@@ -31,12 +31,12 @@
 
 #include "core/io/file_access_pack.h"
 #include "core/map.h"
+#include "core/plugin_interfaces/PluginDeclarations.h"
 
 #include "thirdparty/minizip/unzip.h"
 
 #include <cstdlib>
 
-#include "core/plugin_interfaces/PluginDeclarations.h"
 
 class ZipArchive : public QObject, public PackSourceInterface {
     Q_PLUGIN_METADATA(IID "org.segs_engine.ZipArchive")
@@ -70,7 +70,7 @@ public:
 
     bool file_exists(StringView p_name) const;
 
-    bool try_open_pack(StringView p_path, bool p_replace_files, StringView p_destination="") override;
+    bool try_open_pack(StringView p_path, bool p_replace_files, StringView p_destination="",uint64_t offset=0) override;
     FileAccess *get_file(StringView p_path, PackedDataFile *p_file) override;
 
     static ZipArchive *get_singleton();

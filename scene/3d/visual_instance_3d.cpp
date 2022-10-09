@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  visual_instance_3d.cpp                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,6 +30,7 @@
 
 #include "visual_instance_3d.h"
 
+#include "core/ecs_registry.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "servers/rendering_server.h"
@@ -49,11 +50,41 @@ AABB VisualInstance3D::get_transformed_aabb() const {
 
 void VisualInstance3D::_update_visibility() {
 
-    if (!is_inside_tree())
+    if (!is_inside_tree()) {
         return;
+    }
+
+    bool visible = is_visible_in_tree();
+
+    // keep a quick flag available in each node.
+    // no need to call is_visible_in_tree all over the place,
+    // providing it is propagated with a notification.
+    bool already_visible = _is_vi_visible();
+    _set_vi_visible(visible);
+
+    // if making visible, make sure the visual server is up to date with the transform
+    if (visible && !already_visible && !_is_using_identity_transform()) {
+        Transform gt = get_global_transform();
+        RenderingServer::get_singleton()->instance_set_transform(instance, gt);
+    }
 
     Object_change_notify(this,"visible");
-    RenderingServer::get_singleton()->instance_set_visible(get_instance(), is_visible_in_tree());
+    RenderingServer::get_singleton()->instance_set_visible(get_instance(), visible);
+}
+
+void VisualInstance3D::set_instance_use_identity_transform(bool p_enable) {
+    // prevent sending instance transforms when using global coords
+    _set_use_identity_transform(p_enable);
+
+    if (is_inside_tree()) {
+        if (p_enable) {
+            // want to make sure instance is using identity transform
+            RenderingServer::get_singleton()->instance_set_transform(instance, get_global_transform());
+        } else {
+            // want to make sure instance is up to date
+            RenderingServer::get_singleton()->instance_set_transform(instance, Transform());
+        }
+    }
 }
 
 void VisualInstance3D::_notification(int p_what) {
@@ -68,22 +99,29 @@ void VisualInstance3D::_notification(int p_what) {
             if (skeleton)
                 RenderingServer::get_singleton()->instance_attach_skeleton( instance, skeleton->get_skeleton() );
             */
-            ERR_FAIL_COND(not get_world());
-            RenderingServer::get_singleton()->instance_set_scenario(instance, get_world()->get_scenario());
+            ERR_FAIL_COND(not get_world_3d());
+            RenderingServer::get_singleton()->instance_set_scenario(instance, get_world_3d()->get_scenario());
             _update_visibility();
 
         } break;
         case NOTIFICATION_TRANSFORM_CHANGED: {
-
-            Transform gt = get_global_transform();
-            RenderingServer::get_singleton()->instance_set_transform(instance, gt);
+            if (_is_vi_visible()) {
+                if (!_is_using_identity_transform()) {
+                    Transform gt = get_global_transform();
+                    RenderingServer::get_singleton()->instance_set_transform(instance, gt);
+                }
+            }
         } break;
         case NOTIFICATION_EXIT_WORLD: {
 
-            RenderingServer::get_singleton()->instance_set_scenario(instance, RID());
-            RenderingServer::get_singleton()->instance_attach_skeleton(instance, RID());
-            //RenderingServer::get_singleton()->instance_geometry_set_baked_light_sampler(instance, RID() );
+            RenderingServer::get_singleton()->instance_set_scenario(instance, entt::null);
+            RenderingServer::get_singleton()->instance_attach_skeleton(instance, entt::null);
+            //RenderingServer::get_singleton()->instance_geometry_set_baked_light_sampler(instance, entt::null );
 
+            //  the vi visible flag is always set to invisible when outside the tree,
+            //  so it can detect re-entering the tree and becoming visible, and send
+            //  the transform to the visual server
+            _set_vi_visible(false);
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
 
@@ -114,35 +152,36 @@ bool VisualInstance3D::get_layer_mask_bit(int p_layer) const {
 
 void VisualInstance3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_get_visual_instance_rid"), &VisualInstance3D::get_instance);
-    MethodBinder::bind_method(D_METHOD("set_base", {"base"}), &VisualInstance3D::set_base);
-    MethodBinder::bind_method(D_METHOD("get_base"), &VisualInstance3D::get_base);
-    MethodBinder::bind_method(D_METHOD("get_instance"), &VisualInstance3D::get_instance);
-    MethodBinder::bind_method(D_METHOD("set_layer_mask", {"mask"}), &VisualInstance3D::set_layer_mask);
-    MethodBinder::bind_method(D_METHOD("get_layer_mask"), &VisualInstance3D::get_layer_mask);
-    MethodBinder::bind_method(D_METHOD("set_layer_mask_bit", {"layer", "enabled"}), &VisualInstance3D::set_layer_mask_bit);
-    MethodBinder::bind_method(D_METHOD("get_layer_mask_bit", {"layer"}), &VisualInstance3D::get_layer_mask_bit);
+    //MethodBinder::bind_method(D_METHOD("_get_visual_instance_rid"), &VisualInstance3D::get_instance);
+    BIND_METHOD(VisualInstance3D,set_base);
+    BIND_METHOD(VisualInstance3D,get_base);
+    BIND_METHOD(VisualInstance3D,get_instance);
+    BIND_METHOD(VisualInstance3D,set_layer_mask);
+    BIND_METHOD(VisualInstance3D,get_layer_mask);
+    BIND_METHOD(VisualInstance3D,set_layer_mask_bit);
+    BIND_METHOD(VisualInstance3D,get_layer_mask_bit);
 
-    MethodBinder::bind_method(D_METHOD("get_transformed_aabb"), &VisualInstance3D::get_transformed_aabb);
+    BIND_METHOD(VisualInstance3D,get_transformed_aabb);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "layers", PropertyHint::Layers3DRenderer), "set_layer_mask", "get_layer_mask");
 }
 
-void VisualInstance3D::set_base(const RID &p_base) {
+void VisualInstance3D::set_base(RenderingEntity p_base) {
 
     RenderingServer::get_singleton()->instance_set_base(instance, p_base);
     base = p_base;
 }
 
-VisualInstance3D::VisualInstance3D() {
+VisualInstance3D::VisualInstance3D(): layers(1) {
 
     instance = RenderingServer::get_singleton()->instance_create();
+    game_object_registry.registry.emplace<CullInstanceComponent>(get_instance_id());
     RenderingServer::get_singleton()->instance_attach_object_instance_id(instance, get_instance_id());
-    layers = 1;
     set_notify_transform(true);
 }
 
 VisualInstance3D::~VisualInstance3D() {
+    game_object_registry.registry.remove<CullInstanceComponent>(get_instance_id());
 
     RenderingServer::get_singleton()->free_rid(instance);
 }
@@ -150,12 +189,34 @@ VisualInstance3D::~VisualInstance3D() {
 void GeometryInstance::set_material_override(const Ref<Material> &p_material) {
 
     material_override = p_material;
-    RenderingServer::get_singleton()->instance_geometry_set_material_override(get_instance(), p_material ? p_material->get_rid() : RID());
+    RenderingServer::get_singleton()->instance_geometry_set_material_override(get_instance(), p_material ? p_material->get_rid() : entt::null);
 }
 
 Ref<Material> GeometryInstance::get_material_override() const {
 
     return material_override;
+}
+
+void GeometryInstance::set_material_overlay(const Ref<Material> &p_material) {
+    material_overlay = p_material;
+    RenderingServer::get_singleton()->instance_geometry_set_material_overlay(
+            get_instance(), p_material ? p_material->get_rid() : entt::null);
+}
+void GeometryInstance::set_generate_lightmap(bool p_enabled) {
+    generate_lightmap = p_enabled;
+}
+
+bool GeometryInstance::get_generate_lightmap() {
+    return generate_lightmap;
+}
+
+void GeometryInstance::set_lightmap_scale(LightmapScale p_scale) {
+    ERR_FAIL_INDEX(p_scale, LIGHTMAP_SCALE_MAX);
+    lightmap_scale = p_scale;
+}
+
+GeometryInstance::LightmapScale GeometryInstance::get_lightmap_scale() const {
+    return lightmap_scale;
 }
 
 void GeometryInstance::set_lod_min_distance(float p_dist) {
@@ -248,39 +309,49 @@ void GeometryInstance::set_custom_aabb(AABB aabb) {
 
 void GeometryInstance::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_material_override", {"material"}), &GeometryInstance::set_material_override);
-    MethodBinder::bind_method(D_METHOD("get_material_override"), &GeometryInstance::get_material_override);
+    BIND_METHOD(GeometryInstance,set_material_override);
+    BIND_METHOD(GeometryInstance,get_material_override);
 
-    MethodBinder::bind_method(D_METHOD("set_flag", {"flag", "value"}), &GeometryInstance::set_flag);
-    MethodBinder::bind_method(D_METHOD("get_flag", {"flag"}), &GeometryInstance::get_flag);
+    BIND_METHOD(GeometryInstance,set_material_overlay);
+    BIND_METHOD(GeometryInstance,get_material_overlay);
+    BIND_METHOD(GeometryInstance,set_flag);
+    BIND_METHOD(GeometryInstance,get_flag);
 
-    MethodBinder::bind_method(D_METHOD("set_cast_shadows_setting", {"shadow_casting_setting"}), &GeometryInstance::set_cast_shadows_setting);
-    MethodBinder::bind_method(D_METHOD("get_cast_shadows_setting"), &GeometryInstance::get_cast_shadows_setting);
+    BIND_METHOD(GeometryInstance,set_cast_shadows_setting);
+    BIND_METHOD(GeometryInstance,get_cast_shadows_setting);
 
-    MethodBinder::bind_method(D_METHOD("set_lod_max_hysteresis", {"mode"}), &GeometryInstance::set_lod_max_hysteresis);
-    MethodBinder::bind_method(D_METHOD("get_lod_max_hysteresis"), &GeometryInstance::get_lod_max_hysteresis);
+    BIND_METHOD(GeometryInstance,set_generate_lightmap);
+    BIND_METHOD(GeometryInstance,get_generate_lightmap);
 
-    MethodBinder::bind_method(D_METHOD("set_lod_max_distance", {"mode"}), &GeometryInstance::set_lod_max_distance);
-    MethodBinder::bind_method(D_METHOD("get_lod_max_distance"), &GeometryInstance::get_lod_max_distance);
+    BIND_METHOD(GeometryInstance,set_lightmap_scale);
+    BIND_METHOD(GeometryInstance,get_lightmap_scale);
+    BIND_METHOD(GeometryInstance,set_lod_max_hysteresis);
+    BIND_METHOD(GeometryInstance,get_lod_max_hysteresis);
 
-    MethodBinder::bind_method(D_METHOD("set_lod_min_hysteresis", {"mode"}), &GeometryInstance::set_lod_min_hysteresis);
-    MethodBinder::bind_method(D_METHOD("get_lod_min_hysteresis"), &GeometryInstance::get_lod_min_hysteresis);
+    BIND_METHOD(GeometryInstance,set_lod_max_distance);
+    BIND_METHOD(GeometryInstance,get_lod_max_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_lod_min_distance", {"mode"}), &GeometryInstance::set_lod_min_distance);
-    MethodBinder::bind_method(D_METHOD("get_lod_min_distance"), &GeometryInstance::get_lod_min_distance);
+    BIND_METHOD(GeometryInstance,set_lod_min_hysteresis);
+    BIND_METHOD(GeometryInstance,get_lod_min_hysteresis);
 
-    MethodBinder::bind_method(D_METHOD("set_extra_cull_margin", {"margin"}), &GeometryInstance::set_extra_cull_margin);
-    MethodBinder::bind_method(D_METHOD("get_extra_cull_margin"), &GeometryInstance::get_extra_cull_margin);
+    BIND_METHOD(GeometryInstance,set_lod_min_distance);
+    BIND_METHOD(GeometryInstance,get_lod_min_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_custom_aabb", {"aabb"}), &GeometryInstance::set_custom_aabb);
+    BIND_METHOD(GeometryInstance,set_extra_cull_margin);
+    BIND_METHOD(GeometryInstance,get_extra_cull_margin);
 
-    MethodBinder::bind_method(D_METHOD("get_aabb"), &GeometryInstance::get_aabb);
+    BIND_METHOD(GeometryInstance,set_custom_aabb);
+
+    BIND_METHOD(GeometryInstance,get_aabb);
 
     ADD_GROUP("Geometry", "");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material_override", PropertyHint::ResourceType, "ShaderMaterial,SpatialMaterial"), "set_material_override", "get_material_override");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material_overlay", PropertyHint::ResourceType, "ShaderMaterial,SpatialMaterial"), "set_material_overlay", "get_material_overlay");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "cast_shadow", PropertyHint::Enum, "Off,On,Double-Sided,Shadows Only"), "set_cast_shadows_setting", "get_cast_shadows_setting");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "extra_cull_margin", PropertyHint::Range, "0,16384,0.01"), "set_extra_cull_margin", "get_extra_cull_margin");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "use_in_baked_light"), "set_flag", "get_flag", FLAG_USE_BAKED_LIGHT);
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "generate_lightmap"), "set_generate_lightmap", "get_generate_lightmap");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lightmap_scale", PropertyHint::Enum, "1x,2x,4x,8x"), "set_lightmap_scale", "get_lightmap_scale");
 
     ADD_GROUP("LOD", "lod_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "lod_min_distance", PropertyHint::Range, "0,32768,0.01"), "set_lod_min_distance", "get_lod_min_distance");
@@ -290,6 +361,11 @@ void GeometryInstance::_bind_methods() {
 
     //ADD_SIGNAL( MethodInfo("visibility_changed"));
 
+    BIND_ENUM_CONSTANT(LIGHTMAP_SCALE_1X);
+    BIND_ENUM_CONSTANT(LIGHTMAP_SCALE_2X);
+    BIND_ENUM_CONSTANT(LIGHTMAP_SCALE_4X);
+    BIND_ENUM_CONSTANT(LIGHTMAP_SCALE_8X);
+    BIND_ENUM_CONSTANT(LIGHTMAP_SCALE_MAX);
     BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_OFF);
     BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_ON);
     BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_DOUBLE_SIDED);
@@ -312,5 +388,7 @@ GeometryInstance::GeometryInstance() {
 
     shadow_casting_setting = SHADOW_CASTING_SETTING_ON;
     extra_cull_margin = 0;
+    generate_lightmap = true;
+    lightmap_scale = LightmapScale::LIGHTMAP_SCALE_1X;
     //RenderingServer::get_singleton()->instance_geometry_set_baked_light_texture_index(get_instance(),0);
 }

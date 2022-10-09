@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  shape_2d_sw.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -540,6 +540,7 @@ void ConvexPolygonShape2DSW::get_supports(const Vector2 &p_normal, Vector2 *r_su
 
     int support_idx = -1;
     real_t d = -1e10f;
+    r_amount = 0;
 
     for (int i = 0; i < point_count; i++) {
 
@@ -560,7 +561,7 @@ void ConvexPolygonShape2DSW::get_supports(const Vector2 &p_normal, Vector2 *r_su
         }
     }
 
-    ERR_FAIL_COND(support_idx == -1);
+    ERR_FAIL_COND_MSG(support_idx == -1, "Convex polygon shape support not found.");
 
     r_amount = 1;
     r_supports[0] = points[support_idx].pos;
@@ -623,6 +624,7 @@ bool ConvexPolygonShape2DSW::intersect_segment(const Vector2 &p_begin, const Vec
 }
 
 real_t ConvexPolygonShape2DSW::get_moment_of_inertia(real_t p_mass, const Size2 &p_scale) const {
+    ERR_FAIL_COND_V_MSG(point_count == 0, 0, "Convex polygon shape has no points.");
 
     Rect2 aabb;
     aabb.position = points[0].pos * p_scale;
@@ -636,7 +638,7 @@ real_t ConvexPolygonShape2DSW::get_moment_of_inertia(real_t p_mass, const Size2 
 
 void ConvexPolygonShape2DSW::set_data(const Variant &p_data) {
 
-    ERR_FAIL_COND(p_data.get_type() != VariantType::POOL_VECTOR2_ARRAY && p_data.get_type() != VariantType::POOL_REAL_ARRAY);
+    ERR_FAIL_COND(p_data.get_type() != VariantType::POOL_VECTOR2_ARRAY && p_data.get_type() != VariantType::POOL_FLOAT32_ARRAY);
 
     if (points)
         memdelete_arr(points);
@@ -739,6 +741,8 @@ bool ConcavePolygonShape2DSW::contains_point(const Vector2 &p_point) const {
 }
 
 bool ConcavePolygonShape2DSW::intersect_segment(const Vector2 &p_begin, const Vector2 &p_end, Vector2 &r_point, Vector2 &r_normal) const {
+    if (segments.empty()|| points.empty() )
+        return false;
 
     uint32_t *stack = (uint32_t *)alloca(sizeof(int) * bvh_depth);
 
@@ -896,7 +900,7 @@ int ConcavePolygonShape2DSW::_generate_bvh(BVH *p_bvh, int p_len, int p_depth) {
 
 void ConcavePolygonShape2DSW::set_data(const Variant &p_data) {
 
-    ERR_FAIL_COND(p_data.get_type() != VariantType::POOL_VECTOR2_ARRAY && p_data.get_type() != VariantType::POOL_REAL_ARRAY);
+    ERR_FAIL_COND(p_data.get_type() != VariantType::POOL_VECTOR2_ARRAY && p_data.get_type() != VariantType::POOL_FLOAT32_ARRAY);
 
     Rect2 aabb;
 
@@ -988,7 +992,7 @@ Variant ConcavePolygonShape2DSW::get_data() const {
     return Variant(rsegments);
 }
 
-void ConcavePolygonShape2DSW::cull(const Rect2 &p_local_aabb, Callback p_callback, void *p_userdata) const {
+void ConcavePolygonShape2DSW::cull(const Rect2 &p_local_aabb, QueryCallback p_callback, void *p_userdata) const {
 
     uint32_t *stack = (uint32_t *)alloca(sizeof(int) * bvh_depth);
 
@@ -1042,7 +1046,9 @@ void ConcavePolygonShape2DSW::cull(const Rect2 &p_local_aabb, Callback p_callbac
 
                         SegmentShape2DSW ss(a, b, (b - a).tangent().normalized());
 
-                        p_callback(p_userdata, &ss);
+                        if (p_callback(p_userdata, &ss)) {
+                            return;
+                        }
                         stack[level] = (VISIT_DONE_BIT << VISITED_BIT_SHIFT) | node;
 
                     } else {

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  plane.h                                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,12 +32,12 @@
 
 #include "core/math/vector3.h"
 
-class Plane {
+class GODOT_EXPORT [[nodiscard]] Plane {
 public:
     Vector3 normal;
     real_t d = 0;
 
-    void set_normal(const Vector3 &p_normal);
+    void set_normal(const Vector3 &p_normal) { normal = p_normal; }
     _FORCE_INLINE_ Vector3 get_normal() const { return normal; }; ///Point is coplanar, CMP_EPSILON for precision
 
     void normalize();
@@ -46,12 +46,12 @@ public:
     /* Plane-Point operations */
 
     _FORCE_INLINE_ Vector3 center() const { return normal * d; }
-    Vector3 get_any_point() const;
+    Vector3 get_any_point() const { return get_normal() * d; }
     Vector3 get_any_perpendicular_normal() const;
 
-    _FORCE_INLINE_ bool is_point_over(const Vector3 &p_point) const; ///< Point is over plane
-    _FORCE_INLINE_ real_t distance_to(const Vector3 &p_point) const;
-    _FORCE_INLINE_ bool has_point(const Vector3 &p_point, real_t _epsilon = CMP_EPSILON) const;
+    _FORCE_INLINE_ bool is_point_over(Vector3 p_point) const; ///< Point is over plane
+    _FORCE_INLINE_ real_t distance_to(Vector3 p_point) const;
+    _FORCE_INLINE_ bool has_point(Vector3 p_point, real_t _epsilon = CMP_EPSILON) const;
 
     /* intersections */
 
@@ -59,7 +59,7 @@ public:
     bool intersects_ray(const Vector3 &p_from, const Vector3 &p_dir, Vector3 *p_intersection) const;
     bool intersects_segment(const Vector3 &p_begin, const Vector3 &p_end, Vector3 *p_intersection) const;
 
-    _FORCE_INLINE_ Vector3 project(const Vector3 &p_point) const {
+    _FORCE_INLINE_ Vector3 project(Vector3 p_point) const {
 
         return p_point - normal * distance_to(p_point);
     }
@@ -78,34 +78,34 @@ public:
             normal(p_a, p_b, p_c),
             d(p_d) {}
 
-    _FORCE_INLINE_ Plane(const Vector3 &p_normal, real_t p_d);
-    _FORCE_INLINE_ Plane(const Vector3 &p_point, const Vector3 &p_normal);
+    _FORCE_INLINE_ Plane(Vector3 p_normal, real_t p_d);
+    _FORCE_INLINE_ Plane(Vector3 p_point, Vector3 p_normal);
     _FORCE_INLINE_ Plane(const Vector3 &p_point1, const Vector3 &p_point2, const Vector3 &p_point3, ClockDirection p_dir = CLOCKWISE);
 };
 
-bool Plane::is_point_over(const Vector3 &p_point) const {
+bool Plane::is_point_over(Vector3 p_point) const {
 
     return (normal.dot(p_point) > d);
 }
 
-real_t Plane::distance_to(const Vector3 &p_point) const {
+real_t Plane::distance_to(Vector3 p_point) const {
 
     return (normal.dot(p_point) - d);
 }
 
-bool Plane::has_point(const Vector3 &p_point, real_t _epsilon) const {
+bool Plane::has_point(Vector3 p_point, real_t _epsilon) const {
 
     real_t dist = normal.dot(p_point) - d;
     dist = ABS(dist);
     return (dist <= _epsilon);
 }
 
-Plane::Plane(const Vector3 &p_normal, real_t p_d) :
+Plane::Plane(Vector3 p_normal, real_t p_d) :
         normal(p_normal),
         d(p_d) {
 }
 
-Plane::Plane(const Vector3 &p_point, const Vector3 &p_normal) :
+Plane::Plane(Vector3 p_point, Vector3 p_normal) :
         normal(p_normal),
         d(p_normal.dot(p_point)) {
 }

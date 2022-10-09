@@ -5,9 +5,9 @@ namespace Godot
 {
     public class SignalAwaiter : IAwaiter<object[]>, IAwaitable<object[]>
     {
-        private bool completed;
-        private object[] result;
-        private Action action;
+        private bool _completed;
+        private object[] _result;
+        private Action _action;
 
         public SignalAwaiter(Object source, StringName signal, Object target)
         {
@@ -21,18 +21,18 @@ namespace Godot
         {
             get
             {
-                return completed;
+                return _completed;
             }
         }
 
         public void OnCompleted(Action action)
         {
-            this.action = action;
+            this._action = action;
         }
 
         public object[] GetResult()
         {
-            return result;
+            return _result;
         }
 
         public IAwaiter<object[]> GetAwaiter()
@@ -42,13 +42,15 @@ namespace Godot
 
         internal void SignalCallback(object[] args)
         {
-            completed = true;
-            result = args;
+            _completed = true;
+            _result = args;
+            _action?.Invoke();
+        }
 
-            if (action != null)
+        internal void FailureCallback()
             {
-                action();
-            }
+            _action = null;
+            _completed = true;
         }
     }
 }

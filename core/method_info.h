@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "core/variant.h"
 #include "core/vector.h"
 #include "core/property_info.h"
@@ -57,8 +57,8 @@ public:
 
     MethodInfo(const StringName &p_name) noexcept : name(p_name) {    }
 
-    MethodInfo(const char *p_name, PropertyInfo &&p_param1) :
-        name(p_name) {
+    MethodInfo(StringName p_name, PropertyInfo &&p_param1) :
+        name(eastl::move(p_name)) {
         set_args(eastl::move(p_param1));
     }
     MethodInfo(const char *p_name, PropertyInfo &&p_param1, PropertyInfo &&p_param2) :
@@ -76,9 +76,6 @@ public:
     MethodInfo(const char *p_name, PropertyInfo &&p_param1, PropertyInfo &&p_param2, PropertyInfo &&p_param3, PropertyInfo &&p_param4, PropertyInfo &&p_param5) :
         name(p_name) {
         set_args(eastl::move(p_param1),eastl::move(p_param2),eastl::move(p_param3),eastl::move(p_param4),eastl::move(p_param5));
-    }
-    MethodInfo(VariantType ret) {
-        return_val.type = ret;
     }
     MethodInfo(VariantType ret, const char *p_name) :
         name(p_name) {
@@ -113,29 +110,14 @@ public:
         name(p_name),
         return_val(p_ret) {
     }
-    MethodInfo(const PropertyInfo &p_ret, const char *p_name, PropertyInfo &&p_param1) :
+    MethodInfo(PropertyInfo &&p_ret, const char *p_name, PropertyInfo &&p_param1) :
         name(p_name),
-        return_val(p_ret) {
+        return_val(eastl::move(p_ret)) {
         set_args(eastl::move(p_param1));
     }
     MethodInfo(const PropertyInfo &p_ret, const char *p_name, PropertyInfo &&p_param1, PropertyInfo &&p_param2) :
         name(p_name),
         return_val(p_ret) {
         set_args(eastl::move(p_param1),eastl::move(p_param2));
-    }
-    MethodInfo(const PropertyInfo &p_ret, const char *p_name, PropertyInfo &&p_param1, PropertyInfo &&p_param2, PropertyInfo &&p_param3) :
-        name(p_name),
-        return_val(p_ret) {
-        set_args(eastl::move(p_param1),eastl::move(p_param2),eastl::move(p_param3));
-    }
-    MethodInfo(const PropertyInfo &p_ret, const char *p_name, PropertyInfo &&p_param1, PropertyInfo &&p_param2, PropertyInfo &&p_param3, PropertyInfo &&p_param4) :
-        name(p_name),
-        return_val(p_ret) {
-        set_args(eastl::move(p_param1),eastl::move(p_param2),eastl::move(p_param3),eastl::move(p_param4));
-    }
-    MethodInfo(const PropertyInfo &p_ret, const char *p_name, PropertyInfo &&p_param1, PropertyInfo &&p_param2, PropertyInfo &&p_param3, PropertyInfo &&p_param4, PropertyInfo &&p_param5) :
-        name(p_name),
-        return_val(p_ret) {
-        set_args(eastl::move(p_param1),eastl::move(p_param2),eastl::move(p_param3),eastl::move(p_param4),eastl::move(p_param5));
     }
 };

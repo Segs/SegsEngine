@@ -60,7 +60,7 @@ Error CookieContextMbedTLS::setup() {
     mbedtls_ssl_cookie_init(&cookie_ctx);
     inited = true;
 
-    int ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy, NULL, 0);
+    int ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy, nullptr, 0);
     if (ret != 0) {
         clear(); // Never leave unusable resources around.
         ERR_FAIL_V_MSG(FAILED, "mbedtls_ctr_drbg_seed returned an error " + itos(ret));

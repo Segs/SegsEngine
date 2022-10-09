@@ -56,8 +56,8 @@ void NodeDock::show_connections() {
 
 void NodeDock::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("show_groups"), &NodeDock::show_groups);
-    MethodBinder::bind_method(D_METHOD("show_connections"), &NodeDock::show_connections);
+    BIND_METHOD(NodeDock,show_groups);
+    BIND_METHOD(NodeDock,show_connections);
 }
 
 void NodeDock::_notification(int p_what) {

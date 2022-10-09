@@ -116,20 +116,16 @@ void SoftBodyBullet::update_rendering_server(SoftBodyVisualServerHandler *p_rend
 }
 
 void SoftBodyBullet::set_soft_mesh(const Ref<Mesh> &p_mesh) {
+    destroy_soft_body();
 
-    if (not p_mesh)
-        soft_mesh.unref();
-    else
-        soft_mesh = p_mesh;
+    soft_mesh = p_mesh;
 
     if (not soft_mesh) {
-
-        destroy_soft_body();
         return;
     }
 
-    SurfaceArrays arrays = soft_mesh->surface_get_arrays(0);
     ERR_FAIL_COND(!(soft_mesh->surface_get_format(0) & RS::ARRAY_FORMAT_INDEX));
+    SurfaceArrays arrays = soft_mesh->surface_get_arrays(0);
     set_trimesh_body_shape(arrays.m_indices, arrays.positions3());
 }
 
@@ -168,6 +164,7 @@ void SoftBodyBullet::set_node_position(int p_node_index, const Vector3 &p_global
 
 void SoftBodyBullet::set_node_position(int p_node_index, const btVector3 &p_global_position) {
     if (bt_soft_body) {
+        ERR_FAIL_INDEX(p_node_index, bt_soft_body->m_nodes.size());
         bt_soft_body->m_nodes[p_node_index].m_q = bt_soft_body->m_nodes[p_node_index].m_x;
         bt_soft_body->m_nodes[p_node_index].m_x = p_global_position;
     }
@@ -175,6 +172,7 @@ void SoftBodyBullet::set_node_position(int p_node_index, const btVector3 &p_glob
 
 void SoftBodyBullet::get_node_position(int p_node_index, Vector3 &r_position) const {
     if (bt_soft_body) {
+        ERR_FAIL_INDEX(p_node_index, bt_soft_body->m_nodes.size());
         B_TO_G(bt_soft_body->m_nodes[p_node_index].m_x, r_position);
     }
 }
@@ -197,22 +195,24 @@ void SoftBodyBullet::get_node_offset(int p_node_index, btVector3 &r_offset) cons
     G_TO_B(off, r_offset);
 }
 
-void SoftBodyBullet::set_node_mass(int node_index, btScalar p_mass) {
+void SoftBodyBullet::set_node_mass(int p_node_index, btScalar p_mass) {
     if (0 >= p_mass) {
-        pin_node(node_index);
+        pin_node(p_node_index);
     } else {
-        unpin_node(node_index);
+        unpin_node(p_node_index);
     }
     if (bt_soft_body) {
-        bt_soft_body->setMass(node_index, p_mass);
+        ERR_FAIL_INDEX(p_node_index, bt_soft_body->m_nodes.size());
+        bt_soft_body->setMass(p_node_index, p_mass);
     }
 }
 
-btScalar SoftBodyBullet::get_node_mass(int node_index) const {
+btScalar SoftBodyBullet::get_node_mass(int p_node_index) const {
     if (bt_soft_body) {
-        return bt_soft_body->getMass(node_index);
+        ERR_FAIL_INDEX_V(p_node_index, bt_soft_body->m_nodes.size(), 1);
+        return bt_soft_body->getMass(p_node_index);
     } else {
-        return -1 == search_node_pinned(node_index) ? 1 : 0;
+        return -1 == search_node_pinned(p_node_index) ? 1 : 0;
     }
 }
 
@@ -226,8 +226,9 @@ void SoftBodyBullet::reset_all_node_mass() {
 }
 
 void SoftBodyBullet::reset_all_node_positions() {
-    if (not soft_mesh)
+    if (!soft_mesh || !bt_soft_body) {
         return;
+    }
 
     SurfaceArrays arrays = soft_mesh->surface_get_arrays(0);
     Span<const Vector3> vs_vertices(arrays.positions3());
@@ -243,6 +244,9 @@ void SoftBodyBullet::reset_all_node_positions() {
 }
 
 void SoftBodyBullet::set_activation_state(bool p_active) {
+    if (!bt_soft_body) {
+        return;
+    }
     if (p_active) {
         bt_soft_body->setActivationState(ACTIVE_TAG);
     } else {
@@ -444,17 +448,25 @@ void SoftBodyBullet::setup_soft_body() {
 
     // Set pinned nodes
     for (int i = pinned_nodes.size() - 1; 0 <= i; --i) {
-        bt_soft_body->setMass(pinned_nodes[i], 0);
+        const int node_index = pinned_nodes[i];
+        ERR_CONTINUE(0 > node_index || bt_soft_body->m_nodes.size() <= node_index);
+        bt_soft_body->setMass(node_index, 0);
     }
 }
 
 void SoftBodyBullet::pin_node(int p_node_index) {
+    if (bt_soft_body) {
+        ERR_FAIL_INDEX(p_node_index, bt_soft_body->m_nodes.size());
+    }
     if (-1 == search_node_pinned(p_node_index)) {
         pinned_nodes.push_back(p_node_index);
     }
 }
 
 void SoftBodyBullet::unpin_node(int p_node_index) {
+    if (bt_soft_body) {
+        ERR_FAIL_INDEX(p_node_index, bt_soft_body->m_nodes.size());
+    }
     const int id = search_node_pinned(p_node_index);
     if (-1 != id) {
         pinned_nodes.erase_at(id);

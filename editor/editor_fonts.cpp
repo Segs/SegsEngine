@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_fonts.cpp                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -45,15 +45,15 @@
 namespace  {
 struct FontHolder {
     static constexpr const char * m_font_data_locations[] = {
-        ":/binary/fonts/NotoSansUI_Regular.ttf",
-        ":/binary/fonts/NotoSansUI_Bold.ttf",
-        ":/binary/fonts/DroidSansFallback.ttf",
-        ":/binary/fonts/DroidSansJapanese.ttf",
-        ":/binary/fonts/NotoNaskhArabicUI_Regular.ttf",
-        ":/binary/fonts/NotoSansHebrew_Regular.ttf",
-        ":/binary/fonts/NotoSansThaiUI_Regular.ttf",
-        ":/binary/fonts/NotoSansDevanagariUI_Regular.ttf",
-        ":/binary/fonts/Hack_Regular.ttf"
+        ":/binary/fonts/NotoSansUI_Regular.woff2",
+        ":/binary/fonts/NotoSansUI_Bold.woff2",
+        ":/binary/fonts/DroidSansFallback.woff2",
+        ":/binary/fonts/DroidSansJapanese.woff2",
+        ":/binary/fonts/NotoNaskhArabicUI_Regular.woff2",
+        ":/binary/fonts/NotoSansHebrew_Regular.woff2",
+        ":/binary/fonts/NotoSansThaiUI_Regular.woff2",
+        ":/binary/fonts/NotoSansDevanagariUI_Regular.woff2",
+        ":/binary/fonts/Hack_Regular.woff2"
     };
     enum FontIndices {
         DefaultFont,
@@ -98,6 +98,9 @@ struct FontHolder {
 static Ref<DynamicFont>  make_def_font(FontHolder &holder,float size,FontHolder::FontIndices baseline,Ref<DynamicFontData> &CustomFont) {
     Ref<DynamicFont> m_name(make_ref_counted<DynamicFont>());
     m_name->set_size(size);
+    m_name->set_use_filter(true);
+    m_name->set_use_mipmaps(true);
+
     if (CustomFont) {
         m_name->set_font_data(CustomFont);
         m_name->add_fallback(holder.get(baseline));
@@ -110,6 +113,11 @@ static Ref<DynamicFont>  make_def_font(FontHolder &holder,float size,FontHolder:
     return m_name;
 }
 } // end of anonymous namespace
+
+// Enable filtering and mipmaps on the editor fonts to improve text appearance
+// in editors that are zoomed in/out without having dedicated fonts to generate.
+// This is the case in GraphEdit-based editors such as the visual script and
+// visual shader editors.
 
 // the custom spacings might only work with Noto Sans
 #define MAKE_DEFAULT_FONT(m_name, m_size)                       \

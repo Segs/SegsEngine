@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  parallax_layer.cpp                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -79,8 +79,8 @@ void ParallaxLayer::_update_mirroring() {
     ParallaxBackground *pb = object_cast<ParallaxBackground>(get_parent());
     if (pb) {
 
-        RID c = pb->get_canvas();
-        RID ci = get_canvas_item();
+        RenderingEntity c = pb->get_canvas();
+        RenderingEntity ci = get_canvas_item();
         Point2 mirrorScale = mirroring * get_scale();
         RenderingServer::get_singleton()->canvas_set_item_mirroring(c, ci, mirrorScale);
     }
@@ -161,12 +161,12 @@ String ParallaxLayer::get_configuration_warning() const {
 
 void ParallaxLayer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_motion_scale", {"scale"}), &ParallaxLayer::set_motion_scale);
-    MethodBinder::bind_method(D_METHOD("get_motion_scale"), &ParallaxLayer::get_motion_scale);
-    MethodBinder::bind_method(D_METHOD("set_motion_offset", {"offset"}), &ParallaxLayer::set_motion_offset);
-    MethodBinder::bind_method(D_METHOD("get_motion_offset"), &ParallaxLayer::get_motion_offset);
-    MethodBinder::bind_method(D_METHOD("set_mirroring", {"mirror"}), &ParallaxLayer::set_mirroring);
-    MethodBinder::bind_method(D_METHOD("get_mirroring"), &ParallaxLayer::get_mirroring);
+    BIND_METHOD(ParallaxLayer,set_motion_scale);
+    BIND_METHOD(ParallaxLayer,get_motion_scale);
+    BIND_METHOD(ParallaxLayer,set_motion_offset);
+    BIND_METHOD(ParallaxLayer,get_motion_offset);
+    BIND_METHOD(ParallaxLayer,set_mirroring);
+    BIND_METHOD(ParallaxLayer,get_mirroring);
 
     ADD_GROUP("Motion", "motion_");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "motion_scale"), "set_motion_scale", "get_motion_scale");

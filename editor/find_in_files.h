@@ -98,14 +98,19 @@ class FindInFilesDialog : public AcceptDialog {
     GDCLASS(FindInFilesDialog,AcceptDialog)
 
 public:
+    enum FindInFilesMode { SEARCH_MODE, REPLACE_MODE };
     static const char *SIGNAL_FIND_REQUESTED;
     static const char *SIGNAL_REPLACE_REQUESTED;
 
     FindInFilesDialog();
 
     void set_search_text(StringView text);
+    void set_replace_text(StringView text);
+
+    void set_find_in_files_mode(FindInFilesMode p_mode);
 
     String get_search_text() const;
+    String get_replace_text() const;
     bool is_match_case() const;
     bool is_whole_words() const;
     String get_folder() const;
@@ -122,16 +127,20 @@ private:
     void _on_folder_selected(StringView path);
     void _on_search_text_modified(StringView text);
     void _on_search_text_entered(StringView text);
+    void _on_replace_text_entered(StringView text);
 
     LineEdit *_search_text_line_edit;
     LineEdit *_folder_line_edit;
     CheckBox *_match_case_checkbox;
     CheckBox *_whole_words_checkbox;
+    Label *_replace_label;
+    LineEdit *_replace_text_line_edit;
     Button *_find_button;
     Button *_replace_button;
     FileDialog *_folder_dialog;
     HBoxContainer *_filters_container;
-    HashMap<StringName, bool> _filters_preferences;
+    HashMap<String, bool> _filters_preferences;
+    FindInFilesMode _mode;
 };
 
 class Button;
@@ -152,6 +161,7 @@ public:
     FindInFiles *get_finder() const { return _finder; }
 
     void set_with_replace(bool with_replace);
+    void set_replace_text(StringView text);
 
     void start_search();
     void stop_search();

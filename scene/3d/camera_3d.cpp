@@ -107,8 +107,8 @@ void Camera3D::_update_camera() {
 
     get_viewport()->_camera_transform_changed_notify();
 
-    if (get_world()) {
-        get_world()->_update_camera(this);
+    if (get_world_3d()) {
+        get_world_3d()->_update_camera(this);
     }
 }
 
@@ -156,12 +156,12 @@ void Camera3D::_notification(int p_what) {
         } break;
         case NOTIFICATION_BECAME_CURRENT: {
             if (viewport) {
-                viewport->find_world()->_register_camera(this);
+                viewport->find_world_3d()->_register_camera(this);
             }
         } break;
         case NOTIFICATION_LOST_CURRENT: {
             if (viewport) {
-                viewport->find_world()->_remove_camera(this);
+                viewport->find_world_3d()->_remove_camera(this);
             }
         } break;
     }
@@ -229,7 +229,7 @@ void Camera3D::set_projection(Camera3D::Projection p_mode) {
     }
 }
 
-RID Camera3D::get_camera_rid() const {
+RenderingEntity Camera3D::get_camera_rid() const {
 
     return camera;
 }
@@ -278,10 +278,6 @@ bool Camera3D::is_current() const {
         return current;
 }
 
-bool Camera3D::_can_gizmo_scale() const {
-
-    return false;
-}
 
 Vector3 Camera3D::project_ray_normal(const Point2 &p_pos) const {
 
@@ -450,7 +446,7 @@ void Camera3D::set_environment(const Ref<Environment> &p_environment) {
     if (environment)
         RenderingServer::get_singleton()->camera_set_environment(camera, environment->get_rid());
     else
-        RenderingServer::get_singleton()->camera_set_environment(camera, RID());
+        RenderingServer::get_singleton()->camera_set_environment(camera, entt::null);
     _update_camera_mode();
 }
 
@@ -492,49 +488,49 @@ Camera3D::DopplerTracking Camera3D::get_doppler_tracking() const {
 
 void Camera3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("project_ray_normal", {"screen_point"}), &Camera3D::project_ray_normal);
-    MethodBinder::bind_method(D_METHOD("project_local_ray_normal", {"screen_point"}), &Camera3D::project_local_ray_normal);
-    MethodBinder::bind_method(D_METHOD("project_ray_origin", {"screen_point"}), &Camera3D::project_ray_origin);
-    MethodBinder::bind_method(D_METHOD("unproject_position", {"world_point"}), &Camera3D::unproject_position);
-    MethodBinder::bind_method(D_METHOD("is_position_behind", {"world_point"}), &Camera3D::is_position_behind);
-    MethodBinder::bind_method(D_METHOD("project_position", {"screen_point", "z_depth"}), &Camera3D::project_position);
-    MethodBinder::bind_method(D_METHOD("set_perspective", {"fov", "z_near", "z_far"}), &Camera3D::set_perspective);
-    MethodBinder::bind_method(D_METHOD("set_orthogonal", {"size", "z_near", "z_far"}), &Camera3D::set_orthogonal);
-    MethodBinder::bind_method(D_METHOD("set_frustum", {"size", "offset", "z_near", "z_far"}), &Camera3D::set_frustum);
-    MethodBinder::bind_method(D_METHOD("make_current"), &Camera3D::make_current);
+    BIND_METHOD(Camera3D,project_ray_normal);
+    BIND_METHOD(Camera3D,project_local_ray_normal);
+    BIND_METHOD(Camera3D,project_ray_origin);
+    BIND_METHOD(Camera3D,unproject_position);
+    BIND_METHOD(Camera3D,is_position_behind);
+    BIND_METHOD(Camera3D,project_position);
+    BIND_METHOD(Camera3D,set_perspective);
+    BIND_METHOD(Camera3D,set_orthogonal);
+    BIND_METHOD(Camera3D,set_frustum);
+    BIND_METHOD(Camera3D,make_current);
     MethodBinder::bind_method(D_METHOD("clear_current", {"enable_next"}), &Camera3D::clear_current, {DEFVAL(true)});
-    MethodBinder::bind_method(D_METHOD("set_current"), &Camera3D::set_current);
-    MethodBinder::bind_method(D_METHOD("is_current"), &Camera3D::is_current);
-    MethodBinder::bind_method(D_METHOD("get_camera_transform"), &Camera3D::get_camera_transform);
-    MethodBinder::bind_method(D_METHOD("get_fov"), &Camera3D::get_fov);
-    MethodBinder::bind_method(D_METHOD("get_frustum_offset"), &Camera3D::get_frustum_offset);
-    MethodBinder::bind_method(D_METHOD("get_size"), &Camera3D::get_size);
-    MethodBinder::bind_method(D_METHOD("get_zfar"), &Camera3D::get_zfar);
-    MethodBinder::bind_method(D_METHOD("get_znear"), &Camera3D::get_znear);
-    MethodBinder::bind_method(D_METHOD("set_fov"), &Camera3D::set_fov);
-    MethodBinder::bind_method(D_METHOD("set_frustum_offset"), &Camera3D::set_frustum_offset);
-    MethodBinder::bind_method(D_METHOD("set_size"), &Camera3D::set_size);
-    MethodBinder::bind_method(D_METHOD("set_zfar"), &Camera3D::set_zfar);
-    MethodBinder::bind_method(D_METHOD("set_znear"), &Camera3D::set_znear);
-    MethodBinder::bind_method(D_METHOD("get_projection"), &Camera3D::get_projection);
-    MethodBinder::bind_method(D_METHOD("set_projection"), &Camera3D::set_projection);
-    MethodBinder::bind_method(D_METHOD("set_h_offset", {"ofs"}), &Camera3D::set_h_offset);
-    MethodBinder::bind_method(D_METHOD("get_h_offset"), &Camera3D::get_h_offset);
-    MethodBinder::bind_method(D_METHOD("set_v_offset", {"ofs"}), &Camera3D::set_v_offset);
-    MethodBinder::bind_method(D_METHOD("get_v_offset"), &Camera3D::get_v_offset);
-    MethodBinder::bind_method(D_METHOD("set_cull_mask", {"mask"}), &Camera3D::set_cull_mask);
-    MethodBinder::bind_method(D_METHOD("get_cull_mask"), &Camera3D::get_cull_mask);
-    MethodBinder::bind_method(D_METHOD("set_environment", {"env"}), &Camera3D::set_environment);
-    MethodBinder::bind_method(D_METHOD("get_environment"), &Camera3D::get_environment);
-    MethodBinder::bind_method(D_METHOD("set_keep_aspect_mode", {"mode"}), &Camera3D::set_keep_aspect_mode);
-    MethodBinder::bind_method(D_METHOD("get_keep_aspect_mode"), &Camera3D::get_keep_aspect_mode);
-    MethodBinder::bind_method(D_METHOD("set_doppler_tracking", {"mode"}), &Camera3D::set_doppler_tracking);
-    MethodBinder::bind_method(D_METHOD("get_doppler_tracking"), &Camera3D::get_doppler_tracking);
-    MethodBinder::bind_method(D_METHOD("get_frustum"), &Camera3D::get_frustum);
-    MethodBinder::bind_method(D_METHOD("get_camera_rid"), &Camera3D::get_camera_rid);
+    BIND_METHOD(Camera3D,set_current);
+    BIND_METHOD(Camera3D,is_current);
+    BIND_METHOD(Camera3D,get_camera_transform);
+    BIND_METHOD(Camera3D,get_fov);
+    BIND_METHOD(Camera3D,get_frustum_offset);
+    BIND_METHOD(Camera3D,get_size);
+    BIND_METHOD(Camera3D,get_zfar);
+    BIND_METHOD(Camera3D,get_znear);
+    BIND_METHOD(Camera3D,set_fov);
+    BIND_METHOD(Camera3D,set_frustum_offset);
+    BIND_METHOD(Camera3D,set_size);
+    BIND_METHOD(Camera3D,set_zfar);
+    BIND_METHOD(Camera3D,set_znear);
+    BIND_METHOD(Camera3D,get_projection);
+    BIND_METHOD(Camera3D,set_projection);
+    BIND_METHOD(Camera3D,set_h_offset);
+    BIND_METHOD(Camera3D,get_h_offset);
+    BIND_METHOD(Camera3D,set_v_offset);
+    BIND_METHOD(Camera3D,get_v_offset);
+    BIND_METHOD(Camera3D,set_cull_mask);
+    BIND_METHOD(Camera3D,get_cull_mask);
+    BIND_METHOD(Camera3D,set_environment);
+    BIND_METHOD(Camera3D,get_environment);
+    BIND_METHOD(Camera3D,set_keep_aspect_mode);
+    BIND_METHOD(Camera3D,get_keep_aspect_mode);
+    BIND_METHOD(Camera3D,set_doppler_tracking);
+    BIND_METHOD(Camera3D,get_doppler_tracking);
+    BIND_METHOD(Camera3D,get_frustum);
+    BIND_METHOD(Camera3D,get_camera_rid);
 
-    MethodBinder::bind_method(D_METHOD("set_cull_mask_bit", {"layer", "enable"}), &Camera3D::set_cull_mask_bit);
-    MethodBinder::bind_method(D_METHOD("get_cull_mask_bit", {"layer"}), &Camera3D::get_cull_mask_bit);
+    BIND_METHOD(Camera3D,set_cull_mask_bit);
+    BIND_METHOD(Camera3D,get_cull_mask_bit);
 
     //MethodBinder::bind_method(D_METHOD("_camera_make_current"),&Camera3D::_camera_make_current );
 
@@ -547,7 +543,7 @@ void Camera3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "projection", PropertyHint::Enum, "Perspective,Orthogonal,Frustum"), "set_projection", "get_projection");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "current"), "set_current", "is_current");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "fov", PropertyHint::Range, "1,179,0.1"), "set_fov", "get_fov");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "size", PropertyHint::Range, "0.1,16384,0.01"), "set_size", "get_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "size", PropertyHint::Range, "0.001,16384,0.001"), "set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "frustum_offset"), "set_frustum_offset", "get_frustum_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "near", PropertyHint::ExpRange, "0.01,8192,0.01,or_greater"), "set_znear", "get_znear");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "far", PropertyHint::ExpRange, "0.1,8192,0.1,or_greater"), "set_zfar", "get_zfar");
@@ -694,24 +690,10 @@ Vector3 Camera3D::get_doppler_tracked_velocity() const {
 Camera3D::Camera3D() {
 
     camera = RenderingServer::get_singleton()->camera_create();
-    size = 1;
-    fov = 0;
     frustum_offset = Vector2();
-    near = 0;
-    far = 0;
-    current = false;
-    viewport = nullptr;
-    force_change = false;
-    mode = PROJECTION_PERSPECTIVE;
     set_perspective(70.0f, 0.05f, 100.0f);
-    keep_aspect = KEEP_HEIGHT;
-    layers = 0xfffff;
-    v_offset = 0;
-    h_offset = 0;
     RenderingServer::get_singleton()->camera_set_cull_mask(camera, layers);
-    //active=false;
     velocity_tracker = make_ref_counted<VelocityTracker3D>();
-    doppler_tracking = DOPPLER_TRACKING_DISABLED;
     set_notify_transform(true);
     set_disable_scale(true);
 }
@@ -756,7 +738,7 @@ void ClippedCamera3D::_notification(int p_what) {
             return;
         }
 
-        PhysicsDirectSpaceState3D *dspace = get_world()->get_direct_space_state();
+        PhysicsDirectSpaceState3D *dspace = get_world_3d()->get_direct_space_state();
         ERR_FAIL_COND(!dspace); // most likely physics set to threads
 
         Vector3 cam_fw = -get_global_transform().basis.get_axis(Vector3::AXIS_Z).normalized();
@@ -821,6 +803,7 @@ uint32_t ClippedCamera3D::get_collision_mask() const {
 
 void ClippedCamera3D::set_collision_mask_bit(int p_bit, bool p_value) {
 
+    ERR_FAIL_INDEX_MSG(p_bit, 32, "Collision layer bit must be between 0 and 31 inclusive.");
     uint32_t mask = get_collision_mask();
     if (p_value)
         mask |= 1 << p_bit;
@@ -831,6 +814,7 @@ void ClippedCamera3D::set_collision_mask_bit(int p_bit, bool p_value) {
 
 bool ClippedCamera3D::get_collision_mask_bit(int p_bit) const {
 
+    ERR_FAIL_INDEX_V_MSG(p_bit, 32, false, "Collision layer bit must be between 0 and 31 inclusive.");
     return get_collision_mask() & (1 << p_bit);
 }
 
@@ -894,33 +878,33 @@ bool ClippedCamera3D::is_clip_to_bodies_enabled() const {
 
 void ClippedCamera3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_margin", {"margin"}), &ClippedCamera3D::set_margin);
-    MethodBinder::bind_method(D_METHOD("get_margin"), &ClippedCamera3D::get_margin);
+    BIND_METHOD(ClippedCamera3D,set_margin);
+    BIND_METHOD(ClippedCamera3D,get_margin);
 
-    MethodBinder::bind_method(D_METHOD("set_process_mode", {"process_mode"}), &ClippedCamera3D::set_process_mode);
-    MethodBinder::bind_method(D_METHOD("get_process_mode"), &ClippedCamera3D::get_process_mode);
+    BIND_METHOD(ClippedCamera3D,set_process_mode);
+    BIND_METHOD(ClippedCamera3D,get_process_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"mask"}), &ClippedCamera3D::set_collision_mask);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &ClippedCamera3D::get_collision_mask);
+    BIND_METHOD(ClippedCamera3D,set_collision_mask);
+    BIND_METHOD(ClippedCamera3D,get_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", {"bit", "value"}), &ClippedCamera3D::set_collision_mask_bit);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", {"bit"}), &ClippedCamera3D::get_collision_mask_bit);
+    BIND_METHOD(ClippedCamera3D,set_collision_mask_bit);
+    BIND_METHOD(ClippedCamera3D,get_collision_mask_bit);
 
-    MethodBinder::bind_method(D_METHOD("add_exception_rid", {"rid"}), &ClippedCamera3D::add_exception_rid);
-    MethodBinder::bind_method(D_METHOD("add_exception", {"node"}), &ClippedCamera3D::add_exception);
+    BIND_METHOD(ClippedCamera3D,add_exception_rid);
+    BIND_METHOD(ClippedCamera3D,add_exception);
 
-    MethodBinder::bind_method(D_METHOD("remove_exception_rid", {"rid"}), &ClippedCamera3D::remove_exception_rid);
-    MethodBinder::bind_method(D_METHOD("remove_exception", {"node"}), &ClippedCamera3D::remove_exception);
+    BIND_METHOD(ClippedCamera3D,remove_exception_rid);
+    BIND_METHOD(ClippedCamera3D,remove_exception);
 
-    MethodBinder::bind_method(D_METHOD("set_clip_to_areas", {"enable"}), &ClippedCamera3D::set_clip_to_areas);
-    MethodBinder::bind_method(D_METHOD("is_clip_to_areas_enabled"), &ClippedCamera3D::is_clip_to_areas_enabled);
+    BIND_METHOD(ClippedCamera3D,set_clip_to_areas);
+    BIND_METHOD(ClippedCamera3D,is_clip_to_areas_enabled);
 
-    MethodBinder::bind_method(D_METHOD("get_clip_offset"), &ClippedCamera3D::get_clip_offset);
+    BIND_METHOD(ClippedCamera3D,get_clip_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_clip_to_bodies", {"enable"}), &ClippedCamera3D::set_clip_to_bodies);
-    MethodBinder::bind_method(D_METHOD("is_clip_to_bodies_enabled"), &ClippedCamera3D::is_clip_to_bodies_enabled);
+    BIND_METHOD(ClippedCamera3D,set_clip_to_bodies);
+    BIND_METHOD(ClippedCamera3D,is_clip_to_bodies_enabled);
 
-    MethodBinder::bind_method(D_METHOD("clear_exceptions"), &ClippedCamera3D::clear_exceptions);
+    BIND_METHOD(ClippedCamera3D,clear_exceptions);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "margin", PropertyHint::Range, "0,32,0.01"), "set_margin", "get_margin");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_mode", PropertyHint::Enum, "Physics,Idle"), "set_process_mode", "get_process_mode");

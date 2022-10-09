@@ -63,6 +63,8 @@ public:
     static StringName tree_entered;
     static StringName tree_exiting;
     static StringName ready;
+    static StringName child_entered_tree;
+    static StringName child_exiting_tree;
     static StringName size_flags_changed;
     static StringName minimum_size_changed;
     static StringName sleeping_state_changed;
@@ -72,6 +74,8 @@ public:
     static StringName focus_exited;
     static StringName sort_children;
     static StringName finished;
+    static StringName loop_finished;
+    static StringName step_finished;
     static StringName animation_finished;
     static StringName animation_changed;
     static StringName animation_started;

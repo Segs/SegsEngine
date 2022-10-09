@@ -117,8 +117,8 @@ public:
     // Heavy function, Please cache this info
     void get_node_offset(int node_index, btVector3 &r_offset) const;
 
-    void set_node_mass(int node_index, btScalar p_mass);
-    btScalar get_node_mass(int node_index) const;
+    void set_node_mass(int p_node_index, btScalar p_mass);
+    btScalar get_node_mass(int p_node_index) const;
     void reset_all_node_mass();
     void reset_all_node_positions();
 

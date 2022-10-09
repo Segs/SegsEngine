@@ -84,8 +84,9 @@ class BroadPhase2DBasic : public BroadPhase2DSW {
 
 public:
 	// 0 is an invalid ID
-	ID create(CollisionObject2DSW *p_object_, int p_subindex = 0) override;
+    ID create(CollisionObject2DSW *p_object_, int p_subindex = 0, const Rect2 &p_aabb = Rect2(), bool p_static = false) override;
 	void move(ID p_id, const Rect2 &p_aabb) override;
+    void recheck_pairs(ID p_id) override;
 	void set_static(ID p_id, bool p_static) override;
 	void remove(ID p_id) override;
 

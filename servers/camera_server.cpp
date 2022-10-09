@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  camera_server.cpp                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -47,12 +47,12 @@ IMPL_GDCLASS(CameraServer)
 CameraServer::CreateFunc CameraServer::create_func = nullptr;
 
 void CameraServer::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("get_feed", {"index"}), &CameraServer::get_feed);
-    MethodBinder::bind_method(D_METHOD("get_feed_count"), &CameraServer::get_feed_count);
-    MethodBinder::bind_method(D_METHOD("get_feeds"), &CameraServer::get_feeds);
+    BIND_METHOD(CameraServer,get_feed);
+    BIND_METHOD(CameraServer,get_feed_count);
+    BIND_METHOD(CameraServer,get_feeds);
 
-    MethodBinder::bind_method(D_METHOD("add_feed", {"feed"}), &CameraServer::add_feed);
-    MethodBinder::bind_method(D_METHOD("remove_feed", {"feed"}), &CameraServer::remove_feed);
+    BIND_METHOD(CameraServer,add_feed);
+    BIND_METHOD(CameraServer,remove_feed);
 
     ADD_SIGNAL(MethodInfo("camera_feed_added", PropertyInfo(VariantType::INT, "id")));
     ADD_SIGNAL(MethodInfo("camera_feed_removed", PropertyInfo(VariantType::INT, "id")));
@@ -108,6 +108,7 @@ Ref<CameraFeed> CameraServer::get_feed_by_id(int p_id) {
 }
 
 void CameraServer::add_feed(const Ref<CameraFeed> &p_feed) {
+    ERR_FAIL_COND(!p_feed);
     // add our feed
     feeds.push_back(p_feed);
 
@@ -162,9 +163,9 @@ Array CameraServer::get_feeds() {
     return return_feeds;
 }
 
-RID CameraServer::feed_texture(int p_id, CameraServer::FeedImage p_texture) {
+RenderingEntity CameraServer::feed_texture(int p_id, CameraServer::FeedImage p_texture) {
     int index = get_feed_index(p_id);
-    ERR_FAIL_COND_V(index == -1, RID());
+    ERR_FAIL_COND_V(index == -1, entt::null);
 
     Ref<CameraFeed> feed = get_feed(index);
 
@@ -172,7 +173,6 @@ RID CameraServer::feed_texture(int p_id, CameraServer::FeedImage p_texture) {
 }
 
 CameraServer::CameraServer() {
-    __thread__safe__.reset(new Mutex);
     singleton = this;
 }
 

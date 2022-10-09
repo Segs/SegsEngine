@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  pooled_list.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -43,53 +43,161 @@
 // that does call constructors / destructors on request / free, this should probably be
 // a separate template.
 
+// The zero_on_first_request feature is optional and is useful for e.g. pools of handles,
+// which may use a ref count which we want to be initialized to zero the first time a handle is created,
+// but left alone on subsequent allocations (as will typically be incremented).
+
+// Note that there is no function to compact the pool - this would
+// invalidate any existing pool IDs held externally.
+// Compaction can be done but would rely on a more complex method
+// of preferentially giving out lower IDs in the freelist first.
 #include "core/vector.h"
 
-template <class T, bool force_trivial = false>
+template <class T, class U = uint32_t, bool force_trivial = false, bool zero_on_first_request = false>
 class PooledList {
-	Vector<T> list;
-	Vector<uint32_t> freelist;
+    Vector<T> list;
+    Vector<U> freelist;
 
-	// not all list members are necessarily used
-	int _used_size;
+    // not all list members are necessarily used
+    U _used_size;
 
 public:
-	PooledList() {
-		_used_size = 0;
-	}
+    PooledList() {
+        _used_size = 0;
+    }
+    // Use with care, in most cases you should make sure to
+    // free all elements first (i.e. _used_size would be zero),
+    // although it could also be used without this as an optimization
+    // in some cases.
+    void clear() {
+        list.clear();
+        freelist.clear();
+        _used_size = 0;
+    }
 
-	int estimate_memory_use() const {
-		return (list.size() * sizeof(T)) + (freelist.size() * sizeof(uint32_t));
-	}
+    uint64_t estimate_memory_use() const {
+        return (list.size() * sizeof(T)) + (freelist.size() * sizeof(uint32_t));
+    }
 
-	const T &operator[](uint32_t p_index) const {
-		return list[p_index];
-	}
-	T &operator[](uint32_t p_index) {
-		return list[p_index];
-	}
+    const T &operator[](U p_index) const {
+        return list[p_index];
+    }
+    T &operator[](U p_index) {
+        return list[p_index];
+    }
 
-	int size() const { return _used_size; }
+    // To be explicit in a pool there is a distinction
+    // between the number of elements that are currently
+    // in use, and the number of elements that have been reserved.
+    // Using size() would be vague.
+    U used_size() const { return _used_size; }
+    U reserved_size() const { return list.size(); }
 
-	T *request(uint32_t &r_id) {
-		_used_size++;
+    T *request(U &r_id) {
+        _used_size++;
 
-		if (freelist.size()) {
-			// pop from freelist
-			int new_size = freelist.size() - 1;
-			r_id = freelist[new_size];
-			freelist.resize(new_size);
-			return &list[r_id];
-		}
+        if (freelist.size()) {
+            // pop from freelist
+            int new_size = freelist.size() - 1;
+            r_id = freelist[new_size];
+            freelist.resize(new_size);
+            return &list[r_id];
+        }
 
-		r_id = list.size();
-		list.resize(r_id + 1);
-		return &list[r_id];
-	}
-	void free(const uint32_t &p_id) {
-		// should not be on free list already
-		CRASH_COND(p_id >= list.size());
-		freelist.push_back(p_id);
-		_used_size--;
-	}
+        r_id = list.size();
+        list.resize(r_id + 1);
+        static_assert((!zero_on_first_request) || (__is_pod(T)), "zero_on_first_request requires trivial type");
+        if constexpr (zero_on_first_request && __is_pod(T)) {
+            list[r_id] = {};
+        }
+        return &list[r_id];
+    }
+    void free(U p_id) {
+        // should not be on free list already
+        ERR_FAIL_UNSIGNED_INDEX(p_id, list.size());
+        freelist.push_back(p_id);
+        ERR_FAIL_COND_MSG(!_used_size, "_used_size has become out of sync, have you double freed an item?");
+        _used_size--;
+    }
+};
+
+// a pooled list which automatically keeps a list of the active members
+template <class T, bool force_trivial = false>
+class TrackedPooledList {
+public:
+    uint32_t pool_used_size() const { return _pool.used_size(); }
+    uint32_t pool_reserved_size() const { return _pool.reserved_size(); }
+    uint32_t active_size() const { return _active_list.size(); }
+
+    // use with care, see the earlier notes in the PooledList clear()
+    void clear() {
+        _pool.clear();
+        _active_list.clear();
+        _active_map.clear();
+    }
+
+    uint32_t get_active_id(uint32_t p_index) const {
+        return _active_list[p_index];
+    }
+
+    const T &get_active(uint32_t p_index) const {
+        return _pool[get_active_id(p_index)];
+    }
+
+    T &get_active(uint32_t p_index) {
+        return _pool[get_active_id(p_index)];
+    }
+
+    const T &operator[](uint32_t p_index) const {
+        return _pool[p_index];
+    }
+    T &operator[](uint32_t p_index) {
+        return _pool[p_index];
+    }
+
+    T *request(uint32_t &r_id) {
+        T *item = _pool.request(r_id);
+
+        // add to the active list
+        uint32_t active_list_id = _active_list.size();
+        _active_list.push_back(r_id);
+
+		// expand the active map (this should be in sync with the pool list
+        if (_pool.used_size() > _active_map.size()) {
+            _active_map.resize(_pool.used_size());
+        }
+
+        // store in the active map
+        _active_map[r_id] = active_list_id;
+
+        return item;
+    }
+
+    void free(const uint32_t &p_id) {
+        _pool.free(p_id);
+
+        // remove from the active list.
+        uint32_t list_id = _active_map[p_id];
+
+        // zero the _active map to detect bugs (only in debug?)
+        _active_map[p_id] = -1;
+
+        _active_list.erase_first_unsorted(list_id);
+
+        // keep the replacement in sync with the correct list Id
+        if (list_id < _active_list.size()) {
+            // which pool id has been replaced in the active list
+            uint32_t replacement_id = _active_list[list_id];
+
+            // keep that replacements map up to date with the new position
+            _active_map[replacement_id] = list_id;
+        }
+    }
+
+    const Vector<uint32_t> &get_active_list() const { return _active_list; }
+
+private:
+    PooledList<T, uint32_t,force_trivial> _pool;
+    Vector<uint32_t> _active_map;
+    Vector<uint32_t> _active_list;
 };

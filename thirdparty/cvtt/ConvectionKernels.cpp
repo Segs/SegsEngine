@@ -793,7 +793,7 @@ namespace cvtt
             __m128i lo = _mm_cvtps_epi32(v.m_values[0]);
             __m128i hi = _mm_cvtps_epi32(v.m_values[1]);
 
-            __m128i packed = _mm_packs_epi32(lo, hi);
+            //__m128i packed = _mm_packs_epi32(lo, hi);
 
             UInt15 result;
             result.m_value = _mm_packs_epi32(lo, hi);
@@ -805,7 +805,7 @@ namespace cvtt
             __m128i lo = _mm_cvtps_epi32(v.m_values[0]);
             __m128i hi = _mm_cvtps_epi32(v.m_values[1]);
 
-            __m128i packed = _mm_packs_epi32(lo, hi);
+            //__m128i packed = _mm_packs_epi32(lo, hi);
 
             SInt16 result;
             result.m_value = _mm_packs_epi32(lo, hi);

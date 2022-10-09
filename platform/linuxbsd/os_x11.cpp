@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  os_x11.cpp                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -40,7 +40,7 @@
 
 #include "drivers/gles3/rasterizer_gles3.h"
 #include "key_mapping_x11.h"
-#include "main/main.h"
+#include "main/main_class.h"
 #include "servers/rendering/rendering_server_raster.h"
 #include "servers/rendering/rendering_server_wrap_mt.h"
 
@@ -93,10 +93,23 @@
 #define VALUATOR_TILTX 3
 #define VALUATOR_TILTY 4
 
+//#define DISPLAY_SERVER_X11_DEBUG_LOGS_ENABLED
+#ifdef DISPLAY_SERVER_X11_DEBUG_LOGS_ENABLED
+#define DEBUG_LOG_X11(...) printf(__VA_ARGS__)
+#else
+#define DEBUG_LOG_X11(...)
+#endif
 namespace {
 static const double abs_resolution_mult = 10000.0;
 static const double abs_resolution_range_mult = 10.0;
 static String machine_id;
+static UIString get_atom_name(Display *p_disp, Atom p_atom) {
+    char *name = XGetAtomName(p_disp, p_atom);
+    ERR_FAIL_NULL_V_MSG(name, UIString(), "Atom is invalid.");
+    UIString ret=StringUtils::from_utf8(name);
+    XFree(name);
+    return ret;
+}
 } // namespace
 
 void OS_X11::initialize_core() {
@@ -118,7 +131,6 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     last_click_ms = 0;
     last_click_button_index = -1;
     last_click_pos = Point2(-100, -100);
-    args = OS::get_singleton()->get_cmdline_args();
     current_videomode = p_desired;
     main_loop = nullptr;
     last_timestamp = 0;
@@ -195,7 +207,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     if (!refresh_device_info()) {
         OS::get_singleton()->alert("Your system does not support XInput 2.\n"
                                    "Please upgrade your distribution.",
-                ("Unable to initialize XInput"));
+                                   "Unable to initialize XInput");
         return ERR_UNAVAILABLE;
     }
 
@@ -244,7 +256,10 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
             use_prime = 0;
         }
 
-        if (getenv("LD_LIBRARY_PATH")) {
+        // Some tools use fake libGL libraries and have them override the real one using
+        // LD_LIBRARY_PATH, so we skip them. *But* Steam also sets LD_LIBRARY_PATH for its
+        // runtime and includes system `/lib` and `/lib64`... so ignore Steam.
+        if (use_prime == -1 && getenv("LD_LIBRARY_PATH") && !getenv("STEAM_RUNTIME_LIBRARY_PATH")) {
             StringView ld_library_path(getenv("LD_LIBRARY_PATH"));
             FixedVector<StringView, 32, true> libraries;
             String::split_ref(libraries, ld_library_path, ':');
@@ -270,13 +285,12 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         }
     }
 
-    ContextGL_X11::ContextType opengl_api_type = ContextGL_X11::GLES_3_0_COMPATIBLE;
 
     bool gl_initialization_error = false;
 
     context_gl = nullptr;
     while (!context_gl) {
-        context_gl = memnew(ContextGL_X11(x11_display, x11_window, current_videomode, opengl_api_type));
+        context_gl = memnew(ContextGL_X11(x11_display, x11_window, current_videomode));
 
         if (context_gl->initialize() != OK) {
             memdelete(context_gl);
@@ -286,24 +300,21 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         }
     }
 
-    while (true) {
-        if (opengl_api_type == ContextGL_X11::GLES_3_0_COMPATIBLE) {
-            if (RasterizerGLES3::is_viable() == OK) {
-                RasterizerGLES3::register_config();
-                RasterizerGLES3::make_current();
-                break;
-            } else {
-                gl_initialization_error = true;
-                break;
-            }
-        }
+    if (RasterizerGLES3::is_viable() == OK) {
+        RasterizerGLES3::register_config();
+        RasterizerGLES3::make_current();
+    } else {
+        gl_initialization_error = true;
     }
 
     if (gl_initialization_error) {
         OS::get_singleton()->alert(
-                ("Your video card driver does not support any of the supported OpenGL versions.\n"
-                 "Please update your drivers or if you have a very old or integrated GPU upgrade it."),
-                ("Unable to initialize Video driver"));
+                "Your video card driver does not support any of the supported OpenGL versions.\n"
+                "Please update your drivers or if you have a very old or integrated GPU, upgrade it.\n"
+                "If you have updated your graphics drivers recently, try rebooting.\n"
+                "Alternatively, you can force software rendering by running Godot with the `LIBGL_ALWAYS_SOFTWARE=1`\n"
+                "environment variable set, but this will be very slow.",
+                "Unable to initialize Video driver");
         return ERR_UNAVAILABLE;
     }
 
@@ -328,15 +339,20 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         hints.flags = 2;
         hints.decorations = 0;
         property = XInternAtom(x11_display, "_MOTIF_WM_HINTS", True);
-        XChangeProperty(x11_display, x11_window, property, property, 32, PropModeReplace, (unsigned char *)&hints, 5);
+        if (property != 0) {
+            XChangeProperty(
+                    x11_display, x11_window, property, property, 32, PropModeReplace, (unsigned char *)&hints, 5);
+        }
     }
 
     // make PID known to X11
     {
         const long pid = this->get_process_id();
         Atom net_wm_pid = XInternAtom(x11_display, "_NET_WM_PID", False);
-        XChangeProperty(
+        if (net_wm_pid != 0) {
+            XChangeProperty(
                 x11_display, x11_window, net_wm_pid, XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&pid, 1);
+        }
     }
 
     // disable resizable window
@@ -403,16 +419,6 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 
     XISelectEvents(x11_display, x11_window, &xi.all_event_mask, 1);
     XISelectEvents(x11_display, DefaultRootWindow(x11_display), &xi.all_master_event_mask, 1);
-
-    // Disabled by now since grabbing also blocks mouse events
-    // (they are received as extended events instead of standard events)
-    /*XIClearMask(xi.touch_event_mask.mask, XI_TouchOwnership);
-
-    // Grab touch devices to avoid OS gesture interference
-    for (int i = 0; i < xi.touch_devices.size(); ++i) {
-        XIGrabDevice(x11_display, xi.touch_devices[i], x11_window, CurrentTime, None, XIGrabModeAsync, XIGrabModeAsync,
-    False, &xi.touch_event_mask);
-    }*/
 
     /* set the titlebar name */
     XStoreName(x11_display, x11_window, "Godot");
@@ -503,7 +509,9 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     // Set Xdnd (drag & drop) support
     Atom XdndAware = XInternAtom(x11_display, "XdndAware", False);
     Atom version = 5;
-    XChangeProperty(x11_display, x11_window, XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char *)&version, 1);
+    if (XdndAware != 0) {
+        XChangeProperty(x11_display, x11_window, XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char *)&version, 1);
+    }
 
     xdnd_enter = XInternAtom(x11_display, "XdndEnter", False);
     xdnd_position = XInternAtom(x11_display, "XdndPosition", False);
@@ -611,7 +619,7 @@ bool OS_X11::refresh_device_info() {
                 if (class_info->number == VALUATOR_ABSX && class_info->mode == XIModeAbsolute) {
                     resolution_x = class_info->resolution;
                     abs_x_min = class_info->min;
-                    abs_y_max = class_info->max;
+                    abs_x_max = class_info->max;
                     absolute_mode = true;
                 } else if (class_info->number == VALUATOR_ABSY && class_info->mode == XIModeAbsolute) {
                     resolution_y = class_info->resolution;
@@ -625,8 +633,8 @@ bool OS_X11::refresh_device_info() {
                     tilt_x_min = class_info->min;
                     tilt_x_max = class_info->max;
                 } else if (class_info->number == VALUATOR_TILTY && class_info->mode == XIModeAbsolute) {
-                    tilt_x_min = class_info->min;
-                    tilt_x_max = class_info->max;
+                    tilt_y_min = class_info->min;
+                    tilt_y_max = class_info->max;
                 }
             }
         }
@@ -775,7 +783,24 @@ void OS_X11::finalize() {
         memfree(xmbstring);
     }
 
-    args.clear();
+}
+
+bool OS_X11::is_offscreen_gl_available() const {
+#if defined(OPENGL_ENABLED)
+    return context_gl->is_offscreen_available();
+#else
+    return false;
+#endif
+}
+
+void OS_X11::set_offscreen_gl_current(bool p_current) {
+#if defined(OPENGL_ENABLED)
+    if (p_current) {
+        return context_gl->make_offscreen_current();
+    } else {
+        return context_gl->release_offscreen_current();
+    }
+#endif
 }
 
 void OS_X11::set_mouse_mode(MouseMode p_mode) {
@@ -840,7 +865,8 @@ void OS_X11::flush_mouse_motion() {
 
     for (uint32_t event_index = 0; event_index < polled_events.size(); ++event_index) {
         XEvent &event = polled_events[event_index];
-        if (XGetEventData(x11_display, &event.xcookie) && event.xcookie.type == GenericEvent && event.xcookie.extension == xi.opcode) {
+        if (XGetEventData(x11_display, &event.xcookie) && event.xcookie.type == GenericEvent &&
+                event.xcookie.extension == xi.opcode) {
             XIDeviceEvent *event_data = (XIDeviceEvent *)event.xcookie.data;
             if (event_data->evtype == XI_RawMotion) {
                 XFreeEventData(x11_display, &event.xcookie);
@@ -895,12 +921,13 @@ void OS_X11::set_window_title(StringView p_title) {
     Atom _net_wm_name = XInternAtom(x11_display, "_NET_WM_NAME", false);
     Atom utf8_string = XInternAtom(x11_display, "UTF8_STRING", false);
 
+    if (_net_wm_name != 0 && utf8_string != 0) {
     XChangeProperty(x11_display, x11_window, _net_wm_name, utf8_string, 8, PropModeReplace,
                     (const uint8_t *)title.c_str(), p_title.length());
+    }
 }
 
-void OS_X11::set_window_mouse_passthrough(const PoolVector2Array &p_region)
-{
+void OS_X11::set_window_mouse_passthrough(const PoolVector2Array &p_region) {
     int event_base, error_base;
     const Bool ext_okay = XShapeQueryExtension(x11_display, &event_base, &error_base);
     if (ext_okay) {
@@ -943,7 +970,10 @@ void OS_X11::set_wm_fullscreen(bool p_enabled) {
         hints.flags = 2;
         hints.decorations = 0;
         property = XInternAtom(x11_display, "_MOTIF_WM_HINTS", True);
-        XChangeProperty(x11_display, x11_window, property, property, 32, PropModeReplace, (unsigned char *)&hints, 5);
+        if (property != 0) {
+            XChangeProperty(
+                    x11_display, x11_window, property, property, 32, PropModeReplace, (unsigned char *)&hints, 5);
+        }
     }
 
     if (p_enabled && !is_window_resizable()) {
@@ -975,9 +1005,11 @@ void OS_X11::set_wm_fullscreen(bool p_enabled) {
 
     // set bypass compositor hint
     Atom bypass_compositor = XInternAtom(x11_display, "_NET_WM_BYPASS_COMPOSITOR", False);
+    if (bypass_compositor != 0) {
     unsigned long compositing_disable_on = p_enabled ? 1 : 0;
     XChangeProperty(x11_display, x11_window, bypass_compositor, XA_CARDINAL, 32, PropModeReplace,
             (unsigned char *)&compositing_disable_on, 1);
+    }
 
     XFlush(x11_display);
 
@@ -1014,7 +1046,10 @@ void OS_X11::set_wm_fullscreen(bool p_enabled) {
         hints.flags = 2;
         hints.decorations = current_videomode.borderless_window ? 0 : 1;
         property = XInternAtom(x11_display, "_MOTIF_WM_HINTS", True);
-        XChangeProperty(x11_display, x11_window, property, property, 32, PropModeReplace, (unsigned char *)&hints, 5);
+        if (property != 0) {
+            XChangeProperty(
+                    x11_display, x11_window, property, property, 32, PropModeReplace, (unsigned char *)&hints, 5);
+        }
     }
 }
 
@@ -1022,15 +1057,15 @@ void OS_X11::set_wm_above(bool p_enabled) {
     Atom wm_state = XInternAtom(x11_display, "_NET_WM_STATE", False);
     Atom wm_above = XInternAtom(x11_display, "_NET_WM_STATE_ABOVE", False);
 
-    XClientMessageEvent xev;
+    XEvent xev;
     memset(&xev, 0, sizeof(xev));
     xev.type = ClientMessage;
-    xev.window = x11_window;
-    xev.message_type = wm_state;
-    xev.format = 32;
-    xev.data.l[0] = p_enabled ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE;
-    xev.data.l[1] = wm_above;
-    xev.data.l[3] = 1;
+    xev.xclient.window = x11_window;
+    xev.xclient.message_type = wm_state;
+    xev.xclient.format = 32;
+    xev.xclient.data.l[0] = p_enabled ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE;
+    xev.xclient.data.l[1] = wm_above;
+    xev.xclient.data.l[3] = 1;
     XSendEvent(x11_display, DefaultRootWindow(x11_display), False, SubstructureRedirectMask | SubstructureNotifyMask,
             (XEvent *)&xev);
 }
@@ -1066,10 +1101,11 @@ int OS_X11::get_current_screen() const {
 }
 
 void OS_X11::set_current_screen(int p_screen) {
-    int count = get_screen_count();
-    if (p_screen >= count) {
-        return;
+    if (p_screen == -1) {
+        p_screen = get_current_screen();
     }
+    // Check if screen is valid
+    ERR_FAIL_INDEX(p_screen, get_screen_count());
 
     if (current_videomode.fullscreen) {
         Point2i position = get_screen_position(p_screen);
@@ -1098,9 +1134,8 @@ Point2 OS_X11::get_screen_position(int p_screen) const {
 
     int count;
     XineramaScreenInfo *xsi = XineramaQueryScreens(x11_display, &count);
-    if (p_screen >= count) {
-        return Point2i(0, 0);
-    }
+    // Check if screen is valid
+    ERR_FAIL_INDEX_V(p_screen, count, Point2i(0, 0));
 
     Point2i position = Point2i(xsi[p_screen].x_org, xsi[p_screen].y_org);
 
@@ -1123,9 +1158,8 @@ Size2 OS_X11::get_screen_size(int p_screen) const {
 
     int count;
     XineramaScreenInfo *xsi = XineramaQueryScreens(x11_display, &count);
-    if (p_screen >= count) {
-        return Size2i(0, 0);
-    }
+    // Check if screen is valid
+    ERR_FAIL_INDEX_V(p_screen, count, Size2i(0, 0));
 
     Size2i size = Point2i(xsi[p_screen].width, xsi[p_screen].height);
     XFree(xsi);
@@ -1173,6 +1207,65 @@ int OS_X11::get_screen_dpi(int p_screen) const {
 
     // could not get dpi
     return 96;
+}
+
+float OS_X11::get_screen_refresh_rate(int p_screen) const {
+    if (p_screen == -1) {
+        p_screen = get_current_screen();
+    }
+
+    //invalid screen?
+    ERR_FAIL_INDEX_V(p_screen, get_screen_count(), OS::get_singleton()->SCREEN_REFRESH_RATE_FALLBACK);
+
+    //Use xrandr to get screen refresh rate.
+    if (xrandr_ext_ok) {
+        XRRScreenResources *screen_info = XRRGetScreenResources(x11_display, x11_window);
+        if (screen_info) {
+            RRMode current_mode = 0;
+            xrr_monitor_info *monitors = nullptr;
+
+            if (xrr_get_monitors) {
+                int count = 0;
+                monitors = xrr_get_monitors(x11_display, x11_window, true, &count);
+                ERR_FAIL_INDEX_V(p_screen, count, OS::get_singleton()->SCREEN_REFRESH_RATE_FALLBACK);
+            } else {
+                ERR_PRINT("An error occurred while trying to get the screen refresh rate.");
+                return OS::get_singleton()->SCREEN_REFRESH_RATE_FALLBACK;
+            }
+
+            bool found_active_mode = false;
+            for (int crtc = 0; crtc < screen_info->ncrtc; crtc++) { // Loop through outputs to find which one is currently outputting.
+                XRRCrtcInfo *monitor_info = XRRGetCrtcInfo(x11_display, screen_info, screen_info->crtcs[crtc]);
+                if (monitor_info->x != monitors[p_screen].x || monitor_info->y != monitors[p_screen].y) { // If X and Y aren't the same as the monitor we're looking for, this isn't the right monitor. Continue.
+                    continue;
+                }
+
+                if (monitor_info->mode != 0) {
+                    current_mode = monitor_info->mode;
+                    found_active_mode = true;
+                    break;
+                }
+            }
+
+            if (found_active_mode) {
+                for (int mode = 0; mode < screen_info->nmode; mode++) {
+                    XRRModeInfo m_info = screen_info->modes[mode];
+                    if (m_info.id == current_mode) {
+                        // Snap to nearest 0.01 to stay consistent with other platforms.
+                        return Math::stepify((float)m_info.dotClock / ((float)m_info.hTotal * (float)m_info.vTotal), 0.01f);
+                    }
+                }
+            }
+
+            ERR_PRINT("An error occurred while trying to get the screen refresh rate."); // We should have returned the refresh rate by now. An error must have occurred.
+            return OS::get_singleton()->SCREEN_REFRESH_RATE_FALLBACK;
+        } else {
+            ERR_PRINT("An error occurred while trying to get the screen refresh rate.");
+            return OS::get_singleton()->SCREEN_REFRESH_RATE_FALLBACK;
+        }
+    }
+    ERR_PRINT("An error occurred while trying to get the screen refresh rate.");
+    return OS::get_singleton()->SCREEN_REFRESH_RATE_FALLBACK;
 }
 
 Point2 OS_X11::get_window_position() const {
@@ -1317,15 +1410,18 @@ void OS_X11::set_window_size(const Size2 p_size) {
     int old_w = xwa.width;
     int old_h = xwa.height;
 
+    Size2 size = p_size;
+    size.x = MAX(1, size.x);
+    size.y = MAX(1, size.y);
     // If window resizable is disabled we need to update the attributes first
     XSizeHints *xsh;
     xsh = XAllocSizeHints();
     if (!is_window_resizable()) {
         xsh->flags = PMinSize | PMaxSize;
-        xsh->min_width = p_size.x;
-        xsh->max_width = p_size.x;
-        xsh->min_height = p_size.y;
-        xsh->max_height = p_size.y;
+        xsh->min_width = size.x;
+        xsh->max_width = size.x;
+        xsh->min_height = size.y;
+        xsh->max_height = size.y;
     } else {
         xsh->flags = 0L;
         if (min_size != Size2()) {
@@ -1343,11 +1439,11 @@ void OS_X11::set_window_size(const Size2 p_size) {
     XFree(xsh);
 
     // Resize the window
-    XResizeWindow(x11_display, x11_window, p_size.x, p_size.y);
+    XResizeWindow(x11_display, x11_window, size.x, size.y);
 
     // Update our videomode width and height
-    current_videomode.width = p_size.x;
-    current_videomode.height = p_size.y;
+    current_videomode.width = size.x;
+    current_videomode.height = size.y;
 
     for (int timeout = 0; timeout < 50; ++timeout) {
         XSync(x11_display, False);
@@ -1465,6 +1561,9 @@ void OS_X11::set_window_minimized(bool p_enabled) {
 bool OS_X11::is_window_minimized() const {
     // Using ICCCM -- Inter-Client Communication Conventions Manual
     Atom property = XInternAtom(x11_display, "WM_STATE", True);
+    if (property == 0) {
+        return false;
+    }
     Atom type;
     int format;
     unsigned long len;
@@ -1536,13 +1635,23 @@ bool OS_X11::window_maximize_check(const char *p_atom_name) const {
     unsigned char *data = nullptr;
     bool retval = false;
 
+    if (property == 0) {
+        return false;
+    }
     int result = XGetWindowProperty(
             x11_display, x11_window, property, 0, 1024, False, XA_ATOM, &type, &format, &len, &remaining, &data);
 
     if (result == Success) {
         Atom *atoms = (Atom *)data;
-        Atom wm_act_max_horz = XInternAtom(x11_display, "_NET_WM_ACTION_MAXIMIZE_HORZ", False);
-        Atom wm_act_max_vert = XInternAtom(x11_display, "_NET_WM_ACTION_MAXIMIZE_VERT", False);
+        Atom wm_act_max_horz;
+        Atom wm_act_max_vert;
+        if (strcmp(p_atom_name, "_NET_WM_STATE") == 0) {
+            wm_act_max_horz = XInternAtom(x11_display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+            wm_act_max_vert = XInternAtom(x11_display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+        } else {
+            wm_act_max_horz = XInternAtom(x11_display, "_NET_WM_ACTION_MAXIMIZE_HORZ", False);
+            wm_act_max_vert = XInternAtom(x11_display, "_NET_WM_ACTION_MAXIMIZE_VERT", False);
+        }
         bool found_wm_act_max_horz = false;
         bool found_wm_act_max_vert = false;
 
@@ -1611,7 +1720,9 @@ void OS_X11::set_borderless_window(bool p_borderless) {
     hints.flags = 2;
     hints.decorations = current_videomode.borderless_window ? 0 : 1;
     property = XInternAtom(x11_display, "_MOTIF_WM_HINTS", True);
-    XChangeProperty(x11_display, x11_window, property, property, 32, PropModeReplace, (unsigned char *)&hints, 5);
+    if (property != 0) {
+        XChangeProperty(x11_display, x11_window, property, property, 32, PropModeReplace, (unsigned char *)&hints, 5);
+    }
 
     // Preserve window size
     set_window_size(Size2(current_videomode.width, current_videomode.height));
@@ -1660,15 +1771,20 @@ void OS_X11::request_attention() {
     XFlush(x11_display);
 }
 
-void *OS_X11::get_native_handle(int p_handle_type)
-{
+void *OS_X11::get_native_handle(int p_handle_type) {
     switch (p_handle_type) {
-        case APPLICATION_HANDLE: return nullptr; // Do we have a value to return here?
-        case DISPLAY_HANDLE: return (void *)x11_display;
-        case WINDOW_HANDLE: return (void *)x11_window;
-        case WINDOW_VIEW: return nullptr; // Do we have a value to return here?
-        case OPENGL_CONTEXT: return context_gl->get_glx_context();
-        default: return nullptr;
+        case APPLICATION_HANDLE:
+            return nullptr; // Do we have a value to return here?
+        case DISPLAY_HANDLE:
+            return (void *)x11_display;
+        case WINDOW_HANDLE:
+            return (void *)x11_window;
+        case WINDOW_VIEW:
+            return nullptr; // Do we have a value to return here?
+        case OPENGL_CONTEXT:
+            return context_gl->get_glx_context();
+        default:
+            return nullptr;
     }
 }
 
@@ -1710,7 +1826,7 @@ void OS_X11::_handle_key_event(XKeyEvent *p_event, EventStore &p_events, uint32_
     // still works in half the cases. (won't handle deadkeys)
     // For more complex input methods (deadkeys and more advanced)
     // you have to use XmbLookupString (??).
-    // So.. then you have to chosse which of both results
+    // So.. then you have to choose which of both results
     // you want to keep.
     // This is a real bizarreness and cpu waster.
 
@@ -1749,6 +1865,7 @@ void OS_X11::_handle_key_event(XKeyEvent *p_event, EventStore &p_events, uint32_
         if (status == XLookupChars) {
             bool keypress = xkeyevent->type == KeyPress;
             unsigned int keycode = KeyMappingX11::get_keycode(keysym_keycode);
+            unsigned int physical_keycode = KeyMappingX11::get_scancode(xkeyevent->keycode);
             if (keycode >= 'a' && keycode <= 'z') {
                 keycode -= 'a' - 'A';
             }
@@ -1756,8 +1873,12 @@ void OS_X11::_handle_key_event(XKeyEvent *p_event, EventStore &p_events, uint32_
             UIString tmp = StringUtils::from_utf8(utf8string, utf8bytes);
             for (int i = 0; i < tmp.length(); i++) {
                 Ref<InputEventKey> k(make_ref_counted<InputEventKey>());
-                if (keycode == 0 && tmp[i] == nullptr) {
+                if (physical_keycode == 0 && keycode == 0 && tmp[i] == 0) {
                     continue;
+                }
+
+                if (keycode == 0) {
+                    keycode = physical_keycode;
                 }
 
                 get_key_modifier_state(xkeyevent->state, k);
@@ -1767,16 +1888,18 @@ void OS_X11::_handle_key_event(XKeyEvent *p_event, EventStore &p_events, uint32_
                 k->set_pressed(keypress);
 
                 k->set_keycode(keycode);
+                k->set_physical_scancode(physical_keycode);
 
                 k->set_echo(false);
 
                 if (k->get_keycode() == KEY_BACKTAB) {
                     // make it consistent across platforms.
                     k->set_keycode(KEY_TAB);
+                    k->set_physical_scancode(KEY_TAB);
                     k->set_shift(true);
                 }
 
-                input->accumulate_input_event(k);
+                input->parse_input_event(k);
             }
             memfree(utf8string);
             return;
@@ -1801,6 +1924,7 @@ void OS_X11::_handle_key_event(XKeyEvent *p_event, EventStore &p_events, uint32_
     // keysym, so it works in all platforms the same.
 
     unsigned int keycode = KeyMappingX11::get_keycode(keysym_keycode);
+    unsigned int physical_keycode = KeyMappingX11::get_scancode(xkeyevent->keycode);
 
     /* Phase 3, obtain a unicode character from the keysym */
 
@@ -1820,8 +1944,12 @@ void OS_X11::_handle_key_event(XKeyEvent *p_event, EventStore &p_events, uint32_
 
     bool keypress = xkeyevent->type == KeyPress;
 
-    if (keycode == 0 && unicode == 0) {
+    if (physical_keycode == 0 && keycode == 0 && unicode == 0) {
         return;
+    }
+
+    if (keycode == 0) {
+        keycode = physical_keycode;
     }
 
     /* Phase 5, determine modifier mask */
@@ -1861,7 +1989,7 @@ void OS_X11::_handle_key_event(XKeyEvent *p_event, EventStore &p_events, uint32_
             ::Time tresh = ABSDIFF(peek_event.xkey.time, xkeyevent->time);
             if (peek_event.type == KeyPress && tresh < 5) {
                 KeySym rk;
-                XLookupString((XKeyEvent *)&peek_event, str, 256, &rk, NULL);
+                XLookupString((XKeyEvent *)&peek_event, str, 256, &rk, nullptr);
                 if (rk == keysym_keycode) {
                     // Consume to next event.
                     ++p_event_index;
@@ -1885,12 +2013,14 @@ void OS_X11::_handle_key_event(XKeyEvent *p_event, EventStore &p_events, uint32_
     }
 
     k->set_keycode(keycode);
+    k->set_physical_scancode(physical_keycode);
     k->set_unicode(unicode);
     k->set_echo(p_echo);
 
     if (k->get_keycode() == KEY_BACKTAB) {
         // make it consistent across platforms.
         k->set_keycode(KEY_TAB);
+        k->set_physical_scancode(KEY_TAB);
         k->set_shift(true);
     }
 
@@ -1916,10 +2046,10 @@ void OS_X11::_handle_key_event(XKeyEvent *p_event, EventStore &p_events, uint32_
     }
 
     // printf("key: %x\n",k->get_scancode());
-    input->accumulate_input_event(k);
+    input->parse_input_event(k);
 }
 
-Atom OS_X11::_process_selection_request_target(Atom p_target, Window p_requestor, Atom p_property) const {
+Atom OS_X11::_process_selection_request_target(Atom p_target, Window p_requestor, Atom p_property, Atom p_selection) const {
     if (p_target == XInternAtom(x11_display, "TARGETS", 0)) {
         // Request to list all supported targets.
         Atom data[9];
@@ -1933,44 +2063,32 @@ Atom OS_X11::_process_selection_request_target(Atom p_target, Window p_requestor
         data[7] = XInternAtom(x11_display, "text/plain;charset=utf-8", 0);
         data[8] = XInternAtom(x11_display, "text/plain", 0);
 
-        XChangeProperty(x11_display,
-                p_requestor,
-                p_property,
-                XA_ATOM,
-                32,
-                PropModeReplace,
-                (unsigned char *)&data,
+        XChangeProperty(x11_display, p_requestor, p_property, XA_ATOM, 32, PropModeReplace, (unsigned char *)&data,
                 sizeof(data) / sizeof(data[0]));
 
         return p_property;
     } else if (p_target == XInternAtom(x11_display, "SAVE_TARGETS", 0)) {
         // Request to check if SAVE_TARGETS is supported, nothing special to do.
-        XChangeProperty(x11_display,
-                p_requestor,
-                p_property,
-                XInternAtom(x11_display, "NULL", False),
-                32,
-                PropModeReplace,
-                NULL,
-                0);
+        XChangeProperty(x11_display, p_requestor, p_property, XInternAtom(x11_display, "NULL", False), 32,
+                PropModeReplace, nullptr, 0);
         return p_property;
     } else if (p_target == XInternAtom(x11_display, "UTF8_STRING", 0) ||
                p_target == XInternAtom(x11_display, "COMPOUND_TEXT", 0) ||
-               p_target == XInternAtom(x11_display, "TEXT", 0) ||
-               p_target == XA_STRING ||
+               p_target == XInternAtom(x11_display, "TEXT", 0) || p_target == XA_STRING ||
                p_target == XInternAtom(x11_display, "text/plain;charset=utf-8", 0) ||
                p_target == XInternAtom(x11_display, "text/plain", 0)) {
         // Directly using internal clipboard because we know our window
         // is the owner during a selection request.
-        auto clip = OS::get_clipboard();
-        XChangeProperty(x11_display,
-                p_requestor,
-                p_property,
-                p_target,
-                8,
-                PropModeReplace,
-                (unsigned char *)clip.data(),
-                clip.length());
+        String clip;
+        static const char *target_type = "PRIMARY";
+        if (p_selection != 0 && get_atom_name(x11_display, p_selection) == target_type) {
+            clip = OS::get_clipboard_primary();
+        } else {
+            clip = OS::get_clipboard();
+        }
+
+        XChangeProperty(x11_display, p_requestor, p_property, p_target, 8, PropModeReplace,
+                (unsigned char *)clip.data(), clip.length());
         return p_property;
     } else {
         char *target_name = XGetAtomName(x11_display, p_target);
@@ -1993,24 +2111,19 @@ void OS_X11::_handle_selection_request_event(XSelectionRequestEvent *p_event) co
         int format;
         unsigned long len;
         unsigned long remaining;
-        unsigned char *data = NULL;
-        if (XGetWindowProperty(x11_display, p_event->requestor, p_event->property, 0, LONG_MAX, False, atom_pair, &type, &format, &len, &remaining, &data) == Success) {
+        unsigned char *data = nullptr;
+        if (XGetWindowProperty(x11_display, p_event->requestor, p_event->property, 0, LONG_MAX, False, atom_pair, &type,
+                    &format, &len, &remaining, &data) == Success) {
             if ((len >= 2) && data) {
                 Atom *targets = (Atom *)data;
                 for (uint64_t i = 0; i < len; i += 2) {
                     Atom target = targets[i];
                     Atom &property = targets[i + 1];
-                    property = _process_selection_request_target(target, p_event->requestor, property);
+                    property = _process_selection_request_target(target, p_event->requestor, property, p_event->selection);
                 }
 
-                XChangeProperty(x11_display,
-                        p_event->requestor,
-                        p_event->property,
-                        atom_pair,
-                        32,
-                        PropModeReplace,
-                        (unsigned char *)targets,
-                        len);
+                XChangeProperty(x11_display, p_event->requestor, p_event->property, atom_pair, 32, PropModeReplace,
+                        (unsigned char *)targets, len);
 
                 respond.xselection.property = p_event->property;
             }
@@ -2018,7 +2131,7 @@ void OS_X11::_handle_selection_request_event(XSelectionRequestEvent *p_event) co
         }
     } else {
         // Request for target conversion.
-        respond.xselection.property = _process_selection_request_target(p_event->target, p_event->requestor, p_event->property);
+        respond.xselection.property = _process_selection_request_target(p_event->target, p_event->requestor, p_event->property, p_event->selection);
     }
 
     respond.xselection.type = SelectionNotify;
@@ -2040,14 +2153,15 @@ struct Property {
 };
 
 static Property read_property(Display *p_display, Window p_window, Atom p_property) {
-    Atom actual_type;
-    int actual_format;
-    unsigned long nitems;
-    unsigned long bytes_after;
+    Atom actual_type = 0;
+    int actual_format = 0;
+    unsigned long nitems = 0;
+    unsigned long bytes_after = 0;
     unsigned char *ret = nullptr;
 
     int read_bytes = 1024;
 
+    if (p_property != 0) {
     // Keep trying to read the property until there are no
     // bytes unread.
     do {
@@ -2062,6 +2176,7 @@ static Property read_property(Display *p_display, Window p_window, Atom p_proper
 
     } while (bytes_after != 0);
 
+    }
     Property p = { ret, actual_format, (int)nitems, actual_type };
 
     return p;
@@ -2073,7 +2188,7 @@ static Atom pick_target_from_list(Display *p_display, Atom *p_list, int p_count)
     for (int i = 0; i < p_count; i++) {
         Atom atom = p_list[i];
 
-        if (atom != 0 && UIString(XGetAtomName(p_display, atom)) == target_type) {
+        if (atom != 0 && get_atom_name(p_display, atom) == target_type) {
             return atom;
         }
     }
@@ -2082,15 +2197,15 @@ static Atom pick_target_from_list(Display *p_display, Atom *p_list, int p_count)
 
 static Atom pick_target_from_atoms(Display *p_disp, Atom p_t1, Atom p_t2, Atom p_t3) {
     static const char *target_type = "text/uri-list";
-    if (p_t1 != 0 && UIString(XGetAtomName(p_disp, p_t1)) == target_type) {
+    if (p_t1 != 0 && get_atom_name(p_disp, p_t1) == target_type) {
         return p_t1;
     }
 
-    if (p_t2 != 0 && UIString(XGetAtomName(p_disp, p_t2)) == target_type) {
+    if (p_t2 != 0 && get_atom_name(p_disp, p_t2) == target_type) {
         return p_t2;
     }
 
-    if (p_t3 != 0 && UIString(XGetAtomName(p_disp, p_t3)) == target_type) {
+    if (p_t3 != 0 && get_atom_name(p_disp, p_t3) == target_type) {
         return p_t3;
     }
 
@@ -2135,7 +2250,7 @@ bool OS_X11::_wait_for_events() const {
     tv.tv_sec = 1;
 
     // Wait for next event or timeout.
-    int num_ready_fds = select(x11_fd + 1, &in_fds, NULL, NULL, &tv);
+    int num_ready_fds = select(x11_fd + 1, &in_fds, nullptr, nullptr, &tv);
 
     if (num_ready_fds > 0) {
         // Event received.
@@ -2156,28 +2271,33 @@ void OS_X11::_poll_events() {
         // Process events from the queue.
         {
             MutexLock mutex_lock(events_mutex);
+            _check_pending_events(polled_events);
+        }
+    }
+}
 
+void OS_X11::_check_pending_events(EventStore &r_events) {
+    // Flush to make sure to gather all pending events.
+    XFlush(x11_display);
             // Non-blocking wait for next event and remove it from the queue.
             XEvent ev;
-            while (XCheckIfEvent(x11_display, &ev, _predicate_all_events, NULL)) {
-                // Check if the input manager wants to process the event.
-                if (XFilterEvent(&ev, 0)) {
-                    // Event has been filtered by the Input Manager,
-                    // it has to be ignored and a new one will be received.
-                    continue;
-                }
-
-                // Handle selection request events directly in the event thread, because
-                // communication through the x server takes several events sent back and forth
-                // and we don't want to block other programs while processing only one each frame.
-                if (ev.type == SelectionRequest) {
-                    _handle_selection_request_event(&(ev.xselectionrequest));
-                    continue;
-                }
-
-                polled_events.push_back(ev);
-            }
+    while (XCheckIfEvent(x11_display, &ev, _predicate_all_events, nullptr)) {
+        // Check if the input manager wants to process the event.
+        if (XFilterEvent(&ev, 0)) {
+            // Event has been filtered by the Input Manager,
+            // it has to be ignored and a new one will be received.
+            continue;
         }
+
+        // Handle selection request events directly in the event thread, because
+        // communication through the x server takes several events sent back and forth
+        // and we don't want to block other programs while processing only one each frame.
+        if (ev.type == SelectionRequest) {
+            _handle_selection_request_event(&(ev.xselectionrequest));
+            continue;
+        }
+
+        r_events.push_back(ev);
     }
 }
 
@@ -2185,6 +2305,10 @@ void OS_X11::_poll_events() {
 void OS_X11::process_xevents() {
     // printf("checking events %i\n", XPending(x11_display));
 
+#ifdef DISPLAY_SERVER_X11_DEBUG_LOGS_ENABLED
+    static int frame = 0;
+    ++frame;
+#endif
     do_mouse_warp = false;
 
     // Is the current mouse mode one where it needs to be grabbed.
@@ -2200,6 +2324,8 @@ void OS_X11::process_xevents() {
         MutexLock mutex_lock(events_mutex);
         events = polled_events;
         polled_events.clear();
+        // Check for more pending events to avoid an extra frame delay.
+        _check_pending_events(events);
     }
 
     for (uint32_t event_index = 0; event_index < events.size(); ++event_index) {
@@ -2260,11 +2386,10 @@ void OS_X11::process_xevents() {
                             auto pen_tilt_x = xi.pen_tilt_x_range.find(device_id);
                             if (pen_tilt_x != xi.pen_tilt_x_range.end()) {
                                 Vector2 pen_tilt_x_range = pen_tilt_x->second;
-                                if (pen_tilt_x_range != Vector2()) {
-                                    xi.tilt.x = ((*values - pen_tilt_x_range[0]) /
-                                                        (pen_tilt_x_range[1] - pen_tilt_x_range[0])) *
-                                                        2 -
-                                                1;
+                                if (pen_tilt_x_range[0] != 0 && *values < 0) {
+                                    xi.tilt.x = *values / -pen_tilt_x_range[0];
+                                } else if (pen_tilt_x_range[1] != 0) {
+                                    xi.tilt.x = *values / pen_tilt_x_range[1];
                                 }
                             }
 
@@ -2275,11 +2400,10 @@ void OS_X11::process_xevents() {
                             auto pen_tilt_y = xi.pen_tilt_y_range.find(device_id);
                             if (pen_tilt_y != xi.pen_tilt_y_range.end()) {
                                 Vector2 pen_tilt_y_range = pen_tilt_y->second;
-                                if (pen_tilt_y_range != Vector2()) {
-                                    xi.tilt.y = ((*values - pen_tilt_y_range[0]) /
-                                                        (pen_tilt_y_range[1] - pen_tilt_y_range[0])) *
-                                                        2 -
-                                                1;
+                                if (pen_tilt_y_range[0] != 0 && *values < 0) {
+                                    xi.tilt.y = *values / -pen_tilt_y_range[0];
+                                } else if (pen_tilt_y_range[1] != 0) {
+                                    xi.tilt.y = *values / pen_tilt_y_range[1];
                                 }
                             }
 
@@ -2315,10 +2439,7 @@ void OS_X11::process_xevents() {
                         xi.last_relative_time = raw_event->time;
                     } break;
 #ifdef TOUCH_ENABLED
-                    case XI_TouchBegin: // Fall-through
-                                        // Disabled hand-in-hand with the grabbing
-                                        // XIAllowTouchEvents(x11_display, event_data->deviceid, event_data->detail,
-                                        // x11_window, XIAcceptTouch);
+                    case XI_TouchBegin:
 
                     case XI_TouchEnd: {
                         bool is_begin = event_data->evtype == XI_TouchBegin;
@@ -2339,13 +2460,13 @@ void OS_X11::process_xevents() {
                                 // filter it out
                                 xi.mouse_pos_to_filter = pos;
                             }
-                            input->accumulate_input_event(st);
+                            input->parse_input_event(st);
                         } else {
                             if (!xi.state.contains(index)) { // Defensive
                                 break;
                             }
                             xi.state.erase(index);
-                            input->accumulate_input_event(st);
+                            input->parse_input_event(st);
                         }
                     } break;
 
@@ -2360,7 +2481,7 @@ void OS_X11::process_xevents() {
                             sd->set_index(index);
                             sd->set_position(pos);
                             sd->set_relative(pos - curr_pos_elem->second);
-                            input->accumulate_input_event(sd);
+                            input->parse_input_event(sd);
 
                             curr_pos_elem->second = pos;
                         }
@@ -2372,30 +2493,36 @@ void OS_X11::process_xevents() {
         XFreeEventData(x11_display, &event.xcookie);
 
         switch (event.type) {
-            case Expose:
+            case Expose: {
+                DEBUG_LOG_X11("[%u] Expose window=%lu, count='%u' \n", frame, event.xexpose.window, event.xexpose.count);
                 Main::force_redraw();
-                break;
+            } break;
 
-            case NoExpose:
+            case NoExpose: {
+                DEBUG_LOG_X11("[%u] NoExpose drawable=%lu \n", frame, event.xnoexpose.drawable);
                 minimized = true;
-                break;
+            } break;
 
             case VisibilityNotify: {
+                DEBUG_LOG_X11("[%u] VisibilityNotify window=%lu, state=%u \n", frame, event.xvisibility.window, event.xvisibility.state);
                 XVisibilityEvent *visibility = (XVisibilityEvent *)&event;
                 minimized = (visibility->state == VisibilityFullyObscured);
             } break;
             case LeaveNotify: {
+                DEBUG_LOG_X11("[%u] LeaveNotify window=%lu, mode='%u' \n", frame, event.xcrossing.window, event.xcrossing.mode);
                 if (main_loop && !mouse_mode_grab) {
                     main_loop->notification(MainLoop::NOTIFICATION_WM_MOUSE_EXIT);
                 }
 
             } break;
             case EnterNotify: {
+                DEBUG_LOG_X11("[%u] EnterNotify window=%lu, mode='%u' \n", frame, event.xcrossing.window, event.xcrossing.mode);
                 if (main_loop && !mouse_mode_grab) {
                     main_loop->notification(MainLoop::NOTIFICATION_WM_MOUSE_ENTER);
                 }
             } break;
-            case FocusIn:
+            case FocusIn: {
+                DEBUG_LOG_X11("[%u] FocusIn window=%lu, mode='%u' \n", frame, event.xfocus.window, event.xfocus.mode);
                 minimized = false;
                 window_has_focus = true;
                 main_loop->notification(MainLoop::NOTIFICATION_WM_FOCUS_IN);
@@ -2426,14 +2553,16 @@ void OS_X11::process_xevents() {
                     XSetICFocus(xic);
                 }
                 break;
+            }
 
-            case FocusOut:
+            case FocusOut: {
+                DEBUG_LOG_X11("[%u] FocusOut window=%lu, mode='%u' \n", frame, event.xfocus.window, event.xfocus.mode);
                 window_has_focus = false;
                 input->release_pressed_events();
                 main_loop->notification(MainLoop::NOTIFICATION_WM_FOCUS_OUT);
                 window_focused = false;
                 if (mouse_mode_grab) {
-                    // dear X11, I try, I really try, but you never work, you do whathever you want.
+                    // dear X11, I try, I really try, but you never work, you do whatever you want.
                     if (mouse_mode == MOUSE_MODE_CAPTURED) {
                         // Show the cursor if we're in captured mode so it doesn't look weird.
                         XUndefineCursor(x11_display, x11_window);
@@ -2451,7 +2580,7 @@ void OS_X11::process_xevents() {
                     Ref<InputEventScreenTouch> st(make_ref_counted<InputEventScreenTouch>());
                     st->set_index(E.first);
                     st->set_position(E.second);
-                    input->accumulate_input_event(st);
+                    input->parse_input_event(st);
                 }
                 xi.state.clear();
 #endif
@@ -2462,10 +2591,12 @@ void OS_X11::process_xevents() {
                     XUnsetICFocus(xic);
                 }
                 break;
+            }
 
-            case ConfigureNotify:
+            case ConfigureNotify: {
+                DEBUG_LOG_X11("[%u] ConfigureNotify window=%lu, event=%lu, above=%lu, override_redirect=%u \n", frame, event.xconfigure.window, event.xconfigure.event, event.xconfigure.above, event.xconfigure.override_redirect);
                 _window_changed(&event);
-                break;
+            } break;
             case ButtonPress:
             case ButtonRelease: {
                 /* exit in case of a mouse button press */
@@ -2491,6 +2622,7 @@ void OS_X11::process_xevents() {
                 mb->set_pressed((event.type == ButtonPress));
 
                 if (event.type == ButtonPress) {
+                    DEBUG_LOG_X11("[%u] ButtonPress window=%lu, button_index=%u \n", frame, event.xbutton.window, mb->get_button_index());
                     uint64_t diff = get_ticks_usec() / 1000 - last_click_ms;
 
                     if (mb->get_button_index() == last_click_button_index) {
@@ -2510,9 +2642,11 @@ void OS_X11::process_xevents() {
                         last_click_ms += diff;
                         last_click_pos = Point2(event.xbutton.x, event.xbutton.y);
                     }
+                } else {
+                    DEBUG_LOG_X11("[%u] ButtonRelease window=%lu, button_index=%u \n", frame, event.xbutton.window, mb->get_button_index());
                 }
 
-                input->accumulate_input_event(mb);
+                input->parse_input_event(mb);
 
             } break;
             case MotionNotify: {
@@ -2615,7 +2749,6 @@ void OS_X11::process_xevents() {
                 mm->set_button_mask(get_mouse_button_state());
                 mm->set_position(posi);
                 mm->set_global_position(posi);
-                input->set_mouse_position(posi);
                 mm->set_speed(input->get_last_mouse_speed());
 
                 mm->set_relative(rel);
@@ -2627,17 +2760,24 @@ void OS_X11::process_xevents() {
                 // this is so that the relative motion doesn't get messed up
                 // after we regain focus.
                 if (window_has_focus || !mouse_mode_grab) {
-                    input->accumulate_input_event(mm);
+                    input->parse_input_event(mm);
                 }
 
             } break;
             case KeyPress:
             case KeyRelease: {
+#ifdef DISPLAY_SERVER_X11_DEBUG_LOGS_ENABLED
+                if (event.type == KeyPress) {
+                    DEBUG_LOG_X11("[%u] KeyPress window=%lu, keycode=%u, time=%lu \n", frame, event.xkey.window, event.xkey.keycode, event.xkey.time);
+                } else {
+                    DEBUG_LOG_X11("[%u] KeyRelease window=%lu, keycode=%u, time=%lu \n", frame, event.xkey.window, event.xkey.keycode, event.xkey.time);
+                }
+#endif
                 last_timestamp = event.xkey.time;
 
                 // key event is a little complex, so
                 // it will be handled in its own function.
-                _handle_key_event((XKeyEvent *)&event, events, event_index);
+                _handle_key_event(&event.xkey, events, event_index);
             } break;
 
             case SelectionNotify:
@@ -2651,6 +2791,7 @@ void OS_X11::process_xevents() {
                         files.emplace_back(StringUtils::strip_edges(
                                 StringUtils::http_unescape(StringUtils::replace(parts[i], "file://", ""))));
                     }
+                    XFree(p.data);
                     main_loop->drop_files(files);
 
                     // Reply that all is well.
@@ -2683,6 +2824,7 @@ void OS_X11::process_xevents() {
                         Property p =
                                 read_property(x11_display, source, XInternAtom(x11_display, "XdndTypeList", False));
                         requested = pick_target_from_list(x11_display, (Atom *)p.data, p.nitems);
+                        XFree(p.data);
                     } else {
                         requested = pick_target_from_atoms(
                                 x11_display, event.xclient.data.l[2], event.xclient.data.l[3], event.xclient.data.l[4]);
@@ -2754,7 +2896,7 @@ void OS_X11::process_xevents() {
         */
     }
 
-    input->flush_accumulated_events();
+    input->flush_buffered_events();
 }
 
 MainLoop *OS_X11::get_main_loop() const {
@@ -2812,7 +2954,12 @@ String OS_X11::_get_clipboard_impl(Atom p_source, Window x11_window, Atom target
 
     Window selection_owner = XGetSelectionOwner(x11_display, p_source);
     if (selection_owner == x11_window) {
+        static const char *target_type = "PRIMARY";
+        if (p_source != 0 && String(XGetAtomName(x11_display, p_source)) == target_type) {
+            return OS::get_clipboard_primary();
+        } else {
         return OS::get_clipboard();
+    }
     }
 
     if (selection_owner != 0) {
@@ -2820,8 +2967,7 @@ String OS_X11::_get_clipboard_impl(Atom p_source, Window x11_window, Atom target
         MutexLock mutex_lock(events_mutex);
 
         Atom selection = XA_PRIMARY;
-        XConvertSelection(x11_display, p_source, target, selection,
-                x11_window, CurrentTime);
+        XConvertSelection(x11_display, p_source, target, selection, x11_window, CurrentTime);
 
         XFlush(x11_display);
 
@@ -2850,6 +2996,7 @@ String OS_X11::_get_clipboard_impl(Atom p_source, Window x11_window, Atom target
 
         if (type == XInternAtom(x11_display, "INCR", 0)) {
             // Data is going to be received incrementally.
+            DEBUG_LOG_X11("INCR selection started.\n");
             FixedVector<uint8_t,256,true> incr_data;
             uint32_t data_size = 0;
             bool success = false;
@@ -2867,7 +3014,7 @@ String OS_X11::_get_clipboard_impl(Atom p_source, Window x11_window, Atom target
 
                 // Non-blocking wait for next event and remove it from the queue.
                 XEvent ev;
-                while (XCheckIfEvent(x11_display, &ev, _predicate_clipboard_incr, NULL)) {
+                while (XCheckIfEvent(x11_display, &ev, _predicate_clipboard_incr, nullptr)) {
                     result = XGetWindowProperty(x11_display, x11_window,
                             selection, // selection type
                             0, LONG_MAX, // offset - len
@@ -2877,6 +3024,7 @@ String OS_X11::_get_clipboard_impl(Atom p_source, Window x11_window, Atom target
                             &format, // return format
                             &len, &bytes_left, // data length
                             &data);
+                    DEBUG_LOG_X11("PropertyNotify: len=%lu, format=%i\n", len, format);
 
                     if (result == Success) {
                         if (data && (len > 0)) {
@@ -2916,10 +3064,8 @@ String OS_X11::_get_clipboard_impl(Atom p_source, Window x11_window, Atom target
             }
         } else if (bytes_left > 0) {
             // Data is ready and can be processed all at once.
-            result = XGetWindowProperty(x11_display, x11_window,
-                    selection, 0, bytes_left, 0,
-                    AnyPropertyType, &type, &format,
-                    &len, &dummy, &data);
+            result = XGetWindowProperty(x11_display, x11_window, selection, 0, bytes_left, 0, AnyPropertyType, &type,
+                    &format, &len, &dummy, &data);
 
             if (result == Success) {
                 ret = StringUtils::to_utf8(QString::fromUtf8((const char *)data));
@@ -2962,8 +3108,7 @@ String OS_X11::get_clipboard() const {
 
 static Bool _predicate_clipboard_save_targets(Display *display, XEvent *event, XPointer arg) {
     if (event->xany.window == *(Window *)arg) {
-        return (event->type == SelectionRequest) ||
-               (event->type == SelectionNotify);
+        return (event->type == SelectionRequest) || (event->type == SelectionNotify);
     } else {
         return False;
     }
@@ -2981,8 +3126,7 @@ void OS_X11::_clipboard_transfer_ownership(Atom p_source, Window x11_window) con
 
     Atom clipboard_manager = XInternAtom(x11_display, "CLIPBOARD_MANAGER", False);
     Atom save_targets = XInternAtom(x11_display, "SAVE_TARGETS", False);
-    XConvertSelection(x11_display, clipboard_manager, save_targets, 0,
-            x11_window, CurrentTime);
+    XConvertSelection(x11_display, clipboard_manager, save_targets, 0, x11_window, CurrentTime);
 
     // Process events from the queue.
     while (true) {
@@ -3011,6 +3155,28 @@ void OS_X11::_clipboard_transfer_ownership(Atom p_source, Window x11_window) con
         }
     }
 }
+void OS_X11::set_clipboard_primary(const String &p_text) {
+    if (!p_text.empty()) {
+        {
+            // The clipboard content can be accessed while polling for events.
+            MutexLock mutex_lock(events_mutex);
+            OS::set_clipboard_primary(p_text);
+        }
+
+        XSetSelectionOwner(x11_display, XA_PRIMARY, x11_window, CurrentTime);
+        XSetSelectionOwner(x11_display, XInternAtom(x11_display, "PRIMARY", 0), x11_window, CurrentTime);
+    }
+}
+
+String OS_X11::get_clipboard_primary() const {
+    String ret = _get_clipboard(XInternAtom(x11_display, "PRIMARY", 0), x11_window);
+
+    if (ret.empty()) {
+        ret = _get_clipboard(XA_PRIMARY, x11_window);
+    }
+
+    return ret;
+}
 String OS_X11::get_name() const {
     return ("X11");
 }
@@ -3032,7 +3198,15 @@ Error OS_X11::shell_open(StringView p_uri) {
 }
 
 bool OS_X11::_check_internal_feature_support(StringView p_feature) {
-    return p_feature == StringView("pc");
+    if (p_feature == "pc") {
+        return true;
+    }
+
+    if (p_feature == "primary_clipboard") {
+        return true;
+    }
+
+    return false;
 }
 
 void OS_X11::move_window_to_foreground() {
@@ -3283,7 +3457,7 @@ void OS_X11::set_icon(const Ref<Image> &p_icon) {
 
     if (p_icon) {
         Ref<Image> img = dynamic_ref_cast<Image>(p_icon->duplicate());
-        img->convert(Image::FORMAT_RGBA8);
+        img->convert(ImageData::FORMAT_RGBA8);
 
         while (true) {
             int w = img->get_width();
@@ -3335,8 +3509,10 @@ void OS_X11::set_icon(const Ref<Image> &p_icon) {
                 pr += 4;
             }
 
+            if (net_wm_icon != 0) {
             XChangeProperty(x11_display, x11_window, net_wm_icon, XA_CARDINAL, 32, PropModeReplace,
                     (unsigned char *)pd.data(), pd.size());
+            }
 
             if (!g_set_icon_error) {
                 break;
@@ -3481,70 +3657,6 @@ static String get_mountpoint(StringView p_path) {
     return null_string;
 }
 
-Error OS_X11::move_to_trash(StringView p_path) {
-    String trash_can;
-    String mnt = get_mountpoint(p_path);
-
-    // If there is a directory "[Mountpoint]/.Trash-[UID]/files", use it as the trash can.
-    if (!mnt.empty()) {
-        String path(mnt + "/.Trash-" + itos(getuid()) + "/files");
-        struct stat s;
-        if (!stat(path.c_str(), &s)) {
-            trash_can = path;
-        }
-    }
-
-    // Otherwise, if ${XDG_DATA_HOME} is defined, use "${XDG_DATA_HOME}/Trash/files" as the trash can.
-    if (trash_can.empty()) {
-        char *dhome = getenv("XDG_DATA_HOME");
-        if (dhome) {
-            trash_can = String(dhome) + "/Trash/files";
-        }
-    }
-
-    // Otherwise, if ${HOME} is defined, use "${HOME}/.local/share/Trash/files" as the trash can.
-    if (trash_can.empty()) {
-        char *home = getenv("HOME");
-        if (home) {
-            trash_can = String(home) + "/.local/share/Trash/files";
-        }
-    }
-
-    // Issue an error if none of the previous locations is appropriate for the trash can.
-    if (trash_can.empty()) {
-        ERR_PRINT("move_to_trash: Could not determine the trash can location");
-        return FAILED;
-    }
-
-    // Create needed directories for decided trash can location.
-    DirAccess *dir_access = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-    Error err = dir_access->make_dir_recursive(trash_can);
-    memdelete(dir_access);
-
-    // Issue an error if trash can is not created proprely.
-    if (err != OK) {
-        ERR_PRINT("move_to_trash: Could not create the trash can \"" + trash_can + "\"");
-        return err;
-    }
-
-    // The trash can is successfully created, now move the given resource to it.
-    // Do not use DirAccess:rename() because it can't move files across multiple mountpoints.
-    Vector<String> mv_args;
-    mv_args.emplace_back(p_path);
-    mv_args.push_back(trash_can);
-    int retval;
-    err = execute("mv", mv_args, true, nullptr, nullptr, &retval);
-
-    // Issue an error if "mv" failed to move the given resource to the trash can.
-    if (err != OK || retval != 0) {
-        ERR_PRINT(
-                "move_to_trash: Could not move the resource \"" + p_path + "\" to the trash can \"" + trash_can + "\"");
-        return FAILED;
-    }
-
-    return OK;
-}
-
 OS::LatinKeyboardVariant OS_X11::get_latin_keyboard_variant() const {
     XkbDescRec *xkbdesc = XkbAllocKeyboard();
     ERR_FAIL_COND_V(!xkbdesc, LATIN_KEYBOARD_QWERTY);
@@ -3553,8 +3665,8 @@ OS::LatinKeyboardVariant OS_X11::get_latin_keyboard_variant() const {
     ERR_FAIL_COND_V(!xkbdesc->names, LATIN_KEYBOARD_QWERTY);
     ERR_FAIL_COND_V(!xkbdesc->names->symbols, LATIN_KEYBOARD_QWERTY);
 
-    char *layout = XGetAtomName(x11_display, xkbdesc->names->symbols);
-    ERR_FAIL_COND_V(!layout, LATIN_KEYBOARD_QWERTY);
+    String layout = StringUtils::to_utf8(get_atom_name(x11_display, xkbdesc->names->symbols));
+    ERR_FAIL_COND_V(layout.empty(), LATIN_KEYBOARD_QWERTY);
 
     Vector<StringView> info = StringUtils::split(layout, '+');
     ERR_FAIL_INDEX_V(1, info.size(), LATIN_KEYBOARD_QWERTY);

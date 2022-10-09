@@ -1,91 +1,120 @@
 #ifndef ENTT_ENTITY_FWD_HPP
 #define ENTT_ENTITY_FWD_HPP
 
-
+#include "EASTL/memory.h"
 #include "../core/fwd.hpp"
+#include "utility.hpp"
 
 namespace eastl {
 class allocator;
 }
-
 namespace entt {
 
-/*! @class basic_registry */
-template <typename,typename>
+template<typename Entity, typename = eastl::allocator> //<Entity>
+class basic_sparse_set;
+
+template<typename, typename Type, typename = eastl::allocator, typename = void> //<Type>
+class basic_storage;
+
+template <typename, typename>
 class basic_registry;
 
-/*! @class basic_view */
-template<typename...>
+template<typename, typename, typename, typename, typename = void>
 class basic_view;
 
-/*! @class basic_runtime_view */
-template<typename,typename>
-class basic_runtime_view;
+template<typename>
+struct basic_runtime_view;
 
-/*! @class basic_group */
-template<typename...>
+template <typename, typename, typename, typename, typename>
 class basic_group;
 
-/*! @class basic_observer */
-template<typename,typename>
+template<typename>
 class basic_observer;
 
-/*! @struct basic_actor */
-template <typename>
-struct basic_actor;
+template<typename>
+class basic_organizer;
 
-/*! @class basic_snapshot */
-template<typename,typename>
+template<typename, typename...>
+struct basic_handle;
+
+template<typename>
 class basic_snapshot;
 
-/*! @class basic_snapshot_loader */
-template<typename, typename>
+template<typename>
 class basic_snapshot_loader;
 
-/*! @class basic_continuous_loader */
-template<typename, typename>
+template<typename>
 class basic_continuous_loader;
 
-/*! @class entity */
-enum class entity: id_type;
+/*! @brief Default entity identifier. */
+enum class entity : id_type {};
+
+/*! @brief Alias declaration for the most common use case. */
+using sparse_set = basic_sparse_set<entity>;
+
+/**
+ * @brief Alias declaration for the most common use case.
+ * @tparam Args Other template parameters.
+ */
+template<typename... Args>
+using storage = basic_storage<entity, Args...>;
 
 /*! @brief Alias declaration for the most common use case. */
 using registry = basic_registry<entity, EASTLAllocatorType>;
 
 /*! @brief Alias declaration for the most common use case. */
-using observer = basic_observer<entity, EASTLAllocatorType>;
+using observer = basic_observer<entity>;
 
 /*! @brief Alias declaration for the most common use case. */
-using actor = basic_actor<entity>;
+using organizer = basic_organizer<entity>;
 
 /*! @brief Alias declaration for the most common use case. */
-using snapshot = basic_snapshot<entity, EASTLAllocatorType>;
+using handle = basic_handle<entity>;
 
 /*! @brief Alias declaration for the most common use case. */
-using snapshot_loader = basic_snapshot_loader<entity, EASTLAllocatorType>;
-
-/*! @brief Alias declaration for the most common use case. */
-using continuous_loader = basic_continuous_loader<entity, EASTLAllocatorType>;
+using const_handle = basic_handle<const entity>;
 
 /**
  * @brief Alias declaration for the most common use case.
- * @tparam Types Types of components iterated by the view.
+ * @tparam Args Other template parameters.
  */
-template<typename... Types>
-using view = basic_view<entity,EASTLAllocatorType, Types...>;
-
-/*! @brief Alias declaration for the most common use case. */
-using runtime_view = basic_runtime_view<entity, EASTLAllocatorType>;
+template<typename... Args>
+using handle_view = basic_handle<entity, Args...>;
 
 /**
  * @brief Alias declaration for the most common use case.
- * @tparam Types Types of components iterated by the group.
+ * @tparam Args Other template parameters.
  */
-template<typename... Types>
-using group = basic_group<entity,EASTLAllocatorType, Types...>;
+template<typename... Args>
+using const_handle_view = basic_handle<const entity, Args...>;
 
+/*! @brief Alias declaration for the most common use case. */
+using snapshot = basic_snapshot<entity>;
 
-}
+/*! @brief Alias declaration for the most common use case. */
+using snapshot_loader = basic_snapshot_loader<entity>;
 
+/*! @brief Alias declaration for the most common use case. */
+using continuous_loader = basic_continuous_loader<entity>;
+
+/**
+ * @brief Alias declaration for the most common use case.
+ * @tparam Get Types of components iterated by the view.
+ * @tparam Exclude Types of components used to filter the view.
+ */
+template<typename Allocator,typename Get, typename Exclude = exclude_t<>>
+using view = basic_view<entity, Allocator, Get, Exclude>;
+
+/*! @brief Alias declaration for the most common use case. */
+using runtime_view = basic_runtime_view<sparse_set>;
+
+/**
+ * @brief Alias declaration for the most common use case.
+ * @tparam Args Other template parameters.
+ */
+template<typename... Args>
+using group = basic_group<entity, Args...>;
+
+} // namespace entt
 
 #endif

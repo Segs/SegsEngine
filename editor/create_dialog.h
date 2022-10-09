@@ -77,7 +77,6 @@ class CreateDialog : public ConfirmationDialog {
     void _confirmed();
     void _text_changed(StringView p_newtext);
 
-    Ref<Texture> _get_editor_icon(const UIString &p_type) const;
 
     void add_type(const StringName &p_type, HashMap<StringName, TreeItem *> &p_types, TreeItem *p_root, TreeItem **to_select);
 
@@ -102,6 +101,7 @@ public:
 
     void set_base_type(const StringName &p_base);
     StringName get_base_type() const;
+    void select_base();
 
     void set_preferred_search_result_type(const StringName &p_preferred_type);
     StringName get_preferred_search_result_type();

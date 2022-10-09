@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  script_language.cpp                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -41,8 +41,23 @@
 
 IMPL_GDCLASS(Script)
 
-ScriptLanguage *ScriptServer::_languages[MAX_LANGUAGES];
-int ScriptServer::_language_count = 0;
+namespace  {
+enum {
+    MAX_LANGUAGES = 16
+};
+
+ScriptLanguage *s_script_languages[MAX_LANGUAGES];
+int _language_count = 0;
+
+struct GlobalScriptClass {
+    StringName language;
+    String path;
+    StringName base;
+};
+
+static HashMap<StringName, GlobalScriptClass> global_classes;
+
+}
 
 bool ScriptServer::scripting_enabled = true;
 bool ScriptServer::reload_scripts_on_save = false;
@@ -105,17 +120,17 @@ Dictionary Script::_get_script_constant_map() {
 }
 void Script::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("can_instance"), &Script::can_instance);
-    //MethodBinder::bind_method(D_METHOD("instance_create","base_object"),&Script::instance_create);
-    MethodBinder::bind_method(D_METHOD("instance_has", {"base_object"}), &Script::instance_has);
-    MethodBinder::bind_method(D_METHOD("has_source_code"), &Script::has_source_code);
-    MethodBinder::bind_method(D_METHOD("get_source_code"), &Script::get_source_code);
-    MethodBinder::bind_method(D_METHOD("set_source_code", {"source"}), &Script::set_source_code);
+    BIND_METHOD(Script,can_instance);
+    //BIND_METHOD(Script,instance_create);
+    BIND_METHOD(Script,instance_has);
+    BIND_METHOD(Script,has_source_code);
+    BIND_METHOD(Script,get_source_code);
+    BIND_METHOD(Script,set_source_code);
     MethodBinder::bind_method(D_METHOD("reload", {"keep_state"}), &Script::reload, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("get_base_script"), &Script::get_base_script);
-    MethodBinder::bind_method(D_METHOD("get_instance_base_type"), &Script::get_instance_base_type);
+    BIND_METHOD(Script,get_base_script);
+    BIND_METHOD(Script,get_instance_base_type);
 
-    MethodBinder::bind_method(D_METHOD("has_script_signal", {"signal_name"}), &Script::has_script_signal);
+    BIND_METHOD(Script,has_script_signal);
 
     MethodBinder::bind_method(D_METHOD("get_script_property_list"), &Script::_get_script_property_list);
     MethodBinder::bind_method(D_METHOD("get_script_method_list"), &Script::_get_script_method_list);
@@ -123,7 +138,7 @@ void Script::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_script_constant_map"), &Script::_get_script_constant_map);
     MethodBinder::bind_method(D_METHOD("get_property_default_value", {"property"}), &Script::_get_property_default_value);
 
-    MethodBinder::bind_method(D_METHOD("is_tool"), &Script::is_tool);
+    BIND_METHOD(Script,is_tool);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "source_code", PropertyHint::None, "", 0), "set_source_code", "get_source_code");
 }
@@ -138,26 +153,30 @@ bool ScriptServer::is_scripting_enabled() {
     return scripting_enabled;
 }
 
+int ScriptServer::get_language_count() {
+    return _language_count;
+}
+
 ScriptLanguage *ScriptServer::get_language(int p_idx) {
 
     ERR_FAIL_INDEX_V(p_idx, _language_count, nullptr);
 
-    return _languages[p_idx];
+    return s_script_languages[p_idx];
 }
 
 void ScriptServer::register_language(ScriptLanguage *p_language) {
 
     ERR_FAIL_COND(_language_count >= MAX_LANGUAGES);
-    _languages[_language_count++] = p_language;
+    s_script_languages[_language_count++] = p_language;
 }
 
 void ScriptServer::unregister_language(ScriptLanguage *p_language) {
 
     for (int i = 0; i < _language_count; i++) {
-        if (_languages[i] == p_language) {
+        if (s_script_languages[i] == p_language) {
             _language_count--;
             if (i < _language_count) {
-                SWAP(_languages[i], _languages[_language_count]);
+                SWAP(s_script_languages[i], s_script_languages[_language_count]);
             }
             return;
         }
@@ -182,10 +201,10 @@ void ScriptServer::init_languages() {
     }
 
     for (int i = 0; i < _language_count; i++) {
-        bool ok = _languages[i]->init();
+        bool ok = s_script_languages[i]->init();
         if(!ok) { // failed to initialize the language.
-            _languages[i]->finish();
-            unregister_language(_languages[i]);
+            s_script_languages[i]->finish();
+            unregister_language(s_script_languages[i]);
         }
     }
 }
@@ -193,7 +212,7 @@ void ScriptServer::init_languages() {
 void ScriptServer::finish_languages() {
 
     for (int i = 0; i < _language_count; i++) {
-        _languages[i]->finish();
+        s_script_languages[i]->finish();
     }
     global_classes_clear();
     languages_finished = true;
@@ -212,18 +231,16 @@ bool ScriptServer::is_reload_scripts_on_save_enabled() {
 void ScriptServer::thread_enter() {
 
     for (int i = 0; i < _language_count; i++) {
-        _languages[i]->thread_enter();
+        s_script_languages[i]->thread_enter();
     }
 }
 
 void ScriptServer::thread_exit() {
 
     for (int i = 0; i < _language_count; i++) {
-        _languages[i]->thread_exit();
+        s_script_languages[i]->thread_exit();
     }
 }
-
-HashMap<StringName, ScriptServer::GlobalScriptClass> ScriptServer::global_classes;
 
 void ScriptServer::global_classes_clear() {
     global_classes.clear();
@@ -275,6 +292,14 @@ void ScriptServer::get_global_class_list(Vector<StringName> *r_global_classes) {
         r_global_classes->emplace_back(e);
     }
 }
+static uint32_t hash(const Vector<Variant> &arr) {
+    uint32_t h = hash_djb2_one_32(0);
+
+    for (const Variant &v : arr) {
+        h = hash_djb2_one_32(v.hash(), h);
+    }
+    return h;
+}
 void ScriptServer::save_global_classes() {
     Vector<StringName> class_names;
     get_global_class_list(&class_names);
@@ -290,6 +315,14 @@ void ScriptServer::save_global_classes() {
         d["path"] = classinfo.path;
         d["base"] = classinfo.base;
         gcarr.emplace_back(eastl::move(d));
+    }
+
+    Array old;
+    if (ProjectSettings::get_singleton()->has_setting("_global_script_classes")) {
+        old = ProjectSettings::get_singleton()->getT<Array>("_global_script_classes");
+    }
+    if ((!old.empty() || gcarr.empty()) && hash(gcarr) == old.hash()) {
+        return;
     }
 
     if (gcarr.empty()) {
@@ -330,17 +363,6 @@ Variant ScriptInstance::call(const StringName &p_method, VARIANT_ARG_DECLARE) {
 
     Callable::CallError error;
     return call(p_method, argptr, argc, error);
-}
-
-void ScriptInstance::property_set_fallback(const StringName &, const Variant &, bool *r_valid) {
-    if (r_valid)
-        *r_valid = false;
-}
-
-Variant ScriptInstance::property_get_fallback(const StringName &, bool *r_valid) {
-    if (r_valid)
-        *r_valid = false;
-    return Variant();
 }
 
 ScriptCodeCompletionCache *ScriptCodeCompletionCache::singleton = nullptr;
@@ -519,7 +541,7 @@ void PlaceHolderScriptInstance::property_set_fallback(const StringName &p_name, 
             }
         }
         if (!found) {
-            properties.push_back(PropertyInfo(p_value.get_type(), p_name, PropertyHint::None,
+            properties.push_back(PropertyInfo(p_value.get_type(), StringName(p_name), PropertyHint::None,
                     nullptr, PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_SCRIPT_VARIABLE));
         }
     }

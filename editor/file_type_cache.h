@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  file_type_cache.h                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,7 +34,7 @@
 #include "core/hash_map.h"
 #include "core/string.h"
 
-class FileTypeCache : Object {
+class FileTypeCache : public Object {
 
     GDCLASS(FileTypeCache,Object)
 

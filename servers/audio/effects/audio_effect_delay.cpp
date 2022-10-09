@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_effect_delay.cpp                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -73,17 +73,17 @@ void AudioEffectDelayInstance::_process_chunk(const AudioFrame *p_src_frames, Au
 
     AudioFrame tap1_vol = AudioFrame(tap_1_level_f, tap_1_level_f);
 
-    tap1_vol.l *= CLAMP(1.0 - base->tap_1_pan, 0, 1);
-    tap1_vol.r *= CLAMP(1.0 + base->tap_1_pan, 0, 1);
+    tap1_vol.l *= CLAMP(1.0f - base->tap_1_pan, 0.0f, 1.0f);
+    tap1_vol.r *= CLAMP(1.0f + base->tap_1_pan, 0.0f, 1.0f);
 
     AudioFrame tap2_vol = AudioFrame(tap_2_level_f, tap_2_level_f);
 
-    tap2_vol.l *= CLAMP(1.0 - base->tap_2_pan, 0, 1);
-    tap2_vol.r *= CLAMP(1.0 + base->tap_2_pan, 0, 1);
+    tap2_vol.l *= CLAMP(1.0f - base->tap_2_pan, 0.0f, 1.0f);
+    tap2_vol.r *= CLAMP(1.0f + base->tap_2_pan, 0.0f, 1.0f);
 
     // feedback lowpass here
-    float lpf_c = expf(-2.0 * Math_PI * base->feedback_lowpass / mix_rate); // 0 .. 10khz
-    float lpf_ic = 1.0 - lpf_c;
+    float lpf_c = expf(-2.0f * Math_PI * base->feedback_lowpass / mix_rate); // 0 .. 10khz
+    float lpf_ic = 1.0f - lpf_c;
 
     const AudioFrame *src = p_src_frames;
     AudioFrame *dst = p_dst_frames;
@@ -269,44 +269,44 @@ float AudioEffectDelay::get_feedback_lowpass() const {
 
 void AudioEffectDelay::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_dry", {"amount"}), &AudioEffectDelay::set_dry);
-    MethodBinder::bind_method(D_METHOD("get_dry"), &AudioEffectDelay::get_dry);
+    BIND_METHOD(AudioEffectDelay,set_dry);
+    BIND_METHOD(AudioEffectDelay,get_dry);
 
-    MethodBinder::bind_method(D_METHOD("set_tap1_active", {"amount"}), &AudioEffectDelay::set_tap1_active);
-    MethodBinder::bind_method(D_METHOD("is_tap1_active"), &AudioEffectDelay::is_tap1_active);
+    BIND_METHOD(AudioEffectDelay,set_tap1_active);
+    BIND_METHOD(AudioEffectDelay,is_tap1_active);
 
-    MethodBinder::bind_method(D_METHOD("set_tap1_delay_ms", {"amount"}), &AudioEffectDelay::set_tap1_delay_ms);
-    MethodBinder::bind_method(D_METHOD("get_tap1_delay_ms"), &AudioEffectDelay::get_tap1_delay_ms);
+    BIND_METHOD(AudioEffectDelay,set_tap1_delay_ms);
+    BIND_METHOD(AudioEffectDelay,get_tap1_delay_ms);
 
-    MethodBinder::bind_method(D_METHOD("set_tap1_level_db", {"amount"}), &AudioEffectDelay::set_tap1_level_db);
-    MethodBinder::bind_method(D_METHOD("get_tap1_level_db"), &AudioEffectDelay::get_tap1_level_db);
+    BIND_METHOD(AudioEffectDelay,set_tap1_level_db);
+    BIND_METHOD(AudioEffectDelay,get_tap1_level_db);
 
-    MethodBinder::bind_method(D_METHOD("set_tap1_pan", {"amount"}), &AudioEffectDelay::set_tap1_pan);
-    MethodBinder::bind_method(D_METHOD("get_tap1_pan"), &AudioEffectDelay::get_tap1_pan);
+    BIND_METHOD(AudioEffectDelay,set_tap1_pan);
+    BIND_METHOD(AudioEffectDelay,get_tap1_pan);
 
-    MethodBinder::bind_method(D_METHOD("set_tap2_active", {"amount"}), &AudioEffectDelay::set_tap2_active);
-    MethodBinder::bind_method(D_METHOD("is_tap2_active"), &AudioEffectDelay::is_tap2_active);
+    BIND_METHOD(AudioEffectDelay,set_tap2_active);
+    BIND_METHOD(AudioEffectDelay,is_tap2_active);
 
-    MethodBinder::bind_method(D_METHOD("set_tap2_delay_ms", {"amount"}), &AudioEffectDelay::set_tap2_delay_ms);
-    MethodBinder::bind_method(D_METHOD("get_tap2_delay_ms"), &AudioEffectDelay::get_tap2_delay_ms);
+    BIND_METHOD(AudioEffectDelay,set_tap2_delay_ms);
+    BIND_METHOD(AudioEffectDelay,get_tap2_delay_ms);
 
-    MethodBinder::bind_method(D_METHOD("set_tap2_level_db", {"amount"}), &AudioEffectDelay::set_tap2_level_db);
-    MethodBinder::bind_method(D_METHOD("get_tap2_level_db"), &AudioEffectDelay::get_tap2_level_db);
+    BIND_METHOD(AudioEffectDelay,set_tap2_level_db);
+    BIND_METHOD(AudioEffectDelay,get_tap2_level_db);
 
-    MethodBinder::bind_method(D_METHOD("set_tap2_pan", {"amount"}), &AudioEffectDelay::set_tap2_pan);
-    MethodBinder::bind_method(D_METHOD("get_tap2_pan"), &AudioEffectDelay::get_tap2_pan);
+    BIND_METHOD(AudioEffectDelay,set_tap2_pan);
+    BIND_METHOD(AudioEffectDelay,get_tap2_pan);
 
-    MethodBinder::bind_method(D_METHOD("set_feedback_active", {"amount"}), &AudioEffectDelay::set_feedback_active);
-    MethodBinder::bind_method(D_METHOD("is_feedback_active"), &AudioEffectDelay::is_feedback_active);
+    BIND_METHOD(AudioEffectDelay,set_feedback_active);
+    BIND_METHOD(AudioEffectDelay,is_feedback_active);
 
-    MethodBinder::bind_method(D_METHOD("set_feedback_delay_ms", {"amount"}), &AudioEffectDelay::set_feedback_delay_ms);
-    MethodBinder::bind_method(D_METHOD("get_feedback_delay_ms"), &AudioEffectDelay::get_feedback_delay_ms);
+    BIND_METHOD(AudioEffectDelay,set_feedback_delay_ms);
+    BIND_METHOD(AudioEffectDelay,get_feedback_delay_ms);
 
-    MethodBinder::bind_method(D_METHOD("set_feedback_level_db", {"amount"}), &AudioEffectDelay::set_feedback_level_db);
-    MethodBinder::bind_method(D_METHOD("get_feedback_level_db"), &AudioEffectDelay::get_feedback_level_db);
+    BIND_METHOD(AudioEffectDelay,set_feedback_level_db);
+    BIND_METHOD(AudioEffectDelay,get_feedback_level_db);
 
-    MethodBinder::bind_method(D_METHOD("set_feedback_lowpass", {"amount"}), &AudioEffectDelay::set_feedback_lowpass);
-    MethodBinder::bind_method(D_METHOD("get_feedback_lowpass"), &AudioEffectDelay::get_feedback_lowpass);
+    BIND_METHOD(AudioEffectDelay,set_feedback_lowpass);
+    BIND_METHOD(AudioEffectDelay,get_feedback_lowpass);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "dry", PropertyHint::Range, "0,1,0.01"), "set_dry", "get_dry");
 

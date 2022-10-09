@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  callable.h                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,11 +32,11 @@
 
 #define QT_NO_EMIT
 
-#include "core/list.h"
 #include "core/vector.h"
-#include "core/object_id.h"
+#include "core/engine_entities.h"
 #include "core/string_name.h"
 #include "core/error_list.h"
+#include "entt/entity/entity.hpp"
 
 class Object;
 class Variant;
@@ -52,9 +52,10 @@ class GODOT_EXPORT Callable {
     //needs to be max 16 bytes in 64 bits
     StringName method;
     union {
-        uint64_t object = 0;
+        GameEntity object;
         CallableCustom *custom;
     };
+    bool custom_method=false;
 
 public:
     struct CallError {
@@ -75,20 +76,20 @@ public:
     //void call_deferred(const Variant **p_arguments, int p_argcount) const;
 
     _FORCE_INLINE_ bool is_null() const {
-        return method == StringName() && object == 0;
+        return method.empty() && (custom_method ? custom == nullptr : object == entt::null);
     }
     _FORCE_INLINE_ bool is_valid() const {
         return !is_null();
     }
     _FORCE_INLINE_ bool is_custom() const {
-        return method == StringName() && custom != nullptr;
+        return method.empty() && custom_method && custom != nullptr;
     }
     _FORCE_INLINE_ bool is_standard() const {
-        return method != StringName();
+        return !method.empty();
     }
 
     [[nodiscard]] Object *get_object() const;
-    [[nodiscard]] ObjectID get_object_id() const;
+    [[nodiscard]] GameEntity get_object_id() const;
     [[nodiscard]] StringName get_method() const;
     [[nodiscard]] CallableCustom *get_custom() const;
 
@@ -107,10 +108,10 @@ public:
     operator String() const;
 
     Callable(const Object *p_object, const StringName &p_method);
-    Callable(ObjectID p_object, const StringName &p_method);
+    Callable(GameEntity p_object, const StringName &p_method);
     Callable(CallableCustom *p_custom);
     Callable(const Callable &p_callable);
-    Callable()  = default;
+    Callable() { object = entt::null; }
     ~Callable();
 };
 
@@ -128,7 +129,7 @@ public:
     virtual String get_as_text() const = 0;
     virtual CompareEqualFunc get_compare_equal_func() const = 0;
     virtual CompareLessFunc get_compare_less_func() const = 0;
-    virtual ObjectID get_object() const = 0; //must always be able to provide an object
+    virtual GameEntity get_object() const = 0; //must always be able to provide an object
     virtual void call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, Callable::CallError &r_call_error) const = 0;
     CallableCustom();
     virtual ~CallableCustom() {}
@@ -140,14 +141,14 @@ public:
 // used by the engine itself.
 class GODOT_EXPORT Signal {
     StringName name;
-    ObjectID object;
+    GameEntity object;
 
 public:
     _FORCE_INLINE_ bool is_null() const {
-        return object.is_null() && name == StringName();
+        return object==entt::null && name.empty();
     }
     [[nodiscard]] Object *get_object() const;
-    [[nodiscard]] ObjectID get_object_id() const;
+    [[nodiscard]] GameEntity get_object_id() const;
     [[nodiscard]] StringName get_name() const;
 
     bool operator==(const Signal &p_signal) const {
@@ -159,13 +160,13 @@ public:
     operator String() const;
 
     //void emit_signal(const Variant **p_arguments, int p_argcount) const;
-    Error connect(const Callable &p_callable, const Vector<Variant> &p_binds, uint32_t p_flags = 0);
+    Error connect(const Callable &p_callable, uint32_t p_flags = 0);
     void disconnect(const Callable &p_callable);
     [[nodiscard]] bool is_connected(const Callable &p_callable) const;
 
     [[nodiscard]] Array get_connections() const;
     Signal(const Object *p_object, const StringName &p_name);
-    Signal(ObjectID p_object, const StringName& p_name) : name(p_name), object(p_object) {
+    Signal(GameEntity p_object, const StringName& p_name) : name(p_name), object(p_object) {
     }
     Signal() = default;
 };

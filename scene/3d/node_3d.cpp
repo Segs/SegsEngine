@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  node_3d.cpp                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,6 +31,7 @@
 #include "node_3d.h"
 
 #include "core/engine.h"
+#include "core/ecs_registry.h"
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
@@ -38,6 +39,7 @@
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 #include "scene/scene_string_names.h"
+#include "servers/rendering_server_callbacks.h"
 
 IMPL_GDCLASS(Node3DGizmo)
 IMPL_GDCLASS(Node3D)
@@ -82,12 +84,12 @@ Node3DGizmo::Node3DGizmo() {
 void Node3D::_notify_dirty() {
 
 #ifdef TOOLS_ENABLED
-    if ((data.gizmo || data.notify_transform) && !data.ignore_notification && !xform_change.in_list()) {
+    if ((data.gizmo || data.notify_transform) && !data.ignore_notification && !is_dirty_xfrom(get_instance_id())) {
 #else
     if (data.notify_transform && !data.ignore_notification && !xform_change.in_list()) {
 
 #endif
-        get_tree()->xform_change_list.add(&xform_change);
+        mark_dirty_xform(get_instance_id());
     }
 }
 
@@ -117,15 +119,34 @@ void Node3D::_propagate_transform_changed(Node3D *p_origin) {
         E->_propagate_transform_changed(p_origin);
     }
 #ifdef TOOLS_ENABLED
-    if ((data.gizmo || data.notify_transform) && !data.ignore_notification && !xform_change.in_list()) {
+    if ((data.gizmo || data.notify_transform) && !data.ignore_notification && !is_dirty_xfrom(get_instance_id())) {
 #else
-    if (data.notify_transform && !data.ignore_notification && !xform_change.in_list()) {
+    if (data.notify_transform && !data.ignore_notification && !is_dirty_xfrom(get_instance_id())) {
 #endif
-        get_tree()->xform_change_list.add(&xform_change);
+        mark_dirty_xform(get_instance_id());
     }
     data.dirty |= DIRTY_GLOBAL;
 
     data.children_lock--;
+}
+
+void Node3D::notification_callback(int p_message_type) {
+    switch (p_message_type) {
+        default:
+            break;
+        case RenderingServerCallbacks::CALLBACK_NOTIFICATION_ENTER_GAMEPLAY: {
+            notification(NOTIFICATION_ENTER_GAMEPLAY);
+        } break;
+        case RenderingServerCallbacks::CALLBACK_NOTIFICATION_EXIT_GAMEPLAY: {
+            notification(NOTIFICATION_EXIT_GAMEPLAY);
+        } break;
+        case RenderingServerCallbacks::CALLBACK_SIGNAL_ENTER_GAMEPLAY: {
+            emit_signal("gameplay_entered");
+        } break;
+        case RenderingServerCallbacks::CALLBACK_SIGNAL_EXIT_GAMEPLAY: {
+            emit_signal("gameplay_exited");
+        } break;
+    }
 }
 
 void Node3D::_notification(int p_what) {
@@ -139,7 +160,7 @@ void Node3D::_notification(int p_what) {
                 data.parent = object_cast<Node3D>(p);
 
             if (data.parent)
-                data.parent->data.children.push_back(this);
+                data.parent->data.children.emplace_back(this);
 
             if (data.toplevel && !Engine::get_singleton()->is_editor_hint()) {
 
@@ -159,8 +180,7 @@ void Node3D::_notification(int p_what) {
         case NOTIFICATION_EXIT_TREE: {
 
             notification(NOTIFICATION_EXIT_WORLD, true);
-            if (xform_change.in_list())
-                get_tree()->xform_change_list.remove(&xform_change);
+            mark_clean_xform(get_instance_id());
 
             if (data.parent)
                 data.parent->data.children.erase_first(this);
@@ -205,7 +225,7 @@ void Node3D::_notification(int p_what) {
 
 #ifdef TOOLS_ENABLED
             if (data.gizmo) {
-                data.gizmo->free();
+                data.gizmo->free_gizmo();
                 data.gizmo.unref();
             }
 #endif
@@ -248,8 +268,7 @@ void Node3D::set_transform(const Transform &p_transform) {
 
 void Node3D::set_global_transform(const Transform &p_transform) {
 
-    Transform xform =
-            (data.parent && !data.toplevel_active) ?
+    Transform xform = (data.parent && !data.toplevel_active) ?
                     data.parent->get_global_transform().affine_inverse() * p_transform :
                     p_transform;
 
@@ -269,27 +288,27 @@ Transform Node3D::get_global_transform() const {
 
     ERR_FAIL_COND_V(!is_inside_tree(), Transform());
 
-    if (data.dirty & DIRTY_GLOBAL) {
+    if (!(data.dirty & DIRTY_GLOBAL))
+        return data.global_transform;
 
-        if (data.dirty & DIRTY_LOCAL) {
+    if (data.dirty & DIRTY_LOCAL) {
 
-            _update_local_transform();
-        }
-
-        if (data.parent && !data.toplevel_active) {
-
-            data.global_transform = data.parent->get_global_transform() * data.local_transform;
-        } else {
-
-            data.global_transform = data.local_transform;
-        }
-
-        if (data.disable_scale) {
-            data.global_transform.basis.orthonormalize();
-        }
-
-        data.dirty &= ~DIRTY_GLOBAL;
+        _update_local_transform();
     }
+
+    if (data.parent && !data.toplevel_active) {
+
+        data.global_transform = data.parent->get_global_transform() * data.local_transform;
+    } else {
+
+        data.global_transform = data.local_transform;
+    }
+
+    if (data.disable_scale) {
+        data.global_transform.basis.orthonormalize();
+    }
+
+    data.dirty &= ~DIRTY_GLOBAL;
 
     return data.global_transform;
 }
@@ -302,11 +321,19 @@ Transform Node3D::get_global_gizmo_transform() const {
 Transform Node3D::get_local_gizmo_transform() const {
     return get_transform();
 }
+// If not a VisualInstance, use this AABB for the orange box in the editor
+AABB Node3D::get_fallback_gizmo_aabb() const {
+    return AABB(Vector3(-0.2, -0.2, -0.2), Vector3(0.4, 0.4, 0.4));
+}
 #endif
 
 Node3D *Node3D::get_parent_spatial() const {
 
     return data.parent;
+}
+
+void Node3D::_set_vi_visible(bool p_visible) {
+    data.vi_visible = p_visible;
 }
 
 Transform Node3D::get_relative_transform(const Node *p_parent) const {
@@ -427,7 +454,7 @@ void Node3D::set_gizmo(const Ref<Node3DGizmo> &p_gizmo) {
     if (data.gizmo_disabled)
         return;
     if (data.gizmo && is_inside_world())
-        data.gizmo->free();
+        data.gizmo->free_gizmo();
     data.gizmo = p_gizmo;
     if (data.gizmo && is_inside_world()) {
 
@@ -467,15 +494,14 @@ void Node3D::_update_gizmo() {
 #endif
 }
 
-#ifdef TOOLS_ENABLED
 void Node3D::set_disable_gizmo(bool p_enabled) {
+#ifdef TOOLS_ENABLED
 
     data.gizmo_disabled = p_enabled;
     if (!p_enabled && data.gizmo)
         data.gizmo = Ref<Node3DGizmo>();
-}
-
 #endif
+}
 
 void Node3D::set_disable_scale(bool p_enabled) {
 
@@ -510,12 +536,12 @@ bool Node3D::is_set_as_top_level() const {
     return data.toplevel;
 }
 
-Ref<World3D> Node3D::get_world() const {
+Ref<World3D> Node3D::get_world_3d() const {
 
     ERR_FAIL_COND_V(!is_inside_world(), Ref<World3D>());
     ERR_FAIL_COND_V(!data.viewport, Ref<World3D>());
 
-    return data.viewport->find_world();
+    return data.viewport->find_world_3d();
 }
 
 void Node3D::_propagate_visibility_changed() {
@@ -524,14 +550,16 @@ void Node3D::_propagate_visibility_changed() {
     emit_signal(SceneStringNames::visibility_changed);
     Object_change_notify(this,"visible");
 #ifdef TOOLS_ENABLED
-    if (data.gizmo)
+    if (data.gizmo) {
         _update_gizmo();
+    }
 #endif
 
     for (Node3D * c : data.children) {
 
-        if (!c || !c->data.visible)
+        if (!c || !c->data.visible) {
             continue;
+        }
         c->_propagate_visibility_changed();
     }
 }
@@ -544,8 +572,9 @@ void Node3D::show() {
 
     data.visible = true;
 
-    if (!is_inside_tree())
+    if (!is_inside_tree()) {
         return;
+    }
 
     _propagate_visibility_changed();
 }
@@ -695,6 +724,7 @@ void Node3D::look_at(const Vector3 &p_target, const Vector3 &p_up) {
 void Node3D::look_at_from_position(const Vector3 &p_pos, const Vector3 &p_target, const Vector3 &p_up) {
 
     ERR_FAIL_COND_MSG(p_pos == p_target, "Node origin and target are in the same position, look_at() failed.");
+    ERR_FAIL_COND_MSG(p_up == Vector3(), "The up vector can't be zero, look_at() failed.");
     ERR_FAIL_COND_MSG(p_up.cross(p_target - p_pos) == Vector3(), "Up vector and direction between node origin and target are aligned, look_at() failed.");
 
     Transform lookat;
@@ -734,80 +764,82 @@ bool Node3D::is_local_transform_notification_enabled() const {
 
 void Node3D::force_update_transform() {
     ERR_FAIL_COND(!is_inside_tree());
-    if (!xform_change.in_list()) {
+    if (!is_dirty_xfrom(get_instance_id())) {
         return; //nothing to update
     }
-    get_tree()->xform_change_list.remove(&xform_change);
+    mark_clean_xform(get_instance_id());
 
     notification(NOTIFICATION_TRANSFORM_CHANGED);
 }
 
 void Node3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_transform", {"local"}), &Node3D::set_transform);
-    MethodBinder::bind_method(D_METHOD("get_transform"), &Node3D::get_transform);
-    MethodBinder::bind_method(D_METHOD("set_translation", {"translation"}), &Node3D::set_translation);
-    MethodBinder::bind_method(D_METHOD("get_translation"), &Node3D::get_translation);
-    MethodBinder::bind_method(D_METHOD("set_rotation", {"euler"}), &Node3D::set_rotation);
-    MethodBinder::bind_method(D_METHOD("get_rotation"), &Node3D::get_rotation);
-    MethodBinder::bind_method(D_METHOD("set_rotation_degrees", {"euler_degrees"}), &Node3D::set_rotation_degrees);
-    MethodBinder::bind_method(D_METHOD("get_rotation_degrees"), &Node3D::get_rotation_degrees);
-    MethodBinder::bind_method(D_METHOD("set_scale", {"scale"}), &Node3D::set_scale);
-    MethodBinder::bind_method(D_METHOD("get_scale"), &Node3D::get_scale);
-    MethodBinder::bind_method(D_METHOD("set_global_transform", {"global"}), &Node3D::set_global_transform);
-    MethodBinder::bind_method(D_METHOD("get_global_transform"), &Node3D::get_global_transform);
-    MethodBinder::bind_method(D_METHOD("get_parent_spatial"), &Node3D::get_parent_spatial);
-    MethodBinder::bind_method(D_METHOD("set_ignore_transform_notification", {"enabled"}), &Node3D::set_ignore_transform_notification);
-    MethodBinder::bind_method(D_METHOD("set_as_top_level", {"enable"}), &Node3D::set_as_top_level);
-    MethodBinder::bind_method(D_METHOD("is_set_as_top_level"), &Node3D::is_set_as_top_level);
-    MethodBinder::bind_method(D_METHOD("set_disable_scale", {"disable"}), &Node3D::set_disable_scale);
-    MethodBinder::bind_method(D_METHOD("is_scale_disabled"), &Node3D::is_scale_disabled);
-    MethodBinder::bind_method(D_METHOD("get_world"), &Node3D::get_world);
+    BIND_METHOD(Node3D,set_transform);
+    BIND_METHOD(Node3D,get_transform);
+    BIND_METHOD(Node3D,set_translation);
+    BIND_METHOD(Node3D,get_translation);
+    BIND_METHOD(Node3D,set_rotation);
+    BIND_METHOD(Node3D,get_rotation);
+    BIND_METHOD(Node3D,set_rotation_degrees);
+    BIND_METHOD(Node3D,get_rotation_degrees);
+    BIND_METHOD(Node3D,set_scale);
+    BIND_METHOD(Node3D,get_scale);
+    BIND_METHOD(Node3D,set_global_transform);
+    BIND_METHOD(Node3D,get_global_transform);
+    BIND_METHOD(Node3D,get_parent_spatial);
+    BIND_METHOD(Node3D,set_ignore_transform_notification);
+    BIND_METHOD(Node3D,set_as_top_level);
+    BIND_METHOD(Node3D,is_set_as_top_level);
+    BIND_METHOD(Node3D,set_disable_scale);
+    BIND_METHOD(Node3D,is_scale_disabled);
+    BIND_METHOD(Node3D,get_world_3d);
 
-    MethodBinder::bind_method(D_METHOD("force_update_transform"), &Node3D::force_update_transform);
+    BIND_METHOD(Node3D,force_update_transform);
 
-    MethodBinder::bind_method(D_METHOD("_update_gizmo"), &Node3D::_update_gizmo);
+    BIND_METHOD(Node3D,_update_gizmo);
 
-    MethodBinder::bind_method(D_METHOD("update_gizmo"), &Node3D::update_gizmo);
-    MethodBinder::bind_method(D_METHOD("set_gizmo", {"gizmo"}), &Node3D::set_gizmo);
-    MethodBinder::bind_method(D_METHOD("get_gizmo"), &Node3D::get_gizmo);
+    BIND_METHOD(Node3D,update_gizmo);
+    BIND_METHOD(Node3D,set_gizmo);
+    BIND_METHOD(Node3D,get_gizmo);
 
-    MethodBinder::bind_method(D_METHOD("set_visible", {"visible"}), &Node3D::set_visible);
-    MethodBinder::bind_method(D_METHOD("is_visible"), &Node3D::is_visible);
-    MethodBinder::bind_method(D_METHOD("is_visible_in_tree"), &Node3D::is_visible_in_tree);
-    MethodBinder::bind_method(D_METHOD("show"), &Node3D::show);
-    MethodBinder::bind_method(D_METHOD("hide"), &Node3D::hide);
+    BIND_METHOD(Node3D,set_visible);
+    BIND_METHOD(Node3D,is_visible);
+    BIND_METHOD(Node3D,is_visible_in_tree);
+    BIND_METHOD(Node3D,show);
+    BIND_METHOD(Node3D,hide);
 
-    MethodBinder::bind_method(D_METHOD("set_notify_local_transform", {"enable"}), &Node3D::set_notify_local_transform);
-    MethodBinder::bind_method(D_METHOD("is_local_transform_notification_enabled"), &Node3D::is_local_transform_notification_enabled);
+    BIND_METHOD(Node3D,set_notify_local_transform);
+    BIND_METHOD(Node3D,is_local_transform_notification_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_notify_transform", {"enable"}), &Node3D::set_notify_transform);
-    MethodBinder::bind_method(D_METHOD("is_transform_notification_enabled"), &Node3D::is_transform_notification_enabled);
+    BIND_METHOD(Node3D,set_notify_transform);
+    BIND_METHOD(Node3D,is_transform_notification_enabled);
 
-    MethodBinder::bind_method(D_METHOD("rotate", {"axis", "angle"}), &Node3D::rotate);
-    MethodBinder::bind_method(D_METHOD("global_rotate", {"axis", "angle"}), &Node3D::global_rotate);
-    MethodBinder::bind_method(D_METHOD("global_scale", {"scale"}), &Node3D::global_scale);
-    MethodBinder::bind_method(D_METHOD("global_translate", {"offset"}), &Node3D::global_translate);
-    MethodBinder::bind_method(D_METHOD("rotate_object_local", {"axis", "angle"}), &Node3D::rotate_object_local);
-    MethodBinder::bind_method(D_METHOD("scale_object_local", {"scale"}), &Node3D::scale_object_local);
-    MethodBinder::bind_method(D_METHOD("translate_object_local", {"offset"}), &Node3D::translate_object_local);
-    MethodBinder::bind_method(D_METHOD("rotate_x", {"angle"}), &Node3D::rotate_x);
-    MethodBinder::bind_method(D_METHOD("rotate_y", {"angle"}), &Node3D::rotate_y);
-    MethodBinder::bind_method(D_METHOD("rotate_z", {"angle"}), &Node3D::rotate_z);
-    MethodBinder::bind_method(D_METHOD("translate", {"offset"}), &Node3D::translate);
-    MethodBinder::bind_method(D_METHOD("orthonormalize"), &Node3D::orthonormalize);
-    MethodBinder::bind_method(D_METHOD("set_identity"), &Node3D::set_identity);
+    BIND_METHOD(Node3D,rotate);
+    BIND_METHOD(Node3D,global_rotate);
+    BIND_METHOD(Node3D,global_scale);
+    BIND_METHOD(Node3D,global_translate);
+    BIND_METHOD(Node3D,rotate_object_local);
+    BIND_METHOD(Node3D,scale_object_local);
+    BIND_METHOD(Node3D,translate_object_local);
+    BIND_METHOD(Node3D,rotate_x);
+    BIND_METHOD(Node3D,rotate_y);
+    BIND_METHOD(Node3D,rotate_z);
+    BIND_METHOD(Node3D,translate);
+    BIND_METHOD(Node3D,orthonormalize);
+    BIND_METHOD(Node3D,set_identity);
 
-    MethodBinder::bind_method(D_METHOD("look_at", {"target", "up"}), &Node3D::look_at);
-    MethodBinder::bind_method(D_METHOD("look_at_from_position", {"position", "target", "up"}), &Node3D::look_at_from_position);
+    BIND_METHOD(Node3D,look_at);
+    BIND_METHOD(Node3D,look_at_from_position);
 
-    MethodBinder::bind_method(D_METHOD("to_local", {"global_point"}), &Node3D::to_local);
-    MethodBinder::bind_method(D_METHOD("to_global", {"local_point"}), &Node3D::to_global);
+    BIND_METHOD(Node3D,to_local);
+    BIND_METHOD(Node3D,to_global);
 
     BIND_CONSTANT(NOTIFICATION_TRANSFORM_CHANGED);
     BIND_CONSTANT(NOTIFICATION_ENTER_WORLD);
     BIND_CONSTANT(NOTIFICATION_EXIT_WORLD);
     BIND_CONSTANT(NOTIFICATION_VISIBILITY_CHANGED);
+    BIND_CONSTANT(NOTIFICATION_ENTER_GAMEPLAY);
+    BIND_CONSTANT(NOTIFICATION_EXIT_GAMEPLAY);
 
     //ADD_PROPERTY( PropertyInfo(VariantType::TRANSFORM,"transform/global",PropertyHint::None, "", PROPERTY_USAGE_EDITOR ), "set_global_transform", "get_global_transform") ;
     ADD_GROUP("Transform", "");
@@ -824,10 +856,11 @@ void Node3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "gizmo", PropertyHint::ResourceType, "Node3DGizmo", 0), "set_gizmo", "get_gizmo");
 
     ADD_SIGNAL(MethodInfo("visibility_changed"));
+    ADD_SIGNAL(MethodInfo("gameplay_entered"));
+    ADD_SIGNAL(MethodInfo("gameplay_exited"));
 }
 
-Node3D::Node3D() :
-        xform_change(this) {
+Node3D::Node3D() {
 
     data.dirty = DIRTY_NONE;
     data.children_lock = 0;
@@ -840,6 +873,7 @@ Node3D::Node3D() :
     data.inside_world = false;
     data.visible = true;
     data.disable_scale = false;
+    data.vi_visible = true;
 
 #ifdef TOOLS_ENABLED
     data.gizmo_disabled = false;
@@ -851,6 +885,4 @@ Node3D::Node3D() :
 }
 
 Node3D::~Node3D() {
-    if(xform_change.in_list())
-        get_tree()->xform_change_list.remove(&xform_change);
 }

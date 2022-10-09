@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  gpu_particles_3d.cpp                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -122,9 +122,7 @@ void GPUParticles3D::set_use_local_coordinates(bool p_enable) {
 void GPUParticles3D::set_process_material(const Ref<Material> &p_material) {
 
     process_material = p_material;
-    RID material_rid;
-    if (process_material)
-        material_rid = process_material->get_rid();
+    RenderingEntity material_rid = process_material ? process_material->get_rid() : entt::null;
     RenderingServer::get_singleton()->particles_set_process_material(particles, material_rid);
 
     update_configuration_warning();
@@ -212,9 +210,7 @@ void GPUParticles3D::set_draw_pass_mesh(int p_pass, const Ref<Mesh> &p_mesh) {
 
     draw_passes[p_pass] = p_mesh;
 
-    RID mesh_rid;
-    if (p_mesh)
-        mesh_rid = p_mesh->get_rid();
+    RenderingEntity mesh_rid =  p_mesh ? p_mesh->get_rid() : entt::null;
 
     RenderingServer::get_singleton()->particles_set_draw_pass_mesh(particles, p_pass, mesh_rid);
 
@@ -249,13 +245,24 @@ bool GPUParticles3D::get_fractional_delta() const {
 String GPUParticles3D::get_configuration_warning() const {
 
     String warnings = BaseClassName::get_configuration_warning();
+#ifdef OSX_ENABLED
+    if (!warnings.empty()) {
+        warnings += "\n\n";
+    }
+
+    warnings +=
+            "- " + TTR("On macOS, Particles rendering is much slower than CPUParticles due to transform feedback being "
+                       "implemented on the CPU instead of the GPU.\nConsider using CPUParticles instead when targeting "
+                       "macOS.\nYou can use the \"Convert to CPUParticles\" toolbar option for this purpose.");
+#endif
 
     bool meshes_found = false;
     bool anim_material_found = false;
 
     for (const Ref<Mesh> & pass : draw_passes) {
-        if (!pass)
+        if (!pass) {
             continue;
+        }
         Mesh *m = pass.get();
         meshes_found = true;
         for (int j = 0; j < m->get_surface_count(); j++) {
@@ -263,12 +270,13 @@ String GPUParticles3D::get_configuration_warning() const {
             SpatialMaterial *spat = object_cast<SpatialMaterial>(m->surface_get_material(j).get());
             anim_material_found = anim_material_found || (spat && spat->get_billboard_mode() == SpatialMaterial::BILLBOARD_PARTICLES);
         }
-        if (anim_material_found) break;
+        if (anim_material_found) {
+            break;
+        }
     }
 
-    anim_material_found = anim_material_found || object_cast<ShaderMaterial>(get_material_override().get()) != nullptr;
     SpatialMaterial *spat = object_cast<SpatialMaterial>(get_material_override().get());
-    anim_material_found = anim_material_found || (spat && spat->get_billboard_mode() == SpatialMaterial::BILLBOARD_PARTICLES);
+    anim_material_found = anim_material_found || spat != nullptr;
 
     if (!meshes_found) {
         if (!warnings.empty())
@@ -281,6 +289,7 @@ String GPUParticles3D::get_configuration_warning() const {
             warnings += '\n';
         warnings += String("- ") + TTRS("A material to process the particles is not assigned, so no behavior is imprinted.");
     } else {
+        anim_material_found = anim_material_found || (spat && spat->get_billboard_mode() == SpatialMaterial::BILLBOARD_PARTICLES);
         const ParticlesMaterial *process = object_cast<ParticlesMaterial>(process_material.get());
         if (!anim_material_found && process &&
                 (process->get_param(ParticlesMaterial::PARAM_ANIM_SPEED) != 0.0f || process->get_param(ParticlesMaterial::PARAM_ANIM_OFFSET) != 0.0f ||
@@ -347,46 +356,46 @@ void GPUParticles3D::_notification(int p_what) {
 
 void GPUParticles3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_emitting", {"emitting"}), &GPUParticles3D::set_emitting);
-    MethodBinder::bind_method(D_METHOD("set_amount", {"amount"}), &GPUParticles3D::set_amount);
-    MethodBinder::bind_method(D_METHOD("set_lifetime", {"secs"}), &GPUParticles3D::set_lifetime);
-    MethodBinder::bind_method(D_METHOD("set_one_shot", {"enable"}), &GPUParticles3D::set_one_shot);
-    MethodBinder::bind_method(D_METHOD("set_pre_process_time", {"secs"}), &GPUParticles3D::set_pre_process_time);
-    MethodBinder::bind_method(D_METHOD("set_explosiveness_ratio", {"ratio"}), &GPUParticles3D::set_explosiveness_ratio);
-    MethodBinder::bind_method(D_METHOD("set_randomness_ratio", {"ratio"}), &GPUParticles3D::set_randomness_ratio);
-    MethodBinder::bind_method(D_METHOD("set_visibility_aabb", {"aabb"}), &GPUParticles3D::set_visibility_aabb);
-    MethodBinder::bind_method(D_METHOD("set_use_local_coordinates", {"enable"}), &GPUParticles3D::set_use_local_coordinates);
-    MethodBinder::bind_method(D_METHOD("set_fixed_fps", {"fps"}), &GPUParticles3D::set_fixed_fps);
-    MethodBinder::bind_method(D_METHOD("set_fractional_delta", {"enable"}), &GPUParticles3D::set_fractional_delta);
-    MethodBinder::bind_method(D_METHOD("set_process_material", {"material"}), &GPUParticles3D::set_process_material);
-    MethodBinder::bind_method(D_METHOD("set_speed_scale", {"scale"}), &GPUParticles3D::set_speed_scale);
+    BIND_METHOD(GPUParticles3D,set_emitting);
+    BIND_METHOD(GPUParticles3D,set_amount);
+    BIND_METHOD(GPUParticles3D,set_lifetime);
+    BIND_METHOD(GPUParticles3D,set_one_shot);
+    BIND_METHOD(GPUParticles3D,set_pre_process_time);
+    BIND_METHOD(GPUParticles3D,set_explosiveness_ratio);
+    BIND_METHOD(GPUParticles3D,set_randomness_ratio);
+    BIND_METHOD(GPUParticles3D,set_visibility_aabb);
+    BIND_METHOD(GPUParticles3D,set_use_local_coordinates);
+    BIND_METHOD(GPUParticles3D,set_fixed_fps);
+    BIND_METHOD(GPUParticles3D,set_fractional_delta);
+    BIND_METHOD(GPUParticles3D,set_process_material);
+    BIND_METHOD(GPUParticles3D,set_speed_scale);
 
-    MethodBinder::bind_method(D_METHOD("is_emitting"), &GPUParticles3D::is_emitting);
-    MethodBinder::bind_method(D_METHOD("get_amount"), &GPUParticles3D::get_amount);
-    MethodBinder::bind_method(D_METHOD("get_lifetime"), &GPUParticles3D::get_lifetime);
-    MethodBinder::bind_method(D_METHOD("get_one_shot"), &GPUParticles3D::get_one_shot);
-    MethodBinder::bind_method(D_METHOD("get_pre_process_time"), &GPUParticles3D::get_pre_process_time);
-    MethodBinder::bind_method(D_METHOD("get_explosiveness_ratio"), &GPUParticles3D::get_explosiveness_ratio);
-    MethodBinder::bind_method(D_METHOD("get_randomness_ratio"), &GPUParticles3D::get_randomness_ratio);
-    MethodBinder::bind_method(D_METHOD("get_visibility_aabb"), &GPUParticles3D::get_visibility_aabb);
-    MethodBinder::bind_method(D_METHOD("get_use_local_coordinates"), &GPUParticles3D::get_use_local_coordinates);
-    MethodBinder::bind_method(D_METHOD("get_fixed_fps"), &GPUParticles3D::get_fixed_fps);
-    MethodBinder::bind_method(D_METHOD("get_fractional_delta"), &GPUParticles3D::get_fractional_delta);
-    MethodBinder::bind_method(D_METHOD("get_process_material"), &GPUParticles3D::get_process_material);
-    MethodBinder::bind_method(D_METHOD("get_speed_scale"), &GPUParticles3D::get_speed_scale);
+    BIND_METHOD(GPUParticles3D,is_emitting);
+    BIND_METHOD(GPUParticles3D,get_amount);
+    BIND_METHOD(GPUParticles3D,get_lifetime);
+    BIND_METHOD(GPUParticles3D,get_one_shot);
+    BIND_METHOD(GPUParticles3D,get_pre_process_time);
+    BIND_METHOD(GPUParticles3D,get_explosiveness_ratio);
+    BIND_METHOD(GPUParticles3D,get_randomness_ratio);
+    BIND_METHOD(GPUParticles3D,get_visibility_aabb);
+    BIND_METHOD(GPUParticles3D,get_use_local_coordinates);
+    BIND_METHOD(GPUParticles3D,get_fixed_fps);
+    BIND_METHOD(GPUParticles3D,get_fractional_delta);
+    BIND_METHOD(GPUParticles3D,get_process_material);
+    BIND_METHOD(GPUParticles3D,get_speed_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_draw_order", {"order"}), &GPUParticles3D::set_draw_order);
+    BIND_METHOD(GPUParticles3D,set_draw_order);
 
-    MethodBinder::bind_method(D_METHOD("get_draw_order"), &GPUParticles3D::get_draw_order);
+    BIND_METHOD(GPUParticles3D,get_draw_order);
 
-    MethodBinder::bind_method(D_METHOD("set_draw_passes", {"passes"}), &GPUParticles3D::set_draw_passes);
-    MethodBinder::bind_method(D_METHOD("set_draw_pass_mesh", {"pass", "mesh"}), &GPUParticles3D::set_draw_pass_mesh);
+    BIND_METHOD(GPUParticles3D,set_draw_passes);
+    BIND_METHOD(GPUParticles3D,set_draw_pass_mesh);
 
-    MethodBinder::bind_method(D_METHOD("get_draw_passes"), &GPUParticles3D::get_draw_passes);
-    MethodBinder::bind_method(D_METHOD("get_draw_pass_mesh", {"pass"}), &GPUParticles3D::get_draw_pass_mesh);
+    BIND_METHOD(GPUParticles3D,get_draw_passes);
+    BIND_METHOD(GPUParticles3D,get_draw_pass_mesh);
 
-    MethodBinder::bind_method(D_METHOD("restart"), &GPUParticles3D::restart);
-    MethodBinder::bind_method(D_METHOD("capture_aabb"), &GPUParticles3D::capture_aabb);
+    BIND_METHOD(GPUParticles3D,restart);
+    BIND_METHOD(GPUParticles3D,capture_aabb);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emitting"), "set_emitting", "is_emitting");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PropertyHint::ExpRange, "1,1000000,1"), "set_amount", "get_amount");

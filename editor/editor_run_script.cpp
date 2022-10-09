@@ -29,8 +29,10 @@
 /*************************************************************************/
 
 #include "editor_run_script.h"
-#include "core/string_formatter.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
+#include "core/script_language.h"
+#include "core/string_formatter.h"
 #include "editor_node.h"
 
 IMPL_GDCLASS(EditorScript)
@@ -92,9 +94,9 @@ void EditorScript::set_editor(EditorNode *p_editor) {
 
 void EditorScript::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("add_root_node", {"node"}), &EditorScript::add_root_node);
-    MethodBinder::bind_method(D_METHOD("get_scene"), &EditorScript::get_scene);
-    MethodBinder::bind_method(D_METHOD("get_editor_interface"), &EditorScript::get_editor_interface);
+    BIND_METHOD(EditorScript,add_root_node);
+    BIND_METHOD(EditorScript,get_scene);
+    BIND_METHOD(EditorScript,get_editor_interface);
     BIND_VMETHOD(MethodInfo("_run"));
 }
 
