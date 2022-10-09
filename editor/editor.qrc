@@ -91,7 +91,6 @@
 <file>icons/BusVuFull.svg</file>
 <file>icons/Button.svg</file>
 <file>icons/ButtonGroup.svg</file>
-<file>icons/c</file>
 <file>icons/Callable.svg</file>
 <file>icons/Camera2D.svg</file>
 <file>icons/Camera3D.svg</file>
@@ -337,7 +336,6 @@
 <file>icons/HSlider.svg</file>
 <file>icons/HSplitContainer.svg</file>
 <file>icons/HTTPRequest.svg</file>
-<file>icons/icon_search.svg</file>
 <file>icons/Image.svg</file>
 <file>icons/ImageTexture.svg</file>
 <file>icons/ImmediateGeometry3D.svg</file>
