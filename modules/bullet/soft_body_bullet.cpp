@@ -405,7 +405,7 @@ void SoftBodyBullet::setup_soft_body() {
     // Soft body setup
     setupBulletCollisionObject(bt_soft_body);
     bt_soft_body->m_worldInfo = nullptr; // Remove fake world info
-    bt_soft_body->getCollisionShape()->setMargin(0.01);
+    bt_soft_body->getCollisionShape()->setMargin(0.01f);
     bt_soft_body->setCollisionFlags(bt_soft_body->getCollisionFlags() & (~(btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_STATIC_OBJECT)));
 
     // Space setup

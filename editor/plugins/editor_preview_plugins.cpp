@@ -813,14 +813,14 @@ EditorMeshPreviewPlugin::EditorMeshPreviewPlugin() {
     RenderingServer::get_singleton()->viewport_attach_camera(viewport, camera);
     RenderingServer::get_singleton()->camera_set_transform(camera, Transform(Basis(), Vector3(0, 0, 3)));
     //RenderingServer::get_singleton()->camera_set_perspective(camera,45,0.1,10);
-    RenderingServer::get_singleton()->camera_set_orthogonal(camera, 1.0, 0.01, 1000.0);
+    RenderingServer::get_singleton()->camera_set_orthogonal(camera, 1.0, 0.01f, 1000.0f);
 
     light = RenderingServer::get_singleton()->directional_light_create();
     light_instance = RenderingServer::get_singleton()->instance_create2(light, scenario);
     RenderingServer::get_singleton()->instance_set_transform(light_instance, Transform().looking_at(Vector3(-1, -1, -1), Vector3(0, 1, 0)));
 
     light2 = RenderingServer::get_singleton()->directional_light_create();
-    RenderingServer::get_singleton()->light_set_color(light2, Color(0.7, 0.7, 0.7));
+    RenderingServer::get_singleton()->light_set_color(light2, Color(0.7f, 0.7f, 0.7f));
     //RenderingServer::get_singleton()->light_set_color(light2, RS::LIGHT_COLOR_SPECULAR, Color(0.0, 0.0, 0.0));
     light_instance2 = RenderingServer::get_singleton()->instance_create2(light2, scenario);
 

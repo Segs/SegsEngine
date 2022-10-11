@@ -148,7 +148,7 @@ String RasterizerCanvasBatcherBaseClass::BatchColor::to_string() const {
     const float *data = get_data();
     for (int c = 0; c < 4; c++) {
         float f = data[c];
-        int val = ((f * 255.0f) + 0.5f);
+        int val = int((f * 255.0f) + 0.5f);
         sz += String(Variant(val)) + " ";
     }
     sz += "}";

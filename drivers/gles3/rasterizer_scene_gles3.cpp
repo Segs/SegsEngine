@@ -583,8 +583,8 @@ void RasterizerSceneGLES3::_render_geometry(RenderListElement *e) {
 
                 get_rasterizer_storage_info().render.vertices_count += vertices;
 
-                RasterizerTextureComponent *t = nullptr;
-                if (c.texture!=entt::null && (t=get<RasterizerTextureComponent>(c.texture))) {
+                RasterizerTextureComponent *t = get<RasterizerTextureComponent>(c.texture);
+                if (t) {
 
                     if (t->redraw_if_visible) {
                         RenderingServerRaster::redraw_request();

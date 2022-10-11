@@ -5,6 +5,8 @@
 #include <QTextStream>
 #include <QStringBuilder>
 #include <QUuid>
+#include <QVector>
+#include <QStringRef>
 
 void SLNTransformer::parse(const QByteArray &to_process) {
     QTextStream ts(to_process);

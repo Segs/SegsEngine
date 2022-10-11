@@ -135,7 +135,7 @@ private:
     Point2 drag_origin; // Workaround for GH-5907
 
     float zoom = 1.0f;
-    float zoom_step = 1.2;
+    float zoom_step = 1.2f;
     float zoom_min;
     float zoom_max;
 

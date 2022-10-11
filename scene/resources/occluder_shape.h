@@ -64,7 +64,7 @@ class GODOT_EXPORT OccluderShapeSphere : public OccluderShape {
 
     // We bandit a plane to store position / radius
     Vector<Plane> _spheres;
-    const real_t _min_radius = 0.1;
+    const real_t _min_radius = 0.1f;
 #ifdef TOOLS_ENABLED
     AABB _aabb_local;
     void _update_aabb();

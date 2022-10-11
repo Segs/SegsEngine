@@ -470,7 +470,7 @@ void EditorProfiler::_graph_tex_draw() {
 
         int cur_x = frame * graph->get_size().x / max_frames;
 
-        graph->draw_line(Vector2(cur_x, 0), Vector2(cur_x, graph->get_size().y), Color(1, 1, 1, 0.8));
+        graph->draw_line(Vector2(cur_x, 0), Vector2(cur_x, graph->get_size().y), Color(1, 1, 1, 0.8f));
     }
 
     if (hover_metric != -1 && frame_metrics[hover_metric].valid) {
@@ -482,7 +482,7 @@ void EditorProfiler::_graph_tex_draw() {
 
         int cur_x = frame * graph->get_size().x / max_frames;
 
-        graph->draw_line(Vector2(cur_x, 0), Vector2(cur_x, graph->get_size().y), Color(1, 1, 1, 0.4));
+        graph->draw_line(Vector2(cur_x, 0), Vector2(cur_x, graph->get_size().y), Color(1, 1, 1, 0.4f));
     }
 }
 

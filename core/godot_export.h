@@ -76,7 +76,7 @@
 //
 //     extern template class FOO_EXPORT foo<bar>;
 //     template class foo<bar>;
-#if defined(_MSC_VER) && defined(GODOT_EXPORTS)
+#ifdef _MSC_VER
 #   define EXPORT_TEMPLATE_DECLARE(X)
 #   define EXPORT_TEMPLATE_DEFINE(X) X
 #else

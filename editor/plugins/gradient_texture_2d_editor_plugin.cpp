@@ -58,7 +58,7 @@ void GradientTexture2DEditorRect::_update_fill_position() {
     Vector2 percent = (get_local_mouse_position() - offset) / size;
     percent = Vector2(CLAMP<float>(percent.x, 0, 1), CLAMP<float>(percent.y, 0, 1));
     if (snap_enabled) {
-        percent = (percent - Vector2(0.5, 0.5)).snapped(Vector2(snap_size, snap_size)) + Vector2(0.5, 0.5);
+        percent = (percent - Vector2(0.5f, 0.5f)).snapped(Vector2(snap_size, snap_size)) + Vector2(0.5f, 0.5f);
     }
 
     String property_name = handle == HANDLE_FILL_FROM ? "fill_from" : "fill_to";
@@ -146,8 +146,8 @@ void GradientTexture2DEditorRect::_notification(int p_what) {
 
             // Draw grid snap lines.
             if (snap_enabled) {
-                const Color primary_line_color = Color(0.5, 0.5, 0.5, 0.9);
-                const Color line_color = Color(0.5, 0.5, 0.5, 0.5);
+                const Color primary_line_color = Color(0.5f, 0.5f, 0.5f, 0.9f);
+                const Color line_color = Color(0.5f, 0.5f, 0.5f, 0.5f);
 
                 // Draw border and centered axis lines.
                 draw_rect_stroke(Rect2(Point2(), size), primary_line_color);
@@ -157,7 +157,7 @@ void GradientTexture2DEditorRect::_notification(int p_what) {
                 // Draw vertical lines.
                 int prev_idx = 0;
                 for (int x = 0; x < size.width; x++) {
-                    int idx = int((x / size.width - 0.5) / snap_size);
+                    int idx = int((x / size.width - 0.5f) / snap_size);
 
                     if (x > 0 && prev_idx != idx) {
                         draw_line(Point2(x, 0), Point2(x, size.height), line_color);
@@ -169,7 +169,7 @@ void GradientTexture2DEditorRect::_notification(int p_what) {
                 // Draw horizontal lines.
                 prev_idx = 0;
                 for (int y = 0; y < size.height; y++) {
-                    int idx = int((y / size.height - 0.5) / snap_size);
+                    int idx = int((y / size.height - 0.5f) / snap_size);
 
                     if (y > 0 && prev_idx != idx) {
                         draw_line(Point2(0, y), Point2(size.width, y), line_color);
@@ -216,7 +216,7 @@ void GradientTexture2DEditor::_set_snap_enabled(bool p_enabled) {
 }
 
 void GradientTexture2DEditor::_set_snap_size(float p_snap_size) {
-    texture_editor_rect->set_snap_size(M_MAX(p_snap_size, 0.01));
+    texture_editor_rect->set_snap_size(M_MAX(p_snap_size, 0.01f));
 }
 
 void GradientTexture2DEditor::set_texture(Ref<GradientTexture2D> &p_texture) {
@@ -257,10 +257,10 @@ GradientTexture2DEditor::GradientTexture2DEditor() {
     snap_button->connect("toggled", callable_mp(this, &GradientTexture2DEditor::_set_snap_enabled));
 
     snap_size_edit = memnew(EditorSpinSlider);
-    snap_size_edit->set_min(0.01);
-    snap_size_edit->set_max(0.5);
-    snap_size_edit->set_step(0.01);
-    snap_size_edit->set_value(0.1);
+    snap_size_edit->set_min(0.01f);
+    snap_size_edit->set_max(0.5f);
+    snap_size_edit->set_step(0.01f);
+    snap_size_edit->set_value(0.1f);
     snap_size_edit->set_custom_minimum_size(Size2(65 * EDSCALE, 0));
     toolbar->add_child(snap_size_edit);
     snap_size_edit->connect("value_changed", callable_mp(this, &GradientTexture2DEditor::_set_snap_size));

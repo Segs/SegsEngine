@@ -7,7 +7,7 @@ class Animation;
 class Node;
 enum Error : int;
 
-class EditorSceneImporterInterface {
+class GODOT_EXPORT EditorSceneImporterInterface {
 public:
     enum ImportFlags {
         IMPORT_SCENE = 1,
@@ -34,8 +34,8 @@ public:
 };
 
 
-class EditorSceneExporterInterface {
-//    friend class ImageSaver;
+class GODOT_EXPORT EditorSceneExporterInterface {
+    //    friend class ImageSaver;
 public:
     virtual bool can_save(const String &extension)=0; // support for multi-format plugins
     virtual void get_extensions(Vector<String> *p_extensions) const = 0;

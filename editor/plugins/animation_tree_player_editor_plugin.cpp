@@ -368,7 +368,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[0]->show();
                 edit_scroll[0]->set_min(0);
                 edit_scroll[0]->set_max(1);
-                edit_scroll[0]->set_step(0.01);
+                edit_scroll[0]->set_step(0.01f);
                 edit_scroll[0]->set_value(anim_tree->mix_node_get_amount(edited_node));
                 edit_scroll[0]->show();
                 edit_dialog->set_size(Size2(150, 50));
@@ -379,7 +379,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[0]->show();
                 edit_scroll[0]->set_min(0);
                 edit_scroll[0]->set_max(1);
-                edit_scroll[0]->set_step(0.01);
+                edit_scroll[0]->set_step(0.01f);
                 edit_scroll[0]->set_value(anim_tree->blend2_node_get_amount(edited_node));
                 edit_scroll[0]->show();
                 filter_button->show();
@@ -392,7 +392,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[0]->show();
                 edit_scroll[0]->set_min(-1);
                 edit_scroll[0]->set_max(1);
-                edit_scroll[0]->set_step(0.01);
+                edit_scroll[0]->set_step(0.01f);
                 edit_scroll[0]->set_value(anim_tree->blend3_node_get_amount(edited_node));
                 edit_scroll[0]->show();
                 edit_dialog->set_size(Size2(150, 50));
@@ -404,14 +404,14 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[0]->show();
                 edit_scroll[0]->set_min(0);
                 edit_scroll[0]->set_max(1);
-                edit_scroll[0]->set_step(0.01);
+                edit_scroll[0]->set_step(0.01f);
                 edit_scroll[0]->set_value(anim_tree->blend4_node_get_amount(edited_node).x);
                 edit_scroll[0]->show();
                 edit_label[1]->set_text(TTR("Blend 1:"));
                 edit_label[1]->show();
                 edit_scroll[1]->set_min(0);
                 edit_scroll[1]->set_max(1);
-                edit_scroll[1]->set_step(0.01);
+                edit_scroll[1]->set_step(0.01f);
                 edit_scroll[1]->set_value(anim_tree->blend4_node_get_amount(edited_node).y);
                 edit_scroll[1]->show();
                 edit_dialog->set_size(Size2(150, 100));

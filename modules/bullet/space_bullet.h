@@ -236,7 +236,7 @@ public:
                 hasPenetration(false),
                 normal(0, 0, 0),
                 pointWorld(0, 0, 0),
-                penetration_distance(1e20),
+                penetration_distance(1e20f),
                 other_compound_shape_index(0),
                 other_collision_object(nullptr),
                 local_shape_most_recovered(0) {}

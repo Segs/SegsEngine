@@ -272,13 +272,11 @@ void _OS::set_video_mode(Size2 p_size, bool p_fullscreen, bool p_resizeable, int
     OS::get_singleton()->set_video_mode(vm, p_screen);
 }
 Size2 _OS::get_video_mode(int p_screen) const {
-    OS::VideoMode vm;
-    vm = OS::get_singleton()->get_video_mode(p_screen);
+    OS::VideoMode vm = OS::get_singleton()->get_video_mode(p_screen);
     return Size2(vm.width, vm.height);
 }
 bool _OS::is_video_mode_fullscreen(int p_screen) const {
-    OS::VideoMode vm;
-    vm = OS::get_singleton()->get_video_mode(p_screen);
+    OS::VideoMode vm = OS::get_singleton()->get_video_mode(p_screen);
     return vm.fullscreen;
 }
 
@@ -436,8 +434,7 @@ void _OS::set_use_file_access_save_and_swap(bool p_enable) {
 }
 
 bool _OS::is_video_mode_resizable(int p_screen) const {
-    OS::VideoMode vm;
-    vm = OS::get_singleton()->get_video_mode(p_screen);
+    OS::VideoMode vm = OS::get_singleton()->get_video_mode(p_screen);
     return vm.resizable;
 }
 

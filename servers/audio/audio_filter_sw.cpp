@@ -71,18 +71,18 @@ void AudioFilterSW::prepare_coefficients(Coeffs *p_coeffs) {
     }
 
     if (mode == BANDPASS)
-        Q *= 2.0;
+        Q *= 2.0f;
     else if (mode == PEAK)
-        Q *= 3.0;
+        Q *= 3.0f;
 
     float tmpgain = gain;
 
-    if (tmpgain < 0.001)
-        tmpgain = 0.001;
+    if (tmpgain < 0.001f)
+        tmpgain = 0.001f;
 
     if (stages > 1) {
 
-        Q = (Q > 1.0 ? Math::pow(Q, 1.0f / stages) : Q);
+        Q = (Q > 1.0f ? Math::pow(Q, 1.0f / stages) : Q);
         tmpgain = Math::pow(tmpgain, 1.0f / (stages + 1));
     }
     float alpha = sin_v / (2 * Q);
@@ -93,9 +93,9 @@ void AudioFilterSW::prepare_coefficients(Coeffs *p_coeffs) {
 
         case LOWPASS: {
 
-            p_coeffs->b0 = (1.0f - cos_v) / 2.0;
+            p_coeffs->b0 = (1.0f - cos_v) / 2.0f;
             p_coeffs->b1 = 1.0f - cos_v;
-            p_coeffs->b2 = (1.0f - cos_v) / 2.0;
+            p_coeffs->b2 = (1.0f - cos_v) / 2.0f;
             p_coeffs->a1 = -2.0f * cos_v;
             p_coeffs->a2 = 1.0f - alpha;
         } break;
@@ -151,17 +151,17 @@ void AudioFilterSW::prepare_coefficients(Coeffs *p_coeffs) {
         } break;
         case LOWSHELF: {
 
-            double tmpq = Math::sqrt(Q);
+            float tmpq = Math::sqrt(Q);
             if (tmpq <= 0)
-                tmpq = 0.001;
-            double beta = Math::sqrt(tmpgain) / tmpq;
+                tmpq = 0.001f;
+            float beta = Math::sqrt(tmpgain) / tmpq;
 
-            a0 = (tmpgain + 1.0) + (tmpgain - 1.0) * cos_v + beta * sin_v;
-            p_coeffs->b0 = tmpgain * ((tmpgain + 1.0) - (tmpgain - 1.0) * cos_v + beta * sin_v);
-            p_coeffs->b1 = 2.0 * tmpgain * ((tmpgain - 1.0) - (tmpgain + 1.0) * cos_v);
-            p_coeffs->b2 = tmpgain * ((tmpgain + 1.0) - (tmpgain - 1.0) * cos_v - beta * sin_v);
-            p_coeffs->a1 = -2.0 * ((tmpgain - 1.0) + (tmpgain + 1.0) * cos_v);
-            p_coeffs->a2 = ((tmpgain + 1.0) + (tmpgain - 1.0) * cos_v - beta * sin_v);
+            a0 = (tmpgain + 1.0f) + (tmpgain - 1.0f) * cos_v + beta * sin_v;
+            p_coeffs->b0 = tmpgain * ((tmpgain + 1.0f) - (tmpgain - 1.0f) * cos_v + beta * sin_v);
+            p_coeffs->b1 = 2.0f * tmpgain * ((tmpgain - 1.0f) - (tmpgain + 1.0f) * cos_v);
+            p_coeffs->b2 = tmpgain * ((tmpgain + 1.0f) - (tmpgain - 1.0f) * cos_v - beta * sin_v);
+            p_coeffs->a1 = -2.0f * ((tmpgain - 1.0f) + (tmpgain + 1.0f) * cos_v);
+            p_coeffs->a2 = ((tmpgain + 1.0f) + (tmpgain - 1.0f) * cos_v - beta * sin_v);
 
         } break;
         case HIGHSHELF: {
@@ -170,12 +170,12 @@ void AudioFilterSW::prepare_coefficients(Coeffs *p_coeffs) {
                 tmpq = 0.001f;
             float beta = Math::sqrt(tmpgain) / tmpq;
 
-            a0 = (tmpgain + 1.0) - (tmpgain - 1.0f) * cos_v + beta * sin_v;
-            p_coeffs->b0 = tmpgain * ((tmpgain + 1.0f) + (tmpgain - 1.0) * cos_v + beta * sin_v);
+            a0 = (tmpgain + 1.0f) - (tmpgain - 1.0f) * cos_v + beta * sin_v;
+            p_coeffs->b0 = tmpgain * ((tmpgain + 1.0f) + (tmpgain - 1.0f) * cos_v + beta * sin_v);
             p_coeffs->b1 = -2.0f * tmpgain * ((tmpgain - 1.0f) + (tmpgain + 1.0f) * cos_v);
             p_coeffs->b2 = tmpgain * ((tmpgain + 1.0f) + (tmpgain - 1.0f) * cos_v - beta * sin_v);
             p_coeffs->a1 = 2.0f * ((tmpgain - 1.0f) - (tmpgain + 1.0f) * cos_v);
-            p_coeffs->a2 = ((tmpgain + 1.0) - (tmpgain - 1.0) * cos_v - beta * sin_v);
+            p_coeffs->a2 = ((tmpgain + 1.0f) - (tmpgain - 1.0f) * cos_v - beta * sin_v);
 
         } break;
     };

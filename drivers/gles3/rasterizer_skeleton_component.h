@@ -21,8 +21,8 @@ struct RasterizerSkeletonComponent {
     RasterizerSkeletonComponent(const RasterizerSkeletonComponent&) = delete;
     RasterizerSkeletonComponent& operator=(const RasterizerSkeletonComponent&) = delete;
 
-    RasterizerSkeletonComponent(RasterizerSkeletonComponent &&) = default;
-    RasterizerSkeletonComponent &operator=(RasterizerSkeletonComponent &&from) {
+    RasterizerSkeletonComponent(RasterizerSkeletonComponent &&) noexcept = default;
+    RasterizerSkeletonComponent &operator=(RasterizerSkeletonComponent &&from) noexcept {
         unregister_from_instances();
         skel_texture.clear();
         instances = eastl::move(from.instances);

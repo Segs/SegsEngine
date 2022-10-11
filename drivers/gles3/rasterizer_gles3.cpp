@@ -288,7 +288,7 @@ void RasterizerGLES3::set_boot_image(const Ref<Image> &p_image, const Color &p_c
     } else {
 
         screen_rect = img_rect;
-        screen_rect.position += ((Size2(window_w, window_h) - screen_rect.size) / 2.0).floor();
+        screen_rect.position += ((Size2(window_w, window_h) - screen_rect.size) / 2.0f).floor();
     }
 
     const auto *t = VSG::ecs->try_get<RasterizerTextureComponent>(texture);

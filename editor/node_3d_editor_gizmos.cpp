@@ -3356,8 +3356,8 @@ void CollisionShapeSpatialGizmoPlugin::set_handle(
             d = Math::stepify(d, Node3DEditor::get_singleton()->get_translate_snap());
         }
 
-        if (d < 0.001)
-            d = 0.001;
+        if (d < 0.001f)
+            d = 0.001f;
 
         ss->set_radius(d);
     }
@@ -3372,8 +3372,8 @@ void CollisionShapeSpatialGizmoPlugin::set_handle(
             d = Math::stepify(d, Node3DEditor::get_singleton()->get_translate_snap());
         }
 
-        if (d < 0.001)
-            d = 0.001;
+        if (d < 0.001f)
+            d = 0.001f;
 
         rs->set_length(d);
     }
@@ -3390,8 +3390,8 @@ void CollisionShapeSpatialGizmoPlugin::set_handle(
             d = Math::stepify(d, Node3DEditor::get_singleton()->get_translate_snap());
         }
 
-        if (d < 0.001)
-            d = 0.001;
+        if (d < 0.001f)
+            d = 0.001f;
 
         Vector3 he = bs->get_extents();
         he[p_idx] = d;

@@ -21,7 +21,7 @@ struct RasterizerImmediateGeometryComponent {
         RS::PrimitiveType primitive;
     };
 
-    Dequeue<Chunk> chunks;
+    Vector<Chunk> chunks;
     AABB aabb;
     int mask;
     bool building=false;

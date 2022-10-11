@@ -53,7 +53,7 @@ public:
     virtual void mix(AudioFrame *p_buffer, float p_rate_scale, int p_frames) = 0;
 };
 
-class AudioStreamPlaybackResampled : public AudioStreamPlayback {
+class GODOT_EXPORT AudioStreamPlaybackResampled : public AudioStreamPlayback {
 
     GDCLASS(AudioStreamPlaybackResampled,AudioStreamPlayback)
 

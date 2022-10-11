@@ -1370,7 +1370,7 @@ real_t Geometry::calculate_convex_hull_volume(const Geometry::MeshData &p_md) {
         volume += face_area * height;
     }
 
-    volume *= (1.0 / 3.0) * 0.5;
+    volume *= (1.0f / 3.0f) * 0.5f;
     return volume;
 }
 

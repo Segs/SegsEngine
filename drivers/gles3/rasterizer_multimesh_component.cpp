@@ -33,7 +33,7 @@ void update_dirty_multimeshes() {
             if (multimesh.mesh!=entt::null) {
                 mesh_aabb = mesh_get_aabb(get<RasterizerMeshComponent>(multimesh.mesh), entt::null);
             } else {
-                mesh_aabb.size += Vector3(0.001, 0.001, 0.001);
+                mesh_aabb.size += Vector3(0.001f, 0.001f, 0.001f);
             }
 
             int stride = multimesh.color_floats + multimesh.xform_floats + multimesh.custom_data_floats;

@@ -109,7 +109,7 @@ public:
 
         Task() :
                 skeleton(nullptr),
-                min_distance(0.01),
+                min_distance(0.01f),
                 max_iterations(10),
                 root_bone(-1) {}
     };
