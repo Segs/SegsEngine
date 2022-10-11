@@ -156,7 +156,7 @@ struct GODOT_EXPORT [[nodiscard]] Vector3 {
         return Vector3i((int)x, (int)y, (int)z);
     }
 
-    explicit constexpr Vector3(Vector3i p_ivec) : x(p_ivec.x),y(p_ivec.y),z(p_ivec.z) {}
+    explicit constexpr Vector3(Vector3i p_ivec) : x(float(p_ivec.x)),y(float(p_ivec.y)),z(float(p_ivec.z)) {}
     constexpr Vector3() noexcept : Vector3(0,0,0) {}
     constexpr Vector3(real_t p_x, real_t p_y, real_t p_z) noexcept : x(p_x),y(p_y),z(p_z) {}
 };

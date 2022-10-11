@@ -78,8 +78,8 @@ Vector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p
     const gd::Polygon *end_poly = nullptr;
     Vector3 begin_point;
     Vector3 end_point;
-    float begin_d = 1e20;
-    float end_d = 1e20;
+    float begin_d = 1e20f;
+    float end_d = 1e20f;
 
     // Find the initial poly and the end poly on this map.
     for (size_t i(0); i < polygons.size(); i++) {
@@ -124,7 +124,7 @@ Vector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p
     }
 
     Vector<gd::NavigationPoly> navigation_polys;
-    navigation_polys.reserve(polygons.size() * 0.75);
+    navigation_polys.reserve(size_t(polygons.size() * 0.75f));
 
     // Add the start polygon to the reachable navigation polygons.
     gd::NavigationPoly begin_navigation_poly = gd::NavigationPoly(begin_poly);
@@ -143,7 +143,7 @@ Vector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p
     bool found_route = false;
 
     const gd::Polygon *reachable_end = nullptr;
-    float reachable_d = 1e30;
+    float reachable_d = 1e30f;
     bool is_reachable = true;
 
     gd::NavigationPoly *prev_least_cost_poly = nullptr;
@@ -222,7 +222,7 @@ Vector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p
 
             // Set as end point the furthest reachable point.
             end_poly = reachable_end;
-            end_d = 1e20;
+            end_d = 1e20f;
             for (size_t point_id = 2; point_id < end_poly->points.size(); point_id++) {
                 Face3 f(end_poly->points[0].pos, end_poly->points[point_id - 1].pos, end_poly->points[point_id].pos);
                 Vector3 spoint = f.get_closest_point_to(p_destination);
@@ -378,7 +378,7 @@ Vector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p
 Vector3 NavMap::get_closest_point_to_segment(const Vector3 &p_from, const Vector3 &p_to, const bool p_use_collision) const {
     bool use_collision = p_use_collision;
     Vector3 closest_point;
-    real_t closest_point_d = 1e20;
+    real_t closest_point_d = 1e20f;
 
     for (size_t i(0); i < polygons.size(); i++) {
         const gd::Polygon &p = polygons[i];
@@ -441,7 +441,7 @@ RID NavMap::get_closest_point_owner(const Vector3 &p_point) const {
 
 gd::ClosestPointQueryResult NavMap::get_closest_point_info(const Vector3 &p_point) const {
     gd::ClosestPointQueryResult result;
-    real_t closest_point_ds = 1e20;
+    real_t closest_point_ds = 1e20f;
 
     for (size_t i(0); i < polygons.size(); i++) {
         const gd::Polygon &p = polygons[i];
@@ -616,14 +616,14 @@ void NavMap::sync() {
                 Vector3 edge_vector = edge_p2 - edge_p1;
                 float projected_p1_ratio = edge_vector.dot(other_edge_p1 - edge_p1) / (edge_vector.length_squared());
                 float projected_p2_ratio = edge_vector.dot(other_edge_p2 - edge_p1) / (edge_vector.length_squared());
-                if ((projected_p1_ratio < 0.0 && projected_p2_ratio < 0.0f) || (projected_p1_ratio > 1.0f && projected_p2_ratio > 1.0f)) {
+                if ((projected_p1_ratio < 0.0f && projected_p2_ratio < 0.0f) || (projected_p1_ratio > 1.0f && projected_p2_ratio > 1.0f)) {
                     continue;
                 }
 
                 // Check if the two edges are close to each other enough and compute a pathway between the two regions.
                 Vector3 self1 = edge_vector * CLAMP(projected_p1_ratio, 0.0f, 1.0f) + edge_p1;
                 Vector3 other1;
-                if (projected_p1_ratio >= 0.0 && projected_p1_ratio <= 1.0f) {
+                if (projected_p1_ratio >= 0.0f && projected_p1_ratio <= 1.0f) {
                     other1 = other_edge_p1;
                 } else {
                     other1 = other_edge_p1.linear_interpolate(other_edge_p2, (1.0f - projected_p1_ratio) / (projected_p2_ratio - projected_p1_ratio));
@@ -678,16 +678,17 @@ void NavMap::compute_single_step(uint32_t index, RvoAgent **agent) {
 
 void NavMap::step(real_t p_deltatime) {
     deltatime = p_deltatime;
-    if (controlled_agents.size() > 0) {
-        if (step_work_pool.get_thread_count() == 0) {
-            step_work_pool.init();
-        }
-        step_work_pool.do_work(
-                controlled_agents.size(),
-                this,
-                &NavMap::compute_single_step,
-                controlled_agents.data());
+    if (controlled_agents.empty()) {
+        return;
     }
+    if (step_work_pool.get_thread_count() == 0) {
+        step_work_pool.init();
+    }
+    step_work_pool.do_work(
+            controlled_agents.size(),
+            this,
+            &NavMap::compute_single_step,
+            controlled_agents.data());
 }
 
 void NavMap::dispatch_callbacks() {

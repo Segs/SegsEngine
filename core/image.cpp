@@ -1990,7 +1990,7 @@ Error Image::generate_mipmap_roughness(RoughnessChannel p_roughness_channel, con
                     variance = 0.25f / kappa;
                 }
 
-                float threshold = 0.4;
+                float threshold = 0.4f;
                 roughness = Math::sqrt(roughness * roughness + MIN(3.0f * variance, threshold * threshold));
 
                 switch (p_roughness_channel) {

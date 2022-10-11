@@ -47,7 +47,7 @@ IMPL_GDCLASS(GroupsEditor)
 
 // ACTION DEFINITIONS
 
-struct AddSelectedToGroupAction : public UndoableAction {
+class AddSelectedToGroupAction final : public UndoableAction {
     Dequeue<GameEntity> m_selected_nodes;
     GameEntity m_node_handle;
     StringName m_group_name;
@@ -91,7 +91,7 @@ public:
     }
 };
 
-struct RemoveSelectedFromGroupAction : public UndoableAction {
+class RemoveSelectedFromGroupAction final: public UndoableAction {
     Dequeue<GameEntity> m_selected_nodes;
     GameEntity m_node_handle;
     StringName m_group_name;
@@ -135,7 +135,7 @@ public:
     }
 };
 
-struct DeleteGroupAction : public UndoableAction {
+class DeleteGroupAction final: public UndoableAction {
     GameEntity m_node_handle;
     Dequeue<GameEntity> m_nodes_to_remove;
     bool m_removed_all = true;
@@ -193,7 +193,7 @@ public:
     bool can_apply() override { return object_for_entity(m_node_handle) != nullptr; }
 };
 
-struct RenameGroupAction : public UndoableAction {
+class RenameGroupAction final : public UndoableAction {
     GameEntity m_node_handle;
     Dequeue<GameEntity> m_nodes_to_move;
     bool m_removed_all = true;
@@ -249,8 +249,6 @@ public:
 
     ~RenameGroupAction() override = default;
 };
-
-
 
 void GroupDialog::_group_selected() {
     nodes_to_add->clear();

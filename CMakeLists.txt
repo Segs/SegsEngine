@@ -26,7 +26,8 @@ if(MSVC)
     endif()
 
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
-      add_compile_options (/wd4251) # disable warning related to dll interface needed ... clients of class
+    add_compile_options (/wd4251) # disable warning related to dll interface needed ... clients of class
+    add_compile_options (/W2) # disable warning related to dll interface needed ... clients of class
     if (NOT (MSVC_VERSION LESS 1910))
       add_compile_options (/MP)
       add_compile_options (/permissive-)

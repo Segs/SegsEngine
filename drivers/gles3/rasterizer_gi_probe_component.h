@@ -52,4 +52,4 @@ RenderingEntity gi_probe_instance_create();
 void gi_probe_instance_set_light_data(RenderingEntity p_probe, RenderingEntity p_base, RenderingEntity p_data);
 void gi_probe_instance_set_transform_to_data(RenderingEntity p_probe, const Transform &p_xform);
 void gi_probe_instance_set_bounds(RenderingEntity p_probe, Vector3 p_bounds);
-bool setup_probes(RenderingEntity inst, struct SceneShaderGLES3 &, int max_texture_image_units, const Transform &p_view_transform, bool p_async_in_use);
+bool setup_probes(RenderingEntity inst, class SceneShaderGLES3 &, int max_texture_image_units, const Transform &p_view_transform, bool p_async_in_use);

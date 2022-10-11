@@ -25,7 +25,7 @@ class EditorServiceInterface;
 
  This is simulated now by assigning the importers with correct priorities.
 */
-class ResourceImporterInterface {
+class GODOT_EXPORT ResourceImporterInterface {
 protected:
     EditorServiceInterface *m_editor_interface;
 

@@ -1216,7 +1216,7 @@ void LightmapperCPU::_dilate_lightmap(Vector3 *r_lightmap, const Vector<int> &p_
             }
 
             Vector2i closest;
-            float closest_dist = 1e20;
+            float closest_dist = 1e20f;
 
             for (int y = i - margin; y <= i + margin; y++) {
                 for (int x = j - margin; x <= j + margin; x++) {
@@ -1240,7 +1240,7 @@ void LightmapperCPU::_dilate_lightmap(Vector3 *r_lightmap, const Vector<int> &p_
                 }
             }
 
-            if (closest_dist < 1e20) {
+            if (closest_dist < 1e20f) {
                 r_lightmap[i * p_size.x + j] = r_lightmap[closest.y * p_size.x + closest.x];
             }
         }
@@ -1322,7 +1322,7 @@ LightmapperCPU::BakeError LightmapperCPU::bake(BakeQuality p_quality, bool p_use
     bake_textures.clear();
 
     if (p_step_function) {
-        bool cancelled = p_step_function(0.1, TTR("Preparing data structures"), p_bake_userdata, true);
+        bool cancelled = p_step_function(0.1f, TTR("Preparing data structures"), p_bake_userdata, true);
         if (cancelled) {
             return BAKE_ERROR_USER_ABORTED;
         }
@@ -1363,7 +1363,7 @@ LightmapperCPU::BakeError LightmapperCPU::bake(BakeQuality p_quality, bool p_use
     }
 
     if (p_step_function) {
-        bool cancelled = p_step_function(0.2, TTR("Generate buffers"), p_bake_userdata, true);
+        bool cancelled = p_step_function(0.2f, TTR("Generate buffers"), p_bake_userdata, true);
         if (cancelled) {
             return BAKE_ERROR_USER_ABORTED;
         }
@@ -1384,7 +1384,7 @@ LightmapperCPU::BakeError LightmapperCPU::bake(BakeQuality p_quality, bool p_use
                 int idx = scene_lightmap_indices[i][j];
                 uint8_t alpha = 0;
                 if (idx >= 0) {
-                    alpha = CLAMP<float>(scene_lightmaps[i][idx].alpha * 255, 0, 255);
+                    alpha = CLAMP<uint8_t>(uint8_t(scene_lightmaps[i][idx].alpha * 255), 0, 255);
                     if (alpha < 255) {
                         has_alpha = true;
                     }

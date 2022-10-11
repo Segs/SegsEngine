@@ -281,7 +281,7 @@ public:
     virtual ~ScriptCodeCompletionCache() = default;
 };
 
-class ScriptLanguage {
+class GODOT_EXPORT ScriptLanguage {
 public:
     virtual StringName get_name() const = 0;
 
