@@ -80,6 +80,7 @@ const String &InstancePlaceholder::get_instance_path() const {
     return path;
 }
 
+/*
 Node *InstancePlaceholder::create_instance(bool p_replace, const Ref<PackedScene> &p_custom_scene) {
 
     ERR_FAIL_COND_V(!is_inside_tree(), nullptr);
@@ -116,6 +117,7 @@ Node *InstancePlaceholder::create_instance(bool p_replace, const Ref<PackedScene
 
     return scene;
 }
+*/
 
 Dictionary InstancePlaceholder::get_stored_values(bool p_with_order) {
 
@@ -137,7 +139,7 @@ Dictionary InstancePlaceholder::get_stored_values(bool p_with_order) {
 void InstancePlaceholder::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_stored_values", {"with_order"}), &InstancePlaceholder::get_stored_values, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("create_instance", {"replace", "custom_scene"}), &InstancePlaceholder::create_instance, {DEFVAL(false), DEFVAL(Variant())});
+//    MethodBinder::bind_method(D_METHOD("create_instance", {"replace", "custom_scene"}), &InstancePlaceholder::create_instance, {DEFVAL(false), DEFVAL(Variant())});
     BIND_METHOD(InstancePlaceholder,get_instance_path);
 }
 

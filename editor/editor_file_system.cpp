@@ -1545,8 +1545,13 @@ void EditorFileSystem::update_file(StringView p_file) {
             memdelete(fs->files[cpos]);
             fs->files.erase_at(cpos);
         }
-
-        call_deferred([this] { emit_signal("filesystem_changed"); }); //update later
+        if (!fs_change_queued) {
+            fs_change_queued = true;
+            call_deferred([this] {
+                emit_signal("filesystem_changed");
+                fs_change_queued = false;
+            }); // update later
+        }
         _queue_update_script_classes();
         return;
     }
@@ -1596,8 +1601,13 @@ void EditorFileSystem::update_file(StringView p_file) {
 
     // Update preview
     EditorResourcePreview::get_singleton()->check_for_invalidation(p_file);
-
-    call_deferred([this] { emit_signal("filesystem_changed"); }); //update later
+    if (!fs_change_queued) {
+        fs_change_queued = true;
+        call_deferred([this] {
+            emit_signal("filesystem_changed");
+            fs_change_queued = false;
+        }); // update later
+    }
     _queue_update_script_classes();
 }
 

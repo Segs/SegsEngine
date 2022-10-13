@@ -3339,8 +3339,8 @@ void RasterizerSceneGLES3::render_scene(const Transform &p_cam_transform, const 
 
             // determine chunk end
             for (; chunk_split < num_alpha; chunk_split++) {
-                bool directional_add = _element_needs_directional_add(this,render_list.elements[chunk_split]);
-                uint32_t priority = uint32_t(render_list.elements[chunk_split]->sort_key >> RenderListConstants::SORT_KEY_PRIORITY_SHIFT);
+                bool directional_add = _element_needs_directional_add(this, render_list.alpha_elements[chunk_split]);
+                uint32_t priority = uint32_t(render_list.alpha_elements[chunk_split]->sort_key >> RenderListConstants::SORT_KEY_PRIORITY_SHIFT);
                 if (first) {
                     chunk_directional_add = directional_add;
                     chunk_priority = priority;

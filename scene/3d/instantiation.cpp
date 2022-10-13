@@ -38,6 +38,7 @@
 
 IMPL_GDCLASS(LibraryEntryInstance)
 
+//TODO: consider connecting instances of this class with their respective resource's changed signal to retry instantiations
 
 void LibraryEntryInstance::_bind_methods() {
 
@@ -85,56 +86,77 @@ static void search_for_parent_with_library(LibraryEntryInstance *n) {
     }
 }
 
-void LibraryEntryInstance::update_instance()
-{
+bool LibraryEntryInstance::instantiate() {
+    if (!resolved_library || entry_name.empty()) {
+        ERR_FAIL_COND_V_MSG(!resolved_library || entry_name.empty(), false, "Library does not contain selected entry:" + entry_name);
+    }
+    Node *base = get_parent();
+    if (!base) {
+        return false;
+    }
+    int pos = get_position_in_parent();
+    // get the packed scene from library.
+    LibraryItemHandle h = resolved_library->find_item_by_name(entry_name);
+    set_filename(lib_name + "::" + StringUtils::num(h));
+    ERR_FAIL_COND_V_MSG(h == LibraryItemHandle(-1), false, "Library does not contain selected entry:" + entry_name);
+    Ref<PackedScene> resolved_scene = resolved_library->get_item_scene(h);
+    auto *scene = (Node3D *)resolved_scene->instance();
+    // replace ourselves in our parent with the instance.
+    call_deferred([=] {
+        // create the target scene instance
+        scene->set_name(get_name() + "_libinstance");
+        Node *base = get_parent();
+        int pos = get_position_in_parent();
+        queue_delete();
+        base->remove_child(this);
+        base->add_child(scene);
+        base->move_child(scene, pos);
+    });
+    return true;
+}
 
-    if(!resolved_library || entry_name.empty()) {
+void LibraryEntryInstance::queue_instantiation() {
+    if (instantiation_pending) {
         return;
     }
 
-    {
-        LibraryItemHandle h = resolved_library->find_item_by_name(entry_name);
-        set_filename(lib_name+"::"+StringUtils::num(h));
-        ERR_FAIL_COND_MSG(h == LibraryItemHandle(-1), "Library does not contain selected entry:" + entry_name);
-
-        if(instantiated_child) {
-            remove_child(instantiated_child);
-            instantiated_child->queue_delete();
-        }
-        Ref<PackedScene> resolved_scene = resolved_library->get_item_scene(h);
-        instantiated_child = (Node3D *)resolved_scene->instance();
-        instantiated_child->set_name(resolved_library->get_name()+"::"+entry_name);
-        // Not setting owner here, to prevent those nodes from being saved.
-    }
-    //EditorNode::get_singleton()->get_edited_scene()->set_editable_instance(node, false);
+    instantiation_pending = true;
+    call_deferred([this]() {
+        instantiate();
+    });
 }
 
 void LibraryEntryInstance::set_library(const Ref<SceneLibrary> &p_lib) {
-    if(resolved_library==p_lib)
+    if(resolved_library==p_lib) {
         return;
+    }
     resolved_library = p_lib;
-    if(p_lib)
+    if(p_lib) {
         lib_name = p_lib->get_path();
-    if(is_inside_tree())
-    Object_change_notify(this);
-    call_deferred([this]() {update_instance();});
+        queue_instantiation();
+    }
 }
 
 void LibraryEntryInstance::set_library_path(const String &lib)
 {
     bool lib_changed = lib!=lib_name;
     lib_name = lib;
-    if(!lib_changed)
-        return;
-
-    resolved_library = dynamic_ref_cast<SceneLibrary>(gResourceManager().load(lib));
-    if(!resolved_library) {
+    if(!lib_changed) {
         return;
     }
-    if(!entry_name.empty()) {
-        if(is_inside_tree())
-            Object_change_notify(this);
-        update_instance();
+    if (lib_name.empty()) {
+        resolved_library = {};
+        return;
+    }
+    if (!lib_name.empty() && !entry_name.empty()) {
+        resolved_library = dynamic_ref_cast<SceneLibrary>(gResourceManager().load(lib_name));
+        if (!resolved_library) {
+            return;
+        }
+        // we have library and entry name, we're in a tree: try to replace ourselves.
+        if (is_inside_tree()) {
+            queue_instantiation();
+        }
     }
 }
 
@@ -143,23 +165,20 @@ void LibraryEntryInstance::set_entry(StringView name)
     if (entry_name == name)
         return;
     entry_name = name;
-    if(is_inside_tree())
-        Object_change_notify(this);
-    update_instance();
+    if (is_inside_tree()) {
+        queue_instantiation();
+    }
 }
 
 void LibraryEntryInstance::_notification(int p_what)
 {
     if(p_what== NOTIFICATION_ENTER_WORLD)
     {
-        if(instantiated_child) {
-            _add_child_nocheck(instantiated_child,instantiated_child->get_name());
+        if (!lib_name.empty() && !entry_name.empty()) {
+            resolved_library = dynamic_ref_cast<SceneLibrary>(gResourceManager().load(lib_name));
         }
-    }
-    else if (p_what == NOTIFICATION_EXIT_WORLD)
-    {
-        if(instantiated_child)
-            remove_child(instantiated_child);
+        // we try to replace ourselves in the scene tree when we enter
+        instantiate();
     }
 }
 

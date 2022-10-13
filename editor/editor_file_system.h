@@ -155,6 +155,7 @@ class GODOT_EXPORT EditorFileSystem : public Node {
     bool importing;
     bool first_scan;
     bool scan_changes_pending;
+    bool fs_change_queued = false;
     float scan_total;
     String filesystem_settings_version_for_import;
     bool revalidate_import_files;

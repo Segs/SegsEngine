@@ -478,22 +478,22 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
     Dequeue<PackState> states_stack =
             PropertyUtils::get_node_states_stack(p_node, p_owner, &instanced_by_owner);
 
-            if (!p_node->get_filename().empty() && p_node->get_owner() == p_owner && instanced_by_owner) {
+    if (!p_node->get_filename().empty() && p_node->get_owner() == p_owner && instanced_by_owner) {
 
-                if (p_node->get_scene_instance_load_placeholder()) {
-                    //it's a placeholder, use the placeholder path
-                    nd.instance = _vm_get_variant(p_node->get_filename(), variant_map);
-                    nd.instance |= FLAG_INSTANCE_IS_PLACEHOLDER;
-                } else {
-                    //must instance ourselves
+        if (p_node->get_scene_instance_load_placeholder()) {
+            //it's a placeholder, use the placeholder path
+            nd.instance = _vm_get_variant(p_node->get_filename(), variant_map);
+            nd.instance |= FLAG_INSTANCE_IS_PLACEHOLDER;
+        } else {
+            //must instance ourselves
             Ref<PackedScene> instance = gResourceManager().loadT<PackedScene>(p_node->get_filename());
             if (!instance) {
-                        return ERR_CANT_OPEN;
-                    }
-
-                    nd.instance = _vm_get_variant(instance, variant_map);
-                }
+                return ERR_CANT_OPEN;
             }
+
+            nd.instance = _vm_get_variant(instance, variant_map);
+        }
+    }
 
 
     // all setup, we then proceed to check all properties for the node

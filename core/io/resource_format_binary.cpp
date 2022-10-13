@@ -452,10 +452,12 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             uint32_t len = f->get_32();
 
             PoolVector<int> array;
-            array.resize(len);
-            PoolVector<int>::Write w = array.write();
-            f->get_buffer((uint8_t *)w.ptr(), len * 4);
-            w.release();
+            if (len) {
+                array.resize(len);
+                PoolVector<int>::Write w = array.write();
+                f->get_buffer((uint8_t *)w.ptr(), len * 4);
+                w.release();
+            }
             r_v = array;
         } break;
         case VARIANT_FLOAT32_ARRAY: {

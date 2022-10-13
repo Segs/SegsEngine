@@ -72,10 +72,10 @@ public:
     };
 
 private:
-    real_t pixel_size = 0.01;
+    real_t pixel_size = 0.01f;
     bool flags[FLAG_MAX] = {};
     AlphaCutMode alpha_cut = ALPHA_CUT_DISABLED;
-    float alpha_scissor_threshold = 0.5;
+    float alpha_scissor_threshold = 0.5f;
 
     AABB aabb;
 
