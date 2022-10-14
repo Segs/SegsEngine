@@ -458,7 +458,7 @@ private:
     void _bottom_panel_switch(bool p_enable, int p_idx);
 
     String external_file;
-    List<String> previous_scenes;
+    Vector<String> previous_scenes;
     bool opening_prev;
 
     void _dialog_action(StringView p_file);

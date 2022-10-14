@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GRAPH_EDIT_H
-#define GRAPH_EDIT_H
+#pragma once
 
 #include "scene/gui/box_container.h"
 #include "scene/gui/graph_node.h"
@@ -38,6 +37,7 @@
 #include "scene/gui/spin_box.h"
 #include "scene/gui/texture_rect.h"
 #include "scene/gui/tool_button.h"
+#include "core/list.h"
 
 class GraphEdit;
 
@@ -302,5 +302,3 @@ public:
 
     GraphEdit();
 };
-
-#endif // GRAPHEdit_H

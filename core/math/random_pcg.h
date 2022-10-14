@@ -32,8 +32,6 @@
 #include "core/typedefs.h"
 #include "core/math/math_defs.h"
 
-#include <cmath>
-
 #if defined(__GNUC__)
 #define CLZ32(x) __builtin_clz(x)
 #elif defined(_MSC_VER)
@@ -94,14 +92,8 @@ public:
     double randd();
     float randf();
 
-    double randfn(double p_mean, double p_deviation) {
-        return p_mean + p_deviation * (std::cos(MathConsts<double>::TAU * randd()) *
-                                       std::sqrt(-2.0 * std::log(randd()))); // Box-Muller transform
-    }
-    float randfn(float p_mean, float p_deviation) {
-        return p_mean + p_deviation * (std::cos(float(Math_TAU) * randf()) *
-                                       std::sqrt(-2.0f * std::log(randf()))); // Box-Muller transform
-    }
+    double randfn(double p_mean, double p_deviation);
+    float randfn(float p_mean, float p_deviation);
 
     double random(double p_from, double p_to);
     float random(float p_from, float p_to);

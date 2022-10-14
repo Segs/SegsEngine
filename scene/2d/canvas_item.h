@@ -35,7 +35,6 @@
 #include "scene/resources/material.h"
 #include "scene/resources/multimesh.h"
 #include "scene/resources/texture.h"
-#include "core/list.h"
 #include "core/math/transform_2d.h"
 
 
@@ -44,117 +43,6 @@ class Viewport;
 class Font;
 class World2D;
 class StyleBox;
-
-class GODOT_EXPORT CanvasItemMaterial : public Material {
-
-    GDCLASS(CanvasItemMaterial,Material)
-
-public:
-    enum BlendMode : uint8_t {
-        BLEND_MODE_MIX,
-        BLEND_MODE_ADD,
-        BLEND_MODE_SUB,
-        BLEND_MODE_MUL,
-        BLEND_MODE_PREMULT_ALPHA,
-        BLEND_MODE_DISABLED
-    };
-
-    enum LightMode : uint8_t {
-        LIGHT_MODE_NORMAL,
-        LIGHT_MODE_UNSHADED,
-        LIGHT_MODE_LIGHT_ONLY
-    };
-
-private:
-    union MaterialKey {
-
-        struct {
-            uint32_t blend_mode : 4;
-            uint32_t light_mode : 4;
-            uint32_t particles_animation : 1;
-            uint32_t invalid_key : 1;
-        };
-
-        uint32_t key;
-
-        bool operator==(MaterialKey p_key) const {
-            return key == p_key.key;
-        }
-    private:
-        friend eastl::hash<MaterialKey>;
-        explicit operator size_t() const {
-            return key;
-        }
-
-    };
-
-    struct ShaderData {
-        RenderingEntity shader;
-        int users;
-    };
-
-
-
-    static HashMap<MaterialKey, ShaderData> shader_map;
-    static Mutex material_mutex;
-
-    MaterialKey current_key;
-    bool is_dirty_element;
-    bool is_initialized = false;
-
-    int particles_anim_h_frames;
-    int particles_anim_v_frames;
-
-    BlendMode blend_mode;
-    LightMode light_mode;
-    bool particles_animation;
-    bool particles_anim_loop;
-
-    _FORCE_INLINE_ MaterialKey _compute_key() const {
-
-        MaterialKey mk;
-        mk.key = 0;
-        mk.blend_mode = blend_mode;
-        mk.light_mode = light_mode;
-        mk.particles_animation = particles_animation;
-        return mk;
-    }
-    void _update_shader();
-    _FORCE_INLINE_ void _queue_shader_change();
-protected:
-    static void _bind_methods();
-    void _validate_property(PropertyInfo &property) const override;
-
-public:
-    void set_blend_mode(BlendMode p_blend_mode);
-    BlendMode get_blend_mode() const;
-
-    void set_light_mode(LightMode p_light_mode);
-    LightMode get_light_mode() const;
-
-    void set_particles_animation(bool p_particles_anim);
-    bool get_particles_animation() const;
-
-    void set_particles_anim_h_frames(int p_frames);
-    int get_particles_anim_h_frames() const;
-    void set_particles_anim_v_frames(int p_frames);
-    int get_particles_anim_v_frames() const;
-
-    void set_particles_anim_loop(bool p_loop);
-    bool get_particles_anim_loop() const;
-
-    static void init_shaders();
-    static void finish_shaders();
-    static void flush_changes();
-
-    RenderingEntity get_shader_rid() const;
-
-    RenderingServerEnums::ShaderMode get_shader_mode() const override;
-
-    CanvasItemMaterial();
-    ~CanvasItemMaterial() override;
-};
-
 
 class GODOT_EXPORT CanvasItem : public Node {
 
@@ -208,7 +96,7 @@ public:
 
 protected:
     void _notify_transform() {
-        if (!is_inside_tree()) { 
+        if (!is_inside_tree()) {
             return;
         }
         _notify_transform(this);

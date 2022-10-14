@@ -30,8 +30,9 @@
 
 #pragma once
 
-#include "core/math/math_funcs.h"
+#include "core/godot_export.h"
 #include "core/forward_decls.h"
+#include "core/math/math_funcs.h"
 
 struct GODOT_EXPORT [[nodiscard]] Color {
 
@@ -86,21 +87,19 @@ struct GODOT_EXPORT [[nodiscard]] Color {
     constexpr Color operator*(Color p_color) const {
         return Color(r * p_color.r, g * p_color.g, b * p_color.b, a * p_color.a);
     }
-    constexpr Color operator*(real_t rvalue) const {
+    constexpr Color operator*(float rvalue) const {
         return Color(r * rvalue, g * rvalue, b * rvalue, a * rvalue);
     }
 
     void operator*=(Color p_color);
-    void operator*=(real_t rvalue);
+    void operator*=(float rvalue);
 
     Color operator/(Color p_color) const;
-    Color operator/(real_t rvalue) const;
+    Color operator/(float rvalue) const;
     void operator/=(Color p_color);
-    void operator/=(real_t rvalue);
+    void operator/=(float rvalue);
 
-    bool is_equal_approx(Color p_color) const {
-        return Math::is_equal_approx(r, p_color.r) && Math::is_equal_approx(g, p_color.g) && Math::is_equal_approx(b, p_color.b) && Math::is_equal_approx(a, p_color.a);
-    }
+    bool is_equal_approx(Color p_color) const;
     void constexpr invert() {
 
         r = 1.0f - r;
@@ -117,7 +116,7 @@ struct GODOT_EXPORT [[nodiscard]] Color {
         return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     }
 
-    constexpr _FORCE_INLINE_ Color linear_interpolate(Color p_to, float p_weight) const {
+    constexpr Color linear_interpolate(Color p_to, float p_weight) const {
 
         Color res = *this;
 
@@ -137,7 +136,7 @@ struct GODOT_EXPORT [[nodiscard]] Color {
         );
     }
 
-    constexpr _FORCE_INLINE_ Color lightened(float p_amount) const {
+    constexpr Color lightened(float p_amount) const {
         return Color(
             r + (1.0f - r) * p_amount,
             g + (1.0f - g) * p_amount,
@@ -147,7 +146,7 @@ struct GODOT_EXPORT [[nodiscard]] Color {
 
     uint32_t to_rgbe9995() const;
 
-    constexpr _FORCE_INLINE_ Color blend(Color p_over) const {
+    constexpr Color blend(Color p_over) const {
 
         Color res;
         float sa = 1.0f - p_over.a;
@@ -187,7 +186,20 @@ struct GODOT_EXPORT [[nodiscard]] Color {
     static Color from_hsv(float p_h, float p_s, float p_v, float p_a);
     static Color from_rgbe9995(uint32_t p_rgbe);
 
-    _FORCE_INLINE_ bool operator<(Color p_color) const; //used in set keys
+    //used in set keys
+    bool operator<(Color p_color) const {
+
+        if (r == p_color.r) {
+            if (g == p_color.g) {
+                if (b == p_color.b) {
+                    return (a < p_color.a);
+                } else
+                    return (b < p_color.b);
+            } else
+                return g < p_color.g;
+        } else
+            return r < p_color.r;
+    }
     operator String() const;
     constexpr float &component(uint8_t idx) { return (&r)[idx]; }
     constexpr float component(uint8_t idx) const { return (&r)[idx]; }
@@ -208,16 +220,4 @@ struct GODOT_EXPORT [[nodiscard]] Color {
     }
 };
 
-bool Color::operator<(Color p_color) const {
 
-    if (r == p_color.r) {
-        if (g == p_color.g) {
-            if (b == p_color.b) {
-                return (a < p_color.a);
-            } else
-                return (b < p_color.b);
-        } else
-            return g < p_color.g;
-    } else
-        return r < p_color.r;
-}

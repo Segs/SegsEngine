@@ -36,6 +36,7 @@
 #include "scene/gui/button.h"
 #include "scene/gui/popup.h"
 #include "scene/gui/tree.h"
+#include "core/list.h"
 
 class AnimationTreePlayer;
 

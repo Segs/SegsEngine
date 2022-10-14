@@ -3,6 +3,7 @@
 #include "core/reflection_macros.h"
 #include "core/os/memory.h"
 #include "core/hashfuncs.h"
+
 #include "EASTL/string.h"
 #include "EASTL/fixed_string.h"
 

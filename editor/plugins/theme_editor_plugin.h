@@ -39,6 +39,7 @@
 #include "scene/resources/theme.h"
 
 #include "editor/editor_node.h"
+#include "core/list.h"
 
 class ThemeEditorPreview;
 class ItemList;

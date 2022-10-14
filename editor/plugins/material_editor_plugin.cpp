@@ -34,6 +34,7 @@
 #include "core/method_bind.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
+#include "scene/2d/canvas_item_material.h"
 #include "scene/gui/viewport_container.h"
 #include "scene/resources/particles_material.h"
 #include "scene/resources/shader.h"

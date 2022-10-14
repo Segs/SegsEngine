@@ -40,6 +40,7 @@
 #include "scene/2d/back_buffer_copy.h"
 #include "scene/2d/camera_2d.h"
 #include "scene/2d/canvas_item.h"
+#include "scene/2d/canvas_item_material.h"
 #include "scene/2d/canvas_modulate.h"
 #include "scene/2d/collision_polygon_2d.h"
 #include "scene/2d/collision_shape_2d.h"

@@ -494,3 +494,7 @@ void Color::operator/=(real_t rvalue) {
         a = a / rvalue;
     }
 }
+
+bool Color::is_equal_approx(Color p_color) const {
+    return Math::is_equal_approx(r, p_color.r) && Math::is_equal_approx(g, p_color.g) && Math::is_equal_approx(b, p_color.b) && Math::is_equal_approx(a, p_color.a);
+}

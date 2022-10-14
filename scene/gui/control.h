@@ -33,7 +33,6 @@
 #include "core/math/transform_2d.h"
 #include "core/hash_map.h"
 #include "core/string.h"
-#include "core/rid.h"
 #include "core/node_path.h"
 #include "core/method_enum_caster.h"
 #include "scene/2d/canvas_item.h"

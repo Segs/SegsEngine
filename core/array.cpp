@@ -32,6 +32,7 @@
 
 #include "core/hashfuncs.h"
 #include "core/object.h"
+#include "core/math/math_funcs.h"
 #include "core/pool_vector.h"
 #include "core/variant.h"
 #include "core/vector.h"
@@ -325,21 +326,6 @@ Array Array::slice(int p_begin, int p_end, int p_step, bool p_deep) const { // l
 Array &Array::sort() {
     eastl::sort(_p->array.begin(), _p->array.end(), _ArrayVariantSort());
     return *this;
-}
-
-void Array::shuffle() {
-    const int n = _p->array.size();
-    if (n < 2) {
-        return;
-    }
-    auto &wr(_p->array);
-    Variant *data = wr.data();
-    for (int i = n - 1; i >= 1; i--) {
-        const int j = Math::rand() % (i + 1);
-        const Variant tmp = data[j];
-        data[j] = data[i];
-        data[i] = tmp;
-    }
 }
 
 Array &Array::invert() {

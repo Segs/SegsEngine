@@ -35,6 +35,7 @@
 #include "core/object_tooling.h"
 #include "core/os/os.h"
 #include "core/translation_helpers.h"
+#include "scene/2d/canvas_item_material.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/particles_material.h"
 #include "scene/scene_string_names.h"

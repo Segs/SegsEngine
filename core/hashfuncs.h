@@ -31,7 +31,8 @@
 #pragma once
 
 #include "core/math/math_defs.h"
-#include "core/math/math_funcs.h"
+//#include "core/math/math_funcs.h"
+#include "core/math/math_defs.h"
 #include "core/typedefs.h"
 
 #include "EASTL/type_traits.h"
@@ -122,48 +123,41 @@ static inline uint32_t hash_one_uint64(const uint64_t p_int) {
     return (int)v;
 }
 
-static uint32_t hash_djb2_one_float(double p_in, uint32_t p_prev = 5381) {
-    union {
-        double d;
-        uint64_t i;
-    } u;
+//static uint32_t hash_djb2_one_float(double p_in, uint32_t p_prev = 5381) {
+//    union {
+//        double d;
+//        uint64_t i;
+//    } u;
 
-    // Normalize +/- 0.0 and NaN values so they hash the same.
-    if (p_in == 0.0)
-        u.d = 0.0;
-    else if (Math::is_nan(p_in))
-        u.d = Math_NAN;
-    else
-        u.d = p_in;
+//    // Normalize +/- 0.0 and NaN values so they hash the same.
+//    if (p_in == 0.0)
+//        u.d = 0.0;
+//    else if (Math::is_nan(p_in))
+//        u.d = Math_NAN;
+//    else
+//        u.d = p_in;
 
-    return ((p_prev << 5) + p_prev) + hash_one_uint64(u.i);
-}
+//    return ((p_prev << 5) + p_prev) + hash_one_uint64(u.i);
+//}
 static uint32_t hash_djb2_one_float(float p_in, uint32_t p_prev = 5381) {
     union {
         float d;
         uint32_t i;
     } u;
+    uint32_t const bits = reinterpret_cast<uint32_t const&>( p_in );
+    static constexpr uint32_t   exp_mask        = 0x7f800000;
+    static constexpr uint32_t   mantissa_mask   = 0x007fffff;
+    const bool is_nan_val = ((bits & exp_mask) == exp_mask && (bits & mantissa_mask) != 0);
 
     // Normalize +/- 0.0 and NaN values so they hash the same.
     if (p_in == 0.0f)
         u.d = 0.0f;
-    else if (Math::is_nan(p_in))
-        u.d = Math_NAN;
+    else if (is_nan_val)
+        u.i = 0x7f800001; // normalize all nans to a single bit-value
     else
         u.d = p_in;
 
     return ((p_prev << 5) + p_prev) + hash_djb2_one_32(u.i);
-}
-template <class T>
-static uint32_t make_uint32_t(T p_in) {
-
-    union {
-        T t;
-        uint32_t _u32;
-    } _u;
-    _u._u32 = 0;
-    _u.t = p_in;
-    return _u._u32;
 }
 
 static constexpr uint64_t hash_djb2_one_64(uint64_t p_in, uint64_t p_prev = 5381) {
@@ -187,7 +181,7 @@ template <class T> struct Hasher {
     uint32_t operator()(const T &val) const { return val.hash(); }
 };
 template <typename Key>
-using HashType = typename std::conditional<std::is_enum<Key>::value, Hasher<typename std::underlying_type<Key>::type>,
+using HashType = typename eastl::conditional<eastl::is_enum<Key>::value, Hasher<typename eastl::underlying_type<Key>::type>,
         Hasher<Key>>::type;
 
 template <> struct Hasher<const char *> {

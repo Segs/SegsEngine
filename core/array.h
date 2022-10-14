@@ -89,7 +89,6 @@ public:
     const Variant &back() const;
 
     Array &sort();
-    void shuffle();
     Array &invert();
 
     int find(const Variant &p_value, int p_from = 0) const;

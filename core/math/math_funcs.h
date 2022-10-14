@@ -38,7 +38,6 @@
 #include <cmath>
 
 class Math {
-
     static RandomPCG default_rand;
 
 public:
@@ -107,9 +106,12 @@ public:
     static _ALWAYS_INLINE_ bool is_nan(double p_val) {
         return std::isnan(p_val);
     }
-
-    static _ALWAYS_INLINE_ bool is_nan(float p_val) {
-        return std::isnan(p_val);
+    static _ALWAYS_INLINE_ bool is_nan( float x )
+    {
+        uint32_t const bits = reinterpret_cast<uint32_t const&>( x );
+        static constexpr uint32_t   exp_mask        = 0x7f800000;
+        static constexpr uint32_t   mantissa_mask   = 0x007fffff;
+        return (bits & exp_mask) == exp_mask && (bits & mantissa_mask) != 0;
     }
 
     static _ALWAYS_INLINE_ bool is_inf(double p_val) {

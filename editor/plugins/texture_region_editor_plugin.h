@@ -38,6 +38,7 @@
 #include "scene/gui/nine_patch_rect.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/texture.h"
+#include "core/list.h"
 
 /**
     @author Mariano Suligoy
