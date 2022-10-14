@@ -370,28 +370,6 @@ Variant Array::pop_front() {
     return Variant();
 }
 
-Variant Array::min() const {
-    Variant minval;
-    for (int i = 0; i < size(); i++) {
-        if (i == 0) {
-            minval = get(i);
-        } else {
-            bool valid;
-            Variant ret;
-            Variant test = get(i);
-            Variant::evaluate(Variant::OP_LESS, test, minval, ret, valid);
-            if (!valid) {
-                return Variant(); // not a valid comparison
-            }
-            if (ret.as<bool>()) {
-                // is less
-                minval = test;
-            }
-        }
-    }
-    return minval;
-}
-
 const void *Array::id() const {
     return _p;
 }

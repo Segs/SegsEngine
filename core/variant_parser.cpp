@@ -149,7 +149,6 @@ static double stor_fix(const String &p_str) {
     return -1;
 }
 Error VariantParser::get_token(VariantParserStream *p_stream, Token &r_token, int &line, String &r_err_str) {
-    bool string_name = false;
     eastl::fixed_string<char, 128, true> tmp_str_buf; // static variable to prevent constat alloc/dealloc
 
     while (true) {
@@ -271,8 +270,6 @@ Error VariantParser::get_token(VariantParserStream *p_stream, Token &r_token, in
                     r_token.type = TK_ERROR;
                     return ERR_PARSE_ERROR;
                 }
-
-                string_name = true;
                 [[fallthrough]];
             }
             case '"': {

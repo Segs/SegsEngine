@@ -44,7 +44,7 @@ bool LipO::create_file(const String &p_output_path, const Vector<String> &p_file
     close();
 
     fa = FileAccess::open(p_output_path, FileAccess::WRITE);
-    ERR_FAIL_COND_V_MSG(!fa, false, FormatVE("LipO: Can't open file: \"%s\".", p_output_path));
+    ERR_FAIL_COND_V_MSG(!fa, false, FormatVE("LipO: Can't open file: \"%s\".", p_output_path.c_str()));
 
     uint64_t max_size = 0;
     for (int i = 0; i < p_files.size(); i++) {

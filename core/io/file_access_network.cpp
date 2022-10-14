@@ -69,13 +69,9 @@ struct FileAccessNetworkClient_priv {
 struct FileAccessNetwork_priv {
     mutable int waiting_on_page;
     struct Page {
-        int activity;
-        bool queued;
         Vector<uint8_t> buffer;
-        Page() {
-            activity = 0;
-            queued = false;
-        }
+        int activity = 0;
+        bool queued = false;
     };
 
     mutable Vector<Page> pages;

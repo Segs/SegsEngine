@@ -107,7 +107,6 @@ public:
 
     Array slice(int p_begin, int p_end, int p_step = 1, bool p_deep = false) const;
 
-    Variant min() const;
     const void *id() const;
     template<class T>
     explicit Array(Span<T> from) {

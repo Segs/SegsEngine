@@ -643,7 +643,7 @@ Error ResourceInteractiveLoaderBinary::poll() {
 
     RES res(r,DoNotAddRef);
 
-	if (!no_subresource_cache) {
+    if (!no_subresource_cache) {
         r->set_path(path);
     }
     r->set_subindex(subindex);
@@ -1784,10 +1784,10 @@ Error ResourceFormatSaverBinaryInstance::save(StringView p_path, const RES &p_re
         save_order[E.second] = E.first;
     }
 
-    for (int i = 0; i < save_order.size(); i++) {
+    for (const RES & in_order : save_order) {
 
-        save_unicode_string(f, save_order[i]->get_save_class());
-        String path = save_order[i]->get_path();
+        save_unicode_string(f, in_order->get_save_class());
+        String path = in_order->get_path();
         path = relative_paths ? PathUtils::path_to_file(local_path,path) : path;
         save_unicode_string(f, path);
     }

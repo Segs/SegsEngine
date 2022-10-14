@@ -288,7 +288,7 @@ void build_legacygl_header(const QString &filename, const char *include, bool ou
     fd << "\n\n";
     fd << QString("#include \"%1\"\n\n\n").arg(include).toLocal8Bit();
     fd << QString("class %1 : public ShaderGLES3 {\n\n").arg(out_file_class).toLocal8Bit();
-    fd << "\t virtual const char *get_shader_name() const { return \"" + out_file_class + "\"; }\n";
+    fd << "\t const char *get_shader_name() const override { return \"" + out_file_class + "\"; }\n";
 
     fd << "public:\n\n";
 
@@ -382,7 +382,7 @@ void build_legacygl_header(const QString &filename, const char *include, bool ou
 
     fd << "\n\n#undef _FU\n\n\n";
 
-    fd << "\tvirtual void init() {\n\n";
+    fd << "\tvoid init() override {\n\n";
 
     int enum_value_count = 0;
 

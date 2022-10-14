@@ -173,19 +173,14 @@ String EditorFeatureProfile::get_feature_description(Feature p_feature) {
 Error EditorFeatureProfile::save_to_file(StringView p_path) {
     Dictionary json;
     json["type"] = "feature_profile";
-    Array dis_classes;
-    for (const StringName &E : disabled_classes) {
-        dis_classes.push_back(E);
-    }
-    dis_classes.sort();
-    json["disabled_classes"] = dis_classes;
+    Vector<StringName> class_names =  disabled_classes.keys();
+    Vector<StringName> editor_names =  disabled_editors.keys();
 
-    Array dis_editors;
-    for (const StringName &E : disabled_editors) {
-        dis_editors.push_back(E);
-    }
-    dis_editors.sort();
-    json["disabled_editors"] = dis_editors;
+    eastl::sort(class_names.begin(),class_names.begin(),WrapAlphaCompare());
+    eastl::sort(class_names.begin(),class_names.begin(),WrapAlphaCompare());
+
+    json["disabled_classes"] = Array(Span<StringName>(class_names));
+    json["disabled_editors"] = Array(Span<StringName>(editor_names));
 
     Array dis_props;
 

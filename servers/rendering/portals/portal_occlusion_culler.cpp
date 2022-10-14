@@ -253,7 +253,6 @@ void PortalOcclusionCuller::prepare_generic(PortalRenderer &p_portal_renderer,
         _max_polys = T_GLOBAL_GET<int>("rendering/misc/occlusion_culling/max_active_polygons");
     }
 #endif
-    _num_spheres = 0;
 
     _pt_camera = pt_camera;
 

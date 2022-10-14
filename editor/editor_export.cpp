@@ -337,7 +337,7 @@ bool EditorExportPlatform::fill_log_messages(RichTextLabel* p_log, Error p_err) 
 
             p_log->push_cell();
             p_log->push_color(color);
-            p_log->add_text(FormatVE("[%s]: %s", msg.category, msg.text));
+            p_log->add_text(FormatVE("[%s]: %s", msg.category.c_str(), msg.text.c_str()));
             p_log->pop();
             p_log->pop();
         }

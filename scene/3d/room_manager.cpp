@@ -1362,8 +1362,8 @@ void RoomManager::_process_static(Room *p_room, Node3D *p_node, Vector<Vector3> 
                 }
 
                 if (p_add_to_portal_renderer) {
-				    // We are sending the VisualInstance AABB rather than the manually calced AABB, maybe we don't need to calc the AABB.
-				    // If this works okay we can maybe later remove the manual AABB calculation in _bound_findpoints_mesh_instance().
+                    // We are sending the VisualInstance AABB rather than the manually calced AABB, maybe we don't need to calc the AABB.
+                    // If this works okay we can maybe later remove the manual AABB calculation in _bound_findpoints_mesh_instance().
                     RoomAPI::room_add_instance(p_room->_room_rid, mi->get_instance(),
                             mi->get_transformed_aabb().grow(mi->get_extra_cull_margin()), object_pts);
                     added = true;
@@ -1388,7 +1388,7 @@ void RoomManager::_process_static(Room *p_room, Node3D *p_node, Vector<Vector3> 
                 // NOTE the is_visible check MAY cause problems if conversion run on nodes that
                 // aren't properly in the tree. It can optionally be removed. Certainly calling is_visible_in_tree
                 // DID cause problems.
-                if (!is_dynamic && cic->get_include_in_bound() && gi->is_visible()) {
+                if (!is_dynamic && cic && cic->get_include_in_bound() && gi->is_visible()) {
                     r_room_pts.push_back(object_pts);
                 }
 
@@ -1859,7 +1859,7 @@ bool RoomManager::_bound_findpoints_geom_instance(GeometryInstance *p_gi, Vector
         return true;
     }
 
-	// Fallback path for geometry that is not recognised
+    // Fallback path for geometry that is not recognised
     // (including CPUParticles, which will need to rely on an expansion margin)
     r_aabb = p_gi->get_transformed_aabb();
     return true;
@@ -2159,7 +2159,7 @@ void RoomManager::_merge_meshes_in_room(Room *p_room) {
             if (!bf.get_bit(c)) {
                 MeshInstance3D *b = source_meshes[c];
 
-				if (a->is_mergeable_with(*b)) {
+                if (a->is_mergeable_with(*b)) {
                     merge_list.push_back(b);
                     bf.set_bit(c, true);
                 }

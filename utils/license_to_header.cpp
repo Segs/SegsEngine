@@ -1133,9 +1133,7 @@ bool generate_mono_glue(QStringList args) {
         "#include \"core/map.h\"",
         "#include \"core/string.h\"",
     };
-    QStringList inserted_files;
 
-    int cs_file_count = 0;
     QDirIterator visitor(src,QDirIterator::Subdirectories);
     QCryptographicHash hash(QCryptographicHash::Sha256);
     QStringList files;
@@ -1159,8 +1157,6 @@ bool generate_mono_glue(QStringList args) {
         hash.addData(contents);
         hash2.addData(contents);
         qDebug() << "Hashing"<<fname<<QString::number(qHash(hash.result()),16);
-
-        cs_file_count += 1;
     }
     auto hashed = hash.result();
 
