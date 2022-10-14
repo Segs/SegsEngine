@@ -133,6 +133,16 @@ bool DirAccessUnix::is_hidden(StringView p_name) {
     return p_name != StringView(".") && p_name != StringView("..") && StringUtils::begins_with(p_name,".");
 }
 
+bool DirAccessUnix::has_next() const {
+    if (!dir_stream) {
+		return false;
+	}
+	auto offset=telldir(dir_stream);
+    bool has_entry = readdir(dir_stream)!=nullptr;
+	seekdir(dir_stream,offset); //reset scan position
+	return has_entry;
+}
+
 String DirAccessUnix::get_next() {
 
     if (!dir_stream)

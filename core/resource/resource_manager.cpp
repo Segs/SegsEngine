@@ -267,6 +267,7 @@ ResourceManager::~ResourceManager()
 {
     if(D())
         finalize();
+    queued_save_updates.clear();
 }
 
 void ResourceManager::add_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver, bool p_at_front) {
@@ -314,18 +315,24 @@ Error ResourceManager::save_impl(StringView p_path, const RES& p_resource, uint3
 
         err = s->save(p_path, p_resource, p_flags);
 
-        if (err == OK) {
-
-            Object_set_edited(p_resource.get(), false);
-            if (p_flags & FLAG_CHANGE_PATH) {
-                p_resource->set_path(old_path);
-            }
-
-            if (D()->save_callback && StringUtils::begins_with(p_path, "res://"))
-                D()->save_callback(p_resource, p_path);
-
-            return OK;
+        if (err != OK) {
+            continue;
         }
+
+        Object_set_edited(p_resource.get(), false);
+        if (p_flags & FLAG_CHANGE_PATH) {
+            p_resource->set_path(old_path);
+        }
+
+        if (D()->save_callback && StringUtils::begins_with(p_path, "res://")) {
+            if (pause_save_callback) {
+                queued_save_updates.emplace_back(QueuedCallbackCall{ p_resource, String(p_path) });
+            } else {
+                D()->save_callback(p_resource, p_path);
+            }
+        }
+
+        return OK;
     }
 
     return err;
@@ -334,6 +341,24 @@ Error ResourceManager::save_impl(StringView p_path, const RES& p_resource, uint3
 void ResourceManager::set_save_callback(ResourceSavedCallback p_callback) {
 
     D()->save_callback = p_callback;
+}
+
+void ResourceManager::set_save_callback_pause(bool v) {
+    if (v==pause_save_callback) {
+        return;
+    }
+    pause_save_callback = v;
+    if (!D()->save_callback) {
+        queued_save_updates.clear();
+        return;
+    }
+    if (pause_save_callback==false) {
+        for(const auto &path_and_resource : queued_save_updates) {
+            if (StringUtils::begins_with(path_and_resource.path, "res://"))
+                D()->save_callback(path_and_resource.res, path_and_resource.path);
+
+        }
+    }
 }
 
 void ResourceManager::get_recognized_extensions(const RES& p_resource, Vector<String>& p_extensions) {

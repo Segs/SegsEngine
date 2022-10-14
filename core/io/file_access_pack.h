@@ -169,7 +169,9 @@ class DirAccessPack : public DirAccess {
 
 public:
     Error list_dir_begin() override;
+    bool has_next() const override;
     String get_next() override;
+
     [[nodiscard]] bool current_is_dir() const override;
     [[nodiscard]] bool current_is_hidden() const override;
     void list_dir_end() override;

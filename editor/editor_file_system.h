@@ -33,7 +33,7 @@
 #include "core/os/dir_access.h"
 #include "core/os/thread.h"
 #include "core/os/thread_safe.h"
-#include "core/list.h"
+#include "core/deque.h"
 #include "core/set.h"
 #include "core/hash_map.h"
 #include "core/map.h"
@@ -130,18 +130,11 @@ class GODOT_EXPORT EditorFileSystem : public Node {
             ACTION_FILE_RELOAD
         };
 
-        Action action;
-        EditorFileSystemDirectory *dir;
+        Action action = ACTION_NONE;
+        EditorFileSystemDirectory *dir = nullptr;
         String file;
-        EditorFileSystemDirectory *new_dir;
-        EditorFileSystemDirectory::FileInfo *new_file;
-
-        ItemAction() {
-            action = ACTION_NONE;
-            dir = nullptr;
-            new_dir = nullptr;
-            new_file = nullptr;
-        }
+        EditorFileSystemDirectory *new_dir = nullptr;
+        EditorFileSystemDirectory::FileInfo *new_file = nullptr;
     };
 
     bool use_threads;
@@ -210,6 +203,7 @@ class GODOT_EXPORT EditorFileSystem : public Node {
     Set<String> import_extensions;
 
     void _scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess *da, const ScanProgress &p_progress);
+    void _process_directory_changes(EditorFileSystemDirectory *p_dir, const ScanProgress &p_progress);
 
     Thread thread_sources;
     bool scanning_changes;
@@ -217,8 +211,8 @@ class GODOT_EXPORT EditorFileSystem : public Node {
 
     static void _thread_func_sources(void *_userdata);
 
-    List<String> sources_changed;
-    List<ItemAction> scan_actions;
+    Dequeue<String> sources_changed;
+    Dequeue<ItemAction> scan_actions;
 
     bool _update_scan_actions();
 
@@ -274,7 +268,6 @@ public:
     float get_scanning_progress() const;
     void scan();
     void scan_changes();
-    void get_changed_sources(List<String> *r_changed);
     void update_file(StringView p_file);
     Set<String> get_valid_extensions() const;
 

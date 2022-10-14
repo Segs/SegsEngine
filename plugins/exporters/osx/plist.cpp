@@ -31,7 +31,7 @@
 #include "plist.h"
 #include "core/deque.h"
 #include "core/string.h"
-#include "core/string_formatter.h""
+#include "core/string_formatter.h"
 #include "core/string_utils.h"
 
 Ref<PListNode> PListNode::new_array() {

@@ -61,6 +61,7 @@ class DirAccessWindows : public DirAccess {
 
 public:
     Error list_dir_begin() override; ///< This starts dir listing
+    bool has_next() const override;
     String get_next() override;
     bool current_is_dir() const override;
     bool current_is_hidden() const override;

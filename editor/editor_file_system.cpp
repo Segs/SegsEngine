@@ -726,7 +726,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
     p_dir->modified_time = FileAccess::get_modified_time(cd);
 
     da->list_dir_begin();
-    while (true) {
+    while (da->has_next()) {
 
         String f = da->get_next();
         if (f.empty())
@@ -737,21 +737,24 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
 
         if (da->current_is_dir()) {
 
-            if (StringUtils::begins_with(f,".")) // Ignore special and . / ..
+            if (StringUtils::begins_with(f,".")) { // Ignore special and . / ..
                 continue;
+            }
 
-            if (editor_should_skip_directory(PathUtils::plus_file(cd,f)))
+            if (editor_should_skip_directory(PathUtils::plus_file(cd,f))) {
                 continue;
+            }
 
-            dirs.push_back(f);
+            dirs.emplace_back(eastl::move(f));
 
         } else {
 
-            files.push_back(f);
+            files.emplace_back(eastl::move(f));
         }
     }
 
     da->list_dir_end();
+
     eastl::sort(dirs.begin(),dirs.end(),NaturalNoCaseComparator());
     eastl::sort(files.begin(),files.end(),NaturalNoCaseComparator());
 
@@ -761,38 +764,39 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
     for (const String &entry : dirs) {
         idx++;
 
-        if (da->change_dir(entry) == OK) {
-
-            String d = da->get_current_dir();
-
-            if (d == cd || !StringUtils::begins_with(d,cd)) {
-                da->change_dir(cd); //avoid recursion
-            } else {
-
-                EditorFileSystemDirectory *efd = memnew(EditorFileSystemDirectory);
-
-                efd->parent = p_dir;
-                efd->name = entry;
-
-                _scan_new_dir(efd, da, p_progress.get_sub(idx, total));
-
-                int idx2 = 0;
-                for (int j = 0; j < p_dir->subdirs.size(); j++) {
-
-                    if (efd->name < p_dir->subdirs[j]->name)
-                        break;
-                    idx2++;
-                }
-                if (idx2 == p_dir->subdirs.size()) {
-                    p_dir->subdirs.push_back(efd);
-                } else {
-                    p_dir->subdirs.insert(p_dir->subdirs.begin()+idx2, efd);
-                }
-
-                da->change_dir("..");
-            }
-        } else {
+        if (da->change_dir(entry) != OK) {
             ERR_PRINT("Cannot go into subdir: " + entry);
+            p_progress.update(idx, total);
+            continue;
+        }
+
+        String d = da->get_current_dir();
+
+        if (d == cd || !StringUtils::begins_with(d,cd)) {
+            da->change_dir(cd); //avoid recursion
+        } else {
+
+            EditorFileSystemDirectory *efd = memnew(EditorFileSystemDirectory);
+
+            efd->parent = p_dir;
+            efd->name = entry;
+
+            _scan_new_dir(efd, da, p_progress.get_sub(idx, total));
+
+            int idx2 = 0;
+            for (auto & subdir : p_dir->subdirs) {
+
+                if (efd->name < subdir->name)
+                    break;
+                idx2++;
+            }
+            if (idx2 == p_dir->subdirs.size()) {
+                p_dir->subdirs.push_back(efd);
+            } else {
+                p_dir->subdirs.insert(p_dir->subdirs.begin()+idx2, efd);
+            }
+
+            da->change_dir("..");
         }
 
         p_progress.update(idx, total);
@@ -829,7 +833,6 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                 fi->deps = fc->deps;
                 fi->modified_time = fc->modification_time;
                 fi->import_modified_time = fc->import_modification_time;
-
                 fi->import_valid = fc->import_valid;
                 fi->script_class_name = fc->script_class_name;
                 fi->import_group_file = fc->import_group_file;
@@ -868,14 +871,14 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                 scan_actions.push_back(ia);
             }
         } else {
+            fi->import_modified_time = 0;
+            fi->import_valid = true;
 
             if (fc && fc->modification_time == mt) {
                 //not imported, so just update type if changed
                 fi->type = StringName(fc->type);
                 fi->modified_time = fc->modification_time;
                 fi->deps = fc->deps;
-                fi->import_modified_time = 0;
-                fi->import_valid = true;
                 fi->script_class_name = fc->script_class_name;
                 fi->script_class_extends = fc->script_class_extends;
                 fi->script_class_icon_path = fc->script_class_icon_path;
@@ -885,8 +888,6 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                 fi->script_class_name = _get_global_script_class(fi->type, path, &fi->script_class_extends, &fi->script_class_icon_path);
                 fi->deps = _get_dependencies(path);
                 fi->modified_time = mt;
-                fi->import_modified_time = 0;
-                fi->import_valid = true;
             }
         }
 
@@ -894,197 +895,199 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
         p_progress.update(idx, total);
     }
 }
-
-void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const ScanProgress &p_progress) {
-
-    uint64_t current_mtime = FileAccess::get_modified_time(p_dir->get_path());
-
-    bool updated_dir = false;
+void EditorFileSystem::_process_directory_changes(EditorFileSystemDirectory *p_dir, const ScanProgress &p_progress) {
     String cd = p_dir->get_path();
+    uint64_t current_mtime = FileAccess::get_modified_time(cd);
+    p_dir->modified_time = current_mtime;
+    // ooooops, dir changed, see what's going on
 
-    if (current_mtime != p_dir->modified_time || using_fat32_or_exfat) {
+    // first mark everything as verified
 
-        updated_dir = true;
-        p_dir->modified_time = current_mtime;
-        //ooooops, dir changed, see what's going on
+    for (auto *fi : p_dir->files) {
+        fi->verified = false;
+    }
+    for (auto *sd : p_dir->subdirs) {
+        sd->verified = false;
+    }
 
-        //first mark everything as verified
+    // then scan files and directories and check what's different
 
-        for (auto * fi : p_dir->files) {
-            fi->verified = false;
-        }
-        for (auto * sd : p_dir->subdirs) {
-            sd->verified = false;
-        }
+    DirAccessRef da(DirAccess::create(DirAccess::ACCESS_RESOURCES));
 
-        //then scan files and directories and check what's different
+    Error ret = da->change_dir(cd);
+    ERR_FAIL_COND_MSG(ret != OK, "Cannot change to '" + cd + "' folder.");
+    da->list_dir_begin();
+    while (da->has_next()) {
+        String f = da->get_next();
+        if (f.empty()) // TODO: additional check that might be removed when we tighten up the get_next post-conditions.
+            break;
 
-        DirAccessRef da(DirAccess::create(DirAccess::ACCESS_RESOURCES));
+        if (da->current_is_hidden())
+            continue;
 
-        Error ret = da->change_dir(cd);
-        ERR_FAIL_COND_MSG(ret != OK, "Cannot change to '" + cd + "' folder.");
-        da->list_dir_begin();
-        while (true) {
-
-            String f = da->get_next();
-            if (f.empty())
-                break;
-
-            if (da->current_is_hidden())
+        if (da->current_is_dir()) {
+            if (StringUtils::begins_with(f, ".")) // Ignore special and . / ..
                 continue;
 
-            if (da->current_is_dir()) {
-
-                if (StringUtils::begins_with(f,".")) // Ignore special and . / ..
+            int idx = p_dir->find_dir_index(f);
+            if (idx == -1) {
+                if (editor_should_skip_directory(PathUtils::plus_file(cd, f)))
                     continue;
 
-                int idx = p_dir->find_dir_index(f);
-                if (idx == -1) {
+                EditorFileSystemDirectory *efd = memnew(EditorFileSystemDirectory);
 
-                    if (editor_should_skip_directory(PathUtils::plus_file(cd,f)))
-                        continue;
+                efd->parent = p_dir;
+                efd->name = f;
+                DirAccess *d = DirAccess::create(DirAccess::ACCESS_RESOURCES);
+                d->change_dir(PathUtils::plus_file(cd, f));
+                _scan_new_dir(efd, d, p_progress.get_sub(1, 1));
+                memdelete(d);
 
-                    EditorFileSystemDirectory *efd = memnew(EditorFileSystemDirectory);
+                ItemAction ia;
+                ia.action = ItemAction::ACTION_DIR_ADD;
+                ia.dir = p_dir;
+                ia.file = f;
+                ia.new_dir = efd;
+                scan_actions.push_back(ia);
+            } else {
+                p_dir->subdirs[idx]->verified = true;
+            }
 
-                    efd->parent = p_dir;
-                    efd->name = f;
-                    DirAccess *d = DirAccess::create(DirAccess::ACCESS_RESOURCES);
-                    d->change_dir(PathUtils::plus_file(cd,f));
-                    _scan_new_dir(efd, d, p_progress.get_sub(1, 1));
-                    memdelete(d);
+        } else {
+            String ext = StringUtils::to_lower(PathUtils::get_extension(f));
+            if (!valid_extensions.contains(ext)) {
+                continue; // invalid
+            }
+            int idx = p_dir->find_file_index(f);
 
+            if (idx == -1) {
+                // never seen this file, add actition to add it
+                EditorFileSystemDirectory::FileInfo *fi = memnew(EditorFileSystemDirectory::FileInfo);
+                fi->file = f;
+
+                String path = PathUtils::plus_file(cd, fi->file);
+                bool importer_can_import = ResourceFormatImporter::get_singleton()->any_can_import(path);
+                fi->modified_time = FileAccess::get_modified_time(path);
+                fi->import_modified_time = 0;
+                fi->type = StringName(gResourceManager().get_resource_type(path));
+                fi->script_class_name = _get_global_script_class(fi->type, path, &fi->script_class_extends, &fi->script_class_icon_path);
+                fi->import_valid = gResourceManager().is_import_valid(path);
+                fi->import_group_file = gResourceManager().get_import_group_file(path);
+
+                {
                     ItemAction ia;
-                    ia.action = ItemAction::ACTION_DIR_ADD;
+                    ia.action = ItemAction::ACTION_FILE_ADD;
                     ia.dir = p_dir;
                     ia.file = f;
-                    ia.new_dir = efd;
-                    scan_actions.push_back(ia);
-                } else {
-                    p_dir->subdirs[idx]->verified = true;
+                    ia.new_file = fi;
+                    scan_actions.emplace_back(eastl::move(ia));
+                }
+
+                if (importer_can_import && import_extensions.contains(ext)) {
+                    // if it can be imported, and it was added, it needs to be reimported
+                    ItemAction ia;
+                    ia.action = ItemAction::ACTION_FILE_TEST_REIMPORT;
+                    ia.dir = p_dir;
+                    ia.file = f;
+                    scan_actions.emplace_back(eastl::move(ia));
                 }
 
             } else {
-                String ext = StringUtils::to_lower(PathUtils::get_extension(f));
-                if (!valid_extensions.contains(ext))
-                    continue; //invalid
-                int idx = p_dir->find_file_index(f);
-
-                if (idx == -1) {
-                    //never seen this file, add actition to add it
-                    EditorFileSystemDirectory::FileInfo *fi = memnew(EditorFileSystemDirectory::FileInfo);
-                    fi->file = f;
-
-                    String path = PathUtils::plus_file(cd,fi->file);
-                    bool importer_can_import = ResourceFormatImporter::get_singleton()->any_can_import(path);
-                    fi->modified_time = FileAccess::get_modified_time(path);
-                    fi->import_modified_time = 0;
-                    fi->type = StringName(gResourceManager().get_resource_type(path));
-                    fi->script_class_name = _get_global_script_class(fi->type, path, &fi->script_class_extends, &fi->script_class_icon_path);
-                    fi->import_valid = gResourceManager().is_import_valid(path);
-                    fi->import_group_file = gResourceManager().get_import_group_file(path);
-
-                    {
-                        ItemAction ia;
-                        ia.action = ItemAction::ACTION_FILE_ADD;
-                        ia.dir = p_dir;
-                        ia.file = f;
-                        ia.new_file = fi;
-                        scan_actions.push_back(ia);
-                    }
-
-                    if (importer_can_import && import_extensions.contains(ext)) {
-                        //if it can be imported, and it was added, it needs to be reimported
-                        ItemAction ia;
-                        ia.action = ItemAction::ACTION_FILE_TEST_REIMPORT;
-                        ia.dir = p_dir;
-                        ia.file = f;
-                        scan_actions.push_back(ia);
-                    }
-
-                } else {
-                    p_dir->files[idx]->verified = true;
-                }
+                p_dir->files[idx]->verified = true;
             }
         }
-
-        da->list_dir_end();
     }
 
-    for (size_t i = 0; i < p_dir->files.size(); i++) {
+    da->list_dir_end();
 
-        if (updated_dir && !p_dir->files[i]->verified) {
-            //this file was removed, add action to remove it
-            ItemAction ia;
-            ia.action = ItemAction::ACTION_FILE_REMOVE;
-            ia.dir = p_dir;
-            ia.file = p_dir->files[i]->file;
-            scan_actions.push_back(ia);
-            continue;
+}
+void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_startdir, const ScanProgress &p_progress) {
+
+    Dequeue<EditorFileSystemDirectory *> work_queue;
+    work_queue.push_back(p_startdir);
+    while (!work_queue.empty()) {
+        EditorFileSystemDirectory *p_dir = work_queue.front();
+        work_queue.pop_front();
+
+        String cd = p_dir->get_path();
+        uint64_t current_mtime = FileAccess::get_modified_time(cd);
+        bool updated_dir = current_mtime != p_dir->modified_time || using_fat32_or_exfat;
+
+        if (updated_dir) {
+            _process_directory_changes(p_dir, p_progress);
         }
 
-        String path = PathUtils::plus_file(cd,p_dir->files[i]->file);
-
-        if (import_extensions.contains(StringUtils::to_lower(PathUtils::get_extension(p_dir->files[i]->file)))) {
-            //check here if file must be imported or not
-            bool importer_can_import = ResourceFormatImporter::get_singleton()->any_can_import(path);
-            if(!importer_can_import) {
+        for (size_t i = 0; i < p_dir->files.size(); i++) {
+            if (updated_dir && !p_dir->files[i]->verified) {
+                // this file was removed, add action to remove it
+                ItemAction ia;
+                ia.action = ItemAction::ACTION_FILE_REMOVE;
+                ia.dir = p_dir;
+                ia.file = p_dir->files[i]->file;
+                scan_actions.push_back(ia);
                 continue;
             }
 
-            uint64_t mt = FileAccess::get_modified_time(path);
+            String path = PathUtils::plus_file(cd, p_dir->files[i]->file);
 
-            bool reimport = false;
+            if (import_extensions.contains(StringUtils::to_lower(PathUtils::get_extension(p_dir->files[i]->file)))) {
+                // check here if file must be imported or not
+                bool importer_can_import = ResourceFormatImporter::get_singleton()->any_can_import(path);
+                if (!importer_can_import) {
+                    continue;
+                }
 
-            if (mt != p_dir->files[i]->modified_time) {
-                reimport = true; //it was modified, must be reimported.
-            } else if (!FileAccess::exists(path + ".import")) {
-                reimport = true; //no .import file, obviously reimport
-            } else {
+                uint64_t mt = FileAccess::get_modified_time(path);
 
-                uint64_t import_mt = FileAccess::get_modified_time(path + ".import");
-                if (import_mt != p_dir->files[i]->import_modified_time) {
-                    reimport = true;
-                } else if (_test_for_reimport(path, true)) {
-                    reimport = true;
+                bool reimport = false;
+
+                if (mt != p_dir->files[i]->modified_time) {
+                    reimport = true; // it was modified, must be reimported.
+                } else if (!FileAccess::exists(path + ".import")) {
+                    reimport = true; // no .import file, obviously reimport
+                } else {
+                    uint64_t import_mt = FileAccess::get_modified_time(path + ".import");
+                    if (import_mt != p_dir->files[i]->import_modified_time) {
+                        reimport = true;
+                    } else if (_test_for_reimport(path, true)) {
+                        reimport = true;
+                    }
+                }
+
+                if (reimport) {
+                    ItemAction ia;
+                    ia.action = ItemAction::ACTION_FILE_TEST_REIMPORT;
+                    ia.dir = p_dir;
+                    ia.file = p_dir->files[i]->file;
+                    scan_actions.push_back(ia);
+                }
+            } else if (ResourceCache::has(path)) { // test for potential reload
+
+                uint64_t mt = FileAccess::get_modified_time(path);
+
+                if (mt != p_dir->files[i]->modified_time) {
+                    p_dir->files[i]->modified_time = mt; // save new time, but test for reload
+
+                    ItemAction ia;
+                    ia.action = ItemAction::ACTION_FILE_RELOAD;
+                    ia.dir = p_dir;
+                    ia.file = p_dir->files[i]->file;
+                    scan_actions.push_back(ia);
                 }
             }
-
-            if (reimport) {
-
-                ItemAction ia;
-                ia.action = ItemAction::ACTION_FILE_TEST_REIMPORT;
-                ia.dir = p_dir;
-                ia.file = p_dir->files[i]->file;
-                scan_actions.push_back(ia);
-            }
-        } else if (ResourceCache::has(path)) { //test for potential reload
-
-            uint64_t mt = FileAccess::get_modified_time(path);
-
-            if (mt != p_dir->files[i]->modified_time) {
-
-                p_dir->files[i]->modified_time = mt; //save new time, but test for reload
-
-                ItemAction ia;
-                ia.action = ItemAction::ACTION_FILE_RELOAD;
-                ia.dir = p_dir;
-                ia.file = p_dir->files[i]->file;
-                scan_actions.push_back(ia);
-            }
         }
-    }
 
-    for (int i = 0; i < p_dir->subdirs.size(); i++) {
-
-        if ((updated_dir && !p_dir->subdirs[i]->verified) || editor_should_skip_directory(p_dir->subdirs[i]->get_path())) {
-            //this directory was removed, add action to remove it
-            ItemAction ia;
-            ia.action = ItemAction::ACTION_DIR_REMOVE;
-            ia.dir = p_dir->subdirs[i];
-            scan_actions.push_back(ia);
-            continue;
+        for (EditorFileSystemDirectory *subdir : p_dir->subdirs) {
+            if ((updated_dir && !subdir->verified) || editor_should_skip_directory(subdir->get_path())) {
+                // this directory was removed, add action to remove it
+                ItemAction ia;
+                ia.action = ItemAction::ACTION_DIR_REMOVE;
+                ia.dir = subdir;
+                scan_actions.push_back(ia);
+                continue;
+            }
+            work_queue.push_back(subdir);
         }
-        _scan_fs_changes(p_dir->get_subdir(i), p_progress);
     }
 }
 
@@ -1106,18 +1109,10 @@ void EditorFileSystem::_thread_func_sources(void *_userdata) {
     EditorFileSystem *efs = (EditorFileSystem *)_userdata;
     if (efs->filesystem) {
         EditorProgressBG pr(StringName("sources"), TTR("ScanSources"), 1000);
-        ScanProgress sp;
-        sp.progress = &pr;
-        sp.hi = 1;
-        sp.low = 0;
+        ScanProgress sp {0,1,&pr};
         efs->_scan_fs_changes(efs->filesystem, sp);
     }
     efs->scanning_changes_done = true;
-}
-
-void EditorFileSystem::get_changed_sources(List<String> *r_changed) {
-
-    *r_changed = sources_changed;
 }
 
 void EditorFileSystem::scan_changes() {
@@ -1139,10 +1134,7 @@ void EditorFileSystem::scan_changes() {
     if (!use_threads) {
         if (filesystem) {
             EditorProgressBG pr(("sources"), TTR("ScanSources"), 1000);
-            ScanProgress sp;
-            sp.progress = &pr;
-            sp.hi = 1;
-            sp.low = 0;
+            ScanProgress sp{0,1,&pr};
             scan_total = 0;
             _scan_fs_changes(filesystem, sp);
             if (_update_scan_actions())
@@ -1193,43 +1185,43 @@ void EditorFileSystem::_notification(int p_what) {
         } break;
         case NOTIFICATION_PROCESS: {
 
-            if (use_threads) {
+            if (!use_threads) {
+                break;
+            }
+            if (scanning_changes) {
 
-                if (scanning_changes) {
+                if (scanning_changes_done) {
 
-                    if (scanning_changes_done) {
-
-                        scanning_changes = false;
-
-                        set_process(false);
-
-                        thread_sources.wait_to_finish();
-
-                        if (_update_scan_actions())
-                            emit_signal("filesystem_changed");
-                        emit_signal("sources_changed", !sources_changed.empty());
-                        _queue_update_script_classes();
-                        first_scan = false;
-                    }
-                } else if (!scanning && thread.is_started()) {
+                    scanning_changes = false;
 
                     set_process(false);
 
-                    if (filesystem)
-                        memdelete(filesystem);
-                    filesystem = new_filesystem;
-                    new_filesystem = nullptr;
-                    thread.wait_to_finish();
-                    _update_scan_actions();
-                    emit_signal("filesystem_changed");
+                    thread_sources.wait_to_finish();
+
+                    if (_update_scan_actions())
+                        emit_signal("filesystem_changed");
                     emit_signal("sources_changed", !sources_changed.empty());
                     _queue_update_script_classes();
                     first_scan = false;
                 }
-                if (!is_processing() && scan_changes_pending) {
-                    scan_changes_pending = false;
-                    scan_changes();
-                }
+            } else if (!scanning && thread.is_started()) {
+
+                set_process(false);
+
+                if (filesystem)
+                    memdelete(filesystem);
+                filesystem = new_filesystem;
+                new_filesystem = nullptr;
+                thread.wait_to_finish();
+                _update_scan_actions();
+                emit_signal("filesystem_changed");
+                emit_signal("sources_changed", !sources_changed.empty());
+                _queue_update_script_classes();
+                first_scan = false;
+            }
+            if (!is_processing() && scan_changes_pending) {
+                scan_changes_pending = false;
+                scan_changes();
             }
         } break;
     }
@@ -2016,7 +2008,7 @@ void EditorFileSystem::ordered_reimport(EditorProgress &pr, Vector<ImportFile> &
     HashSet<String> correct_imports;
 
     correct_imports.reserve(files.size());
-
+    gResourceManager().set_save_callback_pause(true);
     int idx=0;
     // At the beginning we don't know cross-resource dependencies, so we go linearly
     for (const auto & fi : files) {
@@ -2034,8 +2026,10 @@ void EditorFileSystem::ordered_reimport(EditorProgress &pr, Vector<ImportFile> &
             missing_deps[fi.path].insert(eastl::make_move_iterator(deps.begin()), eastl::make_move_iterator(deps.end()));
         }
     }
-    if(missing_deps.empty())
+    if (missing_deps.empty()) {
+        gResourceManager().set_save_callback_pause(false);
         return;
+    }
     OS::get_singleton()->print("Missing deps:");
     Vector<String> ordered_imports;
     //NOTE: this should probably use graph theoretic algorithms -> detect cycles + topological sort
@@ -2098,6 +2092,7 @@ void EditorFileSystem::ordered_reimport(EditorProgress &pr, Vector<ImportFile> &
         Vector<String> deps;
         _reimport_file(f.first,deps,true);
     }
+    gResourceManager().set_save_callback_pause(false);
 }
 
 void EditorFileSystem::_create_project_data_dir_if_necessary()

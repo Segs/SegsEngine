@@ -653,8 +653,8 @@ AnimationNodeBlendSpace1DEditor::AnimationNodeBlendSpace1DEditor() {
 
     snap_value = memnew(SpinBox);
     top_hb->add_child(snap_value);
-    snap_value->set_min(0.01);
-    snap_value->set_step(0.01);
+    snap_value->set_min(0.01f);
+    snap_value->set_step(0.01f);
     snap_value->set_max(1000);
 
     edit_hb = memnew(HBoxContainer);
@@ -666,7 +666,7 @@ AnimationNodeBlendSpace1DEditor::AnimationNodeBlendSpace1DEditor() {
     edit_hb->add_child(edit_value);
     edit_value->set_min(-1000);
     edit_value->set_max(1000);
-    edit_value->set_step(0.01);
+    edit_value->set_step(0.01f);
     edit_value->connect("value_changed",callable_mp(this, &ClassName::_edit_point_pos));
 
     open_editor = memnew(Button);

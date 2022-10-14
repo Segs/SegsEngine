@@ -68,6 +68,7 @@ protected:
 
 public:
     virtual Error list_dir_begin() = 0; ///< This starts dir listing
+    virtual bool has_next() const = 0; ///<  true if get_next() will return a valid file/directory
     virtual String get_next() = 0;
     virtual bool current_is_dir() const = 0;
     virtual bool current_is_hidden() const = 0;

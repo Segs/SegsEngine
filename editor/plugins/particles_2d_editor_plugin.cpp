@@ -433,7 +433,7 @@ Particles2DEditorPlugin::Particles2DEditorPlugin(EditorNode *p_node) {
     generate_visibility_rect->add_child(genvb);
     generate_seconds = memnew(SpinBox);
     genvb->add_margin_child(TTR("Generation Time (sec):"), generate_seconds);
-    generate_seconds->set_min(0.1);
+    generate_seconds->set_min(0.1f);
     generate_seconds->set_max(25);
     generate_seconds->set_value(2);
 

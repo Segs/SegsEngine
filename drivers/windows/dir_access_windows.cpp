@@ -77,6 +77,9 @@ Error DirAccessWindows::list_dir_begin() {
 
     return (p->h == INVALID_HANDLE_VALUE) ? ERR_CANT_OPEN : OK;
 }
+bool DirAccessWindows::has_next() const {
+    return (p->h != INVALID_HANDLE_VALUE);
+}
 
 String DirAccessWindows::get_next() {
 

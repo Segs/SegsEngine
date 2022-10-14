@@ -2938,11 +2938,6 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
                 gcomp.gi_probes_dirty = false;
             }
         }
-        for (int j = 0; j < light_cull_count; j++) {
-
-            RenderingInstanceComponent *slins = light_cull_result[j];
-            assert(VSG::storage->light_get_type(slins->base)!=RS::LIGHT_DIRECTIONAL);
-        }
         if (!keep) {
             // remove, no reason to keep
             instance_cull_count--;
@@ -2953,12 +2948,6 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
 
             ins->last_render_pass = render_pass;
         }
-        for (int j = 0; j < light_cull_count; j++) {
-
-            RenderingInstanceComponent *slins = light_cull_result[j];
-            assert(VSG::storage->light_get_type(slins->base)!=RS::LIGHT_DIRECTIONAL);
-    }
-
     }
     if(invalid_entities_in_sps) {
         printf("BVH had %d invalidated entities in it\n",invalid_entities_in_sps);

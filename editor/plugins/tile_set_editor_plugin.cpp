@@ -932,8 +932,8 @@ void TileSetEditor::_on_workspace_draw() {
                 draw_highlight_subtile(coord);
             } break;
             case EDITMODE_BITMASK: {
-                Color c(1, 0, 0, 0.5);
-                Color ci(0.3, 0.6, 1, 0.5);
+                Color c(1, 0, 0, 0.5f);
+                Color ci(0.3f, 0.6f, 1, 0.5f);
                 for (int x = 0; x < region.size.x / (spacing + size.x); x++) {
                     for (int y = 0; y < region.size.y / (spacing + size.y); y++) {
                         Vector2 coord(x, y);

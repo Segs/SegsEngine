@@ -3805,7 +3805,7 @@ ScriptEditorPlugin::ScriptEditorPlugin(EditorNode *p_node) {
     EDITOR_DEF("text_editor/script_list/script_temperature_enabled", true);
     EDITOR_DEF("text_editor/script_list/highlight_current_script", true);
     EDITOR_DEF("text_editor/script_list/script_temperature_history_size", 15);
-    EDITOR_DEF("text_editor/script_list/current_script_background_color", Color(1, 1, 1, 0.3));
+    EDITOR_DEF("text_editor/script_list/current_script_background_color", Color(1, 1, 1, 0.3f));
     EDITOR_DEF("text_editor/script_list/group_help_pages", true);
     EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "text_editor/script_list/sort_scripts_by", PropertyHint::Enum, "Name,Path,None"));
     EDITOR_DEF("text_editor/script_list/sort_scripts_by", 0);

@@ -85,14 +85,13 @@ void WAV_compress_ima_adpcm(Span<const float> p_data, Vector<uint8_t>& dst_data)
 
     for (int i = 0; i < datalen; i++)
     {
-        uint8_t nibble;
         int16_t xm_sample;
 
         if (i >= datamax)
             xm_sample = 0;
         else
         {
-            xm_sample = CLAMP<float>(in[i] * 32767.0, -32768, 32767);
+            xm_sample = CLAMP<float>(in[i] * 32767.0f, -32768, 32767);
             /*
             if (xm_sample==32767 || xm_sample==-32768)
                 printf("clippy!\n",xm_sample);
@@ -104,7 +103,7 @@ void WAV_compress_ima_adpcm(Span<const float> p_data, Vector<uint8_t>& dst_data)
 
         int diff = (int)xm_sample - prev;
 
-        nibble = 0;
+        uint8_t nibble = 0;
         int step = _ima_adpcm_step_table[step_idx];
         int vpdiff = step >> 3;
         if (diff < 0)

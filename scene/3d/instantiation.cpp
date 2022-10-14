@@ -35,6 +35,7 @@
 #include "core/resource/resource_manager.h"
 #include "scene/main/scene_tree.h"
 #include "core/message_queue.h"
+#include "editor/editor_node.h"
 
 IMPL_GDCLASS(LibraryEntryInstance)
 
@@ -94,6 +95,8 @@ bool LibraryEntryInstance::instantiate() {
     if (!base) {
         return false;
     }
+    assert(children().empty());
+
     int pos = get_position_in_parent();
     // get the packed scene from library.
     LibraryItemHandle h = resolved_library->find_item_by_name(entry_name);
@@ -104,13 +107,16 @@ bool LibraryEntryInstance::instantiate() {
     // replace ourselves in our parent with the instance.
     call_deferred([=] {
         // create the target scene instance
-        scene->set_name(get_name() + "_libinstance");
+        scene->set_name(scene->get_name() + "_libinstance");
         Node *base = get_parent();
         int pos = get_position_in_parent();
+        auto t = get_transform();
         queue_delete();
         base->remove_child(this);
         base->add_child(scene);
         base->move_child(scene, pos);
+        scene->set_transform(t);
+        scene->set_owner(EditorNode::get_singleton()->get_edited_scene());
     });
     return true;
 }

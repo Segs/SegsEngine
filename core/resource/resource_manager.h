@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/pair.h"
 #include "core/io/resource_format_loader.h"
 #include "core/io/resource_loader.h"
 #include "core/resource.h"
@@ -25,13 +26,19 @@ GODOT_EXPORT extern ResourceRemapper& gResourceRemapper();
 
 class GODOT_EXPORT ResourceManager {
     SE_CLASS()
-
+    struct QueuedCallbackCall {
+        Ref<Resource> res;
+        String path;
+    };
+    Vector<QueuedCallbackCall> queued_save_updates; // here we collect all files to be updated when saving callback is disabled
     void* err_notify_ud = nullptr;
     ResourceLoadErrorNotify err_notify = nullptr;
     void* dep_err_notify_ud = nullptr;
     DependencyErrorNotify dep_err_notify = nullptr;
     void *m_priv;
     bool abort_on_missing_resource = false;
+    bool pause_save_callback = false;
+
 public:
     ResourceManager();
     ResourceManager(const ResourceManager&) = delete;
@@ -60,6 +67,9 @@ public:
     void add_custom_savers();
     Error save(StringView p_path, const RES &p_resource, uint32_t p_flags = 0);
     void set_save_callback(ResourceSavedCallback p_callback);
+    bool is_save_callback_paused() const { return pause_save_callback; }
+    void set_save_callback_pause(bool v);
+
     void get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions);
 
     bool add_custom_resource_format_loader(StringView script_path);

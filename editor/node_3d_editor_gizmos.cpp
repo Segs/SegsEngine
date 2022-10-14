@@ -326,8 +326,8 @@ void EditorNode3DGizmo::add_vertices(Vector<Vector3> &&p_vertices, const Ref<Mat
 
     SurfaceArrays a(eastl::move(p_vertices));
     PoolVector<Color> color;
-    Color selected = Color(1, 1, 1, 0.8) * p_modulate;
-    Color unselected = Color(1, 1, 1, 0.2) * p_modulate;
+    Color selected = Color(1, 1, 1, 0.8f) * p_modulate;
+    Color unselected = Color(1, 1, 1, 0.2f) * p_modulate;
 
     color.resize(p_vertices.size());
     {

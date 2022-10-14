@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "core/string_utils.inl"
+
 #ifdef WINDOWS_ENABLED
 
 #include "file_access_windows.h"
@@ -36,6 +37,8 @@
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/ustring.h"
+
+#include <QFileInfo>
 
 #include <share.h> // _SH_DENYNO
 #include <shlwapi.h>
@@ -316,14 +319,8 @@ void FileAccessWindows::store_buffer(const uint8_t *p_src, uint64_t p_length) {
 
 bool FileAccessWindows::file_exists(StringView p_name) {
     String filename = fix_path(p_name);
-    FILE *g = _wfsopen((LPCWSTR)(filename.c_str()), L"rb", _SH_DENYNO);
-    if (g == nullptr) {
-        return false;
-    } else {
-
-        fclose(g);
-        return true;
-    }
+    QFileInfo fi(filename.c_str());
+    return fi.exists() && fi.isReadable();
 }
 
 uint64_t FileAccessWindows::_get_modified_time(StringView p_file) {
