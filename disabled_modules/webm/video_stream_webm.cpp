@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  video_stream_webm.cpp                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -68,10 +68,12 @@ public:
 
         if (file) {
 
-            if (file->get_position() != (size_t)pos)
+             if (file->get_position() != (uint64_t)pos) {
                 file->seek(pos);
-            if (file->get_buffer(buf, len) == len)
+             }
+             if (file->get_buffer(buf, len) == (uint64_t)len) {
                 return 0;
+             }
         }
         return -1;
     }
@@ -80,7 +82,7 @@ public:
 
         if (file) {
 
-            const size_t len = file->get_len();
+            const uint64_t len = file->get_len();
             if (total)
                 *total = len;
             if (available)
@@ -225,7 +227,7 @@ float VideoStreamPlaybackWebm::get_playback_position() const {
 }
 void VideoStreamPlaybackWebm::seek(float p_time) {
 
-    //Not implemented
+    WARN_PRINT_ONCE("Seeking in Theora and WebM videos is not implemented yet (it's only supported for GDNative-provided video streams).");
 }
 
 void VideoStreamPlaybackWebm::set_audio_track(int p_idx) {

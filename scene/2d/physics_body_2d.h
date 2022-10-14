@@ -42,8 +42,6 @@ class GODOT_EXPORT PhysicsBody2D : public CollisionObject2D {
 
     GDCLASS(PhysicsBody2D,CollisionObject2D)
 
-    uint32_t collision_layer;
-    uint32_t collision_mask;
 public:
     void _set_layers(uint32_t p_mask);
     uint32_t _get_layers() const;
@@ -55,23 +53,11 @@ protected:
     static void _bind_methods();
 
 public:
-    void set_collision_layer(uint32_t p_layer);
-    uint32_t get_collision_layer() const;
-
-    void set_collision_mask(uint32_t p_mask);
-    uint32_t get_collision_mask() const;
-
-    void set_collision_mask_bit(int p_bit, bool p_value);
-    bool get_collision_mask_bit(int p_bit) const;
-
-    void set_collision_layer_bit(int p_bit, bool p_value);
-    bool get_collision_layer_bit(int p_bit) const;
 
     Array get_collision_exceptions();
     void add_collision_exception_with(Node *p_node); //must be physicsbody
     void remove_collision_exception_with(Node *p_node);
 
-    PhysicsBody2D();
 };
 
 class GODOT_EXPORT StaticBody2D : public PhysicsBody2D {
@@ -144,9 +130,9 @@ private:
 
     struct ShapePair {
 
-        int body_shape;
-        int local_shape;
-        bool tagged;
+        int body_shape=0;
+        int local_shape=0;
+        bool tagged=false;
         bool operator<(const ShapePair &p_sp) const {
             if (body_shape == p_sp.body_shape)
                 return local_shape < p_sp.local_shape;
@@ -154,35 +140,33 @@ private:
             return body_shape < p_sp.body_shape;
         }
 
-        ShapePair() {}
-        ShapePair(int p_bs, int p_ls) {
-            body_shape = p_bs;
-            local_shape = p_ls;
+        constexpr ShapePair() = default;
+        constexpr ShapePair(int p_bs, int p_ls) : body_shape(p_bs),local_shape(p_ls),tagged(false) {
         }
     };
     struct RigidBody2D_RemoveAction {
-
-        ObjectID body_id;
+        RID rid;
+        GameEntity body_id;
         ShapePair pair;
     };
     struct BodyState {
 
-        //int rc;
-        bool in_scene;
+        RID rid;
         VSet<ShapePair> shapes;
+        bool in_scene;
     };
 
     struct ContactMonitor {
 
         bool locked;
-        HashMap<ObjectID, BodyState> body_map;
+        HashMap<GameEntity, BodyState> body_map;
     };
 
     ContactMonitor *contact_monitor;
-    void _body_enter_tree(ObjectID p_id);
-    void _body_exit_tree(ObjectID p_id);
+    void _body_enter_tree(GameEntity p_id);
+    void _body_exit_tree(GameEntity p_id);
 
-    void _body_inout(int p_status, ObjectID p_instance, int p_body_shape, int p_local_shape);
+    void _body_inout(int p_status, const RID &p_body, GameEntity p_instance, int p_body_shape, int p_local_shape);
     void _direct_state_changed(Object *p_state);
 public:
     bool _test_motion(const Vector2 &p_motion, bool p_infinite_inertia = true, float p_margin = 0.08, const Ref<Physics2DTestMotionResult> &p_result = Ref<Physics2DTestMotionResult>());
@@ -273,17 +257,25 @@ class GODOT_EXPORT KinematicBody2D : public PhysicsBody2D {
     GDCLASS(KinematicBody2D,PhysicsBody2D)
 
 public:
+    enum MovingPlatformApplyVelocityOnLeave : int8_t {
+        PLATFORM_VEL_ON_LEAVE_ALWAYS,
+        PLATFORM_VEL_ON_LEAVE_UPWARD_ONLY,
+        PLATFORM_VEL_ON_LEAVE_NEVER,
+    };
     struct Collision {
+        Variant collider_metadata;
         Vector2 collision;
         Vector2 normal;
         Vector2 collider_vel;
-        ObjectID collider;
-        RID collider_rid;
-        int collider_shape;
-        Variant collider_metadata;
         Vector2 remainder;
         Vector2 travel;
+        RID collider_rid;
+        GameEntity collider;
+        int collider_shape;
         int local_shape;
+        real_t get_angle(const Vector2 &p_up_direction) const {
+            return Math::acos(normal.dot(p_up_direction));
+        }
     };
 
 private:
@@ -292,6 +284,7 @@ private:
     Vector2 floor_normal;
     Vector2 floor_velocity;
     RID on_floor_body;
+    MovingPlatformApplyVelocityOnLeave moving_platform_apply_velocity_on_leave = PLATFORM_VEL_ON_LEAVE_ALWAYS;
     bool on_floor;
     bool on_ceiling;
     bool on_wall;
@@ -302,19 +295,23 @@ private:
     Ref<KinematicCollision2D> motion_cache;
     Transform2D last_valid_transform;
 public:
-    _FORCE_INLINE_ bool _ignores_mode(PhysicsServer2D::BodyMode) const;
 
     Ref<KinematicCollision2D> _move(const Vector2 &p_motion, bool p_infinite_inertia = true, bool p_exclude_raycast_shapes = true, bool p_test_only = false);
     Ref<KinematicCollision2D> _get_slide_collision(int p_bounce);
+    Ref<KinematicCollision2D> _get_last_slide_collision();
 
     void _direct_state_changed(Object *p_state);
+    Vector2 _move_and_slide_internal(const Vector2 &p_linear_velocity, const Vector2 &p_snap, const Vector2 &p_up_direction = Vector2(0, 0), bool p_stop_on_slope = false, int p_max_slides = 4, float p_floor_max_angle = Math::deg2rad((float)45), bool p_infinite_inertia = true);
+    void _set_collision_direction(const Collision &p_collision, const Vector2 &p_up_direction, float p_floor_max_angle);
+    void set_moving_platform_apply_velocity_on_leave(MovingPlatformApplyVelocityOnLeave p_on_leave_velocity);
+    MovingPlatformApplyVelocityOnLeave get_moving_platform_apply_velocity_on_leave() const;
 
 protected:
     void _notification(int p_what);
     static void _bind_methods();
 
 public:
-    bool move_and_collide(const Vector2 &p_motion, bool p_infinite_inertia, Collision &r_collision, bool p_exclude_raycast_shapes = true, bool p_test_only = false);
+    bool move_and_collide(const Vector2 &p_motion, bool p_infinite_inertia, Collision &r_collision, bool p_exclude_raycast_shapes = true, bool p_test_only = false, bool p_cancel_sliding = true, const Set<RID> &p_exclude = Set<RID>());
 
     bool test_move(const Transform2D &p_from, const Vector2 &p_motion, bool p_infinite_inertia = true);
 
@@ -329,6 +326,7 @@ public:
     bool is_on_wall() const;
     bool is_on_ceiling() const;
     Vector2 get_floor_normal() const;
+    real_t get_floor_angle(const Vector2 &p_up_direction = Vector2(0.0, -1.0)) const;
     Vector2 get_floor_velocity() const;
 
     int get_slide_count() const;
@@ -357,9 +355,11 @@ public:
     Vector2 get_normal() const;
     Vector2 get_travel() const;
     Vector2 get_remainder() const;
+    real_t get_angle(const Vector2 &p_up_direction = Vector2(0.0, -1.0)) const;
     Object *get_local_shape() const;
     Object *get_collider() const;
-    ObjectID get_collider_id() const;
+    GameEntity get_collider_id() const;
+    RID get_collider_rid() const;
     Object *get_collider_shape() const;
     int get_collider_shape_index() const;
     Vector2 get_collider_velocity() const;

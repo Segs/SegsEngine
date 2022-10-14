@@ -158,12 +158,12 @@ void PacketPeer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_packet"), &PacketPeer::_get_packet);
     MethodBinder::bind_method(D_METHOD("put_packet", {"buffer"}), &PacketPeer::_put_packet);
     MethodBinder::bind_method(D_METHOD("get_packet_error"), &PacketPeer::_get_packet_error);
-    MethodBinder::bind_method(D_METHOD("get_available_packet_count"), &PacketPeer::get_available_packet_count);
+    BIND_METHOD(PacketPeer,get_available_packet_count);
 
-    MethodBinder::bind_method(D_METHOD("set_allow_object_decoding", {"enable"}), &PacketPeer::set_allow_object_decoding);
-    MethodBinder::bind_method(D_METHOD("is_object_decoding_allowed"), &PacketPeer::is_object_decoding_allowed);
-    MethodBinder::bind_method(D_METHOD("get_encode_buffer_max_size"), &PacketPeer::get_encode_buffer_max_size);
-    MethodBinder::bind_method(D_METHOD("set_encode_buffer_max_size", {"max_size"}), &PacketPeer::set_encode_buffer_max_size);
+    BIND_METHOD(PacketPeer,set_allow_object_decoding);
+    BIND_METHOD(PacketPeer,is_object_decoding_allowed);
+    BIND_METHOD(PacketPeer,get_encode_buffer_max_size);
+    BIND_METHOD(PacketPeer,set_encode_buffer_max_size);
 
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "encode_buffer_max_size"), "set_encode_buffer_max_size", "get_encode_buffer_max_size");
@@ -180,12 +180,12 @@ void PacketPeerStream::_set_stream_peer(const REF& p_peer) {
 
 void PacketPeerStream::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_stream_peer", {"peer"}), &PacketPeerStream::set_stream_peer);
-    MethodBinder::bind_method(D_METHOD("get_stream_peer"), &PacketPeerStream::get_stream_peer);
-    MethodBinder::bind_method(D_METHOD("set_input_buffer_max_size", {"max_size_bytes"}), &PacketPeerStream::set_input_buffer_max_size);
-    MethodBinder::bind_method(D_METHOD("set_output_buffer_max_size", {"max_size_bytes"}), &PacketPeerStream::set_output_buffer_max_size);
-    MethodBinder::bind_method(D_METHOD("get_input_buffer_max_size"), &PacketPeerStream::get_input_buffer_max_size);
-    MethodBinder::bind_method(D_METHOD("get_output_buffer_max_size"), &PacketPeerStream::get_output_buffer_max_size);
+    BIND_METHOD(PacketPeerStream,set_stream_peer);
+    BIND_METHOD(PacketPeerStream,get_stream_peer);
+    BIND_METHOD(PacketPeerStream,set_input_buffer_max_size);
+    BIND_METHOD(PacketPeerStream,set_output_buffer_max_size);
+    BIND_METHOD(PacketPeerStream,get_input_buffer_max_size);
+    BIND_METHOD(PacketPeerStream,get_output_buffer_max_size);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "input_buffer_max_size"), "set_input_buffer_max_size", "get_input_buffer_max_size");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "output_buffer_max_size"), "set_output_buffer_max_size", "get_output_buffer_max_size");

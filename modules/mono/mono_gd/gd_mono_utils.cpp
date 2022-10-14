@@ -199,8 +199,9 @@ GDMonoClass *get_object_class(MonoObject *p_object) {
 GDMonoClass *type_get_proxy_class(const StringName &p_type) {
     String class_name(p_type);
 
-    if (class_name[0] == '_')
+    if (class_name[0] == '_') {
         class_name = class_name.substr(1, class_name.length());
+    }
 
     GDMonoClass *klass = GDMono::get_singleton()->get_core_api_assembly()->get_class(BINDINGS_NAMESPACE, StringName(class_name));
 
@@ -440,8 +441,9 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
         Vector<ScriptLanguage::StackInfo> _si;
         if (stack_trace != nullptr) {
             _si = CSharpLanguage::get_singleton()->stack_trace_get_info(stack_trace);
-            for (int i = _si.size() - 1; i >= 0; i--)
+            for (int i = _si.size() - 1; i >= 0; i--) {
                 si.push_front(_si[i]);
+            }
         }
 
         exc_msg += (exc_msg.length() > 0 ? " ---> " : "") + GDMonoUtils::get_exception_name_and_message(p_exc);
@@ -451,8 +453,9 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
         CRASH_COND(inner_exc_prop == nullptr);
 
         MonoObject *inner_exc = inner_exc_prop->get_value((MonoObject *)p_exc);
-        if (inner_exc != nullptr)
+        if (inner_exc != nullptr) {
             si.push_front(separator);
+        }
 
         p_exc = (MonoException *)inner_exc;
     }
@@ -495,13 +498,6 @@ thread_local int current_invoke_count = 0;
 MonoObject *runtime_invoke(MonoMethod *p_method, void *p_obj, void **p_params, MonoException **r_exc) {
     GD_MONO_BEGIN_RUNTIME_INVOKE;
     MonoObject *ret = mono_runtime_invoke(p_method, p_obj, p_params, (MonoObject **)r_exc);
-    GD_MONO_END_RUNTIME_INVOKE;
-    return ret;
-}
-
-MonoObject *runtime_invoke_array(MonoMethod *p_method, void *p_obj, MonoArray *p_params, MonoException **r_exc) {
-    GD_MONO_BEGIN_RUNTIME_INVOKE;
-    MonoObject *ret = mono_runtime_invoke_array(p_method, p_obj, p_params, (MonoObject **)r_exc);
     GD_MONO_END_RUNTIME_INVOKE;
     return ret;
 }
@@ -628,6 +624,19 @@ bool type_is_generic_idictionary(MonoReflectionType *p_reftype) {
     return (bool)res;
 }
 
+bool type_has_flags_attribute(MonoReflectionType *p_reftype) {
+    NO_GLUE_RET(false);
+    MonoException *exc = nullptr;
+    MonoBoolean res = CACHED_METHOD_THUNK(MarshalUtils, TypeHasFlagsAttribute).invoke(p_reftype, &exc);
+    UNHANDLED_EXCEPTION(exc);
+    return (bool)res;
+}
+
+void get_generic_type_definition(MonoReflectionType *p_reftype, MonoReflectionType **r_generic_reftype) {
+    MonoException *exc = nullptr;
+    CACHED_METHOD_THUNK(MarshalUtils, GetGenericTypeDefinition).invoke(p_reftype, r_generic_reftype, &exc);
+    UNHANDLED_EXCEPTION(exc);
+}
 void array_get_element_type(MonoReflectionType *p_array_reftype, MonoReflectionType **r_elem_reftype) {
     MonoException *exc = nullptr;
     CACHED_METHOD_THUNK(MarshalUtils, ArrayGetElementType).invoke(p_array_reftype, r_elem_reftype, &exc);

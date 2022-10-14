@@ -60,23 +60,23 @@ void SpringArm3D::_notification(int p_what) {
 
 void SpringArm3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_hit_length"), &SpringArm3D::get_hit_length);
+    BIND_METHOD(SpringArm3D,get_hit_length);
 
-    MethodBinder::bind_method(D_METHOD("set_length", {"length"}), &SpringArm3D::set_length);
-    MethodBinder::bind_method(D_METHOD("get_length"), &SpringArm3D::get_length);
+    BIND_METHOD(SpringArm3D,set_length);
+    BIND_METHOD(SpringArm3D,get_length);
 
-    MethodBinder::bind_method(D_METHOD("set_shape", {"shape"}), &SpringArm3D::set_shape);
-    MethodBinder::bind_method(D_METHOD("get_shape"), &SpringArm3D::get_shape);
+    BIND_METHOD(SpringArm3D,set_shape);
+    BIND_METHOD(SpringArm3D,get_shape);
 
-    MethodBinder::bind_method(D_METHOD("add_excluded_object", {"RID"}), &SpringArm3D::add_excluded_object);
-    MethodBinder::bind_method(D_METHOD("remove_excluded_object", {"RID"}), &SpringArm3D::remove_excluded_object);
-    MethodBinder::bind_method(D_METHOD("clear_excluded_objects"), &SpringArm3D::clear_excluded_objects);
+    BIND_METHOD(SpringArm3D,add_excluded_object);
+    BIND_METHOD(SpringArm3D,remove_excluded_object);
+    BIND_METHOD(SpringArm3D,clear_excluded_objects);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"mask"}), &SpringArm3D::set_collision_mask);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &SpringArm3D::get_collision_mask);
+    BIND_METHOD(SpringArm3D,set_collision_mask);
+    BIND_METHOD(SpringArm3D,get_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_margin", {"margin"}), &SpringArm3D::set_margin);
-    MethodBinder::bind_method(D_METHOD("get_margin"), &SpringArm3D::get_margin);
+    BIND_METHOD(SpringArm3D,set_margin);
+    BIND_METHOD(SpringArm3D,get_margin);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PropertyHint::ResourceType, "Shape"), "set_shape", "get_shape");
@@ -134,7 +134,7 @@ void SpringArm3D::process_spring() {
     if (not shape) {
         motion = Vector3(cast_direction * (spring_length));
         PhysicsDirectSpaceState3D::RayResult r;
-        bool intersected = get_world()->get_direct_space_state()->intersect_ray(get_global_transform().origin, get_global_transform().origin + motion, r, excluded_objects, mask);
+        bool intersected = get_world_3d()->get_direct_space_state()->intersect_ray(get_global_transform().origin, get_global_transform().origin + motion, r, excluded_objects, mask);
         if (intersected) {
             float dist = get_global_transform().origin.distance_to(r.position);
             dist -= margin;
@@ -142,7 +142,7 @@ void SpringArm3D::process_spring() {
         }
     } else {
         motion = Vector3(cast_direction * spring_length);
-        get_world()->get_direct_space_state()->cast_motion(shape->get_rid(), get_global_transform(), motion, 0, motion_delta, motion_delta_unsafe, excluded_objects, mask);
+        get_world_3d()->get_direct_space_state()->cast_motion(shape->get_phys_rid(), get_global_transform(), motion, 0, motion_delta, motion_delta_unsafe, excluded_objects, mask);
     }
 
     current_spring_length = spring_length * motion_delta;

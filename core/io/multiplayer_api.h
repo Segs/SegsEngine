@@ -65,7 +65,7 @@ class GODOT_EXPORT MultiplayerAPI : public RefCounted {
 
 public:
     struct ProfilingInfo {
-        ObjectID node;
+        GameEntity node;
         String node_path;
         int incoming_rpc;
         int incoming_rset;
@@ -83,7 +83,7 @@ private:
     struct PathGetCache {
         struct NodeInfo {
             NodePath path;
-            ObjectID instance;
+            GameEntity instance;
         };
 
         Map<int, NodeInfo> nodes;

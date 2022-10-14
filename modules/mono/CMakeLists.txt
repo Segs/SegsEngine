@@ -75,7 +75,6 @@ set(header_files
     mono_gd/gd_mono_method.h
     mono_gd/gd_mono_assembly.h
     mono_gd/gd_mono_cache.h
-    mono_gd/android_mono_config.h
     managed_callable.h
     csharp_script.h
     signal_awaiter_utils.h
@@ -92,7 +91,6 @@ find_package(Dotnet) # optional, used under windows to build things
 
 #include(FindPkgConfig)  # we don't need the pkg-config path on OS X, but we need other macros in this file
 #pkg_check_modules(MONO REQUIRED IMPORTED_TARGET mono-2)
-OPTION(MONO_GLUE_AVAILABLE "Use mono glue?" OFF)
 
 add_subdirectory(binding_generator)
 
@@ -180,7 +178,7 @@ foreach(tgt ${global_targets})
         OUTPUT
             ${reflection_files}
         DEPENDS ${tgt}_engine
-        COMMENT "Generating reflection data"
+        COMMENT "Generating reflection data: ./segs_${tgt} --gen-reflection ${CMAKE_CURRENT_BINARY_DIR}"
     )
     set_source_files_properties( ${CMAKE_CURRENT_BINARY_DIR}/GodotCore.json PROPERTIES GENERATED TRUE )
     add_custom_target(reflection_${tgt}_gen

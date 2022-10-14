@@ -37,8 +37,9 @@
 #include "scene/3d/visual_instance_3d.h"
 #include "scene/resources/concave_polygon_shape_3d.h"
 #include "thirdparty/misc/mikktspace.h"
-class Mesh;
 
+class Mesh;
+class Path3D;
 
 class GODOT_EXPORT CSGShape : public GeometryInstance {
     GDCLASS(CSGShape,GeometryInstance)
@@ -53,13 +54,14 @@ public:
 
 private:
     Operation operation;
-    CSGShape *parent;
+    CSGShape *parent_shape;
 
     CSGBrush *brush;
 
     AABB node_aabb;
 
     bool dirty;
+    bool last_visible = false;
     float snap;
 
     bool use_collision;
@@ -100,11 +102,12 @@ private:
             const tbool bIsOrientationPreserving, const int iFace, const int iVert);
 
     void _update_shape();
+    void _update_collision_faces();
 
 protected:
     void _notification(int p_what);
     virtual CSGBrush *_build_brush() = 0;
-    void _make_dirty();
+    void _make_dirty(bool p_parent_removing = false);
 
     static void _bind_methods();
 
@@ -118,6 +121,7 @@ public:
         return { root_mesh,Transform() };
     }
     Array get_meshes() const;
+    void force_update_shape();
 
     void set_operation(Operation p_operation);
     Operation get_operation() const;
@@ -167,10 +171,8 @@ public:
 class GODOT_EXPORT CSGPrimitive : public CSGShape {
     GDCLASS(CSGPrimitive,CSGShape)
 
-private:
-    bool invert_faces;
-
 protected:
+    bool invert_faces;
     CSGBrush *_create_brush_from_arrays(const PoolVector<Vector3> &p_vertices, const PoolVector<Vector2> &p_uv, const PoolVector<bool> &p_smooth, const PoolVector<Ref<Material> > &p_materials);
     static void _bind_methods();
 
@@ -350,6 +352,10 @@ public:
         MODE_PATH
     };
 
+    enum PathIntervalType {
+        PATH_INTERVAL_DISTANCE,
+        PATH_INTERVAL_SUBDIVIDE
+    };
     enum PathRotation {
         PATH_ROTATION_POLYGON,
         PATH_ROTATION_PATH,
@@ -361,24 +367,25 @@ private:
 
     Vector<Vector2> polygon;
     Ref<Material> material;
+    Path3D *path = nullptr;
 
-    Mode mode;
+    Mode mode = MODE_DEPTH;
 
-    float depth;
+    float depth = 1.0f;
 
-    float spin_degrees;
-    int spin_sides;
+    float spin_degrees = 360.0f;
+    int spin_sides = 8;
 
     NodePath path_node;
-    float path_interval;
-    PathRotation path_rotation;
-    bool path_local;
-
-    Node *path_cache;
-
-    bool smooth_faces;
-    bool path_continuous_u;
-    bool path_joined;
+    PathIntervalType path_interval_type = PATH_INTERVAL_DISTANCE;
+    float path_interval = 1.0f;
+    float path_simplify_angle = 0.0f;
+    float path_u_distance = 1.0f;
+    PathRotation path_rotation = PATH_ROTATION_PATH_FOLLOW;
+    bool path_local = false;
+    bool smooth_faces = false;
+    bool path_continuous_u = true;
+    bool path_joined=false;
 
     bool _is_editable_3d_polygon() const;
     bool _has_editable_3d_polygon_no_depth() const;
@@ -410,8 +417,14 @@ public:
     void set_path_node(const NodePath &p_path);
     NodePath get_path_node() const;
 
+    void set_path_interval_type(PathIntervalType p_interval_type);
+    PathIntervalType get_path_interval_type() const;
+
     void set_path_interval(float p_interval);
     float get_path_interval() const;
+
+    void set_path_simplify_angle(float p_angle);
+    float get_path_simplify_angle() const;
 
     void set_path_rotation(PathRotation p_rotation);
     PathRotation get_path_rotation() const;
@@ -421,6 +434,9 @@ public:
 
     void set_path_continuous_u(bool p_enable);
     bool is_path_continuous_u() const;
+
+    void set_path_u_distance(real_t p_path_u_distance);
+    real_t get_path_u_distance() const;
 
     void set_path_joined(bool p_enable);
     bool is_path_joined() const;

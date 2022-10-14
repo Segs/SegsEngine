@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  immediate_geometry_3d.h                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -37,7 +37,7 @@ class GODOT_EXPORT ImmediateGeometry3D : public GeometryInstance {
 
     GDCLASS(ImmediateGeometry3D,GeometryInstance)
 
-    RID im;
+    RenderingEntity im;
     //a list of textures drawn need to be kept, to avoid references
     // in RenderingServer from becoming invalid if the texture is no longer used
     Vector<Ref<Texture> > cached_textures;

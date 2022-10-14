@@ -66,7 +66,7 @@ void GDAPI godot_array_new_pool_color_array(godot_array *r_dest, const godot_poo
 void GDAPI godot_array_new_pool_vector3_array(godot_array *r_dest, const godot_pool_vector3_array *p_pv3a);
 void GDAPI godot_array_new_pool_vector2_array(godot_array *r_dest, const godot_pool_vector2_array *p_pv2a);
 void GDAPI godot_array_new_pool_string_array(godot_array *r_dest, const godot_pool_string_array *p_psa);
-void GDAPI godot_array_new_pool_real_array(godot_array *r_dest, const godot_pool_real_array *p_pra);
+void GDAPI godot_array_new_POOL_FLOAT32_ARRAY(godot_array *r_dest, const godot_POOL_FLOAT32_ARRAY *p_pra);
 void GDAPI godot_array_new_pool_int_array(godot_array *r_dest, const godot_pool_int_array *p_pia);
 void GDAPI godot_array_new_pool_byte_array(godot_array *r_dest, const godot_pool_byte_array *p_pba);
 
@@ -94,7 +94,7 @@ godot_variant GDAPI godot_array_back(const godot_array *p_self);
 
 godot_int GDAPI godot_array_find(const godot_array *p_self, const godot_variant *p_what, const godot_int p_from);
 
-godot_int GDAPI godot_array_find_last(const godot_array *p_self, const godot_variant *p_what);
+godot_int GDAPI godot_array_rfind(const godot_array *p_self, const godot_variant *p_what);
 
 godot_bool GDAPI godot_array_has(const godot_array *p_self, const godot_variant *p_value);
 

@@ -45,6 +45,7 @@ class OptionButton;
 class CheckBox;
 class SceneTreeDialog;
 class TextureRect;
+class EditorResourcePicker;
 
 class EditorPropertyNil : public EditorProperty {
     GDCLASS(EditorPropertyNil,EditorProperty)
@@ -96,20 +97,38 @@ public:
     void update_property() override;
     EditorPropertyMultilineText();
 };
+class HBoxContainer;
 
 class EditorPropertyTextEnum : public EditorProperty {
     GDCLASS(EditorPropertyTextEnum,EditorProperty)
 
-    OptionButton *options;
+    HBoxContainer *default_layout;
+    HBoxContainer *edit_custom_layout;
 
-    void _option_selected(int p_which);
+    OptionButton *option_button;
+    Button *edit_button;
+
+    LineEdit *custom_value_edit;
+    Button *accept_button;
+    Button *cancel_button;
+
+    Vector<StringName> options;
+    bool loose_mode = false;
     bool string_name;
+    void _emit_changed_value(StringView p_string);
+    void _option_selected(int p_which);
+
+    void _edit_custom_value();
+    void _custom_value_submitted(String p_value);
+    void _custom_value_accepted();
+    void _custom_value_cancelled();
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() { }
+    void _notification(int p_what);
 
 public:
-    void setup(const Vector<StringView> &p_options, bool p_string_name = false);
+    void setup(const Vector<StringView> &p_options, bool p_string_name = false, bool p_loose_mode = false);
     void update_property() override;
     EditorPropertyTextEnum();
 };
@@ -165,14 +184,7 @@ class EditorPropertyMember : public EditorProperty {
 
 public:
     enum Type {
-        MEMBER_METHOD_OF_VARIANT_TYPE, ///< a method of a type
-        MEMBER_METHOD_OF_BASE_TYPE, ///< a method of a base type
-        MEMBER_METHOD_OF_INSTANCE, ///< a method of an instance
-        MEMBER_METHOD_OF_SCRIPT, ///< a method of a script & base
         MEMBER_PROPERTY_OF_VARIANT_TYPE, ///< a property of a type
-        MEMBER_PROPERTY_OF_BASE_TYPE, ///< a property of a base type
-        MEMBER_PROPERTY_OF_INSTANCE, ///< a property of an instance
-        MEMBER_PROPERTY_OF_SCRIPT, ///< a property of a script & base
 
     };
 
@@ -266,6 +278,7 @@ private:
 
     void _button_pressed();
     void _menu_pressed(int p_menu);
+    void _refresh_names();
 
 protected:
     static void _bind_methods() { }
@@ -554,6 +567,9 @@ class EditorPropertyNodePath : public EditorProperty {
     void _node_assign();
     void _node_clear();
 
+    bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
+    void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
+    bool is_drop_valid(const Dictionary &p_drag_data) const;
 protected:
     static void _bind_methods() { }
     void _notification(int p_what);
@@ -577,63 +593,29 @@ public:
 class EditorPropertyResource : public EditorProperty {
     GDCLASS(EditorPropertyResource,EditorProperty)
 
-    enum MenuOption {
+    EditorResourcePicker *resource_picker = nullptr;
+    SceneTreeDialog *scene_tree = nullptr;
 
-        OBJ_MENU_LOAD = 0,
-        OBJ_MENU_EDIT = 1,
-        OBJ_MENU_CLEAR = 2,
-        OBJ_MENU_MAKE_UNIQUE = 3,
-        OBJ_MENU_SAVE = 4,
-        OBJ_MENU_COPY = 5,
-        OBJ_MENU_PASTE = 6,
-        OBJ_MENU_NEW_SCRIPT = 7,
-        OBJ_MENU_EXTEND_SCRIPT = 8,
-        OBJ_MENU_SHOW_IN_FILE_SYSTEM = 9,
-        TYPE_BASE_ID = 100,
-        CONVERT_BASE_ID = 1000
+    bool use_sub_inspector = false;
+    EditorInspector *sub_inspector = nullptr;
+    VBoxContainer *sub_inspector_vbox = nullptr;
+    bool updating_theme = false;
+    bool opened_editor = false;
 
-    };
-
-    Button *assign;
-    TextureRect *preview;
-    Button *edit;
-    PopupMenu *menu;
-    EditorFileDialog *file;
-    Vector<StringName> inheritors_array;
-    EditorInspector *sub_inspector;
-    VBoxContainer *sub_inspector_vbox;
-
-    bool use_sub_inspector;
-    bool dropping;
-    StringName base_type;
-
-    SceneTreeDialog *scene_tree;
-
-    void _file_selected(StringView p_path);
-    void _menu_option(int p_which);
-    void _resource_preview(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, ObjectID p_obj);
-    void _resource_selected();
+    void _resource_selected(const RES &p_resource, bool p_edit);
+    void _resource_changed(const RES &p_resource);
     void _viewport_selected(const NodePath &p_path);
 
-    void _update_menu_items();
-
-    void _update_menu();
 
     void _sub_inspector_property_keyed(StringView p_property, const Variant &p_value, bool);
     void _sub_inspector_resource_selected(const RES &p_resource, StringView p_property);
     void _sub_inspector_object_id_selected(int p_id);
 
-    void _button_draw();
-    Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
-    bool _is_drop_valid(const Dictionary &p_drag_data) const;
-    bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
-    void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
-
-    void _button_input(const Ref<InputEvent> &p_event);
+    bool _can_use_sub_inspector(const RES &p_resource);
     void _open_editor_pressed();
     void _fold_other_editors(Object *p_self);
 
-    bool opened_editor;
+    void _update_property_bg();
 
 protected:
     static void _bind_methods();
@@ -641,7 +623,7 @@ protected:
 
 public:
     void update_property() override;
-    void setup(const StringName &p_base_type);
+    void setup(Object *p_object, StringView p_path, const StringName &p_base_type);
 
     void collapse_all_folding() override;
     void expand_all_folding() override;

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  soft_body_3d.h                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -39,7 +39,7 @@ class SoftBodyVisualServerHandler {
 
     friend class SoftBody3D;
 
-    RID mesh;
+    RenderingEntity mesh;
     int surface;
     PoolVector<uint8_t> buffer;
     uint32_t stride;
@@ -50,8 +50,8 @@ class SoftBodyVisualServerHandler {
 
 private:
     SoftBodyVisualServerHandler();
-    bool is_ready() { return mesh.is_valid(); }
-    void prepare(RID p_mesh_rid, int p_surface);
+    bool is_ready(RenderingEntity p_mesh_rid) const { return mesh!=entt::null && mesh == p_mesh_rid; }
+    void prepare(RenderingEntity p_mesh_rid, int p_surface);
     void clear();
     void open();
     void close();
@@ -83,7 +83,9 @@ private:
 
     RID physics_rid;
 
-    bool mesh_owner;
+    bool physics_enabled = true;
+
+    RenderingEntity owned_mesh;
     uint32_t collision_mask;
     uint32_t collision_layer;
     NodePath parent_collision_ignore;
@@ -92,12 +94,17 @@ private:
     bool pinned_points_cache_dirty;
 
     Ref<ArrayMesh> debug_mesh_cache;
-    class MeshInstance3D *debug_mesh;
+    MeshInstance3D *debug_mesh;
 
     bool capture_input_on_drag;
     bool ray_pickable;
 
     void _update_pickable();
+    void _update_physics_server();
+    void _draw_soft_mesh();
+
+    void _prepare_physics_server();
+    void _become_mesh_owner();
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
@@ -115,13 +122,8 @@ protected:
 
     String get_configuration_warning() const override;
 
-protected:
-    void _update_physics_server();
-    void _draw_soft_mesh();
 
 public:
-    void prepare_physics_server();
-    void become_mesh_owner();
 
     void set_collision_mask(uint32_t p_mask);
     uint32_t get_collision_mask() const;
@@ -137,6 +139,8 @@ public:
 
     void set_parent_collision_ignore(const NodePath &p_parent_collision_ignore);
     const NodePath &get_parent_collision_ignore() const;
+    void set_physics_enabled(bool p_enabled);
+    bool is_physics_enabled() const;
 
     void set_pinned_points_indices(const PoolVector<PinnedPoint>& p_pinned_points_indices);
     PoolVector<PinnedPoint> get_pinned_points_indices();
@@ -175,7 +179,7 @@ public:
     Vector3 get_point_transform(int p_point_index);
 
     void pin_point_toggle(int p_point_index);
-    void pin_point(int p_point_index, bool pin, const NodePath &p_spatial_attachment_path = NodePath());
+    void set_point_pinned(int p_point_index, bool pin, const NodePath &p_spatial_attachment_path = NodePath());
     bool is_point_pinned(int p_point_index) const;
 
     void set_ray_pickable(bool p_ray_pickable);

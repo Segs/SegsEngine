@@ -82,7 +82,7 @@ Error ResourceImporterImage::import(StringView p_source_file, StringView p_save_
 
     ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, "Cannot open file from path '" + p_source_file + "'.");
 
-    size_t len = f->get_len();
+    uint64_t len = f->get_len();
     auto data = eastl::make_unique<uint8_t[]>(len);
 
     f->get_buffer(data.get(), len);

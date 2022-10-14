@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  basis.cpp                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -304,10 +304,7 @@ Vector3 Basis::get_scale() const {
     //
     // The rotation part of this decomposition is returned by get_rotation* functions.
     real_t det_sign = SGN(determinant());
-    return det_sign * Vector3(
-                              Vector3(elements[0][0], elements[1][0], elements[2][0]).length(),
-                              Vector3(elements[0][1], elements[1][1], elements[2][1]).length(),
-                              Vector3(elements[0][2], elements[1][2], elements[2][2]).length());
+    return det_sign * get_scale_abs();
 }
 
 // Decomposes a Basis into a rotation-reflection matrix (an element of the group O(3)) and a positive scaling matrix as B = O.S.
@@ -336,22 +333,22 @@ Vector3 Basis::rotref_posscale_decomposition(Basis &rotref) const {
 // The main use of Basis is as Transform.basis, which is used a the transformation matrix
 // of 3D object. Rotate here refers to rotation of the object (which is R * (*this)),
 // not the matrix itself (which is R * (*this) * R.transposed()).
-Basis Basis::rotated(const Vector3 &p_axis, real_t p_phi) const {
-    return Basis(p_axis, p_phi) * (*this);
+Basis Basis::rotated(const Vector3 &p_axis, real_t p_angle) const {
+    return Basis(p_axis, p_angle) * (*this);
 }
 
-void Basis::rotate(const Vector3 &p_axis, real_t p_phi) {
-    *this = rotated(p_axis, p_phi);
+void Basis::rotate(const Vector3 &p_axis, real_t p_angle) {
+    *this = rotated(p_axis, p_angle);
 }
 
-void Basis::rotate_local(const Vector3 &p_axis, real_t p_phi) {
+void Basis::rotate_local(const Vector3 &p_axis, real_t p_angle) {
     // performs a rotation in object-local coordinate system:
     // M -> (M.R.Minv).M = M.R.
-    *this = rotated_local(p_axis, p_phi);
+    *this = rotated_local(p_axis, p_angle);
 }
-Basis Basis::rotated_local(const Vector3 &p_axis, real_t p_phi) const {
+Basis Basis::rotated_local(const Vector3 &p_axis, real_t p_angle) const {
 
-    return (*this) * Basis(p_axis, p_phi);
+    return (*this) * Basis(p_axis, p_angle);
 }
 
 Basis Basis::rotated(const Vector3 &p_euler) const {
@@ -447,31 +444,28 @@ Vector3 Basis::get_euler_xyz() const {
     //        cz*sx*sy+cx*sz  cx*cz-sx*sy*sz -cy*sx
     //       -cx*cz*sy+sx*sz  cz*sx+cx*sy*sz  cx*cy
 
-    Vector3 euler;
+    Vector3 euler(0,0,0);
     real_t sy = elements[0][2];
-    if (sy < (1.0 - CMP_EPSILON)) {
-        if (sy > -(1.0 - CMP_EPSILON)) {
+    if (sy >= 1.0 - CMP_EPSILON) {
+        euler.x = Math::atan2(elements[2][1], elements[1][1]);
+        euler.y = Math_PI / 2.0f;
+        return euler;
+    }
+    if (sy <= -(1.0 - CMP_EPSILON)) {
+        euler.x = Math::atan2(elements[2][1], elements[1][1]);
+        euler.y = -Math_PI / 2.0f;
+        return euler;
+    }
             // is this a pure Y rotation?
-            if (elements[1][0] == 0.0 && elements[0][1] == 0.0 && elements[1][2] == 0 && elements[2][1] == 0 && elements[1][1] == 1) {
+    if (elements[1][0] == 0.0f && elements[0][1] == 0.0f && elements[1][2] == 0.0f && elements[2][1] == 0.0f &&
+            elements[1][1] == 1.0f) {
                 // return the simplest form (human friendlier in editor and scripts)
-                euler.x = 0;
                 euler.y = atan2(elements[0][2], elements[0][0]);
-                euler.z = 0;
             } else {
                 euler.x = Math::atan2(-elements[1][2], elements[2][2]);
                 euler.y = Math::asin(sy);
                 euler.z = Math::atan2(-elements[0][1], elements[0][0]);
             }
-        } else {
-            euler.x = Math::atan2(elements[2][1], elements[1][1]);
-            euler.y = -Math_PI / 2.0;
-            euler.z = 0.0f;
-        }
-    } else {
-        euler.x = Math::atan2(elements[2][1], elements[1][1]);
-        euler.y = Math_PI / 2.0f;
-        euler.z = 0.0;
-    }
     return euler;
 }
 
@@ -640,7 +634,7 @@ Vector3 Basis::get_euler_yxz() const {
 // (ax,ay,az), where ax is the angle of rotation around x axis,
 // and similar for other axes.
 // The current implementation uses YXZ convention (Z is the first rotation).
-void Basis::set_euler_yxz(const Vector3 &p_euler) {
+void Basis::set_euler_yxz(Vector3 p_euler) {
 
     real_t c, s;
 
@@ -903,14 +897,18 @@ void Basis::get_axis_angle(Vector3 &r_axis, real_t &r_angle) const {
 #endif
 */
     real_t angle, x, y, z; // variables for result
-    real_t epsilon = 0.01f; // margin to allow for rounding errors
-    real_t epsilon2 = 0.1f; // margin to distinguish between 0 and 180 degrees
+    real_t angle_epsilon = 0.1f; // margin to distinguish between 0 and 180 degrees
 
-    if ((Math::abs(elements[1][0] - elements[0][1]) < epsilon) && (Math::abs(elements[2][0] - elements[0][2]) < epsilon) && (Math::abs(elements[2][1] - elements[1][2]) < epsilon)) {
+    if ((Math::abs(elements[1][0] - elements[0][1]) < CMP_EPSILON) &&
+            (Math::abs(elements[2][0] - elements[0][2]) < CMP_EPSILON) &&
+            (Math::abs(elements[2][1] - elements[1][2]) < CMP_EPSILON)) {
         // singularity found
         // first check for identity matrix which must have +1 for all terms
         //  in leading diagonaland zero in other terms
-        if ((Math::abs(elements[1][0] + elements[0][1]) < epsilon2) && (Math::abs(elements[2][0] + elements[0][2]) < epsilon2) && (Math::abs(elements[2][1] + elements[1][2]) < epsilon2) && (Math::abs(elements[0][0] + elements[1][1] + elements[2][2] - 3) < epsilon2)) {
+        if ((Math::abs(elements[1][0] + elements[0][1]) < angle_epsilon) &&
+                (Math::abs(elements[2][0] + elements[0][2]) < angle_epsilon) &&
+                (Math::abs(elements[2][1] + elements[1][2]) < angle_epsilon) &&
+                (Math::abs(elements[0][0] + elements[1][1] + elements[2][2] - 3) < angle_epsilon)) {
             // this singularity is identity matrix so angle = 0
             r_axis = Vector3(0, 1, 0);
             r_angle = 0;
@@ -925,7 +923,7 @@ void Basis::get_axis_angle(Vector3 &r_axis, real_t &r_angle) const {
         real_t xz = (elements[2][0] + elements[0][2]) / 4;
         real_t yz = (elements[2][1] + elements[1][2]) / 4;
         if ((xx > yy) && (xx > zz)) { // elements[0][0] is the largest diagonal term
-            if (xx < epsilon) {
+            if (xx < CMP_EPSILON) {
                 x = 0;
                 y = Math_SQRT12;
                 z = Math_SQRT12;
@@ -935,7 +933,7 @@ void Basis::get_axis_angle(Vector3 &r_axis, real_t &r_angle) const {
                 z = xz / x;
             }
         } else if (yy > zz) { // elements[1][1] is the largest diagonal term
-            if (yy < epsilon) {
+            if (yy < CMP_EPSILON) {
                 x = Math_SQRT12;
                 y = 0;
                 z = Math_SQRT12;
@@ -945,7 +943,7 @@ void Basis::get_axis_angle(Vector3 &r_axis, real_t &r_angle) const {
                 z = yz / y;
             }
         } else { // elements[2][2] is the largest diagonal term so base result on this
-            if (zz < epsilon) {
+            if (zz < CMP_EPSILON) {
                 x = Math_SQRT12;
                 y = Math_SQRT12;
                 z = 0;
@@ -963,7 +961,7 @@ void Basis::get_axis_angle(Vector3 &r_axis, real_t &r_angle) const {
     real_t s = Math::sqrt((elements[1][2] - elements[2][1]) * (elements[1][2] - elements[2][1]) +
                           (elements[2][0] - elements[0][2]) * (elements[2][0] - elements[0][2]) +
                           (elements[0][1] - elements[1][0]) *
-                          (elements[0][1] - elements[1][0])); // s=|axis||sin(angle)|, used to normalise
+                                  (elements[0][1] - elements[1][0])); // s=|axis||sin(angle)|, used to normalise
 
     angle = Math::acos((elements[0][0] + elements[1][1] + elements[2][2] - 1) / 2);
     if (angle < 0) {
@@ -990,18 +988,18 @@ void Basis::set_quat(const Quat &p_quat) {
         xz - wy         , yz + wx           , 1.0f - (xx + yy));
 }
 
-void Basis::set_axis_angle(const Vector3 &p_axis, real_t p_phi) {
+void Basis::set_axis_angle(const Vector3 &p_axis, real_t p_angle) {
 // Rotation matrix from axis and angle, see https://en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_angle
 #ifdef MATH_CHECKS
     ERR_FAIL_COND_MSG(!p_axis.is_normalized(), "The axis Vector3 must be normalized.");
 #endif
     Vector3 axis_sq(p_axis.x * p_axis.x, p_axis.y * p_axis.y, p_axis.z * p_axis.z);
-    real_t cosine = Math::cos(p_phi);
+    real_t cosine = Math::cos(p_angle);
     elements[0][0] = axis_sq.x + cosine * (1.0f - axis_sq.x);
     elements[1][1] = axis_sq.y + cosine * (1.0f - axis_sq.y);
     elements[2][2] = axis_sq.z + cosine * (1.0f - axis_sq.z);
 
-    real_t sine = Math::sin(p_phi);
+    real_t sine = Math::sin(p_angle);
     real_t t = 1 - cosine;
 
     real_t xyzt = p_axis.x * p_axis.y * t;
@@ -1020,9 +1018,9 @@ void Basis::set_axis_angle(const Vector3 &p_axis, real_t p_phi) {
     elements[2][1] = xyzt + zyxs;
 }
 
-void Basis::set_axis_angle_scale(const Vector3 &p_axis, real_t p_phi, const Vector3 &p_scale) {
+void Basis::set_axis_angle_scale(const Vector3 &p_axis, real_t p_angle, const Vector3 &p_scale) {
     set_diagonal(p_scale);
-    rotate(p_axis, p_phi);
+    rotate(p_axis, p_angle);
 }
 
 void Basis::set_euler_scale(const Vector3 &p_euler, const Vector3 &p_scale) {
@@ -1053,16 +1051,16 @@ Basis::operator Quat() const {
     return get_quat();
 }
 
-Basis Basis::slerp(const Basis &target, const real_t &t) const {
+Basis Basis::slerp(const Basis &p_to, const real_t &p_weight) const {
 
     //consider scale
     Quat from(*this);
-    Quat to(target);
+    Quat to(p_to);
 
-    Basis b(from.slerp(to, t));
-    b.elements[0] *= Math::lerp(elements[0].length(), target.elements[0].length(), t);
-    b.elements[1] *= Math::lerp(elements[1].length(), target.elements[1].length(), t);
-    b.elements[2] *= Math::lerp(elements[2].length(), target.elements[2].length(), t);
+    Basis b(from.slerp(to, p_weight));
+    b.elements[0] *= Math::lerp(elements[0].length(), p_to.elements[0].length(), p_weight);
+    b.elements[1] *= Math::lerp(elements[1].length(), p_to.elements[1].length(), p_weight);
+    b.elements[2] *= Math::lerp(elements[2].length(), p_to.elements[2].length(), p_weight);
 
     return b;
 }
@@ -1072,16 +1070,16 @@ void Basis::rotate_sh(real_t *p_values) {
     // http://filmicworlds.com/blog/simple-and-fast-spherical-harmonic-rotation/
     // this code is Public Domain
 
-    const static real_t s_c3 = 0.94617469575; // (3*sqrt(5))/(4*sqrt(pi))
-    const static real_t s_c4 = -0.31539156525; // (-sqrt(5))/(4*sqrt(pi))
-    const static real_t s_c5 = 0.54627421529; // (sqrt(15))/(4*sqrt(pi))
+    const static real_t s_c3 = 0.94617469575f; // (3*sqrt(5))/(4*sqrt(pi))
+    const static real_t s_c4 = -0.31539156525f; // (-sqrt(5))/(4*sqrt(pi))
+    const static real_t s_c5 = 0.54627421529f; // (sqrt(15))/(4*sqrt(pi))
 
-    const static real_t s_c_scale = 1.0 / 0.91529123286551084;
-    const static real_t s_c_scale_inv = 0.91529123286551084;
+    const static real_t s_c_scale = 1.0f / 0.91529123286551084f;
+    const static real_t s_c_scale_inv = 0.91529123286551084f;
 
-    const static real_t s_rc2 = 1.5853309190550713 * s_c_scale;
+    const static real_t s_rc2 = 1.5853309190550713f * s_c_scale;
     const static real_t s_c4_div_c3 = s_c4 / s_c3;
-    const static real_t s_c4_div_c3_x2 = (s_c4 / s_c3) * 2.0;
+    const static real_t s_c4_div_c3_x2 = (s_c4 / s_c3) * 2.0f;
 
     const static real_t s_scale_dst2 = s_c3 * s_c_scale_inv;
     const static real_t s_scale_dst4 = s_c5 * s_c_scale_inv;

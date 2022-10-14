@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  camera_3d.h                                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -61,37 +61,36 @@ public:
     };
 
 private:
-    bool force_change;
-    bool current;
-    Viewport *viewport;
+    friend class Viewport;
 
-    Projection mode;
+    bool force_change = false;
+    bool current = false;
+    Viewport *viewport = nullptr;
 
-    float fov;
-    float size;
+    Projection mode = PROJECTION_PERSPECTIVE;
+
+    float fov = 0.0f;
+    float size = 1.0f;
     Vector2 frustum_offset;
-    float near, far;
-    float v_offset;
-    float h_offset;
-    KeepAspect keep_aspect;
+    float near = 0.0f;
+    float far = 0.0f;
+    float v_offset = 0.0f;
+    float h_offset = 0.0f;
+    KeepAspect keep_aspect = KEEP_HEIGHT;
 
-    RID camera;
-    RID scenario_id;
+    RenderingEntity camera;
+    RenderingEntity scenario_id;
 
     //String camera_group;
 
-    uint32_t layers;
+    uint32_t layers = 0xfffff;
 
     Ref<Environment> environment;
+    DopplerTracking doppler_tracking = DOPPLER_TRACKING_DISABLED;
+    Ref<VelocityTracker3D> velocity_tracker;
 
-    virtual bool _can_gizmo_scale() const;
-
-    //void _camera_make_current(Node *p_camera);
-    friend class Viewport;
     void _update_audio_listener_state();
 
-    DopplerTracking doppler_tracking;
-    Ref<VelocityTracker3D> velocity_tracker;
 
 protected:
     void _update_camera();
@@ -120,7 +119,7 @@ public:
     void set_current(bool p_current);
     bool is_current() const;
 
-    RID get_camera_rid() const;
+    RenderingEntity get_camera_rid() const;
 
     float get_fov() const;
     float get_size() const;

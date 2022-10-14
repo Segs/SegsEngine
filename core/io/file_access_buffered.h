@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  file_access_buffered.h                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -80,7 +80,7 @@ public:
     bool eof_reached() const override;
 
     uint8_t get_8() const override;
-    int get_buffer(uint8_t *p_dest, int p_length) const override; ///< get an array of bytes
+    uint64_t get_buffer(uint8_t *p_dest, uint64_t p_length) const override; ///< get an array of bytes
 
     bool is_open() const override;
 

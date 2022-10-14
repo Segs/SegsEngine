@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  curve_texture.h                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -38,7 +38,7 @@ class GODOT_EXPORT CurveTexture : public Texture {
     RES_BASE_EXTENSION("curvetex")
 
 private:
-    RID _texture;
+    RenderingEntity _texture;
     Ref<Curve> _curve;
     int _width;
 
@@ -56,7 +56,7 @@ public:
     void set_curve(const Ref<Curve>& p_curve);
     Ref<Curve> get_curve() const;
 
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     int get_height() const override { return 1; }
     bool has_alpha() const override { return false; }

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  camera_feed.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -73,7 +73,7 @@ protected:
     Transform2D transform; // display transform
 
     bool active; // only when active do we actually update the camera texture each frame
-    RID texture[CameraServer::FEED_IMAGES]; // texture images needed for this
+    RenderingEntity texture[CameraServer::FEED_IMAGES]; // texture images needed for this
 
     static void _bind_methods();
 
@@ -94,16 +94,16 @@ public:
     Transform2D get_transform() const;
     void set_transform(const Transform2D &p_transform);
 
-    RID get_texture(CameraServer::FeedImage p_which);
+    RenderingEntity get_texture(CameraServer::FeedImage p_which);
 
     CameraFeed();
     CameraFeed(StringView p_name, FeedPosition p_position = CameraFeed::FEED_UNSPECIFIED);
     ~CameraFeed() override;
 
     FeedDataType get_datatype() const;
-    void set_RGB_img(Ref<Image> p_rgb_img);
-    void set_YCbCr_img(Ref<Image> p_ycbcr_img);
-    void set_YCbCr_imgs(Ref<Image> p_y_img, Ref<Image> p_cbcr_img);
+    void set_RGB_img(const Ref<Image> &p_rgb_img);
+    void set_YCbCr_img(const Ref<Image> &p_ycbcr_img);
+    void set_YCbCr_imgs(const Ref<Image> &p_y_img,const Ref<Image> &p_cbcr_img);
     void allocate_texture(int p_width, int p_height, Image::Format p_format, RS::TextureType p_texture_type, FeedDataType p_data_type);
 
     virtual bool activate_feed();

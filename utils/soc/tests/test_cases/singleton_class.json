@@ -1,0 +1,19 @@
+{
+    "api_hash" : "",
+    "api_version" : "",
+    "dependencies" : [],
+    "module_name" : "",
+    "namespaces" : [ {
+            "contents" : {
+                "subtypes" : [ {
+                    "contents" : {},
+                    "is_singleton" : true,
+                    "name" : "Sing",
+                    "required_header" : "singleton_class.h"
+                } ]
+            },
+            "name" : "GodotCore"
+            }
+    ],
+    "version" : ""
+}

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  file_access_network.cpp                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -56,8 +56,8 @@ struct FileAccessNetworkClient_priv {
     struct BlockRequest {
 
         uint64_t offset;
-        int id;
-        int size;
+        int32_t id;
+        int32_t size;
     };
     Ref<StreamPeerTCP> client=make_ref_counted<StreamPeerTCP>();
 
@@ -68,15 +68,10 @@ struct FileAccessNetworkClient_priv {
 
 struct FileAccessNetwork_priv {
     mutable int waiting_on_page;
-    mutable int last_activity_val;
     struct Page {
-        int activity;
-        bool queued;
         Vector<uint8_t> buffer;
-        Page() {
-            activity = 0;
-            queued = false;
-        }
+        int activity = 0;
+        bool queued = false;
     };
 
     mutable Vector<Page> pages;
@@ -90,18 +85,14 @@ struct FileAccessNetwork_priv {
 #define C_PRIV() ((FileAccessNetworkClient_priv *)m_priv)
 
 void FileAccessNetworkClient::lock_mutex() {
-
     mutex.lock();
-    lockcount++;
 }
 
 void FileAccessNetworkClient::unlock_mutex() {
-
-    lockcount--;
     mutex.unlock();
 }
 
-void FileAccessNetworkClient::put_32(int p_32) {
+void FileAccessNetworkClient::put_32(int32_t p_32) {
 
     uint8_t buf[4];
     encode_uint32(p_32, buf);
@@ -117,7 +108,7 @@ void FileAccessNetworkClient::put_64(int64_t p_64) {
     DEBUG_PRINT("put64: " + itos(p_64));
 }
 
-int FileAccessNetworkClient::get_32() {
+int32_t FileAccessNetworkClient::get_32() {
 
     uint8_t buf[4];
     C_PRIV()->client->get_data(buf, 4);
@@ -141,7 +132,7 @@ void FileAccessNetworkClient::_thread_func() {
 
         DEBUG_TIME("sem_unlock");
         //DEBUG_PRINT("semwait returned "+itos(werr));
-        DEBUG_PRINT("MUTEX LOCK " + itos(lockcount));
+        //DEBUG_PRINT("MUTEX LOCK " + itos(lockcount));
         lock_mutex();
         DEBUG_PRINT("MUTEX PASS");
 
@@ -173,8 +164,9 @@ void FileAccessNetworkClient::_thread_func() {
             }
         }
         auto iter=priv->accesses.find(id);
-        if (iter!=priv->accesses.end())
+        if (iter!=priv->accesses.end()) {
             fa = iter->second;
+        }
 
         switch (response) {
 
@@ -208,8 +200,10 @@ void FileAccessNetworkClient::_thread_func() {
             case FileAccessNetwork::RESPONSE_FILE_EXISTS: {
 
                 int status = get_32();
-                fa->exists_modtime = status != 0;
-                fa->sem.post();
+                if(fa) {
+                    fa->exists_modtime = status != 0;
+                    fa->sem.post();
+                }
 
             } break;
             case FileAccessNetwork::RESPONSE_GET_MODTIME: {
@@ -276,7 +270,6 @@ FileAccessNetworkClient::FileAccessNetworkClient() {
     quit = false;
     singleton = this;
     last_id = 0;
-    lockcount = 0;
 }
 
 FileAccessNetworkClient::~FileAccessNetworkClient() {
@@ -312,25 +305,24 @@ bool FileAccessNetworkClient::is_my_token_valid(int source_id, FileAccessNetwork
     using Priv = FileAccessNetworkClient_priv;
 
     auto iter=((Priv *)m_priv)->accesses.find(source_id);
-    if(((Priv *)m_priv)->accesses.end()==iter)
+    if(((Priv *)m_priv)->accesses.end()==iter) {
         return false;
+    }
     return iter->second==from;
 }
 
 void FileAccessNetworkClient::finish_access(int id, FileAccessNetwork *from)
 {
     using Priv = FileAccessNetworkClient_priv;
-
-    lock_mutex();
+    MutexLock guard(mutex);
 
     auto iter=((Priv *)m_priv)->accesses.find(id);
     ERR_FAIL_COND(((Priv *)m_priv)->accesses.end()==iter);
     ERR_FAIL_COND(from!=iter->second);
     ((Priv *)m_priv)->accesses.erase(iter);
-
     unlock_mutex();
 }
-void FileAccessNetwork::_set_block(int p_offset, const Vector<uint8_t> &p_block) {
+void FileAccessNetwork::_set_block(uint64_t p_offset, const Vector<uint8_t> &p_block) {
 
     int page = p_offset / page_size;
     ERR_FAIL_INDEX(page, D_PRIV()->pages.size());
@@ -352,7 +344,7 @@ void FileAccessNetwork::_set_block(int p_offset, const Vector<uint8_t> &p_block)
     }
 }
 
-void FileAccessNetwork::_respond(size_t p_len, Error p_status) {
+void FileAccessNetwork::_respond(uint64_t p_len, Error p_status) {
 
     DEBUG_PRINT("GOT RESPONSE - len: " + itos(p_len) + " status: " + itos(p_status));
     D_PRIV()->response = p_status;
@@ -401,8 +393,9 @@ Error FileAccessNetwork::_open(StringView p_path, int p_mode_flags) {
 
 void FileAccessNetwork::close() {
 
-    if (!opened)
+    if (!opened) {
         return;
+    }
 
     FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
 
@@ -459,7 +452,7 @@ uint8_t FileAccessNetwork::get_8() const {
     return v;
 }
 
-void FileAccessNetwork::_queue_page(int p_page) const {
+void FileAccessNetwork::_queue_page(int32_t p_page) const {
 
     if (p_page >= D_PRIV()->pages.size())
         return;
@@ -477,7 +470,8 @@ void FileAccessNetwork::_queue_page(int p_page) const {
     }
 }
 
-int FileAccessNetwork::get_buffer(uint8_t *p_dst, int p_length) const {
+uint64_t FileAccessNetwork::get_buffer(uint8_t *p_dst, uint64_t p_length) const {
+    ERR_FAIL_COND_V(!p_dst && p_length > 0, -1);
 
     //bool eof=false;
     if (pos + p_length > total_size) {
@@ -609,7 +603,6 @@ FileAccessNetwork::FileAccessNetwork() {
     id = nc->record_access_source(this);
     page_size = GLOBAL_GET("network/remote_fs/page_size").as<int>();
     read_ahead = GLOBAL_GET("network/remote_fs/page_read_ahead").as<int>();
-    D_PRIV()->last_activity_val = 0;
     D_PRIV()->waiting_on_page = -1;
     last_page = -1;
 }

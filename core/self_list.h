@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  self_list.h                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -33,9 +33,10 @@
 #include "core/typedefs.h"
 #include "core/error_macros.h"
 
+#include <cassert>
 
 class InListNodeBase {
-public:    
+public:
     class IntrusiveListBase* _root;
     InListNodeBase* _next;
     InListNodeBase* _prev;
@@ -52,7 +53,7 @@ protected:
     InListNodeBase* _last = nullptr;
 
     void add(InListNodeBase* p_elem) {
-
+        assert(valid());
         ERR_FAIL_COND(p_elem->_root);
 
         p_elem->_root = this;
@@ -68,9 +69,10 @@ protected:
         }
 
         _first = p_elem;
+        assert(valid());
     }
     void add_last(InListNodeBase* p_elem) {
-
+        assert(valid());
         ERR_FAIL_COND(p_elem->_root);
 
         p_elem->_root = this;
@@ -86,10 +88,11 @@ protected:
         }
 
         _last = p_elem;
+        assert(valid());
     }
 
     void remove(InListNodeBase* p_elem) {
-
+        assert(valid());
         ERR_FAIL_COND(p_elem->_root != this);
         if (p_elem->_next) {
             p_elem->_next->_prev = p_elem->_prev;
@@ -110,8 +113,25 @@ protected:
         p_elem->_next = nullptr;
         p_elem->_prev = nullptr;
         p_elem->_root = nullptr;
+        assert(valid());
     }
     constexpr IntrusiveListBase() noexcept = default;
+
+    bool valid() const {
+        int count=0;
+        int bcount=0;
+        for(auto iter=_first; iter; iter=iter->_next) {
+            if(iter->_root!=this)
+                return false;
+            count++;
+        }
+        for(auto iter=_last; iter; iter=iter->_prev) {
+            if(iter->_root!=this)
+                return false;
+            bcount++;
+        }
+        return count==bcount;
+    }
 };
 
 template <class T>
@@ -121,9 +141,6 @@ private:
     T* _self;
 
 public:
-    _FORCE_INLINE_ void remove_from_list() {
-        if (_root) _root->remove(this);
-    }
     _FORCE_INLINE_ IntrusiveListNode<T>* next() { return (IntrusiveListNode<T>*)_next; }
     _FORCE_INLINE_ IntrusiveListNode<T>* prev() { return (IntrusiveListNode<T>*)_prev; }
     _FORCE_INLINE_ const IntrusiveListNode* next() const { return (IntrusiveListNode<T>*)_next; }
@@ -139,9 +156,44 @@ public:
     }
 
     _FORCE_INLINE_ ~IntrusiveListNode() {
-
         if (_root)
             _root->remove(this);
+    }
+    IntrusiveListNode(const IntrusiveListNode&) = delete;
+    IntrusiveListNode& operator=(const IntrusiveListNode&) = delete;
+
+    IntrusiveListNode(IntrusiveListNode&& oth) noexcept
+    {
+        *this = eastl::move(oth);
+    }
+    IntrusiveListNode &operator=(IntrusiveListNode &&oth) noexcept {
+        assert(oth.valid());
+        _self = oth._self;
+        oth._self = nullptr;
+        assert(valid());
+        if (_root) {
+            _root->remove(this);
+        }
+        assert(valid());
+
+        if(&oth==this) {
+            return *this;
+        }
+
+        if (oth._root) {
+            oth._root->add_last(this);
+            assert(valid());
+            oth._root->remove(&oth);
+            assert(valid());
+        }
+        assert(valid());
+        return *this;
+    }
+    [[nodiscard]] bool valid() const {
+        if(!_root) {
+            return !_next && !_prev;
+        }
+        return _root->valid();
     }
 };
 
@@ -168,7 +220,7 @@ public:
     IntrusiveList() noexcept = default;
     _FORCE_INLINE_ ~IntrusiveList() {
         if (unlikely(_first != nullptr)) {
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "List was not cleared before destruction");
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "List was not cleared before destruction",{});
         }
     }
 };

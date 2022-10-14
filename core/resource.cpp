@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  resource.cpp                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -39,7 +39,6 @@
 #include "core/object_db.h"
 #include "core/os/file_access.h"
 #include "core/script_language.h"
-#include "core/self_list.h"
 #include "core/object_tooling.h"
 //#include "core/ustring.h"
 //TODO: SEGS consider removing 'scene/main/node.h' include from core module
@@ -56,22 +55,13 @@ namespace {
 
 struct Resource::Data {
     Data() = default;
-#ifdef TOOLS_ENABLED
-    static HashMap<String, HashMap<String, int> > resource_path_cache; // each tscn has a set of resource paths and IDs
-    String import_path;
-#endif
-    HashSet<ObjectID> owners;
+    HashSet<GameEntity> owners;
     String name;
     String path_cache;
     Node *local_scene = nullptr;
     int subindex=0;
     bool local_to_scene=false;
-    static RWLock path_cache_lock;
 };
-RWLock Resource::Data::path_cache_lock;
-#ifdef TOOLS_ENABLED
-HashMap<String, HashMap<String, int> > Resource::Data::resource_path_cache;
-#endif
 
 
 IMPL_GDCLASS(Resource)
@@ -132,6 +122,7 @@ void Resource::set_path(StringView p_path, bool p_take_over) {
     _resource_path_changed();
 }
 
+//! \note a few places are using the returned reference to construct StringViews, if this function no longer returns a long-living string, change the callers
 const String &Resource::get_path() const {
 
     return impl_data->path_cache;
@@ -295,8 +286,12 @@ void Resource::_take_over_path(StringView p_path) {
     set_path(p_path, true);
 }
 
-RID Resource::get_rid() const {
+RenderingEntity Resource::get_rid() const {
+    return entt::null;
+}
 
+RID Resource::get_phys_rid() const
+{
     return RID();
 }
 
@@ -312,42 +307,15 @@ void Resource::unregister_owner(Object *p_owner) {
 
 void Resource::notify_change_to_owners() {
 
-    for (const ObjectID E : impl_data->owners) {
+    for (GameEntity E : impl_data->owners) {
 
-        Object *obj = ObjectDB::get_instance(E);
+        Object *obj = object_for_entity(E);
         ERR_CONTINUE_MSG(!obj, "Object was deleted, while still owning a resource."); //wtf
         //TODO store string
         obj->call_va("resource_changed", RES(this));
     }
 }
 
-#ifdef TOOLS_ENABLED
-
-uint32_t Resource::hash_edited_version() const {
-
-    uint32_t hash = hash_djb2_one_32(get_tooling_interface()->get_edited_version());
-
-    Vector<PropertyInfo> plist;
-    get_property_list(&plist);
-
-    for(PropertyInfo &E : plist ) {
-
-        if (E.usage & PROPERTY_USAGE_STORAGE && E.type == VariantType::OBJECT && E.hint == PropertyHint::ResourceType) {
-            RES res(refFromVariant<Resource>(get(E.name)));
-            if (res) {
-                hash = hash_djb2_one_32(res->hash_edited_version(), hash);
-            }
-        }
-    }
-
-    return hash;
-}
-
-void Resource::set_import_path(StringView p_path) { impl_data->import_path = p_path; }
-
-const String &Resource::get_import_path() const { return impl_data->import_path; }
-
-#endif
 
 void Resource::set_local_to_scene(bool p_enable) {
 
@@ -388,32 +356,6 @@ bool Resource::is_translation_remapped() const {
     return gResourceRemapper().is_translation_remapped(this);
 }
 
-#ifdef TOOLS_ENABLED
-
-//helps keep IDs same number when loading/saving scenes. -1 clears ID and it Returns -1 when no id stored
-void Resource::set_id_for_path(StringView p_path, int p_id) {
-    RWLockWrite wr(Data::path_cache_lock);
-    if (p_id == -1) {
-        Data::resource_path_cache[String(p_path)].erase(get_path());
-    } else {
-        Data::resource_path_cache[String(p_path)][get_path()] = p_id;
-    }
-}
-
-int Resource::get_id_for_path(StringView p_path) const {
-    RWLockRead rd_lock(Data::path_cache_lock);
-
-    auto & res_path_cache(Data::resource_path_cache[String(p_path)]);
-    auto iter = res_path_cache.find(get_path());
-    if (iter!=res_path_cache.end()) {
-        int result = iter->second;
-        return result;
-    }
-    return -1;
-}
-
-
-#endif
 #ifdef DEBUG_ENABLED
 const char *Resource::get_dbg_name() const {
     static TmpString<2048,false> s_data;
@@ -448,14 +390,15 @@ void Resource::changed() {}
 void Resource::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_path", {"path"}), &Resource::_set_path);
     MethodBinder::bind_method(D_METHOD("take_over_path", {"path"}), &Resource::_take_over_path);
-    MethodBinder::bind_method(D_METHOD("get_path"), &Resource::get_path);
-    MethodBinder::bind_method(D_METHOD("set_name", {"name"}), &Resource::set_name);
-    MethodBinder::bind_method(D_METHOD("get_name"), &Resource::get_name);
-    MethodBinder::bind_method(D_METHOD("get_rid"), &Resource::get_rid);
-    MethodBinder::bind_method(D_METHOD("set_local_to_scene", {"enable"}), &Resource::set_local_to_scene);
-    MethodBinder::bind_method(D_METHOD("is_local_to_scene"), &Resource::is_local_to_scene);
-    MethodBinder::bind_method(D_METHOD("get_local_scene"), &Resource::get_local_scene);
-    MethodBinder::bind_method(D_METHOD("setup_local_to_scene"), &Resource::setup_local_to_scene);
+    BIND_METHOD(Resource,get_path);
+    BIND_METHOD(Resource,set_name);
+    BIND_METHOD(Resource,get_name);
+    BIND_METHOD(Resource,get_rid);
+    BIND_METHOD(Resource,get_phys_rid);
+    BIND_METHOD(Resource,set_local_to_scene);
+    BIND_METHOD(Resource,is_local_to_scene);
+    BIND_METHOD(Resource,get_local_scene);
+    BIND_METHOD(Resource,setup_local_to_scene);
 
     MethodBinder::bind_method(D_METHOD("duplicate", {"subresources"}), &Resource::duplicate, {DEFVAL(false)});
 //    const auto &mo = Resource::staticMetaObject;
@@ -489,12 +432,6 @@ void Resource::_bind_methods() {
 
 Resource::Resource() :
         impl_data(memnew(Resource::Data)) {
-
-#ifdef TOOLS_ENABLED
-    last_modified_time = 0;
-    import_last_modified_time = 0;
-#endif
-
 }
 
 Resource::~Resource() {
@@ -596,20 +533,24 @@ void ResourceCache::dump(StringView p_file, bool p_short) {
         type_count[r->get_class()]++;
 
         if (!p_short) {
-            if (f)
+            if (f) {
                 f->store_line(String(r->get_class()) + ": " + r->get_path());
+            }
         }
     }
 
     for (const eastl::pair<const String,int> &E : type_count) {
 
-        if (f)
+        if (f) {
             f->store_line(E.first + " count: " + itos(E.second));
+        }
     }
     if (f) {
         f->close();
         memdelete(f);
     }
 
+#else
+    WARN_PRINT("ResourceCache::dump only with in debug builds.");
 #endif
 }

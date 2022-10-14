@@ -120,8 +120,8 @@ BoneAttachment3D::BoneAttachment3D() {
 }
 
 void BoneAttachment3D::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_bone_name", {"bone_name"}), &BoneAttachment3D::set_bone_name);
-    MethodBinder::bind_method(D_METHOD("get_bone_name"), &BoneAttachment3D::get_bone_name);
+    BIND_METHOD(BoneAttachment3D,set_bone_name);
+    BIND_METHOD(BoneAttachment3D,get_bone_name);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "bone_name"), "set_bone_name", "get_bone_name");
 }

@@ -40,11 +40,11 @@
 	@author AndreaCatania
 */
 
-SliderJointBullet::SliderJointBullet(RigidBodyBullet *rbA, RigidBodyBullet *rbB, const Transform &frameInA, const Transform &frameInB) :
-		JointBullet() {
+SliderJointBullet::SliderJointBullet(
+        RigidBodyBullet *rbA, RigidBodyBullet *rbB, const Transform &frameInA, const Transform &frameInB) {
 
 	Transform scaled_AFrame(frameInA.scaled(rbA->get_body_scale()));
-	scaled_AFrame.basis.rotref_posscale_decomposition(scaled_AFrame.basis);
+    (void)scaled_AFrame.basis.rotref_posscale_decomposition(scaled_AFrame.basis);
 
 	btTransform btFrameA;
 	G_TO_B(scaled_AFrame, btFrameA);
@@ -52,11 +52,12 @@ SliderJointBullet::SliderJointBullet(RigidBodyBullet *rbA, RigidBodyBullet *rbB,
 	if (rbB) {
 
 		Transform scaled_BFrame(frameInB.scaled(rbB->get_body_scale()));
-		scaled_BFrame.basis.rotref_posscale_decomposition(scaled_BFrame.basis);
+        (void)scaled_BFrame.basis.rotref_posscale_decomposition(scaled_BFrame.basis);
 
 		btTransform btFrameB;
 		G_TO_B(scaled_BFrame, btFrameB);
-		sliderConstraint = bulletnew(btSliderConstraint(*rbA->get_bt_rigid_body(), *rbB->get_bt_rigid_body(), btFrameA, btFrameB, true));
+        sliderConstraint = bulletnew(
+                btSliderConstraint(*rbA->get_bt_rigid_body(), *rbB->get_bt_rigid_body(), btFrameA, btFrameB, true));
 
 	} else {
 		sliderConstraint = bulletnew(btSliderConstraint(*rbA->get_bt_rigid_body(), btFrameA, true));

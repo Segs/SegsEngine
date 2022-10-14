@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  script_language.h                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -65,31 +65,17 @@ struct SortNetData {
 using ScriptEditRequestFunction = void (*)(StringView);
 
 class GODOT_EXPORT ScriptServer {
-    enum {
-
-        MAX_LANGUAGES = 16
-    };
-
-    static ScriptLanguage *_languages[MAX_LANGUAGES];
-    static int _language_count;
     static bool scripting_enabled;
     static bool reload_scripts_on_save;
     static bool languages_finished;
 
-    struct GlobalScriptClass {
-        StringName language;
-        String path;
-        StringName base;
-    };
-
-    static HashMap<StringName, GlobalScriptClass> global_classes;
 
 public:
     static ScriptEditRequestFunction edit_request_func;
 
     static void set_scripting_enabled(bool p_enabled);
     static bool is_scripting_enabled();
-    _FORCE_INLINE_ static int get_language_count() { return _language_count; }
+    static int get_language_count();
     static ScriptLanguage *get_language(int p_idx);
     static void register_language(ScriptLanguage *p_language);
     static void unregister_language(ScriptLanguage *p_language);
@@ -227,8 +213,15 @@ public:
 
     [[nodiscard]] virtual bool is_placeholder() const { return false; }
 
-    virtual void property_set_fallback(const StringName &p_name, const Variant &p_value, bool *r_valid);
-    virtual Variant property_get_fallback(const StringName &p_name, bool *r_valid);
+    virtual void property_set_fallback(const StringName &p_name, const Variant &p_value, bool *r_valid) {
+        if (r_valid)
+            *r_valid = false;
+    }
+    virtual Variant property_get_fallback(const StringName &p_name, bool *r_valid) {
+        if (r_valid)
+            *r_valid = false;
+        return Variant();
+    }
 
     virtual Vector<ScriptNetData> get_rpc_methods() const = 0;
     virtual uint16_t get_rpc_method_id(const StringName &p_method) const = 0;
@@ -288,7 +281,7 @@ public:
     virtual ~ScriptCodeCompletionCache() = default;
 };
 
-class ScriptLanguage {
+class GODOT_EXPORT ScriptLanguage {
 public:
     virtual StringName get_name() const = 0;
 
@@ -308,6 +301,7 @@ public:
     };
 
     virtual void get_reserved_words(Vector<String> *p_words) const = 0;
+    virtual bool is_control_flow_keyword(String p_string) const = 0;
     virtual void get_comment_delimiters(Vector<String> *p_delimiters) const = 0;
     virtual void get_string_delimiters(Vector<String> *p_delimiters) const = 0;
     virtual Ref<Script> get_template(StringView p_class_name, StringView p_base_class_name) const = 0;
@@ -316,9 +310,7 @@ public:
     virtual bool validate(StringView p_script, int &r_line_error, int &r_col_error, String &r_test_error,
             StringView p_path = {}, Vector<String> *r_functions = nullptr,
             Vector<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const = 0;
-#ifdef TOOLS_ENABLED
     virtual String validate_path(StringView /*p_path*/) const { return String(); }
-#endif
     virtual Script *create_script() const = 0;
     virtual bool has_named_classes() const = 0;
     virtual bool supports_builtin_mode() const = 0;
@@ -476,7 +468,7 @@ public:
     MultiplayerAPI_RPCMode get_rset_mode_by_id(uint16_t p_id) const override { return MultiplayerAPI_RPCMode(0); }
     MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const override { return MultiplayerAPI_RPCMode(0); }
 
-    PlaceHolderScriptInstance(ScriptLanguage *p_language, Ref<Script> p_script, Object *p_owner) :
+    PlaceHolderScriptInstance(ScriptLanguage *p_language, Ref<Script> &&p_script, Object *p_owner) :
         owner(p_owner),
         language(p_language),
         script(eastl::move(p_script)) {

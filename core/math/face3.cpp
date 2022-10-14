@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  face3.cpp                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -133,32 +133,34 @@ bool Face3::is_degenerate() const {
 }
 
 Face3::Side Face3::get_side_of(const Face3 &p_face, ClockDirection p_clock_dir) const {
-
     int over = 0, under = 0;
 
     Plane plane = get_plane(p_clock_dir);
 
     for (int i = 0; i < 3; i++) {
-
         const Vector3 &v = p_face.vertex[i];
 
-        if (plane.has_point(v)) //coplanar, don't bother
+        if (plane.has_point(v)) { // coplanar, don't bother
             continue;
+        }
 
-        if (plane.is_point_over(v))
+        if (plane.is_point_over(v)) {
             over++;
-        else
+        } else {
             under++;
+        }
     }
 
-    if (over > 0 && under == 0)
+    if (over > 0 && under == 0) {
         return SIDE_OVER;
-    else if (under > 0 && over == 0)
+    }
+    if (under > 0 && over == 0) {
         return SIDE_UNDER;
-    else if (under == 0 && over == 0)
+    }
+    if (under == 0 && over == 0) {
         return SIDE_COPLANAR;
-    else
-        return SIDE_SPANNING;
+    }
+    return SIDE_SPANNING;
 }
 
 Vector3 Face3::get_random_point_inside() const {
@@ -184,7 +186,7 @@ Vector3 Face3::get_median_point() const {
 
 real_t Face3::get_area() const {
 
-    return vec3_cross(vertex[0] - vertex[1], vertex[0] - vertex[2]).length();
+    return vec3_cross(vertex[0] - vertex[1], vertex[0] - vertex[2]).length()*0.5f;
 }
 
 ClockDirection Face3::get_clock_dir() const {
@@ -249,8 +251,9 @@ bool Face3::intersects_aabb(const AABB &p_aabb) const {
             p_aabb.project_range_in_plane(Plane(axis, 0), minA, maxA);
             project_range(axis, Transform(), minB, maxB);
 
-            if (maxA < minB || maxB < minA)
+            if (maxA < minB || maxB < minA) {
                 return false;
+            }
         }
     }
     return true;
@@ -320,8 +323,9 @@ void Face3::get_support(const Vector3 &p_normal, const Transform &p_transform, V
 
     for (int i = 0; i < 3; i++) {
 
-        if (i != vert_support_idx && i + 1 != vert_support_idx)
+        if (i != vert_support_idx && i + 1 != vert_support_idx) {
             continue;
+        }
 
         // check if edge is valid as a support
         real_t dot = (vertex[i] - vertex[(i + 1) % 3]).normalized().dot(n);
@@ -330,8 +334,9 @@ void Face3::get_support(const Vector3 &p_normal, const Transform &p_transform, V
 
             *p_count = MIN(2, p_max);
 
-            for (int j = 0; j < *p_count; j++)
+            for (int j = 0; j < *p_count; j++) {
                 p_vertices[j] = p_transform.xform(vertex[(j + i) % 3]);
+            }
 
             return;
         }

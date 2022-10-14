@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  file_access_encrypted.h                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -43,15 +43,15 @@ public:
     };
 
 private:
-    Mode mode;
+    Mode mode = MODE_MAX;
     FixedVector<uint8_t,32,true> key;
-    bool writing;
-    FileAccess *file;
+    bool writing = false;
+    FileAccess *file = nullptr;
     size_t base;
     size_t length;
     Vector<uint8_t> data;
-    mutable int pos;
-    mutable bool eofed;
+    mutable uint64_t pos = 0;
+    mutable bool eofed = false;
 
 public:
     Error open_and_parse(FileAccess *p_base, Span<const uint8_t> p_key, Mode p_mode);
@@ -72,13 +72,13 @@ public:
     bool eof_reached() const override; ///< reading passed EOF
 
     uint8_t get_8() const override; ///< get a byte
-    int get_buffer(uint8_t *p_dst, int p_length) const override;
+    uint64_t get_buffer(uint8_t *p_dst, uint64_t p_length) const override;
 
     Error get_error() const override; ///< get last error
 
     void flush() override;
     void store_8(uint8_t p_dest) override; ///< store a byte
-    void store_buffer(const uint8_t *p_src, int p_length) override; ///< store an array of bytes
+    void store_buffer(const uint8_t *p_src, uint64_t p_length) override; ///< store an array of bytes
 
     bool file_exists(StringView p_name) override; ///< return true if a file exists
 

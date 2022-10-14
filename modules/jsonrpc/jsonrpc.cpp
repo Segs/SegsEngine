@@ -45,13 +45,13 @@ JSONRPC::~JSONRPC() {
 IMPL_GDCLASS(JSONRPC)
 
 void JSONRPC::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_scope", {"scope", "target"}), &JSONRPC::set_scope);
+    BIND_METHOD(JSONRPC,set_scope);
     MethodBinder::bind_method(D_METHOD("process_action", {"action", "recurse"}), &JSONRPC::process_action, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("process_string", {"action"}), &JSONRPC::process_string);
+    BIND_METHOD(JSONRPC,process_string);
 
-    MethodBinder::bind_method(D_METHOD("make_request", {"method", "params", "id"}), &JSONRPC::make_request);
-    MethodBinder::bind_method(D_METHOD("make_response", {"result", "id"}), &JSONRPC::make_response);
-    MethodBinder::bind_method(D_METHOD("make_notification", {"method", "params"}), &JSONRPC::make_notification);
+    BIND_METHOD(JSONRPC,make_request);
+    BIND_METHOD(JSONRPC,make_response);
+    BIND_METHOD(JSONRPC,make_notification);
     MethodBinder::bind_method(D_METHOD("make_response_error", {"code", "message", "id"}), &JSONRPC::make_response_error, {DEFVAL(Variant())});
 
     BIND_ENUM_CONSTANT(PARSE_ERROR);

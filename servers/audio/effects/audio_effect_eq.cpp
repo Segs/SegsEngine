@@ -129,9 +129,9 @@ void AudioEffectEQ::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
 void AudioEffectEQ::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_band_gain_db", {"band_idx", "volume_db"}), &AudioEffectEQ::set_band_gain_db);
-    MethodBinder::bind_method(D_METHOD("get_band_gain_db", {"band_idx"}), &AudioEffectEQ::get_band_gain_db);
-    MethodBinder::bind_method(D_METHOD("get_band_count"), &AudioEffectEQ::get_band_count);
+    BIND_METHOD(AudioEffectEQ,set_band_gain_db);
+    BIND_METHOD(AudioEffectEQ,get_band_gain_db);
+    BIND_METHOD(AudioEffectEQ,get_band_count);
 }
 
 AudioEffectEQ::AudioEffectEQ(EQ::Preset p_preset) {

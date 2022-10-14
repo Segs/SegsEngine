@@ -52,8 +52,8 @@ class GODOT_EXPORT WindowDialog : public Popup {
     };
 
     TextureButton *close_button;
-    StringName title;
-    StringName xl_title;
+    String title;
+    String xl_title;
     int drag_type;
     Point2 drag_offset;
     Point2 drag_offset_far;
@@ -64,8 +64,9 @@ class GODOT_EXPORT WindowDialog : public Popup {
     void _gui_input(const Ref<InputEvent> &p_event);
     int _drag_hit_test(const Point2 &pos) const;
 
+public:
+    void _closed(); // used in callable_mp in child classes
 protected:
-    void _closed();
     void _post_popup() override;
     void _fix_size() override;
     virtual void _close_pressed() {}
@@ -76,8 +77,8 @@ protected:
 public:
     TextureButton *get_close_button();
 
-    void set_title(const StringName &p_title);
-    StringName get_title() const;
+    void set_title(StringView p_title);
+    const String &get_title() const;
     void set_resizable(bool p_resizable);
     bool get_resizable() const;
 
@@ -138,6 +139,7 @@ public:
     Button *get_ok() { return ok; }
     Button *add_button(const StringName &p_text, bool p_right = false, StringView p_action = StringView());
     Button *add_cancel(const StringName &p_cancel = StringName());
+    void remove_button(Control *p_button);
 
     void set_hide_on_ok(bool p_hide);
     bool get_hide_on_ok() const;

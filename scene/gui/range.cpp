@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  range.cpp                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -154,12 +154,12 @@ real_t Range::get_page() const {
 
 void Range::set_as_ratio(real_t p_value) {
 
-    double v;
+    float v;
 
     if (shared->exp_ratio && get_min() >= 0) {
 
-        double exp_min = get_min() == 0.0 ? 0.0 : Math::log(get_min()) / Math::log((double)2);
-        double exp_max = Math::log(get_max()) / Math::log((double)2);
+        float exp_min = get_min() == 0.0f ? 0.0f : Math::log(get_min()) / Math::log((float)2);
+        float exp_max = Math::log(get_max()) / Math::log((float)2);
         v = Math::pow(2, exp_min + (exp_max - exp_min) * p_value);
     } else {
 
@@ -177,22 +177,22 @@ void Range::set_as_ratio(real_t p_value) {
 real_t Range::get_as_ratio() const {
     if (Math::is_equal_approx(get_max(), get_min())) {
         // Avoid division by zero.
-        return 1.0;
+        return 1.0f;
     }
 
     if (shared->exp_ratio && get_min() >= 0) {
 
-        double exp_min = get_min() == 0 ? 0.0 : Math::log(get_min()) / Math::log((double)2);
-        double exp_max = Math::log(get_max()) / Math::log((double)2);
+        float exp_min = get_min() == 0 ? 0.0f : Math::log(get_min()) / Math::log((float)2);
+        float exp_max = Math::log(get_max()) / Math::log((float)2);
         float value = CLAMP(get_value(), shared->min, shared->max);
-        double v = Math::log(value) / Math::log((double)2);
+        float v = Math::log(value) / Math::log((float)2);
 
-        return CLAMP((v - exp_min) / (exp_max - exp_min), 0, 1);
+        return CLAMP((v - exp_min) / (exp_max - exp_min), 0.0f, 1.0f);
 
     } else {
 
         float value = CLAMP(get_value(), shared->min, shared->max);
-        return CLAMP((value - get_min()) / (get_max() - get_min()), 0, 1);
+        return CLAMP((value - get_min()) / (get_max() - get_min()), 0.0f, 1.0f);
     }
 }
 
@@ -250,29 +250,29 @@ void Range::_unref_shared() {
 
 void Range::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_value"), &Range::get_value);
-    MethodBinder::bind_method(D_METHOD("get_min"), &Range::get_min);
-    MethodBinder::bind_method(D_METHOD("get_max"), &Range::get_max);
-    MethodBinder::bind_method(D_METHOD("get_step"), &Range::get_step);
-    MethodBinder::bind_method(D_METHOD("get_page"), &Range::get_page);
-    MethodBinder::bind_method(D_METHOD("get_as_ratio"), &Range::get_as_ratio);
-    MethodBinder::bind_method(D_METHOD("set_value", {"value"}), &Range::set_value);
-    MethodBinder::bind_method(D_METHOD("set_min", {"minimum"}), &Range::set_min);
-    MethodBinder::bind_method(D_METHOD("set_max", {"maximum"}), &Range::set_max);
-    MethodBinder::bind_method(D_METHOD("set_step", {"step"}), &Range::set_step);
-    MethodBinder::bind_method(D_METHOD("set_page", {"pagesize"}), &Range::set_page);
-    MethodBinder::bind_method(D_METHOD("set_as_ratio", {"value"}), &Range::set_as_ratio);
-    MethodBinder::bind_method(D_METHOD("set_use_rounded_values", {"enabled"}), &Range::set_use_rounded_values);
-    MethodBinder::bind_method(D_METHOD("is_using_rounded_values"), &Range::is_using_rounded_values);
-    MethodBinder::bind_method(D_METHOD("set_exp_ratio", {"enabled"}), &Range::set_exp_ratio);
-    MethodBinder::bind_method(D_METHOD("is_ratio_exp"), &Range::is_ratio_exp);
-    MethodBinder::bind_method(D_METHOD("set_allow_greater", {"allow"}), &Range::set_allow_greater);
-    MethodBinder::bind_method(D_METHOD("is_greater_allowed"), &Range::is_greater_allowed);
-    MethodBinder::bind_method(D_METHOD("set_allow_lesser", {"allow"}), &Range::set_allow_lesser);
-    MethodBinder::bind_method(D_METHOD("is_lesser_allowed"), &Range::is_lesser_allowed);
+    BIND_METHOD(Range,get_value);
+    BIND_METHOD(Range,get_min);
+    BIND_METHOD(Range,get_max);
+    BIND_METHOD(Range,get_step);
+    BIND_METHOD(Range,get_page);
+    BIND_METHOD(Range,get_as_ratio);
+    BIND_METHOD(Range,set_value);
+    BIND_METHOD(Range,set_min);
+    BIND_METHOD(Range,set_max);
+    BIND_METHOD(Range,set_step);
+    BIND_METHOD(Range,set_page);
+    BIND_METHOD(Range,set_as_ratio);
+    BIND_METHOD(Range,set_use_rounded_values);
+    BIND_METHOD(Range,is_using_rounded_values);
+    BIND_METHOD(Range,set_exp_ratio);
+    BIND_METHOD(Range,is_ratio_exp);
+    BIND_METHOD(Range,set_allow_greater);
+    BIND_METHOD(Range,is_greater_allowed);
+    BIND_METHOD(Range,set_allow_lesser);
+    BIND_METHOD(Range,is_lesser_allowed);
 
     MethodBinder::bind_method(D_METHOD("share", {"with"}), &Range::_share);
-    MethodBinder::bind_method(D_METHOD("unshare"), &Range::unshare);
+    BIND_METHOD(Range,unshare);
 
     ADD_SIGNAL(MethodInfo("value_changed", PropertyInfo(VariantType::FLOAT, "value")));
     ADD_SIGNAL(MethodInfo("changed"));

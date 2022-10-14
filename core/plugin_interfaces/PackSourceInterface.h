@@ -7,7 +7,7 @@ struct PackedDataFile;
 class PackSourceInterface {
 
 public:
-    virtual bool try_open_pack(StringView p_path, bool p_replace_files, StringView p_destination="") = 0;
+    virtual bool try_open_pack(StringView p_path, bool p_replace_files, StringView p_destination = "", uint64_t p_offset = 0) = 0;
     virtual FileAccess *get_file(StringView p_path, PackedDataFile *p_file) = 0;
     virtual ~PackSourceInterface() = default;
 };

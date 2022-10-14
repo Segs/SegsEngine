@@ -32,6 +32,7 @@
 
 #include "editor/editor_plugin.h"
 #include "scene/2d/polygon_2d.h"
+#include "scene/gui/box_container.h"
 
 class CanvasItemEditor;
 class ConfirmationDialog;
@@ -99,7 +100,6 @@ protected:
     void _wip_changed();
     void _wip_close();
     void _wip_cancel();
-    bool _delete_point(const Vector2 &p_gpoint);
 
     void _notification(int p_what);
     void _node_removed(Node *p_node);

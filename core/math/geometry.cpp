@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  geometry.cpp                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -37,22 +37,127 @@
 #include "thirdparty/misc/triangulator.h"
 #include "EASTL/sort.h"
 
+#define STB_RECT_PACK_IMPLEMENTATION
+#include "thirdparty/stb_rect_pack/stb_rect_pack.h"
 #define SCALE_FACTOR 100000.0f // Based on CMP_EPSILON.
 
-// This implementation is very inefficient, commenting unless bugs happen. See the other one.
-/*
-bool Geometry::is_point_in_polygon(const Vector2 &p_point, const Vector<Vector2> &p_polygon) {
+void Geometry::get_closest_points_between_segments(
+        const Vector3 &p_p0, const Vector3 &p_p1, const Vector3 &p_q0, const Vector3 &p_q1, Vector3 &r_ps, Vector3 &r_qt) {
+    // Based on David Eberly's Computation of Distance Between Line Segments algorithm.
 
-    Vector<int> indices = Geometry::triangulate_polygon(p_polygon);
-    for (int j = 0; j + 3 <= indices.size(); j += 3) {
-        int i1 = indices[j], i2 = indices[j + 1], i3 = indices[j + 2];
-        if (Geometry::is_point_in_triangle(p_point, p_polygon[i1], p_polygon[i2], p_polygon[i3]))
-            return true;
+    Vector3 p = p_p1 - p_p0;
+    Vector3 q = p_q1 - p_q0;
+    Vector3 r = p_p0 - p_q0;
+
+    real_t a = p.dot(p);
+    real_t b = p.dot(q);
+    real_t c = q.dot(q);
+    real_t d = p.dot(r);
+    real_t e = q.dot(r);
+
+    real_t s = 0.0f;
+    real_t t = 0.0f;
+
+    real_t det = a * c - b * b;
+    if (det > CMP_EPSILON) {
+        // Non-parallel segments
+        real_t bte = b * e;
+        real_t ctd = c * d;
+
+        if (bte <= ctd) {
+            // s <= 0.0f
+            if (e <= 0.0f) {
+                // t <= 0.0f
+                s = (-d >= a ? 1 : (-d > 0.0f ? -d / a : 0.0f));
+                t = 0.0f;
+            } else if (e < c) {
+                // 0.0f < t < 1
+                s = 0.0f;
+                t = e / c;
+            } else {
+                // t >= 1
+                s = (b - d >= a ? 1 : (b - d > 0.0f ? (b - d) / a : 0.0f));
+                t = 1;
+            }
+        } else {
+            // s > 0.0f
+            s = bte - ctd;
+            if (s >= det) {
+                // s >= 1
+                if (b + e <= 0.0f) {
+                    // t <= 0.0f
+                    s = (-d <= 0.0f ? 0.0f : (-d < a ? -d / a : 1));
+                    t = 0.0f;
+                } else if (b + e < c) {
+                    // 0.0f < t < 1
+                    s = 1;
+                    t = (b + e) / c;
+                } else {
+                    // t >= 1
+                    s = (b - d <= 0.0f ? 0.0f : (b - d < a ? (b - d) / a : 1));
+                    t = 1;
+                }
+            } else {
+                // 0.0f < s < 1
+                real_t ate = a * e;
+                real_t btd = b * d;
+
+                if (ate <= btd) {
+                    // t <= 0.0f
+                    s = (-d <= 0.0f ? 0.0f : (-d >= a ? 1 : -d / a));
+                    t = 0.0f;
+                } else {
+                    // t > 0.0f
+                    t = ate - btd;
+                    if (t >= det) {
+                        // t >= 1
+                        s = (b - d <= 0.0f ? 0.0f : (b - d >= a ? 1 : (b - d) / a));
+                        t = 1;
+                    } else {
+                        // 0.0f < t < 1
+                        s /= det;
+                        t /= det;
+                    }
+                }
+            }
+        }
+    } else {
+        // Parallel segments
+        if (e <= 0.0f) {
+            s = (-d <= 0.0f ? 0.0f : (-d >= a ? 1 : -d / a));
+            t = 0.0f;
+        } else if (e >= c) {
+            s = (b - d <= 0.0f ? 0.0f : (b - d >= a ? 1 : (b - d) / a));
+            t = 1;
+        } else {
+            s = 0.0f;
+            t = e / c;
+        }
     }
-    return false;
-}
-*/
 
+    r_ps = (1 - s) * p_p0 + s * p_p1;
+    r_qt = (1 - t) * p_q0 + t * p_q1;
+}
+
+real_t Geometry::get_closest_distance_between_segments(const Vector3 &p_p0, const Vector3 &p_p1, const Vector3 &p_q0, const Vector3 &p_q1) {
+    Vector3 ps;
+    Vector3 qt;
+    get_closest_points_between_segments(p_p0, p_p1, p_q0, p_q1, ps, qt);
+    Vector3 st = qt - ps;
+    return st.length();
+}
+
+
+void OccluderMeshData::clear() {
+    faces.clear();
+    vertices.clear();
+}
+
+void Geometry::MeshData::clear() {
+    faces.clear();
+    edges.clear();
+    vertices.clear();
+}
 void Geometry::MeshData::optimize_vertices() {
 
     Map<int, int> vtx_remap;
@@ -867,13 +972,13 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
             int b = face.indices[(j + 1) % face.indices.size()];
 
             bool found = false;
-            for (int k = 0; k < mesh.edges.size(); k++) {
+            for (auto edge : mesh.edges) {
 
-                if (mesh.edges[k].a == a && mesh.edges[k].b == b) {
+                if (edge.a == a && edge.b == b) {
                     found = true;
                     break;
                 }
-                if (mesh.edges[k].b == a && mesh.edges[k].a == b) {
+                if (edge.b == a && edge.a == b) {
                     found = true;
                     break;
                 }
@@ -884,7 +989,7 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
             MeshData::Edge edge;
             edge.a = a;
             edge.b = b;
-            mesh.edges.push_back(edge);
+            mesh.edges.emplace_back(edge);
         }
     }
 
@@ -906,6 +1011,7 @@ PoolVector<Plane> Geometry::build_box_planes(const Vector3 &p_extents) {
 }
 
 PoolVector<Plane> Geometry::build_cylinder_planes(real_t p_radius, real_t p_height, int p_sides, Vector3::Axis p_axis) {
+    ERR_FAIL_INDEX_V(p_axis, 3, PoolVector<Plane>());
 
     PoolVector<Plane> planes;
 
@@ -929,6 +1035,7 @@ PoolVector<Plane> Geometry::build_cylinder_planes(real_t p_radius, real_t p_heig
 
 PoolVector<Plane> Geometry::build_sphere_planes(real_t p_radius, int p_lats, int p_lons, Vector3::Axis p_axis) {
 
+    ERR_FAIL_INDEX_V(p_axis, 3, PoolVector<Plane>());
     PoolVector<Plane> planes;
 
     Vector3 axis;
@@ -962,6 +1069,7 @@ PoolVector<Plane> Geometry::build_sphere_planes(real_t p_radius, int p_lats, int
 
 PoolVector<Plane> Geometry::build_capsule_planes(real_t p_radius, real_t p_height, int p_sides, int p_lats, Vector3::Axis p_axis) {
 
+    ERR_FAIL_INDEX_V(p_axis, 3, PoolVector<Plane>());
     PoolVector<Plane> planes;
 
     Vector3 axis;
@@ -1018,6 +1126,10 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_resu
     // 256x8192 atlas (won't work anywhere).
 
     ERR_FAIL_COND(p_rects.empty());
+    for (int i = 0; i < p_rects.size(); i++) {
+        ERR_FAIL_COND(p_rects[i].width <= 0);
+        ERR_FAIL_COND(p_rects[i].height <= 0);
+    }
 
     Vector<_AtlasWorkRect> wrects;
     wrects.resize(p_rects.size());
@@ -1047,13 +1159,14 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_resu
         int limit_h = 0;
         for (size_t j = 0; j < wrects.size(); j++) {
 
-            if (ofs + wrects[j].s.width > w) {
+            const Size2i &wrect_sz(wrects[j].s);
+            if (ofs + wrect_sz.width > w) {
 
                 ofs = 0;
             }
 
             int from_y = 0;
-            for (int k = 0; k < wrects[j].s.width; k++) {
+            for (int k = 0; k < wrect_sz.width; k++) {
 
                 if (hmax[ofs + k] > from_y)
                     from_y = hmax[ofs + k];
@@ -1061,12 +1174,12 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_resu
 
             wrects[j].p.x = ofs;
             wrects[j].p.y = from_y;
-            int end_h = from_y + wrects[j].s.height;
-            int end_w = ofs + wrects[j].s.width;
+            int end_h = from_y + wrect_sz.height;
+            int end_w = ofs + wrect_sz.width;
             if (ofs == 0)
                 limit_h = end_h;
 
-            for (int k = 0; k < wrects[j].s.width; k++) {
+            for (int k = 0; k < wrect_sz.width; k++) {
 
                 hmax[ofs + k] = end_h;
             }
@@ -1078,14 +1191,14 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_resu
                 max_w = end_w;
 
             if (ofs == 0 || end_h > limit_h) //while h limit not reached, keep stacking
-                ofs += wrects[j].s.width;
+                ofs += wrect_sz.width;
         }
 
         _AtlasWorkRectResult result;
         result.result = wrects;
         result.max_h = max_h;
         result.max_w = max_w;
-        results.push_back(result);
+        results.emplace_back(result);
     }
 
     //find the result with the best aspect ratio
@@ -1114,7 +1227,7 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_resu
     r_size = Size2(results[best].max_w, results[best].max_h);
 }
 
-Vector<Vector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOperation p_op, const Vector<Point2> &p_polypath_a, const Vector<Point2> &p_polypath_b, bool is_a_open) {
+Vector<Vector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOperation p_op, Span<const Point2> p_polypath_a, Span<const Point2> p_polypath_b, bool is_a_open) {
 
     using namespace ClipperLib;
 
@@ -1128,12 +1241,14 @@ Vector<Vector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOperation p
     }
     Path path_a, path_b;
 
+    path_a.reserve(p_polypath_a.size());
+    path_b.reserve(p_polypath_b.size());
     // Need to scale points (Clipper's requirement for robust computation)
-    for (int i = 0; i != p_polypath_a.size(); ++i) {
-        path_a << IntPoint(p_polypath_a[i].x * SCALE_FACTOR, p_polypath_a[i].y * SCALE_FACTOR);
+    for (const Point2 p : p_polypath_a) {
+        path_a.emplace_back(p.x * SCALE_FACTOR, p.y * SCALE_FACTOR);
     }
-    for (int i = 0; i != p_polypath_b.size(); ++i) {
-        path_b << IntPoint(p_polypath_b[i].x * SCALE_FACTOR, p_polypath_b[i].y * SCALE_FACTOR);
+    for (const Point2 p : p_polypath_b) {
+        path_b.emplace_back(p.x * SCALE_FACTOR, p.y * SCALE_FACTOR);
     }
     Clipper clp;
     clp.AddPath(path_a, ptSubject, !is_a_open); // forward compatible with Clipper 10.0.0
@@ -1216,7 +1331,126 @@ Vector<Vector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p_polyp
     }
     return polypaths;
 }
-FixedVector<Vector3,8,false> Geometry::compute_convex_mesh_points(Span<const Plane,6> p_planes) {
+real_t Geometry::calculate_convex_hull_volume(const Geometry::MeshData &p_md) {
+    if (!p_md.vertices.size()) {
+        return 0.0;
+    }
+
+    // find center
+    Vector3 center;
+    for (int n = 0; n < p_md.vertices.size(); n++) {
+        center += p_md.vertices[n];
+    }
+    center /= p_md.vertices.size();
+
+    Face3 fa;
+
+    real_t volume = 0.0;
+
+    // volume of each cone is 1/3 * height * area of face
+    for (int f = 0; f < p_md.faces.size(); f++) {
+        const Geometry::MeshData::Face &face = p_md.faces[f];
+
+        real_t height = 0.0;
+        real_t face_area = 0.0;
+
+        for (int c = 0; c < face.indices.size() - 2; c++) {
+            fa.vertex[0] = p_md.vertices[face.indices[0]];
+            fa.vertex[1] = p_md.vertices[face.indices[c + 1]];
+            fa.vertex[2] = p_md.vertices[face.indices[c + 2]];
+
+            if (!c) {
+                // calculate height
+                Plane plane(fa.vertex[0], fa.vertex[1], fa.vertex[2]);
+                height = -plane.distance_to(center);
+            }
+
+            face_area += Math::sqrt(fa.get_twice_area_squared());
+        }
+        volume += face_area * height;
+    }
+
+    volume *= (1.0f / 3.0f) * 0.5f;
+    return volume;
+}
+
+// note this function is slow, because it builds meshes etc. Not ideal to use in realtime.
+// Planes must face OUTWARD from the center of the convex hull, by convention.
+bool Geometry::convex_hull_intersects_convex_hull(const Plane *p_planes_a, int p_plane_count_a, const Plane *p_planes_b, int p_plane_count_b) {
+    if (!p_plane_count_a || !p_plane_count_b) {
+        return false;
+    }
+
+    // OR alternative approach, we can call compute_convex_mesh_points()
+    // with both sets of planes, to get an intersection. Not sure which method is
+    // faster... this may be faster with more complex hulls.
+
+    // the usual silliness to get from one vector format to another...
+    PoolVector<Plane> planes_a;
+    PoolVector<Plane> planes_b;
+
+    {
+        planes_a.resize(p_plane_count_a);
+        PoolVector<Plane>::Write w = planes_a.write();
+        memcpy(w.ptr(), p_planes_a, p_plane_count_a * sizeof(Plane));
+    }
+    {
+        planes_b.resize(p_plane_count_b);
+        PoolVector<Plane>::Write w = planes_b.write();
+        memcpy(w.ptr(), p_planes_b, p_plane_count_b * sizeof(Plane));
+    }
+
+    Geometry::MeshData md_A = build_convex_mesh(planes_a);
+    Geometry::MeshData md_B = build_convex_mesh(planes_b);
+
+    // hull can't be built
+    if (!md_A.vertices.size() || !md_B.vertices.size()) {
+        return false;
+    }
+
+    // first check the points against the planes
+    for (int p = 0; p < p_plane_count_a; p++) {
+        const Plane &plane = p_planes_a[p];
+
+        for (int n = 0; n < md_B.vertices.size(); n++) {
+            if (!plane.is_point_over(md_B.vertices[n])) {
+                return true;
+            }
+        }
+    }
+
+    for (int p = 0; p < p_plane_count_b; p++) {
+        const Plane &plane = p_planes_b[p];
+
+        for (int n = 0; n < md_A.vertices.size(); n++) {
+            if (!plane.is_point_over(md_A.vertices[n])) {
+                return true;
+            }
+        }
+    }
+
+    // now check edges
+    for (int n = 0; n < md_A.edges.size(); n++) {
+        const Vector3 &pt_a = md_A.vertices[md_A.edges[n].a];
+        const Vector3 &pt_b = md_A.vertices[md_A.edges[n].b];
+
+        if (segment_intersects_convex(pt_a, pt_b, p_planes_b, p_plane_count_b, nullptr, nullptr)) {
+            return true;
+        }
+    }
+
+    for (int n = 0; n < md_B.edges.size(); n++) {
+        const Vector3 &pt_a = md_B.vertices[md_B.edges[n].a];
+        const Vector3 &pt_b = md_B.vertices[md_B.edges[n].b];
+
+        if (segment_intersects_convex(pt_a, pt_b, p_planes_a, p_plane_count_a, nullptr, nullptr)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+FixedVector<Vector3,8,false> Geometry::compute_convex_mesh_points_6(Span<const Plane,6> p_planes, real_t p_epsilon) {
 
     FixedVector<Vector3,8,false> points;
 
@@ -1235,8 +1469,43 @@ FixedVector<Vector3,8,false> Geometry::compute_convex_mesh_points(Span<const Pla
                     bool excluded = false;
                     for (int n = 0; n < p_planes.size(); n++) {
                         if (n != i && n != j && n != k) {
-                            real_t dp = p_planes[n].normal.dot(convex_shape_point);
-                            if (dp - p_planes[n].d > CMP_EPSILON) {
+                            real_t dist = p_planes[n].normal.dot(convex_shape_point);
+                            if (dist - p_planes[n].d > p_epsilon) {
+                                excluded = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Only add the point if it passed all tests.
+                    if (!excluded) {
+                        points.push_back(convex_shape_point);
+                    }
+                }
+            }
+        }
+    }
+
+    return points;
+}
+Vector<Vector3> Geometry::compute_convex_mesh_points(Span<const Plane> p_planes, real_t p_epsilon) {
+    Vector<Vector3> points;
+
+    // Iterate through every unique combination of any three planes.
+    for (int i = p_planes.size() - 1; i >= 0; i--) {
+        for (int j = i - 1; j >= 0; j--) {
+            for (int k = j - 1; k >= 0; k--) {
+                // Find the point where these planes all cross over (if they
+                // do at all).
+                Vector3 convex_shape_point;
+                if (p_planes[i].intersect_3(p_planes[j], p_planes[k], &convex_shape_point)) {
+                    // See if any *other* plane excludes this point because it's
+                    // on the wrong side.
+                    bool excluded = false;
+                    for (int n = 0; n < p_planes.size(); n++) {
+                        if (n != i && n != j && n != k) {
+                            real_t dist = p_planes[n].normal.dot(convex_shape_point);
+                            if (dist - p_planes[n].d > p_epsilon) {
                                 excluded = true;
                                 break;
                             }
@@ -1255,3 +1524,111 @@ FixedVector<Vector3,8,false> Geometry::compute_convex_mesh_points(Span<const Pla
     return points;
 }
 
+// Expects polygon as a triangle fan
+real_t Geometry::find_polygon_area(Span<const Vector3> p_verts) {
+    if (p_verts.size() < 3) {
+        return 0.0;
+    }
+
+    Face3 f;
+    f.vertex[0] = p_verts[0];
+    f.vertex[1] = p_verts[1];
+    f.vertex[2] = p_verts[1];
+
+    real_t area = 0.0;
+
+    for (int n = 2,fin=p_verts.size(); n < fin; n++) {
+        f.vertex[1] = f.vertex[2];
+        f.vertex[2] = p_verts[n];
+        area += Math::sqrt(f.get_twice_area_squared());
+    }
+
+    return area * 0.5f;
+}
+
+Vector<Geometry::PackRectsResult> Geometry::partial_pack_rects(const Vector<Vector2i> &p_sizes, const Size2i &p_atlas_size) {
+
+    Vector<stbrp_node> nodes;
+    nodes.resize(p_atlas_size.width);
+    memset(nodes.data(),0, sizeof(stbrp_node) * nodes.size());
+
+    stbrp_context context;
+    stbrp_init_target(&context, p_atlas_size.width, p_atlas_size.height, nodes.data(), p_atlas_size.width);
+
+    Vector<stbrp_rect> rects;
+    rects.reserve(p_sizes.size());
+
+    for (int i = 0; i < p_sizes.size(); i++) {
+        stbrp_rect val{ i, (unsigned short)p_sizes[i].width, (unsigned short)p_sizes[i].height, 0, 0, 0 };
+        rects.emplace_back(val);
+    }
+
+    stbrp_pack_rects(&context, rects.data(), rects.size());
+
+    Vector<PackRectsResult> ret;
+    ret.resize(p_sizes.size());
+
+    for (int i = 0; i < p_sizes.size(); i++) {
+        ret[rects[i].id] = { rects[i].x, rects[i].y, static_cast<bool>(rects[i].was_packed) };
+    }
+
+    return ret;
+}
+
+// adapted from:
+// https://stackoverflow.com/questions/6989100/sort-points-in-clockwise-order
+void Geometry::sort_polygon_winding(Vector<Vector2> &r_verts, bool p_clockwise) {
+    // sort winding order of a (primarily convex) polygon.
+    // It can handle some concave polygons, but not
+    // where a vertex 'goes back on' a previous vertex ..
+    // i.e. it will change the shape in some concave cases.
+
+    struct ElementComparator {
+        Vector2 center;
+        bool reverse;
+        bool operator()(const Vector2 &a, const Vector2 &b) const {
+            if (a.x - center.x >= 0 && b.x - center.x < 0) {
+                return true ^ reverse;
+            }
+            if (a.x - center.x < 0 && b.x - center.x >= 0) {
+                return false ^ reverse;
+            }
+            if (a.x - center.x == 0 && b.x - center.x == 0) {
+                if (a.y - center.y >= 0 || b.y - center.y >= 0) {
+                    return (a.y > b.y) ^ reverse;
+                }
+                return (b.y > a.y) ^ reverse;
+            }
+
+            // compute the cross product of vectors (center -> a) x (center -> b)
+            real_t det = (a.x - center.x) * (b.y - center.y) - (b.x - center.x) * (a.y - center.y);
+            if (det < 0.0f) {
+                return true ^ reverse;
+            }
+            if (det > 0.0f) {
+                return false ^ reverse;
+            }
+
+            // points a and b are on the same line from the center
+            // check which point is closer to the center
+            real_t d1 = (a.x - center.x) * (a.x - center.x) + (a.y - center.y) * (a.y - center.y);
+            real_t d2 = (b.x - center.x) * (b.x - center.x) + (b.y - center.y) * (b.y - center.y);
+            return (d1 > d2) ^ reverse;
+        }
+    };
+
+    int npoints = r_verts.size();
+    if (!npoints) {
+        return;
+    }
+
+    // first calculate center
+    Vector2 center;
+    for (int n = 0; n < npoints; n++) {
+        center += r_verts[n];
+    }
+    center /= npoints;
+    // if not clockwise, reverse order
+    ElementComparator cmp { center, !p_clockwise };
+    eastl::sort(r_verts.begin(),r_verts.end(),cmp);
+}

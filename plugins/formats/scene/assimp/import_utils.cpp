@@ -1,6 +1,7 @@
 #include "import_utils.h"
 
 #include "core/resource/resource_manager.h"
+#include "scene/animation/animation_player.h"
 
 float AssimpUtils::get_fbx_fps(int32_t time_mode, const aiScene *p_scene) {
     switch (time_mode) {
@@ -148,7 +149,7 @@ Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, S
                 arr.write().ptr()[(4 * i) + 1] = arr[(4 * i) + 2];
                 arr.write().ptr()[(4 * i) + 2] = arr[(4 * i) + 3];
             }
-            img->create(tex->mWidth, tex->mHeight, true, Image::FORMAT_RGBA8, arr);
+            img->create(tex->mWidth, tex->mHeight, true, ImageData::FORMAT_RGBA8, arr);
             ERR_FAIL_COND_V(not img, Ref<Image>());
             state.path_to_image_cache.emplace(String(p_path), img);
             return img;

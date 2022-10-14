@@ -32,12 +32,12 @@ namespace GodotTools.Build
             unchecked
             {
                 int hash = 17;
-                hash = hash * 29 + Solution.GetHashCode();
-                hash = hash * 29 + Targets.GetHashCode();
-                hash = hash * 29 + Configuration.GetHashCode();
-                hash = hash * 29 + Restore.GetHashCode();
-                hash = hash * 29 + CustomProperties.GetHashCode();
-                hash = hash * 29 + LogsDirPath.GetHashCode();
+                hash = (hash * 29) + Solution.GetHashCode();
+                hash = (hash * 29) + Targets.GetHashCode();
+                hash = (hash * 29) + Configuration.GetHashCode();
+                hash = (hash * 29) + Restore.GetHashCode();
+                hash = (hash * 29) + CustomProperties.GetHashCode();
+                hash = (hash * 29) + LogsDirPath.GetHashCode();
                 return hash;
             }
         }

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  math_funcs.h                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -38,7 +38,6 @@
 #include <cmath>
 
 class Math {
-
     static RandomPCG default_rand;
 
 public:
@@ -107,9 +106,12 @@ public:
     static _ALWAYS_INLINE_ bool is_nan(double p_val) {
         return std::isnan(p_val);
     }
-
-    static _ALWAYS_INLINE_ bool is_nan(float p_val) {
-        return std::isnan(p_val);
+    static _ALWAYS_INLINE_ bool is_nan( float x )
+    {
+        uint32_t const bits = reinterpret_cast<uint32_t const&>( x );
+        static constexpr uint32_t   exp_mask        = 0x7f800000;
+        static constexpr uint32_t   mantissa_mask   = 0x007fffff;
+        return (bits & exp_mask) == exp_mask && (bits & mantissa_mask) != 0;
     }
 
     static _ALWAYS_INLINE_ bool is_inf(double p_val) {
@@ -147,7 +149,8 @@ public:
 
     static _ALWAYS_INLINE_ double abs(double g) { return absd(g); }
     static _ALWAYS_INLINE_ float abs(float g) { return absf(g); }
-    static _ALWAYS_INLINE_ int abs(int g) { return g > 0 ? g : -g; }
+    static _ALWAYS_INLINE_ constexpr int abs(int g) { return g > 0 ? g : -g; }
+    static _ALWAYS_INLINE_ constexpr int64_t abs(int64_t g) { return g > 0 ? g : -g; }
 
     static _ALWAYS_INLINE_ double fposmod(double p_x, double p_y) {
         double value = Math::fmod(p_x, p_y);
@@ -165,8 +168,8 @@ public:
         value += 0.0f;
         return value;
     }
-    static _ALWAYS_INLINE_ int posmod(int p_x, int p_y) {
-        int value = p_x % p_y;
+    static _ALWAYS_INLINE_ int64_t posmod(int64_t p_x, int64_t p_y) {
+        int64_t value = p_x % p_y;
         if ((value < 0 && p_y > 0) || (value > 0 && p_y < 0)) {
             value += p_y;
         }
@@ -199,15 +202,19 @@ public:
     static _ALWAYS_INLINE_ double range_lerp(double p_value, double p_istart, double p_istop, double p_ostart, double p_ostop) { return Math::lerp(p_ostart, p_ostop, Math::inverse_lerp(p_istart, p_istop, p_value)); }
     static _ALWAYS_INLINE_ float range_lerp(float p_value, float p_istart, float p_istop, float p_ostart, float p_ostop) { return Math::lerp(p_ostart, p_ostop, Math::inverse_lerp(p_istart, p_istop, p_value)); }
 
-    static _ALWAYS_INLINE_ double smoothstep(double p_from, double p_to, double p_weight) {
-        if (is_equal_approx(real_t(p_from), real_t(p_to))) return p_from;
-        double x = CLAMP((p_weight - p_from) / (p_to - p_from), 0.0, 1.0);
+    static _ALWAYS_INLINE_ double smoothstep(double p_from, double p_to, double p_s) {
+        if (is_equal_approx(real_t(p_from), real_t(p_to))) {
+            return p_from;
+        }
+        double x = CLAMP((p_s - p_from) / (p_to - p_from), 0.0, 1.0);
         return x * x * (3.0 - 2.0 * x);
     }
-    static _ALWAYS_INLINE_ float smoothstep(float p_from, float p_to, float p_weight) {
-        if (is_equal_approx(p_from, p_to)) return p_from;
-        float x = CLAMP((p_weight - p_from) / (p_to - p_from), 0.0f, 1.0f);
-        return x * x * (3.0f - 2.0f * x);
+    static _ALWAYS_INLINE_ float smoothstep(float p_from, float p_to, float p_s) {
+        if (is_equal_approx(p_from, p_to)) {
+            return p_from;
+        }
+        float s = CLAMP((p_s - p_from) / (p_to - p_from), 0.0f, 1.0f);
+        return s * s * (3.0f - 2.0f * s);
     }
     static _ALWAYS_INLINE_ double move_toward(double p_from, double p_to, double p_delta) {
         return std::abs(p_to - p_from) <= p_delta ? p_to : p_from + SGN(p_to - p_from) * p_delta;
@@ -220,8 +227,7 @@ public:
     static _ALWAYS_INLINE_ double db2linear(double p_db) { return Math::exp(p_db * 0.11512925464970228420089957273422); }
     static _ALWAYS_INLINE_ float db2linear(float p_db) { return Math::exp(p_db * 0.11512925464970228420089957273422f); }
 
-    //static _ALWAYS_INLINE_ double round(double p_val) { return (p_val >= 0) ? Math::floor(p_val + 0.5) : -Math::floor(-p_val + 0.5); }
-    static _ALWAYS_INLINE_ float round(float p_val) { return (p_val >= 0) ? Math::floor(p_val + 0.5f) : -Math::floor(-p_val + 0.5f); }
+    static _ALWAYS_INLINE_ float round(float p_val) { return ::roundf(p_val); }
 
     static _ALWAYS_INLINE_ int64_t wrapi(int64_t value, int64_t min, int64_t max) {
         int64_t range = max - min;
@@ -229,11 +235,19 @@ public:
     }
     static _ALWAYS_INLINE_ double wrapf(double value, double min, double max) {
         double range = max - min;
-        return is_zero_approx(real_t(range)) ? min : value - (range * Math::floor((value - min) / range));
+        double result = is_zero_approx(range) ? min : value - (range * Math::floor((value - min) / range));
+        if (is_equal_approx(result, max)) {
+            return min;
+        }
+        return result;
     }
     static _ALWAYS_INLINE_ float wrapf(float value, float min, float max) {
         float range = max - min;
-        return is_zero_approx(range) ? min : value - (range * Math::floor((value - min) / range));
+        float result = is_zero_approx(range) ? min : value - (range * Math::floor((value - min) / range));
+        if (is_equal_approx(result, max)) {
+            return min;
+        }
+        return result;
     }
 
     // double only, as these functions are mainly used by the editor and not performance-critical,
@@ -242,7 +256,6 @@ public:
     GODOT_EXPORT static int range_step_decimals(double p_step);
     GODOT_EXPORT static double stepify(double p_value, double p_step);
     GODOT_EXPORT static float stepify(float p_value, float p_step);
-    GODOT_EXPORT static double dectime(double p_value, double p_amount, double p_step);
 
     GODOT_EXPORT static uint32_t larger_prime(uint32_t p_val);
 
@@ -316,9 +329,10 @@ public:
         return u.d;
     }
 
-    //this function should be as fast as possible and rounding mode should not matter
+    // This function should be as fast as possible and rounding mode should not matter.
     static _ALWAYS_INLINE_ int fast_ftoi(float a) {
-        return (int)((a > 0.0f) ? (a + 0.5f) : (a - 0.5f)); // a+std::copysign(0.5f,a);
+        // Assuming every supported compiler has `lrint()`.
+        return lrintf(a);
     }
 
     static _ALWAYS_INLINE_ uint32_t halfbits_to_floatbits(uint16_t h) {

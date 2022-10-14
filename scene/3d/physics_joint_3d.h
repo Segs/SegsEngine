@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  physics_joint_3d.h                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -47,10 +47,13 @@ class GODOT_EXPORT Joint3D : public Node3D {
 
     String warning;
 
-    int solver_priority;
-    bool exclude_from_collision;
+    int solver_priority = 1;
+    bool exclude_from_collision = true;
+    bool configured = false;
 
 protected:
+    void _disconnect_signals();
+    void _body_exit_tree();
     void _update_joint(bool p_only_free = false);
 
     void _notification(int p_what);
@@ -59,6 +62,7 @@ protected:
 
     static void _bind_methods();
 
+    _FORCE_INLINE_ bool is_configured() const { return configured; }
 public:
     String get_configuration_warning() const override;
 
@@ -77,6 +81,7 @@ public:
 
     RID get_joint() const { return joint; }
     Joint3D();
+    ~Joint3D();
 };
 
 ///////////////////////////////////////////

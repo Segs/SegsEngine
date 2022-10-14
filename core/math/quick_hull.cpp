@@ -36,6 +36,8 @@
 
 #include "EASTL/sort.h"
 uint32_t QuickHull::debug_stop_after = 0xFFFFFFFF;
+bool QuickHull::_flag_warnings = true;
+
 namespace {
 struct QHEdge {
 
@@ -77,21 +79,24 @@ struct QHFaceConnect {
 struct QHRetFaceConnect {
     List<Geometry::MeshData::Face>::iterator left, right;
 };
+static int find_or_create_output_index(int p_old_index, Vector<int> &r_out_indices) {
+    for (int n = 0; n < r_out_indices.size(); n++) {
+        if (r_out_indices[n] == p_old_index) {
+            return n;
+        }
+    }
+    r_out_indices.push_back(p_old_index);
+    return r_out_indices.size() - 1;
+}
+
 } // end of anonymous namespace
 
-Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh) {
+Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh, real_t p_over_tolerance_epsilon) {
 
     /* CREATE AABB VOLUME */
 
     AABB aabb;
-    for (int i = 0; i < p_points.size(); i++) {
-
-        if (i == 0) {
-            aabb.position = p_points[i];
-        } else {
-            aabb.expand_to(p_points[i]);
-        }
-    }
+    aabb.create_from_points(p_points);
 
     if (aabb.size == Vector3()) {
         return ERR_CANT_CREATE;
@@ -221,7 +226,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
         faces.push_back(f);
     }
 
-    real_t over_tolerance = 3 * UNIT_EPSILON * (aabb.size.x + aabb.size.y + aabb.size.z);
+    const real_t over_tolerance = p_over_tolerance_epsilon * (aabb.size.x + aabb.size.y + aabb.size.z);
 
     /* COMPUTE AVAILABLE VERTICES */
 
@@ -356,7 +361,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
                     continue;
 
                 Vector3 p = p_points[lf.points_over[i]];
-                for (List<QHFace>::iterator E : new_faces) {
+                for (const List<QHFace>::iterator &E : new_faces) {
 
                     QHFace &f2 = *E;
                     if (f2.plane.distance_to(p) > over_tolerance) {
@@ -426,6 +431,10 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
     }
 
     //fill faces
+    bool warning_f = false;
+    bool warning_o_equal_e = false;
+    bool warning_o = false;
+    bool warning_not_f2 = false;
 
     for (List<Geometry::MeshData::Face>::iterator E = ret_faces.begin(); E!= ret_faces.end(); ++E) {
 
@@ -439,17 +448,25 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
 
             Map<QHEdge, QHRetFaceConnect>::iterator F = ret_edges.find(e);
 
-            ERR_CONTINUE(F==ret_edges.end());
+            if (unlikely(F==ret_edges.end())) {
+                warning_f = true;
+                continue;
+            }
             List<Geometry::MeshData::Face>::iterator O = F->second.left == E ? F->second.right : F->second.left;
-            ERR_CONTINUE(O == E);
-            ERR_CONTINUE(O == ret_faces.end());
+            if (unlikely(O == E)) {
+                warning_o_equal_e = true;
+                continue;
+            }
+            if (unlikely(O == ret_faces.end())) {
+                warning_o = true;
+                continue;
+            }
 
             if (!O->plane.is_equal_approx(f.plane))
                 continue;
 
             //merge and delete edge and contiguous face, while repointing edges (uuugh!)
             int ois = O->indices.size();
-            int merged = 0;
 
             for (int j = 0; j < ois; j++) {
                 //search a
@@ -465,12 +482,14 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
                         if (idx != a) {
                             f.indices.insert_at(i + 1, idx);
                             i++;
-                            merged++;
                         }
                         QHEdge e2(idx, idxn);
 
                         Map<QHEdge, QHRetFaceConnect>::iterator F2 = ret_edges.find(e2);
-                        ERR_CONTINUE(F2==ret_edges.end());
+                        if (unlikely(F2==ret_edges.end())) {
+                            warning_not_f2 = true;
+                            continue;
+                        }
                         //change faceconnect, point to this face instead
                         if (F2->second.left == O)
                             F2->second.left = E;
@@ -496,6 +515,21 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
         }
     }
 
+    if (_flag_warnings) {
+        if (warning_f) {
+            WARN_PRINT("QuickHull : !F");
+        }
+        if (warning_o_equal_e) {
+            WARN_PRINT("QuickHull : O == E");
+        }
+        if (warning_o) {
+            WARN_PRINT("QuickHull : O == nullptr");
+        }
+        if (warning_not_f2) {
+            WARN_PRINT("QuickHull : !F2");
+        }
+    }
+
     //fill mesh
     r_mesh.faces.assign(eastl::move_iterator(ret_faces.begin()), eastl::move_iterator(ret_faces.end()));
     //TODO: consider r_mesh.faces.shrink_to_fit() here ?
@@ -511,7 +545,24 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
         r_mesh.edges.emplace_back(e);
     }
 
-    r_mesh.vertices.assign(p_points.begin(),p_points.end());
+    // we are only interested in outputting the points that are used
+    Vector<int> out_indices;
+
+    for (Geometry::MeshData::Face &face : r_mesh.faces) {
+        for (int i = 0; i < face.indices.size(); i++) {
+            face.indices[i] = find_or_create_output_index(face.indices[i], out_indices);
+        }
+    }
+    for (Geometry::MeshData::Edge &e : r_mesh.edges) {
+        e.a = find_or_create_output_index(e.a, out_indices);
+        e.b = find_or_create_output_index(e.b, out_indices);
+    }
+
+    // rejig the final vertices
+    r_mesh.vertices.resize(out_indices.size());
+    for (int n = 0; n < out_indices.size(); n++) {
+        r_mesh.vertices[n] = p_points[out_indices[n]];
+    }
 
     return OK;
 }

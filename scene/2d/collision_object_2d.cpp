@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  collision_object_2d.cpp                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,6 +34,7 @@
 #include "servers/physics_server_2d.h"
 #include "core/method_bind.h"
 #include "core/class_db.h"
+#include "core/object_tooling.h"
 #include "core/script_language.h"
 #include "core/input/input_event.h"
 #include "core/translation_helpers.h"
@@ -54,7 +55,9 @@ void CollisionObject2D::_notification(int p_what) {
             else
                 PhysicsServer2D::get_singleton()->body_set_state(rid, PhysicsServer2D::BODY_STATE_TRANSFORM, global_transform);
 
-            RID space = get_world_2d()->get_space();
+            Ref<World2D> world_ref = get_world_2d();
+            ERR_FAIL_COND(!world_ref);
+            RID space = world_ref->get_space();
             if (area) {
                 PhysicsServer2D::get_singleton()->area_set_space(rid, space);
             } else
@@ -103,9 +106,9 @@ void CollisionObject2D::_notification(int p_what) {
         case NOTIFICATION_EXIT_CANVAS: {
 
             if (area)
-                PhysicsServer2D::get_singleton()->area_attach_canvas_instance_id(rid, ObjectID(0ULL));
+                PhysicsServer2D::get_singleton()->area_attach_canvas_instance_id(rid, entt::null);
             else
-                PhysicsServer2D::get_singleton()->body_attach_canvas_instance_id(rid, ObjectID(0ULL));
+                PhysicsServer2D::get_singleton()->body_attach_canvas_instance_id(rid, entt::null);
         } break;
     }
 }
@@ -121,7 +124,7 @@ uint32_t CollisionObject2D::create_shape_owner(Object *p_owner) {
         id = shapes.rbegin()->first + 1;
     }
 
-    sd.owner = p_owner;
+    sd.owner_id = p_owner ? p_owner->get_instance_id() : entt::null;
 
     shapes[id] = sd;
 
@@ -243,7 +246,7 @@ Object *CollisionObject2D::shape_owner_get_owner(uint32_t p_owner) const {
 
     ERR_FAIL_COND_V(!shapes.contains(p_owner), nullptr);
 
-    return shapes.at(p_owner).owner;
+    return object_for_entity(shapes.at(p_owner).owner_id);
 }
 
 void CollisionObject2D::shape_owner_add_shape(uint32_t p_owner, const Ref<Shape2D> &p_shape) {
@@ -256,9 +259,9 @@ void CollisionObject2D::shape_owner_add_shape(uint32_t p_owner, const Ref<Shape2
     s.index = total_subshapes;
     s.shape = p_shape;
     if (area) {
-        PhysicsServer2D::get_singleton()->area_add_shape(rid, p_shape->get_rid(), sd.xform, sd.disabled);
+        PhysicsServer2D::get_singleton()->area_add_shape(rid, p_shape->get_phys_rid(), sd.xform, sd.disabled);
     } else {
-        PhysicsServer2D::get_singleton()->body_add_shape(rid, p_shape->get_rid(), sd.xform, sd.disabled);
+        PhysicsServer2D::get_singleton()->body_add_shape(rid, p_shape->get_phys_rid(), sd.xform, sd.disabled);
     }
     sd.shapes.push_back(s);
 
@@ -322,7 +325,7 @@ void CollisionObject2D::shape_owner_clear_shapes(uint32_t p_owner) {
 
 uint32_t CollisionObject2D::shape_find_owner(int p_shape_index) const {
 
-    ERR_FAIL_INDEX_V(p_shape_index, total_subshapes, 0);
+    ERR_FAIL_INDEX_V(p_shape_index, total_subshapes, UINT32_MAX);
 
     for (const eastl::pair<const uint32_t,ShapeData> &E : shapes) {
         for (int i = 0; i < E.second.shapes.size(); i++) {
@@ -333,7 +336,7 @@ uint32_t CollisionObject2D::shape_find_owner(int p_shape_index) const {
     }
 
     //in theory it should be unreachable
-    return 0;
+    ERR_FAIL_V_MSG(UINT32_MAX, "Can't find owner for shape index " + itos(p_shape_index) + ".");
 }
 
 void CollisionObject2D::set_pickable(bool p_enabled) {
@@ -402,31 +405,97 @@ String CollisionObject2D::get_configuration_warning() const {
     return warning;
 }
 
+void CollisionObject2D::set_collision_layer(uint32_t p_layer) {
+    collision_layer = p_layer;
+    if (area) {
+        PhysicsServer2D::get_singleton()->area_set_collision_layer(get_rid(), p_layer);
+    } else {
+        PhysicsServer2D::get_singleton()->body_set_collision_layer(get_rid(), p_layer);
+    }
+}
+
+uint32_t CollisionObject2D::get_collision_layer() const {
+    return collision_layer;
+}
+
+void CollisionObject2D::set_collision_mask(uint32_t p_mask) {
+    collision_mask = p_mask;
+    if (area) {
+        PhysicsServer2D::get_singleton()->area_set_collision_mask(get_rid(), p_mask);
+    } else {
+        PhysicsServer2D::get_singleton()->body_set_collision_mask(get_rid(), p_mask);
+    }
+}
+
+uint32_t CollisionObject2D::get_collision_mask() const {
+    return collision_mask;
+}
+
+void CollisionObject2D::set_collision_layer_bit(int p_bit, bool p_value) {
+    ERR_FAIL_INDEX_MSG(p_bit, 32, "Collision layer bit must be between 0 and 31 inclusive.");
+    uint32_t collision_layer = get_collision_layer();
+    if (p_value) {
+        collision_layer |= 1 << p_bit;
+    } else {
+        collision_layer &= ~(1 << p_bit);
+    }
+    set_collision_layer(collision_layer);
+}
+
+bool CollisionObject2D::get_collision_layer_bit(int p_bit) const {
+    ERR_FAIL_INDEX_V_MSG(p_bit, 32, false, "Collision layer bit must be between 0 and 31 inclusive.");
+    return get_collision_layer() & (1 << p_bit);
+}
+
+void CollisionObject2D::set_collision_mask_bit(int p_bit, bool p_value) {
+    ERR_FAIL_INDEX_MSG(p_bit, 32, "Collision mask bit must be between 0 and 31 inclusive.");
+    uint32_t mask = get_collision_mask();
+    if (p_value) {
+        mask |= 1 << p_bit;
+    } else {
+        mask &= ~(1 << p_bit);
+    }
+    set_collision_mask(mask);
+}
+
+bool CollisionObject2D::get_collision_mask_bit(int p_bit) const {
+    ERR_FAIL_INDEX_V_MSG(p_bit, 32, false, "Collision mask bit must be between 0 and 31 inclusive.");
+    return get_collision_mask() & (1 << p_bit);
+}
+
 void CollisionObject2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_rid"), &CollisionObject2D::get_rid);
+    BIND_METHOD(CollisionObject2D,get_rid);
 
-    MethodBinder::bind_method(D_METHOD("set_pickable", {"enabled"}), &CollisionObject2D::set_pickable);
-    MethodBinder::bind_method(D_METHOD("is_pickable"), &CollisionObject2D::is_pickable);
-    MethodBinder::bind_method(D_METHOD("create_shape_owner", {"owner"}), &CollisionObject2D::create_shape_owner);
-    MethodBinder::bind_method(D_METHOD("remove_shape_owner", {"owner_id"}), &CollisionObject2D::remove_shape_owner);
+    BIND_METHOD(CollisionObject2D,set_collision_layer);
+    BIND_METHOD(CollisionObject2D,get_collision_layer);
+    BIND_METHOD(CollisionObject2D,set_collision_mask);
+    BIND_METHOD(CollisionObject2D,get_collision_mask);
+    BIND_METHOD(CollisionObject2D,set_collision_layer_bit);
+    BIND_METHOD(CollisionObject2D,get_collision_layer_bit);
+    BIND_METHOD(CollisionObject2D,set_collision_mask_bit);
+    BIND_METHOD(CollisionObject2D,get_collision_mask_bit);
+    BIND_METHOD(CollisionObject2D,set_pickable);
+    BIND_METHOD(CollisionObject2D,is_pickable);
+    BIND_METHOD(CollisionObject2D,create_shape_owner);
+    BIND_METHOD(CollisionObject2D,remove_shape_owner);
     MethodBinder::bind_method(D_METHOD("get_shape_owners"), &CollisionObject2D::_get_shape_owners);
-    MethodBinder::bind_method(D_METHOD("shape_owner_set_transform", {"owner_id", "transform"}), &CollisionObject2D::shape_owner_set_transform);
-    MethodBinder::bind_method(D_METHOD("shape_owner_get_transform", {"owner_id"}), &CollisionObject2D::shape_owner_get_transform);
-    MethodBinder::bind_method(D_METHOD("shape_owner_get_owner", {"owner_id"}), &CollisionObject2D::shape_owner_get_owner);
-    MethodBinder::bind_method(D_METHOD("shape_owner_set_disabled", {"owner_id", "disabled"}), &CollisionObject2D::shape_owner_set_disabled);
-    MethodBinder::bind_method(D_METHOD("is_shape_owner_disabled", {"owner_id"}), &CollisionObject2D::is_shape_owner_disabled);
-    MethodBinder::bind_method(D_METHOD("shape_owner_set_one_way_collision", {"owner_id", "enable"}), &CollisionObject2D::shape_owner_set_one_way_collision);
-    MethodBinder::bind_method(D_METHOD("is_shape_owner_one_way_collision_enabled", {"owner_id"}), &CollisionObject2D::is_shape_owner_one_way_collision_enabled);
-    MethodBinder::bind_method(D_METHOD("shape_owner_set_one_way_collision_margin", {"owner_id", "margin"}), &CollisionObject2D::shape_owner_set_one_way_collision_margin);
-    MethodBinder::bind_method(D_METHOD("get_shape_owner_one_way_collision_margin", {"owner_id"}), &CollisionObject2D::get_shape_owner_one_way_collision_margin);
-    MethodBinder::bind_method(D_METHOD("shape_owner_add_shape", {"owner_id", "shape"}), &CollisionObject2D::shape_owner_add_shape);
-    MethodBinder::bind_method(D_METHOD("shape_owner_get_shape_count", {"owner_id"}), &CollisionObject2D::shape_owner_get_shape_count);
-    MethodBinder::bind_method(D_METHOD("shape_owner_get_shape", {"owner_id", "shape_id"}), &CollisionObject2D::shape_owner_get_shape);
-    MethodBinder::bind_method(D_METHOD("shape_owner_get_shape_index", {"owner_id", "shape_id"}), &CollisionObject2D::shape_owner_get_shape_index);
-    MethodBinder::bind_method(D_METHOD("shape_owner_remove_shape", {"owner_id", "shape_id"}), &CollisionObject2D::shape_owner_remove_shape);
-    MethodBinder::bind_method(D_METHOD("shape_owner_clear_shapes", {"owner_id"}), &CollisionObject2D::shape_owner_clear_shapes);
-    MethodBinder::bind_method(D_METHOD("shape_find_owner", {"shape_index"}), &CollisionObject2D::shape_find_owner);
+    BIND_METHOD(CollisionObject2D,shape_owner_set_transform);
+    BIND_METHOD(CollisionObject2D,shape_owner_get_transform);
+    BIND_METHOD(CollisionObject2D,shape_owner_get_owner);
+    BIND_METHOD(CollisionObject2D,shape_owner_set_disabled);
+    BIND_METHOD(CollisionObject2D,is_shape_owner_disabled);
+    BIND_METHOD(CollisionObject2D,shape_owner_set_one_way_collision);
+    BIND_METHOD(CollisionObject2D,is_shape_owner_one_way_collision_enabled);
+    BIND_METHOD(CollisionObject2D,shape_owner_set_one_way_collision_margin);
+    BIND_METHOD(CollisionObject2D,get_shape_owner_one_way_collision_margin);
+    BIND_METHOD(CollisionObject2D,shape_owner_add_shape);
+    BIND_METHOD(CollisionObject2D,shape_owner_get_shape_count);
+    BIND_METHOD(CollisionObject2D,shape_owner_get_shape);
+    BIND_METHOD(CollisionObject2D,shape_owner_get_shape_index);
+    BIND_METHOD(CollisionObject2D,shape_owner_remove_shape);
+    BIND_METHOD(CollisionObject2D,shape_owner_clear_shapes);
+    BIND_METHOD(CollisionObject2D,shape_find_owner);
 
     BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "viewport"), PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent"), PropertyInfo(VariantType::INT, "shape_idx")));
 
@@ -434,8 +503,12 @@ void CollisionObject2D::_bind_methods() {
     ADD_SIGNAL(MethodInfo("mouse_entered"));
     ADD_SIGNAL(MethodInfo("mouse_exited"));
 
-    ADD_GROUP("Pickable", "input_");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "input_pickable"), "set_pickable", "is_pickable");
+    ADD_GROUP("Collision", "collision_");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PropertyHint::Layers2DPhysics), "set_collision_layer", "get_collision_layer");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers2DPhysics), "set_collision_mask", "get_collision_mask");
+
+    ADD_GROUP("AreaInput", "area_input_");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "area_input_pickable"), "set_pickable", "is_pickable");
 }
 
 CollisionObject2D::CollisionObject2D(RID p_rid, bool p_area) {

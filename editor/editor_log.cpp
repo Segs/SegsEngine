@@ -33,7 +33,9 @@
 #include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
+#include "core/string_utils.inl"
 #include "core/version.h"
+#include "editor/editor_settings.h"
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "scene/gui/center_container.h"
@@ -65,13 +67,13 @@ void EditorLog::_notification(int p_what) {
 
         //button->set_icon(get_icon("Console","EditorIcons"));
         log->add_font_override("normal_font", get_theme_font("output_source", "EditorFonts"));
-        log->add_theme_color_override("selection_color", get_theme_color("accent_color", "Editor") * Color(1, 1, 1, 0.4));
+        log->add_theme_color_override("selection_color", get_theme_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
     } else if (p_what == NOTIFICATION_THEME_CHANGED) {
         Ref<DynamicFont> df_output_code = dynamic_ref_cast<DynamicFont>(get_theme_font("output_source", "EditorFonts"));
         if (df_output_code) {
             if (log != nullptr) {
                 log->add_font_override("normal_font", get_theme_font("output_source", "EditorFonts"));
-                log->add_theme_color_override("selection_color", get_theme_color("accent_color", "Editor") * Color(1, 1, 1, 0.4));
+                log->add_theme_color_override("selection_color", get_theme_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
             }
         }
     }
@@ -86,11 +88,11 @@ void EditorLog::_clear_request() {
 void EditorLog::_copy_request() {
     String text = log->get_selected_text();
 
-    if (text == "") {
+    if (text.empty()) {
         text = log->get_text();
     }
 
-    if (text != "") {
+    if (!text.empty()) {
         OS::get_singleton()->set_clipboard(text);
     }
 }
@@ -152,8 +154,8 @@ void EditorLog::_undo_redo_cbk(void *p_self, StringView p_name) {
 
 void EditorLog::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_clear_request"), &EditorLog::_clear_request);
-    MethodBinder::bind_method(D_METHOD("_copy_request"), &EditorLog::_copy_request);
+    BIND_METHOD(EditorLog,_clear_request);
+    BIND_METHOD(EditorLog,_copy_request);
     ADD_SIGNAL(MethodInfo("clear_request"));
     ADD_SIGNAL(MethodInfo("copy_request"));
 }
@@ -188,6 +190,7 @@ EditorLog::EditorLog() {
     log->set_custom_minimum_size(Size2(0, 180) * EDSCALE);
     log->set_v_size_flags(SIZE_EXPAND_FILL);
     log->set_h_size_flags(SIZE_EXPAND_FILL);
+    log->set_deselect_on_focus_loss_enabled(false);
     vb->add_child(log);
     add_message(UIString(VERSION_FULL_NAME " (c) 2007-2019 Juan Linietsky, Ariel Manzur & Godot Contributors."));
 

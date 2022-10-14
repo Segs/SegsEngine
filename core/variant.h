@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  variant.h                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,13 +31,13 @@
 #pragma once
 
 #include "core/godot_export.h"
+#include "core/reflection_macros.h"
 #include "core/math/math_defs.h"
 #include "core/forward_decls.h"
 #include "core/ref_ptr.h"
 #include "core/vector.h"
 #include "core/array.h"
 #include "core/callable.h"
-#include "core/object_id.h"
 #include "core/object_rc.h"
 
 #include <cstdint>
@@ -49,6 +49,7 @@ class Object;
 class ObjectRC;
 using UIString = class QString;
 class RID;
+struct RenderingEntity;
 class Array;
 class NodePath;
 class Dictionary;
@@ -89,23 +90,13 @@ using PoolVector3Array = PoolVector<Vector3>;
 using PoolColorArray = PoolVector<Color>;
 
 
-// With DEBUG_ENABLED, the pointer to a deleted object stored in ObjectRC is set to nullptr,
-// so _OBJ_PTR is not useful for checks in which we want to act as if we still believed the
-// object is alive; e.g., comparing a Variant that points to a deleted object with NIL,
-// should return false regardless DEBUG_ENABLED is defined or not.
-// So in cases like that we use _UNSAFE_OBJ_PROXY_PTR, which serves that purpose. With DEBUG_ENABLED
-// it won't be the real pointer to the object for non-Reference types, but that's fine.
-// We just need it to be unique for each object, to be comparable and not to be forced to NULL
-// when the object is freed.
-#ifdef DEBUG_ENABLED
 #define _REF_OBJ_PTR(m_variant) (reinterpret_cast<Ref<RefCounted> *>((m_variant)._get_obj().ref.get())->get())
 #define _OBJ_PTR(m_variant) ((m_variant)._get_obj().rc ? (m_variant)._get_obj().rc->get_ptr() : _REF_OBJ_PTR(m_variant))
+// _UNSAFE_OBJ_PROXY_PTR is needed for comparing an object Variant against NIL or compare two object Variants.
+// It's guaranteed to be unique per object, in contrast to the pointer stored in the RC structure,
+// which is set to null when the object is destroyed.
 #define _UNSAFE_OBJ_PROXY_PTR(m_variant) ((m_variant)._get_obj().rc ? reinterpret_cast<uint8_t *>((m_variant)._get_obj().rc) : reinterpret_cast<uint8_t *>(_REF_OBJ_PTR(m_variant)))
-#else
-#define _OBJ_PTR(m_variant) ((m_variant)._get_obj().obj)
-#define _UNSAFE_OBJ_PROXY_PTR(m_variant) _OBJ_PTR(m_variant)
-#endif
-
+#define MAX_RECURSION 100
 // Temporary workaround until c++11 alignas()
 #ifdef __GNUC__
 #define GCC_ALIGNED_8 __attribute__((aligned(8)))
@@ -149,19 +140,21 @@ enum class VariantType : int8_t {
     // arrays
     POOL_BYTE_ARRAY,
     POOL_INT_ARRAY,
-    POOL_REAL_ARRAY, //25
+    POOL_FLOAT32_ARRAY, //25
     POOL_STRING_ARRAY,
     POOL_VECTOR2_ARRAY,
     POOL_VECTOR3_ARRAY,
     POOL_COLOR_ARRAY,
 
+    REN_ENT,
     VARIANT_MAX
 
 };
 
+SE_OPAQUE_TYPE(Variant)
 class GODOT_EXPORT Variant {
 private:
-    friend struct GODOT_EXPORT VariantOps;
+    friend struct VariantOps;
     // Variant takes 20 bytes when real_t is float, and 36 if double
     // it only allocates extra memory for aabb/matrix.
 
@@ -169,20 +162,16 @@ private:
 
     struct ObjData {
 
-#ifdef DEBUG_ENABLED
         // Will be null for every type deriving from Reference as they have their
         // own reference count mechanism
         ObjectRC *rc;
-#else
-        Object *obj;
-#endif
         // Always initialized, but will be null if the Ref<> assigned was null
         // or this Variant is not even holding a Reference-derived object
         RefPtr ref;
     };
 
     _FORCE_INLINE_ ObjData &_get_obj();
-    _FORCE_INLINE_ const ObjData &_get_obj() const;
+    [[nodiscard]] _FORCE_INLINE_ const ObjData &_get_obj() const;
 
     union VariantUnion {
         bool _bool;
@@ -216,20 +205,32 @@ private:
             return object_cast<T>((Object *)v);
         }
     };
+    template<class T>
+    struct asHelper<Ref<T>> {
+        Ref<T> convertIt(const Variant &v)  {
+            return refFromVariant<T>(v);
+        }
+    };
+    // internal construction helper
+    Variant(VariantType p_v,VariantUnion &&u) : type(p_v), _data(eastl::move(u)) {}
 public:
+    enum {
+        // Maximum recursion depth allowed when serializing variants.
+        MAX_RECURSION_DEPTH = 1024,
+    };
     static const Variant null_variant;
-    _FORCE_INLINE_ VariantType get_type() const { return type; }
+    VariantType get_type() const { return type; }
     static const char *get_type_name(VariantType p_type);
     static StringName interned_type_name(VariantType p_type);
     static bool can_convert(VariantType p_type_from, VariantType p_type_to);
     static bool can_convert_strict(VariantType p_type_from, VariantType p_type_to);
 
     [[nodiscard]] bool is_ref() const;
-    _FORCE_INLINE_ bool is_num() const { return type == VariantType::INT || type == VariantType::FLOAT; }
-    _FORCE_INLINE_ bool is_array() const { return type >= VariantType::ARRAY; }
-    [[nodiscard]] bool is_shared() const;
+    [[nodiscard]] bool is_num() const { return type == VariantType::INT || type == VariantType::FLOAT; }
+    [[nodiscard]] bool is_array() const { return type >= VariantType::ARRAY; }
     [[nodiscard]] bool is_zero() const;
-    [[nodiscard]] bool is_one() const;
+    //GameEntity get_object_instance_id() const;
+    //bool is_invalid_object() const;
 
     template <typename T>
     [[nodiscard]]
@@ -251,23 +252,19 @@ public:
         return object_cast<T>(as<Object*>());
     }
 
-
-
     // Not a recursive loop, as<String>,as<float>,as<StringName> are specialized.
 
     //NOTE: Code below is convoluted to prevent implicit bool conversions from all bool convertible types.
     template<class T ,
                class = typename eastl::enable_if<eastl::is_same<bool,T>::value>::type >
-    Variant(T p_bool) {
-        type = VariantType::BOOL;
+    Variant(T p_bool) : type(VariantType::BOOL) {
         _data._bool = p_bool;
     }
     template<class T ,
                class = typename eastl::enable_if<eastl::is_enum_v<T>>::type >
-    Variant(T p_bool,int=0) : Variant(eastl::underlying_type_t<T>(p_bool)){
+    Variant(T p_val,int=0) : Variant(eastl::underlying_type_t<T>(p_val)){
     }
     //Variant(VariantType p_v) : type(p_v) {}
-    Variant(VariantType p_v,VariantUnion u) : type(p_v), _data(u) {}
 
     constexpr Variant(int8_t p_int)  : type(VariantType::INT),_data(p_int) { }
     constexpr Variant(uint8_t p_int)  : type(VariantType::INT),_data(p_int) { }
@@ -327,11 +324,17 @@ public:
     Variant(const Vector<Face3> &);
     Variant(const Vector<Color> &);
     Variant(const Vector<Plane> &);
+    Variant &operator[](const Variant &p_key) = delete;
+    const Variant &operator[](const Variant &p_key) const = delete;
+
+    explicit Variant(const IP_Address &p_address);
 
     template<class T>
     static Variant from(const T &v) {
         return Variant(v);
     }
+    static Variant from(GameEntity ob) { assert(entt::to_integral(ob)!=0); return {VariantType::INT,VariantUnion(entt::to_integral(ob))}; }
+    static Variant from(RenderingEntity ob) { assert(entt::to_integral(ob)!=0); return {VariantType::REN_ENT,VariantUnion(entt::to_integral(ob))}; }
     template<class T>
     static Variant move_from(T &&v) {
         return Variant(eastl::move(v));
@@ -350,15 +353,11 @@ public:
     template<class T>
     static Variant fromVectorBuiltin(Span<const T> v);
 
-    explicit Variant(const IP_Address &p_address);
 
     // If this changes the table in variant_op must be updated
     enum Operator {
         //comparison
-        OP_EQUAL,
-        OP_NOT_EQUAL,
         OP_LESS,
-        OP_GREATER,
         OP_MAX
     };
 
@@ -383,15 +382,16 @@ public:
     static Variant construct(const VariantType, const Variant &p_arg, Callable::CallError &r_error);
 
     void set_named(const StringName &p_index, const Variant &p_value, bool *r_valid = nullptr);
-    Variant get_named(const StringName &p_index, bool *r_valid = nullptr) const;
+    [[nodiscard]] Variant get_named(const StringName &p_index, bool *r_valid = nullptr) const;
 
-    void set(const Variant &p_index, const Variant &p_value, bool *r_valid = nullptr);
-    Variant get(const Variant &p_index, bool *r_valid = nullptr) const;
+    void set_indexed(int p_index, const Variant &p_value, bool *r_valid = nullptr);
+    Variant get(int p_index, bool *r_valid = nullptr) const;
 
     void get_property_list(Vector<PropertyInfo> *p_list) const;
 
     //argsVariant call()
 
+    bool deep_equal(const Variant &p_variant, int p_recursion_count = 0) const;
     bool operator==(const Variant &p_variant) const;
     bool operator!=(const Variant &p_variant) const;
     bool operator<(const Variant &p_variant) const;
@@ -417,7 +417,9 @@ public:
     }
     constexpr Variant() : type(VariantType::NIL) {}
     _FORCE_INLINE_ ~Variant() {
-        if (type != VariantType::NIL) clear();
+        if (type != VariantType::NIL) {
+            clear();
+        }
     }
 
     [[nodiscard]] explicit operator ::AABB() const;
@@ -428,7 +430,8 @@ public:
     [[nodiscard]] explicit operator IP_Address() const;
     [[nodiscard]] explicit operator NodePath() const;
     [[nodiscard]] explicit operator Object *() const;
-    [[nodiscard]] explicit operator ObjectID() const;
+    [[nodiscard]] explicit operator GameEntity() const;
+    [[nodiscard]] explicit operator RenderingEntity() const;
     [[nodiscard]] explicit operator Plane() const;
     [[nodiscard]] explicit operator PoolVector<Color>() const;
     [[nodiscard]] explicit operator PoolVector<Face3>() const;
@@ -447,6 +450,7 @@ public:
     [[nodiscard]] explicit operator RefPtr() const;
     [[nodiscard]] explicit operator Span<const Vector2>() const;
     [[nodiscard]] explicit operator Span<const Vector3>() const;
+    [[nodiscard]] explicit operator Span<const Color>() const;
     [[nodiscard]] explicit operator Span<const float>() const;
     [[nodiscard]] explicit operator Span<const int>() const;
     [[nodiscard]] explicit operator Span<const uint8_t>() const;
@@ -540,13 +544,12 @@ constexpr T variantAs(const Variant &f) {
 }
 
 template <> GODOT_EXPORT Variant Variant::from(const PoolVector<RID> &p_array);
-template <> inline Variant Variant::from(const ObjectID &ob) { return {VariantType::INT,VariantUnion((uint64_t)ob)}; }
 
 template <> GODOT_EXPORT Variant Variant::from(const Vector<String> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<StringView> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<StringName> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<Variant> &);
-template <> GODOT_EXPORT Variant Variant::from(const Frustum &p_array);
+template <> GODOT_EXPORT Variant Variant::from(const Frustum &);
 template <> GODOT_EXPORT Variant Variant::from(const Span<const Vector2> &);
 template <> GODOT_EXPORT Variant Variant::from(const Span<const Vector3> &);
 
@@ -556,6 +559,7 @@ struct GODOT_EXPORT VariantOps {
     static int size(const Variant& arg);
     static Variant duplicate(const Variant& arg,bool deep=false);
     static void remove(Variant& arg, int idx);
+    static void insert(Variant& arg, int idx, Variant &&value);
 };
 
 extern const Vector<Variant> null_variant_pvec;

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  gd_mono_method.cpp                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -75,6 +75,9 @@ void GDMonoMethod::_update_signature(MonoMethodSignature *p_method_sig) {
     // clear the cache
     method_info_fetched = false;
     method_info = MethodInfo();
+	for (int i = 0; i < params_count; i++) {
+		params_buffer_size += GDMonoMarshal::variant_get_managed_unboxed_size(param_types[i]);
+	}
 }
 
 GDMonoClass *GDMonoMethod::get_enclosing_class() const {
@@ -102,50 +105,42 @@ IMonoClassMember::Visibility GDMonoMethod::get_visibility() {
     }
 }
 
-MonoObject *GDMonoMethod::invoke(MonoObject *p_object, const Variant **p_params, MonoException **r_exc) {
-    if (get_return_type().type_encoding != MONO_TYPE_VOID || get_parameters_count() > 0) {
-        MonoArray *params = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(MonoObject), get_parameters_count());
+MonoObject* GDMonoMethod::invoke(MonoObject* p_object, const Variant** p_params, MonoException** r_exc) const {
+    MonoException* exc = nullptr;
+    MonoObject* ret;
+
+    if (params_count > 0) {
+        void** params = (void**)alloca(params_count * sizeof(void*));
+        uint8_t* buffer = (uint8_t*)alloca(params_buffer_size);
+        unsigned int offset = 0;
 
         for (int i = 0; i < params_count; i++) {
-            MonoObject *boxed_param = GDMonoMarshal::variant_to_mono_object(p_params[i], param_types[i]);
-            mono_array_setref(params, i, boxed_param);
+            params[i] = GDMonoMarshal::variant_to_managed_unboxed(*p_params[i], param_types[i], buffer + offset, offset);
         }
 
-        MonoException *exc = nullptr;
-        MonoObject *ret = GDMonoUtils::runtime_invoke_array(mono_method, p_object, params, &exc);
-
-        if (exc) {
-            ret = nullptr;
-            if (r_exc) {
-                *r_exc = exc;
-            } else {
-                GDMonoUtils::set_pending_exception(exc);
-            }
-        }
-
-        return ret;
-    } else {
-        MonoException *exc = nullptr;
-        GDMonoUtils::runtime_invoke(mono_method, p_object, nullptr, &exc);
-
-        if (exc) {
-            if (r_exc) {
-                *r_exc = exc;
-            } else {
-                GDMonoUtils::set_pending_exception(exc);
-            }
-        }
-
-        return nullptr;
+        ret = GDMonoUtils::runtime_invoke(mono_method, p_object, params, &exc);
+	} else {
+        ret = GDMonoUtils::runtime_invoke(mono_method, p_object, nullptr, &exc);
     }
+
+    if (exc) {
+        ret = nullptr;
+        if (r_exc) {
+            *r_exc = exc;
+        } else {
+            GDMonoUtils::set_pending_exception(exc);
+        }
+    }
+
+    return ret;
 }
 
-MonoObject *GDMonoMethod::invoke(MonoObject *p_object, MonoException **r_exc) {
-    ERR_FAIL_COND_V(get_parameters_count() > 0, NULL);
+MonoObject *GDMonoMethod::invoke(MonoObject *p_object, MonoException **r_exc) const {
+    ERR_FAIL_COND_V(get_parameters_count() > 0, nullptr);
     return invoke_raw(p_object, nullptr, r_exc);
 }
 
-MonoObject *GDMonoMethod::invoke_raw(MonoObject *p_object, void **p_params, MonoException **r_exc) {
+MonoObject *GDMonoMethod::invoke_raw(MonoObject *p_object, void **p_params, MonoException **r_exc) const {
     MonoException *exc = nullptr;
     MonoObject *ret = GDMonoUtils::runtime_invoke(mono_method, p_object, p_params, &exc);
 
@@ -164,29 +159,33 @@ MonoObject *GDMonoMethod::invoke_raw(MonoObject *p_object, void **p_params, Mono
 bool GDMonoMethod::has_attribute(GDMonoClass *p_attr_class) {
     ERR_FAIL_NULL_V(p_attr_class, false);
 
-    if (!attrs_fetched)
+    if (!attrs_fetched) {
         fetch_attributes();
+    }
 
-    if (!attributes)
+    if (!attributes) {
         return false;
+    }
 
     return mono_custom_attrs_has_attr(attributes, p_attr_class->get_mono_ptr());
 }
 
 MonoObject *GDMonoMethod::get_attribute(GDMonoClass *p_attr_class) {
-    ERR_FAIL_NULL_V(p_attr_class, NULL);
+    ERR_FAIL_NULL_V(p_attr_class, nullptr);
 
-    if (!attrs_fetched)
+    if (!attrs_fetched) {
         fetch_attributes();
+    }
 
-    if (!attributes)
+    if (!attributes) {
         return nullptr;
+    }
 
     return mono_custom_attrs_get_attr(attributes, p_attr_class->get_mono_ptr());
 }
 
 void GDMonoMethod::fetch_attributes() {
-    ERR_FAIL_COND(attributes != NULL);
+    ERR_FAIL_COND(attributes != nullptr);
     attributes = mono_custom_attrs_from_method(mono_method);
     attrs_fetched = true;
 }
@@ -248,28 +247,38 @@ void GDMonoMethod::get_parameter_names(Vector<StringName> &names) const {
 }
 
 void GDMonoMethod::get_parameter_types(Vector<ManagedType> &types) const {
-    for (int i = 0; i < param_types.size(); ++i) {
+	for (int i = 0; i < params_count; ++i) {
         types.push_back(param_types[i]);
     }
 }
 
 const MethodInfo &GDMonoMethod::get_method_info() {
 
-    if (!method_info_fetched) {
+    if (method_info_fetched) {
+        return method_info;
+    }
         method_info.name = name;
-        method_info.return_val = PropertyInfo(GDMonoMarshal::managed_to_variant_type(return_type), "");
+    bool nil_is_variant = false;
+    method_info.return_val = PropertyInfo(GDMonoMarshal::managed_to_variant_type(return_type, &nil_is_variant), "");
+    if (method_info.return_val.type == VariantType::NIL && nil_is_variant) {
+        method_info.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
+    }
 
         Vector<StringName> names;
         get_parameter_names(names);
 
+    // TODO: default arguments
         for (int i = 0; i < params_count; ++i) {
-            method_info.arguments.push_back(PropertyInfo(GDMonoMarshal::managed_to_variant_type(param_types[i]), names[i]));
+        nil_is_variant = false;
+        PropertyInfo arg_info = PropertyInfo(GDMonoMarshal::managed_to_variant_type(param_types[i], &nil_is_variant), eastl::move(names[i]));
+        if (arg_info.type == VariantType::NIL && nil_is_variant) {
+            arg_info.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
         }
 
-        // TODO: default arguments
+        method_info.arguments.push_back(arg_info);
+    }
 
         method_info_fetched = true;
-    }
 
     return method_info;
 }
@@ -279,10 +288,6 @@ GDMonoMethod::GDMonoMethod(StringName p_name, MonoMethod *p_method) {
 
     mono_method = p_method;
 
-    method_info_fetched = false;
-
-    attrs_fetched = false;
-    attributes = nullptr;
 
     _update_signature();
 }

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  file_access_unix.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -66,21 +66,21 @@ public:
     } /// returns the path for the current open file
     const String &get_path_absolute() const override; /// returns the absolute path for the current open file
 
-    void seek(size_t p_position) override; ///< seek to a given position
+    void seek(uint64_t p_position) override; ///< seek to a given position
     void seek_end(int64_t p_position = 0) override; ///< seek from the end of file
-    size_t get_position() const override; ///< get position in the file
-    size_t get_len() const override; ///< get size of the file
+    uint64_t get_position() const override; ///< get position in the file
+    uint64_t get_len() const override; ///< get size of the file
 
     bool eof_reached() const override; ///< reading passed EOF
 
     uint8_t get_8() const override; ///< get a byte
-    int get_buffer(uint8_t *p_dst, int p_length) const override;
+    uint64_t get_buffer(uint8_t *p_dst, uint64_t p_length) const override;
 
     Error get_error() const override; ///< get last error
 
     void flush() override;
     void store_8(uint8_t p_dest) override; ///< store a byte
-    void store_buffer(const uint8_t *p_src, int p_length) override; ///< store an array of bytes
+    void store_buffer(const uint8_t *p_src, uint64_t p_length) override; ///< store an array of bytes
 
     bool file_exists(StringView p_path) override; ///< return true if a file exists
 

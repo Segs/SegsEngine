@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  array.cpp                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,6 +32,7 @@
 
 #include "core/hashfuncs.h"
 #include "core/object.h"
+#include "core/math/math_funcs.h"
 #include "core/pool_vector.h"
 #include "core/variant.h"
 #include "core/vector.h"
@@ -66,36 +67,11 @@ struct _ArrayVariantSort {
         Variant res;
         Variant::evaluate(Variant::OP_LESS, p_l, p_r, res, valid);
         if (!valid) {
-            res = false;
+            return false;
         }
         return res.as<bool>();
     }
 };
-template <typename Less>
-_FORCE_INLINE_ int bisect(const Variant *p_array, int size, const Variant &p_value, bool p_before, const Less &p_less) {
-    int lo = 0;
-    int hi = size;
-    if (p_before) {
-        while (lo < hi) {
-            const int mid = (lo + hi) / 2;
-            if (p_less(p_array[mid], p_value)) {
-                lo = mid + 1;
-            } else {
-                hi = mid;
-            }
-        }
-    } else {
-        while (lo < hi) {
-            const int mid = (lo + hi) / 2;
-            if (p_less(p_value, p_array[mid])) {
-                hi = mid;
-            } else {
-                lo = mid + 1;
-            }
-        }
-    }
-    return lo;
-}
 
 } // end of anonymous namespace
 
@@ -150,6 +126,30 @@ bool Array::empty() const {
 }
 void Array::clear() {
     _p->array.clear();
+}
+
+bool Array::deep_equal(const Array &p_array, int p_recursion_count) const {
+    // Cheap checks
+    ERR_FAIL_COND_V_MSG(p_recursion_count > MAX_RECURSION, true, "Max recursion reached");
+    if (_p == p_array._p) {
+        return true;
+    }
+    const Vector<Variant> &a1 = _p->array;
+    const Vector<Variant> &a2 = p_array._p->array;
+    const int size = a1.size();
+    if (size != a2.size()) {
+        return false;
+    }
+
+    // Heavy O(n) check
+    p_recursion_count++;
+    for (int i = 0; i < size; i++) {
+        if (!a1[i].deep_equal(a2[i], p_recursion_count)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool Array::operator==(const Array &p_array) const {
@@ -243,10 +243,6 @@ int Array::rfind(const Variant &p_value, int p_from) const {
     return -1;
 }
 
-int Array::find_last(const Variant &p_value) const {
-    return rfind(p_value);
-}
-
 int Array::count(const Variant &p_value) const {
     return eastl::count(_p->array.begin(), _p->array.end(), p_value);
 }
@@ -306,19 +302,21 @@ Array Array::slice(int p_begin, int p_end, int p_step, bool p_deep) const { // l
     int end = _clamp_slice_index(cur_size, p_end);
 
     int new_arr_size = eastl::max(((end - begin + p_step) / p_step), 0);
-    new_arr.resize(new_arr_size);
+    new_arr.reserve(new_arr_size);
 
-    if (p_step > 0) {
-        int dest_idx = 0;
+    if (likely(p_step > 0)) {
+        if(p_deep) {
         for (int idx = begin; idx <= end; idx += p_step) {
-            ERR_FAIL_COND_V_MSG(dest_idx < 0 || dest_idx >= new_arr_size, Array(), "Bug in Array slice()");
-            new_arr[dest_idx++] = p_deep ? get(idx).duplicate(p_deep) : get(idx);
+                new_arr.emplace_back(eastl::move(get(idx).duplicate(p_deep)));
+            }
+        } else {
+            for (int idx = begin; idx <= end; idx += p_step) {
+                new_arr.push_back(get(idx));
+            }
         }
     } else { // p_step < 0
-        int dest_idx = 0;
         for (int idx = begin; idx >= end; idx += p_step) {
-            ERR_FAIL_COND_V_MSG(dest_idx < 0 || dest_idx >= new_arr_size, Array(), "Bug in Array slice()");
-            new_arr[dest_idx++] = p_deep ? get(idx).duplicate(p_deep) : get(idx);
+            new_arr.push_back(p_deep ? get(idx).duplicate(p_deep) : get(idx));
         }
     }
 
@@ -328,47 +326,6 @@ Array Array::slice(int p_begin, int p_end, int p_step, bool p_deep) const { // l
 Array &Array::sort() {
     eastl::sort(_p->array.begin(), _p->array.end(), _ArrayVariantSort());
     return *this;
-}
-
-Array &Array::sort_custom(Object *p_obj, const StringName &p_function) {
-    ERR_FAIL_NULL_V(p_obj, *this);
-    auto &wr(_p->array);
-
-    SortArray<Variant, _ArrayVariantSortCustom, true> avs;
-    avs.compare.obj = p_obj;
-    avs.compare.func = p_function;
-    avs.sort(wr.data(), _p->array.size());
-    return *this;
-}
-
-void Array::shuffle() {
-    const int n = _p->array.size();
-    if (n < 2) {
-        return;
-    }
-    auto &wr(_p->array);
-    Variant *data = wr.data();
-    for (int i = n - 1; i >= 1; i--) {
-        const int j = Math::rand() % (i + 1);
-        const Variant tmp = data[j];
-        data[j] = data[i];
-        data[i] = tmp;
-    }
-}
-
-int Array::bsearch(const Variant &p_value, bool p_before) {
-    auto &wr(_p->array);
-    return bisect(wr.data(), _p->array.size(), p_value, p_before, _ArrayVariantSort());
-}
-
-int Array::bsearch_custom(const Variant &p_value, Object *p_obj, const StringName &p_function, bool p_before) {
-    ERR_FAIL_NULL_V(p_obj, 0);
-
-    _ArrayVariantSortCustom less;
-    less.obj = p_obj;
-    less.func = p_function;
-    auto &wr(_p->array);
-    return bisect(wr.data(), _p->array.size(), p_value, p_before, less);
 }
 
 Array &Array::invert() {
@@ -382,7 +339,7 @@ void Array::push_front(const Variant &p_value) {
 
 Variant Array::pop_back() {
     if (!_p->array.empty()) {
-        int n = _p->array.size() - 1;
+        const int n = _p->array.size() - 1;
         Variant ret = _p->array[n];
         _p->array.resize(n);
         return ret;
@@ -399,52 +356,8 @@ Variant Array::pop_front() {
     return Variant();
 }
 
-Variant Array::min() const {
-    Variant minval;
-    for (int i = 0; i < size(); i++) {
-        if (i == 0) {
-            minval = get(i);
-        } else {
-            bool valid;
-            Variant ret;
-            Variant test = get(i);
-            Variant::evaluate(Variant::OP_LESS, test, minval, ret, valid);
-            if (!valid) {
-                return Variant(); // not a valid comparison
-            }
-            if (ret.as<bool>()) {
-                // is less
-                minval = test;
-            }
-        }
-    }
-    return minval;
-}
-
-Variant Array::max() const {
-    Variant maxval;
-    for (int i = 0; i < size(); i++) {
-        if (i == 0) {
-            maxval = get(i);
-        } else {
-            bool valid;
-            Variant ret;
-            Variant test = get(i);
-            Variant::evaluate(Variant::OP_GREATER, test, maxval, ret, valid);
-            if (!valid) {
-                return Variant(); // not a valid comparison
-            }
-            if (ret.as<bool>()) {
-                // is less
-                maxval = test;
-            }
-        }
-    }
-    return maxval;
-}
-
 const void *Array::id() const {
-    return _p->array.data();
+    return _p;
 }
 
 Array::Array(const Array &p_from) {

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  print_string.cpp                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -110,23 +110,6 @@ void print_line(StringView p_string) {
     _global_unlock();
 }
 
-//void print_error(const String & p_string) {
-
-//    if (!_print_error_enabled)
-//        return;
-
-//    OS::get_singleton()->printerr(p_string+"\n");
-
-//    _global_lock();
-//    PrintHandlerList *l = print_handler_list;
-//    while (l) {
-
-//        l->printfunc(l->userdata, StringUtils::to_utf8(p_string).data(), true);
-//        l = l->next;
-//    }
-
-//    _global_unlock();
-//}
 void print_error(StringView p_string) {
 
     if (!_print_error_enabled)

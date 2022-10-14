@@ -72,6 +72,7 @@ class EditorAutoloadSettings : public VBoxContainer {
     EditorLineEditFileChooser *autoload_add_path;
     LineEdit *autoload_add_name;
     Button *add_autoload;
+    Label *error_message;
 
     String selected_autoload;
     int number_of_autoloads;

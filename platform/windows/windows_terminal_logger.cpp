@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  windows_terminal_logger.cpp                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 #include <cstring>
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 void WindowsTerminalLogger::logv(StringView p_format , bool p_err) {
@@ -45,7 +46,8 @@ void WindowsTerminalLogger::logv(StringView p_format , bool p_err) {
 	if (wlen < 0)
 		return;
 
-	wchar_t *wbuf = (wchar_t *)malloc((wlen + 1) * sizeof(wchar_t));
+    wchar_t *wbuf = (wchar_t *)memalloc((p_format.size() + 1) * sizeof(wchar_t));
+    ERR_FAIL_NULL_MSG(wbuf, "Out of memory.");
 	MultiByteToWideChar(CP_UTF8, 0, p_format.data(), p_format.size(), wbuf, wlen);
 	wbuf[wlen] = 0;
 
@@ -54,7 +56,7 @@ void WindowsTerminalLogger::logv(StringView p_format , bool p_err) {
 	else
 		wprintf(L"%ls", wbuf);
 
-	free(wbuf);
+    memfree(wbuf);
 
 #ifdef DEBUG_ENABLED
 	fflush(stdout);
@@ -66,83 +68,87 @@ void WindowsTerminalLogger::log_error(StringView p_function, StringView p_file, 
 		return;
 	}
 
-#ifndef UWP_ENABLED
 	HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (!hCon || hCon == INVALID_HANDLE_VALUE) {
-#endif
 		StdLogger::log_error(p_function, p_file, p_line, p_code, p_rationale, p_type);
         return;
-#ifndef UWP_ENABLED
 	} else {
 
 		CONSOLE_SCREEN_BUFFER_INFO sbi; //original
 		GetConsoleScreenBufferInfo(hCon, &sbi);
 
-		WORD current_fg = sbi.wAttributes & (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 		WORD current_bg = sbi.wAttributes & (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY);
 
 		uint32_t basecol = 0;
 		switch (p_type) {
-			case ERR_ERROR: basecol = FOREGROUND_RED; break;
-			case ERR_WARNING: basecol = FOREGROUND_RED | FOREGROUND_GREEN; break;
-			case ERR_SCRIPT: basecol = FOREGROUND_RED | FOREGROUND_BLUE; break;
-			case ERR_SHADER: basecol = FOREGROUND_GREEN | FOREGROUND_BLUE; break;
+            case ERR_ERROR:
+                basecol = FOREGROUND_RED;
+                break;
+            case ERR_WARNING:
+                basecol = FOREGROUND_RED | FOREGROUND_GREEN;
+                break;
+            case ERR_SCRIPT:
+                basecol = FOREGROUND_RED | FOREGROUND_BLUE;
+                break;
+            case ERR_SHADER:
+                basecol = FOREGROUND_GREEN | FOREGROUND_BLUE;
+                break;
 		}
 
-		basecol |= current_bg;
+		basecol |= current_bg;  
 
-		if (not p_rationale.empty()) {
 
 			SetConsoleTextAttribute(hCon, basecol | FOREGROUND_INTENSITY);
 			switch (p_type) {
-				case ERR_ERROR: logf("ERROR: "); break;
-				case ERR_WARNING: logf("WARNING: "); break;
-				case ERR_SCRIPT: logf("SCRIPT ERROR: "); break;
-				case ERR_SHADER: logf("SHADER ERROR: "); break;
+            case ERR_ERROR:
+                logf_error("ERROR:");
+                break;
+            case ERR_WARNING:
+                logf_error("WARNING:");
+                break;
+            case ERR_SCRIPT:
+                logf_error("SCRIPT ERROR:");
+                break;
+            case ERR_SHADER:
+                logf_error("SHADER ERROR:");
+                break;
 			}
 
-			SetConsoleTextAttribute(hCon, current_fg | current_bg | FOREGROUND_INTENSITY);
-            logf(FormatVE("%.*s\n",p_rationale.length(), p_rationale.data()));
 
 			SetConsoleTextAttribute(hCon, basecol);
-			switch (p_type) {
-				case ERR_ERROR: logf("   At: "); break;
-				case ERR_WARNING: logf("     At: "); break;
-				case ERR_SCRIPT: logf("          At: "); break;
-				case ERR_SHADER: logf("          At: "); break;
-			}
-
-			SetConsoleTextAttribute(hCon, current_fg | current_bg);
-            logf(FormatVE("%.*s:%i\n", p_file.length(), p_file.data(),p_line));
+        if (!p_rationale.empty()) {
+            logf_error(FormatVE(" %.*s\n", p_rationale.size(),p_rationale.data()));
 
 		} else {
 
-			SetConsoleTextAttribute(hCon, basecol | FOREGROUND_INTENSITY);
-			switch (p_type) {
-                case ERR_ERROR: logf(FormatVE("ERROR: %.*s: ", p_function.size(), p_function.data())); break;
-                case ERR_WARNING: logf(FormatVE("WARNING: %.*s: ", p_function.size(), p_function.data())); break;
-                case ERR_SCRIPT: logf(FormatVE("SCRIPT ERROR: %.*s: ", p_function.size(), p_function.data())); break;
-                case ERR_SHADER: logf(FormatVE("SCRIPT ERROR: %.*s: ", p_function.size(), p_function.data())); break;
+            logf_error(FormatVE(" %.*s\n", p_code.size(),p_code.data()));
 			}
 
-			SetConsoleTextAttribute(hCon, current_fg | current_bg | FOREGROUND_INTENSITY);
-            logf(FormatVE("%.*s\n", p_code.size(), p_code.data()));
-
-			SetConsoleTextAttribute(hCon, basecol);
+        // `FOREGROUND_INTENSITY` alone results in gray text.
+        SetConsoleTextAttribute(hCon, FOREGROUND_INTENSITY);
 			switch (p_type) {
-				case ERR_ERROR: logf("   At: "); break;
-				case ERR_WARNING: logf("     At: "); break;
-				case ERR_SCRIPT: logf("          At: "); break;
-				case ERR_SHADER: logf("          At: "); break;
+            case ERR_ERROR:
+                logf_error("   at: ");
+                break;
+            case ERR_WARNING:
+                logf_error("     at: ");
+                break;
+            case ERR_SCRIPT:
+                logf_error("          at: ");
+                break;
+            case ERR_SHADER:
+                logf_error("          at: ");
+                break;
 			}
 
-			SetConsoleTextAttribute(hCon, current_fg | current_bg);
-            logf(FormatVE("%.*s:%i\n", p_file.size(), p_file.data(), p_line));
+        if (!p_rationale.empty()) {
+            logf_error(FormatVE("(%.*s:%i)\n", p_file.size(),p_file.data(), p_line));
+        } else {
+            logf_error(FormatVE("%.*s (%.*s:%i)\n", p_function.size(),p_function.data(),p_file.size(),p_file.data(), p_line));
 		}
 
 		SetConsoleTextAttribute(hCon, sbi.wAttributes);
 	}
-#endif
 }
 
 WindowsTerminalLogger::~WindowsTerminalLogger() {}

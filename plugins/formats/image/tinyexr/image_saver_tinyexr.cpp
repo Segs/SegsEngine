@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  image_saver_tinyexr.cpp                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,8 +32,15 @@
 #include "core/math/math_funcs.h"
 #include "core/image_data.h"
 #include "core/string.h"
+#include "core/os/file_access.h"
+#include "core/print_string.h"
+
+#include "zlib.h" // Should come before including tinyexr.
 
 #include "thirdparty/tinyexr/tinyexr.h"
+
+#include <cstdlib>
+
 
 static bool is_supported_format(ImageData::Format p_format) {
     // This is checked before anything else.
@@ -60,7 +67,8 @@ static bool is_supported_format(ImageData::Format p_format) {
 enum SrcPixelType {
     SRC_FLOAT,
     SRC_HALF,
-    SRC_BYTE
+    SRC_BYTE,
+    SRC_UNSUPPORTED
 };
 
 static SrcPixelType get_source_pixel_type(ImageData::Format p_format) {
@@ -81,7 +89,7 @@ static SrcPixelType get_source_pixel_type(ImageData::Format p_format) {
         case ImageData::FORMAT_RGBA8:
             return SRC_BYTE;
         default:
-            CRASH_NOW();
+            return SRC_UNSUPPORTED;
     }
 }
 
@@ -103,7 +111,7 @@ static int get_target_pixel_type(ImageData::Format p_format) {
         case ImageData::FORMAT_RGBA8:
             return TINYEXR_PIXELTYPE_HALF;
         default:
-            CRASH_NOW();
+            return -1;
     }
 }
 
@@ -114,7 +122,7 @@ static int get_pixel_type_size(int p_pixel_type) {
         case TINYEXR_PIXELTYPE_FLOAT:
             return 4;
     }
-    CRASH_NOW();
+    return -1;
 }
 
 static int get_channel_count(ImageData::Format p_format) {
@@ -136,7 +144,7 @@ static int get_channel_count(ImageData::Format p_format) {
         case ImageData::FORMAT_RGBA8:
             return 4;
         default:
-            CRASH_NOW();
+            return -1;
     }
 }
 
@@ -154,7 +162,7 @@ Error prepare_exr_save(EXRImage &image,EXRHeader &header, const ImageData &p_img
     InitEXRHeader(&header);
     InitEXRImage(&image);
 
-    const int max_channels = 4;
+    constexpr int max_channels = 4;
 
     // Godot does not support more than 4 channels,
     // so we can preallocate header infos on the stack and use only the subset we need
@@ -162,22 +170,26 @@ Error prepare_exr_save(EXRImage &image,EXRHeader &header, const ImageData &p_img
     unsigned char *channels_ptrs[max_channels];
     EXRChannelInfo channel_infos[max_channels];
     int pixel_types[max_channels];
-    int requested_pixel_types[max_channels] = { -1 };
+    int requested_pixel_types[max_channels] = { -1,-1,-1,-1 };
 
     // Gimp and Blender are a bit annoying so order of channels isn't straightforward.
     const int channel_mappings[4][4] = {
         { 0 }, // R
         { 1, 0 }, // GR
         { 2, 1, 0 }, // BGR
-        { 2, 1, 0, 3 } // BGRA
+        { 3, 2, 1, 0 } // ABGR
     };
 
     int channel_count = get_channel_count(format);
+    ERR_FAIL_COND_V(channel_count < 0, ERR_UNAVAILABLE);
     ERR_FAIL_COND_V(p_grayscale && channel_count != 1, ERR_INVALID_PARAMETER);
 
     int target_pixel_type = get_target_pixel_type(format);
+    ERR_FAIL_COND_V(target_pixel_type < 0, ERR_UNAVAILABLE);
     int target_pixel_type_size = get_pixel_type_size(target_pixel_type);
+    ERR_FAIL_COND_V(target_pixel_type_size < 0, ERR_UNAVAILABLE);
     SrcPixelType src_pixel_type = get_source_pixel_type(format);
+    ERR_FAIL_COND_V(src_pixel_type == SRC_UNSUPPORTED, ERR_UNAVAILABLE);
     const int pixel_count = p_img.width * p_img.height;
 
     const int *channel_mapping = channel_mappings[channel_count - 1];
@@ -262,6 +274,7 @@ Error prepare_exr_save(EXRImage &image,EXRHeader &header, const ImageData &p_img
     header.channels = channel_infos;
     header.pixel_types = pixel_types;
     header.requested_pixel_types = requested_pixel_types;
+    header.compression_type = TINYEXR_COMPRESSIONTYPE_PIZ;
 
     return OK;
 }
@@ -272,14 +285,19 @@ Error save_exr(StringView p_path, const ImageData &p_img, bool p_grayscale) {
     if(res!=OK)
         return res;
 
-    const char *err;
-    String utf8_filename(p_path);
-    int ret = SaveEXRImageToFile(&image, &header, utf8_filename.data(), &err);
-    if (ret != TINYEXR_SUCCESS) {
-        //TODO: use OsInterface if the reporting is needed.
-        //print_error(String("Saving EXR failed. Error: {0}").format(varray(err)));
-        FreeEXRErrorMessage(err);
+    unsigned char *mem = nullptr;
+    const char *err = nullptr;
+
+    size_t bytes = SaveEXRImageToMemory(&image, &header, &mem, &err);
+
+    if (bytes == 0) {
+        print_error(String("Saving EXR failed. Error: ")+err);
         return ERR_FILE_CANT_WRITE;
+    } else {
+        FileAccessRef ref = FileAccess::open(p_path, FileAccess::WRITE);
+        ERR_FAIL_COND_V(!ref, ERR_FILE_CANT_WRITE);
+        ref->store_buffer(mem, bytes);
+        free(mem);
     }
 
     return OK;

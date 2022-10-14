@@ -61,6 +61,7 @@ class Particles2DEditorPlugin : public EditorPlugin {
     };
 
     GPUParticles2D *particles;
+    Vector<GPUParticles2D *> selected_particles;
 
     EditorFileDialog *file;
     EditorNode *editor;
@@ -84,6 +85,7 @@ class Particles2DEditorPlugin : public EditorPlugin {
     void _menu_callback(int p_idx);
     void _generate_visibility_rect();
     void _generate_emission_mask();
+    void _selection_changed();
 
 protected:
     void _notification(int p_what);

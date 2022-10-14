@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  visual_shader.cpp                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,6 +32,7 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/deque.h"
+#include "core/dictionary.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/string_builder.h"
@@ -163,7 +164,7 @@ namespace {
                 } else if (in_type == VisualShaderNode::PORT_TYPE_BOOLEAN && out_type == VisualShaderNode::PORT_TYPE_SCALAR) {
                     inputs[i] = src_var + ">0.0 ? true : false";
                 } else if (in_type == VisualShaderNode::PORT_TYPE_SCALAR && out_type == VisualShaderNode::PORT_TYPE_BOOLEAN) {
-                    inputs[i] = src_var + "? 1.0 : 0.0";
+                    inputs[i] = "("+src_var + "? 1.0 : 0.0)";
                 } else if (in_type == VisualShaderNode::PORT_TYPE_VECTOR && out_type == VisualShaderNode::PORT_TYPE_BOOLEAN) {
                     inputs[i] = "vec3(" + src_var + "? 1.0 : 0.0)";
                 }
@@ -209,10 +210,18 @@ namespace {
             for (int i = 0; i < output_count; i++) {
                 String var_name = "n_out" + itos(node) + "p" + itos(i);
                 switch (vsnode->get_output_port_type(i)) {
-                    case VisualShaderNode::PORT_TYPE_SCALAR: output_vars.emplace_back("float " + var_name); break;
-                    case VisualShaderNode::PORT_TYPE_VECTOR: output_vars.emplace_back("vec3 " + var_name); break;
-                    case VisualShaderNode::PORT_TYPE_BOOLEAN: output_vars.emplace_back("bool " + var_name); break;
-                    case VisualShaderNode::PORT_TYPE_TRANSFORM: output_vars.emplace_back("mat4 " + var_name); break;
+                    case VisualShaderNode::PORT_TYPE_SCALAR:
+                        output_vars.emplace_back("float " + var_name);
+                        break;
+                    case VisualShaderNode::PORT_TYPE_VECTOR:
+                        output_vars.emplace_back("vec3 " + var_name);
+                        break;
+                    case VisualShaderNode::PORT_TYPE_BOOLEAN:
+                        output_vars.emplace_back("bool " + var_name);
+                        break;
+                    case VisualShaderNode::PORT_TYPE_TRANSFORM:
+                        output_vars.emplace_back("mat4 " + var_name);
+                        break;
                     default: {
                     }
                 }
@@ -223,10 +232,18 @@ namespace {
                 output_vars.emplace_back("n_out" + itos(node) + "p" + itos(i));
                 const String &nout(output_vars.back());
                 switch (vsnode->get_output_port_type(i)) {
-                    case VisualShaderNode::PORT_TYPE_SCALAR: code += "\tfloat " + nout + ";\n"; break;
-                    case VisualShaderNode::PORT_TYPE_VECTOR: code += "\tvec3 " + nout + ";\n"; break;
-                    case VisualShaderNode::PORT_TYPE_BOOLEAN: code += "\tbool " + nout + ";\n"; break;
-                    case VisualShaderNode::PORT_TYPE_TRANSFORM: code += "\tmat4 " + nout + ";\n"; break;
+                    case VisualShaderNode::PORT_TYPE_SCALAR:
+                        code += "\tfloat " + nout + ";\n";
+                        break;
+                    case VisualShaderNode::PORT_TYPE_VECTOR:
+                        code += "\tvec3 " + nout + ";\n";
+                        break;
+                    case VisualShaderNode::PORT_TYPE_BOOLEAN:
+                        code += "\tbool " + nout + ";\n";
+                        break;
+                    case VisualShaderNode::PORT_TYPE_TRANSFORM:
+                        code += "\tmat4 " + nout + ";\n";
+                        break;
                     default: {
                     }
                 }
@@ -305,6 +322,9 @@ bool VisualShaderNode::is_code_generated() const {
     return true;
 }
 
+bool VisualShaderNode::is_show_prop_names() const {
+    return false;
+}
 Vector<VisualShader::DefaultTextureParam> VisualShaderNode::get_default_texture_parameters(VisualShader::Type p_type, int p_id) const {
     return Vector<VisualShader::DefaultTextureParam>();
 }
@@ -324,7 +344,7 @@ Vector<StringName> VisualShaderNode::get_editable_properties() const {
     return Vector<StringName>();
 }
 
-Array VisualShaderNode::_get_default_input_values() const {
+Array VisualShaderNode::get_default_input_values() const {
 
     Array ret;
     for (const eastl::pair<const int,Variant> &E : default_input_values) {
@@ -333,7 +353,7 @@ Array VisualShaderNode::_get_default_input_values() const {
     }
     return ret;
 }
-void VisualShaderNode::_set_default_input_values(const Array &p_values) {
+void VisualShaderNode::set_default_input_values(const Array &p_values) {
 
     if (p_values.size() % 2 == 0) {
         for (int i = 0; i < p_values.size(); i += 2) {
@@ -354,19 +374,19 @@ StringName VisualShaderNode::get_input_port_default_hint(int p_port) const {
 
 void VisualShaderNode::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_output_port_for_preview", {"port"}), &VisualShaderNode::set_output_port_for_preview);
-    MethodBinder::bind_method(D_METHOD("get_output_port_for_preview"), &VisualShaderNode::get_output_port_for_preview);
+    BIND_METHOD(VisualShaderNode,set_output_port_for_preview);
+    BIND_METHOD(VisualShaderNode,get_output_port_for_preview);
 
-    MethodBinder::bind_method(D_METHOD("set_input_port_default_value", {"port", "value"}), &VisualShaderNode::set_input_port_default_value);
-    MethodBinder::bind_method(D_METHOD("get_input_port_default_value", {"port"}), &VisualShaderNode::get_input_port_default_value);
+    BIND_METHOD(VisualShaderNode,set_input_port_default_value);
+    BIND_METHOD(VisualShaderNode,get_input_port_default_value);
 
-    MethodBinder::bind_method(D_METHOD("_set_default_input_values", {"values"}), &VisualShaderNode::_set_default_input_values);
-    MethodBinder::bind_method(D_METHOD("_get_default_input_values"), &VisualShaderNode::_get_default_input_values);
+    BIND_METHOD(VisualShaderNode,set_default_input_values);
+    BIND_METHOD(VisualShaderNode,get_default_input_values);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "output_port_for_preview"), "set_output_port_for_preview", "get_output_port_for_preview");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "default_input_values", PropertyHint::None, "",
                          PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
-            "_set_default_input_values", "_get_default_input_values");
+            "set_default_input_values", "get_default_input_values");
     ADD_SIGNAL(MethodInfo("editor_refresh_request"));
 
     BIND_ENUM_CONSTANT(PORT_TYPE_SCALAR);
@@ -504,6 +524,30 @@ String VisualShaderNodeCustom::generate_global_per_node(RenderingServerEnums::Sh
     return String();
 }
 
+void VisualShaderNodeCustom::set_input_port_default_value(int p_port, const Variant &p_value) {
+    if (!is_initialized) {
+        VisualShaderNode::set_input_port_default_value(p_port, p_value);
+    }
+}
+
+void VisualShaderNodeCustom::set_default_input_values(const Array &p_values) {
+    if (!is_initialized) {
+        VisualShaderNode::set_default_input_values(p_values);
+    }
+}
+
+void VisualShaderNodeCustom::_set_input_port_default_value(int p_port, const Variant &p_value) {
+    VisualShaderNode::set_input_port_default_value(p_port, p_value);
+}
+
+bool VisualShaderNodeCustom::_is_initialized() {
+    return is_initialized;
+}
+
+void VisualShaderNodeCustom::_set_initialized(bool p_enabled) {
+    is_initialized = p_enabled;
+}
+
 void VisualShaderNodeCustom::_bind_methods() {
 
     BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_name"));
@@ -517,8 +561,18 @@ void VisualShaderNodeCustom::_bind_methods() {
     BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_port_count"));
     BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_port_type", PropertyInfo(VariantType::INT, "port")));
     BIND_VMETHOD(MethodInfo(VariantType::STRING_NAME, "_get_output_port_name", PropertyInfo(VariantType::INT, "port")));
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_code", PropertyInfo(VariantType::ARRAY, "input_vars"), PropertyInfo(VariantType::ARRAY, "output_vars"), PropertyInfo(VariantType::INT, "mode"), PropertyInfo(VariantType::INT, "type")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_code", PropertyInfo(VariantType::ARRAY, "input_vars"),
+            PropertyInfo(VariantType::ARRAY, "output_vars"), PropertyInfo(VariantType::INT, "mode"),
+            PropertyInfo(VariantType::INT, "type")));
     BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_global_code", PropertyInfo(VariantType::INT, "mode")));
+    BIND_METHOD(VisualShaderNodeCustom,_set_initialized);
+    BIND_METHOD(VisualShaderNodeCustom,_is_initialized);
+    MethodBinder::bind_method(D_METHOD("_set_input_port_default_value", { "port", "value" }),
+            &VisualShaderNodeCustom::_set_input_port_default_value);
+
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "initialized", PropertyHint::None, "",
+                         PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
+            "_set_initialized", "_is_initialized");
 }
 
 VisualShaderNodeCustom::VisualShaderNodeCustom() {
@@ -547,7 +601,7 @@ void VisualShader::add_node(Type p_type, const Ref<VisualShaderNode> &p_node, co
     if (input) {
         input->shader_mode = shader_mode;
         input->shader_type = p_type;
-        input->connect("input_type_changed",callable_mp(this, &ClassName::_input_type_changed), varray(p_type, p_id));
+        input->connectF("input_type_changed",this,[=]() { _input_type_changed(p_type, p_id); });
     }
 
     n.node->connect("changed",callable_mp(this, &ClassName::_queue_update));
@@ -718,6 +772,10 @@ bool VisualShader::is_port_types_compatible(int p_a, int p_b) const {
 void VisualShader::connect_nodes_forced(Type p_type, int p_from_node, int p_from_port, int p_to_node, int p_to_port) {
     ERR_FAIL_INDEX(p_type, TYPE_MAX);
     Graph *g = &graph[p_type];
+    ERR_FAIL_COND(!g->nodes.contains(p_from_node));
+    ERR_FAIL_INDEX(p_from_port, g->nodes[p_from_node].node->get_output_port_count());
+    ERR_FAIL_COND(!g->nodes.contains(p_to_node));
+    ERR_FAIL_INDEX(p_to_port, g->nodes[p_to_node].node->get_input_port_count());
     Connection c;
     c.from_node = p_from_node;
     c.from_port = p_from_port;
@@ -811,6 +869,7 @@ void VisualShader::get_node_connections(Type p_type, List<VisualShader::Connecti
 }
 
 void VisualShader::set_mode(RenderingServerEnums::ShaderMode p_mode) {
+    ERR_FAIL_INDEX_MSG((int8_t)p_mode, (int8_t)RenderingServerEnums::ShaderMode::MAX, FormatVE("Invalid shader mode: %hhd.", p_mode));
     if (shader_mode == p_mode) {
         return;
     }
@@ -1083,6 +1142,7 @@ VisualShader::RenderModeEnums VisualShader::render_mode_enums[] = {
     { RenderingServerEnums::ShaderMode::SPATIAL, "cull" },
     { RenderingServerEnums::ShaderMode::SPATIAL, "diffuse" },
     { RenderingServerEnums::ShaderMode::SPATIAL, "specular" },
+    { RenderingServerEnums::ShaderMode::SPATIAL, "async" },
     { RenderingServerEnums::ShaderMode::CANVAS_ITEM, "blend" },
     { RenderingServerEnums::ShaderMode::CANVAS_ITEM, nullptr }
 };
@@ -1303,10 +1363,10 @@ void VisualShader::_get_property_list(Vector<PropertyInfo> *p_list) const {
 }
 
 void VisualShader::_update_shader() const {
-    if (!dirty)
+    if (!dirty.is_set())
         return;
 
-    dirty = false;
+    dirty.clear();
 
     StringBuilder global_code;
     StringBuilder global_code_per_node;
@@ -1468,15 +1528,16 @@ void VisualShader::_update_shader() const {
 }
 
 void VisualShader::_queue_update() {
-    if (dirty) {
+    if (dirty.is_set()) {
         return;
     }
 
-    dirty = true;
+    dirty.set();
     call_deferred([this]() { _update_shader(); });
 }
 
 void VisualShader::_input_type_changed(Type p_type, int p_id) {
+    ERR_FAIL_INDEX(p_type, TYPE_MAX);
     //erase connections using this input, as type changed
     Graph *g = &graph[p_type];
 
@@ -1491,36 +1552,36 @@ void VisualShader::_input_type_changed(Type p_type, int p_id) {
 }
 
 void VisualShader::rebuild() {
-    dirty = true;
+    dirty.set();
     _update_shader();
 }
 
 void VisualShader::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_mode", {"mode"}), &VisualShader::set_mode);
+    BIND_METHOD(VisualShader,set_mode);
 
-    MethodBinder::bind_method(D_METHOD("add_node", {"type", "node", "position", "id"}), &VisualShader::add_node);
-    MethodBinder::bind_method(D_METHOD("get_node", {"type", "id"}), &VisualShader::get_node);
+    BIND_METHOD(VisualShader,add_node);
+    BIND_METHOD(VisualShader,get_node);
 
-    MethodBinder::bind_method(D_METHOD("set_node_position", {"type", "id", "position"}), &VisualShader::set_node_position);
-    MethodBinder::bind_method(D_METHOD("get_node_position", {"type", "id"}), &VisualShader::get_node_position);
+    BIND_METHOD(VisualShader,set_node_position);
+    BIND_METHOD(VisualShader,get_node_position);
 
-    MethodBinder::bind_method(D_METHOD("get_node_list", {"type"}), &VisualShader::get_node_list);
-    MethodBinder::bind_method(D_METHOD("get_valid_node_id", {"type"}), &VisualShader::get_valid_node_id);
+    BIND_METHOD(VisualShader,get_node_list);
+    BIND_METHOD(VisualShader,get_valid_node_id);
 
-    MethodBinder::bind_method(D_METHOD("remove_node", {"type", "id"}), &VisualShader::remove_node);
+    BIND_METHOD(VisualShader,remove_node);
 
-    MethodBinder::bind_method(D_METHOD("is_node_connection", {"type", "from_node", "from_port", "to_node", "to_port"}), &VisualShader::is_node_connection);
+    BIND_METHOD(VisualShader,is_node_connection);
     MethodBinder::bind_method(D_METHOD("can_connect_nodes", {"type", "from_node", "from_port", "to_node", "to_port"}), &VisualShader::is_node_connection);
 
-    MethodBinder::bind_method(D_METHOD("connect_nodes", {"type", "from_node", "from_port", "to_node", "to_port"}), &VisualShader::connect_nodes);
-    MethodBinder::bind_method(D_METHOD("disconnect_nodes", {"type", "from_node", "from_port", "to_node", "to_port"}), &VisualShader::disconnect_nodes);
-    MethodBinder::bind_method(D_METHOD("connect_nodes_forced", {"type", "from_node", "from_port", "to_node", "to_port"}), &VisualShader::connect_nodes_forced);
+    BIND_METHOD(VisualShader,connect_nodes);
+    BIND_METHOD(VisualShader,disconnect_nodes);
+    BIND_METHOD(VisualShader,connect_nodes_forced);
 
     MethodBinder::bind_method(D_METHOD("get_node_connections", {"type"}), &VisualShader::_get_node_connections);
 
-    MethodBinder::bind_method(D_METHOD("set_graph_offset", {"offset"}), &VisualShader::set_graph_offset);
-    MethodBinder::bind_method(D_METHOD("get_graph_offset"), &VisualShader::get_graph_offset);
+    BIND_METHOD(VisualShader,set_graph_offset);
+    BIND_METHOD(VisualShader,get_graph_offset);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "graph_offset", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_graph_offset", "get_graph_offset");
     ADD_PROPERTY_DEFAULT("code", ""); // Inherited from Shader, prevents showing default code as override in docs.
@@ -1545,7 +1606,7 @@ VisualShader::VisualShader() {
         graph[i].nodes[NODE_ID_OUTPUT].position = Vector2(400, 150);
     }
 
-    dirty = true;
+    dirty.set();
 }
 using namespace RenderingServerEnums;
 ///////////////////////////////////////////////////////////
@@ -1613,6 +1674,7 @@ const VisualShaderNodeInput::Port VisualShaderNodeInput::ports[] = {
     { ShaderMode::SPATIAL, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "diffuse", "DIFFUSE_LIGHT" },
     { ShaderMode::SPATIAL, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "specular", "SPECULAR_LIGHT" },
     { ShaderMode::SPATIAL, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_SCALAR, "roughness", "ROUGHNESS" },
+    { ShaderMode::SPATIAL, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_SCALAR, "metallic", "METALLIC" },
 
     { ShaderMode::SPATIAL, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_TRANSFORM, "world", "WORLD_MATRIX" },
     { ShaderMode::SPATIAL, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_TRANSFORM, "inv_camera", "INV_CAMERA_MATRIX" },
@@ -1952,9 +2014,9 @@ Vector<StringName> VisualShaderNodeInput::get_editable_properties() const {
 
 void VisualShaderNodeInput::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_input_name", {"name"}), &VisualShaderNodeInput::set_input_name);
-    MethodBinder::bind_method(D_METHOD("get_input_name"), &VisualShaderNodeInput::get_input_name);
-    MethodBinder::bind_method(D_METHOD("get_input_real_name"), &VisualShaderNodeInput::get_input_real_name);
+    BIND_METHOD(VisualShaderNodeInput,set_input_name);
+    BIND_METHOD(VisualShaderNodeInput,get_input_name);
+    BIND_METHOD(VisualShaderNodeInput,get_input_real_name);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "input_name", PropertyHint::Enum, ""), "set_input_name", "get_input_name");
     ADD_SIGNAL(MethodInfo("input_type_changed"));
@@ -2131,8 +2193,8 @@ String VisualShaderNodeUniformRef::generate_code(RenderingServerEnums::ShaderMod
 }
 
 void VisualShaderNodeUniformRef::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_uniform_name", {"name"}), &VisualShaderNodeUniformRef::set_uniform_name);
-    MethodBinder::bind_method(D_METHOD("get_uniform_name"), &VisualShaderNodeUniformRef::get_uniform_name);
+    BIND_METHOD(VisualShaderNodeUniformRef,set_uniform_name);
+    BIND_METHOD(VisualShaderNodeUniformRef,get_uniform_name);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "uniform_name", PropertyHint::Enum, ""), "set_uniform_name", "get_uniform_name");
 }
@@ -2344,10 +2406,14 @@ bool VisualShaderNodeUniform::is_global_code_generated() const {
 
 void VisualShaderNodeUniform::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_uniform_name", {"name"}), &VisualShaderNodeUniform::set_uniform_name);
-    MethodBinder::bind_method(D_METHOD("get_uniform_name"), &VisualShaderNodeUniform::get_uniform_name);
+    BIND_METHOD(VisualShaderNodeUniform,set_uniform_name);
+    BIND_METHOD(VisualShaderNodeUniform,get_uniform_name);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "uniform_name"), "set_uniform_name", "get_uniform_name");
+}
+
+bool VisualShaderNodeUniform::is_show_prop_names() const {
+    return true;
 }
 
 VisualShaderNodeUniform::VisualShaderNodeUniform() {
@@ -2785,36 +2851,36 @@ bool VisualShaderNodeGroupBase::is_editable() const {
 
 void VisualShaderNodeGroupBase::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_size", {"size"}), &VisualShaderNodeGroupBase::set_size);
-    MethodBinder::bind_method(D_METHOD("get_size"), &VisualShaderNodeGroupBase::get_size);
+    BIND_METHOD(VisualShaderNodeGroupBase,set_size);
+    BIND_METHOD(VisualShaderNodeGroupBase,get_size);
 
-    MethodBinder::bind_method(D_METHOD("set_inputs", {"inputs"}), &VisualShaderNodeGroupBase::set_inputs);
-    MethodBinder::bind_method(D_METHOD("get_inputs"), &VisualShaderNodeGroupBase::get_inputs);
+    BIND_METHOD(VisualShaderNodeGroupBase,set_inputs);
+    BIND_METHOD(VisualShaderNodeGroupBase,get_inputs);
 
-    MethodBinder::bind_method(D_METHOD("set_outputs", {"outputs"}), &VisualShaderNodeGroupBase::set_outputs);
-    MethodBinder::bind_method(D_METHOD("get_outputs"), &VisualShaderNodeGroupBase::get_outputs);
+    BIND_METHOD(VisualShaderNodeGroupBase,set_outputs);
+    BIND_METHOD(VisualShaderNodeGroupBase,get_outputs);
 
-    MethodBinder::bind_method(D_METHOD("is_valid_port_name", {"name"}), &VisualShaderNodeGroupBase::is_valid_port_name);
+    BIND_METHOD(VisualShaderNodeGroupBase,is_valid_port_name);
 
-    MethodBinder::bind_method(D_METHOD("add_input_port", {"id", "type", "name"}), &VisualShaderNodeGroupBase::add_input_port);
-    MethodBinder::bind_method(D_METHOD("remove_input_port", {"id"}), &VisualShaderNodeGroupBase::remove_input_port);
-    MethodBinder::bind_method(D_METHOD("get_input_port_count"), &VisualShaderNodeGroupBase::get_input_port_count);
-    MethodBinder::bind_method(D_METHOD("has_input_port", {"id"}), &VisualShaderNodeGroupBase::has_input_port);
-    MethodBinder::bind_method(D_METHOD("clear_input_ports"), &VisualShaderNodeGroupBase::clear_input_ports);
+    BIND_METHOD(VisualShaderNodeGroupBase,add_input_port);
+    BIND_METHOD(VisualShaderNodeGroupBase,remove_input_port);
+    BIND_METHOD(VisualShaderNodeGroupBase,get_input_port_count);
+    BIND_METHOD(VisualShaderNodeGroupBase,has_input_port);
+    BIND_METHOD(VisualShaderNodeGroupBase,clear_input_ports);
 
-    MethodBinder::bind_method(D_METHOD("add_output_port", {"id", "type", "name"}), &VisualShaderNodeGroupBase::add_output_port);
-    MethodBinder::bind_method(D_METHOD("remove_output_port", {"id"}), &VisualShaderNodeGroupBase::remove_output_port);
-    MethodBinder::bind_method(D_METHOD("get_output_port_count"), &VisualShaderNodeGroupBase::get_output_port_count);
-    MethodBinder::bind_method(D_METHOD("has_output_port", {"id"}), &VisualShaderNodeGroupBase::has_output_port);
-    MethodBinder::bind_method(D_METHOD("clear_output_ports"), &VisualShaderNodeGroupBase::clear_output_ports);
+    BIND_METHOD(VisualShaderNodeGroupBase,add_output_port);
+    BIND_METHOD(VisualShaderNodeGroupBase,remove_output_port);
+    BIND_METHOD(VisualShaderNodeGroupBase,get_output_port_count);
+    BIND_METHOD(VisualShaderNodeGroupBase,has_output_port);
+    BIND_METHOD(VisualShaderNodeGroupBase,clear_output_ports);
 
-    MethodBinder::bind_method(D_METHOD("set_input_port_name", {"id", "name"}), &VisualShaderNodeGroupBase::set_input_port_name);
-    MethodBinder::bind_method(D_METHOD("set_input_port_type", {"id", "type"}), &VisualShaderNodeGroupBase::set_input_port_type);
-    MethodBinder::bind_method(D_METHOD("set_output_port_name", {"id", "name"}), &VisualShaderNodeGroupBase::set_output_port_name);
-    MethodBinder::bind_method(D_METHOD("set_output_port_type", {"id", "type"}), &VisualShaderNodeGroupBase::set_output_port_type);
+    BIND_METHOD(VisualShaderNodeGroupBase,set_input_port_name);
+    BIND_METHOD(VisualShaderNodeGroupBase,set_input_port_type);
+    BIND_METHOD(VisualShaderNodeGroupBase,set_output_port_name);
+    BIND_METHOD(VisualShaderNodeGroupBase,set_output_port_type);
 
-    MethodBinder::bind_method(D_METHOD("get_free_input_port_id"), &VisualShaderNodeGroupBase::get_free_input_port_id);
-    MethodBinder::bind_method(D_METHOD("get_free_output_port_id"), &VisualShaderNodeGroupBase::get_free_output_port_id);
+    BIND_METHOD(VisualShaderNodeGroupBase,get_free_input_port_id);
+    BIND_METHOD(VisualShaderNodeGroupBase,get_free_output_port_id);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "size"), "set_size", "get_size");
 }
@@ -2909,8 +2975,8 @@ String VisualShaderNodeExpression::generate_code(RenderingServerEnums::ShaderMod
 
 void VisualShaderNodeExpression::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_expression", {"expression"}), &VisualShaderNodeExpression::set_expression);
-    MethodBinder::bind_method(D_METHOD("get_expression"), &VisualShaderNodeExpression::get_expression);
+    BIND_METHOD(VisualShaderNodeExpression,set_expression);
+    BIND_METHOD(VisualShaderNodeExpression,get_expression);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "expression"), "set_expression", "get_expression");
 }

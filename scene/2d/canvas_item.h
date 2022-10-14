@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  canvas_item.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,8 +35,8 @@
 #include "scene/resources/material.h"
 #include "scene/resources/multimesh.h"
 #include "scene/resources/texture.h"
-#include "core/list.h"
 #include "core/math/transform_2d.h"
+
 
 class CanvasLayer;
 class Viewport;
@@ -44,142 +44,15 @@ class Font;
 class World2D;
 class StyleBox;
 
-class GODOT_EXPORT CanvasItemMaterial : public Material {
-
-    GDCLASS(CanvasItemMaterial,Material)
-
-public:
-    enum BlendMode : uint8_t {
-        BLEND_MODE_MIX,
-        BLEND_MODE_ADD,
-        BLEND_MODE_SUB,
-        BLEND_MODE_MUL,
-        BLEND_MODE_PREMULT_ALPHA,
-        BLEND_MODE_DISABLED
-    };
-
-    enum LightMode : uint8_t {
-        LIGHT_MODE_NORMAL,
-        LIGHT_MODE_UNSHADED,
-        LIGHT_MODE_LIGHT_ONLY
-    };
-
-private:
-    union MaterialKey {
-
-        struct {
-            uint32_t blend_mode : 4;
-            uint32_t light_mode : 4;
-            uint32_t particles_animation : 1;
-            uint32_t invalid_key : 1;
-        };
-
-        uint32_t key;
-
-        bool operator==(const MaterialKey &p_key) const {
-            return key == p_key.key;
-        }
-    private:
-        friend eastl::hash<MaterialKey>;
-        explicit operator size_t() const {
-            return key;
-        }
-
-    };
-
-    struct ShaderNames {
-        StringName particles_anim_h_frames;
-        StringName particles_anim_v_frames;
-        StringName particles_anim_loop;
-    };
-    struct ShaderData {
-        RID shader;
-        int users;
-    };
-
-
-    static ShaderNames *shader_names;
-
-    static HashMap<MaterialKey, ShaderData> shader_map;
-    static Mutex *material_mutex;
-
-    MaterialKey current_key;
-    bool is_dirty_element;
-
-    int particles_anim_h_frames;
-    int particles_anim_v_frames;
-
-    BlendMode blend_mode;
-    LightMode light_mode;
-    bool particles_animation;
-    bool particles_anim_loop;
-
-    _FORCE_INLINE_ MaterialKey _compute_key() const {
-
-        MaterialKey mk;
-        mk.key = 0;
-        mk.blend_mode = blend_mode;
-        mk.light_mode = light_mode;
-        mk.particles_animation = particles_animation;
-        return mk;
-    }
-    void _update_shader();
-    _FORCE_INLINE_ void _queue_shader_change();
-protected:
-    static void _bind_methods();
-    void _validate_property(PropertyInfo &property) const override;
-
-public:
-    void set_blend_mode(BlendMode p_blend_mode);
-    BlendMode get_blend_mode() const;
-
-    void set_light_mode(LightMode p_light_mode);
-    LightMode get_light_mode() const;
-
-    void set_particles_animation(bool p_particles_anim);
-    bool get_particles_animation() const;
-
-    void set_particles_anim_h_frames(int p_frames);
-    int get_particles_anim_h_frames() const;
-    void set_particles_anim_v_frames(int p_frames);
-    int get_particles_anim_v_frames() const;
-
-    void set_particles_anim_loop(bool p_loop);
-    bool get_particles_anim_loop() const;
-
-    static void init_shaders();
-    static void finish_shaders();
-    static void flush_changes();
-
-    RID get_shader_rid() const;
-
-    RenderingServerEnums::ShaderMode get_shader_mode() const override;
-
-    CanvasItemMaterial();
-    ~CanvasItemMaterial() override;
-};
-
-
 class GODOT_EXPORT CanvasItem : public Node {
 
     GDCLASS(CanvasItem,Node)
 //    Q_GADGET
-
-public:
-    enum BlendMode {
-
-        BLEND_MODE_MIX, //default
-        BLEND_MODE_ADD,
-        BLEND_MODE_SUB,
-        BLEND_MODE_MUL,
-        BLEND_MODE_PREMULT_ALPHA,
-        BLEND_MODE_DISABLED
-    };
+    friend class CanvasLayer;
 
 private:
-    mutable IntrusiveListNode<Node> xform_change;
 
-    RID canvas_item;
+    RenderingEntity canvas_item;
     char group[32];
 
     CanvasLayer *canvas_layer;
@@ -189,27 +62,26 @@ private:
 
     Vector<CanvasItem *> children_items;
     CanvasItem * C;
-
-    int light_mask;
-
-    bool first_draw;
-    bool visible;
-    bool pending_update;
-    bool toplevel;
-    bool drawing;
-    bool block_transform_notify;
-    bool behind;
-    bool use_parent_material;
-    bool notify_local_transform;
-    bool notify_transform;
-
     Ref<Material> material;
 
     mutable Transform2D global_transform;
-    mutable bool global_invalid;
-    static CanvasItem *current_item_drawn;
+
+    int light_mask;
+
+    uint8_t first_draw : 1;
+    uint8_t visible : 1;
+    uint8_t toplevel : 1;
+    uint8_t drawing : 1;
+    uint8_t block_transform_notify : 1;
+    uint8_t behind : 1;
+    uint8_t use_parent_material : 1;
+    uint8_t notify_local_transform : 1;
+    uint8_t notify_transform : 1;
+    mutable uint8_t global_invalid : 1;
+
 public:
     /*Q_INVOKABLE*/ void _toplevel_raise_self();
+    void _toplevel_visibility_changed(bool p_visible);
     /*Q_INVOKABLE*/ void _propagate_visibility_changed(bool p_visible);
     /*Q_INVOKABLE*/ void _update_callback();
 private:
@@ -224,9 +96,13 @@ public:
 
 protected:
     void _notify_transform() {
-        if (!is_inside_tree()) return;
+        if (!is_inside_tree()) {
+            return;
+        }
         _notify_transform(this);
-        if (!block_transform_notify && notify_local_transform) notification(NOTIFICATION_LOCAL_TRANSFORM_CHANGED);
+        if (!block_transform_notify && notify_local_transform) {
+            notification(NOTIFICATION_LOCAL_TRANSFORM_CHANGED);
+        }
     }
 
     void item_rect_changed(bool p_size_changed = true);
@@ -286,39 +162,40 @@ public:
     /* VISIBILITY */
 
     void set_visible(bool p_visible);
-    bool is_visible() const;
+    bool is_visible() const { return visible; }
     bool is_visible_in_tree() const;
-    void show();
-    void hide();
+    void show() { set_visible(true); }
+    void hide() { set_visible(false); }
 
     void update();
 
     virtual void set_light_mask(int p_light_mask);
-    int get_light_mask() const;
+    int get_light_mask() const { return light_mask; }
 
     void set_modulate(const Color &p_modulate);
-    Color get_modulate() const;
+    Color get_modulate() const { return modulate; }
 
     void set_self_modulate(const Color &p_self_modulate);
-    Color get_self_modulate() const;
+    Color get_self_modulate() const { return self_modulate; }
 
     /* DRAWING API */
 
     void draw_line(const Point2 &p_from, const Point2 &p_to, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
-    void draw_polyline(const Vector<Vector2> &p_points, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
-    void draw_polyline_colors(const Vector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
+    void draw_polyline(Span<const Vector2> p_points, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
+    void draw_polyline_colors(Span<const Vector2> p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
     void draw_arc(const Vector2 &p_center, float p_radius, float p_start_angle, float p_end_angle, int p_point_count, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
-    void draw_multiline(const Vector<Vector2> &p_points, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
-    void draw_multiline_colors(const Vector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
-    void draw_rect(const Rect2 &p_rect, const Color &p_color, bool p_filled = true, float p_width = 1.0, bool p_antialiased = false);
+    void draw_multiline(Span<const Vector2> p_points, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
+    void draw_multiline_colors(Span<const Vector2> p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
+    void draw_rect_stroke(const Rect2 &p_rect, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
+    void draw_rect_filled(const Rect2 &p_rect, const Color &p_color);
     void draw_circle(const Point2 &p_pos, float p_radius, const Color &p_color);
     void draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1, 1), const Ref<Texture> &p_normal_map = Ref<Texture>());
     void draw_texture_rect(const Ref<Texture> &p_texture, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>());
     void draw_texture_rect_region(const Ref<Texture> &p_texture, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = false);
     void draw_style_box(const Ref<StyleBox> &p_style_box, const Rect2 &p_rect);
-    void draw_primitive(const Vector<Vector2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, Ref<Texture> p_texture = Ref<Texture>(), float p_width = 1, const Ref<Texture> &p_normal_map = Ref<Texture>());
-    void draw_polygon(Span<const Point2> p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs = PoolVector<Point2>(), Ref<Texture> p_texture = Ref<Texture>(), const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_antialiased = false);
-    void draw_colored_polygon(Span<const Point2> p_points, const Color &p_color, const PoolVector<Point2> &p_uvs = PoolVector<Point2>(), Ref<Texture> p_texture = Ref<Texture>(), const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_antialiased = false);
+    void draw_primitive(Span<const Vector2> p_points, Span<const Color> p_colors, const PoolVector<Point2> &p_uvs, Ref<Texture> p_texture = Ref<Texture>(), float p_width = 1, const Ref<Texture> &p_normal_map = Ref<Texture>());
+    void draw_polygon(Span<const Point2> p_points, Span<const Color> p_colors, Span<const Point2> p_uvs = {}, Ref<Texture> p_texture = Ref<Texture>(), const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_antialiased = false);
+    void draw_colored_polygon(Span<const Point2> p_points, const Color &p_color, Span<const Point2> p_uvs = {}, Ref<Texture> p_texture = Ref<Texture>(), const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_antialiased = false);
 
     void draw_mesh(const Ref<Mesh> &p_mesh, const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Transform2D &p_transform = Transform2D(), const Color &p_modulate = Color(1, 1, 1));
     void draw_multimesh(const Ref<MultiMesh> &p_multimesh, const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map);
@@ -330,15 +207,14 @@ public:
     void draw_set_transform(const Point2 &p_offset, float p_rot, const Size2 &p_scale);
     void draw_set_transform_matrix(const Transform2D &p_matrix);
 
-    static CanvasItem *get_current_item_drawn();
 
     /* RECT / TRANSFORM */
 
     void set_as_top_level(bool p_toplevel);
-    bool is_set_as_top_level() const;
+    bool is_set_as_top_level() const { return toplevel; }
 
     void set_draw_behind_parent(bool p_enable);
-    bool is_draw_behind_parent_enabled() const;
+    bool is_draw_behind_parent_enabled() const { return behind; }
 
     CanvasItem *get_parent_item() const;
 
@@ -348,26 +224,24 @@ public:
     virtual Transform2D get_global_transform_with_canvas() const;
 
     CanvasItem *get_toplevel() const;
-    _FORCE_INLINE_ RID get_canvas_item() const {
-        return canvas_item;
-    }
+    RenderingEntity get_canvas_item() const { return canvas_item; }
 
     void set_block_transform_notify(bool p_enable);
-    bool is_block_transform_notify_enabled() const;
+    bool is_block_transform_notify_enabled() const { return block_transform_notify; }
 
     Transform2D get_canvas_transform() const;
     Transform2D get_viewport_transform() const;
     Rect2 get_viewport_rect() const;
-    RID get_viewport_rid() const;
-    RID get_canvas() const;
-    ObjectID get_canvas_layer_instance_id() const;
+    RenderingEntity get_viewport_rid() const;
+    RenderingEntity get_canvas() const;
+    GameEntity get_canvas_layer_instance_id() const;
     Ref<World2D> get_world_2d() const;
 
     virtual void set_material(const Ref<Material> &p_material);
     Ref<Material> get_material() const;
 
     virtual void set_use_parent_material(bool p_use_parent_material);
-    bool get_use_parent_material() const;
+    bool get_use_parent_material() const { return use_parent_material; }
 
     Ref<InputEvent> make_input_local(const Ref<InputEvent> &p_event) const;
     Vector2 make_canvas_position_local(const Vector2 &screen_point) const;
@@ -376,10 +250,10 @@ public:
     Vector2 get_local_mouse_position() const;
 
     void set_notify_local_transform(bool p_enable);
-    bool is_local_transform_notification_enabled() const;
+    bool is_local_transform_notification_enabled() const { return notify_local_transform; }
 
     void set_notify_transform(bool p_enable);
-    bool is_transform_notification_enabled() const;
+    bool is_transform_notification_enabled() const { return notify_transform; }
 
     void force_update_transform();
 
@@ -392,3 +266,4 @@ public:
     ~CanvasItem() override;
 };
 
+bool update_all_pending_canvas_items();

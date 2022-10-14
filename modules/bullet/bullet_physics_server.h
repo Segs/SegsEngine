@@ -143,8 +143,8 @@ public:
     void area_remove_shape(RID p_area, int p_shape_idx) override;
     void area_clear_shapes(RID p_area) override;
     void area_set_shape_disabled(RID p_area, int p_shape_idx, bool p_disabled) override;
-    void area_attach_object_instance_id(RID p_area, ObjectID p_id) override;
-    ObjectID area_get_object_instance_id(RID p_area) const override;
+    void area_attach_object_instance_id(RID p_area, GameEntity p_id) override;
+    GameEntity area_get_object_instance_id(RID p_area) const override;
 
     /// If you pass as p_area the SpaceBullet you can set some parameters as specified below
     /// AREA_PARAM_GRAVITY
@@ -190,8 +190,8 @@ public:
     void body_clear_shapes(RID p_body) override;
 
     // Used for Rigid and Soft Bodies
-    void body_attach_object_instance_id(RID p_body, ObjectID p_id) override;
-    ObjectID body_get_object_instance_id(RID p_body) const override;
+    void body_attach_object_instance_id(RID p_body, GameEntity p_id) override;
+    GameEntity body_get_object_instance_id(RID p_body) const override;
 
     void body_set_enable_continuous_collision_detection(RID p_body, bool p_enable) override;
     bool body_is_continuous_collision_detection_enabled(RID p_body) const override;
@@ -255,7 +255,7 @@ public:
     // this function only works on physics process, errors and returns null otherwise
     PhysicsDirectBodyState3D *body_get_direct_state(RID p_body) override;
 
-    bool body_test_motion(RID p_body, const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia, MotionResult *r_result = nullptr, bool p_exclude_raycast_shapes = true) override;
+    bool body_test_motion(RID p_body, const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia, MotionResult *r_result = nullptr, bool p_exclude_raycast_shapes = true, const Set<RID> &p_exclude = {}) override;
     int body_test_ray_separation(RID p_body, const Transform &p_transform, bool p_infinite_inertia, Vector3 &r_recover_motion, SeparationResult *r_results, int p_result_max, float p_margin = 0.001) override;
 
     /* SOFT BODY API */
@@ -398,11 +398,12 @@ public:
     void finish() override;
 
     bool is_flushing_queries() const override { return false; }
+    void set_collision_iterations(int p_iterations) override;
 
     int get_process_info(ProcessInfo p_info) override;
 
-    CollisionObjectBullet *get_collisin_object(RID p_object) const;
-    RigidCollisionObjectBullet *get_rigid_collisin_object(RID p_object) const;
+    CollisionObjectBullet *get_collision_object(RID p_object) const;
+    RigidCollisionObjectBullet *get_rigid_collision_object(RID p_object) const;
 
     /// Internal APIs
 public:

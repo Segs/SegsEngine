@@ -107,6 +107,7 @@ private:
     bool _set_only(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
     void _initial_set(const StringName &p_name, const Variant &p_value);
+    void _initial_set_ex(const StringName &p_name, const Variant &p_value, VariantType v, PropertyHint ph, const char *hint, uint32_t flags=PROPERTY_USAGE_DEFAULT);
 public:
     void _get_property_list(Vector<PropertyInfo> *p_list) const;
     void _add_property_info_bind(const Dictionary &p_info);
@@ -178,6 +179,7 @@ public:
     void load_favorites();
 
     bool is_dark_theme();
+    bool is_caret_blink_active() const;
 
     void list_text_editor_themes();
     void load_text_editor_theme();
@@ -188,6 +190,7 @@ public:
 
     Vector<String> get_script_templates(StringView p_extension, StringView p_custom_path = {});
     String get_editor_layouts_config() const;
+    float get_auto_display_scale() const;
 
     void add_shortcut(StringView p_name, Ref<ShortCut> &p_shortcut);
     bool is_shortcut(StringView p_name, const Ref<InputEvent> &p_event) const;

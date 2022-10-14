@@ -34,11 +34,14 @@
 #include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
+#include "core/string_formatter.h"
+#include "core/resource/resource_tools.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/os/file_access.h"
 #include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
+#include "core/version.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
@@ -67,6 +70,8 @@ void ShaderTextEditor::set_edited_shader(const Ref<Shader> &p_shader) {
     get_text_edit()->set_text(p_shader->get_code());
     get_text_edit()->clear_undo_history();
 
+    get_text_edit()->call_deferred("set_h_scroll", 0);
+    get_text_edit()->call_deferred("set_v_scroll", 0);
     _validate_script();
     _line_col_changed();
 }
@@ -123,6 +128,7 @@ void ShaderTextEditor::_load_theme_settings() {
     Color search_result_border_color = EDITOR_GET_T<Color>("text_editor/highlighting/search_result_border_color");
     Color symbol_color = EDITOR_GET_T<Color>("text_editor/highlighting/symbol_color");
     Color keyword_color = EDITOR_GET_T<Color>("text_editor/highlighting/keyword_color");
+    Color control_flow_keyword_color = EDITOR_GET_T<Color>("text_editor/highlighting/control_flow_keyword_color");
     Color comment_color = EDITOR_GET_T<Color>("text_editor/highlighting/comment_color");
 
     get_text_edit()->add_theme_color_override("background_color", background_color);
@@ -155,6 +161,15 @@ void ShaderTextEditor::_load_theme_settings() {
 
     Vector<StringView> keywords;
     ShaderLanguage::get_keyword_list(&keywords);
+    for (const auto &E : keywords) {
+        if (ShaderLanguage::is_control_flow_keyword(E)) {
+            get_text_edit()->add_keyword_color(E, control_flow_keyword_color);
+        } else {
+            get_text_edit()->add_keyword_color(E, keyword_color);
+        }
+    }
+    // Colorize built-ins like `COLOR` differently to make them easier
+    // to distinguish from keywords at a quick glance.
 
     if (shader) {
 
@@ -176,7 +191,27 @@ void ShaderTextEditor::_load_theme_settings() {
         get_text_edit()->add_keyword_color(E, keyword_color);
     }
 
-    //colorize comments
+    // Colorize built-ins like `COLOR` differently to make them easier
+    // to distinguish from keywords at a quick glance.
+
+    Vector<StringName> built_ins;
+    if (shader) {
+        for (const auto &E : ShaderTypes::get_singleton()->get_functions(RS::ShaderMode(shader->get_mode()))) {
+            for (const auto &F : E.second.built_ins) {
+                built_ins.push_back(F.first);
+            }
+        }
+        const auto &modes(ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader->get_mode())));
+        built_ins.insert(built_ins.end(),modes.begin(),modes.end());
+    }
+
+    const Color user_type_color = EDITOR_GET_T<Color>("text_editor/highlighting/user_type_color");
+
+    for (const StringName &E : built_ins) {
+        get_text_edit()->add_keyword_color(E, user_type_color);
+    }
+
+    // Colorize comments.
     get_text_edit()->add_color_region("/*", "*/", comment_color, false);
     get_text_edit()->add_color_region("//", "", comment_color, false);
 }
@@ -305,8 +340,8 @@ void ShaderEditor::_menu_option(int p_option) {
         case EDIT_DELETE_LINE: {
             shader_editor->delete_lines();
         } break;
-        case EDIT_CLONE_DOWN: {
-            shader_editor->clone_lines_down();
+        case EDIT_DUPLICATE_SELECTION: {
+            shader_editor->duplicate_selection();
         } break;
         case EDIT_TOGGLE_COMMENT: {
 
@@ -358,7 +393,7 @@ void ShaderEditor::_menu_option(int p_option) {
             shader_editor->remove_all_bookmarks();
         } break;
         case HELP_DOCS: {
-            OS::get_singleton()->shell_open("https://docs.godotengine.org/en/stable/tutorials/shading/shading_reference/index.html");
+            OS::get_singleton()->shell_open(FormatVE("%s/tutorials/shaders/shader_reference/index.html",VERSION_DOCS_URL));
         } break;
     }
     if (p_option != SEARCH_FIND && p_option != SEARCH_REPLACE && p_option != SEARCH_GOTO_LINE) {
@@ -368,9 +403,16 @@ void ShaderEditor::_menu_option(int p_option) {
 }
 
 void ShaderEditor::_notification(int p_what) {
+    switch (p_what) {
+        case NOTIFICATION_ENTER_TREE:
+        case NOTIFICATION_THEME_CHANGED: {
+            PopupMenu *popup = help_menu->get_popup();
+            popup->set_item_icon(popup->get_item_index(HELP_DOCS), get_theme_icon("Instance", "EditorIcons"));
+        } break;
 
-    if (p_what == MainLoop::NOTIFICATION_WM_FOCUS_IN) {
+        case MainLoop::NOTIFICATION_WM_FOCUS_IN: {
         _check_for_external_edit();
+        } break;
     }
 }
 
@@ -387,7 +429,7 @@ void ShaderEditor::_editor_settings_changed() {
     EditorSettings *editor_settings = EditorSettings::get_singleton();
 
     text_editor->add_constant_override("line_spacing", editor_settings->getT<int>("text_editor/theme/line_spacing"));
-    text_editor->cursor_set_blink_enabled(editor_settings->getT<bool>("text_editor/cursor/caret_blink"));
+    text_editor->cursor_set_blink_enabled(EditorSettings::get_singleton()->is_caret_blink_active());
     text_editor->cursor_set_blink_speed(editor_settings->getT<float>("text_editor/cursor/caret_blink_speed"));
     text_editor->cursor_set_block_mode(editor_settings->getT<bool>("text_editor/cursor/block_caret"));
 
@@ -400,14 +442,15 @@ void ShaderEditor::_editor_settings_changed() {
     text_editor->set_highlight_current_line(editor_settings->getT<bool>("text_editor/highlighting/highlight_current_line"));
     text_editor->set_indent_size(editor_settings->getT<int>("text_editor/indent/size"));
     text_editor->set_indent_using_spaces(editor_settings->getT<bool>("text_editor/indent/type"));
-    text_editor->set_line_length_guideline_column(editor_settings->getT<int>("text_editor/appearance/line_length_guideline_column"));
     text_editor->set_minimap_width(editor_settings->getT<int>("text_editor/navigation/minimap_width"));
     text_editor->set_scroll_pass_end_of_file(editor_settings->getT<bool>("text_editor/cursor/scroll_past_end_of_file"));
-    text_editor->set_show_line_length_guideline(editor_settings->getT<bool>("text_editor/appearance/show_line_length_guideline"));
     text_editor->set_show_line_numbers(editor_settings->getT<bool>("text_editor/appearance/show_line_numbers"));
     text_editor->set_smooth_scroll_enabled(editor_settings->getT<bool>("text_editor/navigation/smooth_scrolling"));
     text_editor->set_syntax_coloring(editor_settings->getT<bool>("text_editor/highlighting/syntax_highlighting"));
     text_editor->set_v_scroll_speed(editor_settings->getT<float>("text_editor/navigation/v_scroll_speed"));
+    text_editor->set_show_line_length_guidelines(editor_settings->getT<bool>("text_editor/appearance/show_line_length_guidelines"));
+    text_editor->set_line_length_guideline_soft_column(editor_settings->getT<int>("text_editor/appearance/line_length_guideline_soft_column"));
+    text_editor->set_line_length_guideline_hard_column(editor_settings->getT<int>("text_editor/appearance/line_length_guideline_hard_column"));
 
     text_editor->set_breakpoint_gutter_enabled(false);
 }
@@ -447,7 +490,7 @@ void ShaderEditor::_check_for_external_edit() {
     }
 
     bool use_autoreload = EDITOR_DEF_T("text_editor/files/auto_reload_scripts_on_external_change", false);
-    if (shader->get_last_modified_time() != FileAccess::get_modified_time(shader->get_path())) {
+    if (ResourceTooling::get_last_modified_time(shader.get()) != FileAccess::get_modified_time(shader->get_path())) {
         if (use_autoreload) {
             _reload_shader_from_disk();
         } else {
@@ -463,7 +506,7 @@ void ShaderEditor::_reload_shader_from_disk() {
     ERR_FAIL_COND(not rel_shader);
 
     shader->set_code(rel_shader->get_code());
-    shader->set_last_modified_time(rel_shader->get_last_modified_time());
+    ResourceTooling::set_last_modified_time_from_another(shader.get(), rel_shader.get());
     shader_editor->reload_text();
 }
 
@@ -664,7 +707,7 @@ ShaderEditor::ShaderEditor(EditorNode *p_node) {
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/indent_right"), EDIT_INDENT_RIGHT);
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/delete_line"), EDIT_DELETE_LINE);
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/toggle_comment"), EDIT_TOGGLE_COMMENT);
-    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/clone_down"), EDIT_CLONE_DOWN);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/duplicate_selection"), EDIT_DUPLICATE_SELECTION);
     edit_menu->get_popup()->add_separator();
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/complete_symbol"), EDIT_COMPLETE);
     edit_menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
@@ -698,7 +741,7 @@ ShaderEditor::ShaderEditor(EditorNode *p_node) {
     help_menu = memnew(MenuButton);
     help_menu->set_text(TTR("Help"));
     help_menu->set_switch_on_hover(true);
-    help_menu->get_popup()->add_icon_item(p_node->get_gui_base()->get_theme_icon("Instance", "EditorIcons"), TTR("Online Docs"), HELP_DOCS);
+    help_menu->get_popup()->add_item(TTR("Online Docs"), HELP_DOCS);
     help_menu->get_popup()->connect("id_pressed",callable_mp(this, &ShaderEditor::_menu_option));
 
     add_child(main_container);

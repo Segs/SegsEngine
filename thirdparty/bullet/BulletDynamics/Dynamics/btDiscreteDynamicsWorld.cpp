@@ -800,6 +800,14 @@ public:
 		///don't do CCD when the collision filters are not matching
 		if (!ClosestConvexResultCallback::needsCollision(proxy0))
 			return false;
+		if (m_pairCache->getOverlapFilterCallback()) {
+			btBroadphaseProxy* proxy1 = m_me->getBroadphaseHandle();
+			bool collides = m_pairCache->needsBroadphaseCollision(proxy0, proxy1);
+			if (!collides)
+			{
+				return false;
+			}
+		}
 
 		btCollisionObject* otherObj = (btCollisionObject*)proxy0->m_clientObject;
 
@@ -894,8 +902,8 @@ void btDiscreteDynamicsWorld::createPredictiveContactsInternal(btRigidBody** bod
 						btVector3 distVec = (predictedTrans.getOrigin() - body->getWorldTransform().getOrigin()) * sweepResults.m_closestHitFraction;
 						btScalar distance = distVec.dot(-sweepResults.m_hitNormalWorld);
 
-						btPersistentManifold* manifold = m_dispatcher1->getNewManifold(body, sweepResults.m_hitCollisionObject);
 						btMutexLock(&m_predictiveManifoldsMutex);
+						btPersistentManifold* manifold = m_dispatcher1->getNewManifold(body, sweepResults.m_hitCollisionObject);
 						m_predictiveManifolds.push_back(manifold);
 						btMutexUnlock(&m_predictiveManifoldsMutex);
 

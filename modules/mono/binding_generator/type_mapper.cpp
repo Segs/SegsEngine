@@ -1,4 +1,4 @@
-#include "type_mapper.h"
+﻿#include "type_mapper.h"
 
 #include "generator_helpers.h"
 #include "type_system.h"
@@ -44,7 +44,7 @@ ResolvedTypeReference TS_TypeResolver::resolveType(const TypeReference &ref) {
     auto iter = from_c_name_to_mapping.find(actual_name);
     if(iter == from_c_name_to_mapping.end()) // try default NS ?
         iter = from_c_name_to_mapping.find("Godot::"+ actual_name);
-    assert(iter!=from_c_name_to_mapping.end());
+    assert(iter != from_c_name_to_mapping.end() && "Failed to locate named type");
     return {iter->second,ref.pass_by};
 }
 
@@ -225,7 +225,6 @@ void TS_TypeMapper::register_default_types() {
 
     // default typemap
     registerTypeMaps({},{
-//                       {WRAP_TO_CPP_IN,"auto %val%=static_cast<%type%>(%input%)"},
                          {WRAP_TO_CPP_OUT,"return static_cast<%type%>(%val%)"}
                      });
 
@@ -234,17 +233,31 @@ void TS_TypeMapper::register_default_types() {
                          {SCRIPT_TO_WRAP_TYPE,"void"},
 
                      } );
-    //registerTypeMap(void_resolved, WRAP_ARG_FROM_MONO, "", "");
-
     // bool
     registerTypeMaps(registerBuiltinType("bool"), {
                          {CPP_TO_WRAP_TYPE,"MonoBoolean"},
-                         { SCRIPT_TO_WRAP_TYPE,"bool"},
+                         {SCRIPT_TO_WRAP_TYPE,"bool"},
                          {WRAP_TO_CPP_IN,"auto %val%=%input%"},
 
                      }
-
     );
+
+    registerTypeMaps(registerBuiltinType("RenderingEntity"), {
+                         {CPP_TO_WRAP_TYPE,"uint64_t"},
+                         {WRAP_TO_CPP_OUT,"return entt::to_integral(%val%)"},
+                         {WRAP_TO_CPP_IN,"auto %val%=RE(%input%)"},
+                         {SCRIPT_TO_WRAP_TYPE,"ulong"},
+                     }
+    );
+
+    registerTypeMaps(registerBuiltinType("GameEntity"), {
+                         {CPP_TO_WRAP_TYPE,"uint64_t"},
+                         {WRAP_TO_CPP_OUT,"return entt::to_integral(%val%)"},
+                         {WRAP_TO_CPP_IN,"auto %val%=GE(%input%)"},
+                         {SCRIPT_TO_WRAP_TYPE,"ulong"},
+                     }
+    );
+
     // Integer types
     {
         ResolvedTypeReference resolved;
@@ -307,12 +320,13 @@ void TS_TypeMapper::register_godot_base_types() {
     });
 
     registerTypeMaps(getGodotOpaqueType("NodePath"), {
-                         {CPP_TO_WRAP_TYPE,"NodePath *"},
-                         {WRAP_TO_CPP_IN_ARG,"*%input%"},
-                         {WRAP_TO_CPP_OUT,"return memnew(NodePath(%val%))"},
-                         {SCRIPT_TO_WRAP_TYPE,"IntPtr"},
-                         {SCRIPT_TO_WRAP_IN_ARG,"NodePath.GetPtr(%input%)"},
-                         {SCRIPT_TO_WRAP_OUT,"return new NodePath(%val%)"},
+                         { CPP_TO_WRAP_TYPE,"NodePath *" },
+                         { WRAP_TO_CPP_IN_ARG,"%input% ? *%input% : NodePath()" },
+                         { WRAP_TO_CPP_OUT,"return memnew(NodePath(%val%))" },
+                         { SCRIPT_TO_WRAP_TYPE,"IntPtr" },
+                         { SCRIPT_TO_WRAP_IN_ARG,"NodePath.GetPtr(%input%)" },
+                         { SCRIPT_TO_WRAP_OUT,"return new NodePath(%val%)" },
+                         { SCRIPT_CS_DEFAULT_WRAPPER, "null" }
     });
     // RID
     registerTypeMaps(getGodotOpaqueType("RID"), {
@@ -322,12 +336,6 @@ void TS_TypeMapper::register_godot_base_types() {
                          {SCRIPT_TO_WRAP_TYPE,"IntPtr"},
                          {SCRIPT_TO_WRAP_IN_ARG,"RID.GetPtr(%input%)"},
                          {SCRIPT_TO_WRAP_OUT,"return new RID(%val%)"},
-    });
-    registerTypeMaps(getGodotOpaqueType("ObjectID","ulong"), {
-                         {CPP_TO_WRAP_TYPE,"uint64_t"},
-                         {WRAP_TO_CPP_IN_ARG,"ObjectID(%input%)"},
-                         {SCRIPT_TO_WRAP_TYPE,"ulong"},
-                         {WRAP_TO_CPP_OUT,"return uint64_t(%val%)"},
     });
     // type used to pass variable number of arguments
     registerTypeMaps(getGodotOpaqueType("VarArg","params object[]"), {
@@ -454,17 +462,6 @@ Callable::CallError vcall_error;
                          {SCRIPT_TO_WRAP_ARGOUT,"out Callable %input%"},
 
     });
-    // Callable
-//	itype.c_in = "\t%0 %1_in = " C_METHOD_MANAGED_TO_CALLABLE "(*%1);\n";
-//	itype.c_out = "\t*%3 = " C_METHOD_MANAGED_FROM_CALLABLE "(%1);\n";
-//	itype.c_arg_in = "&%s_in";
-//	itype.cs_in = "ref %s";
-//	/* in cs_out, im_type_out (%3) includes the 'out ' part */
-//	itype.cs_out = "%0(%1, %3 argRet); return argRet;";
-//	itype.im_type_out = "out " + itype.cs_type;
-//	itype.ret_as_byref_arg = true;
-//	builtin_types.insert(itype.cname, itype);
-
 //	// Signal
 //	itype = TypeInterface();
 //	itype.name = "Signal";

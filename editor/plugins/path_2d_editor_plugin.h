@@ -28,15 +28,16 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PATH_2D_EDITOR_PLUGIN_H
-#define PATH_2D_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "scene/2d/path_2d.h"
+#include "scene/gui/box_container.h"
 #include "scene/gui/tool_button.h"
 
 class CanvasItemEditor;
+class Separator;
 
 class Path2DEditor : public HBoxContainer {
 
@@ -131,5 +132,3 @@ public:
     Path2DEditorPlugin(EditorNode *p_node);
     ~Path2DEditorPlugin() override;
 };
-
-#endif // PATH_2D_EDITOR_PLUGIN_H

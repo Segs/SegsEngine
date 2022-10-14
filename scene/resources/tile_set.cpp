@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  tile_set.cpp                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,6 +36,7 @@
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/script_language.h"
+#include "core/string_formatter.h"
 
 IMPL_GDCLASS(TileSet)
 VARIANT_ENUM_CAST(TileSet::AutotileBindings);
@@ -385,7 +386,7 @@ void TileSet::_get_property_list(Vector<PropertyInfo> *p_list) const {
 }
 
 void TileSet::create_tile(int p_id) {
-    ERR_FAIL_COND(tile_map.contains(p_id));
+    ERR_FAIL_COND_MSG(tile_map.contains(p_id), FormatVE("The TileSet already has a tile with ID '%d'.", p_id));
     tile_map[p_id] = TileData();
     tile_map[p_id].autotile_data = AutotileData();
     Object_change_notify(this,"");
@@ -393,7 +394,7 @@ void TileSet::create_tile(int p_id) {
 }
 
 void TileSet::autotile_set_bitmask_mode(int p_id, BitmaskMode p_mode) {
-    ERR_FAIL_COND(!tile_map.contains(p_id));
+    ERR_FAIL_COND_MSG(!tile_map.contains(p_id), FormatVE("The TileSet doesn't have a tile with ID '%d'.", p_id));
     tile_map[p_id].autotile_data.bitmask_mode = p_mode;
     Object_change_notify(this,"");
     emit_changed();
@@ -702,7 +703,8 @@ Vector2 TileSet::atlastile_get_subtile_by_priority(int p_id, const Node *p_tilem
         }
     }
 
-    Vector2 coord = tile_get_region(p_id).size / autotile_get_size(p_id);
+    const Vector2 spacing(autotile_get_spacing(p_id), autotile_get_spacing(p_id));
+    const Vector2 coord = tile_get_region(p_id).size / (autotile_get_size(p_id) + spacing);
 
     Vector<Vector2> coords;
     coords.reserve(size_t(int(coord.x)*int(coord.y)));
@@ -1167,76 +1169,83 @@ void TileSet::clear() {
 
 void TileSet::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("create_tile", {"id"}), &TileSet::create_tile);
-    MethodBinder::bind_method(D_METHOD("autotile_clear_bitmask_map", {"id"}), &TileSet::autotile_clear_bitmask_map);
-    MethodBinder::bind_method(D_METHOD("autotile_set_icon_coordinate", {"id", "coord"}), &TileSet::autotile_set_icon_coordinate);
-    MethodBinder::bind_method(D_METHOD("autotile_get_icon_coordinate", {"id"}), &TileSet::autotile_get_icon_coordinate);
-    MethodBinder::bind_method(D_METHOD("autotile_set_subtile_priority", {"id", "coord", "priority"}), &TileSet::autotile_set_subtile_priority);
-    MethodBinder::bind_method(D_METHOD("autotile_get_subtile_priority", {"id", "coord"}), &TileSet::autotile_get_subtile_priority);
-    MethodBinder::bind_method(D_METHOD("autotile_set_z_index", {"id", "coord", "z_index"}), &TileSet::autotile_set_z_index);
-    MethodBinder::bind_method(D_METHOD("autotile_get_z_index", {"id", "coord"}), &TileSet::autotile_get_z_index);
-    MethodBinder::bind_method(D_METHOD("autotile_set_light_occluder", {"id", "light_occluder", "coord"}), &TileSet::autotile_set_light_occluder);
-    MethodBinder::bind_method(D_METHOD("autotile_get_light_occluder", {"id", "coord"}), &TileSet::autotile_get_light_occluder);
-    MethodBinder::bind_method(D_METHOD("autotile_set_navigation_polygon", {"id", "navigation_polygon", "coord"}), &TileSet::autotile_set_navigation_polygon);
-    MethodBinder::bind_method(D_METHOD("autotile_get_navigation_polygon", {"id", "coord"}), &TileSet::autotile_get_navigation_polygon);
-    MethodBinder::bind_method(D_METHOD("autotile_set_bitmask", {"id", "bitmask", "flag"}), &TileSet::autotile_set_bitmask);
-    MethodBinder::bind_method(D_METHOD("autotile_get_bitmask", {"id", "coord"}), &TileSet::autotile_get_bitmask);
-    MethodBinder::bind_method(D_METHOD("autotile_set_bitmask_mode", {"id", "mode"}), &TileSet::autotile_set_bitmask_mode);
-    MethodBinder::bind_method(D_METHOD("autotile_get_bitmask_mode", {"id"}), &TileSet::autotile_get_bitmask_mode);
-    MethodBinder::bind_method(D_METHOD("autotile_set_spacing", {"id", "spacing"}), &TileSet::autotile_set_spacing);
-    MethodBinder::bind_method(D_METHOD("autotile_get_spacing", {"id"}), &TileSet::autotile_get_spacing);
-    MethodBinder::bind_method(D_METHOD("autotile_set_size", {"id", "size"}), &TileSet::autotile_set_size);
-    MethodBinder::bind_method(D_METHOD("autotile_get_size", {"id"}), &TileSet::autotile_get_size);
-    MethodBinder::bind_method(D_METHOD("tile_set_name", {"id", "name"}), &TileSet::tile_set_name);
-    MethodBinder::bind_method(D_METHOD("tile_get_name", {"id"}), &TileSet::tile_get_name);
-    MethodBinder::bind_method(D_METHOD("tile_set_texture", {"id", "texture"}), &TileSet::tile_set_texture);
-    MethodBinder::bind_method(D_METHOD("tile_get_texture", {"id"}), &TileSet::tile_get_texture);
-    MethodBinder::bind_method(D_METHOD("tile_set_normal_map", {"id", "normal_map"}), &TileSet::tile_set_normal_map);
-    MethodBinder::bind_method(D_METHOD("tile_get_normal_map", {"id"}), &TileSet::tile_get_normal_map);
-    MethodBinder::bind_method(D_METHOD("tile_set_material", {"id", "material"}), &TileSet::tile_set_material);
-    MethodBinder::bind_method(D_METHOD("tile_get_material", {"id"}), &TileSet::tile_get_material);
-    MethodBinder::bind_method(D_METHOD("tile_set_modulate", {"id", "color"}), &TileSet::tile_set_modulate);
-    MethodBinder::bind_method(D_METHOD("tile_get_modulate", {"id"}), &TileSet::tile_get_modulate);
-    MethodBinder::bind_method(D_METHOD("tile_set_texture_offset", {"id", "texture_offset"}), &TileSet::tile_set_texture_offset);
-    MethodBinder::bind_method(D_METHOD("tile_get_texture_offset", {"id"}), &TileSet::tile_get_texture_offset);
-    MethodBinder::bind_method(D_METHOD("tile_set_region", {"id", "region"}), &TileSet::tile_set_region);
-    MethodBinder::bind_method(D_METHOD("tile_get_region", {"id"}), &TileSet::tile_get_region);
-    MethodBinder::bind_method(D_METHOD("tile_set_shape", {"id", "shape_id", "shape"}), &TileSet::tile_set_shape);
-    MethodBinder::bind_method(D_METHOD("tile_get_shape", {"id", "shape_id"}), &TileSet::tile_get_shape);
-    MethodBinder::bind_method(D_METHOD("tile_set_shape_offset", {"id", "shape_id", "shape_offset"}), &TileSet::tile_set_shape_offset);
-    MethodBinder::bind_method(D_METHOD("tile_get_shape_offset", {"id", "shape_id"}), &TileSet::tile_get_shape_offset);
-    MethodBinder::bind_method(D_METHOD("tile_set_shape_transform", {"id", "shape_id", "shape_transform"}), &TileSet::tile_set_shape_transform);
-    MethodBinder::bind_method(D_METHOD("tile_get_shape_transform", {"id", "shape_id"}), &TileSet::tile_get_shape_transform);
-    MethodBinder::bind_method(D_METHOD("tile_set_shape_one_way", {"id", "shape_id", "one_way"}), &TileSet::tile_set_shape_one_way);
-    MethodBinder::bind_method(D_METHOD("tile_get_shape_one_way", {"id", "shape_id"}), &TileSet::tile_get_shape_one_way);
-    MethodBinder::bind_method(D_METHOD("tile_set_shape_one_way_margin", {"id", "shape_id", "one_way"}), &TileSet::tile_set_shape_one_way_margin);
-    MethodBinder::bind_method(D_METHOD("tile_get_shape_one_way_margin", {"id", "shape_id"}), &TileSet::tile_get_shape_one_way_margin);
+    BIND_METHOD(TileSet,create_tile);
+    BIND_METHOD(TileSet,autotile_clear_bitmask_map);
+    BIND_METHOD(TileSet,autotile_set_icon_coordinate);
+    BIND_METHOD(TileSet,autotile_get_icon_coordinate);
+    BIND_METHOD(TileSet,autotile_set_subtile_priority);
+    BIND_METHOD(TileSet,autotile_get_subtile_priority);
+    BIND_METHOD(TileSet,autotile_set_z_index);
+    BIND_METHOD(TileSet,autotile_get_z_index);
+    BIND_METHOD(TileSet,autotile_set_light_occluder);
+    BIND_METHOD(TileSet,autotile_get_light_occluder);
+    BIND_METHOD(TileSet,autotile_set_navigation_polygon);
+    BIND_METHOD(TileSet,autotile_get_navigation_polygon);
+    BIND_METHOD(TileSet,autotile_set_bitmask);
+    BIND_METHOD(TileSet,autotile_get_bitmask);
+    BIND_METHOD(TileSet,autotile_set_bitmask_mode);
+    BIND_METHOD(TileSet,autotile_get_bitmask_mode);
+    BIND_METHOD(TileSet,autotile_set_spacing);
+    BIND_METHOD(TileSet,autotile_get_spacing);
+    BIND_METHOD(TileSet,autotile_set_size);
+    BIND_METHOD(TileSet,autotile_get_size);
+    BIND_METHOD(TileSet,tile_set_name);
+    BIND_METHOD(TileSet,tile_get_name);
+    BIND_METHOD(TileSet,tile_set_texture);
+    BIND_METHOD(TileSet,tile_get_texture);
+    BIND_METHOD(TileSet,tile_set_normal_map);
+    BIND_METHOD(TileSet,tile_get_normal_map);
+    BIND_METHOD(TileSet,tile_set_material);
+    BIND_METHOD(TileSet,tile_get_material);
+    BIND_METHOD(TileSet,tile_set_modulate);
+    BIND_METHOD(TileSet,tile_get_modulate);
+    BIND_METHOD(TileSet,tile_set_texture_offset);
+    BIND_METHOD(TileSet,tile_get_texture_offset);
+    BIND_METHOD(TileSet,tile_set_region);
+    BIND_METHOD(TileSet,tile_get_region);
+    BIND_METHOD(TileSet,tile_set_shape);
+    BIND_METHOD(TileSet,tile_get_shape);
+    BIND_METHOD(TileSet,tile_set_shape_offset);
+    BIND_METHOD(TileSet,tile_get_shape_offset);
+    BIND_METHOD(TileSet,tile_set_shape_transform);
+    BIND_METHOD(TileSet,tile_get_shape_transform);
+    BIND_METHOD(TileSet,tile_set_shape_one_way);
+    BIND_METHOD(TileSet,tile_get_shape_one_way);
+    BIND_METHOD(TileSet,tile_set_shape_one_way_margin);
+    BIND_METHOD(TileSet,tile_get_shape_one_way_margin);
     MethodBinder::bind_method(D_METHOD("tile_add_shape", {"id", "shape", "shape_transform", "one_way", "autotile_coord"}), &TileSet::tile_add_shape, {DEFVAL(false), DEFVAL(Vector2())});
-    MethodBinder::bind_method(D_METHOD("tile_get_shape_count", {"id"}), &TileSet::tile_get_shape_count);
+    BIND_METHOD(TileSet,tile_get_shape_count);
     MethodBinder::bind_method(D_METHOD("tile_set_shapes", {"id", "shapes"}), &TileSet::_tile_set_shapes);
     MethodBinder::bind_method(D_METHOD("tile_get_shapes", {"id"}), &TileSet::_tile_get_shapes);
-    MethodBinder::bind_method(D_METHOD("tile_set_tile_mode", {"id", "tilemode"}), &TileSet::tile_set_tile_mode);
-    MethodBinder::bind_method(D_METHOD("tile_get_tile_mode", {"id"}), &TileSet::tile_get_tile_mode);
-    MethodBinder::bind_method(D_METHOD("tile_set_navigation_polygon", {"id", "navigation_polygon"}), &TileSet::tile_set_navigation_polygon);
-    MethodBinder::bind_method(D_METHOD("tile_get_navigation_polygon", {"id"}), &TileSet::tile_get_navigation_polygon);
-    MethodBinder::bind_method(D_METHOD("tile_set_navigation_polygon_offset", {"id", "navigation_polygon_offset"}), &TileSet::tile_set_navigation_polygon_offset);
-    MethodBinder::bind_method(D_METHOD("tile_get_navigation_polygon_offset", {"id"}), &TileSet::tile_get_navigation_polygon_offset);
-    MethodBinder::bind_method(D_METHOD("tile_set_light_occluder", {"id", "light_occluder"}), &TileSet::tile_set_light_occluder);
-    MethodBinder::bind_method(D_METHOD("tile_get_light_occluder", {"id"}), &TileSet::tile_get_light_occluder);
-    MethodBinder::bind_method(D_METHOD("tile_set_occluder_offset", {"id", "occluder_offset"}), &TileSet::tile_set_occluder_offset);
-    MethodBinder::bind_method(D_METHOD("tile_get_occluder_offset", {"id"}), &TileSet::tile_get_occluder_offset);
-    MethodBinder::bind_method(D_METHOD("tile_set_z_index", {"id", "z_index"}), &TileSet::tile_set_z_index);
-    MethodBinder::bind_method(D_METHOD("tile_get_z_index", {"id"}), &TileSet::tile_get_z_index);
+    BIND_METHOD(TileSet,tile_set_tile_mode);
+    BIND_METHOD(TileSet,tile_get_tile_mode);
+    BIND_METHOD(TileSet,tile_set_navigation_polygon);
+    BIND_METHOD(TileSet,tile_get_navigation_polygon);
+    BIND_METHOD(TileSet,tile_set_navigation_polygon_offset);
+    BIND_METHOD(TileSet,tile_get_navigation_polygon_offset);
+    BIND_METHOD(TileSet,tile_set_light_occluder);
+    BIND_METHOD(TileSet,tile_get_light_occluder);
+    BIND_METHOD(TileSet,tile_set_occluder_offset);
+    BIND_METHOD(TileSet,tile_get_occluder_offset);
+    BIND_METHOD(TileSet,tile_set_z_index);
+    BIND_METHOD(TileSet,tile_get_z_index);
 
-    MethodBinder::bind_method(D_METHOD("remove_tile", {"id"}), &TileSet::remove_tile);
-    MethodBinder::bind_method(D_METHOD("clear"), &TileSet::clear);
-    MethodBinder::bind_method(D_METHOD("get_last_unused_tile_id"), &TileSet::get_last_unused_tile_id);
-    MethodBinder::bind_method(D_METHOD("find_tile_by_name", {"name"}), &TileSet::find_tile_by_name);
+    BIND_METHOD(TileSet,remove_tile);
+    BIND_METHOD(TileSet,clear);
+    BIND_METHOD(TileSet,get_last_unused_tile_id);
+    BIND_METHOD(TileSet,find_tile_by_name);
     MethodBinder::bind_method(D_METHOD("get_tiles_ids"), &TileSet::_get_tiles_ids);
 
-    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_is_tile_bound", PropertyInfo(VariantType::INT, "drawn_id"), PropertyInfo(VariantType::INT, "neighbor_id")));
-    BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_forward_subtile_selection", PropertyInfo(VariantType::INT, "autotile_id"), PropertyInfo(VariantType::INT, "bitmask"), PropertyInfo(VariantType::OBJECT, "tilemap", PropertyHint::None, "TileMap"), PropertyInfo(VariantType::VECTOR2, "tile_location")));
-    BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_forward_atlas_subtile_selection", PropertyInfo(VariantType::INT, "atlastile_id"), PropertyInfo(VariantType::OBJECT, "tilemap", PropertyHint::None, "TileMap"), PropertyInfo(VariantType::VECTOR2, "tile_location")));
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_is_tile_bound", PropertyInfo(VariantType::INT, "drawn_id"),
+            PropertyInfo(VariantType::INT, "neighbor_id")));
+    BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_forward_subtile_selection",
+            PropertyInfo(VariantType::INT, "autotile_id"), PropertyInfo(VariantType::INT, "bitmask"),
+            PropertyInfo(VariantType::OBJECT, "tilemap", PropertyHint::None, "TileMap"),
+            PropertyInfo(VariantType::VECTOR2, "tile_location")));
+    BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_forward_atlas_subtile_selection",
+            PropertyInfo(VariantType::INT, "atlastile_id"),
+            PropertyInfo(VariantType::OBJECT, "tilemap", PropertyHint::None, "TileMap"),
+            PropertyInfo(VariantType::VECTOR2, "tile_location")));
 
     BIND_ENUM_CONSTANT(BITMASK_2X2);
     BIND_ENUM_CONSTANT(BITMASK_3X3_MINIMAL);

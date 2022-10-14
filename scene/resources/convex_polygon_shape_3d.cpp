@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "convex_polygon_shape_3d.h"
-#include "core/math/quick_hull.h"
+#include "core/math/convex_hull.h"
 #include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 
@@ -42,7 +42,7 @@ Vector<Vector3> ConvexPolygonShape3D::get_debug_mesh_lines() {
     if (points.size() > 3) {
 
         Geometry::MeshData md;
-        Error err = QuickHull::build(points, md);
+        Error err = ConvexHullComputer::convex_hull(points, md);
         if (err == OK) {
             Vector<Vector3> lines;
             lines.resize(md.edges.size() * 2);
@@ -81,8 +81,8 @@ real_t ConvexPolygonShape3D::get_enclosing_radius() const {
 
 void ConvexPolygonShape3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_points", {"points"}), &ConvexPolygonShape3D::set_points);
-    MethodBinder::bind_method(D_METHOD("get_points"), &ConvexPolygonShape3D::get_points);
+    BIND_METHOD(ConvexPolygonShape3D,set_points);
+    BIND_METHOD(ConvexPolygonShape3D,get_points);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "points"), "set_points", "get_points");
 }

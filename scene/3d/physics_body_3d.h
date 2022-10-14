@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  physics_body_3d.h                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -56,23 +56,11 @@ public:
     virtual Vector3 get_angular_velocity() const;
     virtual float get_inverse_mass() const;
 
-    void set_collision_layer(uint32_t p_layer);
-    uint32_t get_collision_layer() const;
-
-    void set_collision_mask(uint32_t p_mask);
-    uint32_t get_collision_mask() const;
-
-    void set_collision_layer_bit(int p_bit, bool p_value);
-    bool get_collision_layer_bit(int p_bit) const;
-
-    void set_collision_mask_bit(int p_bit, bool p_value);
-    bool get_collision_mask_bit(int p_bit) const;
 
     Array get_collision_exceptions();
     void add_collision_exception_with(Node *p_node); //must be physicsbody
     void remove_collision_exception_with(Node *p_node);
 
-    PhysicsBody3D();
 };
 
 class GODOT_EXPORT StaticBody3D : public PhysicsBody3D {
@@ -151,7 +139,7 @@ protected:
                 return body_shape < p_sp.body_shape;
         }
 
-        ShapePair() {}
+        ShapePair() = default;
         ShapePair(int p_bs, int p_ls) {
             body_shape = p_bs;
             local_shape = p_ls;
@@ -160,12 +148,13 @@ protected:
     };
     struct RigidBody_RemoveAction {
 
-        ObjectID body_id;
+        RID rid;
         ShapePair pair;
+        GameEntity body_id;
     };
     struct BodyState {
 
-        //int rc;
+        RID rid;
         bool in_tree;
         VSet<ShapePair> shapes;
     };
@@ -173,14 +162,14 @@ protected:
     struct ContactMonitor {
 
         bool locked;
-        HashMap<ObjectID, BodyState> body_map;
+        HashMap<GameEntity, BodyState> body_map;
     };
 
     ContactMonitor *contact_monitor;
-    void _body_enter_tree(ObjectID p_id);
-    void _body_exit_tree(ObjectID p_id);
+    void _body_enter_tree(GameEntity p_id);
+    void _body_exit_tree(GameEntity p_id);
 
-    void _body_inout(int p_status, ObjectID p_instance, int p_body_shape, int p_local_shape);
+    void _body_inout(int p_status, const RID &p_body, GameEntity p_instance, int p_body_shape, int p_local_shape);
     virtual void _direct_state_changed(Object *p_state);
 
     void _notification(int p_what);
@@ -268,45 +257,63 @@ class GODOT_EXPORT KinematicBody3D : public PhysicsBody3D {
     GDCLASS(KinematicBody3D,PhysicsBody3D)
 
 public:
+    enum MovingPlatformApplyVelocityOnLeave : int8_t {
+        PLATFORM_VEL_ON_LEAVE_ALWAYS,
+        PLATFORM_VEL_ON_LEAVE_UPWARD_ONLY,
+        PLATFORM_VEL_ON_LEAVE_NEVER,
+    };
     struct Collision {
         Vector3 collision;
         Vector3 normal;
         Vector3 collider_vel;
-        ObjectID collider;
-        RID collider_rid;
-        int collider_shape;
-        Variant collider_metadata;
         Vector3 remainder;
         Vector3 travel;
+        RID collider_rid;
+        Variant collider_metadata;
+        GameEntity collider;
+        int collider_shape;
         int local_shape;
+        real_t get_angle(const Vector3 &p_up_direction) const {
+            return Math::acos(normal.dot(p_up_direction));
+        }
     };
 
 private:
-    uint16_t locked_axis;
+    uint16_t locked_axis = 0;
 
     float margin;
 
     Vector3 floor_normal;
     Vector3 floor_velocity;
     RID on_floor_body;
-    bool on_floor;
-    bool on_ceiling;
-    bool on_wall;
+    MovingPlatformApplyVelocityOnLeave moving_platform_apply_velocity_on_leave = PLATFORM_VEL_ON_LEAVE_ALWAYS;
+    bool on_floor = false;
+    bool on_ceiling = false;
+    bool on_wall = false;
+    bool sync_to_physics = false;
     Vector<Collision> colliders;
     Vector<Ref<KinematicCollision> > slide_colliders;
     Ref<KinematicCollision> motion_cache;
 public:
-    bool _ignores_mode(PhysicsServer3D::BodyMode) const;
 
     Ref<KinematicCollision> _move(const Vector3 &p_motion, bool p_infinite_inertia = true, bool p_exclude_raycast_shapes = true, bool p_test_only = false);
     Ref<KinematicCollision> _get_slide_collision(int p_bounce);
+    Ref<KinematicCollision> _get_last_slide_collision();
+
+    Transform last_valid_transform;
+    void _direct_state_changed(Object *p_state);
+
+    Vector3 _move_and_slide_internal(const Vector3 &p_linear_velocity, const Vector3 &p_snap, const Vector3 &p_up_direction = Vector3(0, 0, 0), bool p_stop_on_slope = false, int p_max_slides = 4, float p_floor_max_angle = Math::deg2rad((float)45), bool p_infinite_inertia = true);
+    void _set_collision_direction(const Collision &p_collision, const Vector3 &p_up_direction, float p_floor_max_angle);
+    void set_moving_platform_apply_velocity_on_leave(MovingPlatformApplyVelocityOnLeave p_on_leave_velocity);
+    MovingPlatformApplyVelocityOnLeave get_moving_platform_apply_velocity_on_leave() const;
 
 protected:
     void _notification(int p_what);
     static void _bind_methods();
 
 public:
-    bool move_and_collide(const Vector3 &p_motion, bool p_infinite_inertia, Collision &r_collision, bool p_exclude_raycast_shapes = true, bool p_test_only = false);
+    bool move_and_collide(const Vector3 &p_motion, bool p_infinite_inertia, Collision &r_collision, bool p_exclude_raycast_shapes = true, bool p_test_only = false, bool p_cancel_sliding = true, const Set<RID> &p_exclude = Set<RID>());
     bool test_move(const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia);
 
     bool separate_raycast_shapes(bool p_infinite_inertia, Collision &r_collision);
@@ -323,11 +330,14 @@ public:
     bool is_on_wall() const;
     bool is_on_ceiling() const;
     Vector3 get_floor_normal() const;
+    real_t get_floor_angle(const Vector3 &p_up_direction = Vector3(0.0, 1.0, 0.0)) const;
     Vector3 get_floor_velocity() const { return floor_velocity; }
 
     int get_slide_count() const;
     Collision get_slide_collision(int p_bounce) const;
 
+    void set_sync_to_physics(bool p_enable);
+    bool is_sync_to_physics_enabled() const;
     KinematicBody3D();
     ~KinematicBody3D() override;
 };
@@ -348,9 +358,11 @@ public:
     Vector3 get_normal() const;
     Vector3 get_travel() const;
     Vector3 get_remainder() const;
+    real_t get_angle(const Vector3 &p_up_direction = Vector3(0.0, 1.0, 0.0)) const;
     Object *get_local_shape() const;
     Object *get_collider() const;
-    ObjectID get_collider_id() const;
+    GameEntity get_collider_id() const;
+    RID get_collider_rid() const;
     Object *get_collider_shape() const;
     int get_collider_shape_index() const;
     Vector3 get_collider_velocity() const;
@@ -377,7 +389,7 @@ public:
         virtual JointType get_joint_type() { return JOINT_TYPE_NONE; }
 
         /// "j" is used to set the parameter inside the PhysicsServer3D
-        virtual bool _set(const StringName &p_name, const Variant &p_value, RID j = RID());
+        virtual bool _set(const StringName &p_name, const Variant &p_value, RID j);
         virtual bool _get(const StringName &p_name, Variant &r_ret) const;
         virtual void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
@@ -387,7 +399,7 @@ public:
     struct PinJointData : public JointData {
         JointType get_joint_type() override { return JOINT_TYPE_PIN; }
 
-        bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
+        bool _set(const StringName &p_name, const Variant &p_value, RID j) override;
         bool _get(const StringName &p_name, Variant &r_ret) const override;
         void _get_property_list(Vector<PropertyInfo> *p_list) const override;
 
@@ -404,7 +416,7 @@ public:
     struct ConeJointData : public JointData {
         JointType get_joint_type() override { return JOINT_TYPE_CONE; }
 
-        bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
+        bool _set(const StringName &p_name, const Variant &p_value, RID j) override;
         bool _get(const StringName &p_name, Variant &r_ret) const override;
         void _get_property_list(Vector<PropertyInfo> *p_list) const override;
 
@@ -425,7 +437,7 @@ public:
     struct HingeJointData : public JointData {
         JointType get_joint_type() override { return JOINT_TYPE_HINGE; }
 
-        bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
+        bool _set(const StringName &p_name, const Variant &p_value, RID j) override;
         bool _get(const StringName &p_name, Variant &r_ret) const override;
         void _get_property_list(Vector<PropertyInfo> *p_list) const override;
 
@@ -448,7 +460,7 @@ public:
     struct SliderJointData : public JointData {
         JointType get_joint_type() override { return JOINT_TYPE_SLIDER; }
 
-        bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
+        bool _set(const StringName &p_name, const Variant &p_value, RID j) override;
         bool _get(const StringName &p_name, Variant &r_ret) const override;
         void _get_property_list(Vector<PropertyInfo> *p_list) const override;
 
@@ -503,7 +515,7 @@ public:
 
         JointType get_joint_type() override { return JOINT_TYPE_6DOF; }
 
-        bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
+        bool _set(const StringName &p_name, const Variant &p_value, RID j) override;
         bool _get(const StringName &p_name, Variant &r_ret) const override;
         void _get_property_list(Vector<PropertyInfo> *p_list) const override;
 

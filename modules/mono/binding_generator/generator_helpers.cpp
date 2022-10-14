@@ -1,4 +1,4 @@
-#include "generator_helpers.h"
+﻿#include "generator_helpers.h"
 #include "type_system.h"
 
 #include "core/string_utils.h"
@@ -38,11 +38,9 @@ void print_verbose(StringView p_string) {
 }
 String itos(int64_t v) {
     char buf[32];
-    snprintf(buf,31,"%zd",v);
+    snprintf(buf,31,"%ld",v);
     return buf;
 }
-
-
 
 String c_func_name_to_cs(StringView method_name) {
     String class_name;
@@ -92,7 +90,7 @@ static bool is_csharp_keyword(StringView p_name) {
             "do" ,"double" ,"else" ,"enum" ,
             "event" ,"explicit" ,"extern" ,"false" ,
             "finally" ,"fixed" ,"float" ,"for" ,
-            "forech" ,"goto" ,"if" ,"implicit" ,
+            "foreach" ,"goto" ,"if" ,"implicit" ,
             "in" ,"int" ,"interface" ,"internal" ,
             "is" ,"lock" ,"long" ,"namespace" ,
             "new" ,"null" ,"object" ,"operator" ,

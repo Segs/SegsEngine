@@ -1,7 +1,9 @@
 #pragma once
 
+#include "core/reflection_macros.h"
 #include "core/os/memory.h"
 #include "core/hashfuncs.h"
+
 #include "EASTL/string.h"
 #include "EASTL/fixed_string.h"
 
@@ -11,12 +13,14 @@ template<int node_count, bool bEnableOverflow = true>
 using TmpString = eastl::fixed_string<char,node_count,bEnableOverflow,wrap_allocator>;
 
 using StringView = eastl::basic_string_view<char>;
+SE_OPAQUE_TYPE(String)
+SE_OPAQUE_TYPE(StringView)
 #ifdef GODOT_EXPORTS
 // make a single instantiation of the template available for the engine build, but not to the projects using the engine
-extern template class eastl::basic_string<char, wrap_allocator>;
+extern template class EXPORT_TEMPLATE_DECL eastl::basic_string<char, wrap_allocator>;
 #endif
 constexpr char c_cursor_marker(-1); // invalid utf8 char to symbolize a cursor in a string
-extern GODOT_EXPORT const String null_string; // used to return 'null' string reference
+GODOT_EXPORT extern const String null_string; // used to return 'null' string reference
 
 template<>
 struct Hasher<String> {

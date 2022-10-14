@@ -64,18 +64,18 @@ void Navigation3D::set_edge_connection_margin(float p_edge_connection_margin) {
 
 void Navigation3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_rid"), &Navigation3D::get_rid);
+    BIND_METHOD(Navigation3D,get_rid);
 
     MethodBinder::bind_method(D_METHOD("get_simple_path", {"start", "end", "optimize"}),&Navigation3D::get_simple_path, {DEFVAL(true)});
 
-    MethodBinder::bind_method(D_METHOD("set_up_vector", {"up"}),&Navigation3D::set_up_vector);
-    MethodBinder::bind_method(D_METHOD("get_up_vector"), &Navigation3D::get_up_vector);
+    BIND_METHOD(Navigation3D,set_up_vector);
+    BIND_METHOD(Navigation3D,get_up_vector);
 
-    MethodBinder::bind_method(D_METHOD("set_cell_size", {"cell_size"}),&Navigation3D::set_cell_size);
-    MethodBinder::bind_method(D_METHOD("get_cell_size"), &Navigation3D::get_cell_size);
+    BIND_METHOD(Navigation3D,set_cell_size);
+    BIND_METHOD(Navigation3D,get_cell_size);
 
-    MethodBinder::bind_method(D_METHOD("set_edge_connection_margin", {"margin"}),&Navigation3D::set_edge_connection_margin);
-    MethodBinder::bind_method(D_METHOD("get_edge_connection_margin"), &Navigation3D::get_edge_connection_margin);
+    BIND_METHOD(Navigation3D,set_edge_connection_margin);
+    BIND_METHOD(Navigation3D,get_edge_connection_margin);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "up_vector"), "set_up_vector", "get_up_vector");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "cell_size"), "set_cell_size", "get_cell_size");
@@ -105,5 +105,5 @@ Navigation3D::Navigation3D() {
 }
 
 Navigation3D::~Navigation3D() {
-    NavigationServer::get_singleton()->free(map);
+    NavigationServer::get_singleton()->free_rid(map);
 }

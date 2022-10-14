@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  tile_map.h                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -43,13 +43,13 @@ class GODOT_EXPORT TileMap : public Node2D {
     GDCLASS(TileMap,Node2D)
 
 public:
-    enum Mode {
+    enum Mode : int8_t {
         MODE_SQUARE,
         MODE_ISOMETRIC,
         MODE_CUSTOM
     };
 
-    enum HalfOffset {
+    enum HalfOffset : int8_t {
         HALF_OFFSET_X,
         HALF_OFFSET_Y,
         HALF_OFFSET_DISABLED,
@@ -57,28 +57,29 @@ public:
         HALF_OFFSET_NEGATIVE_Y,
     };
 
-    enum TileOrigin {
+    enum TileOrigin : int8_t {
         TILE_ORIGIN_TOP_LEFT,
         TILE_ORIGIN_CENTER,
         TILE_ORIGIN_BOTTOM_LEFT
     };
 
 private:
-    enum DataFormat {
+    enum DataFormat : int8_t {
         FORMAT_1 = 0,
         FORMAT_2
     };
 
     Ref<TileSet> tile_set;
     Size2i cell_size;
+    Transform2D custom_transform;
+    CollisionObject2D *collision_parent;
+    Navigation2D *navigation;
     int quadrant_size;
     Mode mode;
-    Transform2D custom_transform;
     HalfOffset half_offset;
     bool use_parent;
-    CollisionObject2D *collision_parent;
     bool use_kinematic;
-    Navigation2D *navigation;
+    bool show_collision = false;
 
     union PosKey {
 
@@ -131,7 +132,7 @@ private:
     struct Quadrant {
 
         Vector2 pos;
-        Vector<RID> canvas_items;
+        Vector<RenderingEntity> canvas_items;
         RID body;
         uint32_t shape_owner_id;
 
@@ -143,7 +144,7 @@ private:
         };
 
         struct Occluder {
-            RID id;
+            RenderingEntity id;
             Transform2D xform;
         };
 
@@ -151,6 +152,8 @@ private:
         HashMap<PosKey, Occluder> occluder_instances;
 
         VSet<PosKey> cells;
+
+        void clear_navpoly();
 
         void operator=(const Quadrant &q) {
             pos = q.pos;
@@ -215,7 +218,7 @@ private:
     void _recompute_rect_cache();
 
     void _update_all_items_material_state();
-    _FORCE_INLINE_ void _update_item_material_state(const RID &p_canvas_item);
+    _FORCE_INLINE_ void _update_item_material_state(RenderingEntity p_canvas_item);
 
     _FORCE_INLINE_ int _get_quadrant_size() const;
 
@@ -265,7 +268,8 @@ public:
     Vector2 get_cell_autotile_coord(int p_x, int p_y) const;
 
     void _set_celld(const Vector2 &p_pos, const Dictionary &p_data);
-    void set_cellv(const Vector2 &p_pos, int p_tile, bool p_flip_x = false, bool p_flip_y = false, bool p_transpose = false);
+    void set_cellv(const Vector2 &p_pos, int p_tile, bool p_flip_x = false, bool p_flip_y = false,
+            bool p_transpose = false, Vector2 p_autotile_coord = Vector2());
     int get_cellv(const Vector2 &p_pos) const;
 
     void make_bitmask_area_dirty(const Vector2 &p_pos);
@@ -275,6 +279,9 @@ public:
     void update_dirty_bitmask();
 
     void update_dirty_quadrants();
+
+	void set_show_collision(bool p_value);
+	bool is_show_collision_enabled() const;
 
     void set_collision_layer(uint32_t p_layer);
     uint32_t get_collision_layer() const;

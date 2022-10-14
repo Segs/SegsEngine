@@ -262,9 +262,6 @@
         <member name="physics_object_picking" type="bool" setter="set_physics_object_picking" getter="get_physics_object_picking" default="false">
             If [code]true[/code], the objects rendered by viewport become subjects of mouse picking process.
         </member>
-        <member name="render_direct_to_screen" type="bool" setter="set_use_render_direct_to_screen" getter="is_using_render_direct_to_screen" default="false">
-            If [code]true[/code], renders the Viewport directly to the screen instead of to the root viewport. Only available in GLES2. This is a low-level optimization and should not be used in most cases. If used, reading from the Viewport or from [code]SCREEN_TEXTURE[/code] becomes unavailable. For more information see [method RenderingServer.viewport_set_render_direct_to_screen].
-        </member>
         <member name="render_target_clear_mode" type="int" setter="set_clear_mode" getter="get_clear_mode" enum="Viewport.ClearMode" default="0">
             The clear mode when viewport used as a render target.
             [b]Note:[/b] This property is intended for 2D usage.
@@ -303,7 +300,7 @@
         <member name="usage" type="int" setter="set_usage" getter="get_usage" enum="Viewport.Usage" default="2">
             The rendering mode of viewport.
         </member>
-        <member name="world" type="World3D" setter="set_world" getter="get_world">
+        <member name="world_3d" type="World3D" setter="set_world_3d" getter="get_world_3d">
             The custom [World3D] which can be used as 3D environment source.
         </member>
         <member name="world_2d" type="World2D" setter="set_world_2d" getter="get_world_2d">

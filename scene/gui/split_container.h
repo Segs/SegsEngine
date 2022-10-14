@@ -38,22 +38,22 @@ class GODOT_EXPORT SplitContainer : public Container {
 	GDCLASS(SplitContainer,Container)
 
 public:
-	enum DraggerVisibility {
+    enum DraggerVisibility : uint8_t {
 		DRAGGER_VISIBLE,
 		DRAGGER_HIDDEN,
 		DRAGGER_HIDDEN_COLLAPSED
 	};
 
 private:
-	bool should_clamp_split_offset;
 	int split_offset;
 	int middle_sep;
+    int drag_from;
+    int drag_ofs;
+    DraggerVisibility dragger_visibility;
+    bool should_clamp_split_offset;
 	bool vertical;
 	bool dragging;
-	int drag_from;
-	int drag_ofs;
 	bool collapsed;
-	DraggerVisibility dragger_visibility;
 	bool mouse_inside;
 
 	Control *_getch(int p_idx) const;

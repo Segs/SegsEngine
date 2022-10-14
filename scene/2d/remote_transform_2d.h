@@ -39,7 +39,7 @@ class GODOT_EXPORT RemoteTransform2D : public Node2D {
 
 	NodePath remote_node;
 
-	ObjectID cache;
+	GameEntity cache;
 
 	bool use_global_coordinates;
 	bool update_remote_position;

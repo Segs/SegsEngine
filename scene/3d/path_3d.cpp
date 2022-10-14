@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  path_3d.cpp                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -85,9 +85,9 @@ Ref<Curve3D> Path3D::get_curve() const {
 
 void Path3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_curve", {"curve"}), &Path3D::set_curve);
-    MethodBinder::bind_method(D_METHOD("get_curve"), &Path3D::get_curve);
-    MethodBinder::bind_method(D_METHOD("_curve_changed"), &Path3D::_curve_changed);
+    BIND_METHOD(Path3D,set_curve);
+    BIND_METHOD(Path3D,get_curve);
+    BIND_METHOD(Path3D,_curve_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "curve", PropertyHint::ResourceType, "Curve3D"), "set_curve", "get_curve");
 
@@ -116,11 +116,18 @@ void PathFollow3D::_update_transform(bool p_update_xyz_rot) {
     }
     float bi = c->get_bake_interval();
     float o_next = offset + bi;
+    float o_prev = offset - bi;
 
     if (loop) {
         o_next = Math::fposmod(o_next, bl);
-    } else if (rotation_mode == ROTATION_ORIENTED && o_next >= bl) {
-        o_next = bl;
+        o_prev = Math::fposmod(o_prev, bl);
+    } else if (rotation_mode == ROTATION_ORIENTED) {
+        if (o_next >= bl) {
+            o_next = bl;
+        }
+        if (o_prev <= 0) {
+            o_prev = 0;
+        }
     }
 
     Vector3 pos = c->interpolate_baked(offset, cubic);
@@ -131,6 +138,11 @@ void PathFollow3D::_update_transform(bool p_update_xyz_rot) {
     if (rotation_mode == ROTATION_ORIENTED) {
 
         Vector3 forward = c->interpolate_baked(o_next, cubic) - pos;
+
+        // Try with the previous position
+        if (forward.length_squared() < CMP_EPSILON2) {
+            forward = pos - c->interpolate_baked(o_prev, cubic);
+        }
 
         if (forward.length_squared() < CMP_EPSILON2)
             forward = Vector3(0, 0, 1);
@@ -173,7 +185,7 @@ void PathFollow3D::_update_transform(bool p_update_xyz_rot) {
 
             Vector3 axis = t_prev.cross(t_cur);
             float dot = t_prev.dot(t_cur);
-            float angle = Math::acos(CLAMP(dot, -1, 1));
+            float angle = Math::acos(CLAMP(dot, -1.0f, 1.0f));
 
             if (likely(!Math::is_zero_approx(angle))) {
                 if (rotation_mode == ROTATION_Y) {
@@ -290,26 +302,26 @@ String PathFollow3D::get_configuration_warning() const {
 
 void PathFollow3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &PathFollow3D::set_offset);
-    MethodBinder::bind_method(D_METHOD("get_offset"), &PathFollow3D::get_offset);
+    BIND_METHOD(PathFollow3D,set_offset);
+    BIND_METHOD(PathFollow3D,get_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_h_offset", {"h_offset"}), &PathFollow3D::set_h_offset);
-    MethodBinder::bind_method(D_METHOD("get_h_offset"), &PathFollow3D::get_h_offset);
+    BIND_METHOD(PathFollow3D,set_h_offset);
+    BIND_METHOD(PathFollow3D,get_h_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_v_offset", {"v_offset"}), &PathFollow3D::set_v_offset);
-    MethodBinder::bind_method(D_METHOD("get_v_offset"), &PathFollow3D::get_v_offset);
+    BIND_METHOD(PathFollow3D,set_v_offset);
+    BIND_METHOD(PathFollow3D,get_v_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_unit_offset", {"unit_offset"}), &PathFollow3D::set_unit_offset);
-    MethodBinder::bind_method(D_METHOD("get_unit_offset"), &PathFollow3D::get_unit_offset);
+    BIND_METHOD(PathFollow3D,set_unit_offset);
+    BIND_METHOD(PathFollow3D,get_unit_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_rotation_mode", {"rotation_mode"}), &PathFollow3D::set_rotation_mode);
-    MethodBinder::bind_method(D_METHOD("get_rotation_mode"), &PathFollow3D::get_rotation_mode);
+    BIND_METHOD(PathFollow3D,set_rotation_mode);
+    BIND_METHOD(PathFollow3D,get_rotation_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_cubic_interpolation", {"enable"}), &PathFollow3D::set_cubic_interpolation);
-    MethodBinder::bind_method(D_METHOD("get_cubic_interpolation"), &PathFollow3D::get_cubic_interpolation);
+    BIND_METHOD(PathFollow3D,set_cubic_interpolation);
+    BIND_METHOD(PathFollow3D,get_cubic_interpolation);
 
-    MethodBinder::bind_method(D_METHOD("set_loop", {"loop"}), &PathFollow3D::set_loop);
-    MethodBinder::bind_method(D_METHOD("has_loop"), &PathFollow3D::has_loop);
+    BIND_METHOD(PathFollow3D,set_loop);
+    BIND_METHOD(PathFollow3D,has_loop);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "offset", PropertyHint::Range, "0,10000,0.01,or_lesser,or_greater"), "set_offset", "get_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "unit_offset", PropertyHint::Range, "0,1,0.0001,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_unit_offset", "get_unit_offset");
@@ -340,7 +352,7 @@ void PathFollow3D::set_offset(float p_offset) {
                     offset = path_length;
                 }
             } else {
-                offset = CLAMP(offset, 0, path_length);
+                offset = CLAMP<float>(offset, 0, path_length);
             }
         }
 

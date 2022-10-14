@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  animation_cache.cpp                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -118,13 +118,15 @@ void AnimationCache::_update_cache() {
                 if (!sk) {
 
                     path_cache.push_back(Path());
-                    ERR_CONTINUE_MSG(!sk, "Property defined in Transform track, but not a Skeleton!: " + (String)np + ".");
+                    ERR_PRINT("Property defined in Transform track, but not a Skeleton!: " + (String)np + ".");
+                    continue;
                 }
 
                 int idx = sk->find_bone(property);
                 if (idx == -1) {
                     path_cache.push_back(Path());
-                    ERR_CONTINUE_MSG(idx == -1, "Property defined in Transform track, but not a Skeleton Bone!: " + (String)np + ".");
+                    ERR_PRINT("Property defined in Transform track, but not a Skeleton Bone!: " + (String)np + ".");
+                    continue;
                 }
 
                 path.bone_idx = idx;
@@ -182,7 +184,7 @@ void AnimationCache::_update_cache() {
 
         if (!connected_nodes.contains(path.node)) {
             connected_nodes.insert(path.node);
-            path.node->connect("tree_exiting",callable_mp(this, &ClassName::_node_exit_tree), Node::make_binds(Variant(path.node)), ObjectNS::CONNECT_ONESHOT);
+            path.node->connect("tree_exiting", callable_gen(this, [=]() { _node_exit_tree(path.node);}), ObjectNS::CONNECT_ONESHOT);
         }
     }
 
@@ -331,8 +333,8 @@ void AnimationCache::set_animation(const Ref<Animation> &p_animation) {
 
 void AnimationCache::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_node_exit_tree"), &AnimationCache::_node_exit_tree);
-    MethodBinder::bind_method(D_METHOD("_animation_changed"), &AnimationCache::_animation_changed);
+    BIND_METHOD(AnimationCache,_node_exit_tree);
+    BIND_METHOD(AnimationCache,_animation_changed);
 }
 
 void AnimationCache::set_root(Node *p_root) {

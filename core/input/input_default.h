@@ -63,7 +63,9 @@ class InputDefault : public Input {
         uint64_t physics_frame;
         uint64_t idle_frame;
         bool pressed;
+        bool exact;
         float strength;
+        float raw_strength;
     };
 
     HashMap<StringName, Action> action_state;
@@ -88,8 +90,8 @@ class InputDefault : public Input {
         Vector2 speed;
         Vector2 accum;
         float accum_t;
-        float min_ref_frame;
-        float max_ref_frame;
+        float min_ref_frame = 0.1f;
+        float max_ref_frame = 3.0f;
 
         void update(const Vector2 &p_delta_p);
         void reset();
@@ -100,7 +102,7 @@ class InputDefault : public Input {
         StringName name;
         StringName uid;
         float last_axis[JOY_AXIS_MAX];
-        bool last_buttons[JOY_BUTTON_MAX + 19]; //apparently SDL specifies 35 possible buttons on android
+        bool last_buttons[JOY_BUTTON_MAX + 12]; //apparently SDL specifies 35 possible buttons on android
         bool connected;
         int last_hat;
         int mapping;
@@ -111,7 +113,7 @@ class InputDefault : public Input {
 
                 last_axis[i] = 0.0f;
             }
-            for (int i = 0; i < JOY_BUTTON_MAX + 19; i++) {
+            for (int i = 0; i < JOY_BUTTON_MAX + 12; i++) {
 
                 last_buttons[i] = false;
             }
@@ -122,7 +124,7 @@ class InputDefault : public Input {
         }
     };
 
-    SpeedTrack mouse_speed_track;
+    mutable SpeedTrack mouse_speed_track;
     Map<int, SpeedTrack> touch_speed_track;
     Map<int, Joypad> joy_names;
     int fallback_mapping;
@@ -148,11 +150,6 @@ public:
 
     enum {
         JOYPADS_MAX = 16,
-    };
-
-    struct JoyAxis {
-        int min;
-        float value;
     };
 
 private:
@@ -219,21 +216,21 @@ private:
     JoystickList _get_output_axis(String output);
     void _button_event(int p_device, int p_index, bool p_pressed);
     void _axis_event(int p_device, int p_axis, float p_value);
-    float _handle_deadzone(int p_device, int p_axis, float p_value);
 
     void _parse_input_event_impl(const Ref<InputEvent> &p_event, bool p_is_emulated);
-    //TODO: consider switching to deque.
-    List<Ref<InputEvent> > accumulated_events;
+    List<Ref<InputEvent>> buffered_events;
+    bool use_input_buffering;
     bool use_accumulated_input;
 
 public:
     bool is_key_pressed(int p_scancode) const override;
     bool is_mouse_button_pressed(int p_button) const override;
     bool is_joy_button_pressed(int p_device, int p_button) const override;
-    bool is_action_pressed(const StringName &p_action) const override;
-    bool is_action_just_pressed(const StringName &p_action) const override;
-    bool is_action_just_released(const StringName &p_action) const override;
-    float get_action_strength(const StringName &p_action) const override;
+    bool is_action_pressed(const StringName &p_action, bool p_exact = false) const override;
+    bool is_action_just_pressed(const StringName &p_action, bool p_exact = false) const override;
+    bool is_action_just_released(const StringName &p_action, bool p_exact = false) const override;
+    float get_action_strength(const StringName &p_action, bool p_exact = false) const override;
+    float get_action_raw_strength(const StringName &p_action, bool p_exact = false) const override;
 
     float get_joy_axis(int p_device, int p_axis) const override;
     StringName get_joy_name(int p_idx) override;
@@ -242,7 +239,6 @@ public:
     float get_joy_vibration_duration(int p_device) override;
     uint64_t get_joy_vibration_timestamp(int p_device) override;
     void joy_connection_changed(int p_idx, bool p_connected, StringName p_name, StringName p_guid = StringName()) override;
-    void parse_joypad_mapping(UIString p_mapping, bool p_update_existing);
 
     Vector3 get_gravity() const override;
     Vector3 get_accelerometer() const override;
@@ -258,10 +254,10 @@ public:
 
     void parse_input_event(const Ref<InputEvent> &p_event) override;
 
-    void set_gravity(const Vector3 &p_gravity);
-    void set_accelerometer(const Vector3 &p_accel);
-    void set_magnetometer(const Vector3 &p_magnetometer);
-    void set_gyroscope(const Vector3 &p_gyroscope);
+    void set_gravity(const Vector3 &p_gravity) override;
+    void set_accelerometer(const Vector3 &p_accel) override;
+    void set_magnetometer(const Vector3 &p_magnetometer) override;
+    void set_gyroscope(const Vector3 &p_gyroscope) override;
     void set_joy_axis(int p_device, int p_axis, float p_value);
 
     void start_joy_vibration(int p_device, float p_weak_magnitude, float p_strong_magnitude, float p_duration = 0) override;
@@ -290,7 +286,7 @@ public:
 
     void parse_mapping(StringView p_mapping);
     void joy_button(int p_device, int p_button, bool p_pressed);
-    void joy_axis(int p_device, int p_axis, const JoyAxis &p_value);
+    void joy_axis(int p_device, int p_axis, float p_value);
     void joy_hat(int p_device, int p_val);
 
     void add_joy_mapping(StringView p_mapping, bool p_update_existing = false) override;
@@ -309,8 +305,10 @@ public:
     StringName get_joy_guid_remapped(int p_device) const;
     void set_fallback_mapping(const StringName &p_guid);
 
-    void accumulate_input_event(const Ref<InputEvent> &p_event) override;
-    void flush_accumulated_events() override;
+    void flush_buffered_events() override;
+    bool is_using_input_buffering() override;
+    void set_use_input_buffering(bool p_enable) override;
+    bool is_using_accumulated_input() override;
     void set_use_accumulated_input(bool p_enable) override;
 
     virtual void release_pressed_events();

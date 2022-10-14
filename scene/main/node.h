@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  node.h                                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -47,6 +47,21 @@ class NodePath;
 
 enum MultiplayerAPI_RPCMode : int8_t;
 
+// added to all entities (GameEntity) that need xform update.
+struct DirtXFormMarker {
+
+};
+struct InTreeMarkerComponent {
+
+};
+struct GameRenderableComponent {
+    RenderingEntity render_side;
+    GameEntity game_side;
+};
+extern void mark_dirty_xform(GameEntity);
+extern void mark_clean_xform(GameEntity);
+extern bool is_dirty_xfrom(GameEntity);
+
 class GODOT_EXPORT Node : public Object {
 
     GDCLASS(Node,Object)
@@ -63,7 +78,7 @@ public:
         PAUSE_MODE_PROCESS
     };
 
-    enum DuplicateFlags {
+    enum DuplicateFlags : int8_t {
 
         DUPLICATE_SIGNALS = 1,
         DUPLICATE_GROUPS = 2,
@@ -74,6 +89,11 @@ public:
 #endif
     };
 
+    enum NameCasing : int8_t {
+        NAME_CASING_PASCAL_CASE,
+        NAME_CASING_CAMEL_CASE,
+        NAME_CASING_SNAKE_CASE
+    };
     struct GroupInfo {
 
         StringName name;
@@ -107,11 +127,6 @@ private:
     bool inside_tree;
     bool parent_owned;
 
-    enum NameCasing : int8_t {
-        NAME_CASING_PASCAL_CASE,
-        NAME_CASING_CAMEL_CASE,
-        NAME_CASING_SNAKE_CASE
-    };
     static const char *invalid_character;
 
 public:
@@ -130,8 +145,8 @@ public:
     void _propagate_enter_tree();
     void _propagate_ready();
     void _propagate_exit_tree();
-    void _propagate_after_exit_tree();
-    void _propagate_validate_owner();
+    void _propagate_after_exit_branch(bool);
+
     void _print_stray_nodes();
     void _propagate_pause_owner(Node *p_owner);
     Array _get_node_and_resource(const NodePath &p_path);
@@ -152,6 +167,7 @@ private:
 
 #ifdef TOOLS_ENABLED
     friend class SceneTreeEditor;
+public: // _validate_node_name is public in editor builds
 #endif
     static bool _validate_node_name(String &p_name);
 
@@ -161,9 +177,10 @@ protected:
 
     void _notification(int p_notification);
 
-    virtual void add_child_notify(Node *p_child);
-    virtual void remove_child_notify(Node *p_child);
-    virtual void move_child_notify(Node *p_child);
+    //! By default child add/move/remove notifications are no-ops
+    virtual void add_child_notify(Node *p_child) { }
+    virtual void remove_child_notify(Node *p_child) {}
+    virtual void move_child_notify(Node *p_child) { }
 
     void _propagate_replace_owner(Node *p_owner, Node *p_by_owner);
 
@@ -175,6 +192,8 @@ protected:
     void _set_owner_nocheck(Node *p_owner);
     void _set_name_nocheck(const StringName &p_name);
 
+    void _set_use_identity_transform(bool p_enable);
+    bool _is_using_identity_transform() const;
 public:
     enum NodeNotification {
 
@@ -197,6 +216,7 @@ public:
         NOTIFICATION_INTERNAL_PROCESS = 25,
         NOTIFICATION_INTERNAL_PHYSICS_PROCESS = 26,
         NOTIFICATION_POST_ENTER_TREE = 27,
+        NOTIFICATION_RESET_PHYSICS_INTERPOLATION = 28,
         //keep these linked to node
         NOTIFICATION_WM_MOUSE_ENTER = MainLoop::NOTIFICATION_WM_MOUSE_ENTER,
         NOTIFICATION_WM_MOUSE_EXIT = MainLoop::NOTIFICATION_WM_MOUSE_EXIT,
@@ -226,9 +246,12 @@ public:
 
     int get_child_count() const;
     Node *get_child(int p_index) const;
+    const Vector<Node *> &children() const;
+
     bool has_node(const NodePath &p_path) const;
     Node *get_node(const NodePath &p_path) const;
     Node *get_node_or_null(const NodePath &p_path) const;
+    Node *find_node(StringView p_mask, bool p_recursive = true, bool p_owned = true) const;
     bool has_node_and_resource(const NodePath &p_path) const;
     Node *get_node_and_resource(const NodePath &p_path, Ref<Resource> &r_res, Vector<StringName> &r_leftover_subpath, bool p_last_is_property = true) const;
 
@@ -239,7 +262,7 @@ public:
         return tree;
     }
 
-    _FORCE_INLINE_ bool is_inside_tree() const { return inside_tree; }
+    bool is_inside_tree() const { return inside_tree; }
 
     bool is_a_parent_of(const Node *p_node) const;
     bool is_greater_than(const Node *p_node) const;
@@ -260,7 +283,7 @@ public:
 
     void set_owner(Node *p_owner);
     Node *get_owner() const;
-    void get_owned_by(Node *p_by, Vector<Node *> *p_owned);
+    void get_owned_by(Node *p_by, Vector<Node *> &p_owned);
 
     void remove_and_skip();
     int get_index() const;
@@ -276,7 +299,16 @@ public:
 
     void set_editable_instance(Node *p_node, bool p_editable);
     bool is_editable_instance(const Node *p_node) const;
+    Node *get_deepest_editable_node(Node *start_node) const;
 
+#ifdef TOOLS_ENABLED
+    void set_property_pinned(const StringName &p_property, bool p_pinned);
+    bool is_property_pinned(const StringName &p_property) const;
+    virtual StringName get_property_store_alias(const StringName &p_property) const;
+#endif
+    void get_storable_properties(Set<StringName> &r_storable_properties) const;
+
+    String to_string() override;
     /* NOTIFICATIONS */
 
     void propagate_notification(int p_notification);
@@ -299,7 +331,7 @@ public:
     bool is_processing_internal() const;
 
     void set_process_priority(int p_priority);
-    int get_process_priority() const;
+    int get_process_priority() const { return process_priority; }
 
     void set_process_input(bool p_enable);
     bool is_processing_input() const;
@@ -316,6 +348,9 @@ public:
     Node *duplicate_and_reown(const HashMap<Node *, Node *> &p_reown_map) const;
 #ifdef TOOLS_ENABLED
     Node *duplicate_from_editor(HashMap<const Node *, Node *> &r_duplimap) const;
+    Node *duplicate_from_editor(HashMap<const Node *, Node *> &r_duplimap, const HashMap<Ref<Resource>, Ref<Resource>> &p_resource_remap) const;
+    void remap_node_resources(Node *p_node, const HashMap<Ref<Resource>, Ref<Resource>> &p_resource_remap) const;
+    void remap_nested_resources(const Ref<Resource> &p_resource, const HashMap<Ref<Resource>, Ref<Resource>> &p_resource_remap) const;
 #endif
 
     // used by editors, to save what has changed only
@@ -362,11 +397,9 @@ public:
 
     bool is_owned_by_parent() const;
 
-    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
-
     void clear_internal_tree_resource_paths();
 
-    _FORCE_INLINE_ Viewport *get_viewport() const { return viewport; }
+    Viewport *get_viewport() const { return viewport; }
 
     virtual String get_configuration_warning() const;
 
@@ -397,7 +430,7 @@ public:
     void rsetp(int p_peer_id, bool p_unreliable, const StringName &p_property, const Variant &p_value);
 
     Ref<MultiplayerAPI> get_multiplayer() const;
-    Ref<MultiplayerAPI> get_custom_multiplayer() const;
+    const Ref<MultiplayerAPI> &get_custom_multiplayer() const { return multiplayer; }
     void set_custom_multiplayer(Ref<MultiplayerAPI> p_multiplayer);
     MultiplayerAPI_RPCMode get_node_rpc_mode(const StringName &p_method) const;
     MultiplayerAPI_RPCMode get_node_rpc_mode_by_id(const uint16_t p_rpc_method_id) const;
@@ -411,8 +444,6 @@ public:
     Node();
     ~Node() override;
 };
-
-using NodeSet = eastl::set<Node *, Node::Comparator, wrap_allocator>;
 
 #ifdef TOOLS_ENABLED
 // Internal function used by a few editors

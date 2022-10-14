@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  file_access_memory.h                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,8 +35,8 @@
 class FileAccessMemory : public FileAccess {
 
     uint8_t *data;
-    int length;
-    mutable int pos;
+    uint64_t length;
+    mutable uint64_t pos;
 
     static FileAccess *create();
 
@@ -44,27 +44,27 @@ public:
     static void register_file(StringView p_name, const Vector<uint8_t> &p_data);
     static void cleanup();
 
-    virtual Error open_custom(const uint8_t *p_data, int p_len); ///< open a file
+    virtual Error open_custom(const uint8_t *p_data, uint64_t p_len); ///< open a file
     Error _open(StringView p_path, int p_mode_flags) override; ///< open a file
     void close() override; ///< close a file
     bool is_open() const override; ///< true when file is open
 
-    void seek(size_t p_position) override; ///< seek to a given position
+    void seek(uint64_t p_position) override; ///< seek to a given position
     void seek_end(int64_t p_position) override; ///< seek from the end of file
-    size_t get_position() const override; ///< get position in the file
-    size_t get_len() const override; ///< get size of the file
+    uint64_t get_position() const override; ///< get position in the file
+    uint64_t get_len() const override; ///< get size of the file
 
     bool eof_reached() const override; ///< reading passed EOF
 
     uint8_t get_8() const override; ///< get a byte
 
-    int get_buffer(uint8_t *p_dst, int p_length) const override; ///< get an array of bytes
+    uint64_t get_buffer(uint8_t *p_dst, uint64_t p_length) const override; ///< get an array of bytes
 
     Error get_error() const override; ///< get last error
 
     void flush() override;
     void store_8(uint8_t p_byte) override; ///< store a byte
-    void store_buffer(const uint8_t *p_src, int p_length) override; ///< store an array of bytes
+    void store_buffer(const uint8_t *p_src, uint64_t p_length) override; ///< store an array of bytes
 
     bool file_exists(StringView p_name) override; ///< return true if a file exists
 

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_preview_plugins.cpp                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,6 +36,7 @@
 #include "core/method_bind.h"
 #include "core/resource/resource_manager.h"
 #include "core/callable_method_pointer.h"
+#include "core/script_language.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
@@ -57,8 +58,8 @@ IMPL_GDCLASS(EditorFontPreviewPlugin)
 
 void post_process_preview(const Ref<Image> &p_image) {
 
-    if (p_image->get_format() != Image::FORMAT_RGBA8) {
-        p_image->convert(Image::FORMAT_RGBA8);
+    if (p_image->get_format() != ImageData::FORMAT_RGBA8) {
+        p_image->convert(ImageData::FORMAT_RGBA8);
     }
 
     p_image->lock();
@@ -136,8 +137,8 @@ Ref<Texture> EditorTexturePreviewPlugin::generate(const RES &p_from, const Size2
         if (img->decompress() != OK) {
             return Ref<Texture>();
         }
-    } else if (img->get_format() != Image::FORMAT_RGB8 && img->get_format() != Image::FORMAT_RGBA8) {
-        img->convert(Image::FORMAT_RGBA8);
+    } else if (img->get_format() != ImageData::FORMAT_RGB8 && img->get_format() != ImageData::FORMAT_RGBA8) {
+        img->convert(ImageData::FORMAT_RGBA8);
     }
 
     Vector2 new_size = img->get_size();
@@ -180,8 +181,8 @@ Ref<Texture> EditorImagePreviewPlugin::generate(const RES &p_from, const Size2 &
     if (img->is_compressed()) {
         if (img->decompress() != OK)
             return Ref<Texture>();
-    } else if (img->get_format() != Image::FORMAT_RGB8 && img->get_format() != Image::FORMAT_RGBA8) {
-        img->convert(Image::FORMAT_RGBA8);
+    } else if (img->get_format() != ImageData::FORMAT_RGB8 && img->get_format() != ImageData::FORMAT_RGBA8) {
+        img->convert(ImageData::FORMAT_RGBA8);
     }
 
     Vector2 new_size = img->get_size();
@@ -241,13 +242,13 @@ Ref<Texture> EditorBitmapPreviewPlugin::generate(const RES &p_from, const Size2 
     }
 
     Ref<Image> img(make_ref_counted<Image>());
-    img->create(bm->get_size().width, bm->get_size().height, false, Image::FORMAT_L8, data);
+    img->create(bm->get_size().width, bm->get_size().height, false, ImageData::FORMAT_L8, data);
 
     if (img->is_compressed()) {
         if (img->decompress() != OK)
             return Ref<Texture>();
-    } else if (img->get_format() != Image::FORMAT_RGB8 && img->get_format() != Image::FORMAT_RGBA8) {
-        img->convert(Image::FORMAT_RGBA8);
+    } else if (img->get_format() != ImageData::FORMAT_RGB8 && img->get_format() != ImageData::FORMAT_RGBA8) {
+        img->convert(ImageData::FORMAT_RGBA8);
     }
 
     Vector2 new_size = img->get_size();
@@ -320,7 +321,7 @@ EditorPackedScenePreviewPlugin::EditorPackedScenePreviewPlugin() {
 
 void EditorMaterialPreviewPlugin::_preview_done(const Variant &p_udata) {
 
-    preview_done = true;
+    preview_done.set();
 }
 
 bool EditorMaterialPreviewPlugin::handles(StringView p_type) const {
@@ -343,19 +344,19 @@ Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size
 
         RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_ONCE); //once used for capture
 
-        preview_done = false;
+        preview_done.clear();
         RenderingServer::get_singleton()->request_frame_drawn_callback(callable_gen(this,[this]() {const_cast<EditorMaterialPreviewPlugin*>(this)->_preview_done(Variant());}));
 
-        while (!preview_done) {
+        while (!preview_done.is_set()) {
             OS::get_singleton()->delay_usec(10);
         }
 
         Ref<Image> img = RenderingServer::get_singleton()->texture_get_data(viewport_texture);
-        RenderingServer::get_singleton()->mesh_surface_set_material(sphere, 0, RID());
+        RenderingServer::get_singleton()->mesh_surface_set_material(sphere, 0, entt::null);
 
         ERR_FAIL_COND_V(not img, Ref<ImageTexture>());
 
-        img->convert(Image::FORMAT_RGBA8);
+        img->convert(ImageData::FORMAT_RGBA8);
         int thumbnail_size = M_MAX(p_size.x, p_size.y);
         img->resize(thumbnail_size, thumbnail_size, Image::INTERPOLATE_CUBIC);
         post_process_preview(img);
@@ -509,22 +510,30 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
     Vector<String> kwors;
     scr->get_language()->get_reserved_words(&kwors);
 
+    Set<String> control_flow_keywords;
     Set<String> keywords;
     for (const String &E : kwors) {
 
-        keywords.insert(E);
+        if (scr->get_language()->is_control_flow_keyword(E)) {
+            control_flow_keywords.insert(E);
+        } else {
+            keywords.insert(E);
+        }
     }
 
     int line = 0;
     int col = 0;
     Ref<Image> img(make_ref_counted<Image>());
     int thumbnail_size = M_MAX(p_size.x, p_size.y);
-    img->create(thumbnail_size, thumbnail_size, false, Image::FORMAT_RGBA8);
+    img->create(thumbnail_size, thumbnail_size, false, ImageData::FORMAT_RGBA8);
 
-    Color bg_color = EditorSettings::get_singleton()->getT<Color>("text_editor/highlighting/background_color");
-    Color keyword_color = EditorSettings::get_singleton()->getT<Color>("text_editor/highlighting/keyword_color");
-    Color text_color = EditorSettings::get_singleton()->getT<Color>("text_editor/highlighting/text_color");
-    Color symbol_color = EditorSettings::get_singleton()->getT<Color>("text_editor/highlighting/symbol_color");
+    auto *es = EditorSettings::get_singleton();
+    Color bg_color = es->getT<Color>("text_editor/highlighting/background_color");
+    Color keyword_color = es->getT<Color>("text_editor/highlighting/keyword_color");
+    Color control_flow_keyword_color = es->getT<Color>("text_editor/highlighting/control_flow_keyword_color");
+    Color text_color = es->getT<Color>("text_editor/highlighting/text_color");
+    Color symbol_color = es->getT<Color>("text_editor/highlighting/symbol_color");
+    Color comment_color = es->getT<Color>("text_editor/highlighting/comment_color");
 
     img->lock();
 
@@ -544,7 +553,9 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
     col = x0;
 
     bool prev_is_text = false;
+    bool in_control_flow_keyword = false;
     bool in_keyword = false;
+    bool in_comment = false;
     for (size_t i = 0; i < code.length(); i++) {
 
         CharType c = code[i];
@@ -552,9 +563,16 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
             if (col < thumbnail_size) {
                 Color color = text_color;
 
+                if (c == '#') {
+                    in_comment = true;
+                }
+                if (in_comment) {
+                    color = comment_color;
+                } else {
                 if (c != '_' && ((c >= '!' && c <= '/') || (c >= ':' && c <= '@') || (c >= '[' && c <= '`') || (c >= '{' && c <= '~') || c == '\t')) {
                     //make symbol a little visible
                     color = symbol_color;
+                    in_control_flow_keyword = false;
                     in_keyword = false;
                 } else if (!prev_is_text && _epp_is_text_char(c)) {
                     int pos = i;
@@ -563,15 +581,23 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
                         pos++;
                     }
                     StringView word = StringUtils::substr(code,i, pos - i);
-                    if (keywords.contains_as(word))
+                    if (control_flow_keywords.contains_as(word)) {
+                        in_control_flow_keyword = true;
+                    } else if (keywords.contains_as(word)) {
                         in_keyword = true;
+                    }
 
                 } else if (!_epp_is_text_char(c)) {
+                    in_control_flow_keyword = false;
                     in_keyword = false;
                 }
 
-                if (in_keyword)
+                if (in_control_flow_keyword) {
+                    color = control_flow_keyword_color;
+                } else if (in_keyword) {
                     color = keyword_color;
+                }
+            }
 
                 Color ul = color;
                 ul.a *= 0.5f;
@@ -580,21 +606,25 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
 
                 prev_is_text = _epp_is_text_char(c);
             }
+            col++;
         } else {
 
             prev_is_text = false;
+            in_control_flow_keyword = false;
             in_keyword = false;
 
             if (c == '\n') {
+                in_comment = false;
                 col = x0;
                 line++;
                 if (line >= available_height / 2)
                     break;
             } else if (c == '\t') {
                 col += 3;
+            } else {
+                col++;
             }
         }
-        col++;
     }
 
     img->unlock();
@@ -667,8 +697,8 @@ Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const S
             min = MIN(min, frames[j].r);
         }
 
-        int pfrom = CLAMP((min * 0.5 + 0.5) * h / 2, 0, h / 2) + h / 4;
-        int pto = CLAMP((max * 0.5 + 0.5) * h / 2, 0, h / 2) + h / 4;
+        int pfrom = CLAMP<int>((min * 0.5f + 0.5f) * h / 2, 0, h / 2) + h / 4;
+        int pto = CLAMP<int>((max * 0.5f + 0.5f) * h / 2, 0, h / 2) + h / 4;
 
         for (int j = 0; j < h; j++) {
             uint8_t *p = &imgw[(j * w + i) * 3];
@@ -689,7 +719,7 @@ Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const S
 
     Ref<ImageTexture> ptex(make_ref_counted<ImageTexture>());
     Ref<Image> image(make_ref_counted<Image>());
-    image->create(w, h, false, Image::FORMAT_RGB8, img);
+    image->create(w, h, false, ImageData::FORMAT_RGB8, img);
     ptex->create_from_image(image, 0);
     return ptex;
 }
@@ -701,7 +731,7 @@ EditorAudioStreamPreviewPlugin::EditorAudioStreamPreviewPlugin() {
 
 void EditorMeshPreviewPlugin::_preview_done(const Variant &p_udata) {
 
-    preview_done = true;
+    preview_done.set();
 }
 
 bool EditorMeshPreviewPlugin::handles(StringView p_type) const {
@@ -735,20 +765,20 @@ Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p
 
     RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_ONCE); //once used for capture
 
-    preview_done = false;
+    preview_done.clear();
     auto nonconst_self=const_cast<EditorMeshPreviewPlugin*>(this);
     RenderingServer::get_singleton()->request_frame_drawn_callback(callable_gen(nonconst_self,[nonconst_self] {nonconst_self->_preview_done(Variant());}));
 
-    while (!preview_done) {
+    while (!preview_done.is_set()) {
         OS::get_singleton()->delay_usec(10);
     }
 
     Ref<Image> img = RenderingServer::get_singleton()->texture_get_data(viewport_texture);
     ERR_FAIL_COND_V(not img, Ref<ImageTexture>());
 
-    RenderingServer::get_singleton()->instance_set_base(mesh_instance, RID());
+    RenderingServer::get_singleton()->instance_set_base(mesh_instance, entt::null);
 
-    img->convert(Image::FORMAT_RGBA8);
+    img->convert(ImageData::FORMAT_RGBA8);
 
     Vector2 new_size = img->get_size();
     if (new_size.x > p_size.x) {
@@ -783,14 +813,14 @@ EditorMeshPreviewPlugin::EditorMeshPreviewPlugin() {
     RenderingServer::get_singleton()->viewport_attach_camera(viewport, camera);
     RenderingServer::get_singleton()->camera_set_transform(camera, Transform(Basis(), Vector3(0, 0, 3)));
     //RenderingServer::get_singleton()->camera_set_perspective(camera,45,0.1,10);
-    RenderingServer::get_singleton()->camera_set_orthogonal(camera, 1.0, 0.01, 1000.0);
+    RenderingServer::get_singleton()->camera_set_orthogonal(camera, 1.0, 0.01f, 1000.0f);
 
     light = RenderingServer::get_singleton()->directional_light_create();
     light_instance = RenderingServer::get_singleton()->instance_create2(light, scenario);
     RenderingServer::get_singleton()->instance_set_transform(light_instance, Transform().looking_at(Vector3(-1, -1, -1), Vector3(0, 1, 0)));
 
     light2 = RenderingServer::get_singleton()->directional_light_create();
-    RenderingServer::get_singleton()->light_set_color(light2, Color(0.7, 0.7, 0.7));
+    RenderingServer::get_singleton()->light_set_color(light2, Color(0.7f, 0.7f, 0.7f));
     //RenderingServer::get_singleton()->light_set_color(light2, RS::LIGHT_COLOR_SPECULAR, Color(0.0, 0.0, 0.0));
     light_instance2 = RenderingServer::get_singleton()->instance_create2(light2, scenario);
 
@@ -804,21 +834,22 @@ EditorMeshPreviewPlugin::EditorMeshPreviewPlugin() {
 EditorMeshPreviewPlugin::~EditorMeshPreviewPlugin() {
 
     //RenderingServer::get_singleton()->free(sphere);
-    RenderingServer::get_singleton()->free_rid(mesh_instance);
-    RenderingServer::get_singleton()->free_rid(viewport);
-    RenderingServer::get_singleton()->free_rid(light);
-    RenderingServer::get_singleton()->free_rid(light_instance);
-    RenderingServer::get_singleton()->free_rid(light2);
-    RenderingServer::get_singleton()->free_rid(light_instance2);
-    RenderingServer::get_singleton()->free_rid(camera);
-    RenderingServer::get_singleton()->free_rid(scenario);
+    auto * rs=RenderingServer::get_singleton();
+    rs->free_rid(mesh_instance);
+    rs->free_rid(viewport);
+    rs->free_rid(light);
+    rs->free_rid(light_instance);
+    rs->free_rid(light2);
+    rs->free_rid(light_instance2);
+    rs->free_rid(camera);
+    rs->free_rid(scenario);
 }
 
 ///////////////////////////////////////////////////////////////////////////
 
 void EditorFontPreviewPlugin::_preview_done(const Variant &p_udata) {
 
-    preview_done = true;
+    preview_done.set();
 }
 
 bool EditorFontPreviewPlugin::handles(StringView p_type) const {
@@ -833,15 +864,15 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(StringView p_path, cons
     ril->wait();
     RES res = ril->get_resource();
 
-    Ref<DynamicFont> sampled_font;
+    Ref<DynamicFont> sampled_font(make_ref_counted<DynamicFont>());
     if (res->is_class("DynamicFont")) {
-        sampled_font = dynamic_ref_cast<DynamicFont>(res->duplicate());
-        if (sampled_font->get_outline_color() == Color(1, 1, 1, 1)) {
-            sampled_font->set_outline_color(Color(0, 0, 0, 1));
+        Ref<DynamicFont> font = dynamic_ref_cast<DynamicFont>(res);
+        sampled_font->set_font_data(dynamic_ref_cast<DynamicFontData>(font->get_font_data()->duplicate()));
+        for (int i = 0; i < font->get_fallback_count(); i++) {
+            sampled_font->add_fallback(dynamic_ref_cast<DynamicFontData>(font->get_fallback(i)->duplicate()));
         }
     } else if (res->is_class("DynamicFontData")) {
-        sampled_font = make_ref_counted<DynamicFont>();
-        sampled_font->set_font_data(dynamic_ref_cast<DynamicFontData>(res));
+        sampled_font->set_font_data(dynamic_ref_cast<DynamicFontData>(res->duplicate()));
     }
     sampled_font->set_size(50);
 
@@ -857,12 +888,15 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(StringView p_path, cons
     Ref<Font> font = sampled_font;
 
     font->draw_ui_string(canvas_item, pos, sampled_text);
+    const Color c = T_GLOBAL_GET<Color>("rendering/environment/default_clear_color");
+    const float fg = c.get_luminance() < 0.5 ? 1.0 : 0.0;
+    font->draw_ui_string(canvas_item, pos, sampled_text, Color(fg, fg, fg));
 
-    preview_done = false;
+    preview_done.clear();
     RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_ONCE); //once used for capture
     RenderingServer::get_singleton()->request_frame_drawn_callback(callable_gen(this,[this] { const_cast<EditorFontPreviewPlugin*>(this)->_preview_done(Variant());}));
 
-    while (!preview_done) {
+    while (!preview_done.is_set()) {
         OS::get_singleton()->delay_usec(10);
     }
 
@@ -871,7 +905,7 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(StringView p_path, cons
     Ref<Image> img = RenderingServer::get_singleton()->texture_get_data(viewport_texture);
     ERR_FAIL_COND_V(not img, Ref<ImageTexture>());
 
-    img->convert(Image::FORMAT_RGBA8);
+    img->convert(ImageData::FORMAT_RGBA8);
 
     Vector2 new_size = img->get_size();
     if (new_size.x > p_size.x) {

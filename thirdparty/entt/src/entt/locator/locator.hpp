@@ -1,15 +1,11 @@
 #ifndef ENTT_LOCATOR_LOCATOR_HPP
 #define ENTT_LOCATOR_LOCATOR_HPP
 
-
-#include "EASTL/shared_ptr.h"
-#include "EASTL/utility.h"
-
+#include <memory>
+#include <utility>
 #include "../config/config.h"
 
-
 namespace entt {
-
 
 /**
  * @brief Service locator, nothing more.
@@ -36,7 +32,7 @@ struct service_locator {
      * @brief Tests if a valid service implementation is set.
      * @return True if the service is set, false otherwise.
      */
-    static bool empty() ENTT_NOEXCEPT {
+    [[nodiscard]] static bool empty() ENTT_NOEXCEPT {
         return !static_cast<bool>(service);
     }
 
@@ -50,7 +46,7 @@ struct service_locator {
      *
      * @return A reference to the service implementation currently set, if any.
      */
-    static eastl::weak_ptr<Service> get() ENTT_NOEXCEPT {
+    [[nodiscard]] static std::weak_ptr<Service> get() ENTT_NOEXCEPT {
         return service;
     }
 
@@ -68,7 +64,7 @@ struct service_locator {
      *
      * @return A reference to the service implementation currently set, if any.
      */
-    static Service & ref() ENTT_NOEXCEPT {
+    [[nodiscard]] static Service &ref() ENTT_NOEXCEPT {
         return *service;
     }
 
@@ -79,17 +75,17 @@ struct service_locator {
      * @param args Parameters to use to construct the service.
      */
     template<typename Impl = Service, typename... Args>
-    static void set(Args &&... args) {
-        service = eastl::make_shared<Impl>(eastl::forward<Args>(args)...);
+    static void set(Args &&...args) {
+        service = std::make_shared<Impl>(std::forward<Args>(args)...);
     }
 
     /**
      * @brief Sets or replaces a service.
      * @param ptr Service to use to replace the current one.
      */
-    static void set(eastl::shared_ptr<Service> ptr) {
-        ENTT_ASSERT(static_cast<bool>(ptr));
-        service = eastl::move(ptr);
+    static void set(std::shared_ptr<Service> ptr) {
+        ENTT_ASSERT(static_cast<bool>(ptr), "Null service not allowed");
+        service = std::move(ptr);
     }
 
     /**
@@ -102,11 +98,9 @@ struct service_locator {
     }
 
 private:
-    inline static eastl::shared_ptr<Service> service = nullptr;
+    inline static std::shared_ptr<Service> service = nullptr;
 };
 
-
-}
-
+} // namespace entt
 
 #endif

@@ -35,11 +35,13 @@
 #include "core/method_bind.h"
 #include "core/os/dir_access.h"
 #include "core/resource/resource_manager.h"
+#include "core/string_utils.inl"
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "editor/project_settings_editor.h"
 #include "editor/editor_scale.h"
 #include "scene/gui/grid_container.h"
+#include "scene/gui/text_edit.h"
 
 IMPL_GDCLASS(PluginConfigDialog)
 
@@ -183,6 +185,7 @@ PluginConfigDialog::PluginConfigDialog() {
 
     desc_edit = memnew(TextEdit);
     desc_edit->set_custom_minimum_size(Size2(400, 80) * EDSCALE);
+    desc_edit->set_wrap_enabled(true);
     grid->add_child(desc_edit);
 
     Label *author_lb = memnew(Label);

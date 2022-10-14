@@ -150,9 +150,8 @@ Error AudioDriverALSA::init_device() {
 
 Error AudioDriverALSA::init() {
 
-    active = false;
-    thread_exited = false;
-    exit_thread = false;
+	active.clear();
+    exit_thread.clear();
 
     Error err = init_device();
     if (err == OK) {
@@ -166,12 +165,12 @@ void AudioDriverALSA::thread_func(void *p_udata) {
 
     AudioDriverALSA *ad = (AudioDriverALSA *)p_udata;
 
-    while (!ad->exit_thread) {
+    while (!ad->exit_thread.is_set()) {
 
         ad->lock();
         ad->start_counting_ticks();
 
-        if (!ad->active) {
+        if (!ad->active.is_set()) {
             for (uint64_t i = 0; i < ad->period_size * ad->channels; i++) {
                 ad->samples_out[i] = 0;
             }
@@ -187,7 +186,7 @@ void AudioDriverALSA::thread_func(void *p_udata) {
         int todo = ad->period_size;
         int total = 0;
 
-        while (todo && !ad->exit_thread) {
+        while (todo && !ad->exit_thread.is_set()) {
             int16_t *src = (int16_t *)ad->samples_out.data();
             int wrote = snd_pcm_writei(ad->pcm_handle, (void *)(src + (total * ad->channels)), todo);
 
@@ -206,8 +205,8 @@ void AudioDriverALSA::thread_func(void *p_udata) {
                 wrote = snd_pcm_recover(ad->pcm_handle, wrote, 0);
                 if (wrote < 0) {
                     ERR_PRINT("ALSA: Failed and can't recover: " + String(snd_strerror(wrote)));
-                    ad->active = false;
-                    ad->exit_thread = true;
+                    ad->active.clear();
+                    ad->exit_thread.set();
                 }
             }
         }
@@ -225,8 +224,8 @@ void AudioDriverALSA::thread_func(void *p_udata) {
 
                 err = ad->init_device();
                 if (err != OK) {
-                    ad->active = false;
-                    ad->exit_thread = true;
+                    ad->active.clear();
+                    ad->exit_thread.set();
                 }
             }
         }
@@ -235,12 +234,11 @@ void AudioDriverALSA::thread_func(void *p_udata) {
         ad->unlock();
     }
 
-    ad->thread_exited = true;
 }
 
 void AudioDriverALSA::start() {
 
-    active = true;
+    active.set();
 }
 
 int AudioDriverALSA::get_mix_rate() const {
@@ -318,7 +316,7 @@ void AudioDriverALSA::finish_device() {
 
 void AudioDriverALSA::finish() {
     if(thread.is_started()) {
-        exit_thread = true;
+        exit_thread.set();
         thread.wait_to_finish();
     }
 

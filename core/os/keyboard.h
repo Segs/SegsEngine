@@ -30,10 +30,12 @@
 
 #pragma once
 
+#include "core/reflection_macros.h"
 #include "core/typedefs.h"
 #include "core/forward_decls.h"
 
 
+SE_NAMESPACE(Godot)
 /*
     Special Key:
 
@@ -45,6 +47,7 @@
 enum {
     SPKEY = (1 << 24)
 };
+SE_CONSTANT(SPKEY)
 
 enum KeyList {
     /* CURSOR/FUNCTION/BROWSER/MULTIMEDIA/MISC KEYS */
@@ -297,6 +300,7 @@ enum KeyList {
     KEY_YDIAERESIS = 0x00FF,
 
 };
+SE_ENUM(KeyList)
 
 enum KeyModifierMask : uint32_t {
 
@@ -317,6 +321,7 @@ enum KeyModifierMask : uint32_t {
     // bit 31 can't be used because variant uses regular 32 bits int as datatype
 
 };
+SE_END()
 
 String keycode_get_string(uint32_t p_code);
 bool keycode_has_unicode(uint32_t p_keycode);

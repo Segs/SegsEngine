@@ -41,7 +41,7 @@ class EditorSceneImporterCollada : public QObject, public EditorSceneImporterInt
 public:
     uint32_t get_import_flags() const override;
     void get_extensions(Vector<String> &r_extensions) const override;
-    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps = nullptr, Error *r_err = nullptr) override;
+    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, uint32_t p_compress_flags, Vector<String> *r_missing_deps = nullptr, Error *r_err = nullptr) override;
     Ref<Animation> import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) override;
 
     EditorSceneImporterCollada();

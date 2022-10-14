@@ -30,7 +30,7 @@ namespace GodotTools.Build
         private readonly object pendingBuildLogTextLock = new object();
         [NotNull] private string pendingBuildLogText = string.Empty;
 
-        
+       
         public delegate void BuildStateChangedHandler();
         [Signal]
         public event BuildStateChangedHandler BuildStateChanged;

@@ -28,11 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef STYLE_BOX_EDITOR_PLUGIN_H
-#define STYLE_BOX_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/editor_inspector.h"
 #include "editor/editor_plugin.h"
+#include "scene/gui/box_container.h"
 #include "scene/gui/option_button.h"
 #include "scene/gui/texture_rect.h"
 #include "scene/resources/style_box.h"
@@ -74,5 +74,3 @@ public:
 
     StyleBoxEditorPlugin(EditorNode *p_node);
 };
-
-#endif // STYLE_BOX_EDITOR_PLUGIN_H

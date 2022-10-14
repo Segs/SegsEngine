@@ -59,9 +59,9 @@ protected:
 
         struct SurfaceData {
             PoolByteArray source_buffer;
-            uint32_t source_format;
             PoolByteArray buffer;
             PoolByteArray::Write buffer_write;
+            uint32_t source_format;
             bool transform_tangents;
             bool ensure_correct_normals;
         };
@@ -92,9 +92,19 @@ protected:
     bool _is_software_skinning_enabled() const;
     static bool _is_global_software_skinning_enabled();
 
-    void _initialize_skinning(bool p_force_reset = false);
+    void _initialize_skinning(bool p_force_reset = false, bool p_call_attach_skeleton=true);
     void _update_skinning();
 
+private:
+    // merging
+    void _merge_into_mesh_data(const MeshInstance3D &p_mi, const Transform &p_dest_tr_inv, int p_surface_id,
+            Vector<Vector3> &r_verts,
+            Vector<Vector3> &r_norms, Vector<real_t> &r_tangents, Vector<Color> &r_colors, Vector<Vector2> &r_uvs,
+            Vector<Vector2> &r_uv2s, Vector<int> &r_inds);
+    bool _is_mergeable_with(const MeshInstance3D &p_other) const;
+    bool _ensure_indices_valid(Vector<int> &r_indices, Span<const Vector3> p_verts) const;
+    bool _check_for_valid_indices(Span<const int> p_inds, Span<const Vector3> p_verts, Vector<int32_t> *r_inds=nullptr) const;
+    bool _merge_meshes(Span<MeshInstance3D *> p_list, bool p_use_global_space, bool p_check_compatibility);
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
@@ -119,6 +129,7 @@ public:
     Ref<Material> get_active_material(int p_surface) const;
 
     void set_material_override(const Ref<Material> &p_material) override;
+    void set_material_overlay(const Ref<Material> &p_material) override;
 
     void set_software_skinning_transform_normals(bool p_enabled);
     bool is_software_skinning_transform_normals_enabled() const;
@@ -126,10 +137,19 @@ public:
     Node *create_trimesh_collision_node();
     void create_trimesh_collision();
 
-    Node *create_convex_collision_node();
-    void create_convex_collision();
+    Node *create_multiple_convex_collisions_node();
+    void create_multiple_convex_collisions();
+
+    Node *create_convex_collision_node(bool p_clean = true, bool p_simplify = false);
+    void create_convex_collision(bool p_clean = true, bool p_simplify = false);
 
     void create_debug_tangents();
+    // merging
+    bool is_mergeable_with(const MeshInstance3D &p_other) const;
+    bool create_by_merging(Vector<MeshInstance3D *> p_list);
+    bool merge_meshes(Vector<MeshInstance3D *> p_list, bool p_use_global_space, bool p_check_compatibility) {
+        return _merge_meshes(p_list, p_use_global_space, p_check_compatibility);
+    }
 
     AABB get_aabb() const override;
     Vector<Face3> get_faces(uint32_t p_usage_flags) const override;

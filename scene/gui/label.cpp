@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  label.cpp                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,15 +28,15 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "label.h"
+#include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
+#include "core/string_utils.inl"
 #include "core/translation.h"
+#include "label.h"
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
-#include "core/method_bind.h"
-#include "core/string_utils.inl"
 
 IMPL_GDCLASS(Label)
 VARIANT_ENUM_CAST(Label::Align);
@@ -98,7 +98,7 @@ void Label::_notification(int p_what) {
         if (word_cache_dirty)
             regenerate_word_cache();
 
-        RID ci = get_canvas_item();
+        RenderingEntity ci = get_canvas_item();
 
         Size2 size = get_size();
         Ref<StyleBox> style = get_theme_stylebox("normal");
@@ -112,7 +112,8 @@ void Label::_notification(int p_what) {
 
         style->draw(ci, Rect2(Point2(0, 0), get_size()));
 
-        RenderingServer::get_singleton()->canvas_item_set_distance_field_mode(get_canvas_item(), font && font->is_distance_field_hint());
+        RenderingServer::get_singleton()->canvas_item_set_distance_field_mode(
+                get_canvas_item(), font && font->is_distance_field_hint());
 
         int font_h = font->get_height() + line_spacing;
 
@@ -130,6 +131,9 @@ void Label::_notification(int p_what) {
         if (max_lines_visible >= 0 && lines_visible > max_lines_visible) {
             lines_visible = max_lines_visible;
         }
+        float total_h = 0;
+        total_h += lines_visible * font_h;
+        total_h += style->get_margin(Margin::Top) + style->get_margin(Margin::Bottom);
 
         if (lines_visible > 0) {
 
@@ -139,19 +143,19 @@ void Label::_notification(int p_what) {
                     //nothing
                 } break;
                 case VALIGN_CENTER: {
-                    vbegin = (size.y - (lines_visible * font_h - line_spacing)) / 2;
+                    vbegin = (size.y - (total_h - line_spacing)) / 2;
                     vsep = 0;
 
                 } break;
                 case VALIGN_BOTTOM: {
-                    vbegin = size.y - (lines_visible * font_h - line_spacing);
+                    vbegin = size.y - (total_h - line_spacing);
                     vsep = 0;
 
                 } break;
                 case VALIGN_FILL: {
                     vbegin = 0;
                     if (lines_visible > 1) {
-                        vsep = (size.y - (lines_visible * font_h - line_spacing)) / (lines_visible - 1);
+                        vsep = (size.y - (total_h - line_spacing)) / (lines_visible - 1);
                     } else {
                         vsep = 0;
                     }
@@ -261,11 +265,16 @@ void Label::_notification(int p_what) {
                                 n = StringUtils::char_uppercase(n);
                             }
 
-                            float move = drawer.draw_char(ci, Point2(x_ofs_shadow, y_ofs) + shadow_ofs, c, n, font_color_shadow);
+                            float move = drawer.draw_char(
+                                    ci, Point2(x_ofs_shadow, y_ofs) + shadow_ofs, c, n, font_color_shadow);
                             if (use_outline) {
-                                drawer.draw_char(ci, Point2(x_ofs_shadow, y_ofs) + Vector2(-shadow_ofs.x, shadow_ofs.y), c, n, font_color_shadow);
-                                drawer.draw_char(ci, Point2(x_ofs_shadow, y_ofs) + Vector2(shadow_ofs.x, -shadow_ofs.y), c, n, font_color_shadow);
-                                drawer.draw_char(ci, Point2(x_ofs_shadow, y_ofs) + Vector2(-shadow_ofs.x, -shadow_ofs.y), c, n, font_color_shadow);
+                                drawer.draw_char(ci, Point2(x_ofs_shadow, y_ofs) + Vector2(-shadow_ofs.x, shadow_ofs.y),
+                                        c, n, font_color_shadow);
+                                drawer.draw_char(ci, Point2(x_ofs_shadow, y_ofs) + Vector2(shadow_ofs.x, -shadow_ofs.y),
+                                        c, n, font_color_shadow);
+                                drawer.draw_char(ci,
+                                        Point2(x_ofs_shadow, y_ofs) + Vector2(-shadow_ofs.x, -shadow_ofs.y), c, n,
+                                        font_color_shadow);
                             }
                             x_ofs_shadow += move;
                             chars_total_shadow++;
@@ -373,7 +382,8 @@ int Label::get_visible_line_count() const {
 
     int line_spacing = get_theme_constant("line_spacing");
     int font_h = get_theme_font("font")->get_height() + line_spacing;
-    int lines_visible = (get_size().height - get_theme_stylebox("normal")->get_minimum_size().height + line_spacing) / font_h;
+    int lines_visible =
+            (get_size().height - get_theme_stylebox("normal")->get_minimum_size().height + line_spacing) / font_h;
 
     if (lines_visible > line_count)
         lines_visible = line_count;
@@ -426,8 +436,19 @@ void Label::regenerate_word_cache() {
         // ranges taken from http://www.unicodemap.org/
         // if your language is not well supported, consider helping improve
         // the unicode support in Godot.
-        bool separatable = (current >= 0x2E08 && current <= 0xFAFF) || (current >= 0xFE30 && current <= 0xFE4F);
-        //current>=33 && (current < 65||current >90) && (current<97||current>122) && (current<48||current>57);
+        // ranges taken from https://en.wikipedia.org/wiki/Plane_(Unicode)
+        // if your language is not well supported, consider helping improve
+        // the unicode support in Godot.
+        bool separatable = (current >= 0x2E08 && current <= 0x9FFF) || // CJK scripts and symbols.
+                           (current >= 0xAC00 && current <= 0xD7FF) || // Hangul Syllables and Hangul Jamo Extended-B.
+                           (current >= 0xF900 && current <= 0xFAFF) || // CJK Compatibility Ideographs.
+                           (current >= 0xFE30 && current <= 0xFE4F) || // CJK Compatibility Forms.
+                           (current >= 0xFF65 && current <= 0xFF9F) || // Halfwidth forms of katakana
+                           (current >= 0xFFA0 &&
+                                   current <= 0xFFDC) || // Halfwidth forms of compatibility jamo characters for Hangul
+                           (current >= 0x20000 && current <= 0x2FA1F) || // CJK Unified Ideographs Extension B ~ F and
+                                                                         // CJK Compatibility Ideographs Supplement.
+                           (current >= 0x30000 && current <= 0x3134F); // CJK Unified Ideographs Extension G.
         bool insert_newline = false;
         real_t char_width = 0;
 
@@ -473,7 +494,13 @@ void Label::regenerate_word_cache() {
             }
 
             if (i < StringView(xl_text).length() && current == ' ') {
-                if (line_width > 0 || last == nullptr || last->char_pos != WordCache::CHAR_WRAPLINE) {
+                if (line_width == 0) {
+                    if (current_word_size == 0) {
+                        word_pos = i;
+                    }
+                    current_word_size += space_width;
+                    line_width += space_width;
+                } else if (line_width > 0 || last == nullptr || last->char_pos != WordCache::CHAR_WRAPLINE) {
                     space_count++;
                     line_width += space_width;
                 } else {
@@ -599,8 +626,7 @@ bool Label::is_clipping_text() const {
     return clip;
 }
 
-const String &Label::get_text() const
-{
+const String &Label::get_text() const {
     return text;
 }
 
@@ -642,6 +668,7 @@ float Label::get_percent_visible() const {
 
 void Label::set_lines_skipped(int p_lines) {
 
+    ERR_FAIL_COND(p_lines < 0);
     lines_skipped = p_lines;
     update();
 }
@@ -672,30 +699,30 @@ int Label::get_total_character_count() const {
 
 void Label::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_align", {"align"}), &Label::set_align);
-    MethodBinder::bind_method(D_METHOD("get_align"), &Label::get_align);
-    MethodBinder::bind_method(D_METHOD("set_valign", {"valign"}), &Label::set_valign);
-    MethodBinder::bind_method(D_METHOD("get_valign"), &Label::get_valign);
-    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &Label::set_text);
-    MethodBinder::bind_method(D_METHOD("get_text"), &Label::get_text);
-    MethodBinder::bind_method(D_METHOD("set_autowrap", {"enable"}), &Label::set_autowrap);
-    MethodBinder::bind_method(D_METHOD("has_autowrap"), &Label::has_autowrap);
-    MethodBinder::bind_method(D_METHOD("set_clip_text", {"enable"}), &Label::set_clip_text);
-    MethodBinder::bind_method(D_METHOD("is_clipping_text"), &Label::is_clipping_text);
-    MethodBinder::bind_method(D_METHOD("set_uppercase", {"enable"}), &Label::set_uppercase);
-    MethodBinder::bind_method(D_METHOD("is_uppercase"), &Label::is_uppercase);
-    MethodBinder::bind_method(D_METHOD("get_line_height"), &Label::get_line_height);
-    MethodBinder::bind_method(D_METHOD("get_line_count"), &Label::get_line_count);
-    MethodBinder::bind_method(D_METHOD("get_visible_line_count"), &Label::get_visible_line_count);
-    MethodBinder::bind_method(D_METHOD("get_total_character_count"), &Label::get_total_character_count);
-    MethodBinder::bind_method(D_METHOD("set_visible_characters", {"amount"}), &Label::set_visible_characters);
-    MethodBinder::bind_method(D_METHOD("get_visible_characters"), &Label::get_visible_characters);
-    MethodBinder::bind_method(D_METHOD("set_percent_visible", {"percent_visible"}), &Label::set_percent_visible);
-    MethodBinder::bind_method(D_METHOD("get_percent_visible"), &Label::get_percent_visible);
-    MethodBinder::bind_method(D_METHOD("set_lines_skipped", {"lines_skipped"}), &Label::set_lines_skipped);
-    MethodBinder::bind_method(D_METHOD("get_lines_skipped"), &Label::get_lines_skipped);
-    MethodBinder::bind_method(D_METHOD("set_max_lines_visible", {"lines_visible"}), &Label::set_max_lines_visible);
-    MethodBinder::bind_method(D_METHOD("get_max_lines_visible"), &Label::get_max_lines_visible);
+    BIND_METHOD(Label,set_align);
+    BIND_METHOD(Label,get_align);
+    BIND_METHOD(Label,set_valign);
+    BIND_METHOD(Label,get_valign);
+    BIND_METHOD(Label,set_text);
+    BIND_METHOD(Label,get_text);
+    BIND_METHOD(Label,set_autowrap);
+    BIND_METHOD(Label,has_autowrap);
+    BIND_METHOD(Label,set_clip_text);
+    BIND_METHOD(Label,is_clipping_text);
+    BIND_METHOD(Label,set_uppercase);
+    BIND_METHOD(Label,is_uppercase);
+    BIND_METHOD(Label,get_line_height);
+    BIND_METHOD(Label,get_line_count);
+    BIND_METHOD(Label,get_visible_line_count);
+    BIND_METHOD(Label,get_total_character_count);
+    BIND_METHOD(Label,set_visible_characters);
+    BIND_METHOD(Label,get_visible_characters);
+    BIND_METHOD(Label,set_percent_visible);
+    BIND_METHOD(Label,get_percent_visible);
+    BIND_METHOD(Label,set_lines_skipped);
+    BIND_METHOD(Label,get_lines_skipped);
+    BIND_METHOD(Label,set_max_lines_visible);
+    BIND_METHOD(Label,get_max_lines_visible);
 
     BIND_ENUM_CONSTANT(ALIGN_LEFT);
     BIND_ENUM_CONSTANT(ALIGN_CENTER);
@@ -707,16 +734,25 @@ void Label::_bind_methods() {
     BIND_ENUM_CONSTANT(VALIGN_BOTTOM);
     BIND_ENUM_CONSTANT(VALIGN_FILL);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text", PropertyHint::MultilineText, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PropertyHint::Enum, "Left,Center,Right,Fill"), "set_align", "get_align");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "valign", PropertyHint::Enum, "Top,Center,Bottom,Fill"), "set_valign", "get_valign");
+    ADD_PROPERTY(
+            PropertyInfo(VariantType::STRING, "text", PropertyHint::MultilineText, "", PROPERTY_USAGE_DEFAULT_INTL),
+            "set_text", "get_text");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PropertyHint::Enum, "Left,Center,Right,Fill"), "set_align",
+            "get_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "valign", PropertyHint::Enum, "Top,Center,Bottom,Fill"), "set_valign",
+            "get_valign");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autowrap"), "set_autowrap", "has_autowrap");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clip_text"), "set_clip_text", "is_clipping_text");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "uppercase"), "set_uppercase", "is_uppercase");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "visible_characters", PropertyHint::Range, "-1,128000,1", PROPERTY_USAGE_EDITOR), "set_visible_characters", "get_visible_characters");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "percent_visible", PropertyHint::Range, "0,1,0.001"), "set_percent_visible", "get_percent_visible");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lines_skipped", PropertyHint::Range, "0,999,1"), "set_lines_skipped", "get_lines_skipped");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_lines_visible", PropertyHint::Range, "-1,999,1"), "set_max_lines_visible", "get_max_lines_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "visible_characters", PropertyHint::Range, "-1,128000,1",
+                         PROPERTY_USAGE_EDITOR),
+            "set_visible_characters", "get_visible_characters");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "percent_visible", PropertyHint::Range, "0,1,0.001"),
+            "set_percent_visible", "get_percent_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lines_skipped", PropertyHint::Range, "0,999,1"), "set_lines_skipped",
+            "get_lines_skipped");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_lines_visible", PropertyHint::Range, "-1,999,1"),
+            "set_max_lines_visible", "get_max_lines_visible");
 }
 Label::Label(const StringName &p_text) {
 

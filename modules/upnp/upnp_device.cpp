@@ -149,33 +149,33 @@ bool UPNPDevice::is_valid_gateway() const {
 }
 
 void UPNPDevice::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("is_valid_gateway"), &UPNPDevice::is_valid_gateway);
-    MethodBinder::bind_method(D_METHOD("query_external_address"), &UPNPDevice::query_external_address);
+    BIND_METHOD(UPNPDevice,is_valid_gateway);
+    BIND_METHOD(UPNPDevice,query_external_address);
     MethodBinder::bind_method(D_METHOD("add_port_mapping", {"port", "port_internal", "desc", "proto", "duration"}), &UPNPDevice::add_port_mapping, {DEFVAL(0), DEFVAL(""), DEFVAL("UDP"), DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("delete_port_mapping", {"port", "proto"}), &UPNPDevice::delete_port_mapping, {DEFVAL("UDP")});
 
-    MethodBinder::bind_method(D_METHOD("set_description_url", {"url"}), &UPNPDevice::set_description_url);
-    MethodBinder::bind_method(D_METHOD("get_description_url"), &UPNPDevice::get_description_url);
+    BIND_METHOD(UPNPDevice,set_description_url);
+    BIND_METHOD(UPNPDevice,get_description_url);
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "description_url"), "set_description_url", "get_description_url");
 
-    MethodBinder::bind_method(D_METHOD("set_service_type", {"type"}), &UPNPDevice::set_service_type);
-    MethodBinder::bind_method(D_METHOD("get_service_type"), &UPNPDevice::get_service_type);
+    BIND_METHOD(UPNPDevice,set_service_type);
+    BIND_METHOD(UPNPDevice,get_service_type);
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "service_type"), "set_service_type", "get_service_type");
 
-    MethodBinder::bind_method(D_METHOD("set_igd_control_url", {"url"}), &UPNPDevice::set_igd_control_url);
-    MethodBinder::bind_method(D_METHOD("get_igd_control_url"), &UPNPDevice::get_igd_control_url);
+    BIND_METHOD(UPNPDevice,set_igd_control_url);
+    BIND_METHOD(UPNPDevice,get_igd_control_url);
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "igd_control_url"), "set_igd_control_url", "get_igd_control_url");
 
-    MethodBinder::bind_method(D_METHOD("set_igd_service_type", {"type"}), &UPNPDevice::set_igd_service_type);
-    MethodBinder::bind_method(D_METHOD("get_igd_service_type"), &UPNPDevice::get_igd_service_type);
+    BIND_METHOD(UPNPDevice,set_igd_service_type);
+    BIND_METHOD(UPNPDevice,get_igd_service_type);
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "igd_service_type"), "set_igd_service_type", "get_igd_service_type");
 
-    MethodBinder::bind_method(D_METHOD("set_igd_our_addr", {"addr"}), &UPNPDevice::set_igd_our_addr);
-    MethodBinder::bind_method(D_METHOD("get_igd_our_addr"), &UPNPDevice::get_igd_our_addr);
+    BIND_METHOD(UPNPDevice,set_igd_our_addr);
+    BIND_METHOD(UPNPDevice,get_igd_our_addr);
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "igd_our_addr"), "set_igd_our_addr", "get_igd_our_addr");
 
-    MethodBinder::bind_method(D_METHOD("set_igd_status", {"status"}), &UPNPDevice::set_igd_status);
-    MethodBinder::bind_method(D_METHOD("get_igd_status"), &UPNPDevice::get_igd_status);
+    BIND_METHOD(UPNPDevice,set_igd_status);
+    BIND_METHOD(UPNPDevice,get_igd_status);
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "igd_status", PropertyHint::Enum), "set_igd_status", "get_igd_status");
 
     BIND_ENUM_CONSTANT(IGD_STATUS_OK);

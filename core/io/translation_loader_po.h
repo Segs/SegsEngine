@@ -36,8 +36,8 @@
 
 class TranslationLoaderPO : public ResourceFormatLoader {
 public:
-    static RES load_translation(FileAccess *f, Error *r_error);
-    RES load(StringView p_path, StringView p_original_path = StringView (), Error *r_error = nullptr) override;
+    static RES load_translation(FileAccess *f, bool p_use_context, Error *r_error = nullptr);
+    RES load(StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr, bool p_no_subresource_cache=false) override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool handles_type(StringView p_type) const override;
     String get_resource_type(StringView p_path) const override;

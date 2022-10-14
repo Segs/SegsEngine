@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_sectioned_inspector.cpp                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -29,13 +29,17 @@
 /*************************************************************************/
 
 #include "editor_sectioned_inspector.h"
+#include "editor_inspector.h"
 #include "editor_scale.h"
+#include "editor_settings.h"
+#include "editor_property_name_processor.h"
 #include "core/callable_method_pointer.h"
 #include "core/object_db.h"
 #include "core/object_tooling.h"
 #include "core/ustring.h"
 
 #include "core/method_bind.h"
+#include "scene/gui/box_container.h"
 
 IMPL_GDCLASS(SectionedInspector)
 
@@ -43,7 +47,7 @@ class SectionedInspectorFilter : public Object {
 
     GDCLASS(SectionedInspectorFilter,Object)
 
-    Object *edited;
+    Object *edited = nullptr;
     String section;
     bool allow_sub=false;
 
@@ -136,7 +140,6 @@ public:
     }
 
     SectionedInspectorFilter() {
-        edited = nullptr;
     }
 };
 IMPL_GDCLASS(SectionedInspectorFilter)
@@ -165,9 +168,9 @@ void SectionedInspector::set_current_section(const String &p_section) {
 
 String SectionedInspector::get_current_section() const {
 
-    if (sections->get_selected())
+    if (sections->get_selected()) {
         return sections->get_selected()->get_metadata(0).as<String>();
-    else
+    }
         return String();
 }
 
@@ -175,16 +178,16 @@ String SectionedInspector::get_full_item_path(const String &p_item) {
 
     String base = get_current_section();
 
-    if (!base.empty())
+    if (!base.empty()) {
         return base + "/" + p_item;
-    else
+    }
         return p_item;
 }
 
 void SectionedInspector::edit(Object *p_object) {
 
     if (!p_object) {
-        obj = 0;
+        obj = entt::null;
         sections->clear();
 
         filter->set_edited(nullptr);
@@ -193,11 +196,14 @@ void SectionedInspector::edit(Object *p_object) {
         return;
     }
 
-    ObjectID id = p_object->get_instance_id();
+    GameEntity id = p_object->get_instance_id();
 
     inspector->set_object_class(StringName(p_object->get_class()));
 
-    if (obj != id) {
+    if (obj == id) {
+        update_category_list();
+        return;
+    }
 
         obj = id;
         update_category_list();
@@ -212,10 +218,6 @@ void SectionedInspector::edit(Object *p_object) {
 
             first_item->select(0);
             selected_category = first_item->get_metadata(0).as<String>();
-        }
-    } else {
-
-        update_category_list();
     }
 }
 
@@ -223,10 +225,11 @@ void SectionedInspector::update_category_list() {
     using namespace StringUtils;
     sections->clear();
 
-    Object *o = ObjectDB::get_instance(obj);
+    Object *o = object_for_entity(obj);
 
-    if (!o)
+    if (!o) {
         return;
+    }
 
     Vector<PropertyInfo> pinfo;
     o->get_property_list(&pinfo);
@@ -237,8 +240,11 @@ void SectionedInspector::update_category_list() {
     section_map[String()] = root;
 
     String filter;
-    if (search_box)
+    if (search_box) {
         filter = search_box->get_text();
+    }
+    const EditorPropertyNameStyle name_style = EditorPropertyNameProcessor::get_settings_style();
+    const EditorPropertyNameStyle tooltip_style = EditorPropertyNameProcessor::get_tooltip_style(name_style);
 
     UIString filter_ui(from_utf8(filter));
     for (const PropertyInfo &pi : pinfo) {
@@ -251,8 +257,7 @@ void SectionedInspector::update_category_list() {
                 begins_with(pi.name, "_global_script"))
             continue;
 
-        if (!filter.empty() && !from_utf8(pi.name).contains(filter_ui,Qt::CaseInsensitive) &&
-                !from_utf8(capitalize(pi.name).replaced("/", " ")).contains(filter_ui,Qt::CaseInsensitive))
+        if (!filter.empty() && !_property_path_matches(pi.name, filter, name_style))
             continue;
 
         auto sp = find(pi.name,"/");
@@ -280,7 +285,11 @@ void SectionedInspector::update_category_list() {
             if (!section_map.contains(metasection)) {
                 TreeItem *ms = sections->create_item(parent);
                 section_map[metasection] = ms;
-                ms->set_text_utf8(0, capitalize(sectionarr[i]));
+                const String text = EditorPropertyNameProcessor::process_name(sectionarr[i], name_style);
+                const String tooltip = EditorPropertyNameProcessor::process_name(sectionarr[i], tooltip_style);
+
+                ms->set_text_utf8(0, text);
+                ms->set_tooltip(0, StringName(tooltip));
                 ms->set_metadata(0, metasection);
                 ms->set_selectable(0, false);
             }
@@ -311,17 +320,24 @@ void SectionedInspector::_search_changed(const String &p_what) {
     update_category_list();
 }
 
+void SectionedInspector::_notification(int p_what) {
+    switch (p_what) {
+        case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
+            inspector->set_property_name_style(EditorPropertyNameProcessor::get_settings_style());
+        } break;
+    }
+}
+
 EditorInspector *SectionedInspector::get_inspector() {
 
     return inspector;
 }
 
 SectionedInspector::SectionedInspector() :
-        obj(0),
         sections(memnew(Tree)),
         filter(memnew(SectionedInspectorFilter)),
         inspector(memnew(EditorInspector)),
-        search_box(nullptr) {
+        obj(entt::null) {
     add_constant_override("autohide", 1); // Fixes the dragger always showing up
 
     VBoxContainer *left_vb = memnew(VBoxContainer);
@@ -341,6 +357,7 @@ SectionedInspector::SectionedInspector() :
     inspector->set_v_size_flags(SIZE_EXPAND_FILL);
     right_vb->add_child(inspector, true);
     inspector->set_use_doc_hints(true);
+    inspector->set_property_name_style(EditorPropertyNameProcessor::get_settings_style());
 
     sections->connect("cell_selected",callable_mp(this, &ClassName::_section_selected));
 }

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  file_access_compressed.cpp                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -33,7 +33,7 @@
 #include "core/string.h"
 #include "core/vector.h"
 
-void FileAccessCompressed::configure(StringView p_magic, Compression::Mode p_mode, int p_block_size) {
+void FileAccessCompressed::configure(StringView p_magic, Compression::Mode p_mode, uint32_t p_block_size) {
 
     if (p_magic.length() > 4)
         magic = p_magic.substr(0, 4);
@@ -91,11 +91,11 @@ Error FileAccessCompressed::open_after_magic(FileAccess *p_base) {
     read_block_count = bc;
     read_block_size = read_blocks.size() == 1 ? read_total : block_size;
 
-    Compression::decompress(buffer.data(), read_block_size, comp_buffer.data(), read_blocks[0].csize, cmode);
+    int ret = Compression::decompress(buffer.data(), read_block_size, comp_buffer.data(), read_blocks[0].csize, cmode);
     read_block = 0;
     read_pos = 0;
 
-    return OK;
+    return ret == -1 ? ERR_FILE_CORRUPT : OK;
 }
 
 Error FileAccessCompressed::_open(StringView p_path, int p_mode_flags) {
@@ -130,10 +130,11 @@ Error FileAccessCompressed::_open(StringView p_path, int p_mode_flags) {
         char rmagic[5];
         f->get_buffer((uint8_t *)rmagic, 4);
         rmagic[4] = 0;
-        if (magic != rmagic || open_after_magic(f) != OK) {
+        err = ERR_FILE_UNRECOGNIZED;
+        if (magic != rmagic || (err = open_after_magic(f)) != OK) {
             memdelete(f);
             f = nullptr;
-            return ERR_FILE_UNRECOGNIZED;
+            return err;
         }
     }
 
@@ -203,28 +204,29 @@ void FileAccessCompressed::seek(size_t p_position) {
         ERR_FAIL_COND(p_position > write_max);
 
         write_pos = p_position;
-
-    } else {
-
-        ERR_FAIL_COND(p_position > read_total);
-        if (p_position == read_total) {
-            at_end = true;
-        } else {
-            at_end = false;
-            read_eof = false;
-            int block_idx = p_position / block_size;
-            if (block_idx != read_block) {
-
-                read_block = block_idx;
-                f->seek(read_blocks[read_block].offset);
-                f->get_buffer(comp_buffer.data(), read_blocks[read_block].csize);
-                Compression::decompress(buffer.data(), read_blocks.size() == 1 ? read_total : block_size, comp_buffer.data(), read_blocks[read_block].csize, cmode);
-                read_block_size = read_block == read_block_count - 1 ? read_total % block_size : block_size;
-            }
-
-            read_pos = p_position % block_size;
-        }
+        return;
     }
+
+    ERR_FAIL_COND(p_position > read_total);
+    if (p_position == read_total) {
+        at_end = true;
+        return;
+    }
+
+    at_end = false;
+    read_eof = false;
+    int block_idx = p_position / block_size;
+    if (block_idx != read_block) {
+
+        read_block = block_idx;
+        f->seek(read_blocks[read_block].offset);
+        f->get_buffer(comp_buffer.data(), read_blocks[read_block].csize);
+        int res = Compression::decompress(buffer.data(), read_blocks.size() == 1 ? read_total : block_size, comp_buffer.data(), read_blocks[read_block].csize, cmode);
+        ERR_FAIL_COND_MSG(res == -1, "Compressed file is corrupt.");
+        read_block_size = read_block == read_block_count - 1 ? read_total % block_size : block_size;
+    }
+
+    read_pos = p_position % block_size;
 }
 
 void FileAccessCompressed::seek_end(int64_t p_position) {
@@ -289,7 +291,8 @@ uint8_t FileAccessCompressed::get_8() const {
         if (read_block < read_block_count) {
             //read another block of compressed data
             f->get_buffer(comp_buffer.data(), read_blocks[read_block].csize);
-            Compression::decompress(buffer.data(), read_blocks.size() == 1 ? read_total : block_size, comp_buffer.data(), read_blocks[read_block].csize, cmode);
+            int res = Compression::decompress(buffer.data(), read_blocks.size() == 1 ? read_total : block_size, comp_buffer.data(), read_blocks[read_block].csize, cmode);
+            ERR_FAIL_COND_V_MSG(res == -1, 0, "Compressed file is corrupt.");
             read_block_size = read_block == read_block_count - 1 ? read_total % block_size : block_size;
             read_pos = 0;
 
@@ -301,10 +304,10 @@ uint8_t FileAccessCompressed::get_8() const {
 
     return ret;
 }
-int FileAccessCompressed::get_buffer(uint8_t *p_dst, int p_length) const {
-
-    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
-    ERR_FAIL_COND_V_MSG(writing, 0, "File has not been opened in read mode.");
+uint64_t FileAccessCompressed::get_buffer(uint8_t *p_dst, uint64_t p_length) const {
+    ERR_FAIL_COND_V(!p_dst && p_length > 0, -1);
+    ERR_FAIL_COND_V_MSG(!f, -1, "File must be opened before use.");
+    ERR_FAIL_COND_V_MSG(writing, -1, "File has not been opened in read mode.");
 
     if (at_end) {
         read_eof = true;
@@ -321,16 +324,18 @@ int FileAccessCompressed::get_buffer(uint8_t *p_dst, int p_length) const {
             if (read_block < read_block_count) {
                 //read another block of compressed data
                 f->get_buffer(comp_buffer.data(), read_blocks[read_block].csize);
-                Compression::decompress(buffer.data(), read_blocks.size() == 1 ? read_total : block_size, comp_buffer.data(), read_blocks[read_block].csize, cmode);
+                int res = Compression::decompress(buffer.data(), read_blocks.size() == 1 ? read_total : block_size, comp_buffer.data(), read_blocks[read_block].csize, cmode);
+                ERR_FAIL_COND_V_MSG(res == -1, -1, "Compressed file is corrupt.");
                 read_block_size = read_block == read_block_count - 1 ? read_total % block_size : block_size;
                 read_pos = 0;
 
             } else {
                 read_block--;
                 at_end = true;
-                if (i < p_length - 1)
+                if (i + 1 < p_length) {
                     read_eof = true;
-                return i;
+                }
+                return i+1;
             }
         }
     }

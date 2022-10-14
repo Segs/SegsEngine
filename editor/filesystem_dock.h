@@ -44,8 +44,6 @@
 #include "scene/gui/tree.h"
 #include "scene/main/timer.h"
 
-#include "core/os/dir_access.h"
-#include "core/os/thread.h"
 
 #include "create_dialog.h"
 
@@ -54,7 +52,13 @@
 #include "editor_file_system.h"
 #include "script_create_dialog.h"
 
+#include "core/os/dir_access.h"
+#include "core/os/thread.h"
+#include "core/pair.h"
+
 class EditorNode;
+struct DockFileInfo;
+class SceneCreateDialog;
 
 class GODOT_EXPORT FileSystemDock : public VBoxContainer {
     GDCLASS(FileSystemDock,VBoxContainer)
@@ -70,6 +74,15 @@ public:
         DISPLAY_MODE_SPLIT,
     };
 
+    enum FileSortOption {
+        FILE_SORT_NAME = 0,
+        FILE_SORT_NAME_REVERSE,
+        FILE_SORT_TYPE,
+        FILE_SORT_TYPE_REVERSE,
+        FILE_SORT_MODIFIED_TIME,
+        FILE_SORT_MODIFIED_TIME_REVERSE,
+        FILE_SORT_MAX,
+    };
 private:
     enum FileMenu {
         FILE_OPEN,
@@ -110,8 +123,11 @@ private:
     Button *button_hist_next;
     Button *button_hist_prev;
     LineEdit *current_path;
+    HBoxContainer *toolbar2_hbc;
     LineEdit *tree_search_box;
+    MenuButton *tree_button_sort;
     LineEdit *file_list_search_box;
+    MenuButton *file_list_button_sort;
 
     String searched_string;
     Vector<String> uncollapsed_paths_before_search;
@@ -137,12 +153,12 @@ private:
     LineEdit *duplicate_dialog_text;
     ConfirmationDialog *make_dir_dialog;
     LineEdit *make_dir_dialog_text;
-    ConfirmationDialog *make_scene_dialog;
-    LineEdit *make_scene_dialog_text;
     ConfirmationDialog *overwrite_dialog;
+    SceneCreateDialog* make_scene_dialog = nullptr;
     ScriptCreateDialog *make_script_dialog;
     CreateDialog *new_resource_dialog;
 
+    FileSortOption file_sort = FILE_SORT_NAME;
     bool always_show_folders;
 
     class FileOrFolder {
@@ -175,7 +191,7 @@ private:
     ItemList *files;
     bool import_dock_needs_update;
 
-    Ref<Texture> _get_tree_item_icon(EditorFileSystemDirectory *p_dir, int p_idx);
+    Ref<Texture> _get_tree_item_icon(bool p_is_valid, const StringName &p_file_type);
     bool _create_tree(TreeItem *p_parent, EditorFileSystemDirectory *p_dir, Vector<String> &uncollapsed_paths, bool p_select_in_favorites, bool p_unfold_path=false);
     Vector<String> _compute_uncollapsed_paths();
     void _update_tree(const Vector<String> &p_uncollapsed_paths = null_string_pvec, bool p_uncollapse_root = false, bool p_select_in_favorites = false, bool p_unfold_path=false);
@@ -188,8 +204,6 @@ private:
     void _toggle_file_display();
     void _set_file_display(bool p_active);
     void _fs_changed();
-
-    void _tree_toggle_collapsed();
 
     void _select_file(StringView p_path, bool p_select_in_favorites = false);
     void _tree_activate_file();
@@ -211,8 +225,6 @@ private:
 
     void _file_removed(const String& p_file);
     void _folder_removed(const String& p_folder);
-    void _files_moved(UIString p_old_file, UIString p_new_file);
-    void _folder_moved(UIString p_old_folder, UIString p_new_folder);
 
     void _resource_created();
     void _make_dir_confirm();
@@ -237,8 +249,11 @@ private:
 
     void _toggle_split_mode(bool p_active);
 
+    void _focus_current_search_box();
     void _search_changed(const String &p_text, const Control *p_from);
 
+    MenuButton *_create_file_menu_button();
+    void _file_sort_popup(int p_id);
     void _file_and_folders_fill_popup(PopupMenu *p_popup, const Vector<String> &p_paths, bool p_display_path_dependent_options = true);
     void _tree_rmb_select(const Vector2 &p_pos);
     void _tree_rmb_empty(const Vector2 &p_pos);
@@ -246,21 +261,13 @@ private:
     void _file_list_rmb_pressed(const Vector2 &p_pos);
     void _tree_empty_selected();
 
-    struct FileInfo {
-        String name;
-        String path;
-        StringName type;
-        Vector<String> sources;
-        bool import_broken;
+    void _sort_file_info_list(Vector<DockFileInfo> &r_file_list);
 
-        bool operator<(const FileInfo &fi) const;
-    };
-
-    void _search(EditorFileSystemDirectory *p_path, List<FileInfo> *matches, int p_max_items);
+    void _search(EditorFileSystemDirectory *p_path, Vector<DockFileInfo> *matches, int p_max_items);
 
     void _set_current_path_text(StringView p_path);
 
-    void _reset_path();
+    void _reset_path(StringView path);
 public: // made public for scripting API
     Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
     bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
@@ -269,8 +276,8 @@ private:
     void _get_drag_target_folder(String &target, bool &target_favorites, const Point2 &p_point, Control *p_from) const;
 
     void _preview_invalidated(StringView p_path);
-    void _file_list_thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
-    void _tree_thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
+    void _file_list_thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Pair<int, String> p_udata);
+    void _tree_thumbnail_done(const Ref<Texture> &p_small_preview, Pair<int, TreeItem *> p_udata);
 
     void _update_display_mode(bool p_force = false);
 
@@ -300,6 +307,8 @@ public:
 
     void set_display_mode(DisplayMode p_display_mode);
     DisplayMode get_display_mode() { return display_mode; }
+    void set_file_sort(FileSortOption p_file_sort);
+    FileSortOption get_file_sort() { return file_sort; }
 
     void set_file_list_display_mode(FileListDisplayMode p_mode);
     FileListDisplayMode get_file_list_display_mode() { return file_list_display_mode; };

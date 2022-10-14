@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  skeleton_3d.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -49,7 +49,7 @@ class GODOT_EXPORT SkinReference : public RefCounted {
 
     Vector<uint32_t> skin_bone_indices;
     Skeleton *skeleton_node = nullptr;
-    RID skeleton;
+    RenderingEntity skeleton;
     Ref<Skin> skin;
     uint32_t *skin_bone_indices_ptrs = nullptr;
     uint64_t skeleton_version = 0;
@@ -61,9 +61,9 @@ protected:
 
 public:
     Skeleton *get_skeleton_node() const { return skeleton_node; }
-    RID get_skeleton() const;
+    RenderingEntity get_skeleton() const { return skeleton; }
     Ref<Skin> get_skin() const;
-    ~SkinReference();
+    ~SkinReference() override;
 };
 class GODOT_EXPORT Skeleton : public Node3D {
 
@@ -84,6 +84,7 @@ private:
 
         Transform pose;
         Transform pose_global;
+        Transform pose_global_no_override;
 
         bool custom_pose_enable;
         Transform custom_pose;
@@ -96,7 +97,7 @@ private:
         PhysicalBone3D* cache_parent_physical_bone;
 #endif // _3D_DISABLED
 
-        Vector<ObjectID> nodes_bound;
+        Vector<GameEntity> nodes_bound;
 
         Bone() {
             parent = -1;
@@ -156,6 +157,7 @@ public:
     void add_bone(StringView p_name);
     int find_bone(StringView p_name) const;
     const String &get_bone_name(int p_bone) const;
+    void set_bone_name(int p_bone, const String &p_name);
 
     bool is_bone_parent_of(int p_bone_id, int p_parent_bone_id) const;
 
@@ -173,6 +175,7 @@ public:
     void set_bone_rest(int p_bone, const Transform &p_rest);
     Transform get_bone_rest(int p_bone) const;
     Transform get_bone_global_pose(int p_bone) const;
+    Transform get_bone_global_pose_no_override(int p_bone) const;
 
     void clear_bones_global_pose_override();
     void set_bone_global_pose_override(int p_bone, const Transform &p_pose, float p_amount, bool p_persistent = false);

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  config_file.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -65,9 +65,11 @@ public:
     void erase_section(StringView p_section);
     void erase_section_key(StringView p_section, StringView p_key);
 
-    Error parse(const String &p_data);
     Error save(StringView p_path);
     Error load(StringView p_path);
+    Error parse(const String &p_data);
+
+    void clear();
 
     Error load_encrypted(StringView p_path, const Vector<uint8_t> &p_key);
     Error load_encrypted_pass(StringView p_path, StringView p_pass);

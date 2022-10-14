@@ -33,6 +33,7 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/engine.h"
+#include "core/math/geometry.h"
 #include "scene/2d/navigation_2d.h"
 #include "servers/navigation_2d_server.h"
 #include "core/translation_helpers.h"
@@ -43,43 +44,43 @@ IMPL_GDCLASS(NavigationAgent2D)
 
 void NavigationAgent2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_target_desired_distance", {"desired_distance"}),&NavigationAgent2D::set_target_desired_distance);
-    MethodBinder::bind_method(D_METHOD("get_target_desired_distance"), &NavigationAgent2D::get_target_desired_distance);
+    BIND_METHOD(NavigationAgent2D,set_target_desired_distance);
+    BIND_METHOD(NavigationAgent2D,get_target_desired_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}),&NavigationAgent2D::set_radius);
-    MethodBinder::bind_method(D_METHOD("get_radius"), &NavigationAgent2D::get_radius);
+    BIND_METHOD(NavigationAgent2D,set_radius);
+    BIND_METHOD(NavigationAgent2D,get_radius);
 
     MethodBinder::bind_method(D_METHOD("set_navigation", {"navigation"}),&NavigationAgent2D::set_navigation_node);
     MethodBinder::bind_method(D_METHOD("get_navigation"), &NavigationAgent2D::get_navigation_node);
 
-    MethodBinder::bind_method(D_METHOD("set_neighbor_dist", {"neighbor_dist"}),&NavigationAgent2D::set_neighbor_dist);
-    MethodBinder::bind_method(D_METHOD("get_neighbor_dist"), &NavigationAgent2D::get_neighbor_dist);
+    BIND_METHOD(NavigationAgent2D,set_neighbor_dist);
+    BIND_METHOD(NavigationAgent2D,get_neighbor_dist);
 
-    MethodBinder::bind_method(D_METHOD("set_max_neighbors", {"max_neighbors"}),&NavigationAgent2D::set_max_neighbors);
-    MethodBinder::bind_method(D_METHOD("get_max_neighbors"), &NavigationAgent2D::get_max_neighbors);
+    BIND_METHOD(NavigationAgent2D,set_max_neighbors);
+    BIND_METHOD(NavigationAgent2D,get_max_neighbors);
 
-    MethodBinder::bind_method(D_METHOD("set_time_horizon", {"time_horizon"}),&NavigationAgent2D::set_time_horizon);
-    MethodBinder::bind_method(D_METHOD("get_time_horizon"), &NavigationAgent2D::get_time_horizon);
+    BIND_METHOD(NavigationAgent2D,set_time_horizon);
+    BIND_METHOD(NavigationAgent2D,get_time_horizon);
 
-    MethodBinder::bind_method(D_METHOD("set_max_speed", {"max_speed"}),&NavigationAgent2D::set_max_speed);
-    MethodBinder::bind_method(D_METHOD("get_max_speed"), &NavigationAgent2D::get_max_speed);
+    BIND_METHOD(NavigationAgent2D,set_max_speed);
+    BIND_METHOD(NavigationAgent2D,get_max_speed);
 
-    MethodBinder::bind_method(D_METHOD("set_path_max_distance", {"max_speed"}),&NavigationAgent2D::set_path_max_distance);
-    MethodBinder::bind_method(D_METHOD("get_path_max_distance"), &NavigationAgent2D::get_path_max_distance);
+    BIND_METHOD(NavigationAgent2D,set_path_max_distance);
+    BIND_METHOD(NavigationAgent2D,get_path_max_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_target_location", {"location"}),&NavigationAgent2D::set_target_location);
-    MethodBinder::bind_method(D_METHOD("get_target_location"), &NavigationAgent2D::get_target_location);
-    MethodBinder::bind_method(D_METHOD("get_next_location"), &NavigationAgent2D::get_next_location);
-    MethodBinder::bind_method(D_METHOD("distance_to_target"), &NavigationAgent2D::distance_to_target);
-    MethodBinder::bind_method(D_METHOD("set_velocity", {"velocity"}),&NavigationAgent2D::set_velocity);
-    MethodBinder::bind_method(D_METHOD("get_nav_path"), &NavigationAgent2D::get_nav_path);
-    MethodBinder::bind_method(D_METHOD("get_nav_path_index"), &NavigationAgent2D::get_nav_path_index);
-    MethodBinder::bind_method(D_METHOD("is_target_reached"), &NavigationAgent2D::is_target_reached);
-    MethodBinder::bind_method(D_METHOD("is_target_reachable"), &NavigationAgent2D::is_target_reachable);
-    MethodBinder::bind_method(D_METHOD("is_navigation_finished"), &NavigationAgent2D::is_navigation_finished);
-    MethodBinder::bind_method(D_METHOD("get_final_location"), &NavigationAgent2D::get_final_location);
+    BIND_METHOD(NavigationAgent2D,set_target_location);
+    BIND_METHOD(NavigationAgent2D,get_target_location);
+    BIND_METHOD(NavigationAgent2D,get_next_location);
+    BIND_METHOD(NavigationAgent2D,distance_to_target);
+    BIND_METHOD(NavigationAgent2D,set_velocity);
+    BIND_METHOD(NavigationAgent2D,get_nav_path);
+    BIND_METHOD(NavigationAgent2D,get_nav_path_index);
+    BIND_METHOD(NavigationAgent2D,is_target_reached);
+    BIND_METHOD(NavigationAgent2D,is_target_reachable);
+    BIND_METHOD(NavigationAgent2D,is_navigation_finished);
+    BIND_METHOD(NavigationAgent2D,get_final_location);
 
-    MethodBinder::bind_method(D_METHOD("_avoidance_done", {"new_velocity"}),&NavigationAgent2D::_avoidance_done);
+    BIND_METHOD(NavigationAgent2D,_avoidance_done);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "target_desired_distance", PropertyHint::Range, "0.1,100,0.01"), "set_target_desired_distance", "get_target_desired_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.1,500,0.01"), "set_radius", "get_radius");
@@ -158,7 +159,7 @@ NavigationAgent2D::NavigationAgent2D() :
 }
 
 NavigationAgent2D::~NavigationAgent2D() {
-    Navigation2DServer::get_singleton()->free(agent);
+    Navigation2DServer::get_singleton()->free_rid(agent);
     agent = RID(); // Pointless
 }
 
@@ -172,7 +173,7 @@ void NavigationAgent2D::set_navigation(Navigation2D *p_nav) {
 
 void NavigationAgent2D::set_navigation_node(Node *p_nav) {
     Navigation2D *nav = object_cast<Navigation2D>(p_nav);
-    ERR_FAIL_COND(nav == NULL);
+    ERR_FAIL_COND(nav == nullptr);
     set_navigation(nav);
 }
 
@@ -231,7 +232,7 @@ Vector2 NavigationAgent2D::get_target_location() const {
 Vector2 NavigationAgent2D::get_next_location() {
     update_navigation();
     if (navigation_path.size() == 0) {
-        ERR_FAIL_COND_V(agent_parent == NULL, Vector2());
+        ERR_FAIL_COND_V(agent_parent == nullptr, Vector2());
         return agent_parent->get_global_transform().get_origin();
     } else {
         return navigation_path[nav_path_index];
@@ -239,7 +240,7 @@ Vector2 NavigationAgent2D::get_next_location() {
 }
 
 real_t NavigationAgent2D::distance_to_target() const {
-    ERR_FAIL_COND_V(agent_parent == NULL, 0.0);
+    ERR_FAIL_COND_V(agent_parent == nullptr, 0.0);
     return agent_parent->get_global_transform().get_origin().distance_to(target_location);
 }
 

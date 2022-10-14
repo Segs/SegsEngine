@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  world_3d.h                                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,10 +30,10 @@
 
 #pragma once
 
+#include "core/engine_entities.h"
 #include "core/resource.h"
 #include "scene/resources/environment.h"
 #include "servers/physics_server_3d.h"
-#include "servers/rendering_server.h"
 
 class Camera3D;
 class VisibilityNotifier3D;
@@ -46,7 +46,8 @@ class GODOT_EXPORT World3D : public Resource {
 
 private:
     RID physics_space;
-    RID renderer_scene;
+    RID navigation_map;
+    RenderingEntity renderer_scene;
     SpatialIndexer *indexer;
     Ref<Environment> environment;
     Ref<Environment> fallback_environment;
@@ -69,7 +70,8 @@ protected:
 
 public:
     RID get_space() const;
-    RID get_scenario() const;
+    RenderingEntity get_scenario() const;
+    RID get_navigation_map() const;
 
     void set_environment(const Ref<Environment> &p_environment);
     Ref<Environment> get_environment() const;

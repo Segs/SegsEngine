@@ -48,21 +48,21 @@ public:
 
 private:
     int button_mask;
-    bool toggle_mode;
-    bool shortcut_in_tooltip;
-    bool keep_pressed_outside;
+    bool toggle_mode = false;
+    bool shortcut_in_tooltip = true;
+    bool keep_pressed_outside = false;
     FocusMode enabled_focus_mode;
     Ref<ShortCut> shortcut;
 
     ActionMode action_mode;
     struct Status {
 
-        bool pressed;
-        bool hovering;
-        bool press_attempt;
-        bool pressing_inside;
+        bool pressed = false;
+        bool hovering = false;
+        bool press_attempt = false;
+        bool pressing_inside = false;
 
-        bool disabled;
+        bool disabled = false;
 
     } status;
 
@@ -101,7 +101,8 @@ public:
     bool is_pressing() const; ///< return whether button is pressed (toggled in)
     bool is_hovered() const;
 
-    void set_pressed(bool p_pressed); ///only works in toggle mode
+    void set_pressed(bool p_pressed); // Only works in toggle mode.
+    void set_pressed_no_signal(bool p_pressed);
     void set_toggle_mode(bool p_on);
     bool is_toggle_mode() const;
 
@@ -126,7 +127,7 @@ public:
     void set_shortcut(const Ref<ShortCut> &p_shortcut);
     Ref<ShortCut> get_shortcut() const;
 
-    StringName get_tooltip(const Point2 &p_pos) const override;
+    const String & get_tooltip(const Point2 &p_pos) const override;
 
     void set_button_group(const Ref<ButtonGroup> &p_group);
     Ref<ButtonGroup> get_button_group() const;

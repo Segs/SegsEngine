@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  parallax_background.cpp                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -40,7 +40,7 @@ void ParallaxBackground::_notification(int p_what) {
 
         case NOTIFICATION_ENTER_TREE: {
 
-            group_name = StringName("__cameras_" + itos(get_viewport().get_id()));
+            group_name = StringName("__cameras_" + itos(entt::to_integral(get_viewport())));
             add_to_group(group_name);
 
         } break;
@@ -184,19 +184,19 @@ Vector2 ParallaxBackground::get_final_offset() const {
 
 void ParallaxBackground::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_camera_moved"), &ParallaxBackground::_camera_moved);
-    MethodBinder::bind_method(D_METHOD("set_scroll_offset", {"ofs"}), &ParallaxBackground::set_scroll_offset);
-    MethodBinder::bind_method(D_METHOD("get_scroll_offset"), &ParallaxBackground::get_scroll_offset);
-    MethodBinder::bind_method(D_METHOD("set_scroll_base_offset", {"ofs"}), &ParallaxBackground::set_scroll_base_offset);
-    MethodBinder::bind_method(D_METHOD("get_scroll_base_offset"), &ParallaxBackground::get_scroll_base_offset);
-    MethodBinder::bind_method(D_METHOD("set_scroll_base_scale", {"scale"}), &ParallaxBackground::set_scroll_base_scale);
-    MethodBinder::bind_method(D_METHOD("get_scroll_base_scale"), &ParallaxBackground::get_scroll_base_scale);
-    MethodBinder::bind_method(D_METHOD("set_limit_begin", {"ofs"}), &ParallaxBackground::set_limit_begin);
-    MethodBinder::bind_method(D_METHOD("get_limit_begin"), &ParallaxBackground::get_limit_begin);
-    MethodBinder::bind_method(D_METHOD("set_limit_end", {"ofs"}), &ParallaxBackground::set_limit_end);
-    MethodBinder::bind_method(D_METHOD("get_limit_end"), &ParallaxBackground::get_limit_end);
-    MethodBinder::bind_method(D_METHOD("set_ignore_camera_zoom", {"ignore"}), &ParallaxBackground::set_ignore_camera_zoom);
-    MethodBinder::bind_method(D_METHOD("is_ignore_camera_zoom"), &ParallaxBackground::is_ignore_camera_zoom);
+    BIND_METHOD(ParallaxBackground,_camera_moved);
+    BIND_METHOD(ParallaxBackground,set_scroll_offset);
+    BIND_METHOD(ParallaxBackground,get_scroll_offset);
+    BIND_METHOD(ParallaxBackground,set_scroll_base_offset);
+    BIND_METHOD(ParallaxBackground,get_scroll_base_offset);
+    BIND_METHOD(ParallaxBackground,set_scroll_base_scale);
+    BIND_METHOD(ParallaxBackground,get_scroll_base_scale);
+    BIND_METHOD(ParallaxBackground,set_limit_begin);
+    BIND_METHOD(ParallaxBackground,get_limit_begin);
+    BIND_METHOD(ParallaxBackground,set_limit_end);
+    BIND_METHOD(ParallaxBackground,get_limit_end);
+    BIND_METHOD(ParallaxBackground,set_ignore_camera_zoom);
+    BIND_METHOD(ParallaxBackground,is_ignore_camera_zoom);
 
     ADD_GROUP("Scroll", "scroll_");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "scroll_offset"), "set_scroll_offset", "get_scroll_offset");

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  light_3d.h                                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -43,6 +43,7 @@ public:
     enum Param {
         PARAM_ENERGY = RS::LIGHT_PARAM_ENERGY,
         PARAM_INDIRECT_ENERGY = RS::LIGHT_PARAM_INDIRECT_ENERGY,
+        PARAM_SIZE = RS::LIGHT_PARAM_SIZE,
         PARAM_SPECULAR = RS::LIGHT_PARAM_SPECULAR,
         PARAM_RANGE = RS::LIGHT_PARAM_RANGE,
         PARAM_ATTENUATION = RS::LIGHT_PARAM_ATTENUATION,
@@ -80,9 +81,7 @@ private:
     void _update_visibility();
 
 protected:
-    RID light;
-
-    virtual bool _can_gizmo_scale() const;
+    RenderingEntity light;
 
     static void _bind_methods();
     void _notification(int p_what);
@@ -150,6 +149,7 @@ private:
 
 protected:
     static void _bind_methods();
+    void _validate_property(PropertyInfo &property) const override;
 
 public:
     void set_shadow_mode(ShadowMode p_mode);

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  progress_dialog.cpp                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -37,7 +37,7 @@
 #include "core/os/os.h"
 #include "core/translation_helpers.h"
 #include "editor_scale.h"
-#include "main/main.h"
+#include "main/main_class.h"
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(BackgroundProgress)
@@ -45,7 +45,7 @@ IMPL_GDCLASS(ProgressDialog)
 
 void BackgroundProgress::_add_task(const StringName &p_task, const StringName &p_label, int p_steps) {
 
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
     ERR_FAIL_COND_MSG(tasks.contains(p_task), "Task '" + p_task + "' already exists.");
     BackgroundProgress::Task t;
     t.hb = memnew(HBoxContainer);
@@ -70,7 +70,7 @@ void BackgroundProgress::_add_task(const StringName &p_task, const StringName &p
 
 void BackgroundProgress::_update() {
 
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     for (eastl::pair<const StringName,int> &E : updates) {
 
@@ -84,7 +84,7 @@ void BackgroundProgress::_update() {
 
 void BackgroundProgress::_task_step(const StringName &p_task, int p_step) {
 
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     ERR_FAIL_COND(!tasks.contains(p_task));
 
@@ -96,7 +96,7 @@ void BackgroundProgress::_task_step(const StringName &p_task, int p_step) {
 }
 void BackgroundProgress::_end_task(const StringName &p_task) {
 
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     ERR_FAIL_COND(!tasks.contains(p_task));
     Task &t = tasks[p_task];
@@ -121,7 +121,7 @@ void BackgroundProgress::task_step(const StringName &p_task, int p_step) {
     //this code is weird, but it prevents deadlock.
     bool no_updates = true;
     {
-        _THREAD_SAFE_METHOD_
+        _THREAD_SAFE_METHOD_;
         no_updates = updates.empty();
     }
 
@@ -129,7 +129,7 @@ void BackgroundProgress::task_step(const StringName &p_task, int p_step) {
         MessageQueue::get_singleton()->push_call(get_instance_id(),[this](){_update();});
 
     {
-        _THREAD_SAFE_METHOD_
+        _THREAD_SAFE_METHOD_;
         updates[p_task] = p_step;
     }
 }
@@ -139,14 +139,8 @@ void BackgroundProgress::end_task(const StringName &p_task) {
     MessageQueue::get_singleton()->push_call(this, "_end_task", p_task);
 }
 
-BackgroundProgress::BackgroundProgress() {
-    __thread__safe__.reset(new Mutex);
-}
-
-BackgroundProgress::~BackgroundProgress()
-{
-
-}
+BackgroundProgress::BackgroundProgress()  = default;
+BackgroundProgress::~BackgroundProgress()  = default;
 
 ////////////////////////////////////////////////
 
@@ -217,11 +211,11 @@ void ProgressDialog::add_task(const StringName &p_task, const StringName &p_labe
     }
 }
 
-bool ProgressDialog::task_step(const StringName &p_task, const StringName &p_state, int p_step, bool p_force_redraw) {
+bool ProgressDialog::task_step(StringView p_task, const StringName &p_state, int p_step, bool p_force_redraw) {
 
-    ERR_FAIL_COND_V(!tasks.contains(p_task), cancelled);
+    ERR_FAIL_COND_V(!tasks.contains_as(p_task), cancelled);
 
-    Task &t = tasks[p_task];
+    Task &t = tasks[StringName(p_task)];
     if (!p_force_redraw) {
         uint64_t tus = OS::get_singleton()->get_ticks_usec();
         if (tus - t.last_progress_tick < 200000) //200ms
@@ -242,11 +236,12 @@ bool ProgressDialog::task_step(const StringName &p_task, const StringName &p_sta
     Main::iteration(); // this will not work on a lot of platforms, so it's only meant for the editor
     return cancelled;
 }
-bool ProgressDialog::task_step(const StringName &p_task, StringView p_state, int p_step, bool p_force_redraw) {
+bool ProgressDialog::task_step(StringView p_task, StringView p_state, int p_step, bool p_force_redraw) {
 
-    ERR_FAIL_COND_V(!tasks.contains(p_task), cancelled);
+    auto iter = tasks.find_as(p_task);
+    ERR_FAIL_COND_V(iter==tasks.end(), cancelled);
 
-    Task &t = tasks[p_task];
+    Task &t = iter->second;
     if (!p_force_redraw) {
         uint64_t tus = OS::get_singleton()->get_ticks_usec();
         if (tus - t.last_progress_tick < 200000) //200ms

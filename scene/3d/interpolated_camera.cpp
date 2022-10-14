@@ -41,7 +41,6 @@ void InterpolatedCamera::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
 
-            WARN_DEPRECATED_MSG("InterpolatedCamera has been deprecated and will be removed in Godot 4.0.");
 
             if (Engine::get_singleton()->is_editor_hint() && enabled)
                 set_process_internal(false);
@@ -137,22 +136,17 @@ real_t InterpolatedCamera::get_speed() const {
     return speed;
 }
 
-String InterpolatedCamera::get_configuration_warning() const {
-
-    return TTRS("InterpolatedCamera has been deprecated and will be removed in Godot 4.0.");
-}
-
 void InterpolatedCamera::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_target_path", {"target_path"}), &InterpolatedCamera::set_target_path);
-    MethodBinder::bind_method(D_METHOD("get_target_path"), &InterpolatedCamera::get_target_path);
+    BIND_METHOD(InterpolatedCamera,set_target_path);
+    BIND_METHOD(InterpolatedCamera,get_target_path);
     MethodBinder::bind_method(D_METHOD("set_target", {"target"}), &InterpolatedCamera::_set_target);
 
-    MethodBinder::bind_method(D_METHOD("set_speed", {"speed"}), &InterpolatedCamera::set_speed);
-    MethodBinder::bind_method(D_METHOD("get_speed"), &InterpolatedCamera::get_speed);
+    BIND_METHOD(InterpolatedCamera,set_speed);
+    BIND_METHOD(InterpolatedCamera,get_speed);
 
-    MethodBinder::bind_method(D_METHOD("set_interpolation_enabled", {"target_path"}), &InterpolatedCamera::set_interpolation_enabled);
-    MethodBinder::bind_method(D_METHOD("is_interpolation_enabled"), &InterpolatedCamera::is_interpolation_enabled);
+    BIND_METHOD(InterpolatedCamera,set_interpolation_enabled);
+    BIND_METHOD(InterpolatedCamera,is_interpolation_enabled);
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "target"), "set_target_path", "get_target_path");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "speed"), "set_speed", "get_speed");

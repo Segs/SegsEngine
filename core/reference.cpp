@@ -52,9 +52,9 @@ bool RefCounted::init_ref() {
 
 void RefCounted::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("init_ref"), &RefCounted::init_ref);
-    MethodBinder::bind_method(D_METHOD("reference"), &RefCounted::reference);
-    MethodBinder::bind_method(D_METHOD("unreference"), &RefCounted::unreference);
+    BIND_METHOD(RefCounted,init_ref);
+    BIND_METHOD(RefCounted,reference);
+    BIND_METHOD(RefCounted,unreference);
 }
 
 int RefCounted::reference_get_count() const {
@@ -70,7 +70,7 @@ bool RefCounted::reference() {
         if (get_script_instance()) {
             get_script_instance()->refcount_incremented();
         }
-        if (instance_binding_count > 0 && !ScriptServer::are_languages_finished()) {
+        if (instance_binding_count.get() > 0 && !ScriptServer::are_languages_finished()) {
             for (int i = 0; i < MAX_SCRIPT_INSTANCE_BINDINGS; i++) {
                 if (_script_instance_bindings && (*_script_instance_bindings)[i]) {
                     ScriptServer::get_language(i)->refcount_incremented_instance_binding(this);
@@ -92,7 +92,7 @@ bool RefCounted::unreference() {
             bool script_ret = get_script_instance()->refcount_decremented();
             die = die && script_ret;
         }
-        if (instance_binding_count > 0 && !ScriptServer::are_languages_finished()) {
+        if (instance_binding_count.get() > 0 && !ScriptServer::are_languages_finished()) {
             for (int i = 0; i < MAX_SCRIPT_INSTANCE_BINDINGS; i++) {
                 if (_script_instance_bindings && (*_script_instance_bindings)[i]) {
                     bool script_ret = ScriptServer::get_language(i)->refcount_decremented_instance_binding(this);
@@ -117,10 +117,10 @@ RefCounted::~RefCounted() {
 
 Variant WeakRef::get_ref() const {
 
-    if (ref.is_null())
+    if (ref==entt::null)
         return Variant();
 
-    Object *obj = ObjectDB::get_instance(ref);
+    Object *obj = object_for_entity(ref);
     if (!obj)
         return Variant();
     RefCounted *r = object_cast<RefCounted>(obj);
@@ -132,17 +132,17 @@ Variant WeakRef::get_ref() const {
 }
 
 void WeakRef::set_obj(Object *p_object) {
-    ref = p_object ? p_object->get_instance_id() : ObjectID(0ULL);
+    ref = p_object ? p_object->get_instance_id() : entt::null;
 }
 
 void WeakRef::set_ref(const REF &p_ref) {
 
-    ref = p_ref ? p_ref->get_instance_id() : ObjectID(0ULL);
+    ref = p_ref ? p_ref->get_instance_id() : entt::null;
 }
 
 
 
 void WeakRef::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_ref"), &WeakRef::get_ref);
+    BIND_METHOD(WeakRef,get_ref);
 }

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  script_editor_plugin.h                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -265,12 +265,16 @@ class GODOT_EXPORT ScriptEditor : public PanelContainer {
     int history_pos;
 
     Vector<String> previous_scripts;
+    Vector<int> script_close_queue;
 
     void _tab_changed(int p_which);
     void _menu_option(int p_option);
     void _update_debug_options();
     void _theme_option(int p_option);
     void _show_save_theme_as_dialog();
+    bool _has_docs_tab() const;
+    bool _has_script_tab() const;
+    void _prepare_file_menu();
 
     Tree *disk_changed_list;
     ConfirmationDialog *disk_changed;
@@ -280,7 +284,6 @@ class GODOT_EXPORT ScriptEditor : public PanelContainer {
     String _get_debug_tooltip(StringView p_text, Node *_se);
 
     void _resave_scripts(StringView p_str);
-    void _reload_scripts();
 
     bool _test_script_times_on_disk(const RES& p_for_script = Ref<Resource>());
 
@@ -292,11 +295,12 @@ class GODOT_EXPORT ScriptEditor : public PanelContainer {
 
     void _close_tab(int p_idx, bool p_save = true, bool p_history_back = true);
 
-    void _close_current_tab();
+    void _close_current_tab(bool p_save=true);
     void _close_discard_current_tab(StringView p_str);
     void _close_docs_tab();
     void _close_other_tabs();
     void _close_all_tabs();
+    void _queue_close_tabs();
 
     void _copy_script_path();
 
@@ -306,6 +310,7 @@ class GODOT_EXPORT ScriptEditor : public PanelContainer {
 
     bool pending_auto_reload;
     bool auto_reload_running_scripts;
+    void _trigger_live_script_reload();
     void _live_auto_reload_running_scripts();
 
     void _update_selected_editor_menu();
@@ -320,18 +325,17 @@ class GODOT_EXPORT ScriptEditor : public PanelContainer {
 
     void _add_callback(Object *p_obj, const StringName &p_function, const PoolVector<String> &p_args);
     void _res_saved_callback(const Ref<Resource> &p_res);
+    void _scene_saved_callback(const String &p_path);
 
     bool trim_trailing_whitespace_on_save;
     bool use_space_indentation;
     bool convert_indent_on_save;
 
-    void _trim_trailing_whitespace(TextEdit *tx);
 
     void _set_execution(REF p_script, int p_line);
     void _clear_execution(REF p_script);
     void _breaked(bool p_breaked, bool p_can_debug);
     void _show_debugger(bool p_show);
-    void _update_window_menu();
     void _script_created(Ref<Script> p_script);
 
     ScriptEditorBase *_get_current_editor() const;
@@ -366,13 +370,13 @@ class GODOT_EXPORT ScriptEditor : public PanelContainer {
     void _script_split_dragged(float);
 
 
+    void _input(const Ref<InputEvent> &p_event);
     void _unhandled_input(const Ref<InputEvent> &p_event);
 
     void _script_list_gui_input(const Ref<InputEvent> &ev);
     void _make_script_list_context_menu();
 
     void _help_search(StringView p_text);
-    void _help_index(UIString p_text);
 
     void _history_forward();
     void _history_back();
@@ -397,6 +401,7 @@ class GODOT_EXPORT ScriptEditor : public PanelContainer {
     Error _save_text_file(Ref<TextFile> p_text_file, StringView p_path);
 
     void _on_find_in_files_requested(StringView text);
+    void _on_replace_in_files_requested(StringView text);
     void _on_find_in_files_result_selected(StringView fpath, int line_number, int begin, int end);
     void _start_find_in_files(bool with_replace);
     void _on_find_in_files_modified_files(const PoolStringArray &paths);
@@ -425,6 +430,7 @@ public:
     void ensure_focus_current();
     void apply_scripts() const;
     void open_script_create_dialog(StringView p_base_name, StringView p_base_path);
+    void reload_scripts();
 
     void ensure_select_current();
 
@@ -433,6 +439,7 @@ public:
 
     void get_breakpoints(Vector<String> *p_breakpoints);
 
+    void save_current_script();
     void save_all_scripts();
 
     void set_window_layout(Ref<ConfigFile> p_layout);

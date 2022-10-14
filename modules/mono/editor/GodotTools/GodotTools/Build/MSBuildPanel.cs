@@ -80,10 +80,9 @@ namespace GodotTools.Build
 
         private void ViewLogToggled(bool pressed) => BuildOutputView.LogVisible = pressed;
 
-        private void BuildMenuOptionPressed(int incId)
+        private void BuildMenuOptionPressed(int id)
         {
-            BuildMenuOptions id = (BuildMenuOptions) incId;
-            switch (id)
+            switch ((BuildMenuOptions)id)
             {
                 case BuildMenuOptions.BuildSolution:
                     BuildSolution();

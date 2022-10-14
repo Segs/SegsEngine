@@ -78,9 +78,9 @@ public:
         return b;
     }
 
-	int bitlog(int n) const {
-		int k;
-		for (k = 0; n != 1; n >>= 1)
+    constexpr int bitlog(int n) const {
+        int k=0;
+        for (; n != 1; n >>= 1)
 			++k;
 		return k;
 	}

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  y_sort.cpp                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -47,15 +47,13 @@ bool YSort::is_sort_enabled() const {
 
 void YSort::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_sort_enabled", {"enabled"}), &YSort::set_sort_enabled);
-    MethodBinder::bind_method(D_METHOD("is_sort_enabled"), &YSort::is_sort_enabled);
+    BIND_METHOD(YSort,set_sort_enabled);
+    BIND_METHOD(YSort,is_sort_enabled);
 
     ADD_GROUP("Sort", "sort_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "sort_enabled"), "set_sort_enabled", "is_sort_enabled");
 }
 
 YSort::YSort() {
-
-    sort_enabled = true;
-    RenderingServer::get_singleton()->canvas_item_set_sort_children_by_y(get_canvas_item(), true);
+    set_sort_enabled(sort_enabled);
 }

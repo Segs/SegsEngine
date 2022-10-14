@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  shader.cpp                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -99,7 +99,7 @@ void Shader::get_param_list(Vector<PropertyInfo> *p_params) const {
     }
 }
 
-RID Shader::get_rid() const {
+RenderingEntity Shader::get_rid() const {
 
     _update_shader();
 
@@ -113,7 +113,7 @@ void Shader::set_default_texture_param(const StringName &p_param, const Ref<Reso
         RenderingServer::get_singleton()->shader_set_default_texture_param(shader, p_param, p_texture->get_rid());
     } else {
         default_textures.erase(p_param);
-        RenderingServer::get_singleton()->shader_set_default_texture_param(shader, p_param, RID());
+        RenderingServer::get_singleton()->shader_set_default_texture_param(shader, p_param, entt::null);
     }
 
     emit_changed();
@@ -162,18 +162,18 @@ void Shader::_update_shader() const {
 
 void Shader::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_mode"), &Shader::get_mode);
+    BIND_METHOD(Shader,get_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_code", {"code"}), &Shader::set_code);
-    MethodBinder::bind_method(D_METHOD("get_code"), &Shader::get_code);
+    BIND_METHOD(Shader,set_code);
+    BIND_METHOD(Shader,get_code);
 
-    MethodBinder::bind_method(D_METHOD("set_default_texture_param", {"param", "texture"}), &Shader::set_default_texture_param);
-    MethodBinder::bind_method(D_METHOD("get_default_texture_param", {"param"}), &Shader::get_default_texture_param);
+    BIND_METHOD(Shader,set_default_texture_param);
+    BIND_METHOD(Shader,get_default_texture_param);
 
-    MethodBinder::bind_method(D_METHOD("set_custom_defines", {"custom_defines"}), &Shader::set_custom_defines);
-    MethodBinder::bind_method(D_METHOD("get_custom_defines"), &Shader::get_custom_defines);
+    BIND_METHOD(Shader,set_custom_defines);
+    BIND_METHOD(Shader,get_custom_defines);
 
-    MethodBinder::bind_method(D_METHOD("has_param", {"name"}), &Shader::has_param);
+    BIND_METHOD(Shader,has_param);
 
     //MethodBinder::bind_method(D_METHOD("get_param_list"),&Shader::get_fragment_code);
 
@@ -195,7 +195,7 @@ Shader::~Shader() {
 }
 ////////////
 
-RES ResourceFormatLoaderShader::load(StringView p_path, StringView p_original_path, Error *r_error) {
+RES ResourceFormatLoaderShader::load(StringView p_path, StringView p_original_path, Error *r_error, bool p_no_subresource_cache) {
 
     if (r_error) {
         *r_error = ERR_FILE_CANT_OPEN;
@@ -215,7 +215,7 @@ RES ResourceFormatLoaderShader::load(StringView p_path, StringView p_original_pa
 }
 
 void ResourceFormatLoaderShader::get_recognized_extensions(Vector<String> &p_extensions) const {
-
+    p_extensions.push_back("gdshader");
     p_extensions.push_back("shader");
 }
 
@@ -227,7 +227,7 @@ bool ResourceFormatLoaderShader::handles_type(StringView p_type) const {
 String ResourceFormatLoaderShader::get_resource_type(StringView p_path) const {
 
     String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
-    if (el == "shader") {
+    if (el == "gdshader" || el == "shader") {
         return "Shader";
     }
     return String();
@@ -263,6 +263,7 @@ void ResourceFormatSaverShader::get_recognized_extensions(const RES &p_resource,
 
     if (const Shader *shader = object_cast<Shader>(p_resource.get())) {
         if (shader->is_text_shader()) {
+            p_extensions.emplace_back("gdshader");
             p_extensions.emplace_back("shader");
         }
     }

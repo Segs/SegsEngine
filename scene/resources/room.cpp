@@ -37,7 +37,7 @@
 #if 0
 RES_BASE_EXTENSION_IMPL(RoomBounds,"room")
 
-RID RoomBounds::get_rid() const {
+RenderingEntity RoomBounds::get_rid() const {
 
     return area;
 }
@@ -54,8 +54,8 @@ PoolVector<Face3> RoomBounds::get_geometry_hint() const {
 
 void RoomBounds::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_geometry_hint", {"triangles"}), &RoomBounds::set_geometry_hint);
-    MethodBinder::bind_method(D_METHOD("get_geometry_hint"), &RoomBounds::get_geometry_hint);
+    BIND_METHOD(RoomBounds,set_geometry_hint);
+    BIND_METHOD(RoomBounds,get_geometry_hint);
 
     //ADD_PROPERTY( PropertyInfo( VariantType::DICTIONARY, "bounds"), "set_bounds","get_bounds") ;
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "geometry_hint"), "set_geometry_hint", "get_geometry_hint");

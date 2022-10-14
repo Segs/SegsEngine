@@ -74,16 +74,15 @@ bool OccluderPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, float 
 
     if (closed) {
         return Geometry::is_point_in_polygon(p_point, polygon);
-    } else {
-        const real_t d = LINE_GRAB_WIDTH / 2 + p_tolerance;
-        for (int i = 0; i < polygon.size() - 1; i++) {
-            Vector2 p = Geometry::get_closest_point_to_segment_2d(p_point, &polygon[i]);
-            if (p.distance_to(p_point) <= d)
-                return true;
-        }
-
-        return false;
+    } 
+    const real_t d = LINE_GRAB_WIDTH / 2.0f + p_tolerance;
+    for (int i = 0; i < polygon.size() - 1; i++) {
+        Vector2 p = Geometry::get_closest_point_to_segment_2d(p_point, &polygon[i]);
+        if (p.distance_to(p_point) <= d)
+            return true;
     }
+
+    return false;
 }
 #endif
 
@@ -123,21 +122,21 @@ OccluderPolygon2D::CullMode OccluderPolygon2D::get_cull_mode() const {
     return cull;
 }
 
-RID OccluderPolygon2D::get_rid() const {
+RenderingEntity OccluderPolygon2D::get_rid() const {
 
     return occ_polygon;
 }
 
 void OccluderPolygon2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_closed", {"closed"}), &OccluderPolygon2D::set_closed);
-    MethodBinder::bind_method(D_METHOD("is_closed"), &OccluderPolygon2D::is_closed);
+    BIND_METHOD(OccluderPolygon2D,set_closed);
+    BIND_METHOD(OccluderPolygon2D,is_closed);
 
-    MethodBinder::bind_method(D_METHOD("set_cull_mode", {"cull_mode"}), &OccluderPolygon2D::set_cull_mode);
-    MethodBinder::bind_method(D_METHOD("get_cull_mode"), &OccluderPolygon2D::get_cull_mode);
+    BIND_METHOD(OccluderPolygon2D,set_cull_mode);
+    BIND_METHOD(OccluderPolygon2D,get_cull_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_polygon", {"polygon"}), &OccluderPolygon2D::set_polygon);
-    MethodBinder::bind_method(D_METHOD("get_polygon"), &OccluderPolygon2D::get_polygon);
+    BIND_METHOD(OccluderPolygon2D,set_polygon);
+    BIND_METHOD(OccluderPolygon2D,get_polygon);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "closed"), "set_closed", "is_closed");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "cull_mode", PropertyHint::Enum, "Disabled,ClockWise,CounterClockWise"), "set_cull_mode", "get_cull_mode");
@@ -195,8 +194,7 @@ void LightOccluder2D::_notification(int p_what) {
 
                 if (poly.size()) {
                     if (occluder_polygon->is_closed()) {
-                        PoolVector<Color> color;
-                        color.push_back(Color(0, 0, 0, 0.6f));
+                        Color color[1] = {Color(0, 0, 0, 0.6f)};
                         draw_polygon(poly, color);
                     } else {
 
@@ -212,7 +210,7 @@ void LightOccluder2D::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_EXIT_CANVAS) {
 
-        RenderingServer::get_singleton()->canvas_light_occluder_attach_to_canvas(occluder, RID());
+        RenderingServer::get_singleton()->canvas_light_occluder_attach_to_canvas(occluder, entt::null);
     }
 }
 #ifdef TOOLS_ENABLED
@@ -237,7 +235,7 @@ void LightOccluder2D::set_occluder_polygon(const Ref<OccluderPolygon2D> &p_polyg
     if (occluder_polygon)
         RenderingServer::get_singleton()->canvas_light_occluder_set_polygon(occluder, occluder_polygon->get_rid());
     else
-        RenderingServer::get_singleton()->canvas_light_occluder_set_polygon(occluder, RID());
+        RenderingServer::get_singleton()->canvas_light_occluder_set_polygon(occluder, entt::null);
 
 #ifdef DEBUG_ENABLED
     if (occluder_polygon)
@@ -284,11 +282,11 @@ String LightOccluder2D::get_configuration_warning() const {
 
 void LightOccluder2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_occluder_polygon", {"polygon"}), &LightOccluder2D::set_occluder_polygon);
-    MethodBinder::bind_method(D_METHOD("get_occluder_polygon"), &LightOccluder2D::get_occluder_polygon);
+    BIND_METHOD(LightOccluder2D,set_occluder_polygon);
+    BIND_METHOD(LightOccluder2D,get_occluder_polygon);
 
-    MethodBinder::bind_method(D_METHOD("set_occluder_light_mask", {"mask"}), &LightOccluder2D::set_occluder_light_mask);
-    MethodBinder::bind_method(D_METHOD("get_occluder_light_mask"), &LightOccluder2D::get_occluder_light_mask);
+    BIND_METHOD(LightOccluder2D,set_occluder_light_mask);
+    BIND_METHOD(LightOccluder2D,get_occluder_light_mask);
 
     MethodBinder::bind_method("_poly_changed", &LightOccluder2D::_poly_changed);
 

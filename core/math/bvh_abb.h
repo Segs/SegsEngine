@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  bvh_abb.h                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef BVH_ABB_H
-#define BVH_ABB_H
+#pragma once
 #include "core/forward_decls.h"
 
 // special optimized version of axis aligned bounding box
@@ -89,7 +88,7 @@ struct BVH_ABB {
     }
 
     Vector3 calculate_centre() const {
-        return Vector3((calculate_size() * 0.5) + min);
+        return Vector3((calculate_size() * 0.5f) + min);
     }
 
     real_t get_proximity_to(const BVH_ABB &p_b) const {
@@ -116,7 +115,7 @@ struct BVH_ABB {
 
     bool intersects_plane(const Plane &p_p) const {
         Vector3 size = calculate_size();
-        Vector3 half_extents = size * 0.5;
+        Vector3 half_extents = size * 0.5f;
         Vector3 ofs = min + half_extents;
 
         // forward side of plane?
@@ -138,7 +137,7 @@ struct BVH_ABB {
 
     bool intersects_convex_optimized(const ConvexHull &p_hull, const uint32_t *p_plane_ids, uint32_t p_num_planes) const {
         Vector3 size = calculate_size();
-        Vector3 half_extents = size * 0.5;
+        Vector3 half_extents = size * 0.5f;
         Vector3 ofs = min + half_extents;
 
         for (unsigned int i = 0; i < p_num_planes; i++) {
@@ -202,9 +201,24 @@ struct BVH_ABB {
         return true;
     }
 
+    // Very hot in profiling, make sure optimized
     bool intersects(const BVH_ABB &p_o) const {
-        if (_vector3_any_morethan(p_o.min, -neg_max)) return false;
-        if (_vector3_any_morethan(min, -p_o.neg_max)) return false;
+        if (_vector3_any_morethan(p_o.min, -neg_max)) {
+            return false;
+        }
+        if (_vector3_any_morethan(min, -p_o.neg_max)) {
+            return false;
+        }
+        return true;
+    }
+    // for pre-swizzled tester (this object)
+    bool intersects_swizzled(const BVH_ABB &p_o) const {
+        if (_vector3_any_lessthan(min, p_o.min)) {
+            return false;
+        }
+        if (_vector3_any_lessthan(neg_max, p_o.neg_max)) {
+            return false;
+        }
         return true;
     }
 
@@ -233,19 +247,17 @@ struct BVH_ABB {
         min = neg_max;
     }
 
-    bool _vector3_any_morethan(const Vector3 &p_a, const Vector3 &p_b) const {
+    constexpr static bool _vector3_any_morethan(const Vector3 &p_a, const Vector3 &p_b) {
         if (p_a.x > p_b.x) return true;
         if (p_a.y > p_b.y) return true;
         if (p_a.z > p_b.z) return true;
         return false;
     }
 
-    bool _vector3_any_lessthan(const Vector3 &p_a, const Vector3 &p_b) const {
+    constexpr static bool _vector3_any_lessthan(const Vector3 &p_a, const Vector3 &p_b) {
         if (p_a.x < p_b.x) return true;
         if (p_a.y < p_b.y) return true;
         if (p_a.z < p_b.z) return true;
         return false;
     }
 };
-
-#endif // BVH_ABB_H

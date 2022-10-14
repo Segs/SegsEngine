@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  variant_op.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -82,7 +82,7 @@
     CASE_TYPE(PREFIX, OP, ARRAY)              \
     CASE_TYPE(PREFIX, OP, POOL_BYTE_ARRAY)    \
     CASE_TYPE(PREFIX, OP, POOL_INT_ARRAY)     \
-    CASE_TYPE(PREFIX, OP, POOL_REAL_ARRAY)    \
+    CASE_TYPE(PREFIX, OP, POOL_FLOAT32_ARRAY)    \
     CASE_TYPE(PREFIX, OP, POOL_STRING_ARRAY)  \
     CASE_TYPE(PREFIX, OP, POOL_VECTOR2_ARRAY) \
     CASE_TYPE(PREFIX, OP, POOL_VECTOR3_ARRAY) \
@@ -118,7 +118,7 @@
         TYPE(PREFIX, OP, ARRAY),              \
         TYPE(PREFIX, OP, POOL_BYTE_ARRAY),    \
         TYPE(PREFIX, OP, POOL_INT_ARRAY),     \
-        TYPE(PREFIX, OP, POOL_REAL_ARRAY),    \
+        TYPE(PREFIX, OP, POOL_FLOAT32_ARRAY),    \
         TYPE(PREFIX, OP, POOL_STRING_ARRAY),  \
         TYPE(PREFIX, OP, POOL_VECTOR2_ARRAY), \
         TYPE(PREFIX, OP, POOL_VECTOR3_ARRAY), \
@@ -127,10 +127,7 @@
 /* clang-format on */
 
 #define CASES(PREFIX) static const void *switch_table_##PREFIX[Variant::OP_MAX][(int)VariantType::VARIANT_MAX] = { \
-    TYPES(PREFIX, OP_EQUAL),                                               \
-    TYPES(PREFIX, OP_NOT_EQUAL),                                           \
     TYPES(PREFIX, OP_LESS),                                                \
-    TYPES(PREFIX, OP_GREATER),                                             \
 }
 
 #define SWITCH(PREFIX, op, val) goto *switch_table_##PREFIX[op][int(val)];
@@ -322,222 +319,6 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
     r_valid = true;
 
     SWITCH(math, p_op, p_a.type) {
-        SWITCH_OP(math, OP_EQUAL, p_a.type) {
-            CASE_TYPE(math, OP_EQUAL, NIL) {
-                if (p_b.type == VariantType::NIL) _RETURN(true)
-                if (p_b.type == VariantType::OBJECT)
-                    _RETURN(_UNSAFE_OBJ_PROXY_PTR(p_b) == nullptr)
-
-                _RETURN(false)
-            }
-
-            CASE_TYPE(math, OP_EQUAL, BOOL) {
-                if (p_b.type != VariantType::BOOL) {
-                    if (p_b.type == VariantType::NIL)
-                        _RETURN(false)
-                    _RETURN_FAIL
-                }
-
-                _RETURN(p_a._data._bool == p_b._data._bool)
-            }
-
-            CASE_TYPE(math, OP_EQUAL, OBJECT) {
-                if (p_b.type == VariantType::OBJECT)
-                    _RETURN((_UNSAFE_OBJ_PROXY_PTR(p_a) == _UNSAFE_OBJ_PROXY_PTR(p_b)))
-                if (p_b.type == VariantType::NIL)
-                    _RETURN(_UNSAFE_OBJ_PROXY_PTR(p_a) == nullptr)
-
-                _RETURN_FAIL
-            }
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, CALLABLE, == , Callable);
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, SIGNAL, == , Signal);
-
-            CASE_TYPE(math, OP_EQUAL, DICTIONARY) {
-                if (p_b.type != VariantType::DICTIONARY) {
-                    if (p_b.type == VariantType::NIL)
-                        _RETURN(false)
-                    _RETURN_FAIL
-                }
-
-                const Dictionary *arr_a = reinterpret_cast<const Dictionary *>(p_a._data._mem);
-                const Dictionary *arr_b = reinterpret_cast<const Dictionary *>(p_b._data._mem);
-
-                _RETURN(*arr_a == *arr_b)
-            }
-
-            CASE_TYPE(math, OP_EQUAL, ARRAY) {
-                if (p_b.type != VariantType::ARRAY) {
-                    if (p_b.type == VariantType::NIL)
-                        _RETURN(false)
-                    _RETURN_FAIL
-                }
-                const Array *arr_a = reinterpret_cast<const Array *>(p_a._data._mem);
-                const Array *arr_b = reinterpret_cast<const Array *>(p_b._data._mem);
-
-                int l = arr_a->size();
-                if (arr_b->size() != l)
-                    _RETURN(false)
-                for (int i = 0; i < l; i++) {
-                    if (!((*arr_a)[i] == (*arr_b)[i])) {
-                        _RETURN(false)
-                    }
-                }
-
-                _RETURN(true)
-            }
-
-            DEFAULT_OP_NUM_NULL(math, OP_EQUAL, INT, ==, _int)
-            DEFAULT_OP_NUM_NULL(math, OP_EQUAL, FLOAT, ==, _real)
-            CASE_TYPE(math, OP_EQUAL, STRING) {
-                StringView self(*reinterpret_cast<const String *>(p_a._data._mem));
-                if (p_b.type == VariantType::STRING) _RETURN(self == *reinterpret_cast<const String *>(p_b._data._mem))
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(self == (String)*reinterpret_cast<const NodePath *>(p_b._data._mem))
-                if (p_b.type == VariantType::STRING_NAME) _RETURN(self == reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())
-                if (p_b.type == VariantType::NIL) _RETURN((false))
-
-                _RETURN_FAIL
-            }
-            CASE_TYPE(math, OP_EQUAL, STRING_NAME) {
-                StringView self(*reinterpret_cast<const StringName *>(p_a._data._mem));
-                if (p_b.type == VariantType::STRING) _RETURN(self == *reinterpret_cast<const String *>(p_b._data._mem))
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(self == (String)*reinterpret_cast<const NodePath *>(p_b._data._mem))
-                if (p_b.type == VariantType::STRING_NAME) _RETURN(self == reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())
-                if (p_b.type == VariantType::NIL) _RETURN((false))
-                _RETURN_FAIL
-            }
-
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, VECTOR2, ==, Vector2)
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, RECT2, ==, Rect2)
-            DEFAULT_OP_PTRREF_NULL(math, OP_EQUAL, TRANSFORM2D, ==, _transform2d)
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, VECTOR3, ==, Vector3)
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, PLANE, ==, Plane)
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, QUAT, ==, Quat)
-            DEFAULT_OP_PTRREF_NULL(math, OP_EQUAL, AABB, ==, _aabb)
-            DEFAULT_OP_PTRREF_NULL(math, OP_EQUAL, BASIS, ==, _basis)
-            DEFAULT_OP_PTRREF_NULL(math, OP_EQUAL, TRANSFORM, ==, _transform)
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, COLOR, ==, Color)
-            DEFAULT_OP_STR_NULL(math, OP_EQUAL, NODE_PATH, ==, NodePath)
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, _RID, ==, RID)
-
-            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_BYTE_ARRAY, uint8_t)
-            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_INT_ARRAY, int)
-            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_REAL_ARRAY, real_t)
-            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_STRING_ARRAY, String)
-            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_VECTOR2_ARRAY, Vector2)
-            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_VECTOR3_ARRAY, Vector3)
-            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_COLOR_ARRAY, Color)
-        }
-
-        SWITCH_OP(math, OP_NOT_EQUAL, p_a.type) {
-            CASE_TYPE(math, OP_NOT_EQUAL, NIL) {
-                if (p_b.type == VariantType::NIL) _RETURN(false)
-                if (p_b.type == VariantType::OBJECT)
-                    _RETURN(_UNSAFE_OBJ_PROXY_PTR(p_b) != nullptr)
-
-                _RETURN(true)
-            }
-
-            CASE_TYPE(math, OP_NOT_EQUAL, BOOL) {
-                if (p_b.type != VariantType::BOOL) {
-                    if (p_b.type == VariantType::NIL)
-                        _RETURN(true)
-
-                    _RETURN_FAIL
-                }
-
-                _RETURN(p_a._data._bool != p_b._data._bool)
-            }
-
-            CASE_TYPE(math, OP_NOT_EQUAL, OBJECT) {
-                if (p_b.type == VariantType::OBJECT)
-                    _RETURN((_UNSAFE_OBJ_PROXY_PTR(p_a) != _UNSAFE_OBJ_PROXY_PTR(p_b)))
-                if (p_b.type == VariantType::NIL)
-                    _RETURN(_UNSAFE_OBJ_PROXY_PTR(p_a) != nullptr)
-
-                _RETURN_FAIL
-            }
-
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, CALLABLE, != , Callable);
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, SIGNAL, != , Signal);
-
-            CASE_TYPE(math, OP_NOT_EQUAL, DICTIONARY) {
-                if (p_b.type != VariantType::DICTIONARY) {
-                    if (p_b.type == VariantType::NIL)
-                        _RETURN(true);
-                    _RETURN_FAIL;
-                }
-
-                const Dictionary *arr_a = reinterpret_cast<const Dictionary *>(p_a._data._mem);
-                const Dictionary *arr_b = reinterpret_cast<const Dictionary *>(p_b._data._mem);
-
-                _RETURN(*arr_a != *arr_b);
-            }
-
-            CASE_TYPE(math, OP_NOT_EQUAL, ARRAY) {
-                if (p_b.type != VariantType::ARRAY) {
-                    if (p_b.type == VariantType::NIL)
-                        _RETURN(true);
-
-                    _RETURN_FAIL;
-                }
-
-                const Array *arr_a = reinterpret_cast<const Array *>(p_a._data._mem);
-                const Array *arr_b = reinterpret_cast<const Array *>(p_b._data._mem);
-
-                int l = arr_a->size();
-                if (arr_b->size() != l)
-                    _RETURN(true)
-                for (int i = 0; i < l; i++) {
-                    if (((*arr_a)[i] != (*arr_b)[i])) {
-                        _RETURN(true)
-                    }
-                }
-
-                _RETURN(false)
-            }
-
-            DEFAULT_OP_NUM_NULL(math, OP_NOT_EQUAL, INT, !=, _int)
-            DEFAULT_OP_NUM_NULL(math, OP_NOT_EQUAL, FLOAT, !=, _real)
-            CASE_TYPE(math, OP_NOT_EQUAL, STRING) {
-                StringView self(*reinterpret_cast<const String *>(p_a._data._mem));
-                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))!=0);
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))!=0)
-                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString()))
-                if (p_b.type == VariantType::NIL) _RETURN(true)
-
-                _RETURN_FAIL
-            }
-            CASE_TYPE(math, OP_NOT_EQUAL, STRING_NAME) {
-                StringView self(*reinterpret_cast<const StringName *>(p_a._data._mem));
-                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))!=0);
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))!=0)
-                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString()))
-                if (p_b.type == VariantType::NIL) _RETURN(true)
-
-                _RETURN_FAIL
-            }
-
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, VECTOR2, !=, Vector2)
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, RECT2, !=, Rect2)
-            DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, TRANSFORM2D, !=, _transform2d)
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, VECTOR3, !=, Vector3)
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, PLANE, !=, Plane)
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, QUAT, !=, Quat)
-            DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, AABB, !=, _aabb)
-            DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, BASIS, !=, _basis)
-            DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, TRANSFORM, !=, _transform)
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, COLOR, !=, Color)
-            DEFAULT_OP_STR_NULL(math, OP_NOT_EQUAL, NODE_PATH, !=, NodePath)
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, _RID, !=, RID)
-
-            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_BYTE_ARRAY, uint8_t)
-            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_INT_ARRAY, int)
-            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_REAL_ARRAY, real_t)
-            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_STRING_ARRAY, String)
-            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_VECTOR2_ARRAY, Vector2)
-            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_VECTOR3_ARRAY, Vector3)
-            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_COLOR_ARRAY, Color)
-        }
 
         SWITCH_OP(math, OP_LESS, p_a.type) {
             CASE_TYPE(math, OP_LESS, BOOL) {
@@ -597,15 +378,16 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             }
             DEFAULT_OP_LOCALMEM(math, OP_LESS, VECTOR2, <, Vector2)
             DEFAULT_OP_LOCALMEM(math, OP_LESS, VECTOR3, <, Vector3)
-            DEFAULT_OP_LOCALMEM(math, OP_LESS, _RID, <, RID)
+            //DEFAULT_OP_LOCALMEM(math, OP_LESS, _RID, <, RID)
             DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_BYTE_ARRAY, uint8_t)
             DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_INT_ARRAY, int)
-            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_REAL_ARRAY, real_t)
+            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_FLOAT32_ARRAY, real_t)
             DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_STRING_ARRAY, String)
             DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_VECTOR2_ARRAY, Vector3)
             DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_VECTOR3_ARRAY, Vector3)
             DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_COLOR_ARRAY, Color)
 
+            CASE_TYPE(math, OP_LESS, _RID)
             CASE_TYPE(math, OP_LESS, NIL)
             CASE_TYPE(math, OP_LESS, RECT2)
             CASE_TYPE(math, OP_LESS, TRANSFORM2D)
@@ -618,92 +400,6 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_LESS, NODE_PATH)
             CASE_TYPE(math, OP_LESS, DICTIONARY)
             _RETURN_FAIL
-        }
-
-        SWITCH_OP(math, OP_GREATER, p_a.type) {
-            CASE_TYPE(math, OP_GREATER, BOOL) {
-                if (p_b.type != VariantType::BOOL)
-                    _RETURN_FAIL;
-
-                if (p_a._data._bool == p_b._data._bool)
-                    _RETURN(false);
-
-                if (!p_a._data._bool && p_b._data._bool)
-                    _RETURN(false);
-
-                _RETURN(true);
-            }
-
-            CASE_TYPE(math, OP_GREATER, OBJECT) {
-                if (p_b.type != VariantType::OBJECT)
-                    _RETURN_FAIL;
-                _RETURN((_UNSAFE_OBJ_PROXY_PTR(p_a) > _UNSAFE_OBJ_PROXY_PTR(p_b)));
-            }
-
-            CASE_TYPE(math, OP_GREATER, ARRAY) {
-                if (p_b.type != VariantType::ARRAY)
-                    _RETURN_FAIL
-
-                const Array *arr_a = reinterpret_cast<const Array *>(p_a._data._mem);
-                const Array *arr_b = reinterpret_cast<const Array *>(p_b._data._mem);
-
-                int l = arr_a->size();
-                if (arr_b->size() > l)
-                    _RETURN(false)
-                for (int i = 0; i < l; i++) {
-                    if (((*arr_a)[i] < (*arr_b)[i])) {
-                        _RETURN(false)
-                    }
-                }
-
-                _RETURN(true)
-            }
-
-            DEFAULT_OP_NUM(math, OP_GREATER, INT, >, _int)
-            DEFAULT_OP_NUM(math, OP_GREATER, FLOAT, >, _real)
-            CASE_TYPE(math, OP_GREATER, STRING) {
-                StringView self(*reinterpret_cast<const String *>(p_a._data._mem));
-
-                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))>0);
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))>0)
-                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())>0)
-
-                _RETURN_FAIL
-            }
-            CASE_TYPE(math, OP_GREATER, STRING_NAME) {
-                StringView self(*reinterpret_cast<const StringName *>(p_a._data._mem));
-
-                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))>0);
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))>0)
-                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())>0)
-
-                _RETURN_FAIL
-            }
-            DEFAULT_OP_LOCALMEM_REV(math, OP_GREATER, VECTOR2, <, Vector2)
-            DEFAULT_OP_LOCALMEM_REV(math, OP_GREATER, VECTOR3, <, Vector3)
-            DEFAULT_OP_LOCALMEM_REV(math, OP_GREATER, _RID, <, RID)
-            DEFAULT_OP_ARRAY_GT(math, OP_GREATER, POOL_BYTE_ARRAY, uint8_t)
-            DEFAULT_OP_ARRAY_GT(math, OP_GREATER, POOL_INT_ARRAY, int)
-            DEFAULT_OP_ARRAY_GT(math, OP_GREATER, POOL_REAL_ARRAY, real_t)
-            DEFAULT_OP_ARRAY_GT(math, OP_GREATER, POOL_STRING_ARRAY, String)
-            DEFAULT_OP_ARRAY_GT(math, OP_GREATER, POOL_VECTOR2_ARRAY, Vector3)
-            DEFAULT_OP_ARRAY_GT(math, OP_GREATER, POOL_VECTOR3_ARRAY, Vector3)
-            DEFAULT_OP_ARRAY_GT(math, OP_GREATER, POOL_COLOR_ARRAY, Color)
-
-            CASE_TYPE(math, OP_GREATER, NIL)
-            CASE_TYPE(math, OP_GREATER, RECT2)
-            CASE_TYPE(math, OP_GREATER, TRANSFORM2D)
-            CASE_TYPE(math, OP_GREATER, PLANE)
-            CASE_TYPE(math, OP_GREATER, QUAT)
-            CASE_TYPE(math, OP_GREATER, AABB)
-            CASE_TYPE(math, OP_GREATER, BASIS)
-            CASE_TYPE(math, OP_GREATER, TRANSFORM)
-            CASE_TYPE(math, OP_GREATER, COLOR)
-            CASE_TYPE(math, OP_GREATER, NODE_PATH)
-            CASE_TYPE(math, OP_GREATER, DICTIONARY)
-            CASE_TYPE(math, OP_GREATER, CALLABLE)
-            CASE_TYPE(math, OP_GREATER, SIGNAL)
-            _RETURN_FAIL;
         }
     }
 }
@@ -813,11 +509,19 @@ bool Variant::evaluate_equal(const Variant &p_a, const Variant &p_b) {
             return true;
         }
 
+        case VariantType::REN_ENT: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::REN_ENT)
+                return p_a._data._int == p_b._data._int;
+            break;
+        }
+
         case VariantType::INT: {
             if (p_b.type == VariantType::NIL)
                 return false;
             if (p_b.type == VariantType::INT)
-                return p_a._data._int == p_b._data._int;;
+                return p_a._data._int == p_b._data._int;
             if (p_b.type == VariantType::FLOAT)
                 return p_a._data._int == p_b._data._real;
 
@@ -983,7 +687,7 @@ bool Variant::evaluate_equal(const Variant &p_a, const Variant &p_b) {
             const PoolVector<int> &array_b = *reinterpret_cast<const PoolVector<int> *>(p_b._data._mem);
             return compare(array_a, array_b);
         }
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             if (p_b.type == VariantType::NIL)
                 return false;
             if (p_a.type != p_b.type) {
@@ -1284,7 +988,7 @@ void Variant::set_named(const StringName &p_index, const Variant &p_value, bool 
                     v->set_hsv(v->get_h(), p_value._data._int, v->get_v(), v->a);
                     valid = true;
                 } else if (p_index == CoreStringNames::singleton->v) {
-                    v->set_hsv(v->get_h(), v->get_v(), p_value._data._int, v->a);
+                    v->set_hsv(v->get_h(), v->get_s(), p_value._data._int, v->a);
                     valid = true;
                 }
             } else if (p_value.type == VariantType::FLOAT) {
@@ -1328,19 +1032,19 @@ void Variant::set_named(const StringName &p_index, const Variant &p_value, bool 
         case VariantType::OBJECT: {
 
             Object *obj = _OBJ_PTR(*this);
-#ifdef DEBUG_ENABLED
             if (unlikely(!obj)) {
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
-                    WARN_PRINT("Attempted set on a deleted object.");
+#ifdef DEBUG_ENABLED
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !object_for_entity(_get_obj().rc->instance_id)) {
+                    ERR_PRINT("Attempted set on a deleted object.");
                 }
+#endif
                 break;
             }
-#endif
             obj->set(p_index, p_value, &valid);
 
         } break;
         default: {
-            set(p_index, p_value, &valid);
+            set_indexed(StringUtils::to_int(p_index), p_value, &valid);
         } break;
     }
 
@@ -1496,22 +1200,23 @@ Variant Variant::get_named(const StringName &p_index, bool *r_valid) const {
         case VariantType::OBJECT: {
 
             Object *obj = _OBJ_PTR(*this);
-#ifdef DEBUG_ENABLED
             if (unlikely(!obj)) {
                 if (r_valid)
                     *r_valid = false;
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
+#ifdef DEBUG_ENABLED
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !object_for_entity(_get_obj().rc->instance_id)) {
                     WARN_PRINT("Attempted get on a deleted object.");
                 }
+#endif
                 return Variant();
             }
-#endif
 
             return obj->get(p_index, r_valid);
 
         } break;
         default: {
-            return get(p_index, r_valid);
+            WARN_PRINT("Attempt to get named value from unhandled VariantType.");
+            return get(StringUtils::to_int(p_index));
         }
     }
 
@@ -1524,9 +1229,7 @@ Variant Variant::get_named(const StringName &p_index, bool *r_valid) const {
 #define DEFAULT_OP_ARRAY_CMD(m_name, m_type, skip_test, cmd)                             \
     case VariantType::m_name: {                                                                       \
         skip_test;                                                                       \
-                                                                                         \
-        if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) { \
-            int index = p_index.as<int>();                                                         \
+        int index = p_index;                                                         \
             m_type *arr = reinterpret_cast<m_type *>(_data._mem);                        \
                                                                                          \
             if (index < 0)                                                               \
@@ -1534,7 +1237,6 @@ Variant Variant::get_named(const StringName &p_index, bool *r_valid) const {
             if (index >= 0 && index < arr->size()) {                                     \
                 valid = true;                                                            \
                 cmd;                                                                     \
-            }                                                                            \
         }                                                                                \
     } break;
 
@@ -1544,7 +1246,7 @@ Variant Variant::get_named(const StringName &p_index, bool *r_valid) const {
 #define DEFAULT_OP_DVECTOR_GET(m_name, dv_type) \
     DEFAULT_OP_ARRAY_CMD(m_name, const PoolVector<dv_type>, ;, return arr->get(index))
 
-void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid) {
+void Variant::set_indexed(int p_index, const Variant& p_value, bool* r_valid) {
 
     static bool _dummy = false;
 
@@ -1552,29 +1254,30 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
     valid = false;
 
     switch (type) {
-        case VariantType::NIL: {
+        case VariantType::NIL:
+        case VariantType::BOOL:
+        case VariantType::INT:
+        case VariantType::FLOAT:
+        case VariantType::RECT2:
+        case VariantType::PLANE:
+        case VariantType::QUAT:
+        case VariantType::AABB:
+        case VariantType::NODE_PATH:
+        case VariantType::_RID:
+        {
             return;
         }
-        case VariantType::BOOL: {
-            return;
-        }
-        case VariantType::INT: {
-            return;
-        }
-        case VariantType::FLOAT: {
+        case VariantType::REN_ENT: {
+            assert(false);
             return;
         }
         case VariantType::STRING: {
 
-            if (p_index.type != VariantType::INT && p_index.type != VariantType::FLOAT)
-                return;
-
-            int idx = p_index.as<int>();
             String *str = reinterpret_cast<String *>(_data._mem);
             int len = str->length();
-            if (idx < 0)
-                idx += len;
-            if (idx < 0 || idx >= len)
+            if (p_index < 0)
+                p_index += len;
+            if (p_index < 0 || p_index >= len)
                 return;
 
             String chr;
@@ -1588,7 +1291,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                 return;
             }
 
-            *str = String(StringUtils::substr(*str,0, idx)) + chr + StringUtils::substr(*str,idx + 1, len);
+            *str = String(StringUtils::substr(*str,0, p_index)) + chr + StringUtils::substr(*str, p_index + 1, len);
             valid = true;
             return;
 
@@ -1598,98 +1301,31 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
             if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
                 return;
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
-                // scalar index
-                int idx = p_index.as<int>();
-
-                if (idx < 0)
-                    idx += 2;
-                if (idx >= 0 && idx < 2) {
+            if (p_index < 0)
+                p_index += 2;
+            if (p_index >= 0 && p_index < 2) {
 
                     Vector2 *v = reinterpret_cast<Vector2 *>(_data._mem);
                     valid = true;
-                    (*v)[idx] = p_value.as<float>();
+                (*v)[p_index] = p_value.as<float>();
                     return;
-                }
-            } else if (p_index.get_type() == VariantType::STRING) {
-                //scalar name
-
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                Vector2 *v = reinterpret_cast<Vector2 *>(_data._mem);
-                if (*str == "x") {
-                    valid = true;
-                    v->x = p_value.as<float>();
-                    return;
-                } else if (*str == "y") {
-                    valid = true;
-                    v->y = p_value.as<float>();
-                    return;
-                }
             }
 
         } break; // 5
-        case VariantType::RECT2: {
-
-            if (p_value.type != VariantType::VECTOR2)
-                return;
-
-            if (p_index.get_type() == VariantType::STRING) {
-                //scalar name
-
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                Rect2 *v = reinterpret_cast<Rect2 *>(_data._mem);
-                if (*str == "position") {
-                    valid = true;
-                    v->position = p_value.as<Vector2>();
-                    return;
-                } else if (*str == "size") {
-                    valid = true;
-                    v->size = p_value.as<Vector2>();
-                    return;
-                } else if (*str == "end") {
-                    valid = true;
-                    v->size = p_value.as<Vector2>() - v->position;
-                    return;
-                }
-            }
-        } break;
         case VariantType::TRANSFORM2D: {
 
             if (p_value.type != VariantType::VECTOR2)
                 return;
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
-
-                int index = p_index.as<int>();
-
-                if (index < 0)
-                    index += 3;
-                if (index >= 0 && index < 3) {
+            if (p_index < 0)
+                p_index += 3;
+            if (p_index >= 0 && p_index < 3) {
                     Transform2D *v = _data._transform2d;
 
                     valid = true;
-                    v->elements[index] = p_value.as<Vector2>();
-                    return;
+                v->elements[p_index] = p_value.as<Vector2>();
                 }
-            } else if (p_index.get_type() == VariantType::STRING && p_value.get_type() == VariantType::VECTOR2) {
-
-                //scalar name
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                Transform2D *v = _data._transform2d;
-                if (*str == "x") {
-                    valid = true;
-                    v->elements[0] = p_value.as<Vector2>();
                     return;
-                } else if (*str == "y") {
-                    valid = true;
-                    v->elements[1] = p_value.as<Vector2>();
-                    return;
-                } else if (*str == "origin") {
-                    valid = true;
-                    v->elements[2] = p_value.as<Vector2>();
-                    return;
-                }
-            }
 
         } break;
         case VariantType::VECTOR3: {
@@ -1697,214 +1333,50 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
             if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
                 return;
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
-                //scalar index
-                int idx = p_index.as<int>();
-                if (idx < 0)
-                    idx += 3;
-                if (idx >= 0 && idx < 3) {
+            if (p_index < 0)
+                p_index += 3;
+            if (p_index >= 0 && p_index < 3) {
 
                     Vector3 *v = reinterpret_cast<Vector3 *>(_data._mem);
                     valid = true;
-                    (*v)[idx] = p_value.as<float>();
+                (*v)[p_index] = p_value.as<float>();
                     return;
-                }
-            } else if (p_index.get_type() == VariantType::STRING) {
-
-                //scalar name
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                Vector3 *v = reinterpret_cast<Vector3 *>(_data._mem);
-                if (*str == "x") {
-                    valid = true;
-                    v->x = p_value.as<float>();
-                    return;
-                } else if (*str == "y") {
-                    valid = true;
-                    v->y = p_value.as<float>();
-                    return;
-                } else if (*str == "z") {
-                    valid = true;
-                    v->z = p_value.as<float>();
-                    return;
-                }
             }
 
         } break;
-        case VariantType::PLANE: {
 
-            if (p_index.get_type() == VariantType::STRING) {
-                //scalar name
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                Plane *v = reinterpret_cast<Plane *>(_data._mem);
-                if (*str == "x") {
-                    if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
-                        return;
-
-                    valid = true;
-                    v->normal.x = p_value.as<float>();
-                    return;
-                } else if (*str == "y") {
-                    if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
-                        return;
-
-                    valid = true;
-                    v->normal.y = p_value.as<float>();
-                    return;
-                } else if (*str == "z") {
-                    if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
-                        return;
-
-                    valid = true;
-                    v->normal.z = p_value.as<float>();
-                    return;
-                } else if (*str == "normal") {
-                    if (p_value.type != VariantType::VECTOR3)
-                        return;
-
-                    valid = true;
-                    v->normal = p_value.as<Vector3>();
-                    return;
-                } else if (*str == "d") {
-                    valid = true;
-                    v->d = p_value.as<float>();
-                    return;
-                }
-            }
-
-        } break;
-        case VariantType::QUAT: {
-
-            if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
-                return;
-
-            if (p_index.get_type() == VariantType::STRING) {
-
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                Quat *v = reinterpret_cast<Quat *>(_data._mem);
-                if (*str == "x") {
-                    valid = true;
-                    v->x = p_value.as<float>();
-                    return;
-                } else if (*str == "y") {
-                    valid = true;
-                    v->y = p_value.as<float>();
-                    return;
-                } else if (*str == "z") {
-                    valid = true;
-                    v->z = p_value.as<float>();
-                    return;
-                } else if (*str == "w") {
-                    valid = true;
-                    v->w = p_value.as<float>();
-                    return;
-                }
-            }
-
-        } break; // 10
-        case VariantType::AABB: {
-
-            if (p_value.type != VariantType::VECTOR3)
-                return;
-
-            if (p_index.get_type() == VariantType::STRING) {
-                //scalar name
-
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                ::AABB *v = _data._aabb;
-                if (*str == "position") {
-                    valid = true;
-                    v->position = p_value.as<Vector3>();
-                    return;
-                } else if (*str == "size") {
-                    valid = true;
-                    v->size = p_value.as<Vector3>();
-                    return;
-                } else if (*str == "end") {
-                    valid = true;
-                    v->size = p_value.as<Vector3>() - v->position;
-                    return;
-                }
-            }
-        } break;
         case VariantType::BASIS: {
 
             if (p_value.type != VariantType::VECTOR3)
                 return;
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
-
-                int index = p_index.as<int>();
-
-                if (index < 0)
-                    index += 3;
-                if (index >= 0 && index < 3) {
+            if (p_index < 0)
+                p_index += 3;
+            if (p_index >= 0 && p_index < 3) {
                     Basis *v = _data._basis;
 
                     valid = true;
-                    v->set_axis(index, p_value.as<Vector3>());
+                v->set_axis(p_index, p_value.as<Vector3>());
                     return;
-                }
-            } else if (p_index.get_type() == VariantType::STRING) {
-
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                Basis *v = _data._basis;
-
-                if (*str == "x") {
-                    valid = true;
-                    v->set_axis(0, p_value.as<Vector3>());
-                    return;
-                } else if (*str == "y") {
-                    valid = true;
-                    v->set_axis(1, p_value.as<Vector3>());
-                    return;
-                } else if (*str == "z") {
-                    valid = true;
-                    v->set_axis(2, p_value.as<Vector3>());
-                    return;
-                }
             }
 
         } break;
         case VariantType::TRANSFORM: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
                 if (p_value.type != VariantType::VECTOR3)
                     return;
 
-                int index = p_index.as<int>();
-
-                if (index < 0)
-                    index += 4;
-                if (index >= 0 && index < 4) {
+            if (p_index < 0)
+                p_index += 4;
+            if (p_index >= 0 && p_index < 4) {
                     Transform *v = _data._transform;
                     valid = true;
-                    if (index == 3)
+                if (p_index == 3)
                         v->origin = p_value.as<Vector3>();
                     else
-                        v->basis.set_axis(index, p_value.as<Vector3>());
+                    v->basis.set_axis(p_index, p_value.as<Vector3>());
                     return;
-                }
-            } else if (p_index.get_type() == VariantType::STRING) {
-
-                Transform *v = _data._transform;
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-
-                if (*str == "basis") {
-
-                    if (p_value.type != VariantType::BASIS)
-                        return;
-                    valid = true;
-                    v->basis = p_value.as<Basis>();
-                    return;
-                }
-                if (*str == "origin") {
-                    if (p_value.type != VariantType::VECTOR3)
-                        return;
-                    valid = true;
-                    v->origin = p_value.as<Vector3>();
-                    return;
-                }
             }
 
         } break;
@@ -1913,71 +1385,13 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
             if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
                 return;
 
-            if (p_index.get_type() == VariantType::STRING) {
-
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
+            if (p_index < 0)
+                p_index += 4;
+            if (p_index >= 0 && p_index < 4) {
                 Color *v = reinterpret_cast<Color *>(_data._mem);
-                if (*str == "r") {
-                    valid = true;
-                    v->r = p_value.as<float>();
-                    return;
-                } else if (*str == "g") {
-                    valid = true;
-                    v->g = p_value.as<float>();
-                    return;
-                } else if (*str == "b") {
-                    valid = true;
-                    v->b = p_value.as<float>();
-                    return;
-                } else if (*str == "a") {
-                    valid = true;
-                    v->a = p_value.as<float>();
-                    return;
-                } else if (*str == "h") {
-                    valid = true;
-                    v->set_hsv(p_value.as<float>(), v->get_s(), v->get_v(), v->a);
-                    return;
-                } else if (*str == "s") {
-                    valid = true;
-                    v->set_hsv(v->get_h(), p_value.as<float>(), v->get_v(), v->a);
-                    return;
-                } else if (*str == "v") {
-                    valid = true;
-                    v->set_hsv(v->get_h(), v->get_s(), p_value.as<float>(), v->a);
-                    return;
-                } else if (*str == "r8") {
-                    valid = true;
-                    v->r = p_value.as<float>() / 255.0f;
-                    return;
-                } else if (*str == "g8") {
-                    valid = true;
-                    v->g = p_value.as<float>() / 255.0f;
-                    return;
-                } else if (*str == "b8") {
-                    valid = true;
-                    v->b = p_value.as<float>() / 255.0f;
-                    return;
-                } else if (*str == "a8") {
-                    valid = true;
-                    v->a = p_value.as<float>() / 255.0;
-                    return;
-                }
-            } else if (p_index.get_type() == VariantType::INT) {
-
-                int idx = p_index.as<int>();
-                if (idx < 0)
-                    idx += 4;
-                if (idx >= 0 && idx < 4) {
-                    Color *v = reinterpret_cast<Color *>(_data._mem);
-                    (*v)[idx] = p_value.as<float>();
+                v->component(p_index) = p_value.as<float>();
                     valid = true;
                 }
-            }
-
-        } break;
-        case VariantType::NODE_PATH: {
-        } break; // 15
-        case VariantType::_RID: {
         } break;
         case VariantType::OBJECT: {
 
@@ -1985,32 +1399,31 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
             if (unlikely(!obj)) {
 #ifdef DEBUG_ENABLED
                 valid = false;
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
-                    WARN_PRINT("Attempted set on a deleted object.");
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !object_for_entity(_get_obj().rc->instance_id)) {
+                    ERR_PRINT("Attempted set on a deleted object.");
                 }
 #endif
                 return;
             }
 
-            if (p_index.get_type() != VariantType::STRING) {
                 obj->setvar(p_index, p_value, r_valid);
-                return;
-            }
-
-            obj->set(p_index.as<StringName>(), p_value, r_valid);
             return;
         } break;
         case VariantType::DICTIONARY: {
 
             Dictionary *dic = reinterpret_cast<Dictionary *>(_data._mem);
-            dic->operator[](p_index) = p_value;
-            valid = true; //always valid, i guess? should this really be ok?
+            StringName key(dic->get_key_at_index(p_index));
+            valid = !key.empty();
+
+            if(valid) {
+                dic->operator[](key) = p_value;
+            }
             return;
         }
             DEFAULT_OP_ARRAY_CMD(ARRAY, Array, ;, (*arr)[index] = p_value; return ) // 20
             DEFAULT_OP_DVECTOR_SET(POOL_BYTE_ARRAY, uint8_t, p_value.type != VariantType::FLOAT && p_value.type != VariantType::INT)
             DEFAULT_OP_DVECTOR_SET(POOL_INT_ARRAY, int, p_value.type != VariantType::FLOAT && p_value.type != VariantType::INT)
-            DEFAULT_OP_DVECTOR_SET(POOL_REAL_ARRAY, real_t, p_value.type != VariantType::FLOAT && p_value.type != VariantType::INT)
+            DEFAULT_OP_DVECTOR_SET(POOL_FLOAT32_ARRAY, real_t, p_value.type != VariantType::FLOAT && p_value.type != VariantType::INT)
             DEFAULT_OP_DVECTOR_SET(POOL_STRING_ARRAY, String, p_value.type != VariantType::STRING)
             DEFAULT_OP_DVECTOR_SET(POOL_VECTOR2_ARRAY, Vector2, p_value.type != VariantType::VECTOR2) // 25
             DEFAULT_OP_DVECTOR_SET(POOL_VECTOR3_ARRAY, Vector3, p_value.type != VariantType::VECTOR3)
@@ -2020,7 +1433,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
     }
 }
 
-Variant Variant::get(const Variant &p_index, bool *r_valid) const {
+Variant Variant::get(int p_index, bool *r_valid) const {
 
     static bool _dummy = false;
 
@@ -2029,216 +1442,73 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
     valid = false;
 
     switch (type) {
-        case VariantType::NIL: {
+        case VariantType::NIL:
+        case VariantType::BOOL:
+        case VariantType::INT:
+        case VariantType::FLOAT:
+        case VariantType::RECT2:
+        case VariantType::PLANE:
+        case VariantType::QUAT:
+        case VariantType::AABB:
+        {
             return Variant();
         }
-        case VariantType::BOOL: {
+        case VariantType::REN_ENT: {
+            assert(false);
             return Variant();
         }
-        case VariantType::INT: {
-            return Variant();
-        }
-        case VariantType::FLOAT: {
-            return Variant();
-        }
+
         case VariantType::STRING: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
-                //string index
-
-                int idx = p_index.as<int>();
                 const String *str = reinterpret_cast<const String *>(_data._mem);
-                if (idx < 0)
-                    idx += str->length();
-                if (idx >= 0 && idx < str->length()) {
+            if (p_index < 0)
+                p_index += str->length();
+            if (p_index >= 0 && p_index < str->length()) {
 
                     valid = true;
-                    return StringUtils::substr(*str,idx, 1);
-                }
+                return StringUtils::substr(*str, p_index, 1);
             }
 
         } break;
         case VariantType::VECTOR2: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
                 // scalar index
-                int idx = p_index.as<int>();
-                if (idx < 0)
-                    idx += 2;
-                if (idx >= 0 && idx < 2) {
+            if (p_index < 0)
+                p_index += 2;
+            if (p_index >= 0 && p_index < 2) {
 
                     const Vector2 *v = reinterpret_cast<const Vector2 *>(_data._mem);
                     valid = true;
-                    return (*v)[idx];
-                }
-            } else if (p_index.get_type() == VariantType::STRING) {
-                //scalar name
-
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                const Vector2 *v = reinterpret_cast<const Vector2 *>(_data._mem);
-                if (*str == "x") {
-                    valid = true;
-                    return v->x;
-                } else if (*str == "y") {
-                    valid = true;
-                    return v->y;
-                }
+                return (*v)[p_index];
             }
 
         } break; // 5
-        case VariantType::RECT2: {
-
-            if (p_index.get_type() == VariantType::STRING) {
-                //scalar name
-
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                const Rect2 *v = reinterpret_cast<const Rect2 *>(_data._mem);
-                if (*str == "position") {
-                    valid = true;
-                    return v->position;
-                } else if (*str == "size") {
-                    valid = true;
-                    return v->size;
-                } else if (*str == "end") {
-                    valid = true;
-                    return v->size + v->position;
-                }
-            }
-        } break;
         case VariantType::VECTOR3: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
-                //scalar index
-                int idx = p_index.as<int>();
-                if (idx < 0)
-                    idx += 3;
-                if (idx >= 0 && idx < 3) {
+            if (p_index < 0)
+                p_index += 3;
+            if (p_index >= 0 && p_index < 3) {
 
                     const Vector3 *v = reinterpret_cast<const Vector3 *>(_data._mem);
                     valid = true;
-                    return (*v)[idx];
-                }
-            } else if (p_index.get_type() == VariantType::STRING) {
-
-                //scalar name
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                const Vector3 *v = reinterpret_cast<const Vector3 *>(_data._mem);
-                if (*str == "x") {
-                    valid = true;
-                    return v->x;
-                } else if (*str == "y") {
-                    valid = true;
-                    return v->y;
-                } else if (*str == "z") {
-                    valid = true;
-                    return v->z;
-                }
+                return (*v)[p_index];
             }
 
         } break;
         case VariantType::TRANSFORM2D: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
-
-                int index = p_index.as<int>();
-
-                if (index < 0)
-                    index += 3;
-                if (index >= 0 && index < 3) {
+            if (p_index < 0)
+                p_index += 3;
+            if (p_index >= 0 && p_index < 3) {
                     const Transform2D *v = _data._transform2d;
 
                     valid = true;
-                    return v->elements[index];
-                }
-            } else if (p_index.get_type() == VariantType::STRING) {
-
-                //scalar name
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                const Transform2D *v = _data._transform2d;
-                if (*str == "x") {
-                    valid = true;
-                    return v->elements[0];
-                } else if (*str == "y") {
-                    valid = true;
-                    return v->elements[1];
-                } else if (*str == "origin") {
-                    valid = true;
-                    return v->elements[2];
-                }
-            }
-
-        } break;
-        case VariantType::PLANE: {
-
-            if (p_index.get_type() == VariantType::STRING) {
-                //scalar name
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                const Plane *v = reinterpret_cast<const Plane *>(_data._mem);
-                if (*str == "x") {
-                    valid = true;
-                    return v->normal.x;
-                } else if (*str == "y") {
-                    valid = true;
-                    return v->normal.y;
-                } else if (*str == "z") {
-                    valid = true;
-                    return v->normal.z;
-                } else if (*str == "normal") {
-                    valid = true;
-                    return v->normal;
-                } else if (*str == "d") {
-                    valid = true;
-                    return v->d;
-                }
-            }
-
-        } break;
-        case VariantType::QUAT: {
-
-            if (p_index.get_type() == VariantType::STRING) {
-
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                const Quat *v = reinterpret_cast<const Quat *>(_data._mem);
-                if (*str == "x") {
-                    valid = true;
-                    return v->x;
-                } else if (*str == "y") {
-                    valid = true;
-                    return v->y;
-                } else if (*str == "z") {
-                    valid = true;
-                    return v->z;
-                } else if (*str == "w") {
-                    valid = true;
-                    return v->w;
-                }
-            }
-
-        } break; // 10
-        case VariantType::AABB: {
-
-            if (p_index.get_type() == VariantType::STRING) {
-                //scalar name
-
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                const ::AABB *v = _data._aabb;
-                if (*str == "position") {
-                    valid = true;
-                    return v->position;
-                } else if (*str == "size") {
-                    valid = true;
-                    return v->size;
-                } else if (*str == "end") {
-                    valid = true;
-                    return v->size + v->position;
-                }
+                return v->elements[p_index];
             }
         } break;
         case VariantType::BASIS: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
-
-                int index = p_index.as<int>();
+            int index = p_index;
                 if (index < 0)
                     index += 3;
                 if (index >= 0 && index < 3) {
@@ -2246,103 +1516,30 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
 
                     valid = true;
                     return v->get_axis(index);
-                }
-            } else if (p_index.get_type() == VariantType::STRING) {
-
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                const Basis *v = _data._basis;
-
-                if (*str == "x") {
-                    valid = true;
-                    return v->get_axis(0);
-                } else if (*str == "y") {
-                    valid = true;
-                    return v->get_axis(1);
-                } else if (*str == "z") {
-                    valid = true;
-                    return v->get_axis(2);
-                }
             }
 
         } break;
         case VariantType::TRANSFORM: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
-
-                int index = p_index.as<int>();
+            int index = p_index;
                 if (index < 0)
                     index += 4;
                 if (index >= 0 && index < 4) {
                     const Transform *v = _data._transform;
                     valid = true;
                     return index == 3 ? v->origin : v->basis.get_axis(index);
-                }
-            } else if (p_index.get_type() == VariantType::STRING) {
-
-                const Transform *v = _data._transform;
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-
-                if (*str == "basis") {
-                    valid = true;
-                    return v->basis;
-                }
-                if (*str == "origin") {
-                    valid = true;
-                    return v->origin;
-                }
             }
 
         } break;
         case VariantType::COLOR: {
 
-            if (p_index.get_type() == VariantType::STRING) {
-
-                const String *str = reinterpret_cast<const String *>(p_index._data._mem);
-                const Color *v = reinterpret_cast<const Color *>(_data._mem);
-                if (*str == "r") {
-                    valid = true;
-                    return v->r;
-                } else if (*str == "g") {
-                    valid = true;
-                    return v->g;
-                } else if (*str == "b") {
-                    valid = true;
-                    return v->b;
-                } else if (*str == "a") {
-                    valid = true;
-                    return v->a;
-                } else if (*str == "h") {
-                    valid = true;
-                    return v->get_h();
-                } else if (*str == "s") {
-                    valid = true;
-                    return v->get_s();
-                } else if (*str == "v") {
-                    valid = true;
-                    return v->get_v();
-                } else if (*str == "r8") {
-                    valid = true;
-                    return (int)Math::round(v->r * 255.0f);
-                } else if (*str == "g8") {
-                    valid = true;
-                    return (int)Math::round(v->g * 255.0f);
-                } else if (*str == "b8") {
-                    valid = true;
-                    return (int)Math::round(v->b * 255.0f);
-                } else if (*str == "a8") {
-                    valid = true;
-                    return (int)Math::round(v->a * 255.0f);
-                }
-            } else if (p_index.get_type() == VariantType::INT) {
-
-                int idx = p_index.as<int>();
+            int idx = p_index;
                 if (idx < 0)
                     idx += 4;
                 if (idx >= 0 && idx < 4) {
                     const Color *v = reinterpret_cast<const Color *>(_data._mem);
                     valid = true;
-                    return (*v)[idx];
-                }
+                    return v->component(idx);
             }
 
         } break;
@@ -2353,26 +1550,23 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
         case VariantType::OBJECT: {
             Object *obj = _OBJ_PTR(*this);
             if (unlikely(!obj)) {
-#ifdef DEBUG_ENABLED
                 valid = false;
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
+#ifdef DEBUG_ENABLED
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !object_for_entity(_get_obj().rc->instance_id)) {
                     WARN_PRINT("Attempted get on a deleted object.");
                 }
 #endif
                 return Variant();
             }
 
-            if (p_index.get_type() != VariantType::STRING) {
-                return obj->getvar(p_index, r_valid);
-            } else {
-                return obj->get(p_index.as<StringName>(), r_valid);
-            }
+            return obj->getvar(p_index, r_valid);
 
         } break;
         case VariantType::DICTIONARY: {
 
             const Dictionary *dic = reinterpret_cast<const Dictionary *>(_data._mem);
-            const Variant *res = dic->getptr(p_index);
+            StringName key(dic->get_key_at_index(p_index));
+            const Variant *res = dic->getptr(key);
             if (res) {
                 valid = true;
                 return *res;
@@ -2381,7 +1575,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
             DEFAULT_OP_ARRAY_CMD(ARRAY, const Array, ;, return (*arr)[index]) // 20
             DEFAULT_OP_DVECTOR_GET(POOL_BYTE_ARRAY, uint8_t)
             DEFAULT_OP_DVECTOR_GET(POOL_INT_ARRAY, int)
-            DEFAULT_OP_DVECTOR_GET(POOL_REAL_ARRAY, real_t)
+            DEFAULT_OP_DVECTOR_GET(POOL_FLOAT32_ARRAY, real_t)
             DEFAULT_OP_DVECTOR_GET(POOL_STRING_ARRAY, String)
             DEFAULT_OP_DVECTOR_GET(POOL_VECTOR2_ARRAY, Vector2) // 25
             DEFAULT_OP_DVECTOR_GET(POOL_VECTOR3_ARRAY, Vector3)
@@ -2481,7 +1675,7 @@ void Variant::get_property_list(Vector<PropertyInfo> *p_list) const {
             Object *obj = _OBJ_PTR(*this);
             if (unlikely(!obj)) {
 #ifdef DEBUG_ENABLED
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
+                if (_get_obj().rc) {
                     WARN_PRINT("Attempted get property list on a deleted object.");
                 }
 #endif
@@ -2493,17 +1687,15 @@ void Variant::get_property_list(Vector<PropertyInfo> *p_list) const {
         case VariantType::DICTIONARY: {
 
             const Dictionary *dic = reinterpret_cast<const Dictionary *>(_data._mem);
-            Vector<Variant> keys(dic->get_key_list());
-            for(Variant &E : keys ) {
-                if (E.get_type() == VariantType::STRING) {
-                    p_list->emplace_back(VariantType::STRING, E.as<StringName>());
-                }
+            auto keys(dic->get_key_list());
+            for(auto &E : keys ) {
+                p_list->emplace_back(VariantType::STRING, StringName(E));
             }
         } break;
         case VariantType::ARRAY: // 20
         case VariantType::POOL_BYTE_ARRAY:
         case VariantType::POOL_INT_ARRAY:
-        case VariantType::POOL_REAL_ARRAY:
+        case VariantType::POOL_FLOAT32_ARRAY:
         case VariantType::POOL_STRING_ARRAY:
         case VariantType::POOL_VECTOR2_ARRAY: // 25
         case VariantType::POOL_VECTOR3_ARRAY:
@@ -2781,7 +1973,7 @@ void Variant::interpolate(const Variant &a, const Variant &b, float c, Variant &
             }
         }
             return;
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             const PoolVector<real_t> *arr_a = reinterpret_cast<const PoolVector<real_t> *>(a._data._mem);
             const PoolVector<real_t> *arr_b = reinterpret_cast<const PoolVector<real_t> *>(b._data._mem);
             int sz = arr_a->size();

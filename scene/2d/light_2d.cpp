@@ -139,7 +139,7 @@ void Light2D::set_texture(const Ref<Texture> &p_texture) {
     if (texture)
         RenderingServer::get_singleton()->canvas_light_set_texture(canvas_light, texture->get_rid());
     else
-        RenderingServer::get_singleton()->canvas_light_set_texture(canvas_light, RID());
+        RenderingServer::get_singleton()->canvas_light_set_texture(canvas_light, entt::null);
 
     update_configuration_warning();
 }
@@ -342,19 +342,18 @@ void Light2D::_notification(int p_what) {
         RenderingServer::get_singleton()->canvas_light_attach_to_canvas(canvas_light, get_canvas());
         _update_light_visibility();
     }
-
-    if (p_what == NOTIFICATION_TRANSFORM_CHANGED) {
+    else if (p_what == NOTIFICATION_TRANSFORM_CHANGED) {
 
         RenderingServer::get_singleton()->canvas_light_set_transform(canvas_light, get_global_transform());
     }
-    if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
+    else if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
 
         _update_light_visibility();
     }
 
-    if (p_what == NOTIFICATION_EXIT_TREE) {
+    else if (p_what == NOTIFICATION_EXIT_TREE) {
 
-        RenderingServer::get_singleton()->canvas_light_attach_to_canvas(canvas_light, RID());
+        RenderingServer::get_singleton()->canvas_light_attach_to_canvas(canvas_light, entt::null);
         _update_light_visibility();
     }
 }
@@ -386,68 +385,68 @@ float Light2D::get_shadow_smooth() const {
 
 void Light2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_enabled", {"enabled"}), &Light2D::set_enabled);
-    MethodBinder::bind_method(D_METHOD("is_enabled"), &Light2D::is_enabled);
+    BIND_METHOD(Light2D,set_enabled);
+    BIND_METHOD(Light2D,is_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_editor_only", {"editor_only"}), &Light2D::set_editor_only);
-    MethodBinder::bind_method(D_METHOD("is_editor_only"), &Light2D::is_editor_only);
+    BIND_METHOD(Light2D,set_editor_only);
+    BIND_METHOD(Light2D,is_editor_only);
 
-    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &Light2D::set_texture);
-    MethodBinder::bind_method(D_METHOD("get_texture"), &Light2D::get_texture);
+    BIND_METHOD(Light2D,set_texture);
+    BIND_METHOD(Light2D,get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_texture_offset", {"texture_offset"}), &Light2D::set_texture_offset);
-    MethodBinder::bind_method(D_METHOD("get_texture_offset"), &Light2D::get_texture_offset);
+    BIND_METHOD(Light2D,set_texture_offset);
+    BIND_METHOD(Light2D,get_texture_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_color", {"color"}), &Light2D::set_color);
-    MethodBinder::bind_method(D_METHOD("get_color"), &Light2D::get_color);
+    BIND_METHOD(Light2D,set_color);
+    BIND_METHOD(Light2D,get_color);
 
-    MethodBinder::bind_method(D_METHOD("set_height", {"height"}), &Light2D::set_height);
-    MethodBinder::bind_method(D_METHOD("get_height"), &Light2D::get_height);
+    BIND_METHOD(Light2D,set_height);
+    BIND_METHOD(Light2D,get_height);
 
-    MethodBinder::bind_method(D_METHOD("set_energy", {"energy"}), &Light2D::set_energy);
-    MethodBinder::bind_method(D_METHOD("get_energy"), &Light2D::get_energy);
+    BIND_METHOD(Light2D,set_energy);
+    BIND_METHOD(Light2D,get_energy);
 
-    MethodBinder::bind_method(D_METHOD("set_texture_scale", {"texture_scale"}), &Light2D::set_texture_scale);
-    MethodBinder::bind_method(D_METHOD("get_texture_scale"), &Light2D::get_texture_scale);
+    BIND_METHOD(Light2D,set_texture_scale);
+    BIND_METHOD(Light2D,get_texture_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_z_range_min", {"z"}), &Light2D::set_z_range_min);
-    MethodBinder::bind_method(D_METHOD("get_z_range_min"), &Light2D::get_z_range_min);
+    BIND_METHOD(Light2D,set_z_range_min);
+    BIND_METHOD(Light2D,get_z_range_min);
 
-    MethodBinder::bind_method(D_METHOD("set_z_range_max", {"z"}), &Light2D::set_z_range_max);
-    MethodBinder::bind_method(D_METHOD("get_z_range_max"), &Light2D::get_z_range_max);
+    BIND_METHOD(Light2D,set_z_range_max);
+    BIND_METHOD(Light2D,get_z_range_max);
 
-    MethodBinder::bind_method(D_METHOD("set_layer_range_min", {"layer"}), &Light2D::set_layer_range_min);
-    MethodBinder::bind_method(D_METHOD("get_layer_range_min"), &Light2D::get_layer_range_min);
+    BIND_METHOD(Light2D,set_layer_range_min);
+    BIND_METHOD(Light2D,get_layer_range_min);
 
-    MethodBinder::bind_method(D_METHOD("set_layer_range_max", {"layer"}), &Light2D::set_layer_range_max);
-    MethodBinder::bind_method(D_METHOD("get_layer_range_max"), &Light2D::get_layer_range_max);
+    BIND_METHOD(Light2D,set_layer_range_max);
+    BIND_METHOD(Light2D,get_layer_range_max);
 
-    MethodBinder::bind_method(D_METHOD("set_item_cull_mask", {"item_cull_mask"}), &Light2D::set_item_cull_mask);
-    MethodBinder::bind_method(D_METHOD("get_item_cull_mask"), &Light2D::get_item_cull_mask);
+    BIND_METHOD(Light2D,set_item_cull_mask);
+    BIND_METHOD(Light2D,get_item_cull_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_item_shadow_cull_mask", {"item_shadow_cull_mask"}), &Light2D::set_item_shadow_cull_mask);
-    MethodBinder::bind_method(D_METHOD("get_item_shadow_cull_mask"), &Light2D::get_item_shadow_cull_mask);
+    BIND_METHOD(Light2D,set_item_shadow_cull_mask);
+    BIND_METHOD(Light2D,get_item_shadow_cull_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_mode", {"mode"}), &Light2D::set_mode);
-    MethodBinder::bind_method(D_METHOD("get_mode"), &Light2D::get_mode);
+    BIND_METHOD(Light2D,set_mode);
+    BIND_METHOD(Light2D,get_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_shadow_enabled", {"enabled"}), &Light2D::set_shadow_enabled);
-    MethodBinder::bind_method(D_METHOD("is_shadow_enabled"), &Light2D::is_shadow_enabled);
+    BIND_METHOD(Light2D,set_shadow_enabled);
+    BIND_METHOD(Light2D,is_shadow_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_shadow_buffer_size", {"size"}), &Light2D::set_shadow_buffer_size);
-    MethodBinder::bind_method(D_METHOD("get_shadow_buffer_size"), &Light2D::get_shadow_buffer_size);
+    BIND_METHOD(Light2D,set_shadow_buffer_size);
+    BIND_METHOD(Light2D,get_shadow_buffer_size);
 
-    MethodBinder::bind_method(D_METHOD("set_shadow_smooth", {"smooth"}), &Light2D::set_shadow_smooth);
-    MethodBinder::bind_method(D_METHOD("get_shadow_smooth"), &Light2D::get_shadow_smooth);
+    BIND_METHOD(Light2D,set_shadow_smooth);
+    BIND_METHOD(Light2D,get_shadow_smooth);
 
-    MethodBinder::bind_method(D_METHOD("set_shadow_gradient_length", {"multiplier"}), &Light2D::set_shadow_gradient_length);
-    MethodBinder::bind_method(D_METHOD("get_shadow_gradient_length"), &Light2D::get_shadow_gradient_length);
+    BIND_METHOD(Light2D,set_shadow_gradient_length);
+    BIND_METHOD(Light2D,get_shadow_gradient_length);
 
-    MethodBinder::bind_method(D_METHOD("set_shadow_filter", {"filter"}), &Light2D::set_shadow_filter);
-    MethodBinder::bind_method(D_METHOD("get_shadow_filter"), &Light2D::get_shadow_filter);
+    BIND_METHOD(Light2D,set_shadow_filter);
+    BIND_METHOD(Light2D,get_shadow_filter);
 
-    MethodBinder::bind_method(D_METHOD("set_shadow_color", {"shadow_color"}), &Light2D::set_shadow_color);
-    MethodBinder::bind_method(D_METHOD("get_shadow_color"), &Light2D::get_shadow_color);
+    BIND_METHOD(Light2D,set_shadow_color);
+    BIND_METHOD(Light2D,get_shadow_color);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enabled"), "set_enabled", "is_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor_only"), "set_editor_only", "is_editor_only");

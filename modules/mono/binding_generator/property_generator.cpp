@@ -259,21 +259,21 @@ void gen_property_cs_impl(const String &icall_ns,const TS_Property &pinfo,Genera
         decl="static ";
     }
     decl += "public %type %name ";
-    auto frst=pinfo.indexed_entries.front();
-    String ret_type(func_return_type(*frst.getter));
+    auto first=pinfo.indexed_entries.front();
+    String ret_type(func_return_type(*first.getter));
     decl.replace("%type",ret_type);
     decl.replace("%name",c_property_name_to_cs(pinfo.cs_name));
     cs_ctx.append_line(decl);
 
     cs_ctx.start_block();
-        if(frst.getter) {
+        if(first.getter) {
             eastl::vector_map<String, String> replacements;
-            cs_ctx.append_multiline(gen_cs_getter(frst,icall_ns,replacements));
+            cs_ctx.append_multiline(gen_cs_getter(first,icall_ns,replacements));
         }
-        if(frst.setter) {
+        if(first.setter) {
             eastl::vector_map<String, String> replacements;
-            replacements[frst.setter->arg_values.front()] = "value";
-            cs_ctx.append_multiline(gen_cs_setter(frst,icall_ns,replacements));
+            replacements[first.setter->arg_values.front()] = "value";
+            cs_ctx.append_multiline(gen_cs_setter(first,icall_ns,replacements));
         }
 
     cs_ctx.end_block();

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  stream_peer.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -39,7 +39,6 @@ class GODOT_EXPORT StreamPeer : public RefCounted {
 
 protected:
     static void _bind_methods();
-    bool big_endian;
 public:
     //bind helpers
     Error _put_data(Span<const uint8_t> p_data);
@@ -57,9 +56,6 @@ public:
     virtual Error get_partial_data(uint8_t *p_buffer, int p_bytes, int &r_received) = 0; ///< read as much data as p_bytes into buffer, if less was read, return in r_received
 
     virtual int get_available_bytes() const = 0;
-
-    void set_big_endian(bool p_enable);
-    bool is_big_endian_enabled() const;
 
     void put_8(int8_t p_val);
     void put_u8(uint8_t p_val);
@@ -88,7 +84,7 @@ public:
     String get_string(int p_bytes = -1);
     Variant get_var(bool p_allow_objects = false);
 
-    StreamPeer() { big_endian = false; }
+    StreamPeer() {}
 };
 
 class GODOT_EXPORT StreamPeerBuffer : public StreamPeer {

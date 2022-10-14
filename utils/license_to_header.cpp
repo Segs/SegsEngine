@@ -1,4 +1,4 @@
-#include <QtCore/QFile>
+﻿#include <QtCore/QFile>
 #include <QtCore/QString>
 #include <QFileInfo>
 #include <QStringList>
@@ -160,7 +160,7 @@ bool make_license_header(const QStringList &source)
             "};\n\n";
 
     out << "const char *const COPYRIGHT_INFO_DATA[] = {\n";
-    for (auto line : data_list)
+    for (const auto& line : data_list)
         out << "\t\"" << escape_string(line) << "\",\n";
     out << "};\n\n";
 
@@ -584,7 +584,7 @@ static bool _make_doc_data_class_path(const QStringList &paths,const QString &to
     g.write("struct _DocDataClassPath { const char* name; const char* path; };\n");
 
     g.write(qPrintable("static const _DocDataClassPath _doc_data_class_paths[" + QString::number(sorted.size()+1) + "] = {\n"));
-    for(auto c : sorted)
+    for(const auto &c : sorted)
     {
         QFileInfo fi(c);
         QString module_path = fi.path();
@@ -627,8 +627,9 @@ static void byteArrayToHexInFile(const QByteArray &src,QFile &g)
     int column_count=0;
     for(char b : src)
     {
-        if(column_count==0)
+        if(column_count==0) {
             g.write("\t");
+        }
         g.write(qPrintable(QString("0x%1,").arg(uint16_t(uint8_t(b)),2,16,QChar('0'))));
         column_count++;
         if(column_count==20)
@@ -646,15 +647,17 @@ bool collect_and_pack_docs(QStringList args)
     QString dst = tgt_path+"/doc_data_compressed.gen.h";
     QStringList all_doc_paths=collect_docs(doc_paths,tgt_path);
     QFile g(dst);
-    if(!g.open(QFile::WriteOnly))
+    if(!g.open(QFile::WriteOnly)) {
         return false;
+    }
 
     QByteArray buf = "";
 
     for (const QString &s : all_doc_paths)
     {
-        if(!s.endsWith(".xml"))
+        if(!s.endsWith(".xml")) {
             continue;
+        }
         QString src = QFileInfo(s).absoluteFilePath();
         QFile f(src);
         QByteArray content;
@@ -684,8 +687,9 @@ bool make_translations_header(QStringList args)
     QString tgt_path = args.takeFirst();
     QString dst = tgt_path+"/translations.gen.h";
     QFile g(dst);
-    if(!g.open(QFile::WriteOnly))
+    if(!g.open(QFile::WriteOnly)) {
         return false;
+    }
 
     g.write("/* THIS FILE IS GENERATED DO NOT EDIT */\n");
     g.write("#ifndef _EDITOR_TRANSLATIONS_H\n");
@@ -748,8 +752,9 @@ bool make_default_controller_mappings(QStringList args)
     QFile g(dst);
     QDir d;
     d.mkpath(QFileInfo(dst).path());
-    if(!g.open(QFile::WriteOnly))
+    if(!g.open(QFile::WriteOnly)) {
         return false;
+    }
     g.write("/* THIS FILE IS GENERATED DO NOT EDIT */\n");
     g.write("#include \"core/input/default_controller_mappings.h\"\n");
 
@@ -772,11 +777,13 @@ bool make_default_controller_mappings(QStringList args)
         QString current_platform;
         for(QString line : mapping_file_lines)
         {
-            if(line.isEmpty())
+            if(line.isEmpty()) {
                 continue;
+            }
             line = line.trimmed();
-            if(line.isEmpty())
+            if(line.isEmpty()) {
                 continue;
+            }
             if (line[0] == "#")
             {
                 current_platform = line.mid(1).trimmed();
@@ -838,14 +845,16 @@ bool gen_script_encryption(QStringList args)
     {
         txt = "";
         bool ec_valid = true;
-        if (e.size() != 64)
+        if (e.size() != 64) {
             ec_valid = false;
+        }
         else
         {
             for(int i=0; i<e.size()/2; ++i)
             {
-                if (i > 0)
+                if (i > 0) {
                     txt += ",";
+                }
                 bool parse_ok;
                 e.midRef(i*2,2).toInt(&parse_ok,16);
                 ec_valid &= parse_ok;
@@ -870,8 +879,9 @@ bool gen_script_encryption(QStringList args)
 }
 QString _spaced(QString e)
 {
-    if(e.endsWith('*'))
+    if(e.endsWith('*')) {
         return e;
+    }
     return e + " ";
 }
 QStringList generate_extension_struct(QString name,const QJsonObject &ext,bool include_version=true)
@@ -1123,9 +1133,7 @@ bool generate_mono_glue(QStringList args) {
         "#include \"core/map.h\"",
         "#include \"core/string.h\"",
     };
-    QStringList inserted_files;
 
-    int cs_file_count = 0;
     QDirIterator visitor(src,QDirIterator::Subdirectories);
     QCryptographicHash hash(QCryptographicHash::Sha256);
     QStringList files;
@@ -1139,7 +1147,6 @@ bool generate_mono_glue(QStringList args) {
     }
     files.sort();
     for(const QString & fname : files) {
-        QFileInfo fi(fname);
         QFile file(fname);
         file.open(QFile::ReadOnly);
         QCryptographicHash hash2(QCryptographicHash::Sha256);
@@ -1150,8 +1157,6 @@ bool generate_mono_glue(QStringList args) {
         hash.addData(contents);
         hash2.addData(contents);
         qDebug() << "Hashing"<<fname<<QString::number(qHash(hash.result()),16);
-
-        cs_file_count += 1;
     }
     auto hashed = hash.result();
 

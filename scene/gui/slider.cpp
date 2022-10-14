@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  slider.cpp                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -62,10 +62,31 @@ void Slider::_gui_input(Ref<InputEvent> p_event) {
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
     if (mb) {
+        if (!mb->is_pressed()) {
         if (mb->get_button_index() == BUTTON_LEFT) {
+                // left mouse button released.
+                grab.active = false;
+                const bool value_changed = !Math::is_equal_approx(grab.uvalue, get_as_ratio());
+                emit_signal("drag_ended", value_changed);
+            }
+            return;
+        }
 
-            if (mb->is_pressed()) {
-                Ref<Texture> grabber = get_theme_icon(mouse_inside || has_focus() ? StringName("grabber_highlight") : StringName("grabber"));
+        if (mb->get_button_index() != BUTTON_LEFT) {
+            if (scrollable) {
+                if (mb->get_button_index() == BUTTON_WHEEL_UP) {
+                    grab_focus();
+                    set_value(get_value() + get_step());
+                } else if (mb->get_button_index() == BUTTON_WHEEL_DOWN) {
+                    grab_focus();
+                    set_value(get_value() - get_step());
+                }
+            }
+            return;
+        }
+        Ref<Texture> grabber = get_theme_icon(mouse_inside || has_focus() ?
+                                                  StringName("grabber_highlight") :
+                                                  StringName("grabber"));
                 grab.pos = orientation == VERTICAL ? mb->get_position().y : mb->get_position().x;
 
                 double grab_width = (double)grabber->get_size().width;
@@ -77,16 +98,8 @@ void Slider::_gui_input(Ref<InputEvent> p_event) {
                     set_as_ratio(((double)grab.pos - (grab_width / 2.0)) / max);
                 grab.active = true;
                 grab.uvalue = get_as_ratio();
-            } else {
-                grab.active = false;
-            }
-        } else if (scrollable) {
-            if (mb->is_pressed() && mb->get_button_index() == BUTTON_WHEEL_UP) {
-                set_value(get_value() + get_step());
-            } else if (mb->is_pressed() && mb->get_button_index() == BUTTON_WHEEL_DOWN) {
-                set_value(get_value() - get_step());
-            }
-        }
+        emit_signal("drag_started");
+        return;
     }
 
     Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
@@ -171,7 +184,7 @@ void Slider::_notification(int p_what) {
             grab.active = false;
         } break;
         case NOTIFICATION_DRAW: {
-            RID ci = get_canvas_item();
+            RenderingEntity ci = get_canvas_item();
             Size2i size = get_size();
             Ref<StyleBox> style = get_theme_stylebox("slider");
             bool highlighted = mouse_inside || has_focus();
@@ -185,7 +198,10 @@ void Slider::_notification(int p_what) {
                 int widget_width = style->get_minimum_size().width + style->get_center_size().width;
                 float areasize = size.height - grabber->get_size().height;
                 style->draw(ci, Rect2i(Point2i(size.width / 2 - widget_width / 2, 0), Size2i(widget_width, size.height)));
-                grabber_area->draw(ci, Rect2i(Point2i((size.width - widget_width) / 2, size.height - areasize * ratio - grabber->get_size().height / 2), Size2i(widget_width, areasize * ratio + grabber->get_size().width / 2)));
+
+                grabber_area->draw(ci, Rect2i(Point2i((size.width - widget_width) / 2,
+                                                      size.height - areasize * ratio - grabber->get_size().height / 2),
+                                               Size2i(widget_width, areasize * ratio + grabber->get_size().height / 2)));
 
                 if (ticks > 1) {
                     int grabber_offset = (grabber->get_size().height / 2 - tick->get_height() / 2);
@@ -272,17 +288,19 @@ bool Slider::is_scrollable() const {
 
 void Slider::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_gui_input"), &Slider::_gui_input);
-    MethodBinder::bind_method(D_METHOD("set_ticks", {"count"}), &Slider::set_ticks);
-    MethodBinder::bind_method(D_METHOD("get_ticks"), &Slider::get_ticks);
+    BIND_METHOD(Slider,_gui_input);
+    BIND_METHOD(Slider,set_ticks);
+    BIND_METHOD(Slider,get_ticks);
 
-    MethodBinder::bind_method(D_METHOD("get_ticks_on_borders"), &Slider::get_ticks_on_borders);
-    MethodBinder::bind_method(D_METHOD("set_ticks_on_borders", {"ticks_on_border"}), &Slider::set_ticks_on_borders);
+    BIND_METHOD(Slider,get_ticks_on_borders);
+    BIND_METHOD(Slider,set_ticks_on_borders);
 
-    MethodBinder::bind_method(D_METHOD("set_editable", {"editable"}), &Slider::set_editable);
-    MethodBinder::bind_method(D_METHOD("is_editable"), &Slider::is_editable);
-    MethodBinder::bind_method(D_METHOD("set_scrollable", {"scrollable"}), &Slider::set_scrollable);
-    MethodBinder::bind_method(D_METHOD("is_scrollable"), &Slider::is_scrollable);
+    BIND_METHOD(Slider,set_editable);
+    BIND_METHOD(Slider,is_editable);
+    BIND_METHOD(Slider,set_scrollable);
+    BIND_METHOD(Slider,is_scrollable);
+    ADD_SIGNAL(MethodInfo("drag_started"));
+    ADD_SIGNAL(MethodInfo("drag_ended", PropertyInfo(VariantType::BOOL, "value_changed")));
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editable"), "set_editable", "is_editable");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "scrollable"), "set_scrollable", "is_scrollable");

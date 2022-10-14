@@ -98,7 +98,7 @@ struct CSGBrushOperation {
     enum Operation {
         OPERATION_UNION,
         OPERATION_INTERSECTION,
-        OPERATION_SUBSTRACTION,
+        OPERATION_SUBTRACTION,
 
     };
 

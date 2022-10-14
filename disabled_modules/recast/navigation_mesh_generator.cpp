@@ -458,7 +458,7 @@ void EditorNavigationMeshGenerator::bake(Ref<NavigationMesh> p_nav_mesh, Node *p
 
     Vector<float> vertices;
     Vector<int> indices;
-    Deque<Node *> parse_nodes;
+    Dequeue<Node *> parse_nodes;
     if (p_nav_mesh->get_source_geometry_mode() == NavigationMesh::SOURCE_GEOMETRY_NAVMESH_CHILDREN) {
         parse_nodes.push_back(p_node);
     } else {

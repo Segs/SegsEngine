@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_import_plugin.cpp                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -179,5 +179,8 @@ void EditorImportPlugin::_bind_methods() {
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::FLOAT, "get_priority"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::INT, "get_import_order"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "get_option_visibility", PropertyInfo(VariantType::STRING, "option"), PropertyInfo(VariantType::DICTIONARY, "options")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::INT, "import", PropertyInfo(VariantType::STRING, "source_file"), PropertyInfo(VariantType::STRING, "save_path"), PropertyInfo(VariantType::DICTIONARY, "options"), PropertyInfo(VariantType::ARRAY, "platform_variants"), PropertyInfo(VariantType::ARRAY, "gen_files")));
+    ClassDB::add_virtual_method(get_class_static_name(),
+            MethodInfo(VariantType::INT, "import", PropertyInfo(VariantType::STRING, "source_file"),
+                    PropertyInfo(VariantType::STRING, "save_path"), PropertyInfo(VariantType::DICTIONARY, "options"),
+                    PropertyInfo(VariantType::ARRAY, "platform_variants"), PropertyInfo(VariantType::ARRAY, "gen_files")));
 }

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  rect2.h                                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,19 +34,21 @@
 
 struct Transform2D;
 
-struct GODOT_EXPORT Rect2 {
+struct GODOT_EXPORT [[nodiscard]] Rect2 {
 
     Point2 position;
     Size2 size;
 
-    const Vector2 &get_position() const { return position; }
-    void set_position(const Vector2 &p_pos) { position = p_pos; }
-    const Vector2 &get_size() const { return size; }
-    void set_size(const Vector2 &p_size) { size = p_size; }
+    [[nodiscard]] Vector2 get_position() const { return position; }
+    void set_position(Vector2 p_pos) { position = p_pos; }
+    [[nodiscard]] Vector2 get_size() const { return size; }
+    void set_size(Vector2 p_size) { size = p_size; }
 
-    real_t get_area() const { return size.width * size.height; }
+    [[nodiscard]] real_t get_area() const { return size.width * size.height; }
 
-    inline bool intersects(const Rect2 &p_rect, const bool p_include_borders = false) const {
+    Vector2 get_center() const { return position + (size * 0.5f); }
+
+    [[nodiscard]] bool intersects(Rect2 p_rect, const bool p_include_borders = false) const {
         if (p_include_borders) {
             if (position.x > (p_rect.position.x + p_rect.size.width)) {
                 return false;
@@ -78,7 +80,7 @@ struct GODOT_EXPORT Rect2 {
         return true;
     }
 
-    real_t distance_to(const Vector2 &p_point) const {
+    [[nodiscard]] real_t distance_to(Vector2 p_point) const {
 
         real_t dist = 0.0;
         bool inside = true;
@@ -111,11 +113,11 @@ struct GODOT_EXPORT Rect2 {
         }
     }
 
-    bool intersects_transformed(const Transform2D &p_xform, const Rect2 &p_rect) const;
+    [[nodiscard]] bool intersects_transformed(const Transform2D &p_xform, const Rect2 &p_rect) const;
 
-    bool intersects_segment(const Point2 &p_from, const Point2 &p_to, Point2 *r_pos = nullptr, Point2 *r_normal = nullptr) const;
+    [[nodiscard]] bool intersects_segment(const Point2 &p_from, const Point2 &p_to, Point2 *r_pos = nullptr, Point2 *r_normal = nullptr) const;
 
-    bool encloses(const Rect2 &p_rect) const {
+    [[nodiscard]] bool encloses(Rect2 p_rect) const {
 
         return (p_rect.position.x >= position.x) && (p_rect.position.y >= position.y) &&
                ((p_rect.position.x + p_rect.size.x) <= (position.x + size.x)) &&
@@ -127,7 +129,7 @@ struct GODOT_EXPORT Rect2 {
         return (size.x <= 0 || size.y <= 0);
     }
 
-    Rect2 clip(const Rect2 &p_rect) const { /// return a clipped rect
+    [[nodiscard]] Rect2 clip(Rect2 p_rect) const { /// return a clipped rect
 
         Rect2 new_rect = p_rect;
 
@@ -147,7 +149,7 @@ struct GODOT_EXPORT Rect2 {
         return new_rect;
     }
 
-    Rect2 merge(const Rect2 &p_rect) const { ///< return a merged rect
+    [[nodiscard]] Rect2 merge(Rect2 p_rect) const { ///< return a merged rect
 
         Rect2 new_rect;
 
@@ -162,7 +164,7 @@ struct GODOT_EXPORT Rect2 {
         return new_rect;
     }
 
-    bool has_point(const Point2 &p_point) const {
+    [[nodiscard]] bool has_point(Point2 p_point) const {
         if (p_point.x < position.x) {
             return false;
         }
@@ -179,25 +181,28 @@ struct GODOT_EXPORT Rect2 {
 
         return true;
     }
-    bool is_equal_approx(Rect2 p_rect) const {
+    [[nodiscard]] bool is_equal_approx(Rect2 p_rect) const {
 
         return position.is_equal_approx(p_rect.position) && size.is_equal_approx(p_rect.size);
     }
 
-    bool operator==(const Rect2 &p_rect) const { return position == p_rect.position && size == p_rect.size; }
-    bool operator!=(const Rect2 &p_rect) const { return position != p_rect.position || size != p_rect.size; }
+    [[nodiscard]] bool operator==(Rect2 p_rect) const { return position == p_rect.position && size == p_rect.size; }
+    [[nodiscard]] bool operator!=(Rect2 p_rect) const { return position != p_rect.position || size != p_rect.size; }
 
-    Rect2 grow(real_t p_by) const {
+    [[nodiscard]] Rect2 grow(real_t p_by) const {
 
         Rect2 g = *this;
-        g.position.x -= p_by;
-        g.position.y -= p_by;
-        g.size.width += p_by * 2;
-        g.size.height += p_by * 2;
+        g.grow_by(p_by);
         return g;
     }
+    inline void grow_by(real_t p_by) {
+        position.x -= p_by;
+        position.y -= p_by;
+        size.width += p_by * 2;
+        size.height += p_by * 2;
+    }
 
-    Rect2 grow_margin(Margin p_margin, real_t p_amount) const {
+    [[nodiscard]] Rect2 grow_margin(Margin p_margin, real_t p_amount) const {
         Rect2 g = *this;
         g = g.grow_individual((Margin::Left == p_margin) ? p_amount : 0,
                 (Margin::Top == p_margin) ? p_amount : 0,
@@ -206,7 +211,7 @@ struct GODOT_EXPORT Rect2 {
         return g;
     }
 
-    Rect2 grow_individual(real_t p_left, real_t p_top, real_t p_right, real_t p_bottom) const {
+    [[nodiscard]] Rect2 grow_individual(real_t p_left, real_t p_top, real_t p_right, real_t p_bottom) const {
 
         Rect2 g = *this;
         g.position.x -= p_left;
@@ -217,7 +222,7 @@ struct GODOT_EXPORT Rect2 {
         return g;
     }
 
-    _FORCE_INLINE_ Rect2 expand(const Vector2 &p_vector) const {
+    [[nodiscard]] _FORCE_INLINE_ Rect2 expand(const Vector2 &p_vector) const {
 
         Rect2 r = *this;
         r.expand_to(p_vector);
@@ -252,7 +257,7 @@ struct GODOT_EXPORT Rect2 {
         return Rect2(Point2(position.x + MIN(size.x, 0), position.y + MIN(size.y, 0)), size.abs());
     }
 
-    operator String() const;
+    [[nodiscard]] operator String() const;
 
     Rect2() = default;
     Rect2(real_t p_x, real_t p_y, real_t p_width, real_t p_height) :
@@ -265,19 +270,19 @@ struct GODOT_EXPORT Rect2 {
     }
 };
 
-struct Rect2i {
+struct [[nodiscard]] Rect2i {
 
     Point2i position;
     Size2i size;
+    Vector2i get_center() const { return position + (size / 2); }
+    [[nodiscard]] Point2i get_position() const { return position; }
+    void set_position(Point2i p_position) { position = p_position; }
+    [[nodiscard]] Size2i get_size() const { return size; }
+    void set_size(Size2i p_size) { size = p_size; }
 
-    const Point2i &get_position() const { return position; }
-    void set_position(const Point2i &p_position) { position = p_position; }
-    const Size2i &get_size() const { return size; }
-    void set_size(const Size2i &p_size) { size = p_size; }
+    [[nodiscard]] int get_area() const { return size.width * size.height; }
 
-    int get_area() const { return size.width * size.height; }
-
-    bool intersects(const Rect2i &p_rect) const {
+    [[nodiscard]] bool intersects(Rect2i p_rect) const {
         if (position.x > (p_rect.position.x + p_rect.size.width)) {
             return false;
         }
@@ -294,19 +299,19 @@ struct Rect2i {
         return true;
     }
 
-    bool encloses(const Rect2i &p_rect) const {
+    [[nodiscard]] bool encloses(Rect2i p_rect) const {
 
         return (p_rect.position.x >= position.x) && (p_rect.position.y >= position.y) &&
                ((p_rect.position.x + p_rect.size.x) < (position.x + size.x)) &&
                ((p_rect.position.y + p_rect.size.y) < (position.y + size.y));
     }
 
-    _FORCE_INLINE_ bool has_no_area() const {
+    [[nodiscard]] _FORCE_INLINE_ bool has_no_area() const {
 
         return (size.x <= 0 || size.y <= 0);
     }
 
-    Rect2i clip(const Rect2i &p_rect) const { /// return a clipped rect
+    [[nodiscard]] Rect2i clip(Rect2i p_rect) const { /// return a clipped rect
 
         Rect2i new_rect = p_rect;
 
@@ -326,7 +331,7 @@ struct Rect2i {
         return new_rect;
     }
 
-    Rect2i merge(const Rect2i &p_rect) const { ///< return a merged rect
+    [[nodiscard]] Rect2i merge(Rect2i p_rect) const { ///< return a merged rect
 
         Rect2i new_rect;
 
@@ -340,7 +345,7 @@ struct Rect2i {
 
         return new_rect;
     }
-    bool has_point(const Point2 &p_point) const {
+    [[nodiscard]] bool has_point(Point2 p_point) const {
         if (p_point.x < position.x) {
             return false;
         }
@@ -358,10 +363,10 @@ struct Rect2i {
         return true;
     }
 
-    bool operator==(const Rect2i &p_rect) const { return position == p_rect.position && size == p_rect.size; }
-    bool operator!=(const Rect2i &p_rect) const { return position != p_rect.position || size != p_rect.size; }
+    [[nodiscard]] bool operator==(Rect2i p_rect) const { return position == p_rect.position && size == p_rect.size; }
+    [[nodiscard]] bool operator!=(Rect2i p_rect) const { return position != p_rect.position || size != p_rect.size; }
 
-    Rect2i grow(int p_by) const {
+    [[nodiscard]] Rect2i grow(int p_by) const {
 
         Rect2i g = *this;
         g.position.x -= p_by;
@@ -371,7 +376,7 @@ struct Rect2i {
         return g;
     }
 
-    Rect2i grow_margin(Margin p_margin, int p_amount) const {
+    [[nodiscard]] Rect2i grow_margin(Margin p_margin, int p_amount) const {
         Rect2i g = *this;
         g = g.grow_individual((Margin::Left == p_margin) ? p_amount : 0,
                 (Margin::Top == p_margin) ? p_amount : 0,
@@ -380,7 +385,7 @@ struct Rect2i {
         return g;
     }
 
-    Rect2i grow_individual(int p_left, int p_top, int p_right, int p_bottom) const {
+    [[nodiscard]] Rect2i grow_individual(int p_left, int p_top, int p_right, int p_bottom) const {
 
         Rect2i g = *this;
         g.position.x -= p_left;
@@ -391,14 +396,14 @@ struct Rect2i {
         return g;
     }
 
-    _FORCE_INLINE_ Rect2i expand(const Vector2i &p_vector) const {
+    [[nodiscard]] _FORCE_INLINE_ Rect2i expand(Vector2i p_vector) const {
 
         Rect2i r = *this;
         r.expand_to(p_vector);
         return r;
     }
 
-    void expand_to(const Point2i &p_vector) {
+    void expand_to(Point2i p_vector) {
 
         Point2i begin = position;
         Point2i end = position + size;
@@ -421,15 +426,15 @@ struct Rect2i {
         size = end - begin;
     }
 
-    Rect2i abs() const {
+    [[nodiscard]] Rect2i abs() const {
 
         return Rect2i(Point2i(position.x + MIN(size.x, 0), position.y + MIN(size.y, 0)), size.abs());
     }
 
-    operator String() const;
+    [[nodiscard]] operator String() const;
 
-    operator Rect2() const { return Rect2(position, size); }
-    constexpr Rect2i(const Rect2 &p_r2) :
+    [[nodiscard]] operator Rect2() const { return Rect2(position, size); }
+    constexpr Rect2i(Rect2 p_r2) :
             position(p_r2.position),
             size(p_r2.size) {
     }
@@ -438,7 +443,7 @@ struct Rect2i {
             position(p_x, p_y),
             size(p_width, p_height) {
     }
-    Rect2i(const Point2 &p_pos, const Size2 &p_size) :
+    Rect2i(Point2 p_pos, Size2 p_size) :
             position(p_pos),
             size(p_size) {
     }

@@ -1,16 +1,35 @@
 #pragma once
 
-#include "core/string_name.h"
 #include "core/forward_decls.h"
+#include "core/string_name.h"
 
-#ifndef TOOLS_ENABLED
-#include "core/variant.h"
-#endif
 class Object;
 class IObjectTooling;
 class Variant;
 struct PropertyInfo;
 class RefPtr;
+struct ClassDB_ClassInfo;
+struct MethodInfo;
+class PHashTranslation;
+class Translation;
+template <class T>
+class Ref;
+class Resource;
+
+/**
+ * Tooling interface that replaces usages of macros with calls to functionality implemented 'outside' of engine dll
+ */
+namespace Tooling
+{
+
+GODOT_EXPORT bool class_can_instance_cb(ClassDB_ClassInfo *ti, const StringName &string_name);
+GODOT_EXPORT void add_virtual_method(const StringName & string_name, const MethodInfo & method_info);
+GODOT_EXPORT void generate_phash_translation(PHashTranslation &tgt, const Ref<Translation> &p_from);
+GODOT_EXPORT bool tooling_log();
+GODOT_EXPORT void importer_load(const Ref<Resource> & res, const String & path);
+GODOT_EXPORT bool check_resource_manager_load(StringView p_path);
+
+}
 
 // Internal tooling helpers.
 #ifdef TOOLS_ENABLED
@@ -32,7 +51,7 @@ class RefPtr;
     inline constexpr void relase_tooling(IObjectTooling *) {}
     inline constexpr void Object_add_change_receptor(Object * /*self*/,Object * /*p_receptor*/) {}
     inline constexpr void Object_remove_change_receptor(Object * /*self*/,Object * /*p_receptor*/) {}
-    inline constexpr void Object_set_edited(Object * /*self*/,bool /*p_edited*/,bool /*increment_version*/=true) {}
+    inline void Object_set_edited(Object * /*self*/,bool /*p_edited*/,bool /*increment_version*/=true) {}
     inline constexpr bool Object_set_fallback(Object * /*self*/,const StringName &/*p_name*/, const Variant & /*p_value*/) {return false;}
     inline Variant Object_get_fallback(const Object * /*self*/, const StringName &/*p_name*/, bool & r_valid) { r_valid=false; return {};}
     inline constexpr void Object_add_tool_properties(Vector<PropertyInfo> *) {}
@@ -42,11 +61,7 @@ class RefPtr;
 #endif
 
 class GODOT_EXPORT IObjectTooling {
-#ifdef TOOLS_ENABLED
     friend void Object_set_edited(Object *self,bool p_edited,bool increment_version);
-#else
-    friend constexpr void Object_set_edited(Object *self,bool p_edited,bool increment_version);
-#endif
 
 public:
     virtual bool is_edited() const = 0;

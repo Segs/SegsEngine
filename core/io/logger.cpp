@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  logger.cpp                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,6 +35,7 @@
 #include "core/os/dir_access.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
+#include "core/project_settings.h"
 #include "core/string_utils.h"
 #include "core/string_formatter.h"
 #include "core/set.h"
@@ -49,6 +50,13 @@ bool Logger::should_log(bool p_err) {
     return (!p_err || _print_error_enabled) && (p_err || _print_line_enabled);
 }
 
+bool Logger::_flush_stdout_on_print = true;
+
+void Logger::set_flush_stdout_on_print(bool value) {
+    _flush_stdout_on_print = value;
+}
+
+
 void Logger::log_error(StringView p_function, StringView p_file, int p_line, StringView p_code, StringView p_rationale, ErrorType p_type) {
     if (!should_log(true)) {
         return;
@@ -56,11 +64,21 @@ void Logger::log_error(StringView p_function, StringView p_file, int p_line, Str
 
     const char *err_type = "ERROR";
     switch (p_type) {
-        case ERR_ERROR: err_type = "ERROR"; break;
-        case ERR_WARNING: err_type = "WARNING"; break;
-        case ERR_SCRIPT: err_type = "SCRIPT ERROR"; break;
-        case ERR_SHADER: err_type = "SHADER ERROR"; break;
-        default: ERR_PRINT("Unknown error type"); break;
+        case ERR_ERROR:
+            err_type = "ERROR";
+            break;
+        case ERR_WARNING:
+            err_type = "WARNING";
+            break;
+        case ERR_SCRIPT:
+            err_type = "SCRIPT ERROR";
+            break;
+        case ERR_SHADER:
+            err_type = "SHADER ERROR";
+            break;
+        default:
+            ERR_PRINT("Unknown error type");
+            break;
     }
 
     StringView err_details;
@@ -71,10 +89,10 @@ void Logger::log_error(StringView p_function, StringView p_file, int p_line, Str
 
     logf_error(FormatVE("%s: %.*s\n",err_type,(int)err_details.size(),err_details.data()));
     logf_error(FormatVE("   at: %.*s (%.*s:%i) - %.*s\n",
-                        (int)p_function.size(),p_function.data(),
-                        (int)p_file.size(),p_file.data(),p_line,
-                        (int)p_code.size(),p_code.data())
-               );
+               (int)p_function.size(),p_function.data(),
+               (int)p_file.size(),p_file.data(),p_line,
+               (int)p_code.size(),p_code.data())
+      );
 }
 
 void Logger::logf(StringView p_msg) {
@@ -186,14 +204,13 @@ void RotatedFileLogger::logv(StringView p_format, bool p_err) {
         return;
 
     file->store_buffer((const uint8_t *)p_format.data(), p_format.length());
-#ifdef DEBUG_ENABLED
-    const bool need_flush = true;
-#else
-    bool need_flush = p_err;
-#endif
-    if (need_flush) {
+
+    if (p_err || _flush_stdout_on_print) {
+        // Don't always flush when printing stdout to avoid performance
+        // issues when `print()` is spammed in release builds.
         file->flush();
     }
+
 }
 
 RotatedFileLogger::~RotatedFileLogger() {
@@ -209,9 +226,11 @@ void StdLogger::logv(StringView p_format, bool p_err) {
         fprintf(stderr, "%.*s",uint32_t(p_format.length()),p_format.data());
     } else {
         printf("%.*s", uint32_t(p_format.length()),p_format.data());
-#ifdef DEBUG_ENABLED
-        fflush(stdout);
-#endif
+        if (_flush_stdout_on_print) {
+            // Don't always flush when printing stdout to avoid performance
+            // issues when `print()` is spammed in release builds.
+            fflush(stdout);
+        }
     }
 }
 

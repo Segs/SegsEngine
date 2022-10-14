@@ -45,13 +45,13 @@ class Physics2DDirectSpaceStateSW : public PhysicsDirectSpaceState2D {
 
     GDCLASS(Physics2DDirectSpaceStateSW,PhysicsDirectSpaceState2D)
 
-    int _intersect_point_impl(const Vector2 &p_point, ShapeResult *r_results, int p_result_max, const HashSet<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, bool p_pick_point, bool p_filter_by_canvas = false, ObjectID p_canvas_instance_id = {});
+    int _intersect_point_impl(const Vector2 &p_point, ShapeResult *r_results, int p_result_max, const HashSet<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, bool p_pick_point, bool p_filter_by_canvas = false, GameEntity p_canvas_instance_id = entt::null);
 
 public:
     Space2DSW *space;
 
     int intersect_point(const Vector2 &p_point, ShapeResult *r_results, int p_result_max, const HashSet<RID> &p_exclude = HashSet<RID>(), uint32_t p_collision_mask = 0xFFFFFFFF, bool p_collide_with_bodies = true, bool p_collide_with_areas = false, bool p_pick_point = false) override;
-    int intersect_point_on_canvas(const Vector2 &p_point, ObjectID p_canvas_instance_id, ShapeResult *r_results, int p_result_max, const HashSet<RID> &p_exclude = HashSet<RID>(), uint32_t p_collision_mask = 0xFFFFFFFF, bool p_collide_with_bodies = true, bool p_collide_with_areas = false, bool p_pick_point = false) override;
+    int intersect_point_on_canvas(const Vector2 &p_point, GameEntity p_canvas_instance_id, ShapeResult *r_results, int p_result_max, const HashSet<RID> &p_exclude = HashSet<RID>(), uint32_t p_collision_mask = 0xFFFFFFFF, bool p_collide_with_bodies = true, bool p_collide_with_areas = false, bool p_pick_point = false) override;
     bool intersect_ray(const Vector2 &p_from, const Vector2 &p_to, RayResult &r_result, const HashSet<RID> &p_exclude = HashSet<RID>(), uint32_t p_collision_mask = 0xFFFFFFFF, bool p_collide_with_bodies = true, bool p_collide_with_areas = false) override;
     int intersect_shape(const RID &p_shape, const Transform2D &p_xform, const Vector2 &p_motion, real_t p_margin, ShapeResult *r_results, int p_result_max, const HashSet<RID> &p_exclude = HashSet<RID>(), uint32_t p_collision_mask = 0xFFFFFFFF, bool p_collide_with_bodies = true, bool p_collide_with_areas = false) override;
     bool cast_motion(const RID &p_shape, const Transform2D &p_xform, const Vector2 &p_motion, real_t p_margin, real_t &p_closest_safe, real_t &p_closest_unsafe, const HashSet<RID> &p_exclude = HashSet<RID>(), uint32_t p_collision_mask = 0xFFFFFFFF, bool p_collide_with_bodies = true, bool p_collide_with_areas = false) override;
@@ -93,8 +93,8 @@ private:
     IntrusiveList<Area2DSW> monitor_query_list;
     IntrusiveList<Area2DSW> area_moved_list;
 
-    static void *_broadphase_pair(CollisionObject2DSW *A, int p_subindex_A, CollisionObject2DSW *B, int p_subindex_B, void *p_self);
-    static void _broadphase_unpair(CollisionObject2DSW *A, int p_subindex_A, CollisionObject2DSW *B, int p_subindex_B, void *p_data, void *p_self);
+    static void *_broadphase_pair(CollisionObject2DSW *p_object_A, int p_subindex_A, CollisionObject2DSW *p_object_B, int p_subindex_B, void *p_pair_data, void *p_self);
+    static void _broadphase_unpair(CollisionObject2DSW *p_object_A, int p_subindex_A, CollisionObject2DSW *p_object_B, int p_subindex_B, void *p_pair_data, void *p_self);
 
     HashSet<CollisionObject2DSW *> objects;
 
@@ -104,7 +104,6 @@ private:
     real_t contact_max_separation;
     real_t contact_max_allowed_penetration;
     real_t constraint_bias;
-    real_t test_motion_min_contact_depth;
 
     enum {
 
@@ -120,6 +119,7 @@ private:
 
     bool locked;
 
+    real_t step;
     int island_count;
     int active_objects;
     int collision_pairs;
@@ -132,8 +132,11 @@ private:
     friend class Physics2DDirectSpaceStateSW;
 
 public:
-    _FORCE_INLINE_ void set_self(const RID &p_self) { self = p_self; }
-    _FORCE_INLINE_ RID get_self() const { return self; }
+    void set_self(const RID &p_self) { self = p_self; }
+    RID get_self() const { return self; }
+
+    void set_step(real_t p_step) { step = p_step; }
+    real_t get_step() const { return step; }
 
     void set_default_area(Area2DSW *p_area) { area = p_area; }
     Area2DSW *get_default_area() const { return area; }
@@ -186,14 +189,15 @@ public:
 
     int get_collision_pairs() const { return collision_pairs; }
 
-    bool test_body_motion(Body2DSW *p_body, const Transform2D &p_from, const Vector2 &p_motion, bool p_infinite_inertia, real_t p_margin, PhysicsServer2D::MotionResult *r_result, bool p_exclude_raycast_shapes = true);
+    bool test_body_motion(Body2DSW *p_body, const Transform2D &p_from, const Vector2 &p_motion, bool p_infinite_inertia, real_t p_margin, PhysicsServer2D::MotionResult *r_result, bool p_exclude_raycast_shapes = true, const Set<RID> &p_exclude = Set<RID>());
     int test_body_ray_separation(Body2DSW *p_body, const Transform2D &p_transform, bool p_infinite_inertia, Vector2 &r_recover_motion, PhysicsServer2D::SeparationResult *r_results, int p_result_max, real_t p_margin);
 
     void set_debug_contacts(int p_amount) { contact_debug.resize(p_amount); }
     bool is_debugging_contacts() const { return !contact_debug.empty(); }
     void add_debug_contact(Vector2 p_contact) {
-        if (contact_debug_count < contact_debug.size())
+        if (contact_debug_count < contact_debug.size()) {
             contact_debug[contact_debug_count++] = p_contact;
+        }
     }
     const Vector<Vector2> &get_debug_contacts() { return contact_debug; }
     int get_debug_contact_count() { return contact_debug_count; }

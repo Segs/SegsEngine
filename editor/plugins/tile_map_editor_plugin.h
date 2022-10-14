@@ -35,12 +35,17 @@
 #include "editor/editor_plugin.h"
 
 #include "scene/2d/tile_map.h"
+#include "scene/gui/box_container.h"
 #include "scene/gui/check_box.h"
 #include "scene/gui/label.h"
 #include "scene/gui/line_edit.h"
 #include "scene/gui/menu_button.h"
 #include "scene/gui/tool_button.h"
 #include "EASTL/bitvector.h"
+
+class HSlider;
+class ItemList;
+
 
 class TileMapEditor : public VBoxContainer {
 
@@ -174,6 +179,7 @@ class TileMapEditor : public VBoxContainer {
     void _select(const Point2i &p_from, const Point2i &p_to);
     void _erase_selection();
 
+    void _draw_grid(Control *p_viewport, const Rect2 &p_rect) const;
     void _draw_cell(Control *p_viewport, int p_cell, const Point2i &p_point, bool p_flip_h, bool p_flip_v, bool p_transpose, const Point2i &p_autotile_coord, const Transform2D &p_xform);
     void _draw_fill_preview(Control *p_viewport, int p_cell, const Point2i &p_point, bool p_flip_h, bool p_flip_v, bool p_transpose, const Point2i &p_autotile_coord, const Transform2D &p_xform);
     void _clear_bucket_cache();

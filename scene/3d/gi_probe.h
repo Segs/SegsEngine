@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  gi_probe.h                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GIPROBE_H
-#define GIPROBE_H
+#pragma once
 
 #include "multimesh_instance_3d.h"
 #include "scene/3d/visual_instance_3d.h"
@@ -38,7 +37,7 @@ class GODOT_EXPORT GIProbeData : public Resource {
 
     GDCLASS(GIProbeData,Resource)
 
-    RID probe;
+    RenderingEntity probe;
 
 protected:
     static void _bind_methods();
@@ -74,7 +73,7 @@ public:
     void set_interior(bool p_enable);
     bool is_interior() const;
 
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     GIProbeData();
     ~GIProbeData() override;
@@ -100,7 +99,7 @@ public:
 private:
     Ref<GIProbeData> probe_data;
 
-    RID gi_probe;
+    RenderingEntity gi_probe;
 
     Subdiv subdiv;
     Vector3 extents;
@@ -168,4 +167,3 @@ public:
 };
 
 
-#endif // GIPROBE_H

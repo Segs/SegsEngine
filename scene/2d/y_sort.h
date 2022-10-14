@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  y_sort.h                                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,15 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef Y_SORT_H
-#define Y_SORT_H
+#pragma once
 
 #include "scene/2d/node_2d.h"
 
 class GODOT_EXPORT YSort : public Node2D {
 	GDCLASS(YSort,Node2D)
 
-	bool sort_enabled;
+    bool sort_enabled=true;
 	static void _bind_methods();
 
 public:
@@ -45,4 +44,3 @@ public:
 	YSort();
 };
 
-#endif // Y_SORT_H

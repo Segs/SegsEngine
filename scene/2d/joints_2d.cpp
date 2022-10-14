@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  joints_2d.cpp                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -59,18 +59,10 @@ void Joint2D::_disconnect_signals() {
         body_b->disconnect(SceneStringNames::tree_exiting, callable_mp(this, &Joint2D::_body_exit_tree));
 }
 
-void Joint2D::_body_exit_tree(const ObjectID &p_body_id) {
+void Joint2D::_body_exit_tree() {
 
     _disconnect_signals();
-    Object *object = ObjectDB::get_instance(p_body_id);
-    PhysicsBody2D *body =  object_cast<PhysicsBody2D>(object);
-    ERR_FAIL_NULL(body);
-    RID body_rid = body->get_rid();
-    if (ba == body_rid)
-        a = NodePath();
-    if (bb == body_rid)
-        b = NodePath();
-    _update_joint();
+    _update_joint(true);
 }
 
 
@@ -146,8 +138,8 @@ void Joint2D::_update_joint(bool p_only_free) {
     ba = body_a->get_rid();
     bb = body_b->get_rid();
 
-    body_a->connect(SceneStringNames::tree_exiting, callable_mp(this, &ClassName::_body_exit_tree), make_binds(body_a->get_instance_id()));
-    body_b->connect(SceneStringNames::tree_exiting, callable_mp(this, &ClassName::_body_exit_tree), make_binds(body_b->get_instance_id()));
+    body_a->connectF(SceneStringNames::tree_exiting, this, [=](){ _body_exit_tree(); });
+    body_b->connectF(SceneStringNames::tree_exiting, this, [=](){ _body_exit_tree(); });
 
 
     PhysicsServer2D::get_singleton()->joint_disable_collisions_between_bodies(joint, exclude_from_collision);
@@ -190,14 +182,17 @@ void Joint2D::_notification(int p_what) {
 
     switch (p_what) {
 
-        case NOTIFICATION_READY: {
+		case NOTIFICATION_POST_ENTER_TREE: {
+            if (joint.is_valid()) {
+                _disconnect_signals();
+            }
             _update_joint();
         } break;
         case NOTIFICATION_EXIT_TREE: {
             if (joint.is_valid()) {
                 _disconnect_signals();
-                _update_joint(true);
             }
+            _update_joint(true);
         } break;
     }
 }
@@ -216,9 +211,12 @@ real_t Joint2D::get_bias() const {
 
 void Joint2D::set_exclude_nodes_from_collision(bool p_enable) {
 
-    if (exclude_from_collision == p_enable)
+    if (exclude_from_collision == p_enable) {
         return;
-
+    }
+    if (joint.is_valid()) {
+        _disconnect_signals();
+    }
     _update_joint(true);
     exclude_from_collision = p_enable;
     _update_joint();
@@ -246,17 +244,17 @@ String Joint2D::get_configuration_warning() const {
 
 void Joint2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_node_a", {"node"}), &Joint2D::set_node_a);
-    MethodBinder::bind_method(D_METHOD("get_node_a"), &Joint2D::get_node_a);
+    BIND_METHOD(Joint2D,set_node_a);
+    BIND_METHOD(Joint2D,get_node_a);
 
-    MethodBinder::bind_method(D_METHOD("set_node_b", {"node"}), &Joint2D::set_node_b);
-    MethodBinder::bind_method(D_METHOD("get_node_b"), &Joint2D::get_node_b);
+    BIND_METHOD(Joint2D,set_node_b);
+    BIND_METHOD(Joint2D,get_node_b);
 
-    MethodBinder::bind_method(D_METHOD("set_bias", {"bias"}), &Joint2D::set_bias);
-    MethodBinder::bind_method(D_METHOD("get_bias"), &Joint2D::get_bias);
+    BIND_METHOD(Joint2D,set_bias);
+    BIND_METHOD(Joint2D,get_bias);
 
-    MethodBinder::bind_method(D_METHOD("set_exclude_nodes_from_collision", {"enable"}), &Joint2D::set_exclude_nodes_from_collision);
-    MethodBinder::bind_method(D_METHOD("get_exclude_nodes_from_collision"), &Joint2D::get_exclude_nodes_from_collision);
+    BIND_METHOD(Joint2D,set_exclude_nodes_from_collision);
+    BIND_METHOD(Joint2D,get_exclude_nodes_from_collision);
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_a", PropertyHint::NodePathValidTypes, "PhysicsBody2D"), "set_node_a", "get_node_a");
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_b", PropertyHint::NodePathValidTypes, "PhysicsBody2D"), "set_node_b", "get_node_b");
@@ -314,8 +312,8 @@ real_t PinJoint2D::get_softness() const {
 
 void PinJoint2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_softness", {"softness"}), &PinJoint2D::set_softness);
-    MethodBinder::bind_method(D_METHOD("get_softness"), &PinJoint2D::get_softness);
+    BIND_METHOD(PinJoint2D,set_softness);
+    BIND_METHOD(PinJoint2D,get_softness);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "softness", PropertyHint::ExpRange, "0.00,16,0.01"), "set_softness", "get_softness");
 }
@@ -382,10 +380,10 @@ real_t GrooveJoint2D::get_initial_offset() const {
 
 void GrooveJoint2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_length", {"length"}), &GrooveJoint2D::set_length);
-    MethodBinder::bind_method(D_METHOD("get_length"), &GrooveJoint2D::get_length);
-    MethodBinder::bind_method(D_METHOD("set_initial_offset", {"offset"}), &GrooveJoint2D::set_initial_offset);
-    MethodBinder::bind_method(D_METHOD("get_initial_offset"), &GrooveJoint2D::get_initial_offset);
+    BIND_METHOD(GrooveJoint2D,set_length);
+    BIND_METHOD(GrooveJoint2D,get_length);
+    BIND_METHOD(GrooveJoint2D,set_initial_offset);
+    BIND_METHOD(GrooveJoint2D,get_initial_offset);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "length", PropertyHint::ExpRange, "1,65535,1"), "set_length", "get_length");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "initial_offset", PropertyHint::ExpRange, "1,65535,1"), "set_initial_offset", "get_initial_offset");
@@ -487,14 +485,14 @@ real_t DampedSpringJoint2D::get_damping() const {
 
 void DampedSpringJoint2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_length", {"length"}), &DampedSpringJoint2D::set_length);
-    MethodBinder::bind_method(D_METHOD("get_length"), &DampedSpringJoint2D::get_length);
-    MethodBinder::bind_method(D_METHOD("set_rest_length", {"rest_length"}), &DampedSpringJoint2D::set_rest_length);
-    MethodBinder::bind_method(D_METHOD("get_rest_length"), &DampedSpringJoint2D::get_rest_length);
-    MethodBinder::bind_method(D_METHOD("set_stiffness", {"stiffness"}), &DampedSpringJoint2D::set_stiffness);
-    MethodBinder::bind_method(D_METHOD("get_stiffness"), &DampedSpringJoint2D::get_stiffness);
-    MethodBinder::bind_method(D_METHOD("set_damping", {"damping"}), &DampedSpringJoint2D::set_damping);
-    MethodBinder::bind_method(D_METHOD("get_damping"), &DampedSpringJoint2D::get_damping);
+    BIND_METHOD(DampedSpringJoint2D,set_length);
+    BIND_METHOD(DampedSpringJoint2D,get_length);
+    BIND_METHOD(DampedSpringJoint2D,set_rest_length);
+    BIND_METHOD(DampedSpringJoint2D,get_rest_length);
+    BIND_METHOD(DampedSpringJoint2D,set_stiffness);
+    BIND_METHOD(DampedSpringJoint2D,get_stiffness);
+    BIND_METHOD(DampedSpringJoint2D,set_damping);
+    BIND_METHOD(DampedSpringJoint2D,get_damping);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "length", PropertyHint::ExpRange, "1,65535,1"), "set_length", "get_length");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rest_length", PropertyHint::ExpRange, "0,65535,1"), "set_rest_length", "get_rest_length");

@@ -57,7 +57,7 @@
 
 #include "EASTL/vector_set.h"
 #ifdef TOOLS_ENABLED
-#include "main/main.h"
+#include "main/main_class.h"
 #endif
 
 #include <mono/metadata/environment.h>
@@ -154,13 +154,29 @@ void gd_mono_debug_init() {
     String da_args = OS::get_singleton()->get_environment("GODOT_MONO_DEBUGGER_AGENT");
 
     if (da_args.length()) {
+        // Clear to avoid passing it to child processes
         OS::get_singleton()->set_environment("GODOT_MONO_DEBUGGER_AGENT", String());
+    } else {
+        // Try with command line arguments. This is useful on platforms where it's difficult to pass
+        // environment variables. The command line arguments can be specified in the export options.
+
+        String da_cmdline_arg;
+        auto cmdline_args = OS::get_singleton()->get_cmdline_args();
+
+        for (const String &arg : cmdline_args) {
+            if (arg.starts_with("--mono-debugger-agent=")) {
+                da_cmdline_arg = arg;
+                break;
+            }
+        }
+
+        if (!da_cmdline_arg.empty()) {
+            da_args = StringUtils::replace_first(da_cmdline_arg,"--mono-debugger-agent=", "--debugger-agent=");
+        }
     }
 
 #ifdef TOOLS_ENABLED
-    int da_port = T_GLOBAL_DEF<int>("mono/debugger_agent/port", 23685);
-    bool da_suspend = T_GLOBAL_DEF("mono/debugger_agent/wait_for_debugger", false);
-    int da_timeout = T_GLOBAL_DEF<int>("mono/debugger_agent/wait_timeout", 30000);
+
 #ifndef FORCED_DEBUG_MODE
     if (Engine::get_singleton()->is_editor_hint() ||
             ProjectSettings::get_singleton()->get_resource_path().empty() ||
@@ -170,7 +186,14 @@ void gd_mono_debug_init() {
     }
 #endif
 
+    int da_port = T_GLOBAL_DEF<int>("mono/debugger_agent/port", 23685);
+    bool da_suspend = T_GLOBAL_DEF("mono/debugger_agent/wait_for_debugger", false);
+    int da_timeout = T_GLOBAL_DEF<int>("mono/debugger_agent/wait_timeout", 30000);
+#ifdef FORCED_DEBUG_MODE
+    da_suspend = false;
+#endif
     if ( da_args.empty() ) {
+        // Use project settings defaults for the editor player
         da_args = String("--debugger-agent=transport=dt_socket,address=127.0.0.1:" + itos(da_port) +
                          ",embedding=1,server=y,suspend=" + (da_suspend ? "y,timeout=" + itos(da_timeout) : "n"))
                           ;
@@ -724,7 +747,7 @@ void GDMono::_check_known_glue_api_hashes() {
 }
 
 void GDMono::_init_exception_policy() {
-    PropertyInfo exc_policy_prop = PropertyInfo(VariantType::INT, "mono/unhandled_exception_policy", PropertyHint::Enum,
+    PropertyInfo exc_policy_prop = PropertyInfo(VariantType::INT, "mono/runtime/unhandled_exception_policy", PropertyHint::Enum,
             FormatVE("Terminate Application:%d,Log Error:%d", (int)POLICY_TERMINATE_APP, (int)POLICY_LOG_ERROR));
     unhandled_exception_policy = T_GLOBAL_DEF<UnhandledExceptionPolicy>(exc_policy_prop.name, POLICY_TERMINATE_APP);
     ProjectSettings::get_singleton()->set_custom_property_info(exc_policy_prop.name, exc_policy_prop);
@@ -997,7 +1020,7 @@ String GDMono::update_api_assemblies_from_prebuilt(StringView p_config, const bo
     // Note: Even if only one of the assemblies if missing or out of sync, we update both
 
     if (!api_assemblies_out_of_sync && FileAccess::exists(core_assembly_path) && FileAccess::exists(editor_assembly_path)) {
-        return String(); // No update needed
+        return {}; // No update needed
     }
 
     print_verbose("Updating '" + p_config + "' API assemblies");
@@ -1018,7 +1041,7 @@ String GDMono::update_api_assemblies_from_prebuilt(StringView p_config, const bo
     // Cache the api hash of the assemblies we just copied
     create_cached_api_hash_for(module_resolver,dst_assemblies_dir);
 
-    return String(); // Updated successfully
+    return {}; // Updated successfully
 
 #undef FAIL_REASON
 }
@@ -1166,8 +1189,8 @@ bool GDMono::_load_api_assemblies() {
         Error domain_unload_err = _unload_scripts_domain();
         CRASH_COND_MSG(domain_unload_err != OK, "Mono: Failed to unload scripts domain.");
 
-        // 2. Add prebuilt modules to active plugins.
-        load_all_plugins(PathUtils::plus_file(GodotSharpDirs::get_data_editor_prebuilt_api_dir(),"Debug").c_str());
+        //
+        // 2. Add prebuilt modules to active plugins. Those are handled by default plugin mechanism
 
         // 3. Update the API assemblies
         String update_error = update_api_assemblies_from_prebuilt("Debug", &core_api_assembly.out_of_sync, &editor_api_assembly.out_of_sync);
@@ -1228,13 +1251,15 @@ bool GDMono::_load_project_assembly() {
         return true;
     }
 
-    String appname = ProjectSettings::get_singleton()->getT<String>("application/config/name");
-    String appname_safe = OS::get_singleton()->get_safe_dir_name(appname);
-    if (appname_safe.empty()) {
-        appname_safe = "UnnamedProject";
+	String assembly_name = ProjectSettings::get_singleton()->getT<String>("mono/project/assembly_name");
+
+    if (assembly_name.empty()) {
+        String appname = ProjectSettings::get_singleton()->getT<String>("application/config/name");
+        String appname_safe = OS::get_singleton()->get_safe_dir_name(appname);
+        assembly_name = appname_safe;
     }
 
-    bool success = load_assembly(appname_safe, &project_assembly);
+    bool success = load_assembly(assembly_name, &project_assembly);
 
     if (success) {
         mono_assembly_set_main(project_assembly->get_assembly());
@@ -1649,17 +1674,17 @@ void _GodotSharp::_reload_assemblies(bool p_soft_reload) {
 
 void _GodotSharp::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("attach_thread"), &_GodotSharp::attach_thread);
-    MethodBinder::bind_method(D_METHOD("detach_thread"), &_GodotSharp::detach_thread);
+    BIND_METHOD(_GodotSharp,attach_thread);
+    BIND_METHOD(_GodotSharp,detach_thread);
 
-    MethodBinder::bind_method(D_METHOD("get_domain_id"), &_GodotSharp::get_domain_id);
-    MethodBinder::bind_method(D_METHOD("get_scripts_domain_id"), &_GodotSharp::get_scripts_domain_id);
-    MethodBinder::bind_method(D_METHOD("is_scripts_domain_loaded"), &_GodotSharp::is_scripts_domain_loaded);
+    BIND_METHOD(_GodotSharp,get_domain_id);
+    BIND_METHOD(_GodotSharp,get_scripts_domain_id);
+    BIND_METHOD(_GodotSharp,is_scripts_domain_loaded);
     MethodBinder::bind_method(D_METHOD("is_domain_finalizing_for_unload", {"domain_id"}), &_GodotSharp::_is_domain_finalizing_for_unload);
 
-    MethodBinder::bind_method(D_METHOD("is_runtime_shutting_down"), &_GodotSharp::is_runtime_shutting_down);
-    MethodBinder::bind_method(D_METHOD("is_runtime_initialized"), &_GodotSharp::is_runtime_initialized);
-    MethodBinder::bind_method(D_METHOD("_reload_assemblies"), &_GodotSharp::_reload_assemblies);
+    BIND_METHOD(_GodotSharp,is_runtime_shutting_down);
+    BIND_METHOD(_GodotSharp,is_runtime_initialized);
+    BIND_METHOD(_GodotSharp,_reload_assemblies);
 }
 
 _GodotSharp::_GodotSharp() {
@@ -1675,14 +1700,14 @@ _GodotSharp::~_GodotSharp() {
 
 uint64_t GDMono::get_api_core_hash() {
     if (api_core_hash == 0)
-        api_core_hash = ClassDB::get_api_hash(ClassDB::API_CORE);
+        api_core_hash = ClassDB::get_api_hash(ClassDB_APIType::API_CORE);
     return api_core_hash;
 }
 
 #ifdef TOOLS_ENABLED
 uint64_t GDMono::get_api_editor_hash() {
     if (api_editor_hash == 0)
-        api_editor_hash = ClassDB::get_api_hash(ClassDB::API_EDITOR);
+        api_editor_hash = ClassDB::get_api_hash(ClassDB_APIType::API_EDITOR);
     return api_editor_hash;
 }
 #endif // TOOLS_ENABLED

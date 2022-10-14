@@ -54,7 +54,7 @@ void AudioStreamPlaybackOGGVorbis::_mix_internal(AudioFrame *p_buffer, int p_fra
         int mixed = stb_vorbis_get_samples_float_interleaved(ogg_stream, 2, buffer, todo * 2);
         if (vorbis_stream->channels == 1 && mixed > 0) {
             //mix mono to stereo
-            for (int i = start_buffer; i < mixed; i++) {
+            for (int i = start_buffer; i < start_buffer+mixed; i++) {
                 p_buffer[i].r = p_buffer[i].l;
             }
         }
@@ -205,8 +205,8 @@ void AudioStreamOGGVorbis::set_data(const PoolVector<uint8_t> &p_data) {
             alloc_try *= 2;
         } else {
 
-            ERR_FAIL_COND(alloc_try == MAX_TEST_MEM);
-            ERR_FAIL_COND(ogg_stream == nullptr);
+            ERR_FAIL_COND_MSG(alloc_try == MAX_TEST_MEM, "Failed allocating memory for OGG Vorbis stream.");
+            ERR_FAIL_COND_MSG(!ogg_stream, "OGG Vorbis decoding failed. Check that your data is a valid OGG Vorbis audio stream.");
 
             stb_vorbis_info info = stb_vorbis_get_info(ogg_stream);
 
@@ -271,14 +271,14 @@ float AudioStreamOGGVorbis::get_length() const {
 
 void AudioStreamOGGVorbis::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_data", {"data"}), &AudioStreamOGGVorbis::set_data);
-    MethodBinder::bind_method(D_METHOD("get_data"), &AudioStreamOGGVorbis::get_data);
+    BIND_METHOD(AudioStreamOGGVorbis,set_data);
+    BIND_METHOD(AudioStreamOGGVorbis,get_data);
 
-    MethodBinder::bind_method(D_METHOD("set_loop", {"enable"}), &AudioStreamOGGVorbis::set_loop);
-    MethodBinder::bind_method(D_METHOD("has_loop"), &AudioStreamOGGVorbis::has_loop);
+    BIND_METHOD(AudioStreamOGGVorbis,set_loop);
+    BIND_METHOD(AudioStreamOGGVorbis,has_loop);
 
-    MethodBinder::bind_method(D_METHOD("set_loop_offset", {"seconds"}), &AudioStreamOGGVorbis::set_loop_offset);
-    MethodBinder::bind_method(D_METHOD("get_loop_offset"), &AudioStreamOGGVorbis::get_loop_offset);
+    BIND_METHOD(AudioStreamOGGVorbis,set_loop_offset);
+    BIND_METHOD(AudioStreamOGGVorbis,get_loop_offset);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");

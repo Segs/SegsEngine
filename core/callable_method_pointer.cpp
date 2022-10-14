@@ -68,16 +68,8 @@ bool CallableCustomMethodPointerBase::compare_less(const CallableCustom *p_a, co
 
 
 
-void CallableCustomMethodPointerBase::_setup(uint32_t *p_base_ptr, uint32_t p_ptr_size) {
+void CallableCustomMethodPointerBase::_setup(uint8_t *p_base_ptr, uint32_t p_ptr_size) {
     comp_ptr = p_base_ptr;
-    comp_size = p_ptr_size / 4;
-
-    // Precompute hash.
-    for (uint32_t i = 0; i < comp_size; i++) {
-        if (i == 0) {
-            h = hash_djb2_one_32(comp_ptr[i]);
-        } else {
-            h = hash_djb2_one_32(comp_ptr[i], h);
-        }
-    }
+    comp_size = p_ptr_size;
+    h = hash_djb2_buffer(p_base_ptr,p_ptr_size);
 }

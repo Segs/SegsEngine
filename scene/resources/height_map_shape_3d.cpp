@@ -52,7 +52,7 @@ Vector<Vector3> HeightMapShape3D::get_debug_mesh_lines() {
         PoolRealArray::Read r = map_data.read();
 
         // reserve some memory for our points..
-        points.resize(((map_width - 1) * map_depth * 2) + (map_width * (map_depth - 1) * 2));
+        points.resize(((map_width - 1) * map_depth * 2) + (map_width * (map_depth - 1) * 2) + (map_width - 1) * (map_depth - 1) * 2);
 
         // now set our points
         int r_offset = 0;
@@ -70,7 +70,12 @@ Vector<Vector3> HeightMapShape3D::get_debug_mesh_lines() {
 
                 if (d != map_depth - 1) {
                     points[w_offset++] = height;
-                    points[w_offset++] = Vector3(height.x, r[r_offset + map_width - 1], height.z + 1.0f);
+                    points[w_offset++] = Vector3(height.x, r[r_offset + map_width - 1], height.z + 1.0);
+                }
+
+                if ((w != map_width - 1) && (d != map_depth - 1)) {
+                    points[w_offset++] = Vector3(height.x + 1.0, r[r_offset], height.z);
+                    points[w_offset++] = Vector3(height.x, r[r_offset + map_width - 1], height.z + 1.0);
                 }
 
                 height.x += 1.0f;
@@ -184,16 +189,18 @@ real_t HeightMapShape3D::get_enclosing_radius() const {
     return Vector3(real_t(map_width), max_height - min_height, real_t(map_depth)).length();
 }
 void HeightMapShape3D::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_map_width", {"width"}), &HeightMapShape3D::set_map_width);
-    MethodBinder::bind_method(D_METHOD("get_map_width"), &HeightMapShape3D::get_map_width);
-    MethodBinder::bind_method(D_METHOD("set_map_depth", {"height"}), &HeightMapShape3D::set_map_depth);
-    MethodBinder::bind_method(D_METHOD("get_map_depth"), &HeightMapShape3D::get_map_depth);
-    MethodBinder::bind_method(D_METHOD("set_map_data", {"data"}), &HeightMapShape3D::set_map_data);
-    MethodBinder::bind_method(D_METHOD("get_map_data"), &HeightMapShape3D::get_map_data);
+    BIND_METHOD(HeightMapShape3D,set_map_width);
+    BIND_METHOD(HeightMapShape3D,get_map_width);
+    BIND_METHOD(HeightMapShape3D,set_map_depth);
+    BIND_METHOD(HeightMapShape3D,get_map_depth);
+    BIND_METHOD(HeightMapShape3D,set_map_data);
+    BIND_METHOD(HeightMapShape3D,get_map_data);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "map_width", PropertyHint::Range, "1,4096,1"), "set_map_width", "get_map_width");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "map_depth", PropertyHint::Range, "1,4096,1"), "set_map_depth", "get_map_depth");
-    ADD_PROPERTY(PropertyInfo(VariantType::POOL_REAL_ARRAY, "map_data"), "set_map_data", "get_map_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "map_width", PropertyHint::Range, "0.001,100,0.001,or_greater"),
+            "set_map_width", "get_map_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "map_depth", PropertyHint::Range, "0.001,100,0.001,or_greater"),
+            "set_map_depth", "get_map_depth");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_FLOAT32_ARRAY, "map_data"), "set_map_data", "get_map_data");
 }
 
 HeightMapShape3D::HeightMapShape3D() :

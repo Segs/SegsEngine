@@ -92,6 +92,7 @@ public:
         FORMAT_IMA_ADPCM
     };
 
+    // NOTE: Keep the ResourceImporterWAV `edit/loop_mode` enum hint in sync with these options.
     enum LoopMode {
         LOOP_DISABLED,
         LOOP_FORWARD,

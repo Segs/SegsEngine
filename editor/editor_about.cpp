@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_about.cpp                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,19 +31,27 @@
 #include "editor_about.h"
 #include "editor_node.h"
 
-#include "core/callable_method_pointer.h"
 #include "core/authors.gen.h"
+#include "core/callable_method_pointer.h"
 #include "core/donors.gen.h"
 #include "core/license.gen.h"
 #include "core/method_bind.h"
 #include "core/version.h"
-#include "core/version_hash.gen.h"
 #include "editor/editor_scale.h"
 #include "scene/gui/item_list.h"
+#include "scene/gui/link_button.h"
 #include "scene/gui/rich_text_label.h"
+#include "scene/gui/separator.h"
+#include "scene/gui/split_container.h"
+#include "scene/gui/tab_container.h"
+#include "scene/gui/texture_rect.h"
+#include "scene/gui/tree.h"
 #include "scene/resources/font.h"
 
 IMPL_GDCLASS(EditorAbout)
+
+// The metadata key used to store and retrieve the version text to copy to the clipboard.
+static const String META_TEXT_TO_COPY = "text_to_copy";
 
 void EditorAbout::_notification(int p_what) {
 
@@ -52,13 +60,12 @@ void EditorAbout::_notification(int p_what) {
         case NOTIFICATION_ENTER_TREE:
         case NOTIFICATION_THEME_CHANGED: {
 
-            Control *base = EditorNode::get_singleton()->get_gui_base();
-            Ref<Font> font = base->get_theme_font("source", "EditorFonts");
+            Ref<Font> font = get_theme_font("source", "EditorFonts");
             _tpl_text->add_font_override("normal_font", font);
             _tpl_text->add_constant_override("line_separation", 6 * EDSCALE);
             _license_text->add_font_override("normal_font", font);
             _license_text->add_constant_override("line_separation", 6 * EDSCALE);
-            _logo->set_texture(base->get_theme_icon("Logo", "EditorIcons"));
+            _logo->set_texture(get_theme_icon("Logo", "EditorIcons"));
         } break;
     }
 }
@@ -70,9 +77,13 @@ void EditorAbout::_license_tree_selected() {
     _tpl_text->set_text(selected->get_metadata(0).as<String>());
 }
 
+void EditorAbout::_version_button_pressed() {
+    OS::get_singleton()->set_clipboard(version_btn->get_meta(META_TEXT_TO_COPY).as<String>());
+}
+
 void EditorAbout::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_license_tree_selected"), &EditorAbout::_license_tree_selected);
+    BIND_METHOD(EditorAbout,_license_tree_selected);
 }
 
 TextureRect *EditorAbout::get_logo() const {
@@ -138,16 +149,31 @@ EditorAbout::EditorAbout() {
     _logo = memnew(TextureRect);
     hbc->add_child(_logo);
 
+    VBoxContainer *version_info_vbc = memnew(VBoxContainer);
+
+    // Add a dummy control node for spacing.
+    Control *v_spacer = memnew(Control);
+    version_info_vbc->add_child(v_spacer);
+
+    version_btn = memnew(LinkButton);
     String hash = String(VERSION_HASH);
-    if (not hash.empty())
+    if (not hash.empty()) {
         hash = "." + StringUtils::left(hash,9);
+    }
+    version_btn->set_text(VERSION_FULL_NAME + hash);
+    // Set the text to copy in metadata as it slightly differs from the button's text.
+    version_btn->set_meta(META_TEXT_TO_COPY, "v" VERSION_FULL_BUILD + hash);
+    version_btn->set_underline_mode(LinkButton::UNDERLINE_MODE_ON_HOVER);
+    version_btn->set_tooltip(TTR("Click to copy."));
+    version_btn->connect("pressed", callable_mp(this, &EditorAbout::_version_button_pressed));
+    version_info_vbc->add_child(version_btn);
 
     Label *about_text = memnew(Label);
     about_text->set_v_size_flags(Control::SIZE_SHRINK_CENTER);
-    about_text->set_text(StringName(VERSION_FULL_NAME + hash +
-                         String("\n\xc2\xa9 2007-2019 Juan Linietsky, Ariel Manzur.\n\xc2\xa9 2014-2019 ") +
-                         TTR("Godot Engine contributors") + "\n"));
-    hbc->add_child(about_text);
+    about_text->set_text(String("\xc2\xa9 2007-2022 Juan Linietsky, Ariel Manzur.\n\xc2\xa9 2014-2022 ") +
+                         TTR("Godot Engine contributors") + "\n");
+    version_info_vbc->add_child(about_text);
+    hbc->add_child(version_info_vbc);
 
     TabContainer *tc = memnew(TabContainer);
     tc->set_custom_minimum_size(Size2(950, 400) * EDSCALE);
@@ -160,9 +186,7 @@ EditorAbout::EditorAbout() {
     dev_sections.emplace_back(TTR("Project Founders"));
     dev_sections.emplace_back(TTR("Lead Developer"));
     // TRANSLATORS: This refers to a job title.
-    // The trailing space is used to distinguish with the project list application,
-    // you do not have to keep it in your translation.
-    dev_sections.emplace_back(TTR("Project Manager "));
+    dev_sections.push_back(TTR("Project Manager", "Job Title"));
     dev_sections.emplace_back(TTR("Developers"));
     const char *const *dev_src[] = { AUTHORS_FOUNDERS, AUTHORS_LEAD_DEVELOPERS,
         AUTHORS_PROJECT_MANAGERS, AUTHORS_DEVELOPERS };

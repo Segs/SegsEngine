@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Godot;
 using JetBrains.Annotations;
 using Microsoft.Win32;
@@ -47,7 +48,7 @@ namespace GodotTools.Ides.Rider
                 GD.PushWarning(e.Message);
             }
 
-            return new RiderInfo[0];
+            return Array.Empty<RiderInfo>();
         }
 
         private static RiderInfo[] CollectAllRiderPathsLinux()
@@ -124,6 +125,8 @@ namespace GodotTools.Ides.Rider
             CollectPathsFromRegistry(registryKey, installPaths);
             const string wowRegistryKey = @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall";
             CollectPathsFromRegistry(wowRegistryKey, installPaths);
+            const string mainJetbrainsKey = @"SOFTWARE\JetBrains";
+            CollectPathsFromRegistryNested(mainJetbrainsKey, installPaths);
 
             installInfos.AddRange(installPaths.Select(a => new RiderInfo(a, false)).ToList());
 
@@ -216,6 +219,17 @@ namespace GodotTools.Ides.Rider
             throw new Exception("Unknown OS.");
         }
 
+        private static void CollectPathsFromRegistryNested(string registryKey, List<string> installPaths)
+        {
+            using (var key = Registry.CurrentUser.OpenSubKey(registryKey))
+            {
+                CollectPathsFromRegistryNested(installPaths, key);
+            }
+            using (var key = Registry.LocalMachine.OpenSubKey(registryKey))
+            {
+                CollectPathsFromRegistryNested(installPaths, key);
+            }
+        }
         private static void CollectPathsFromRegistry(string registryKey, List<string> installPaths)
         {
             using (var key = Registry.CurrentUser.OpenSubKey(registryKey))
@@ -227,10 +241,39 @@ namespace GodotTools.Ides.Rider
                 CollectPathsFromRegistry(installPaths, key);
             }
         }
+        private static void CollectPathsFromRegistryNested(List<string> installPaths, RegistryKey key)
+        {
+            if (key == null) 
+                return;
+            Regex rider_version = new Regex(@"v\d\d\d");
 
+            foreach (var subkeyName in key.GetSubKeyNames().Where(a => a.Contains("Rider")))
+            {
+                // ok we've 'Rider' key, open it
+                using (var riderKey = key.OpenSubKey(subkeyName))
+                {
+                    if(riderKey==null)
+                        continue;
+                    
+                    foreach (var versionKey in riderKey.GetSubKeyNames().Where(a=>rider_version.IsMatch(a)))
+                    {
+                        using (var versionEntry = riderKey.OpenSubKey(versionKey))
+                        {
+                            var folderObject = versionEntry?.GetValue("InstallDir");
+                            if (folderObject == null) continue;
+                            var folder = folderObject.ToString();
+                            var possiblePath = Path.Combine(folder, @"bin\rider64.exe");
+                            if (File.Exists(possiblePath))
+                                installPaths.Add(possiblePath);
+                        }
+                    }
+                }
+            }
+        }
         private static void CollectPathsFromRegistry(List<string> installPaths, RegistryKey key)
         {
-            if (key == null) return;
+            if (key == null) 
+                return;
             foreach (var subkeyName in key.GetSubKeyNames().Where(a => a.Contains("Rider")))
             {
                 using (var subkey = key.OpenSubKey(subkeyName))
@@ -249,7 +292,7 @@ namespace GodotTools.Ides.Rider
           bool isMac)
         {
             if (!Directory.Exists(toolboxRiderRootPath))
-                return new string[0];
+                return Array.Empty<string>();
 
             var channelDirs = Directory.GetDirectories(toolboxRiderRootPath);
             var paths = channelDirs.SelectMany(channelDir =>
@@ -295,7 +338,7 @@ namespace GodotTools.Ides.Rider
                       Logger.Warn($"Failed to get RiderPath from {channelDir}", e);
                   }
 
-                  return new string[0];
+                  return Array.Empty<string>();
               })
               .Where(c => !string.IsNullOrEmpty(c))
               .ToArray();
@@ -306,7 +349,7 @@ namespace GodotTools.Ides.Rider
         {
             var folder = new DirectoryInfo(Path.Combine(buildDir, dirName));
             if (!folder.Exists)
-                return new string[0];
+                return Array.Empty<string>();
 
             if (!isMac)
                 return new[] { Path.Combine(folder.FullName, searchPattern) }.Where(File.Exists).ToArray();

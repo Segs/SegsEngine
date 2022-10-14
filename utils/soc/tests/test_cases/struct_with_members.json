@@ -1,0 +1,54 @@
+{
+    "api_hash" : "",
+    "api_version" : "",
+    "dependencies" : [],
+    "module_name" : "",
+    "namespaces" : [ {
+            "contents" : {
+                "subtypes" : [ {
+                    "contents" : {
+                        "fields": [
+                            {
+                                "name": "simple_field",
+                                "type": { "name": "int" }
+                            },
+                            {
+                                "name": "array_field",
+                                "type": {
+                                    "is_enum": 2,
+                                    "name": "String[12]"
+                                }
+                            },
+                            {
+                                "name": "simple_templated_field",
+                                "type": {
+                                    "name": "Ref",
+                                    "template_arg": "Texture"
+                                }
+                            },
+                            {
+                                "name": "nested_template_field",
+                                "type": {
+                                    "name": "Vector",
+                                    "template_arg": "Ref<Resource>"
+                                }
+                            },
+                            {
+                                "name": "const_ref_template_field",
+                                "type": {
+                                    "name": "Map",
+                                    "pass_by": 2,
+                                    "template_arg": "String *,Ref<Resource>"
+                                }
+                            }
+                        ]
+                    },
+                    "name" : "Fielder",
+                    "required_header" : "struct_with_members.h"
+                } ]
+            },
+            "name" : "GodotCore"
+            }
+    ],
+    "version" : ""
+}

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_stream.h                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,7 +36,7 @@
 #include "servers/audio_server.h"
 #include "core/hash_set.h"
 
-class AudioStreamPlayback : public RefCounted {
+class GODOT_EXPORT AudioStreamPlayback : public RefCounted {
 
     GDCLASS(AudioStreamPlayback,RefCounted)
 
@@ -53,7 +53,7 @@ public:
     virtual void mix(AudioFrame *p_buffer, float p_rate_scale, int p_frames) = 0;
 };
 
-class AudioStreamPlaybackResampled : public AudioStreamPlayback {
+class GODOT_EXPORT AudioStreamPlaybackResampled : public AudioStreamPlayback {
 
     GDCLASS(AudioStreamPlaybackResampled,AudioStreamPlayback)
 

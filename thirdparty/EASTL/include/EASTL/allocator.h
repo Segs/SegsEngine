@@ -63,7 +63,9 @@ namespace eastl
     bool operator==(const allocator& a, const allocator& b);
     bool operator!=(const allocator& a, const allocator& b);
 
-
+    // Fake templated allocator.
+    template<typename T,typename BaseAllocator=allocator>
+    using allocatorT = BaseAllocator;
 
     /// dummy_allocator
     ///
@@ -72,14 +74,14 @@ namespace eastl
     class EASTL_API dummy_allocator
     {
     public:
-        EASTL_ALLOCATOR_EXPLICIT dummy_allocator(const char* = NULL) { }
+        EASTL_ALLOCATOR_EXPLICIT dummy_allocator(const char* = nullptr) { }
         dummy_allocator(const dummy_allocator&) { }
         dummy_allocator(const dummy_allocator&, const char*) { }
 
         dummy_allocator& operator=(const dummy_allocator&) { return *this; }
 
-        void* allocate(size_t, int = 0)                 { return NULL; }
-        void* allocate(size_t, size_t, size_t, int = 0) { return NULL; }
+        void* allocate(size_t, int = 0)                 { return nullptr; }
+        void* allocate(size_t, size_t, size_t, int = 0) { return nullptr; }
         void  deallocate(void*, size_t)                 { }
 
         const char* get_name() const      { return ""; }
@@ -309,7 +311,7 @@ namespace eastl
     template <typename Allocator>
     inline Allocator* get_default_allocator(const Allocator*)
     {
-        return NULL; // By default we return NULL; the user must make specialization of this function in order to provide their own implementation.
+        return nullptr; // By default we return NULL; the user must make specialization of this function in order to provide their own implementation.
     }
 
 
@@ -326,7 +328,7 @@ namespace eastl
         if(pBuffer) // If freeing...
         {
             EASTLFree(*pAllocator, pBuffer, n);
-            return NULL;  // The return value is meaningless for the free.
+            return nullptr;  // The return value is meaningless for the free.
         }
         else // allocating
             return EASTLAlloc(*pAllocator, n);

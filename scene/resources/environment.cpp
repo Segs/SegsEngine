@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  environment.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -46,7 +46,7 @@ VARIANT_ENUM_CAST(Environment::SSAOQuality);
 VARIANT_ENUM_CAST(Environment::SSAOBlur);
 
 
-RID Environment::get_rid() const {
+RenderingEntity Environment::get_rid() const {
 
     return environment;
 }
@@ -62,7 +62,7 @@ void Environment::set_sky(const Ref<Sky> &p_sky) {
 
     bg_sky = p_sky;
 
-    RID sb_rid;
+    RenderingEntity sb_rid = entt::null;
     if (bg_sky)
         sb_rid = bg_sky->get_rid();
 
@@ -120,7 +120,9 @@ void Environment::set_ambient_light_energy(float p_energy) {
 }
 void Environment::set_ambient_light_sky_contribution(float p_energy) {
 
-    ambient_sky_contribution = p_energy;
+    // Sky contribution values outside the [0.0; 1.0] range don't make sense and
+    // can result in negative colors.
+    ambient_sky_contribution = CLAMP(p_energy, 0.0f, 1.0f);
     RenderingServer::get_singleton()->environment_set_ambient_light(environment, ambient_color, ambient_energy, ambient_sky_contribution);
 }
 
@@ -192,6 +194,7 @@ void Environment::set_tonemapper(ToneMapper p_tone_mapper) {
 
     tone_mapper = p_tone_mapper;
     RenderingServer::get_singleton()->environment_set_tonemap(environment, RS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
+    Object_change_notify(this,StringName("tonemap_mode"));
 }
 
 Environment::ToneMapper Environment::get_tonemapper() const {
@@ -274,7 +277,7 @@ float Environment::get_tonemap_auto_exposure_grey() const {
 void Environment::set_adjustment_enable(bool p_enable) {
 
     adjustment_enabled = p_enable;
-    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
+    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : entt::null);
     Object_change_notify(this);
 }
 
@@ -286,7 +289,7 @@ bool Environment::is_adjustment_enabled() const {
 void Environment::set_adjustment_brightness(float p_brightness) {
 
     adjustment_brightness = p_brightness;
-    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
+    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : entt::null);
 }
 float Environment::get_adjustment_brightness() const {
 
@@ -296,7 +299,7 @@ float Environment::get_adjustment_brightness() const {
 void Environment::set_adjustment_contrast(float p_contrast) {
 
     adjustment_contrast = p_contrast;
-    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
+    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : entt::null);
 }
 float Environment::get_adjustment_contrast() const {
 
@@ -306,7 +309,7 @@ float Environment::get_adjustment_contrast() const {
 void Environment::set_adjustment_saturation(float p_saturation) {
 
     adjustment_saturation = p_saturation;
-    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
+    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : entt::null);
 }
 float Environment::get_adjustment_saturation() const {
 
@@ -316,7 +319,7 @@ float Environment::get_adjustment_saturation() const {
 void Environment::set_adjustment_color_correction(const Ref<Texture> &p_ramp) {
 
     adjustment_color_correction = p_ramp;
-    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
+    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : entt::null);
 }
 Ref<Texture> Environment::get_adjustment_color_correction() const {
 
@@ -349,6 +352,11 @@ void Environment::_validate_property(PropertyInfo &property) const {
         }
     }
 
+    if (property.name == "tonemap_white") {
+        if (tone_mapper == TONE_MAPPER_LINEAR) {
+            property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
+        }
+    }
     static const char *hide_prefixes[] = {
         "fog_",
         "auto_exposure_",
@@ -565,7 +573,7 @@ void Environment::set_glow_enabled(bool p_enabled) {
     glow_enabled = p_enabled;
     RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity,
             glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold,
-            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale);
+            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale, glow_high_quality);
     Object_change_notify(this);
 }
 
@@ -585,7 +593,7 @@ void Environment::set_glow_level(int p_level, bool p_enabled) {
 
 RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity,
         glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold,
-        glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale);
+        glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale, glow_high_quality);
 }
 bool Environment::is_glow_level_enabled(int p_level) const {
 
@@ -600,7 +608,7 @@ void Environment::set_glow_intensity(float p_intensity) {
 
 RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity,
         glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold,
-        glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale);
+        glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale, glow_high_quality);
 }
 float Environment::get_glow_intensity() const {
 
@@ -612,7 +620,7 @@ void Environment::set_glow_strength(float p_strength) {
     glow_strength = p_strength;
     RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity,
             glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold,
-            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale);
+            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale, glow_high_quality);
 }
 float Environment::get_glow_strength() const {
 
@@ -625,7 +633,7 @@ void Environment::set_glow_bloom(float p_threshold) {
 
     RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity,
             glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold,
-            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale);
+            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale, glow_high_quality);
 }
 float Environment::get_glow_bloom() const {
 
@@ -638,7 +646,7 @@ void Environment::set_glow_blend_mode(GlowBlendMode p_mode) {
 
     RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity,
             glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold,
-            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale);
+            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale, glow_high_quality);
 }
 
 Environment::GlowBlendMode Environment::get_glow_blend_mode() const {
@@ -652,7 +660,7 @@ void Environment::set_glow_hdr_bleed_threshold(float p_threshold) {
 
     RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity,
             glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold,
-            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale);
+            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale, glow_high_quality);
 }
 float Environment::get_glow_hdr_bleed_threshold() const {
 
@@ -665,7 +673,7 @@ void Environment::set_glow_hdr_luminance_cap(float p_amount) {
 
     RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity,
             glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold,
-            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale);
+            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale, glow_high_quality);
 }
 float Environment::get_glow_hdr_luminance_cap() const {
 
@@ -678,7 +686,7 @@ void Environment::set_glow_hdr_bleed_scale(float p_scale) {
 
     RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity,
             glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold,
-            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale);
+            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale, glow_high_quality);
 }
 
 float Environment::get_glow_hdr_bleed_scale() const {
@@ -691,12 +699,23 @@ void Environment::set_glow_bicubic_upscale(bool p_enable) {
     glow_bicubic_upscale = p_enable;
     RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity,
             glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold,
-            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale);
+            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale, glow_high_quality);
 }
 
 bool Environment::is_glow_bicubic_upscale_enabled() const {
 
     return glow_bicubic_upscale;
+}
+
+void Environment::set_glow_high_quality(bool p_enable) {
+    glow_high_quality = p_enable;
+    RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity,
+            glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold,
+            glow_hdr_bleed_scale, glow_hdr_luminance_cap, glow_bicubic_upscale, glow_high_quality);
+}
+
+bool Environment::is_glow_high_quality_enabled() const {
+    return glow_high_quality;
 }
 
 void Environment::set_dof_blur_far_enabled(bool p_enable) {
@@ -953,33 +972,33 @@ float Environment::get_fog_height_curve() const {
 
 void Environment::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_background", {"mode"}), &Environment::set_background);
-    MethodBinder::bind_method(D_METHOD("set_sky", {"sky"}), &Environment::set_sky);
-    MethodBinder::bind_method(D_METHOD("set_sky_custom_fov", {"scale"}), &Environment::set_sky_custom_fov);
-    MethodBinder::bind_method(D_METHOD("set_sky_orientation", {"orientation"}), &Environment::set_sky_orientation);
-    MethodBinder::bind_method(D_METHOD("set_sky_rotation", {"euler_radians"}), &Environment::set_sky_rotation);
-    MethodBinder::bind_method(D_METHOD("set_sky_rotation_degrees", {"euler_degrees"}), &Environment::set_sky_rotation_degrees);
-    MethodBinder::bind_method(D_METHOD("set_bg_color", {"color"}), &Environment::set_bg_color);
-    MethodBinder::bind_method(D_METHOD("set_bg_energy", {"energy"}), &Environment::set_bg_energy);
-    MethodBinder::bind_method(D_METHOD("set_canvas_max_layer", {"layer"}), &Environment::set_canvas_max_layer);
-    MethodBinder::bind_method(D_METHOD("set_ambient_light_color", {"color"}), &Environment::set_ambient_light_color);
-    MethodBinder::bind_method(D_METHOD("set_ambient_light_energy", {"energy"}), &Environment::set_ambient_light_energy);
-    MethodBinder::bind_method(D_METHOD("set_ambient_light_sky_contribution", {"energy"}), &Environment::set_ambient_light_sky_contribution);
-    MethodBinder::bind_method(D_METHOD("set_camera_feed_id", {"camera_feed_id"}), &Environment::set_camera_feed_id);
+    BIND_METHOD(Environment,set_background);
+    BIND_METHOD(Environment,set_sky);
+    BIND_METHOD(Environment,set_sky_custom_fov);
+    BIND_METHOD(Environment,set_sky_orientation);
+    BIND_METHOD(Environment,set_sky_rotation);
+    BIND_METHOD(Environment,set_sky_rotation_degrees);
+    BIND_METHOD(Environment,set_bg_color);
+    BIND_METHOD(Environment,set_bg_energy);
+    BIND_METHOD(Environment,set_canvas_max_layer);
+    BIND_METHOD(Environment,set_ambient_light_color);
+    BIND_METHOD(Environment,set_ambient_light_energy);
+    BIND_METHOD(Environment,set_ambient_light_sky_contribution);
+    BIND_METHOD(Environment,set_camera_feed_id);
 
-    MethodBinder::bind_method(D_METHOD("get_background"), &Environment::get_background);
-    MethodBinder::bind_method(D_METHOD("get_sky"), &Environment::get_sky);
-    MethodBinder::bind_method(D_METHOD("get_sky_custom_fov"), &Environment::get_sky_custom_fov);
-    MethodBinder::bind_method(D_METHOD("get_sky_orientation"), &Environment::get_sky_orientation);
-    MethodBinder::bind_method(D_METHOD("get_sky_rotation"), &Environment::get_sky_rotation);
-    MethodBinder::bind_method(D_METHOD("get_sky_rotation_degrees"), &Environment::get_sky_rotation_degrees);
-    MethodBinder::bind_method(D_METHOD("get_bg_color"), &Environment::get_bg_color);
-    MethodBinder::bind_method(D_METHOD("get_bg_energy"), &Environment::get_bg_energy);
-    MethodBinder::bind_method(D_METHOD("get_canvas_max_layer"), &Environment::get_canvas_max_layer);
-    MethodBinder::bind_method(D_METHOD("get_ambient_light_color"), &Environment::get_ambient_light_color);
-    MethodBinder::bind_method(D_METHOD("get_ambient_light_energy"), &Environment::get_ambient_light_energy);
-    MethodBinder::bind_method(D_METHOD("get_ambient_light_sky_contribution"), &Environment::get_ambient_light_sky_contribution);
-    MethodBinder::bind_method(D_METHOD("get_camera_feed_id"), &Environment::get_camera_feed_id);
+    BIND_METHOD(Environment,get_background);
+    BIND_METHOD(Environment,get_sky);
+    BIND_METHOD(Environment,get_sky_custom_fov);
+    BIND_METHOD(Environment,get_sky_orientation);
+    BIND_METHOD(Environment,get_sky_rotation);
+    BIND_METHOD(Environment,get_sky_rotation_degrees);
+    BIND_METHOD(Environment,get_bg_color);
+    BIND_METHOD(Environment,get_bg_energy);
+    BIND_METHOD(Environment,get_canvas_max_layer);
+    BIND_METHOD(Environment,get_ambient_light_color);
+    BIND_METHOD(Environment,get_ambient_light_energy);
+    BIND_METHOD(Environment,get_ambient_light_sky_contribution);
+    BIND_METHOD(Environment,get_camera_feed_id);
 
     ADD_GROUP("Background", "background_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "background_mode", PropertyHint::Enum, "Clear Color,Custom Color,Sky,Color+Sky,Canvas,Keep,Camera3D Feed"), "set_background", "get_background");
@@ -999,47 +1018,47 @@ void Environment::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "ambient_light_energy", PropertyHint::Range, "0,16,0.01"), "set_ambient_light_energy", "get_ambient_light_energy");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "ambient_light_sky_contribution", PropertyHint::Range, "0,1,0.01"), "set_ambient_light_sky_contribution", "get_ambient_light_sky_contribution");
 
-    MethodBinder::bind_method(D_METHOD("set_fog_enabled", {"enabled"}), &Environment::set_fog_enabled);
-    MethodBinder::bind_method(D_METHOD("is_fog_enabled"), &Environment::is_fog_enabled);
+    BIND_METHOD(Environment,set_fog_enabled);
+    BIND_METHOD(Environment,is_fog_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_fog_color", {"color"}), &Environment::set_fog_color);
-    MethodBinder::bind_method(D_METHOD("get_fog_color"), &Environment::get_fog_color);
+    BIND_METHOD(Environment,set_fog_color);
+    BIND_METHOD(Environment,get_fog_color);
 
-    MethodBinder::bind_method(D_METHOD("set_fog_sun_color", {"color"}), &Environment::set_fog_sun_color);
-    MethodBinder::bind_method(D_METHOD("get_fog_sun_color"), &Environment::get_fog_sun_color);
+    BIND_METHOD(Environment,set_fog_sun_color);
+    BIND_METHOD(Environment,get_fog_sun_color);
 
-    MethodBinder::bind_method(D_METHOD("set_fog_sun_amount", {"amount"}), &Environment::set_fog_sun_amount);
-    MethodBinder::bind_method(D_METHOD("get_fog_sun_amount"), &Environment::get_fog_sun_amount);
+    BIND_METHOD(Environment,set_fog_sun_amount);
+    BIND_METHOD(Environment,get_fog_sun_amount);
 
-    MethodBinder::bind_method(D_METHOD("set_fog_depth_enabled", {"enabled"}), &Environment::set_fog_depth_enabled);
-    MethodBinder::bind_method(D_METHOD("is_fog_depth_enabled"), &Environment::is_fog_depth_enabled);
+    BIND_METHOD(Environment,set_fog_depth_enabled);
+    BIND_METHOD(Environment,is_fog_depth_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_fog_depth_begin", {"distance"}), &Environment::set_fog_depth_begin);
-    MethodBinder::bind_method(D_METHOD("get_fog_depth_begin"), &Environment::get_fog_depth_begin);
+    BIND_METHOD(Environment,set_fog_depth_begin);
+    BIND_METHOD(Environment,get_fog_depth_begin);
 
-    MethodBinder::bind_method(D_METHOD("set_fog_depth_end", {"distance"}), &Environment::set_fog_depth_end);
-    MethodBinder::bind_method(D_METHOD("get_fog_depth_end"), &Environment::get_fog_depth_end);
+    BIND_METHOD(Environment,set_fog_depth_end);
+    BIND_METHOD(Environment,get_fog_depth_end);
 
-    MethodBinder::bind_method(D_METHOD("set_fog_depth_curve", {"curve"}), &Environment::set_fog_depth_curve);
-    MethodBinder::bind_method(D_METHOD("get_fog_depth_curve"), &Environment::get_fog_depth_curve);
+    BIND_METHOD(Environment,set_fog_depth_curve);
+    BIND_METHOD(Environment,get_fog_depth_curve);
 
-    MethodBinder::bind_method(D_METHOD("set_fog_transmit_enabled", {"enabled"}), &Environment::set_fog_transmit_enabled);
-    MethodBinder::bind_method(D_METHOD("is_fog_transmit_enabled"), &Environment::is_fog_transmit_enabled);
+    BIND_METHOD(Environment,set_fog_transmit_enabled);
+    BIND_METHOD(Environment,is_fog_transmit_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_fog_transmit_curve", {"curve"}), &Environment::set_fog_transmit_curve);
-    MethodBinder::bind_method(D_METHOD("get_fog_transmit_curve"), &Environment::get_fog_transmit_curve);
+    BIND_METHOD(Environment,set_fog_transmit_curve);
+    BIND_METHOD(Environment,get_fog_transmit_curve);
 
-    MethodBinder::bind_method(D_METHOD("set_fog_height_enabled", {"enabled"}), &Environment::set_fog_height_enabled);
-    MethodBinder::bind_method(D_METHOD("is_fog_height_enabled"), &Environment::is_fog_height_enabled);
+    BIND_METHOD(Environment,set_fog_height_enabled);
+    BIND_METHOD(Environment,is_fog_height_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_fog_height_min", {"height"}), &Environment::set_fog_height_min);
-    MethodBinder::bind_method(D_METHOD("get_fog_height_min"), &Environment::get_fog_height_min);
+    BIND_METHOD(Environment,set_fog_height_min);
+    BIND_METHOD(Environment,get_fog_height_min);
 
-    MethodBinder::bind_method(D_METHOD("set_fog_height_max", {"height"}), &Environment::set_fog_height_max);
-    MethodBinder::bind_method(D_METHOD("get_fog_height_max"), &Environment::get_fog_height_max);
+    BIND_METHOD(Environment,set_fog_height_max);
+    BIND_METHOD(Environment,get_fog_height_max);
 
-    MethodBinder::bind_method(D_METHOD("set_fog_height_curve", {"curve"}), &Environment::set_fog_height_curve);
-    MethodBinder::bind_method(D_METHOD("get_fog_height_curve"), &Environment::get_fog_height_curve);
+    BIND_METHOD(Environment,set_fog_height_curve);
+    BIND_METHOD(Environment,get_fog_height_curve);
 
     ADD_GROUP("Fog", "fog_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "fog_enabled"), "set_fog_enabled", "is_fog_enabled");
@@ -1057,32 +1076,32 @@ void Environment::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "fog_height_max", PropertyHint::Range, "-4000,4000,0.1,or_lesser,or_greater"), "set_fog_height_max", "get_fog_height_max");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "fog_height_curve", PropertyHint::ExpEasing), "set_fog_height_curve", "get_fog_height_curve");
 
-    MethodBinder::bind_method(D_METHOD("set_tonemapper", {"mode"}), &Environment::set_tonemapper);
-    MethodBinder::bind_method(D_METHOD("get_tonemapper"), &Environment::get_tonemapper);
+    BIND_METHOD(Environment,set_tonemapper);
+    BIND_METHOD(Environment,get_tonemapper);
 
-    MethodBinder::bind_method(D_METHOD("set_tonemap_exposure", {"exposure"}), &Environment::set_tonemap_exposure);
-    MethodBinder::bind_method(D_METHOD("get_tonemap_exposure"), &Environment::get_tonemap_exposure);
+    BIND_METHOD(Environment,set_tonemap_exposure);
+    BIND_METHOD(Environment,get_tonemap_exposure);
 
-    MethodBinder::bind_method(D_METHOD("set_tonemap_white", {"white"}), &Environment::set_tonemap_white);
-    MethodBinder::bind_method(D_METHOD("get_tonemap_white"), &Environment::get_tonemap_white);
+    BIND_METHOD(Environment,set_tonemap_white);
+    BIND_METHOD(Environment,get_tonemap_white);
 
-    MethodBinder::bind_method(D_METHOD("set_tonemap_auto_exposure", {"auto_exposure"}), &Environment::set_tonemap_auto_exposure);
-    MethodBinder::bind_method(D_METHOD("get_tonemap_auto_exposure"), &Environment::get_tonemap_auto_exposure);
+    BIND_METHOD(Environment,set_tonemap_auto_exposure);
+    BIND_METHOD(Environment,get_tonemap_auto_exposure);
 
-    MethodBinder::bind_method(D_METHOD("set_tonemap_auto_exposure_max", {"exposure_max"}), &Environment::set_tonemap_auto_exposure_max);
-    MethodBinder::bind_method(D_METHOD("get_tonemap_auto_exposure_max"), &Environment::get_tonemap_auto_exposure_max);
+    BIND_METHOD(Environment,set_tonemap_auto_exposure_max);
+    BIND_METHOD(Environment,get_tonemap_auto_exposure_max);
 
-    MethodBinder::bind_method(D_METHOD("set_tonemap_auto_exposure_min", {"exposure_min"}), &Environment::set_tonemap_auto_exposure_min);
-    MethodBinder::bind_method(D_METHOD("get_tonemap_auto_exposure_min"), &Environment::get_tonemap_auto_exposure_min);
+    BIND_METHOD(Environment,set_tonemap_auto_exposure_min);
+    BIND_METHOD(Environment,get_tonemap_auto_exposure_min);
 
-    MethodBinder::bind_method(D_METHOD("set_tonemap_auto_exposure_speed", {"exposure_speed"}), &Environment::set_tonemap_auto_exposure_speed);
-    MethodBinder::bind_method(D_METHOD("get_tonemap_auto_exposure_speed"), &Environment::get_tonemap_auto_exposure_speed);
+    BIND_METHOD(Environment,set_tonemap_auto_exposure_speed);
+    BIND_METHOD(Environment,get_tonemap_auto_exposure_speed);
 
-    MethodBinder::bind_method(D_METHOD("set_tonemap_auto_exposure_grey", {"exposure_grey"}), &Environment::set_tonemap_auto_exposure_grey);
-    MethodBinder::bind_method(D_METHOD("get_tonemap_auto_exposure_grey"), &Environment::get_tonemap_auto_exposure_grey);
+    BIND_METHOD(Environment,set_tonemap_auto_exposure_grey);
+    BIND_METHOD(Environment,get_tonemap_auto_exposure_grey);
 
     ADD_GROUP("Tonemap", "tonemap_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tonemap_mode", PropertyHint::Enum, "Linear,Reinhard,Filmic,ACES"), "set_tonemapper", "get_tonemapper");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tonemap_mode", PropertyHint::Enum, "Linear,Reinhard,Filmic,ACES,ACES Fitted"), "set_tonemapper", "get_tonemapper");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tonemap_exposure", PropertyHint::Range, "0,16,0.01"), "set_tonemap_exposure", "get_tonemap_exposure");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tonemap_white", PropertyHint::Range, "0,16,0.01"), "set_tonemap_white", "get_tonemap_white");
     ADD_GROUP("Auto Exposure", "auto_exposure_");
@@ -1092,23 +1111,23 @@ void Environment::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "auto_exposure_max_luma", PropertyHint::Range, "0,16,0.01"), "set_tonemap_auto_exposure_max", "get_tonemap_auto_exposure_max");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "auto_exposure_speed", PropertyHint::Range, "0.01,64,0.01"), "set_tonemap_auto_exposure_speed", "get_tonemap_auto_exposure_speed");
 
-    MethodBinder::bind_method(D_METHOD("set_ssr_enabled", {"enabled"}), &Environment::set_ssr_enabled);
-    MethodBinder::bind_method(D_METHOD("is_ssr_enabled"), &Environment::is_ssr_enabled);
+    BIND_METHOD(Environment,set_ssr_enabled);
+    BIND_METHOD(Environment,is_ssr_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_ssr_max_steps", {"max_steps"}), &Environment::set_ssr_max_steps);
-    MethodBinder::bind_method(D_METHOD("get_ssr_max_steps"), &Environment::get_ssr_max_steps);
+    BIND_METHOD(Environment,set_ssr_max_steps);
+    BIND_METHOD(Environment,get_ssr_max_steps);
 
-    MethodBinder::bind_method(D_METHOD("set_ssr_fade_in", {"fade_in"}), &Environment::set_ssr_fade_in);
-    MethodBinder::bind_method(D_METHOD("get_ssr_fade_in"), &Environment::get_ssr_fade_in);
+    BIND_METHOD(Environment,set_ssr_fade_in);
+    BIND_METHOD(Environment,get_ssr_fade_in);
 
-    MethodBinder::bind_method(D_METHOD("set_ssr_fade_out", {"fade_out"}), &Environment::set_ssr_fade_out);
-    MethodBinder::bind_method(D_METHOD("get_ssr_fade_out"), &Environment::get_ssr_fade_out);
+    BIND_METHOD(Environment,set_ssr_fade_out);
+    BIND_METHOD(Environment,get_ssr_fade_out);
 
-    MethodBinder::bind_method(D_METHOD("set_ssr_depth_tolerance", {"depth_tolerance"}), &Environment::set_ssr_depth_tolerance);
-    MethodBinder::bind_method(D_METHOD("get_ssr_depth_tolerance"), &Environment::get_ssr_depth_tolerance);
+    BIND_METHOD(Environment,set_ssr_depth_tolerance);
+    BIND_METHOD(Environment,get_ssr_depth_tolerance);
 
-    MethodBinder::bind_method(D_METHOD("set_ssr_rough", {"rough"}), &Environment::set_ssr_rough);
-    MethodBinder::bind_method(D_METHOD("is_ssr_rough"), &Environment::is_ssr_rough);
+    BIND_METHOD(Environment,set_ssr_rough);
+    BIND_METHOD(Environment,is_ssr_rough);
 
     ADD_GROUP("SS Reflections", "ss_reflections_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ss_reflections_enabled"), "set_ssr_enabled", "is_ssr_enabled");
@@ -1118,41 +1137,41 @@ void Environment::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "ss_reflections_depth_tolerance", PropertyHint::Range, "0.1,128,0.1"), "set_ssr_depth_tolerance", "get_ssr_depth_tolerance");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ss_reflections_roughness"), "set_ssr_rough", "is_ssr_rough");
 
-    MethodBinder::bind_method(D_METHOD("set_ssao_enabled", {"enabled"}), &Environment::set_ssao_enabled);
-    MethodBinder::bind_method(D_METHOD("is_ssao_enabled"), &Environment::is_ssao_enabled);
+    BIND_METHOD(Environment,set_ssao_enabled);
+    BIND_METHOD(Environment,is_ssao_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_ssao_radius", {"radius"}), &Environment::set_ssao_radius);
-    MethodBinder::bind_method(D_METHOD("get_ssao_radius"), &Environment::get_ssao_radius);
+    BIND_METHOD(Environment,set_ssao_radius);
+    BIND_METHOD(Environment,get_ssao_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_ssao_intensity", {"intensity"}), &Environment::set_ssao_intensity);
-    MethodBinder::bind_method(D_METHOD("get_ssao_intensity"), &Environment::get_ssao_intensity);
+    BIND_METHOD(Environment,set_ssao_intensity);
+    BIND_METHOD(Environment,get_ssao_intensity);
 
-    MethodBinder::bind_method(D_METHOD("set_ssao_radius2", {"radius"}), &Environment::set_ssao_radius2);
-    MethodBinder::bind_method(D_METHOD("get_ssao_radius2"), &Environment::get_ssao_radius2);
+    BIND_METHOD(Environment,set_ssao_radius2);
+    BIND_METHOD(Environment,get_ssao_radius2);
 
-    MethodBinder::bind_method(D_METHOD("set_ssao_intensity2", {"intensity"}), &Environment::set_ssao_intensity2);
-    MethodBinder::bind_method(D_METHOD("get_ssao_intensity2"), &Environment::get_ssao_intensity2);
+    BIND_METHOD(Environment,set_ssao_intensity2);
+    BIND_METHOD(Environment,get_ssao_intensity2);
 
-    MethodBinder::bind_method(D_METHOD("set_ssao_bias", {"bias"}), &Environment::set_ssao_bias);
-    MethodBinder::bind_method(D_METHOD("get_ssao_bias"), &Environment::get_ssao_bias);
+    BIND_METHOD(Environment,set_ssao_bias);
+    BIND_METHOD(Environment,get_ssao_bias);
 
-    MethodBinder::bind_method(D_METHOD("set_ssao_direct_light_affect", {"amount"}), &Environment::set_ssao_direct_light_affect);
-    MethodBinder::bind_method(D_METHOD("get_ssao_direct_light_affect"), &Environment::get_ssao_direct_light_affect);
+    BIND_METHOD(Environment,set_ssao_direct_light_affect);
+    BIND_METHOD(Environment,get_ssao_direct_light_affect);
 
-    MethodBinder::bind_method(D_METHOD("set_ssao_ao_channel_affect", {"amount"}), &Environment::set_ssao_ao_channel_affect);
-    MethodBinder::bind_method(D_METHOD("get_ssao_ao_channel_affect"), &Environment::get_ssao_ao_channel_affect);
+    BIND_METHOD(Environment,set_ssao_ao_channel_affect);
+    BIND_METHOD(Environment,get_ssao_ao_channel_affect);
 
-    MethodBinder::bind_method(D_METHOD("set_ssao_color", {"color"}), &Environment::set_ssao_color);
-    MethodBinder::bind_method(D_METHOD("get_ssao_color"), &Environment::get_ssao_color);
+    BIND_METHOD(Environment,set_ssao_color);
+    BIND_METHOD(Environment,get_ssao_color);
 
-    MethodBinder::bind_method(D_METHOD("set_ssao_blur", {"mode"}), &Environment::set_ssao_blur);
-    MethodBinder::bind_method(D_METHOD("get_ssao_blur"), &Environment::get_ssao_blur);
+    BIND_METHOD(Environment,set_ssao_blur);
+    BIND_METHOD(Environment,get_ssao_blur);
 
-    MethodBinder::bind_method(D_METHOD("set_ssao_quality", {"quality"}), &Environment::set_ssao_quality);
-    MethodBinder::bind_method(D_METHOD("get_ssao_quality"), &Environment::get_ssao_quality);
+    BIND_METHOD(Environment,set_ssao_quality);
+    BIND_METHOD(Environment,get_ssao_quality);
 
-    MethodBinder::bind_method(D_METHOD("set_ssao_edge_sharpness", {"edge_sharpness"}), &Environment::set_ssao_edge_sharpness);
-    MethodBinder::bind_method(D_METHOD("get_ssao_edge_sharpness"), &Environment::get_ssao_edge_sharpness);
+    BIND_METHOD(Environment,set_ssao_edge_sharpness);
+    BIND_METHOD(Environment,get_ssao_edge_sharpness);
 
     ADD_GROUP("SSAO", "ssao_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ssao_enabled"), "set_ssao_enabled", "is_ssao_enabled");
@@ -1168,35 +1187,35 @@ void Environment::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "ssao_blur", PropertyHint::Enum, "Disabled,1x1,2x2,3x3"), "set_ssao_blur", "get_ssao_blur");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "ssao_edge_sharpness", PropertyHint::Range, "0,32,0.01"), "set_ssao_edge_sharpness", "get_ssao_edge_sharpness");
 
-    MethodBinder::bind_method(D_METHOD("set_dof_blur_far_enabled", {"enabled"}), &Environment::set_dof_blur_far_enabled);
-    MethodBinder::bind_method(D_METHOD("is_dof_blur_far_enabled"), &Environment::is_dof_blur_far_enabled);
+    BIND_METHOD(Environment,set_dof_blur_far_enabled);
+    BIND_METHOD(Environment,is_dof_blur_far_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_dof_blur_far_distance", {"intensity"}), &Environment::set_dof_blur_far_distance);
-    MethodBinder::bind_method(D_METHOD("get_dof_blur_far_distance"), &Environment::get_dof_blur_far_distance);
+    BIND_METHOD(Environment,set_dof_blur_far_distance);
+    BIND_METHOD(Environment,get_dof_blur_far_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_dof_blur_far_transition", {"intensity"}), &Environment::set_dof_blur_far_transition);
-    MethodBinder::bind_method(D_METHOD("get_dof_blur_far_transition"), &Environment::get_dof_blur_far_transition);
+    BIND_METHOD(Environment,set_dof_blur_far_transition);
+    BIND_METHOD(Environment,get_dof_blur_far_transition);
 
-    MethodBinder::bind_method(D_METHOD("set_dof_blur_far_amount", {"intensity"}), &Environment::set_dof_blur_far_amount);
-    MethodBinder::bind_method(D_METHOD("get_dof_blur_far_amount"), &Environment::get_dof_blur_far_amount);
+    BIND_METHOD(Environment,set_dof_blur_far_amount);
+    BIND_METHOD(Environment,get_dof_blur_far_amount);
 
-    MethodBinder::bind_method(D_METHOD("set_dof_blur_far_quality", {"intensity"}), &Environment::set_dof_blur_far_quality);
-    MethodBinder::bind_method(D_METHOD("get_dof_blur_far_quality"), &Environment::get_dof_blur_far_quality);
+    BIND_METHOD(Environment,set_dof_blur_far_quality);
+    BIND_METHOD(Environment,get_dof_blur_far_quality);
 
-    MethodBinder::bind_method(D_METHOD("set_dof_blur_near_enabled", {"enabled"}), &Environment::set_dof_blur_near_enabled);
-    MethodBinder::bind_method(D_METHOD("is_dof_blur_near_enabled"), &Environment::is_dof_blur_near_enabled);
+    BIND_METHOD(Environment,set_dof_blur_near_enabled);
+    BIND_METHOD(Environment,is_dof_blur_near_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_dof_blur_near_distance", {"intensity"}), &Environment::set_dof_blur_near_distance);
-    MethodBinder::bind_method(D_METHOD("get_dof_blur_near_distance"), &Environment::get_dof_blur_near_distance);
+    BIND_METHOD(Environment,set_dof_blur_near_distance);
+    BIND_METHOD(Environment,get_dof_blur_near_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_dof_blur_near_transition", {"intensity"}), &Environment::set_dof_blur_near_transition);
-    MethodBinder::bind_method(D_METHOD("get_dof_blur_near_transition"), &Environment::get_dof_blur_near_transition);
+    BIND_METHOD(Environment,set_dof_blur_near_transition);
+    BIND_METHOD(Environment,get_dof_blur_near_transition);
 
-    MethodBinder::bind_method(D_METHOD("set_dof_blur_near_amount", {"intensity"}), &Environment::set_dof_blur_near_amount);
-    MethodBinder::bind_method(D_METHOD("get_dof_blur_near_amount"), &Environment::get_dof_blur_near_amount);
+    BIND_METHOD(Environment,set_dof_blur_near_amount);
+    BIND_METHOD(Environment,get_dof_blur_near_amount);
 
-    MethodBinder::bind_method(D_METHOD("set_dof_blur_near_quality", {"level"}), &Environment::set_dof_blur_near_quality);
-    MethodBinder::bind_method(D_METHOD("get_dof_blur_near_quality"), &Environment::get_dof_blur_near_quality);
+    BIND_METHOD(Environment,set_dof_blur_near_quality);
+    BIND_METHOD(Environment,get_dof_blur_near_quality);
 
     ADD_GROUP("DOF Far Blur", "dof_blur_far_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "dof_blur_far_enabled"), "set_dof_blur_far_enabled", "is_dof_blur_far_enabled");
@@ -1212,35 +1231,38 @@ void Environment::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "dof_blur_near_amount", PropertyHint::Range, "0,1,0.01"), "set_dof_blur_near_amount", "get_dof_blur_near_amount");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "dof_blur_near_quality", PropertyHint::Enum, "Low,Medium,High"), "set_dof_blur_near_quality", "get_dof_blur_near_quality");
 
-    MethodBinder::bind_method(D_METHOD("set_glow_enabled", {"enabled"}), &Environment::set_glow_enabled);
-    MethodBinder::bind_method(D_METHOD("is_glow_enabled"), &Environment::is_glow_enabled);
+    BIND_METHOD(Environment,set_glow_enabled);
+    BIND_METHOD(Environment,is_glow_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_glow_level", {"idx", "enabled"}), &Environment::set_glow_level);
-    MethodBinder::bind_method(D_METHOD("is_glow_level_enabled", {"idx"}), &Environment::is_glow_level_enabled);
+    BIND_METHOD(Environment,set_glow_level);
+    BIND_METHOD(Environment,is_glow_level_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_glow_intensity", {"intensity"}), &Environment::set_glow_intensity);
-    MethodBinder::bind_method(D_METHOD("get_glow_intensity"), &Environment::get_glow_intensity);
+    BIND_METHOD(Environment,set_glow_intensity);
+    BIND_METHOD(Environment,get_glow_intensity);
 
-    MethodBinder::bind_method(D_METHOD("set_glow_strength", {"strength"}), &Environment::set_glow_strength);
-    MethodBinder::bind_method(D_METHOD("get_glow_strength"), &Environment::get_glow_strength);
+    BIND_METHOD(Environment,set_glow_strength);
+    BIND_METHOD(Environment,get_glow_strength);
 
-    MethodBinder::bind_method(D_METHOD("set_glow_bloom", {"amount"}), &Environment::set_glow_bloom);
-    MethodBinder::bind_method(D_METHOD("get_glow_bloom"), &Environment::get_glow_bloom);
+    BIND_METHOD(Environment,set_glow_bloom);
+    BIND_METHOD(Environment,get_glow_bloom);
 
-    MethodBinder::bind_method(D_METHOD("set_glow_blend_mode", {"mode"}), &Environment::set_glow_blend_mode);
-    MethodBinder::bind_method(D_METHOD("get_glow_blend_mode"), &Environment::get_glow_blend_mode);
+    BIND_METHOD(Environment,set_glow_blend_mode);
+    BIND_METHOD(Environment,get_glow_blend_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_glow_hdr_bleed_threshold", {"threshold"}), &Environment::set_glow_hdr_bleed_threshold);
-    MethodBinder::bind_method(D_METHOD("get_glow_hdr_bleed_threshold"), &Environment::get_glow_hdr_bleed_threshold);
+    BIND_METHOD(Environment,set_glow_hdr_bleed_threshold);
+    BIND_METHOD(Environment,get_glow_hdr_bleed_threshold);
 
-    MethodBinder::bind_method(D_METHOD("set_glow_hdr_luminance_cap", {"amount"}), &Environment::set_glow_hdr_luminance_cap);
-    MethodBinder::bind_method(D_METHOD("get_glow_hdr_luminance_cap"), &Environment::get_glow_hdr_luminance_cap);
+    BIND_METHOD(Environment,set_glow_hdr_luminance_cap);
+    BIND_METHOD(Environment,get_glow_hdr_luminance_cap);
 
-    MethodBinder::bind_method(D_METHOD("set_glow_hdr_bleed_scale", {"scale"}), &Environment::set_glow_hdr_bleed_scale);
-    MethodBinder::bind_method(D_METHOD("get_glow_hdr_bleed_scale"), &Environment::get_glow_hdr_bleed_scale);
+    BIND_METHOD(Environment,set_glow_hdr_bleed_scale);
+    BIND_METHOD(Environment,get_glow_hdr_bleed_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_glow_bicubic_upscale", {"enabled"}), &Environment::set_glow_bicubic_upscale);
-    MethodBinder::bind_method(D_METHOD("is_glow_bicubic_upscale_enabled"), &Environment::is_glow_bicubic_upscale_enabled);
+    BIND_METHOD(Environment,set_glow_bicubic_upscale);
+    BIND_METHOD(Environment,is_glow_bicubic_upscale_enabled);
+
+    BIND_METHOD(Environment,set_glow_high_quality);
+    BIND_METHOD(Environment,is_glow_high_quality_enabled);
 
     ADD_GROUP("Glow", "glow_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "glow_enabled"), "set_glow_enabled", "is_glow_enabled");
@@ -1252,25 +1274,26 @@ void Environment::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "glow_hdr_luminance_cap", PropertyHint::Range, "0.0,256.0,0.01"), "set_glow_hdr_luminance_cap", "get_glow_hdr_luminance_cap");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "glow_hdr_scale", PropertyHint::Range, "0.0,4.0,0.01"), "set_glow_hdr_bleed_scale", "get_glow_hdr_bleed_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "glow_bicubic_upscale"), "set_glow_bicubic_upscale", "is_glow_bicubic_upscale_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "glow_high_quality"), "set_glow_high_quality", "is_glow_high_quality_enabled");
     ADD_PROPERTY_ARRAY("Glow Levels",RS::MAX_GLOW_LEVELS,"glow_levels");
     for(int i=0; i<RS::MAX_GLOW_LEVELS; ++i)
         ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, StringName("glow_levels/"+itos(i+1)+"/enabled")), "set_glow_level", "is_glow_level_enabled", i);
 
 
-    MethodBinder::bind_method(D_METHOD("set_adjustment_enable", {"enabled"}), &Environment::set_adjustment_enable);
-    MethodBinder::bind_method(D_METHOD("is_adjustment_enabled"), &Environment::is_adjustment_enabled);
+    BIND_METHOD(Environment,set_adjustment_enable);
+    BIND_METHOD(Environment,is_adjustment_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_adjustment_brightness", {"brightness"}), &Environment::set_adjustment_brightness);
-    MethodBinder::bind_method(D_METHOD("get_adjustment_brightness"), &Environment::get_adjustment_brightness);
+    BIND_METHOD(Environment,set_adjustment_brightness);
+    BIND_METHOD(Environment,get_adjustment_brightness);
 
-    MethodBinder::bind_method(D_METHOD("set_adjustment_contrast", {"contrast"}), &Environment::set_adjustment_contrast);
-    MethodBinder::bind_method(D_METHOD("get_adjustment_contrast"), &Environment::get_adjustment_contrast);
+    BIND_METHOD(Environment,set_adjustment_contrast);
+    BIND_METHOD(Environment,get_adjustment_contrast);
 
-    MethodBinder::bind_method(D_METHOD("set_adjustment_saturation", {"saturation"}), &Environment::set_adjustment_saturation);
-    MethodBinder::bind_method(D_METHOD("get_adjustment_saturation"), &Environment::get_adjustment_saturation);
+    BIND_METHOD(Environment,set_adjustment_saturation);
+    BIND_METHOD(Environment,get_adjustment_saturation);
 
-    MethodBinder::bind_method(D_METHOD("set_adjustment_color_correction", {"color_correction"}), &Environment::set_adjustment_color_correction);
-    MethodBinder::bind_method(D_METHOD("get_adjustment_color_correction"), &Environment::get_adjustment_color_correction);
+    BIND_METHOD(Environment,set_adjustment_color_correction);
+    BIND_METHOD(Environment,get_adjustment_color_correction);
 
     ADD_GROUP("Adjustments", "adjustment_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "adjustment_enabled"), "set_adjustment_enable", "is_adjustment_enabled");
@@ -1297,6 +1320,7 @@ void Environment::_bind_methods() {
     BIND_ENUM_CONSTANT(TONE_MAPPER_REINHARDT);
     BIND_ENUM_CONSTANT(TONE_MAPPER_FILMIC);
     BIND_ENUM_CONSTANT(TONE_MAPPER_ACES);
+    BIND_ENUM_CONSTANT(TONE_MAPPER_ACES_FITTED);
 
     BIND_ENUM_CONSTANT(DOF_BLUR_QUALITY_LOW);
     BIND_ENUM_CONSTANT(DOF_BLUR_QUALITY_MEDIUM);
@@ -1380,6 +1404,7 @@ Environment::Environment() :
     glow_hdr_luminance_cap = 12.0;
     glow_hdr_bleed_scale = 2.0;
     glow_bicubic_upscale = false;
+    glow_high_quality = false;
 
     dof_blur_far_enabled = false;
     dof_blur_far_distance = 10;

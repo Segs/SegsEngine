@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  navigation_server.h                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -53,11 +53,13 @@ protected:
     static void _bind_methods();
 
 public:
-    /// Thread safe, can be used accross many threads.
+    /// Thread safe, can be used across many threads.
     static const NavigationServer *get_singleton();
 
     /// MUST be used in single thread!
     static NavigationServer *get_singleton_mut();
+
+    virtual Array get_maps() const = 0;
 
     /// Create a new map.
     virtual RID map_create() const = 0;
@@ -79,6 +81,11 @@ public:
 
     /// Returns the map cell size.
     virtual real_t map_get_cell_size(RID p_map) const = 0;
+    /// Set the map cell height used to weld the navigation mesh polygons.
+    virtual void map_set_cell_height(RID p_map, real_t p_cell_height) const = 0;
+
+    /// Returns the map cell height.
+    virtual real_t map_get_cell_height(RID p_map) const = 0;
 
     /// Set the map edge connection margin used to weld the compatible region edges.
     virtual void map_set_edge_connection_margin(RID p_map, real_t p_connection_margin) const = 0;
@@ -87,13 +94,38 @@ public:
     virtual real_t map_get_edge_connection_margin(RID p_map) const = 0;
 
     /// Returns the navigation path to reach the destination from the origin.
-    virtual Vector<Vector3> map_get_path(RID p_map, Vector3 p_origin, Vector3 p_destination, bool p_optimize) const = 0;
+    virtual Vector<Vector3> map_get_path(RID p_map, Vector3 p_origin, Vector3 p_destination, bool p_optimize, uint32_t p_navigation_layers = 1) const = 0;
+    virtual Vector3 map_get_closest_point_to_segment(RID p_map, const Vector3 &p_from, const Vector3 &p_to, const bool p_use_collision = false) const = 0;
+    virtual Vector3 map_get_closest_point(RID p_map, const Vector3 &p_point) const = 0;
+    virtual Vector3 map_get_closest_point_normal(RID p_map, const Vector3 &p_point) const = 0;
+    virtual RID map_get_closest_point_owner(RID p_map, const Vector3 &p_point) const = 0;
+
+    virtual Array map_get_regions(RID p_map) const = 0;
+    virtual Array map_get_agents(RID p_map) const = 0;
+
+    virtual void map_force_update(RID p_map) = 0;
 
     /// Creates a new region.
     virtual RID region_create() const = 0;
 
+    /// Set the enter_cost of a region
+    virtual void region_set_enter_cost(RID p_region, real_t p_enter_cost) const = 0;
+    virtual real_t region_get_enter_cost(RID p_region) const = 0;
+
+    /// Set the travel_cost of a region
+    virtual void region_set_travel_cost(RID p_region, real_t p_travel_cost) const = 0;
+    virtual real_t region_get_travel_cost(RID p_region) const = 0;
+
+    virtual bool region_owns_point(RID p_region, const Vector3 &p_point) const = 0;
+
     /// Set the map of this region.
     virtual void region_set_map(RID p_region, RID p_map) const = 0;
+
+    virtual RID region_get_map(RID p_region) const = 0;
+
+    /// Set the region's layers
+    virtual void region_set_navigation_layers(RID p_region, uint32_t p_navigation_layers) const = 0;
+    virtual uint32_t region_get_navigation_layers(RID p_region) const = 0;
 
     /// Set the global transformation of this region.
     virtual void region_set_transform(RID p_region, Transform p_transform) const = 0;
@@ -101,14 +133,20 @@ public:
     /// Set the navigation mesh of this region.
     virtual void region_set_navmesh(RID p_region, Ref<NavigationMesh> p_nav_mesh) const = 0;
 
-    /// Bake the navigation mesh
+    /// Bake the navigation mesh.
     virtual void region_bake_navmesh(Ref<NavigationMesh> r_mesh, Node *p_node) const = 0;
+
+    /// Get a list of a region's connection to other regions.
+    virtual int region_get_connections_count(RID p_region) const = 0;
+    virtual Vector3 region_get_connection_pathway_start(RID p_region, int p_connection_id) const = 0;
+    virtual Vector3 region_get_connection_pathway_end(RID p_region, int p_connection_id) const = 0;
 
     /// Creates the agent.
     virtual RID agent_create() const = 0;
 
     /// Put the agent in the map.
     virtual void agent_set_map(RID p_agent, RID p_map) const = 0;
+    virtual RID agent_get_map(RID p_agent) const = 0;
 
     /// The maximum distance (center point to
     /// center point) to other agents this agent
@@ -164,14 +202,16 @@ public:
     virtual void agent_set_callback(RID p_agent, Callable && cb) const = 0;
 
     /// Destroy the `RID`
-    virtual void free(RID p_object) const = 0;
+    virtual void free_rid(RID p_object) const = 0;
 
     /// Control activation of this server.
     virtual void set_active(bool p_active) const = 0;
 
-    /// Step the server
-    /// NOTE: This function is not Threadsafe and MUST be called in single thread.
-    virtual void step(real_t delta_time) = 0;
+    /// Process the collision avoidance agents.
+    /// The result of this process is needed by the physics server,
+    /// so this must be called in the main thread.
+    /// Note: This function is not thread safe.
+    virtual void process(real_t delta_time) = 0;
 
     NavigationServer();
     ~NavigationServer() override;

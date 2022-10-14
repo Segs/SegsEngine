@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  spin_box.h                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -43,6 +43,7 @@ class GODOT_EXPORT SpinBox : public Range {
 
     Timer *range_click_timer;
     void _range_click_timeout();
+    void _release_mouse();
 
     void _text_entered(StringView p_string);
     void _value_changed(double) override;
@@ -52,11 +53,11 @@ class GODOT_EXPORT SpinBox : public Range {
     void _line_edit_input(const Ref<InputEvent> &p_event);
 
     struct Drag {
-        float base_val;
-        bool allowed;
-        bool enabled;
         Vector2 capture_pos;
-        float diff_y;
+        float base_val=0;
+        float diff_y=0;
+        bool allowed=false;
+        bool enabled=false;
     } drag;
 
     void _line_edit_focus_exit();

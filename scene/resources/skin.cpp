@@ -146,21 +146,21 @@ void Skin::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
 void Skin::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_bind_count", {"bind_count"}), &Skin::set_bind_count);
-    MethodBinder::bind_method(D_METHOD("get_bind_count"), &Skin::get_bind_count);
+    BIND_METHOD(Skin,set_bind_count);
+    BIND_METHOD(Skin,get_bind_count);
 
-    MethodBinder::bind_method(D_METHOD("add_bind", {"bone", "pose"}), &Skin::add_bind);
+    BIND_METHOD(Skin,add_bind);
 
-    MethodBinder::bind_method(D_METHOD("set_bind_pose", {"bind_index", "pose"}), &Skin::set_bind_pose);
-    MethodBinder::bind_method(D_METHOD("get_bind_pose", {"bind_index"}), &Skin::get_bind_pose);
+    BIND_METHOD(Skin,set_bind_pose);
+    BIND_METHOD(Skin,get_bind_pose);
 
-    MethodBinder::bind_method(D_METHOD("set_bind_name", {"bind_index", "name"}), &Skin::set_bind_name);
-    MethodBinder::bind_method(D_METHOD("get_bind_name", {"bind_index"}), &Skin::get_bind_name);
+    BIND_METHOD(Skin,set_bind_name);
+    BIND_METHOD(Skin,get_bind_name);
 
-    MethodBinder::bind_method(D_METHOD("set_bind_bone", {"bind_index", "bone"}), &Skin::set_bind_bone);
-    MethodBinder::bind_method(D_METHOD("get_bind_bone", {"bind_index"}), &Skin::get_bind_bone);
+    BIND_METHOD(Skin,set_bind_bone);
+    BIND_METHOD(Skin,get_bind_bone);
 
-    MethodBinder::bind_method(D_METHOD("clear_binds"), &Skin::clear_binds);
+    BIND_METHOD(Skin,clear_binds);
 }
 
 Skin::Skin() {

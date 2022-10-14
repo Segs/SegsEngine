@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  string_name.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,6 +35,7 @@
 #include "core/error_macros.h"
 #include <cstddef>
 
+#include "entt/core/hashed_string.hpp"
 #include "EASTL/string_view.h"
 
 using UIString = class QString;
@@ -74,7 +75,8 @@ class GODOT_EXPORT StringName {
     friend void register_core_types();
     friend void unregister_core_types();
 
-    void setupFromCString(const StaticCString &p_static_string);
+    void setupFromCString(StaticCString p_static_string);
+    void setupFromCString(const char *,uint32_t hash_val);
     explicit StringName(_Data *p_data) { _data = p_data; }
 
 public:
@@ -98,8 +100,8 @@ public:
     bool operator!=(StringView p_name) const {
         return !(operator==(p_name));
     }
-    bool operator<(const StringName &p_name) const {
-        return _data < p_name._data;
+    constexpr bool operator<(const StringName &oth)const {
+        return _data < oth._data;
     }
     bool operator==(const StringName &p_name) const {
         // the real magic of all this mess happens here.
@@ -108,9 +110,6 @@ public:
     }
     [[nodiscard]] uint32_t hash() const;
 
-    const void *data_unique_pointer() const {
-        return (void *)_data;
-    }
     bool operator!=(const StringName &p_name) const noexcept {
 
         // the real magic of all this mess happens here.
@@ -120,10 +119,11 @@ public:
 
     StringName& operator=(StringName &&p_name) noexcept
     {
-        if(this==&p_name)
-            return *this;
-        if(_data)
+        if(_data) {
             unref();
+        }
+        // NOTE: no need to check if this == &from,
+        // since in that case _data is already nullptr, the code below will just cost a few assignments, instead of conditional
         _data = p_name._data;
         p_name._data = nullptr;
         return *this;
@@ -147,8 +147,6 @@ public:
 
     [[nodiscard]] constexpr bool empty() const { return _data == nullptr; }
 
-    //Marked as explicit since it *will* allocate memory
-    explicit StringName(const char *p_name);
 
 
     StringName(const StringName &p_name) noexcept;
@@ -160,13 +158,13 @@ public:
     //TODO: mark StringName(const String &p_name) explicit, it allocates some memory, even if COW'ed
     explicit StringName(StringView p_name);
 
-    StringName(const StaticCString &p_static_string) {
+    _FORCE_INLINE_ StringName(StaticCString p_static_string) {
         _data = nullptr;
 
         ERR_FAIL_COND(!configured);
 
         if (unlikely(!p_static_string.ptr || !p_static_string.ptr[0])) {
-            ERR_REPORT_COND(!p_static_string.ptr || !p_static_string.ptr[0]);
+            ERR_PRINT_ONCE("StringName: contructing with empty string");
             return;
         }
         setupFromCString(p_static_string);
@@ -179,14 +177,16 @@ public:
 
         if constexpr (N<=1) // static zero-terminated string of length 1 is just \000
             return;
+
         //TODO: consider compile-time hash and index generation
         ERR_FAIL_COND(!configured);
-        setupFromCString(StaticCString(s));
+        setupFromCString(s,entt::hashed_string::value((const char *)s,N-1));
     }
 
     ~StringName() noexcept {
-        if(_data)
+        if(_data) {
             unref();
+        }
     }
 };
 GODOT_EXPORT StringName operator+(const StringName &v,StringView sv);

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  gd_mono_internals.h                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -47,6 +47,7 @@ GODOT_EXPORT void tie_managed_to_unmanaged(MonoObject *managed, Object *unmanage
  */
 void unhandled_exception(MonoException *p_exc);
 
+void gd_unhandled_exception_event(MonoException *p_exc);
 } // namespace GDMonoInternals
 
 #endif // GD_MONO_INTERNALS_H

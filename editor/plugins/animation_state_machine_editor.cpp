@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  animation_state_machine_editor.cpp                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -41,10 +41,12 @@
 #include "core/project_settings.h"
 #include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_settings.h"
 #include "scene/animation/animation_blend_tree.h"
 #include "scene/animation/animation_player.h"
 #include "scene/gui/menu_button.h"
 #include "scene/gui/panel.h"
+#include "scene/gui/panel_container.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
@@ -120,7 +122,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
             if (name == StringView("Animation"))
                 continue; // nope
             int idx = menu->get_item_count();
-            menu->add_item(StringName(FormatVE("Add %s", name.c_str())), idx);
+            menu->add_item(StringName(FormatVE(TTR("Add %s").asCString(), name.c_str())), idx);
             menu->set_item_metadata(idx, E);
         }
         Ref<AnimationNode> clipb = dynamic_ref_cast<AnimationNode>(EditorSettings::get_singleton()->get_resource_clipboard());
@@ -367,31 +369,24 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
         state_machine_draw->update();
     }
 
-    //put ibeam (text cursor) over names to make it clearer that they are editable
     if (mm) {
 
         state_machine_draw->grab_focus();
 
-        bool over_text_now = false;
         StringName new_over_node;
         int new_over_node_what = -1;
         if (tool_select->is_pressed()) {
 
-            for (int i = node_rects.size() - 1; i >= 0; i--) { //inverse to draw order
-
-                if (node_rects[i].name.has_point(mm->get_position())) {
-                    over_text_now = true;
-                    break;
-                }
+            for (int i = node_rects.size() - 1; i >= 0; i--) { // Inverse to draw order.
 
                 if (node_rects[i].node.has_point(mm->get_position())) {
                     new_over_node = node_rects[i].node_name;
                     if (node_rects[i].play.has_point(mm->get_position())) {
                         new_over_node_what = 0;
-                    }
-                    if (node_rects[i].edit.has_point(mm->get_position())) {
+                    } else if (node_rects[i].edit.has_point(mm->get_position())) {
                         new_over_node_what = 1;
                     }
+                    break;
                 }
             }
         }
@@ -402,22 +397,29 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
             state_machine_draw->update();
         }
 
-        if (over_text != over_text_now) {
-
-            if (over_text_now) {
-                state_machine_draw->set_default_cursor_shape(CURSOR_IBEAM);
-            } else {
-                state_machine_draw->set_default_cursor_shape(CURSOR_ARROW);
-            }
-
-            over_text = over_text_now;
-        }
     }
     Ref<InputEventPanGesture> pan_gesture = dynamic_ref_cast<InputEventPanGesture>(p_event);
     if (pan_gesture) {
         h_scroll->set_value(h_scroll->get_value() + h_scroll->get_page() * pan_gesture->get_delta().x / 8);
         v_scroll->set_value(v_scroll->get_value() + v_scroll->get_page() * pan_gesture->get_delta().y / 8);
     }
+}
+
+Control::CursorShape AnimationNodeStateMachineEditor::get_cursor_shape(const Point2 &p_pos) const {
+    // Put ibeam (text cursor) over names to make it clearer that they are editable.
+    Transform2D xform = panel->get_transform() * state_machine_draw->get_transform();
+    Point2 pos = xform.xform_inv(p_pos);
+    Control::CursorShape cursor_shape = get_default_cursor_shape();
+
+    for (int i = node_rects.size() - 1; i >= 0; i--) { // Inverse to draw order.
+        if (node_rects[i].node.has_point(pos)) {
+            if (node_rects[i].name.has_point(pos)) {
+                cursor_shape = Control::CURSOR_IBEAM;
+            }
+            break;
+        }
+    }
+    return cursor_shape;
 }
 
 void AnimationNodeStateMachineEditor::_file_opened(StringView p_file) {
@@ -615,7 +617,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
     }
 
     if (state_machine_draw->has_focus()) {
-        state_machine_draw->draw_rect(Rect2(Point2(), state_machine_draw->get_size()), accent, false);
+        state_machine_draw->draw_rect_stroke(Rect2(Point2(), state_machine_draw->get_size()), accent);
     }
     int sep = 3 * EDSCALE;
 
@@ -894,7 +896,7 @@ void AnimationNodeStateMachineEditor::_state_machine_pos_draw() {
 
     float len = M_MAX(0.0001f, current_length);
 
-    float pos = CLAMP(play_pos, 0, len);
+    float pos = CLAMP<float>(play_pos, 0, len);
     float c = pos / len;
     Color fg = get_theme_color("font_color", "Label");
     Color bg = fg;
@@ -1283,21 +1285,21 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
     tool_select->set_button_group(bg);
     tool_select->set_pressed(true);
     tool_select->set_tooltip(TTR("Select and move nodes.\nRMB to add new nodes.\nShift+LMB to create connections."));
-    tool_select->connect("pressed",callable_mp(this, &ClassName::_update_mode), varray(),ObjectNS::CONNECT_QUEUED);
+    tool_select->connect("pressed",callable_mp(this, &ClassName::_update_mode), ObjectNS::CONNECT_QUEUED);
 
     tool_create = memnew(ToolButton);
     top_hb->add_child(tool_create);
     tool_create->set_toggle_mode(true);
     tool_create->set_button_group(bg);
     tool_create->set_tooltip(TTR("Create new nodes."));
-    tool_create->connect("pressed",callable_mp(this, &ClassName::_update_mode), varray(),ObjectNS::CONNECT_QUEUED);
+    tool_create->connect("pressed",callable_mp(this, &ClassName::_update_mode), ObjectNS::CONNECT_QUEUED);
 
     tool_connect = memnew(ToolButton);
     top_hb->add_child(tool_connect);
     tool_connect->set_toggle_mode(true);
     tool_connect->set_button_group(bg);
     tool_connect->set_tooltip(TTR("Connect nodes."));
-    tool_connect->connect("pressed",callable_mp(this, &ClassName::_update_mode), varray(),ObjectNS::CONNECT_QUEUED);
+    tool_connect->connect("pressed",callable_mp(this, &ClassName::_update_mode), ObjectNS::CONNECT_QUEUED);
 
     tool_erase_hb = memnew(HBoxContainer);
     top_hb->add_child(tool_erase_hb);
@@ -1335,6 +1337,7 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
 
     panel = memnew(PanelContainer);
     panel->set_clip_contents(true);
+    panel->set_mouse_filter(Control::MOUSE_FILTER_PASS);
     add_child(panel);
     panel->set_v_size_flags(SIZE_EXPAND_FILL);
 
@@ -1343,6 +1346,7 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
     state_machine_draw->connect("gui_input",callable_mp(this, &ClassName::_state_machine_gui_input));
     state_machine_draw->connect("draw",callable_mp(this, &ClassName::_state_machine_draw));
     state_machine_draw->set_focus_mode(FOCUS_ALL);
+    state_machine_draw->set_mouse_filter(Control::MOUSE_FILTER_PASS);
 
     state_machine_play_pos = memnew(Control);
     state_machine_draw->add_child(state_machine_play_pos);
@@ -1394,7 +1398,6 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
     open_file->connect("file_selected",callable_mp(this, &ClassName::_file_opened));
     undo_redo = EditorNode::get_undo_redo();
 
-    over_text = false;
 
     over_node_what = -1;
     dragging_selected_attempt = false;

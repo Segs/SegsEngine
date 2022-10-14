@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  room.h                                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,14 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ROOM_BOUNDS_H
-#define ROOM_BOUNDS_H
-
-#include "core/math/bsp_tree.h"
-#include "core/resource.h"
+#pragma once
 
 // FIXME: left for reference but will be removed when portals are reimplemented using Area
 #if 0
+#include "core/resource.h"
 
 class GODOT_EXPORT RoomBounds : public Resource {
 
@@ -50,7 +47,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual RID get_rid() const;
+	virtual RenderingEntity get_rid() const;
 
 	void set_geometry_hint(const PoolVector<Face3> &p_geometry_hint);
 	PoolVector<Face3> get_geometry_hint() const;
@@ -60,4 +57,3 @@ public:
 };
 
 #endif
-#endif // ROOM_H

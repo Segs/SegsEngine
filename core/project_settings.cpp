@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  project_settings.cpp                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -52,10 +52,19 @@
 
 IMPL_GDCLASS(ProjectSettings)
 
+const String ProjectSettings::PROJECT_DATA_DIR_NAME_SUFFIX = "import";
 ProjectSettings *ProjectSettings::singleton = nullptr;
 
 ProjectSettings *ProjectSettings::get_singleton() {
     return singleton;
+}
+
+const String &ProjectSettings::get_project_data_dir_name() const {
+    return project_data_dir_name;
+}
+
+String ProjectSettings::get_project_data_path() const {
+    return "res://" + get_project_data_dir_name();
 }
 
 const String &ProjectSettings::get_resource_path() const {
@@ -63,11 +72,8 @@ const String &ProjectSettings::get_resource_path() const {
 }
 
 String ProjectSettings::localize_path(StringView p_path) const {
-    if (resource_path.empty())
-        return String(p_path); // not initialized yet
-
-    if (StringUtils::begins_with(p_path, "res://") || StringUtils::begins_with(p_path, "user://") ||
-            PathUtils::is_abs_path(p_path) && !StringUtils::begins_with(p_path, resource_path))
+    if (resource_path.empty() || StringUtils::begins_with(p_path, "res://") || StringUtils::begins_with(p_path, "user://") ||
+            (PathUtils::is_abs_path(p_path) && !StringUtils::begins_with(p_path, resource_path)))
         return PathUtils::simplify_path(p_path);
 
     DirAccess *dir = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
@@ -100,7 +106,7 @@ String ProjectSettings::localize_path(StringView p_path) const {
     } else {
         memdelete(dir);
 
-        size_t sep = StringUtils::find_last(path, "/");
+        size_t sep = StringUtils::rfind(path, "/");
         if (sep == String::npos) {
             return "res://" + path;
         }
@@ -129,6 +135,27 @@ void ProjectSettings::set_restart_if_changed(const StringName &p_name, bool p_re
     props[p_name].restart_if_changed = p_restart;
 }
 
+void ProjectSettings::set_hide_from_editor(const StringName &p_name, bool p_hide_from_editor) {
+    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + p_name + ".");
+    props[p_name].hide_from_editor = p_hide_from_editor;
+}
+
+void ProjectSettings::set_ignore_value_in_docs(const StringName &p_name, bool p_ignore) {
+    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + p_name + ".");
+#ifdef DEBUG_METHODS_ENABLED
+    props[p_name].ignore_value_in_docs = p_ignore;
+#endif
+}
+
+bool ProjectSettings::get_ignore_value_in_docs(const StringName &p_name) const {
+    ERR_FAIL_COND_V_MSG(!props.contains(p_name), false, "Request for nonexistent project setting: " + p_name + ".");
+#ifdef DEBUG_METHODS_ENABLED
+    return props.at(p_name).ignore_value_in_docs;
+#else
+    return false;
+#endif
+}
+
 String ProjectSettings::globalize_path(StringView p_path) const {
     if (StringUtils::begins_with(p_path, "res://")) {
         if (!resource_path.empty()) {
@@ -146,8 +173,24 @@ String ProjectSettings::globalize_path(StringView p_path) const {
     return String(p_path);
 }
 
+void ProjectSettings::update() {
+    if (_dirty_this_frame) {
+        // A signal is sent a single time at the end of the frame when project settings
+        // are changed. This allows objects to respond.
+        // Alternatively objects outside the signal system can query ProjectSettings::has_changes()
+        if (_dirty_this_frame == 2) {
+            emit_signal("project_settings_changed");
+        }
+
+        _dirty_this_frame--;
+    }
+}
 bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
+
+    // marking the project settings as dirty allows them only to be
+    // checked when dirty.
+    _dirty_this_frame = 2;
 
     if (p_value.get_type() == VariantType::NIL) {
         props.erase(p_name);
@@ -184,9 +227,9 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
     }
 
     if (props.contains(p_name)) {
-        if (!props[p_name].overridden)
+        if (!props[p_name].overridden) {
             props[p_name].variant = p_value;
-
+        }
     } else {
         props[p_name] = VariantContainer(p_value, last_order++);
     }
@@ -194,7 +237,7 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
     return true;
 }
 bool ProjectSettings::_get(const StringName &p_name, Variant &r_ret) const {
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     StringName name = p_name;
     if (!disable_feature_overrides && feature_overrides.contains(name)) {
@@ -220,15 +263,16 @@ struct _VCSort {
 };
 
 void ProjectSettings::_get_property_list(Vector<PropertyInfo> *p_list) const {
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
     using namespace StringUtils;
     Set<_VCSort> vclist;
 
     for (const eastl::pair<const StringName, VariantContainer> &E : props) {
         const VariantContainer *v = &E.second;
 
-        if (v->hide_from_editor)
+        if (v->hide_from_editor) {
             continue;
+        }
 
         _VCSort vc;
         vc.name = E.first;
@@ -236,10 +280,12 @@ void ProjectSettings::_get_property_list(Vector<PropertyInfo> *p_list) const {
         vc.type = v->variant.get_type();
         if (begins_with(vc.name, "input/") || begins_with(vc.name, "import/") || begins_with(vc.name, "export/") ||
                 begins_with(vc.name, "/remap") || StringUtils::begins_with(vc.name, "/locale") ||
-                StringUtils::begins_with(vc.name, "/autoload"))
+                StringUtils::begins_with(vc.name, "/autoload")) {
             vc.flags = PROPERTY_USAGE_STORAGE;
-        else
+        }
+        else {
             vc.flags = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_STORAGE;
+        }
 
         if (v->restart_if_changed) {
             vc.flags |= PROPERTY_USAGE_RESTART_IF_CHANGED;
@@ -247,30 +293,35 @@ void ProjectSettings::_get_property_list(Vector<PropertyInfo> *p_list) const {
         vclist.insert(vc);
     }
 
-    for (const _VCSort &E : vclist) {
+    for (auto iter=vclist.begin(),fin=vclist.end(); iter!=fin; ++iter) {
+        _VCSort E(eastl::move(*iter));
         StringName prop_info_name = E.name;
         size_t dot = StringUtils::find(prop_info_name, ".");
-        if (dot != String::npos)
+        if (dot != String::npos) {
             prop_info_name = StringName(StringView(prop_info_name).substr(0, dot));
+        }
 
         if (custom_prop_info.contains(prop_info_name)) {
             PropertyInfo pi = custom_prop_info.at(prop_info_name);
             pi.name = E.name;
             pi.usage = E.flags;
-            p_list->push_back(pi);
-        } else
-            p_list->push_back(PropertyInfo(E.type, E.name, PropertyHint::None, nullptr, E.flags));
+            p_list->emplace_back(eastl::move(pi));
+        } else {
+            p_list->emplace_back(E.type, eastl::move(E.name), PropertyHint::None, nullptr, E.flags);
+        }
     }
 }
 
 bool ProjectSettings::_load_resource_pack(StringView p_pack, bool p_replace_files) {
-    if (PackedData::get_singleton()->is_disabled())
+    if (PackedData::get_singleton()->is_disabled()) {
         return false;
+    }
 
     bool ok = PackedData::get_singleton()->add_pack(p_pack, p_replace_files) == OK;
 
-    if (!ok)
+    if (!ok) {
         return false;
+    }
 
     // if data.pck is found, all directory access will be from here
     DirAccess::make_default<DirAccessPack>(DirAccess::ACCESS_RESOURCES);
@@ -280,8 +331,9 @@ bool ProjectSettings::_load_resource_pack(StringView p_pack, bool p_replace_file
 }
 
 void ProjectSettings::_convert_to_last_version(int p_from_version) {
-    if (p_from_version > 3)
+    if (p_from_version > 3) {
         return;
+    }
 
     // Converts the actions from array to dictionary (array of events to dictionary with deadzone + events)
     for (eastl::pair<const StringName, ProjectSettings::VariantContainer> &E : props) {
@@ -300,7 +352,7 @@ void ProjectSettings::_convert_to_last_version(int p_from_version) {
  * This method is responsible for loading a project.godot file and/or data file
  * using the following merit order:
  *  - If using NetworkClient, try to lookup project file or fail.
- *  - If --main-pack was passed by the user (`p_main_pack`), load it or fail.
+ *  - If --main_pack was passed by the user (`p_main_pack`), load it or fail.
  *  - Search for .pck file matching binary name. There are two possibilities:
  *    o PathUtils::get_basename(exec_path) + '.pck' (e.g. 'win_game.exe' -> 'win_game.pck')
  *    o exec_path + '.pck' (e.g. 'linux_game' -> 'linux_game.pck')
@@ -315,13 +367,21 @@ void ProjectSettings::_convert_to_last_version(int p_from_version) {
  *    If a project file is found, load it or fail.
  *    If nothing was found, error out.
  */
-Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_upwards) {
+Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_upwards, bool p_ignore_override) {
     using namespace PathUtils;
+    if (!OS::get_singleton()->get_resource_dir().empty()) {
+        // OS will call ProjectSettings->get_resource_path which will be empty if not overridden!
+        // If the OS would rather use a specific location, then it will not be empty.
+        resource_path = OS::get_singleton()->get_resource_dir().replaced("\\", "/");
+        if (!resource_path.empty() && resource_path.ends_with('/')) {
+            resource_path = resource_path.substr(0, resource_path.length() - 1); // Chop end.
+        }
+    }
     // If looking for files in a network client, use it directly
 
     if (FileAccessNetworkClient::get_singleton()) {
         Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary");
-        if (err == OK) {
+        if (err == OK && !p_ignore_override) {
             // Optional, we don't mind if it fails
             _load_settings_text("res://override.cfg");
         }
@@ -335,7 +395,7 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
         ERR_FAIL_COND_V_MSG(!ok, ERR_CANT_OPEN, "Cannot open resource pack '" + String(p_main_pack) + "'.");
 
         Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary");
-        if (err == OK) {
+        if (err == OK && !p_ignore_override) {
             // Load override from location of the main pack
             // Optional, we don't mind if it fails
             _load_settings_text(PathUtils::plus_file(PathUtils::get_base_dir(p_main_pack), "override.cfg"));
@@ -385,7 +445,7 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
         // If we opened our package, try and load our project
         if (found) {
             Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary");
-            if (err == OK) {
+            if (err == OK && !p_ignore_override) {
                 // Load override from location of executable
                 // Optional, we don't mind if it fails
                 _load_settings_text(PathUtils::plus_file(PathUtils::get_base_dir(exec_path), "override.cfg"));
@@ -397,15 +457,9 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
     // Try to use the filesystem for files, according to OS. (only Android -when reading from pck- and iOS use this)
 
     if (!OS::get_singleton()->get_resource_dir().empty()) {
-        // OS will call ProjectSettings->get_resource_path which will be empty if not overridden!
-        // If the OS would rather use a specific location, then it will not be empty.
-        resource_path = StringUtils::replace(OS::get_singleton()->get_resource_dir(), "\\", "/");
-        if (!resource_path.empty() && StringUtils::ends_with(resource_path, "/")) {
-            resource_path = StringUtils::substr(resource_path, 0, resource_path.length() - 1); // chop end
-        }
 
         Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary");
-        if (err == OK) {
+        if (err == OK && !p_ignore_override) {
             // Optional, we don't mind if it fails
             _load_settings_text("res://override.cfg");
         }
@@ -427,7 +481,7 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
     while (true) {
         err = _load_settings_text_or_binary(PathUtils::plus_file(current_dir, "project.godot"),
                 PathUtils::plus_file(current_dir, "project.binary"));
-        if (err == OK) {
+        if (err == OK && !p_ignore_override) {
             // Optional, we don't mind if it fails
             _load_settings_text(PathUtils::plus_file(current_dir, "override.cfg"));
             candidate = current_dir;
@@ -459,20 +513,23 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
     return OK;
 }
 
-Error ProjectSettings::setup(StringView p_path, StringView p_main_pack, bool p_upwards) {
-    Error err = _setup(p_path, p_main_pack, p_upwards);
+Error ProjectSettings::setup(StringView p_path, StringView p_main_pack, bool p_upwards, bool p_ignore_override) {
+    Error err = _setup(p_path, p_main_pack, p_upwards, p_ignore_override);
     if (err == OK) {
-        String custom_settings = GLOBAL_T_DEF("application/config/project_settings_override", "", String);
+        String custom_settings = T_GLOBAL_DEF<String>("application/config/project_settings_override", "");
         if (!custom_settings.empty()) {
             _load_settings_text(custom_settings);
         }
     }
+    // Updating the default value after the project settings have loaded.
+    bool use_hidden_directory = T_GLOBAL_GET<bool>("application/config/use_hidden_project_data_directory");
+    project_data_dir_name = (use_hidden_directory ? "." : "") + PROJECT_DATA_DIR_NAME_SUFFIX;
 
     return err;
 }
 
 bool ProjectSettings::has_setting(const StringName &p_var) const {
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     return props.contains(p_var);
 }
@@ -553,6 +610,7 @@ Error ProjectSettings::_load_settings_text(StringView p_path) {
             // If we're loading a project.godot from source code, we can operate some
             // ProjectSettings conversions if need be.
             _convert_to_last_version(config_version);
+            last_save_time = FileAccess::get_modified_time(PathUtils::plus_file(get_resource_path(),"project.godot"));
             return OK;
         } else if (err != OK) {
             ERR_PRINTF("Error parsing %s at line %d: %s File might be corrupted.", String(p_path).c_str(), lines,
@@ -588,19 +646,24 @@ Error ProjectSettings::_load_settings_text(StringView p_path) {
 }
 
 Error ProjectSettings::_load_settings_text_or_binary(StringView p_text_path, StringView p_bin_path) {
-    // Attempt first to load the text-based project.godot file
-    Error err_text = _load_settings_text(p_text_path);
-    if (err_text == OK) {
+    // Attempt first to load the binary project.godot file.
+    Error err = _load_settings_binary(p_bin_path);
+    if (err == OK) {
         return OK;
-    } else if (err_text != ERR_FILE_NOT_FOUND) {
-        // If the text-based file exists but can't be loaded, we want to know it
-        ERR_PRINT("Couldn't load file '" + String(p_text_path) + "', error code " + ::to_string(err_text) + ".");
-        return err_text;
+    } else if (err != ERR_FILE_NOT_FOUND) {
+        // If the file exists but can't be loaded, we want to know it.
+        ERR_PRINT("Couldn't load file '" + p_bin_path + "', error code " + itos(err) + ".");
     }
 
-    // Fallback to binary project.binary file if text-based was not found
-    Error err_bin = _load_settings_binary(p_bin_path);
-    return err_bin;
+    // Fallback to text-based project.godot file if binary was not found.
+    err = _load_settings_text(p_text_path);
+    if (err == OK) {
+        return OK;
+    } else if (err != ERR_FILE_NOT_FOUND) {
+        ERR_PRINT("Couldn't load file '" + p_text_path + "', error code " + itos(err) + ".");
+    }
+
+    return err;
 }
 
 int ProjectSettings::get_order(const StringName &p_name) const {
@@ -627,10 +690,15 @@ void ProjectSettings::clear(const StringName &p_name) {
 }
 
 Error ProjectSettings::save() {
-    return save_custom(PathUtils::plus_file(get_resource_path(), "project.godot"));
+    String project_path(PathUtils::plus_file(get_resource_path(), "project.godot"));
+    Error error = save_custom(project_path);
+    if (error == OK) {
+        last_save_time = FileAccess::get_modified_time(project_path);
+    }
+    return error;
 }
 
-Error ProjectSettings::_save_settings_binary(StringView p_file, const HashMap<String, List<String>> &props,
+Error ProjectSettings::_save_settings_binary(StringView p_file, const HashMap<String, List<String>> &inp_props,
         const CustomMap &p_custom, const String &p_custom_features) {
     Error err;
     FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
@@ -641,7 +709,7 @@ Error ProjectSettings::_save_settings_binary(StringView p_file, const HashMap<St
 
     int count = 0;
 
-    for (const eastl::pair<const String, List<String>> &E : props) {
+    for (const eastl::pair<const String, List<String>> &E : inp_props) {
         count += E.second.size();
     }
 
@@ -649,8 +717,7 @@ Error ProjectSettings::_save_settings_binary(StringView p_file, const HashMap<St
         file->store_32(count + 1);
         // store how many properties are saved, add one for custom featuers, which must always go first
         String key(CoreStringNames::get_singleton()->_custom_features);
-        file->store_32(key.length());
-        file->store_string(key);
+        file->store_pascal_string(key);
 
         int len;
         err = encode_variant(p_custom_features, nullptr, len, false);
@@ -674,7 +741,7 @@ Error ProjectSettings::_save_settings_binary(StringView p_file, const HashMap<St
         file->store_32(count); // store how many properties are saved
     }
 
-    for (const eastl::pair<const String, List<String>> &E : props) {
+    for (const eastl::pair<const String, List<String>> &E : inp_props) {
         for (String key : E.second) {
             if (!E.first.empty())
                 key = E.first + "/" + key;
@@ -834,16 +901,16 @@ Error ProjectSettings::save_custom(StringView p_path, const CustomMap &p_custom,
         custom_features += f;
     }
 
-    if (StringUtils::ends_with(p_path, ".godot"))
+    if (p_path.ends_with(".godot") || p_path.ends_with("override.cfg")) {
         return _save_settings_text(p_path, props, p_custom, custom_features);
-    else if (StringUtils::ends_with(p_path, ".binary"))
+    } else if (p_path.ends_with(".binary")) {
         return _save_settings_binary(p_path, props, p_custom, custom_features);
-    else {
-        ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Unknown config file format: " + String(p_path) + ".");
+    } else {
+        ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Unknown config file format: " + p_path + ".");
     }
 }
 
-Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_restart_if_changed) {
+Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_restart_if_changed, bool p_ignore_value_in_docs) {
     auto ps = ProjectSettings::get_singleton();
     if (!ps->has_setting(p_var)) {
         ps->set(p_var, p_default);
@@ -853,6 +920,7 @@ Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_re
     ps->set_initial_value(p_var, p_default);
     ps->set_builtin_order(p_var);
     ps->set_restart_if_changed(p_var, p_restart_if_changed);
+    ps->set_ignore_value_in_docs(p_var, p_ignore_value_in_docs);
     return ret;
 }
 Vector<String> ProjectSettings::get_optimizer_presets() const {
@@ -938,23 +1006,24 @@ bool ProjectSettings::has_custom_feature(StringView p_feature) const {
 }
 
 void ProjectSettings::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("has_setting", { "name" }), &ProjectSettings::has_setting);
-    MethodBinder::bind_method(D_METHOD("set_setting", { "name", "value" }), &ProjectSettings::set_setting);
-    MethodBinder::bind_method(D_METHOD("get_setting", { "name" }), &ProjectSettings::get_setting);
-    MethodBinder::bind_method(D_METHOD("set_order", { "name", "position" }), &ProjectSettings::set_order);
-    MethodBinder::bind_method(D_METHOD("get_order", { "name" }), &ProjectSettings::get_order);
-    MethodBinder::bind_method(D_METHOD("set_initial_value", { "name", "value" }), &ProjectSettings::set_initial_value);
+    BIND_METHOD(ProjectSettings,has_setting);
+    BIND_METHOD(ProjectSettings,set_setting);
+    BIND_METHOD(ProjectSettings,get_setting);
+    BIND_METHOD(ProjectSettings,set_order);
+    BIND_METHOD(ProjectSettings,get_order);
+    BIND_METHOD(ProjectSettings,set_initial_value);
     MethodBinder::bind_method(D_METHOD("add_property_info", { "hint" }), &ProjectSettings::_add_property_info_bind);
-    MethodBinder::bind_method(D_METHOD("clear", { "name" }), &ProjectSettings::clear);
-    MethodBinder::bind_method(D_METHOD("localize_path", { "path" }), &ProjectSettings::localize_path);
-    MethodBinder::bind_method(D_METHOD("globalize_path", { "path" }), &ProjectSettings::globalize_path);
-    MethodBinder::bind_method(D_METHOD("save"), &ProjectSettings::save);
+    BIND_METHOD(ProjectSettings,clear);
+    BIND_METHOD(ProjectSettings,localize_path);
+    BIND_METHOD(ProjectSettings,globalize_path);
+    BIND_METHOD(ProjectSettings,save);
     MethodBinder::bind_method(D_METHOD("load_resource_pack", { "pack", "replace_files" }),
             &ProjectSettings::_load_resource_pack, { Variant(true) });
-    MethodBinder::bind_method(D_METHOD("property_can_revert", { "name" }), &ProjectSettings::property_can_revert);
-    MethodBinder::bind_method(D_METHOD("property_get_revert", { "name" }), &ProjectSettings::property_get_revert);
+    BIND_METHOD(ProjectSettings,property_can_revert);
+    BIND_METHOD(ProjectSettings,property_get_revert);
 
     MethodBinder::bind_method(D_METHOD("save_custom", { "file" }), &ProjectSettings::_save_custom_bnd);
+    ADD_SIGNAL(MethodInfo("project_settings_changed"));
 }
 static void add_key_event(Array &tgt, KeyList entry) {
     auto key = make_ref_counted<InputEventKey>();
@@ -965,7 +1034,6 @@ ProjectSettings::ProjectSettings() {
     // Initialization of engine variables should be done in the setup() method,
     // so that the values can be overridden from project.godot or project.binary.
 
-    __thread__safe__.reset(new Mutex);
 
     singleton = this;
     last_order = NO_BUILTIN_ORDER_BASE;
@@ -982,18 +1050,42 @@ ProjectSettings::ProjectSettings() {
             PropertyInfo(VariantType::STRING, "application/run/main_scene", PropertyHint::File, "*.tscn,*.scn,*.res");
     GLOBAL_DEF("application/run/disable_stdout", false);
     GLOBAL_DEF("application/run/disable_stderr", false);
+    GLOBAL_DEF_RST("application/config/use_hidden_project_data_directory", true);
     GLOBAL_DEF("application/config/use_custom_user_dir", false);
     GLOBAL_DEF("application/config/custom_user_dir_name", "");
     GLOBAL_DEF("application/config/project_settings_override", "");
+    GLOBAL_DEF("display/window/size/width", 1024);
+    get_singleton()->set_custom_property_info("display/window/size/width",
+    PropertyInfo(VariantType::INT, "display/window/size/width", PropertyHint::Range, "0,7680,1,or_greater")); // 8K resolution
+    GLOBAL_DEF("display/window/size/height", 600);
+    get_singleton()->set_custom_property_info("display/window/size/height",
+        PropertyInfo(VariantType::INT, "display/window/size/height", PropertyHint::Range, "0,4320,1,or_greater")); // 8K resolution
+    GLOBAL_DEF("display/window/size/resizable", true);
+    GLOBAL_DEF("display/window/size/borderless", false);
+    GLOBAL_DEF("display/window/size/fullscreen", false);
+    GLOBAL_DEF("display/window/size/always_on_top", false);
+    GLOBAL_DEF("display/window/size/test_width", 0);
+    get_singleton()->set_custom_property_info("display/window/size/test_width",
+            PropertyInfo(VariantType::INT, "display/window/size/test_width", PropertyHint::Range, "0,7680,1,or_greater")); // 8K resolution
+    GLOBAL_DEF("display/window/size/test_height", 0);
+    get_singleton()->set_custom_property_info("display/window/size/test_height",
+            PropertyInfo(VariantType::INT, "display/window/size/test_height", PropertyHint::Range, "0,4320,1,or_greater")); // 8K resolution
     GLOBAL_DEF("audio/default_bus_layout", "res://default_bus_layout.tres");
-    custom_prop_info[StaticCString("audio/default_bus_layout")] =
-            PropertyInfo(VariantType::STRING, "audio/default_bus_layout", PropertyHint::File, "*.tres");
+    custom_prop_info[StaticCString("audio/default_bus_layout")] = PropertyInfo(VariantType::STRING, "audio/default_bus_layout", PropertyHint::File, "*.tres");
+    GLOBAL_DEF_RST("audio/2d_panning_strength", 1.0f);
+    custom_prop_info["audio/2d_panning_strength"] = PropertyInfo(VariantType::FLOAT, "audio/2d_panning_strength", PropertyHint::Range, "0,4,0.01");
+    GLOBAL_DEF_RST("audio/3d_panning_strength", 1.0f);
+    custom_prop_info["audio/3d_panning_strength"] = PropertyInfo(VariantType::FLOAT, "audio/3d_panning_strength", PropertyHint::Range, "0,4,0.01");
 
     PoolStringArray extensions;
-    extensions.push_back("gd");
     if (Engine::get_singleton()->has_singleton("GodotSharp"))
         extensions.push_back("cs");
+    extensions.push_back("gdshader");
     extensions.push_back("shader");
+    GLOBAL_DEF("editor/main_run_args", "");
+    GLOBAL_DEF("editor/scene_naming", 0); // Sync enum values with EditorNode.
+    ProjectSettings::get_singleton()->set_custom_property_info(
+            "editor/scene_naming", PropertyInfo(VariantType::INT, "editor/scene_naming", PropertyHint::Enum, "Auto,PascalCase,snake_case"));
 
     GLOBAL_DEF("editor/search_in_file_extensions", extensions);
     custom_prop_info[StaticCString("editor/search_in_file_extensions")] =
@@ -1002,6 +1094,8 @@ ProjectSettings::ProjectSettings() {
     GLOBAL_DEF("editor/script_templates_search_path", "res://script_templates");
     custom_prop_info[StaticCString("editor/script_templates_search_path")] =
             PropertyInfo(VariantType::STRING, "editor/script_templates_search_path", PropertyHint::Dir);
+    GLOBAL_DEF("editor/version_control_autoload_on_startup", false);
+    GLOBAL_DEF("editor/version_control_plugin_name", "");
 
     Dictionary action;
     action["deadzone"] = Variant(0.5f);
@@ -1141,6 +1235,12 @@ ProjectSettings::ProjectSettings() {
     custom_prop_info[StaticCString("rendering/quality/intended_usage/framebuffer_allocation")] =
             PropertyInfo(VariantType::INT, "rendering/quality/intended_usage/framebuffer_allocation",
                     PropertyHint::Enum, "2D,2D Without Sampling,3D,3D Without Effects");
+    // Required to make the project setting appear even if the physics engine is GodotPhysics,
+    // while also making it appear in the ProjectSettings class documentation.
+    GLOBAL_DEF("physics/3d/smooth_trimesh_collision", false);
+
+    GLOBAL_DEF("rendering/quality/filters/sharpen_intensity", 0.0);
+    custom_prop_info["rendering/quality/filters/sharpen_intensity"] = PropertyInfo(VariantType::FLOAT, "rendering/quality/filters/sharpen_intensity", PropertyHint::Range, "0,1");
 
     GLOBAL_DEF("debug/settings/profiler/max_functions", 16384);
     custom_prop_info[StaticCString("debug/settings/profiler/max_functions")] =
@@ -1151,18 +1251,18 @@ ProjectSettings::ProjectSettings() {
             GLOBAL_DEF("compression/formats/zstd/long_distance_matching", false).as<bool>();
     custom_prop_info[StaticCString("compression/formats/zstd/long_distance_matching")] =
             PropertyInfo(VariantType::BOOL, "compression/formats/zstd/long_distance_matching");
-    Compression::zstd_level = GLOBAL_T_DEF("compression/formats/zstd/compression_level", 3, int);
+    Compression::zstd_level = T_GLOBAL_DEF<int>("compression/formats/zstd/compression_level", 3);
     custom_prop_info[StaticCString("compression/formats/zstd/compression_level")] =
             PropertyInfo(VariantType::INT, "compression/formats/zstd/compression_level", PropertyHint::Range, "1,22,1");
-    Compression::zstd_window_log_size = GLOBAL_T_DEF("compression/formats/zstd/window_log_size", 27, int);
+    Compression::zstd_window_log_size = T_GLOBAL_DEF<int>("compression/formats/zstd/window_log_size", 27);
     custom_prop_info[StaticCString("compression/formats/zstd/window_log_size")] =
             PropertyInfo(VariantType::INT, "compression/formats/zstd/window_log_size", PropertyHint::Range, "10,30,1");
 
-    Compression::zlib_level = GLOBAL_T_DEF("compression/formats/zlib/compression_level", Z_DEFAULT_COMPRESSION, int);
+    Compression::zlib_level = T_GLOBAL_DEF<int>("compression/formats/zlib/compression_level", Z_DEFAULT_COMPRESSION);
     custom_prop_info[StaticCString("compression/formats/zlib/compression_level")] =
             PropertyInfo(VariantType::INT, "compression/formats/zlib/compression_level", PropertyHint::Range, "-1,9,1");
 
-    Compression::gzip_level = GLOBAL_T_DEF("compression/formats/gzip/compression_level", Z_DEFAULT_COMPRESSION, int);
+    Compression::gzip_level = T_GLOBAL_DEF<int>("compression/formats/gzip/compression_level", Z_DEFAULT_COMPRESSION);
     custom_prop_info[StaticCString("compression/formats/gzip/compression_level")] =
             PropertyInfo(VariantType::INT, "compression/formats/gzip/compression_level", PropertyHint::Range, "-1,9,1");
 

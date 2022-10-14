@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  scene_tree.h                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,7 +32,6 @@
 
 #include "core/os/main_loop.h"
 #include "core/os/thread_safe.h"
-#include "core/self_list.h"
 #include "scene/resources/world_3d.h"
 #include "scene/resources/world_2d.h"
 #include "scene/main/scene_tree_notifications.h"
@@ -48,6 +47,13 @@ class Mesh;
 class ArrayMesh;
 class MultiplayerAPI;
 class NetworkedMultiplayerPeer;
+
+/**
+ * @brief The SceneTreeLink type is used in ecs to link the given entity to a scene tree
+ */
+struct SceneTreeLink {
+    class SceneTree *my_tree;
+};
 
 class ISceneTreeDebugAccessor {
     friend class ScriptDebuggerRemote;
@@ -65,15 +71,15 @@ class ISceneTreeDebugAccessor {
     virtual  void _live_edit_create_node_func( const NodePath &p_parent, const String &p_type, const String &p_name)=0;
     virtual  void _live_edit_instance_node_func(const NodePath &p_parent,StringView p_path, const String &p_name)=0;
     virtual  void _live_edit_remove_node_func( const NodePath &p_at)=0;
-    virtual  void _live_edit_remove_and_keep_node_func( const NodePath &p_at, ObjectID p_keep_id)=0;
-    virtual  void _live_edit_restore_node_func( ObjectID p_id, const NodePath &p_at, int p_at_pos)=0;
+    virtual  void _live_edit_remove_and_keep_node_func( const NodePath &p_at, GameEntity p_keep_id)=0;
+    virtual  void _live_edit_restore_node_func( GameEntity p_id, const NodePath &p_at, int p_at_pos)=0;
     virtual  void _live_edit_duplicate_node_func( const NodePath &p_at, const String &p_new_name)=0;
     virtual  void _live_edit_reparent_node_func(
              const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos)=0;
 public:
     virtual ~ISceneTreeDebugAccessor() {}
     virtual HashMap<String, HashSet<Node *>> &get_live_scene_edit_cache() = 0;
-    virtual HashMap<Node *, HashMap<ObjectID, Node *>> &get_live_edit_remove_list() = 0;
+    virtual HashMap<Node *, HashMap<GameEntity, Node *>> &get_live_edit_remove_list() = 0;
 };
 
 class GODOT_EXPORT SceneTreeTimer : public RefCounted {
@@ -81,6 +87,7 @@ class GODOT_EXPORT SceneTreeTimer : public RefCounted {
 
     float time_left;
     bool process_pause;
+    bool ignore_time_scale = false;
 
 protected:
     static void _bind_methods();
@@ -91,6 +98,9 @@ public:
 
     void set_pause_mode_process(bool p_pause_mode_process);
     bool is_pause_mode_process();
+
+    void set_ignore_time_scale(bool p_ignore);
+    bool is_ignore_time_scale();
 
     void release_connections();
 
@@ -149,6 +159,7 @@ private:
     bool _quit;
     bool initialized;
     bool input_handled;
+    bool _physics_interpolation_enabled;
 
     Size2 last_screen_size;
     StringName tree_changed_name;
@@ -183,19 +194,18 @@ private:
     StretchMode stretch_mode;
     StretchAspect stretch_aspect;
     Size2i stretch_min;
-    real_t stretch_shrink;
+    real_t stretch_scale;
 
     void _update_font_oversampling(float p_ratio);
     void _update_root_rect();
 
-    Vector<ObjectID> delete_queue;
+    Vector<GameEntity> delete_queue;
     //TODO: SEGS: consider replacing Vector below with FixedVector<Variant,VARIANT_ARG_MAX>
     HashMap<UGCall, Vector<Variant> > unique_group_calls;
     bool ugc_locked;
     void _flush_ugc();
 
     _FORCE_INLINE_ void _update_group_order(SceneTreeGroup &g, bool p_use_priority = false);
-    void _update_listener();
 
 
     Node *current_scene;
@@ -234,7 +244,7 @@ private:
     friend class Node3D;
     friend class Viewport;
 
-    IntrusiveList<Node> xform_change_list;
+    //IntrusiveList<Node> xform_change_list;
 
     friend class ScriptDebuggerRemote;
 
@@ -280,7 +290,6 @@ public:
         GROUP_CALL_REVERSE = 1,
         GROUP_CALL_REALTIME = 2,
         GROUP_CALL_UNIQUE = 4,
-        GROUP_CALL_MULTILEVEL = 8,
     };
 
     _FORCE_INLINE_ Viewport *get_root() const { return root; }
@@ -304,7 +313,7 @@ public:
 
     void finish() override;
 
-    void set_auto_accept_quit(bool p_enable);
+    void set_auto_accept_quit(bool p_enable) { accept_quit = p_enable; }
     void set_quit_on_go_back(bool p_enable);
 
     void quit(int p_exit_code = -1);
@@ -323,9 +332,6 @@ public:
     void set_pause(bool p_enabled);
     bool is_paused() const;
 
-    void set_camera(const RID &p_camera);
-    RID get_camera() const;
-
 #ifdef DEBUG_ENABLED
     void set_debug_collisions_hint(bool p_enabled);
     bool is_debugging_collisions_hint() const;
@@ -334,7 +340,7 @@ public:
     bool is_debugging_navigation_hint() const;
 
     HashMap<String, HashSet<Node *> > &get_live_scene_edit_cache();
-    HashMap<Node *, HashMap<ObjectID, Node *> > &get_live_edit_remove_list();
+    HashMap<Node *, HashMap<GameEntity, Node *> > &get_live_edit_remove_list();
 #else
     void set_debug_collisions_hint(bool p_enabled) {}
     bool is_debugging_collisions_hint() const { return false; }
@@ -369,10 +375,10 @@ public:
 
     void queue_delete(Object *p_object);
 
-    void get_nodes_in_group(const StringName &p_group, Deque<Node *> *p_list);
+    void get_nodes_in_group(const StringName &p_group, Dequeue<Node *> *p_list);
     bool has_group(const StringName &p_identifier) const;
 
-    void set_screen_stretch(StretchMode p_mode, StretchAspect p_aspect, const Size2 &p_minsize, real_t p_shrink = 1);
+    void set_screen_stretch(StretchMode p_mode, StretchAspect p_aspect, const Size2 &p_minsize, real_t p_scale = 1.0f);
 
     void set_use_font_oversampling(bool p_oversampling);
     bool is_using_font_oversampling() const;
@@ -398,7 +404,6 @@ public:
 
     void drop_files(const Vector<String> &p_files, int p_from_screen = 0) override;
     void global_menu_action(const Variant &p_id, const Variant &p_meta) override;
-    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
 
     //network API
 

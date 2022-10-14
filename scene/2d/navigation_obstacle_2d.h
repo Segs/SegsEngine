@@ -49,7 +49,7 @@ protected:
 
 public:
     NavigationObstacle2D();
-    virtual ~NavigationObstacle2D();
+    ~NavigationObstacle2D() override;
 
     void set_navigation(Navigation2D *p_nav);
     const Navigation2D *get_navigation() const {

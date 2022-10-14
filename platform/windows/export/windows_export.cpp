@@ -28,99 +28,59 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "windows_export.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
+#include "core/string_formatter.h"
 #include "editor/editor_export.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
 #include "platform/windows/logo.gen.h"
 
-namespace WIN_Export_CPP { namespace  {
-static Error fixup_embedded_pck(StringView p_path, int64_t p_embedded_start, int64_t p_embedded_size) {
-
-    // Patch the header of the "pck" section in the PE file so that it corresponds to the embedded data
-
-    FileAccess *f = FileAccess::open(p_path, FileAccess::READ_WRITE);
-    if (!f) {
-        return ERR_CANT_OPEN;
-    }
-
-    // Jump to the PE header and check the magic number
-    {
-        f->seek(0x3c);
-        uint32_t pe_pos = f->get_32();
-
-        f->seek(pe_pos);
-        uint32_t magic = f->get_32();
-        if (magic != 0x00004550) {
-            f->close();
-            return ERR_FILE_CORRUPT;
-        }
-    }
-
-    // Process header
-
-    int num_sections;
-    {
-        int64_t header_pos = f->get_position();
-
-        f->seek(header_pos + 2);
-        num_sections = f->get_16();
-        f->seek(header_pos + 16);
-        uint16_t opt_header_size = f->get_16();
-
-        // Skip rest of header + optional header to go to the section headers
-        f->seek(f->get_position() + 2 + opt_header_size);
-    }
-
-    // Search for the "pck" section
-
-    int64_t section_table_pos = f->get_position();
-
-    bool found = false;
-    for (int i = 0; i < num_sections; ++i) {
-
-        int64_t section_header_pos = section_table_pos + i * 40;
-        f->seek(section_header_pos);
-
-        uint8_t section_name[9];
-        f->get_buffer(section_name, 8);
-        section_name[8] = '\0';
-
-        if (strcmp((char *)section_name, "pck") == 0) {
-            // "pck" section found, let's patch!
-
-            // Set virtual size to a little to avoid it taking memory (zero would give issues)
-            f->seek(section_header_pos + 8);
-            f->store_32(8);
-
-            f->seek(section_header_pos + 16);
-            f->store_32(p_embedded_size);
-            f->seek(section_header_pos + 20);
-            f->store_32(p_embedded_start);
-
-            found = true;
-            break;
-        }
-    }
-
-    f->close();
-
-    return found ? OK : ERR_FILE_CORRUPT;
-}
-}
-
-}
-
-class EditorExportPlatformWindows : public EditorExportPlatformPC {
-    void _rcedit_add_data(const Ref<EditorExportPreset> &p_preset, StringView p_path);
+class EditorExportPlatformWindows final : public EditorExportPlatform {
+    Error _rcedit_add_data(const Ref<EditorExportPreset> &p_preset, StringView p_path);
     Error _code_sign(const Ref<EditorExportPreset> &p_preset, StringView p_path);
+
 public:
     Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags = 0) override;
     Error sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path) override;
+    Error modify_template(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags) override;
+    Error fixup_embedded_pck(StringView p_path, int64_t p_embedded_start, int64_t p_embedded_size) override;
     void get_export_options(Vector<ExportOption> *r_options) override;
+    bool get_option_visibility(const EditorExportPreset *p_preset, const StringName &p_option, const HashMap<StringName, Variant> &p_options) const override;
+    bool has_valid_export_configuration(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const override;
+    bool has_valid_project_configuration(const Ref<EditorExportPreset> &p_preset, String &r_error) const override;
 };
+
+Error EditorExportPlatformWindows::modify_template(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags) {
+    if (p_preset->get("application/modify_resources")) {
+        _rcedit_add_data(p_preset, p_path);
+    }
+    return OK;
+}
+
+Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags) {
+    String pck_path(p_path);
+    if (p_preset->get("binary_format/embed_pck")) {
+        pck_path = String(PathUtils::get_basename(p_path)) + ".tmp";
+    }
+
+    Error err = EditorExportPlatform::export_project(p_preset, p_debug, pck_path, p_flags);
+    if (p_preset->get("codesign/enable") && err == OK) {
+        _code_sign(p_preset, pck_path);
+    }
+
+    if (p_preset->get("binary_format/embed_pck") && err == OK) {
+        DirAccessRef tmp_dir = DirAccess::create_for_path(PathUtils::get_base_dir(p_path));
+        err = tmp_dir->rename(pck_path, p_path);
+        if (err != OK) {
+            add_message(EXPORT_MESSAGE_ERROR, TTR("PCK Embedding").asCString(), FormatVE(TTR("Failed to rename temporary file \"%s\".").asCString(), pck_path.c_str()));
+        }
+    }
+
+    return err;
+}
 
 Error EditorExportPlatformWindows::sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path) {
     if (p_preset->get("codesign/enable").as<bool>()) {
@@ -130,29 +90,19 @@ Error EditorExportPlatformWindows::sign_shared_object(const Ref<EditorExportPres
     }
 }
 
-Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags) {
-    Error err = EditorExportPlatformPC::export_project(p_preset, p_debug, p_path, p_flags);
-
-    if (err != OK) {
-        return err;
+bool EditorExportPlatformWindows::get_option_visibility(const EditorExportPreset *p_preset,const StringName &p_option, const HashMap<StringName, Variant> &p_options) const {
+    // This option is not supported by "osslsigncode", used on non-Windows host.
+    if (!OS::get_singleton()->has_feature("Windows") && p_option == "codesign/identity_type") {
+        return false;
     }
-
-    _rcedit_add_data(p_preset, p_path);
-
-    if (p_preset->get("codesign/enable").as<bool>() && err == OK) {
-        err = _code_sign(p_preset, p_path);
-    }
-
-    return err;
+    return true;
 }
 
 void EditorExportPlatformWindows::get_export_options(Vector<EditorExportPlatform::ExportOption> *r_options) {
-    EditorExportPlatformPC::get_export_options(r_options);
+    EditorExportPlatform::get_export_options(r_options);
 
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "codesign/enable"), false));
-#ifdef WINDOWS_ENABLED
     r_options->push_back(ExportOption(PropertyInfo(VariantType::INT, "codesign/identity_type", PropertyHint::Enum, "Select automatically,Use PKCS12 file (specify *.PFX/*.P12 file),Use certificate store (specify SHA1 hash)"), 0));
-#endif
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "codesign/identity", PropertyHint::GlobalFile, "*.pfx,*.p12"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "codesign/password"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "codesign/timestamp"), true));
@@ -161,9 +111,10 @@ void EditorExportPlatformWindows::get_export_options(Vector<EditorExportPlatform
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "codesign/description"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::POOL_STRING_ARRAY, "codesign/custom_options"), PoolStringArray()));
 
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "application/modify_resources"), true));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/icon", PropertyHint::File, "*.ico"), ""));
-    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/file_version", PropertyHint::PlaceholderText, "1.0.0"), ""));
-    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/product_version", PropertyHint::PlaceholderText, "1.0.0"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/file_version", PropertyHint::PlaceholderText, "1.0.0.0"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/product_version", PropertyHint::PlaceholderText, "1.0.0.0"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/company_name", PropertyHint::PlaceholderText, "Company Name"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/product_name", PropertyHint::PlaceholderText, "Game Name"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/file_description"), ""));
@@ -171,16 +122,16 @@ void EditorExportPlatformWindows::get_export_options(Vector<EditorExportPlatform
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/trademarks"), ""));
 }
 
-void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset> &p_preset, StringView p_path) {
+Error EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset> &p_preset, StringView p_path) {
     String rcedit_path = EditorSettings::get_singleton()->get("export/windows/rcedit").as<String>();
 
-    if (rcedit_path.empty()) {
-        return;
+    if (!rcedit_path.empty() || !FileAccess::exists(rcedit_path)) {
+        add_message(EXPORT_MESSAGE_WARNING, TTR("Resources Modification").asCString(), FormatVE(TTR("Could not find rcedit executable at \"%s\".").asCString(), rcedit_path.c_str()));
+        return ERR_FILE_NOT_FOUND;
     }
 
-    if (!FileAccess::exists(rcedit_path)) {
-        ERR_PRINT("Could not find rcedit executable at " + rcedit_path + ", no icon or app information data will be included.");
-        return;
+    if (rcedit_path.empty()) {
+        rcedit_path = "rcedit"; // try to run rcedit from PATH
     }
 
 #ifndef WINDOWS_ENABLED
@@ -188,10 +139,9 @@ void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset>
     String wine_path = EditorSettings::get_singleton()->get("export/windows/wine").as<String>();
 
     if (not wine_path.empty() && !FileAccess::exists(wine_path)) {
-        ERR_PRINT("Could not find wine executable at " + wine_path + ", no icon or app information data will be included.");
-        return;
+        add_message(EXPORT_MESSAGE_WARNING, TTR("Resources Modification").asCString(), FormatVE(TTR("Could not find wine executable at \"%s\".").asCString(), wine_path.c_str()));
+        return ERR_FILE_NOT_FOUND;
     }
-
     if (wine_path.empty()) {
         wine_path = "wine"; // try to run wine from PATH
     }
@@ -246,23 +196,34 @@ void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset>
         args.push_back(("LegalTrademarks"));
         args.push_back(trademarks);
     }
-
-#ifdef WINDOWS_ENABLED
-    OS::get_singleton()->execute(rcedit_path, args, true);
-#else
+#ifndef WINDOWS_ENABLED
     // On non-Windows we need WINE to run rcedit
     args.push_front(rcedit_path);
-    OS::get_singleton()->execute(wine_path, args, true);
+    rcedit_path = wine_path;
 #endif
-}
 
+    String str;
+    Error err = OS::get_singleton()->execute(rcedit_path, args, true, nullptr, &str, nullptr, true);
+    if (err != OK || (str.contains("not found")) || (str.contains("not recognized"))) {
+        add_message(EXPORT_MESSAGE_WARNING, TTR("Resources Modification"), TTR("Could not start rcedit executable. Configure rcedit path in the Editor Settings (Export > Windows > rcedit), or disable \"Application > Modify Resources\" in the export preset."));
+        return err;
+    }
+    print_line("rcedit (" + p_path + "): " + str);
+
+    if (str.contains("Fatal error")) {
+        add_message(EXPORT_MESSAGE_WARNING, TTR("Resources Modification").asCString(), FormatVE(TTR("rcedit failed to modify executable: %s.").asCString(), str.c_str()));
+        return FAILED;
+    }
+
+    return OK;
+}
 Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_preset, StringView p_path) {
     Vector<String> args;
 
 #ifdef WINDOWS_ENABLED
     String signtool_path = EditorSettings::get_singleton()->getT<String>("export/windows/signtool");
     if (not signtool_path.empty() && !FileAccess::exists(signtool_path)) {
-        ERR_PRINT("Could not find signtool executable at " + signtool_path + ", aborting.");
+        add_message(EXPORT_MESSAGE_WARNING, TTR("Code Signing").asCString(), FormatVE(TTR("Could not find signtool executable at \"%s\".").asCString(), signtool_path.c_str()));
         return ERR_FILE_NOT_FOUND;
     }
     if (signtool_path.empty()) {
@@ -271,7 +232,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
 #else
     String signtool_path = EditorSettings::get_singleton()->getT<String>("export/windows/osslsigncode");
     if (not signtool_path.empty() && !FileAccess::exists(signtool_path)) {
-        ERR_PRINT("Could not find osslsigncode executable at " + signtool_path + ", aborting.");
+        add_message(EXPORT_MESSAGE_WARNING, TTR("Code Signing").asCString(), FormatVE(TTR("Could not find osslsigncode executable at \"%s\".").asCString(), signtool_path.c_str()));
         return ERR_FILE_NOT_FOUND;
     }
     if (not signtool_path.empty()) {
@@ -291,7 +252,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
             args.push_back("/f");
             args.push_back(p_preset->getT<String>("codesign/identity"));
         } else {
-            EditorNode::add_io_error("codesign: no identity found");
+            add_message(EXPORT_MESSAGE_WARNING, TTR("Code Signing"), TTR("No identity found."));
             return FAILED;
         }
     } else if (id_type == 2) { //Windows certificate store
@@ -299,11 +260,11 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
             args.push_back("/sha1");
             args.push_back(p_preset->getT<String>("codesign/identity"));
         } else {
-            EditorNode::add_io_error("codesign: no identity found");
+            add_message(EXPORT_MESSAGE_WARNING, TTR("Code Signing"), TTR("No identity found."));
             return FAILED;
         }
     } else {
-        EditorNode::add_io_error("codesign: invalid identity type");
+        add_message(EXPORT_MESSAGE_WARNING, TTR("Code Signing"), TTR("Invalid identity type."));
         return FAILED;
     }
 #else
@@ -311,7 +272,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
         args.push_back(("-pkcs12"));
         args.push_back(p_preset->get("codesign/identity").as<String>());
     } else {
-        EditorNode::add_io_error(("codesign: no identity found"));
+        add_message(EXPORT_MESSAGE_WARNING, TTR("Code Signing"), TTR("No identity found."));
         return FAILED;
     }
 #endif
@@ -343,7 +304,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
             args.push_back(p_preset->getT<String>("codesign/timestamp_server_url"));
 #endif
         } else {
-            EditorNode::add_io_error(("codesign: invalid timestamp server"));
+            add_message(EXPORT_MESSAGE_WARNING, TTR("Code Signing"), TTR("Invalid timestamp server."));
             return FAILED;
         }
     }
@@ -385,12 +346,19 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
     args.emplace_back(p_path);
 #ifndef WINDOWS_ENABLED
     args.push_back(("-out"));
-    args.emplace_back(p_path);
+    args.emplace_back(String(p_path) + "_signed");
 #endif
 
     String str;
     Error err = OS::get_singleton()->execute(signtool_path, args, true, nullptr, &str, nullptr, true);
-    ERR_FAIL_COND_V(err != OK, err);
+    if (err != OK || (str.contains("not found")) || (str.contains("not recognized"))) {
+#ifndef WINDOWS_ENABLED
+        add_message(EXPORT_MESSAGE_WARNING, TTR("Code Signing"), TTR("Could not start signtool executable. Configure signtool path in the Editor Settings (Export > Windows > signtool), or disable \"Codesign\" in the export preset."));
+#else
+        add_message(EXPORT_MESSAGE_WARNING, TTR("Code Signing"), TTR("Could not start osslsigncode executable. Configure signtool path in the Editor Settings (Export > Windows > osslsigncode), or disable \"Codesign\" in the export preset."));
+#endif
+        return err;
+    }
 
     print_line("codesign (" + String(p_path) + "): " + str);
 #ifndef WINDOWS_ENABLED
@@ -398,13 +366,170 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
 #else
     if (StringUtils::contains(str,"Failed")) {
 #endif
+        add_message(EXPORT_MESSAGE_WARNING, TTR("Code Signing").asCString(), FormatVE(TTR("Signtool failed to sign executable: %s.").asCString(), str.c_str()));
         return FAILED;
     }
+#ifndef WINDOWS_ENABLED
+    DirAccessRef tmp_dir = DirAccess::create_for_path(PathUtils::get_base_dir(p_path));
 
+    err = tmp_dir->remove(p_path);
+    if (err != OK) {
+        add_message(EXPORT_MESSAGE_WARNING, TTR("Code Signing").asCString(), FormatVE(TTR("Failed to remove temporary file \"%.*s\".").asCString(), p_path.size(), p_path.data()));
+        return err;
+    }
+
+    err = tmp_dir->rename(String(p_path) + "_signed", p_path);
+    if (err != OK) {
+        add_message(EXPORT_MESSAGE_WARNING, TTR("Code Signing").asCString(), FormatVE(TTR("Failed to rename temporary file \"%s\".").asCString(), (String(p_path) + "_signed").c_str()));
+        return err;
+    }
+#endif
     return OK;
 }
+bool EditorExportPlatformWindows::has_valid_export_configuration(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const {
+    String err = "";
+    bool valid = EditorExportPlatform::has_valid_export_configuration(p_preset, err, r_missing_templates);
+
+    String rcedit_path = EditorSettings::get_singleton()->getT<String>("export/windows/rcedit");
+    if (p_preset->get("application/modify_resources") && rcedit_path.empty()) {
+        err += TTR("The rcedit tool must be configured in the Editor Settings (Export > Windows > rcedit) to change the icon or app information data.") + "\n";
+    }
+    if (!err.empty()) {
+        r_error = err;
+    }
+
+    return valid;
+}
+
+bool EditorExportPlatformWindows::has_valid_project_configuration(const Ref<EditorExportPreset> &p_preset, String &r_error) const {
+    String err = "";
+    bool valid = true;
+
+    String icon_path = ProjectSettings::get_singleton()->globalize_path(p_preset->getT<String>("application/icon"));
+    if (!icon_path.empty() && !FileAccess::exists(icon_path)) {
+        err += TTR("Invalid icon path:") + " " + icon_path + "\n";
+    }
+
+    // Only non-negative integers can exist in the version string.
+    const auto all_valid_integers = [](Span<const StringView> v)->bool {
+        for(StringView str : v) {
+            if(!StringUtils::is_valid_integer(str))
+                return false;
+        }
+        return true;
+    };
+
+    String file_version = p_preset->getT<String>("application/file_version");
+    if (!file_version.empty()) {
+        FixedVector<StringView,4,true> version_array;
+        file_version.split_ref(version_array,".", false);
+
+        if (version_array.size() != 4 || !all_valid_integers(version_array) || file_version.contains('-')) {
+            err += TTR("Invalid file version:") + " " + file_version + "\n";
+        }
+    }
+
+    String product_version = p_preset->getT<String>("application/product_version");
+    if (!product_version.empty()) {
+        FixedVector<StringView,4,true> version_array;
+        product_version.split_ref(version_array,".", false);
+        if (version_array.size() != 4 || !all_valid_integers(version_array) || product_version.contains('-')) {
+            err += TTR("Invalid product version:") + " " + product_version + "\n";
+        }
+    }
+
+    if (!err.empty()) {
+        r_error = err;
+    }
+
+    return valid;
+}
+
+Error EditorExportPlatformWindows::fixup_embedded_pck(StringView p_path, int64_t p_embedded_start, int64_t p_embedded_size) {
+    // Patch the header of the "pck" section in the PE file so that it corresponds to the embedded data
+
+    if (p_embedded_size + p_embedded_start >= 0x100000000) { // Check for total executable size
+        add_message(EXPORT_MESSAGE_ERROR, TTR("PCK Embedding"), TTR("Windows executables cannot be >= 4 GiB."));
+        return ERR_INVALID_DATA;
+    }
+
+    FileAccess *f = FileAccess::open(p_path, FileAccess::READ_WRITE);
+    if (!f) {
+        add_message(EXPORT_MESSAGE_ERROR, TTR("PCK Embedding").asCString(), FormatVE(TTR("Failed to open executable file \"%.*s\".").asCString(), p_path.size(), p_path.data()));
+        return ERR_CANT_OPEN;
+    }
+
+         // Jump to the PE header and check the magic number
+    {
+        f->seek(0x3c);
+        uint32_t pe_pos = f->get_32();
+
+        f->seek(pe_pos);
+        uint32_t magic = f->get_32();
+        if (magic != 0x00004550) {
+            f->close();
+            add_message(EXPORT_MESSAGE_ERROR, TTR("PCK Embedding"), TTR("Executable file header corrupted."));
+            return ERR_FILE_CORRUPT;
+        }
+    }
+
+         // Process header
+
+    int num_sections;
+    {
+        int64_t header_pos = f->get_position();
+
+        f->seek(header_pos + 2);
+        num_sections = f->get_16();
+        f->seek(header_pos + 16);
+        uint16_t opt_header_size = f->get_16();
+
+             // Skip rest of header + optional header to go to the section headers
+        f->seek(f->get_position() + 2 + opt_header_size);
+    }
+
+         // Search for the "pck" section
+
+    int64_t section_table_pos = f->get_position();
+
+    bool found = false;
+    for (int i = 0; i < num_sections; ++i) {
+
+        int64_t section_header_pos = section_table_pos + i * 40;
+        f->seek(section_header_pos);
+
+        uint8_t section_name[9];
+        f->get_buffer(section_name, 8);
+        section_name[8] = '\0';
+
+        if (strcmp((char *)section_name, "pck") == 0) {
+            // "pck" section found, let's patch!
+
+                 // Set virtual size to a little to avoid it taking memory (zero would give issues)
+            f->seek(section_header_pos + 8);
+            f->store_32(8);
+
+            f->seek(section_header_pos + 16);
+            f->store_32(p_embedded_size);
+            f->seek(section_header_pos + 20);
+            f->store_32(p_embedded_start);
+
+            found = true;
+            break;
+        }
+    }
+
+    f->close();
+
+    if (!found) {
+        add_message(EXPORT_MESSAGE_ERROR, TTR("PCK Embedding"), TTR("Executable \"pck\" section not found."));
+        return ERR_FILE_CORRUPT;
+    }
+    return OK;
+}
+
+
 void register_windows_exporter() {
-    using namespace WIN_Export_CPP;
     EDITOR_DEF("export/windows/rcedit", "");
     EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::STRING, "export/windows/rcedit", PropertyHint::GlobalFile, "*.exe"));
 #ifdef WINDOWS_ENABLED
@@ -431,7 +556,6 @@ void register_windows_exporter() {
     platform->set_release_64(("windows_64_release.exe"));
     platform->set_debug_64(("windows_64_debug.exe"));
     platform->set_os_name(("Windows"));
-    platform->set_fixup_embedded_pck_func(&fixup_embedded_pck);
 
     EditorExport::get_singleton()->add_export_platform(platform);
 }

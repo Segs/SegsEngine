@@ -1,6 +1,8 @@
-cmake_minimum_required(VERSION 3.16)
+﻿cmake_minimum_required(VERSION 3.20)
 project(SegsEngine)
 
+# Tell cmake to use new policies upto our required version
+cmake_policy(VERSION 3.20)
 #set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../SegsEngine_installdir/)
 # NOTE: when running on linux the following commands allow for ccache based build acceleration
 #set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
@@ -10,6 +12,8 @@ project(SegsEngine)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+enable_testing(true)
 
 if(NOT OUTPUT_DIR)
     set(OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin)
@@ -22,9 +26,10 @@ if(MSVC)
     endif()
 
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
-      add_compile_options (/wd4251) # disable warning related to dll interface needed ... clients of class
+    add_compile_options (/wd4251) # disable warning related to dll interface needed ... clients of class
+    add_compile_options (/W2) # disable warning related to dll interface needed ... clients of class
     if (NOT (MSVC_VERSION LESS 1910))
-      #add_compile_options (/MP)
+      add_compile_options (/MP)
       add_compile_options (/permissive-)
       #add_compile_options (/d2cgsummary)
       #add_compile_options (/d1reportTime)
@@ -32,9 +37,13 @@ if(MSVC)
       #add_compile_options (/sdl)
       #add_compile_options (/arch:AVX2)
     endif()
-else()
-    # -pedantic  -Wno-gnu-anonymous-struct -Wno-gnu-zero-variadic-macro-arguments
-    add_compile_options(-Wall -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wno-sign-compare -Wno-nested-anon-types)
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    add_compile_options(-Wall -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wno-sign-compare)
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    add_compile_options(-Wall -Wextra -Wno-unused-parameter -Wno-sign-compare
+        $<$<COMPILE_LANGUAGE:CXX>:-Wno-deprecated-copy>
+        $<$<COMPILE_LANGUAGE:CXX>:-Wno-nested-anon-types>
+    )
 endif()
 
 include(CMakeParseArguments)
@@ -44,11 +53,6 @@ SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(AUTOGEN_TARGETS_FOLDER ON)
 
-# Tell cmake to honor CXX_VISIBILITY_PRESET and ignore it
-cmake_policy(SET CMP0063 NEW)
-cmake_policy(SET CMP0065 NEW)
-cmake_policy(SET CMP0072 NEW)
-cmake_policy(SET CMP0079 NEW)
 
 include(LocateQt5)
 find_package(Qt5 COMPONENTS Core REQUIRED)
@@ -96,6 +100,10 @@ target_compile_definitions(common_interface INTERFACE
     $<$<CONFIG:Debug>:DEBUG_ENABLED>
     $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
 )
+target_compile_options(common_interface INTERFACE
+    "$<$<C_COMPILER_ID:MSVC>:/utf-8>"
+    "$<$<CXX_COMPILER_ID:MSVC>:/utf-8>"
+)
 
 add_library(editor_interface INTERFACE)
 target_compile_definitions(editor_interface INTERFACE
@@ -104,13 +112,8 @@ target_compile_definitions(editor_interface INTERFACE
     $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
 )
 
-#add_library(client_interface INTERFACE) # client cooperating with editor -> non-export debug+profileable
-#target_compile_definitions(client_interface INTERFACE
-#    $<$<CONFIG:Debug>:DEBUG_ENABLED>
-#)
 
 target_link_libraries(editor_interface INTERFACE common_interface)
-#target_link_libraries(client_interface INTERFACE common_interface)
 
 add_library(client_ex_interface INTERFACE) # export client -> thin exe without debug/profiling support
 
@@ -144,6 +147,8 @@ foreach(tgt ${global_targets})
 
     target_link_libraries(${tgt}_engine PUBLIC Qt5::Core EASTL_Import ${tgt}_interface)
     set_target_properties(${tgt}_engine PROPERTIES AUTOMOC TRUE)
+    set_target_properties(${tgt}_engine PROPERTIES AUTORCC_OPTIONS "--compress;7;--verbose")
+    set_target_properties(${tgt}_engine PROPERTIES AUTORCC ON)
 
     set_common_target_properties(${tgt}_engine)
     if(USE_TRACY_PROFILER)
@@ -242,7 +247,6 @@ OPTION(OPTION_BUILTIN_SQUISH "Use the built-in squish library" ON)
 OPTION(OPTION_BUILTIN_THEKLA_ATLAS "Use the built-in thekla_altas library" ON)
 OPTION(OPTION_BUILTIN_ZLIB "Use the built-in zlib library" ON)
 OPTION(OPTION_BUILTIN_ZSTD "Use the built-in zstd library" ON)
-OPTION(OPTION_NO_EDITOR_SPLASH "Don't use the custom splash screen for the editor" OFF)
 OPTION(OPTION_PRECISE_MATH_CHECKS "Math checks use very precise epsilon (useful to debug the engine)" OFF)
 
 
@@ -271,9 +275,6 @@ SET_PROPERTY(CACHE OPTION_PLATFORM PROPERTY STRINGS ${platform_list})
 
 # # add default include paths
 
-if (OPTION_NO_EDITOR_SPLASH)
-    add_definitions(-DNO_EDITOR_SPLASH)
-endif()
 if(NOT OPTION_DEPRECATED)
     add_definitions(-DDISABLE_DEPRECATED)
 endif()
@@ -371,6 +372,8 @@ foreach(tgt ${global_targets})
     )
     target_link_libraries(${tgt}_engine PRIVATE ${LIBRARIES})
     target_link_libraries(${tgt}_engine PUBLIC EnTT::EnTT)
+    #get_target_property(all_src ${tgt}_engine SOURCES)
+    #source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX all FILES ${all_src})
 endforeach()
 
 

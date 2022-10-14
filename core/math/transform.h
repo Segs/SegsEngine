@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  transform.h                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,7 +34,7 @@
 #include "core/math/basis.h"
 #include "core/math/plane.h"
 
-class GODOT_EXPORT Transform {
+class GODOT_EXPORT [[nodiscard]] Transform {
 public:
     Basis basis;
     Vector3 origin;
@@ -74,7 +74,7 @@ public:
     void set_basis(const Basis &p_basis) { basis = p_basis; }
 
     const Vector3 &get_origin() const { return origin; }
-    void set_origin(const Vector3 &p_origin) { origin = p_origin; }
+    void set_origin(Vector3 p_origin) { origin = p_origin; }
 
     void orthonormalize();
     Transform orthonormalized() const;
@@ -82,6 +82,9 @@ public:
 
     bool operator==(const Transform &p_transform) const;
     bool operator!=(const Transform &p_transform) const;
+    // NOTE: non Plane xform_inv are UNSAFE with non-uniform scaling, and will produce incorrect results.
+    // They use the transpose.
+    // For safe inverse transforms, xform by the affine_inverse.
 
     _FORCE_INLINE_ Vector3 xform(const Vector3 &p_vector) const;
     _FORCE_INLINE_ Vector3 xform_inv(const Vector3 &p_vector) const;
@@ -94,6 +97,10 @@ public:
 
     _FORCE_INLINE_ void xform(Vector3 *p_array,int size) const;
     _FORCE_INLINE_ void xform_inv(Vector3 *p_array,int size) const;
+    // These fast versions use precomputed affine inverse, and should be used in bottleneck areas where
+    // multiple planes are to be transformed.
+    _FORCE_INLINE_ Plane xform_fast(const Plane &p_plane, const Basis &p_basis_inverse_transpose) const;
+    static _FORCE_INLINE_ Plane xform_inv_fast(const Plane &p_plane, const Transform &p_inverse, const Basis &p_basis_transpose);
 
     void operator*=(const Transform &p_transform);
     Transform operator*(const Transform &p_transform) const;
@@ -149,31 +156,21 @@ _FORCE_INLINE_ Vector3 Transform::xform_inv(const Vector3 &p_vector) const {
             (basis.elements[0][2] * v.x) + (basis.elements[1][2] * v.y) + (basis.elements[2][2] * v.z));
 }
 
+// Neither the plane regular xform or xform_inv are particularly efficient,
+// as they do a basis inverse. For xforming a large number
+// of planes it is better to pre-calculate the inverse transpose basis once
+// and reuse it for each plane, by using the 'fast' version of the functions.
 _FORCE_INLINE_ Plane Transform::xform(const Plane &p_plane) const {
-
-    Vector3 point = p_plane.normal * p_plane.d;
-    Vector3 point_dir = point + p_plane.normal;
-    point = xform(point);
-    point_dir = xform(point_dir);
-
-    Vector3 normal = point_dir - point;
-    normal.normalize();
-    real_t d = normal.dot(point);
-
-    return Plane(normal, d);
+    Basis b = basis.inverse();
+    b.transpose();
+    return xform_fast(p_plane, b);
 }
+
 _FORCE_INLINE_ Plane Transform::xform_inv(const Plane &p_plane) const {
 
-    Vector3 point = p_plane.normal * p_plane.d;
-    Vector3 point_dir = point + p_plane.normal;
-    point = xform_inv(point);
-    point_dir = xform_inv(point_dir);
-
-    Vector3 normal = point_dir - point;
-    normal.normalize();
-    real_t d = normal.dot(point);
-
-    return Plane(normal, d);
+    Transform inv = affine_inverse();
+    Basis basis_transpose = basis.transposed();
+    return xform_inv_fast(p_plane, inv, basis_transpose);
 }
 
 _FORCE_INLINE_ AABB Transform::xform(const AABB &p_aabb) const {
@@ -240,3 +237,35 @@ void Transform::xform_inv(Vector3 *p_array,int size) const {
     }
 }
 
+_FORCE_INLINE_ Plane Transform::xform_fast(const Plane &p_plane, const Basis &p_basis_inverse_transpose) const {
+    // Transform a single point on the plane.
+    Vector3 point = p_plane.normal * p_plane.d;
+    point = xform(point);
+
+    // Use inverse transpose for correct normals with non-uniform scaling.
+    Vector3 normal = p_basis_inverse_transpose.xform(p_plane.normal);
+    normal.normalize();
+
+    real_t d = normal.dot(point);
+    return Plane(normal, d);
+}
+
+_FORCE_INLINE_ Plane Transform::xform_inv_fast(const Plane &p_plane, const Transform &p_inverse, const Basis &p_basis_transpose) {
+    // Transform a single point on the plane.
+    Vector3 point = p_plane.normal * p_plane.d;
+    point = p_inverse.xform(point);
+
+    // Note that instead of precalculating the transpose, an alternative
+    // would be to use the transpose for the basis transform.
+    // However that would be less SIMD friendly (requiring a swizzle).
+    // So the cost is one extra precalced value in the calling code.
+    // This is probably worth it, as this could be used in bottleneck areas. And
+    // where it is not a bottleneck, the non-fast method is fine.
+
+    // Use transpose for correct normals with non-uniform scaling.
+    Vector3 normal = p_basis_transpose.xform(p_plane.normal);
+    normal.normalize();
+
+    real_t d = normal.dot(point);
+    return Plane(normal, d);
+}

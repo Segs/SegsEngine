@@ -56,7 +56,6 @@
 #pragma once
 
 #include <EASTL/internal/config.h>
-#include <EASTL/internal/type_pod.h>
 #include <EASTL/internal/in_place_t.h>
 #include <EASTL/internal/integer_sequence.h>
 #include <EASTL/meta.h>
@@ -64,6 +63,12 @@
 #include <EASTL/functional.h> 
 #include <EASTL/initializer_list.h>
 #include <EASTL/tuple.h>
+#include <EASTL/type_traits.h>
+#include <EASTL/array.h>
+#if EASTL_EXCEPTIONS_ENABLED
+	#include <stdexcept>
+	#include <exception>
+#endif
 
 
 #ifndef EA_COMPILER_CPP14_ENABLED
@@ -173,11 +178,7 @@ namespace eastl
     ///////////////////////////////////////////////////////////////////////////
     // 20.7.3, variant_npos
     //
-#ifdef EA_COMPILER_NO_INLINE_VARIABLES
-    static EA_CONSTEXPR const size_t variant_npos = size_t(-1);
-#else
-    inline EA_CONSTEXPR size_t variant_npos = -1;
-#endif
+	EASTL_CPP17_INLINE_VARIABLE EA_CONSTEXPR size_t variant_npos = size_t(-1);
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -217,11 +218,15 @@ namespace eastl
     struct monostate {};
 
     // 20.7.8, monostate relational operators
+#if defined(EA_COMPILER_HAS_THREE_WAY_COMPARISON)
+	EA_CONSTEXPR std::strong_ordering operator<=>(monostate, monostate) EA_NOEXCEPT { return std::strong_ordering::equal; }
+#else
     EA_CONSTEXPR bool operator> (monostate, monostate) EA_NOEXCEPT { return false; }
     EA_CONSTEXPR bool operator< (monostate, monostate) EA_NOEXCEPT { return false; }
     EA_CONSTEXPR bool operator!=(monostate, monostate) EA_NOEXCEPT { return false; }
     EA_CONSTEXPR bool operator<=(monostate, monostate) EA_NOEXCEPT { return true; }
     EA_CONSTEXPR bool operator>=(monostate, monostate) EA_NOEXCEPT { return true; }
+#endif
     EA_CONSTEXPR bool operator==(monostate, monostate) EA_NOEXCEPT { return true; }
 
     // 20.7.11, hash support

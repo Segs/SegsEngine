@@ -43,6 +43,10 @@
 class GroupDialog : public AcceptDialog {
 
     GDCLASS(GroupDialog,AcceptDialog)
+    friend class DeleteGroupAction;
+    friend class RenameGroupAction;
+    friend class AddSelectedToGroupAction;
+    friend class RemoveSelectedFromGroupAction;
 
     ConfirmationDialog *error;
 
@@ -50,6 +54,7 @@ class GroupDialog : public AcceptDialog {
     TreeItem *groups_root;
 
     LineEdit *add_group_text;
+    Button *add_group_button;
 
     Tree *groups;
 
@@ -77,12 +82,13 @@ class GroupDialog : public AcceptDialog {
     void _add_pressed();
     void _removed_pressed();
     void _add_group_pressed(StringView p_name);
+    void _add_group_text_changed(StringView p_new_text);
 
     void _group_renamed();
     void _rename_group_item(StringView p_old_name, StringView p_new_name);
 
     void _add_group(const StringName &p_name);
-    void _delete_group_pressed(Object *p_item, int p_column, int p_id);
+    void _modify_group_pressed(Object *p_item, int p_column, int p_id);
     void _delete_group_item(StringView p_name);
 
     bool _can_edit(Node *p_node, const StringName &p_group);
@@ -95,6 +101,10 @@ protected:
     static void _bind_methods();
 
 public:
+    enum ModifyButton {
+        DELETE_GROUP,
+        COPY_GROUP,
+    };
     void edit();
     void set_undo_redo(UndoRedo *p_undoredo) { undo_redo = p_undoredo; }
 
@@ -104,7 +114,8 @@ public:
 class GroupsEditor : public VBoxContainer {
 
     GDCLASS(GroupsEditor,VBoxContainer)
-
+    friend class AddToGroupAction;
+    friend class RemoveFromGroupAction;
     Node *node;
 
     GroupDialog *group_dialog;
@@ -117,7 +128,8 @@ class GroupsEditor : public VBoxContainer {
 
     void update_tree();
     void _add_group(StringView p_group = StringView ());
-    void _remove_group(Object *p_item, int p_column, int p_id);
+    void _modify_group(Object *p_item, int p_column, int p_id);
+    void _group_name_changed(StringView p_new_text);
     void _close();
 
     void _show_group_dialog();
@@ -126,6 +138,10 @@ protected:
     static void _bind_methods();
 
 public:
+    enum ModifyButton {
+        DELETE_GROUP,
+        COPY_GROUP,
+    };
     void set_undo_redo(UndoRedo *p_undoredo) { undo_redo = p_undoredo; }
     void set_current(Node *p_node);
 

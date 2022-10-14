@@ -78,7 +78,7 @@ typedef enum godot_variant_type {
 	// arrays
 	GODOT_VARIANT_TYPE_POOL_BYTE_ARRAY,
 	GODOT_VARIANT_TYPE_POOL_INT_ARRAY,
-	GODOT_VARIANT_TYPE_POOL_REAL_ARRAY,
+	GODOT_VARIANT_TYPE_POOL_FLOAT32_ARRAY,
 	GODOT_VARIANT_TYPE_POOL_STRING_ARRAY,
 	GODOT_VARIANT_TYPE_POOL_VECTOR2_ARRAY, // 25
 	GODOT_VARIANT_TYPE_POOL_VECTOR3_ARRAY,
@@ -196,7 +196,7 @@ void GDAPI godot_variant_new_dictionary(godot_variant *r_dest, const godot_dicti
 void GDAPI godot_variant_new_array(godot_variant *r_dest, const godot_array *p_arr);
 void GDAPI godot_variant_new_pool_byte_array(godot_variant *r_dest, const godot_pool_byte_array *p_pba);
 void GDAPI godot_variant_new_pool_int_array(godot_variant *r_dest, const godot_pool_int_array *p_pia);
-void GDAPI godot_variant_new_pool_real_array(godot_variant *r_dest, const godot_pool_real_array *p_pra);
+void GDAPI godot_variant_new_POOL_FLOAT32_ARRAY(godot_variant *r_dest, const godot_POOL_FLOAT32_ARRAY *p_pra);
 void GDAPI godot_variant_new_pool_string_array(godot_variant *r_dest, const godot_pool_string_array *p_psa);
 void GDAPI godot_variant_new_pool_vector2_array(godot_variant *r_dest, const godot_pool_vector2_array *p_pv2a);
 void GDAPI godot_variant_new_pool_vector3_array(godot_variant *r_dest, const godot_pool_vector3_array *p_pv3a);
@@ -224,7 +224,7 @@ godot_dictionary GDAPI godot_variant_as_dictionary(const godot_variant *p_self);
 godot_array GDAPI godot_variant_as_array(const godot_variant *p_self);
 godot_pool_byte_array GDAPI godot_variant_as_pool_byte_array(const godot_variant *p_self);
 godot_pool_int_array GDAPI godot_variant_as_pool_int_array(const godot_variant *p_self);
-godot_pool_real_array GDAPI godot_variant_as_pool_real_array(const godot_variant *p_self);
+godot_POOL_FLOAT32_ARRAY GDAPI godot_variant_as_POOL_FLOAT32_ARRAY(const godot_variant *p_self);
 godot_pool_string_array GDAPI godot_variant_as_pool_string_array(const godot_variant *p_self);
 godot_pool_vector2_array GDAPI godot_variant_as_pool_vector2_array(const godot_variant *p_self);
 godot_pool_vector3_array GDAPI godot_variant_as_pool_vector3_array(const godot_variant *p_self);

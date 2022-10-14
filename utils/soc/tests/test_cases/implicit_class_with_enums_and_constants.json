@@ -1,0 +1,47 @@
+{
+    "api_hash" : "",
+    "api_version" : "",
+    "dependencies" : [],
+    "module_name" : "",
+    "namespaces" : [ {
+      "contents" : {
+          "subtypes" : [ {
+              "contents" : {
+                  "constants" : [
+                      { "name" : "CONSTV", "type" : { "name" : "int32_t" }, "value" : "22" },
+                      { "name" : "CONSTB", "type" : { "name" : "int32_t" }, "value" : "23" }
+                  ],
+                  "enums" : [
+                      {
+                          "constants" : [
+                              { "name" : "AreGood", "value" : "0" }, { "name" : "AreBad", "value" : "22" }
+                          ],
+                          "name" : "AllThings",
+                          "is_strict" : true
+                      },
+                      {
+                          "constants" : [
+                              { "name" : "Dwarf", "value" : "2" }, { "name" : "Pixie", "value" : "33" }
+                          ],
+                          "name" : "SmallStuff",
+                          "underlying_type" : "uint8_t"
+                      },
+                      {
+                          "constants" : [
+                              { "name" : "Negative", "value" : "-1" }, { "name" : "Positive", "value" : "1" }
+                          ],
+                          "name" : "Important",
+                          "underlying_type" : "int8_t",
+                          "is_strict" : true
+                      }
+
+                  ]
+              },
+              "name" : "Bar",
+              "required_header" : "implicit_class_with_enums_and_constants.h"
+          } ]
+      },
+      "name" : "GodotCore"
+    } ],
+    "version" : ""
+}

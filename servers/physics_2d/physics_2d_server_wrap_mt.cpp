@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  physics_2d_server_wrap_mt.cpp                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,13 +34,13 @@
 
 void Physics2DServerWrapMT::thread_exit() {
 
-    exit = true;
+    exit.set();
 }
 
 void Physics2DServerWrapMT::thread_step(real_t p_delta) {
 
     physics_server_2d->step(p_delta);
-    step_sem->post();
+    step_sem.post();
 }
 
 void Physics2DServerWrapMT::_thread_callback(void *_instance) {
@@ -56,9 +56,9 @@ void Physics2DServerWrapMT::thread_loop() {
 
     physics_server_2d->init();
 
-    exit = false;
-    step_thread_up = true;
-    while (!exit) {
+    exit.clear();
+    step_thread_up.set();
+    while (!exit.is_set()) {
         // flush commands one by one, until exit is requested
         command_queue.wait_and_flush_one();
     }
@@ -84,11 +84,11 @@ void Physics2DServerWrapMT::step(real_t p_step) {
 
 void Physics2DServerWrapMT::sync() {
 
-    if (step_sem) {
+    if (create_thread) {
         if (first_frame)
             first_frame = false;
         else
-            step_sem->wait(); //must not wait if a step was not issued
+            step_sem.wait(); //must not wait if a step was not issued
     }
     physics_server_2d->sync();
 }
@@ -106,13 +106,9 @@ void Physics2DServerWrapMT::end_sync() {
 void Physics2DServerWrapMT::init() {
 
     if (create_thread) {
-
-        step_sem = memnew(Semaphore);
         //OS::get_singleton()->release_rendering_thread();
-        if (create_thread) {
-            thread.start(_thread_callback, this);
-        }
-        while (!step_thread_up) {
+        thread.start(_thread_callback, this);
+        while (!step_thread_up.is_set()) {
             OS::get_singleton()->delay_usec(1000);
         }
     } else {
@@ -199,10 +195,6 @@ void Physics2DServerWrapMT::finish() {
 
         physics_server_2d->finish();
     }
-
-
-
-    memdelete(step_sem);
 }
 
 Physics2DServerWrapMT::Physics2DServerWrapMT(PhysicsServer2D *p_contained, bool p_create_thread) :
@@ -210,16 +202,14 @@ Physics2DServerWrapMT::Physics2DServerWrapMT(PhysicsServer2D *p_contained, bool 
     queueing_thread_singleton = this;
     physics_server_2d = p_contained;
     create_thread = p_create_thread;
-    step_sem = nullptr;
-    step_pending = 0;
-    step_thread_up = false;
+
 
     pool_max_size = T_GLOBAL_GET<int>("memory/limits/multithreaded_server/rid_pool_prealloc");
 
     if (!p_create_thread) {
         server_thread = Thread::get_caller_id();
     } else {
-        server_thread = 0;
+        server_thread = {};
     }
 
     main_thread = Thread::get_caller_id();

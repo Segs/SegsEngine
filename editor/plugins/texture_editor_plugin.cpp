@@ -30,142 +30,107 @@
 
 #include "texture_editor_plugin.h"
 
+#include "scene/gui/label.h"
+#include "scene/gui/texture_rect.h"
 #include "scene/resources/curve_texture.h"
 
 #include "core/object_tooling.h"
 #include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/project_settings.h"
+#include "core/callable_method_pointer.h"
 #include "editor/editor_settings.h"
+#include "editor/editor_scale.h"
 #include "scene/resources/font.h"
 
-IMPL_GDCLASS(TextureEditor)
+#include <scene/resources/dynamic_font.h>
+
+IMPL_GDCLASS(TexturePreview)
 IMPL_GDCLASS(EditorInspectorPluginTexture)
 IMPL_GDCLASS(TextureEditorPlugin)
 
-void TextureEditor::_gui_input(const Ref<InputEvent>& p_event) {
-}
 
-void TextureEditor::_notification(int p_what) {
-
-    if (p_what == NOTIFICATION_READY) {
-
-        //get_scene()->connect("node_removed",this,"_node_removed");
+void TexturePreview::_notification(int p_what) {
+    switch (p_what) {
+        case NOTIFICATION_ENTER_TREE:
+        case NOTIFICATION_THEME_CHANGED: {
+            if (!is_inside_tree()) {
+                // TODO: This is a workaround because `NOTIFICATION_THEME_CHANGED`
+                // is getting called for some reason when the `TexturePreview` is
+                // getting destroyed, which causes `get_theme_font()` to return `nullptr`.
+                // See https://github.com/godotengine/godot/issues/50743.
+                break;
     }
 
-    if (p_what == NOTIFICATION_DRAW) {
-
-        Ref<Texture> checkerboard = get_theme_icon("Checkerboard", "EditorIcons");
-        Size2 size = get_size();
-
-        draw_texture_rect(checkerboard, Rect2(Point2(), size), true);
-
-        int tex_width = texture->get_width() * size.height / texture->get_height();
-        int tex_height = size.height;
-
-        if (tex_width > size.width) {
-            tex_width = size.width;
-            tex_height = texture->get_height() * tex_width / texture->get_width();
+            if (metadata_label) {
+                Ref<DynamicFont> metadata_label_font = dynamic_ref_cast<DynamicFont>(get_theme_font("expression", "EditorFonts")->duplicate());
+                metadata_label_font->set_size(16 * EDSCALE);
+                metadata_label_font->set_outline_size(2 * EDSCALE);
+                metadata_label_font->set_outline_color(Color::named("black"));
+                metadata_label->add_font_override("font", metadata_label_font);
         }
 
-        // Prevent the texture from being unpreviewable after the rescale, so that we can still see something
-        if (tex_height <= 0)
-            tex_height = 1;
-        if (tex_width <= 0)
-            tex_width = 1;
-
-        int ofs_x = (size.width - tex_width) / 2;
-        int ofs_y = (size.height - tex_height) / 2;
-
-        if (dynamic_ref_cast<CurveTexture>(texture)) {
-            // In the case of CurveTextures we know they are 1 in height, so fill the preview to see the gradient
-            ofs_y = 0;
-            tex_height = size.height;
-        } else if (dynamic_ref_cast<GradientTexture>(texture)) {
-            ofs_y = size.height / 4.0f;
-            tex_height = size.height / 2.0f;
+            checkerboard->set_texture(get_theme_icon("Checkerboard", "EditorIcons"));
+        } break;
+    }
         }
 
-        draw_texture_rect(texture, Rect2(ofs_x, ofs_y, tex_width, tex_height));
-
-        Ref<Font> font = get_theme_font("font", "Label");
+void TexturePreview::_update_metadata_label_text() {
+    Ref<Texture> texture = texture_display->get_texture();
 
         String format;
-        if (dynamic_ref_cast<ImageTexture>(texture)) {
-            format = Image::get_format_name(dynamic_ref_cast<ImageTexture>(texture)->get_format());
-        } else if (dynamic_ref_cast<StreamTexture>(texture)) {
-            format = Image::get_format_name(dynamic_ref_cast<StreamTexture>(texture)->get_format());
+    if (object_cast<ImageTexture>(texture.get())) {
+        format = Image::get_format_name(object_cast<ImageTexture>(texture.get())->get_format());
+    } else if (object_cast<StreamTexture>(texture.get())) {
+        format = Image::get_format_name(object_cast<StreamTexture>(texture.get())->get_format());
         } else {
             format = texture->get_class();
         }
-        String text = itos(texture->get_width()) + "x" + itos(texture->get_height()) + " " + format;
 
-        Size2 rect = font->get_string_size(text);
-
-        Vector2 draw_from = size - rect + Size2(-2, font->get_ascent() - 2);
-        if (draw_from.x < 0)
-            draw_from.x = 0;
-
-        draw_string(font, draw_from + Vector2(2, 2), text, Color(0, 0, 0, 0.5f), size.width);
-        draw_string(font, draw_from - Vector2(2, 2), text, Color(0, 0, 0, 0.5f), size.width);
-        draw_string(font, draw_from, text, Color(1, 1, 1, 1), size.width);
-    }
+    metadata_label->set_text(itos(texture->get_width()) + "x" + itos(texture->get_height()) + " " + format);
 }
 
-void TextureEditor::_changed_callback(Object *p_changed, StringName p_prop) {
+TexturePreview::TexturePreview(const Ref<Texture> &p_texture, bool p_show_metadata) {
+    checkerboard = memnew(TextureRect);
+    checkerboard->set_stretch_mode(TextureRect::STRETCH_TILE);
+    checkerboard->set_custom_minimum_size(Size2(0.0, 256.0) * EDSCALE);
+    add_child(checkerboard);
 
-    if (!is_visible())
-        return;
-    update();
+    texture_display = memnew(TextureRect);
+    texture_display->set_texture(p_texture);
+    texture_display->set_anchors_preset(TextureRect::PRESET_WIDE);
+    texture_display->set_stretch_mode(TextureRect::STRETCH_KEEP_ASPECT_CENTERED);
+    texture_display->set_expand(true);
+    add_child(texture_display);
+
+    if (p_show_metadata) {
+        metadata_label = memnew(Label);
+
+        _update_metadata_label_text();
+        p_texture->connect("changed", callable_mp(this, &TexturePreview::_update_metadata_label_text));
+
+        // It's okay that these colors are static since the grid color is static too.
+        metadata_label->add_theme_color_override("font_color", Color::named("white"));
+        metadata_label->add_theme_color_override("font_color_shadow", Color::named("black"));
+
+        metadata_label->add_constant_override("shadow_as_outline", 1);
+        metadata_label->set_h_size_flags(Control::SIZE_SHRINK_END);
+        metadata_label->set_v_size_flags(Control::SIZE_SHRINK_END);
+
+        add_child(metadata_label);
 }
 
-void TextureEditor::edit(const Ref<Texture>& p_texture) {
-
-    if (texture)
-        Object_remove_change_receptor(texture.get(),this);
-
-    texture = p_texture;
-
-    if (texture) {
-        Object_add_change_receptor(texture.get(),this);
-        update();
-    } else {
-        hide();
-    }
 }
 
-void TextureEditor::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_gui_input"), &TextureEditor::_gui_input);
-}
-
-TextureEditor::TextureEditor() {
-
-    set_custom_minimum_size(Size2(1, 150));
-}
-
-TextureEditor::~TextureEditor() {
-    if (texture) {
-        Object_remove_change_receptor(texture.get(),this);
-    }
-}
-//
 bool EditorInspectorPluginTexture::can_handle(Object *p_object) {
 
     return object_cast<ImageTexture>(p_object) != nullptr || object_cast<AtlasTexture>(p_object) != nullptr || object_cast<StreamTexture>(p_object) != nullptr || object_cast<LargeTexture>(p_object) != nullptr || object_cast<AnimatedTexture>(p_object) != nullptr;
 }
 
 void EditorInspectorPluginTexture::parse_begin(Object *p_object) {
+    Ref<Texture> texture(object_cast<Texture>(p_object));
 
-    Texture *texture = object_cast<Texture>(p_object);
-    if (!texture) {
-        return;
-    }
-    Ref<Texture> m(texture);
-
-    TextureEditor *editor = memnew(TextureEditor);
-    editor->edit(m);
-    add_custom_control(editor);
+    add_custom_control(memnew(TexturePreview(texture, true)));
 }
 
 TextureEditorPlugin::TextureEditorPlugin(EditorNode *p_node) {

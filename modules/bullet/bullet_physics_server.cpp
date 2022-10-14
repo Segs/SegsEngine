@@ -44,7 +44,7 @@
 #include "shape_bullet.h"
 #include "soft_body_bullet.h"
 
-#include "core/list.h"
+#include "core/external_profiler.h"
 #include "core/class_db.h"
 #include "core/error_macros.h"
 #include "core/property_info.h"
@@ -88,7 +88,7 @@ IMPL_GDCLASS(BulletPhysicsServer)
 
 
 void BulletPhysicsServer::_bind_methods() {
-    //MethodBinder::bind_method(D_METHOD("DoTest"), &BulletPhysicsServer::DoTest);
+    //BIND_METHOD(BulletPhysicsServer,DoTest);
 }
 
 BulletPhysicsServer::BulletPhysicsServer() :
@@ -273,8 +273,13 @@ void BulletPhysicsServer::area_set_space(RID p_area, RID p_space) {
 }
 
 RID BulletPhysicsServer::area_get_space(RID p_area) const {
-    AreaBullet *area = area_owner.getornull(p_area);
-    return area->get_space()->get_self();
+    AreaBullet *area = area_owner.get(p_area);
+    ERR_FAIL_COND_V(!area, RID());
+    SpaceBullet *space = area->get_space();
+    if (!space) {
+        return RID();
+    }
+    return space->get_self();
 }
 
 void BulletPhysicsServer::area_set_space_override_mode(RID p_area, AreaSpaceOverrideMode p_mode) {
@@ -360,7 +365,7 @@ void BulletPhysicsServer::area_set_shape_disabled(RID p_area, int p_shape_idx, b
     area->set_shape_disabled(p_shape_idx, p_disabled);
 }
 
-void BulletPhysicsServer::area_attach_object_instance_id(RID p_area, ObjectID p_id) {
+void BulletPhysicsServer::area_attach_object_instance_id(RID p_area, GameEntity p_id) {
     if (space_owner.owns(p_area)) {
         return;
     }
@@ -369,12 +374,12 @@ void BulletPhysicsServer::area_attach_object_instance_id(RID p_area, ObjectID p_
     area->set_instance_id(p_id);
 }
 
-ObjectID BulletPhysicsServer::area_get_object_instance_id(RID p_area) const {
+GameEntity BulletPhysicsServer::area_get_object_instance_id(RID p_area) const {
     if (space_owner.owns(p_area)) {
-        return ObjectID();
+        return entt::null;
     }
     AreaBullet *area = area_owner.getornull(p_area);
-    ERR_FAIL_COND_V(!area, ObjectID());
+    ERR_FAIL_COND_V(!area, entt::null);
     return area->get_instance_id();
 }
 
@@ -581,16 +586,16 @@ void BulletPhysicsServer::body_clear_shapes(RID p_body) {
     body->remove_all_shapes();
 }
 
-void BulletPhysicsServer::body_attach_object_instance_id(RID p_body, ObjectID p_id) {
-    CollisionObjectBullet *body = get_collisin_object(p_body);
+void BulletPhysicsServer::body_attach_object_instance_id(RID p_body, GameEntity p_id) {
+    CollisionObjectBullet *body = get_collision_object(p_body);
     ERR_FAIL_COND(!body);
 
     body->set_instance_id(p_id);
 }
 
-ObjectID BulletPhysicsServer::body_get_object_instance_id(RID p_body) const {
-    CollisionObjectBullet *body = get_collisin_object(p_body);
-    ERR_FAIL_COND_V(!body, ObjectID());
+GameEntity BulletPhysicsServer::body_get_object_instance_id(RID p_body) const {
+    CollisionObjectBullet *body = get_collision_object(p_body);
+    ERR_FAIL_COND_V(!body, entt::null);
 
     return body->get_instance_id();
 }
@@ -872,17 +877,25 @@ bool BulletPhysicsServer::body_is_ray_pickable(RID p_body) const {
 }
 
 PhysicsDirectBodyState3D *BulletPhysicsServer::body_get_direct_state(RID p_body) {
+    if (!rigid_body_owner.owns(p_body)) {
+        return nullptr;
+    }
     RigidBodyBullet *body = rigid_body_owner.get(p_body);
-    ERR_FAIL_COND_V(!body, nullptr);
-    return BulletPhysicsDirectBodyState::get_singleton(body);
+    ERR_FAIL_COND_V_MSG(!body, nullptr, "Body with RID " + itos(p_body.get_id()) + " not owned by this server.");
+
+    if (!body->get_space()) {
+        return nullptr;
 }
 
-bool BulletPhysicsServer::body_test_motion(RID p_body, const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia, MotionResult *r_result, bool p_exclude_raycast_shapes) {
+    return body->get_direct_state();
+}
+
+bool BulletPhysicsServer::body_test_motion(RID p_body, const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia, MotionResult *r_result, bool p_exclude_raycast_shapes,const Set<RID> &p_exclude) {
     RigidBodyBullet *body = rigid_body_owner.get(p_body);
     ERR_FAIL_COND_V(!body, false);
     ERR_FAIL_COND_V(!body->get_space(), false);
 
-    return body->get_space()->test_body_motion(body, p_from, p_motion, p_infinite_inertia, r_result, p_exclude_raycast_shapes);
+    return body->get_space()->test_body_motion(body, p_from, p_motion, p_infinite_inertia, r_result, p_exclude_raycast_shapes,p_exclude);
 }
 
 int BulletPhysicsServer::body_test_ray_separation(RID p_body, const Transform &p_transform, bool p_infinite_inertia, Vector3 &r_recover_motion, SeparationResult *r_results, int p_result_max, float p_margin) {
@@ -1550,7 +1563,6 @@ void BulletPhysicsServer::free_rid(RID p_rid) {
 
 void BulletPhysicsServer::init() {
     BulletPhysicsDirectBodyState::initialize_class();
-    BulletPhysicsDirectBodyState::initSingleton();
 }
 
 void BulletPhysicsServer::step(float p_deltaTime) {
@@ -1559,7 +1571,6 @@ void BulletPhysicsServer::step(float p_deltaTime) {
     if (!active)
         return;
 
-    BulletPhysicsDirectBodyState::singleton_setDeltaTime(p_deltaTime);
 
     for (int i = 0; i < active_spaces_count; ++i) {
 
@@ -1571,14 +1582,17 @@ void BulletPhysicsServer::flush_queries() {
 }
 
 void BulletPhysicsServer::finish() {
-    BulletPhysicsDirectBodyState::destroySingleton();
 }
 
 int BulletPhysicsServer::get_process_info(ProcessInfo p_info) {
     return 0;
 }
 
-CollisionObjectBullet *BulletPhysicsServer::get_collisin_object(RID p_object) const {
+void BulletPhysicsServer::set_collision_iterations(int p_iterations) {
+    WARN_PRINT("Changing the number of 3D physics collision iterations is only supported when using GodotPhysics, not Bullet.");
+}
+
+CollisionObjectBullet *BulletPhysicsServer::get_collision_object(RID p_object) const {
     if (rigid_body_owner.owns(p_object)) {
         return rigid_body_owner.getornull(p_object);
     }
@@ -1591,7 +1605,7 @@ CollisionObjectBullet *BulletPhysicsServer::get_collisin_object(RID p_object) co
     return nullptr;
 }
 
-RigidCollisionObjectBullet *BulletPhysicsServer::get_rigid_collisin_object(RID p_object) const {
+RigidCollisionObjectBullet *BulletPhysicsServer::get_rigid_collision_object(RID p_object) const {
     if (rigid_body_owner.owns(p_object)) {
         return rigid_body_owner.getornull(p_object);
     }

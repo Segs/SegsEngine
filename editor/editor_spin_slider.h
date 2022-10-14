@@ -43,6 +43,13 @@ class GODOT_EXPORT EditorSpinSlider : public Range {
     bool mouse_hover;
 
     TextureRect *grabber;
+    Vector2 grabbing_spinner_mouse_pos;
+    LineEdit *value_input;
+    Color custom_label_color;
+    double pre_grab_value;
+    float grabbing_spinner_dist_cache;
+    float grabbing_ratio;
+    int grabbing_from;
     int grabber_range;
 
     bool mouse_over_spin;
@@ -50,42 +57,36 @@ class GODOT_EXPORT EditorSpinSlider : public Range {
     bool mousewheel_over_grabber;
 
     bool grabbing_grabber;
-    int grabbing_from;
-    float grabbing_ratio;
 
     bool grabbing_spinner_attempt;
     bool grabbing_spinner;
 
     bool read_only;
-    float grabbing_spinner_dist_cache;
-    Vector2 grabbing_spinner_mouse_pos;
-    double pre_grab_value;
-
-    LineEdit *value_input;
     bool value_input_just_closed;
+    bool value_input_dirty = false;
+    bool hide_slider;
+    bool flat;
+    bool use_custom_label_color;
 
     void _grabber_gui_input(const Ref<InputEvent> &p_event);
     void _value_input_closed();
     void _value_input_entered(StringView);
     void _value_focus_exited();
-    bool hide_slider;
-    bool flat;
-
-    bool use_custom_label_color;
-    Color custom_label_color;
+    void _value_input_gui_input(const Ref<InputEvent> &p_event);
 
     void _evaluate_input_text();
+    void _draw_spin_slider();
 
 protected:
+    static void _bind_methods();
     void _notification(int p_what);
     void _gui_input(const Ref<InputEvent> &p_event);
-    static void _bind_methods();
     void _grabber_mouse_entered();
     void _grabber_mouse_exited();
     void _focus_entered();
 
 public:
-    StringName get_tooltip(const Point2 &p_pos) const override;
+    const String & get_tooltip(const Point2 &p_pos) const override;
 
     UIString get_text_value() const;
     void set_label(StringView p_label);

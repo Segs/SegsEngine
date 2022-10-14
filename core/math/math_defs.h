@@ -107,7 +107,7 @@ enum VAlign : int8_t {
 
 enum class Margin : int8_t {
 
-    Left, //!< Left margin, usually used for [Control] or [StyleBox]-derived classes.
+    Left=0, //!< Left margin, usually used for [Control] or [StyleBox]-derived classes.
     Top,
     Right,
     Bottom,

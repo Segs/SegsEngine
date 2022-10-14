@@ -101,8 +101,8 @@ protected:
 public:
     static ProgressDialog *get_singleton() { return singleton; }
     void add_task(const StringName &p_task, const StringName &p_label, int p_steps, bool p_can_cancel = false);
-    bool task_step(const StringName &p_task, const StringName &p_state, int p_step = -1, bool p_force_redraw = true);
-    bool task_step(const StringName &p_task, StringView p_state, int p_step = -1, bool p_force_redraw = true);
+    bool task_step(StringView p_task, const StringName &p_state, int p_step = -1, bool p_force_redraw = true);
+    bool task_step(StringView p_task, StringView p_state, int p_step = -1, bool p_force_redraw = true);
     void end_task(const StringName &p_task);
 
     ProgressDialog();

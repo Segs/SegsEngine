@@ -53,7 +53,7 @@ class GODOT_EXPORT AStar : public RefCounted {
                 int32_t u;
                 int32_t v;
             };
-			uint64_t key = 0;
+            uint64_t key = 0;
         };
 
         enum {
@@ -62,10 +62,10 @@ class GODOT_EXPORT AStar : public RefCounted {
             BACKWARD = 2,
             BIDIRECTIONAL = FORWARD | BACKWARD
         };
-		unsigned char direction = NONE;
+        unsigned char direction = NONE;
 
         bool operator<(const Segment &p_s) const { return key < p_s.key; }
-		Segment() {}
+        Segment()  = default;
         Segment(int p_from, int p_to) {
             if (p_from < p_to) {
                 u = p_from;
@@ -79,8 +79,8 @@ class GODOT_EXPORT AStar : public RefCounted {
         }
     };
 
-	int last_free_id = 0;
-	uint64_t pass = 1;
+    int last_free_id = 0;
+    uint64_t pass = 1;
 
     OAHashMap<int, AStarPoint *> points;
     Set<Segment> segments;
@@ -156,8 +156,8 @@ public:
     bool is_point_disabled(int p_id) const;
 
     void connect_points(int p_id, int p_with_id, bool p_bidirectional = true);
-    void disconnect_points(int p_id, int p_with_id);
-    bool are_points_connected(int p_id, int p_with_id) const;
+    void disconnect_points(int p_id, int p_with_id, bool p_bidirectional);
+    bool are_points_connected(int p_id, int p_with_id, bool p_bidirectional) const;
 
     int get_point_count() const;
     int get_point_capacity() const;

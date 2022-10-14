@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  midi_driver_alsamidi.h                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -38,7 +38,6 @@
 #include "core/vector.h"
 
 #include <alsa/asoundlib.h>
-#include <stdio.h>
 
 class MIDIDriverALSAMidi : public MIDIDriver {
 

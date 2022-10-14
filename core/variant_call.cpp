@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  variant_call.cpp                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -45,25 +45,26 @@
 #include "core/node_path.h"
 #include "core/object.h"
 #include "core/rid.h"
-#include "core/script_language.h"
+#include "core/hash_map.h"
 #include "core/string.h"
 #include "core/string_utils.inl"
 #include "core/vector.h"
 
 namespace {
 using VariantConstructFunc = void (*)(Variant &, const Variant &);
+
 struct _VariantCall {
     struct ConstantData {
-        HashMap<StringName, int> value;
+        HashMap<StringView, int> value;
 #ifdef DEBUG_ENABLED
-        Vector<StringName> value_ordered;
+        Vector<StringView> value_ordered;
 #endif
-        HashMap<StringName, Variant> variant_value;
+        HashMap<StringView, Variant> variant_value;
     };
     static_assert (sizeof(ConstantData)==(sizeof(HashMap<StringName,int>)+sizeof(HashMap<StringName,Variant>)+sizeof(Vector<StringName>)));
-    static ConstantData *constant_data;
+    static ConstantData constant_data[(int)VariantType::VARIANT_MAX];
 
-    static void add_constant(VariantType p_type, const StringName &p_constant_name, int p_constant_value) {
+    static void add_constant(VariantType p_type, const char *p_constant_name, int p_constant_value) {
         constant_data[static_cast<int8_t>(p_type)].value[p_constant_name] = p_constant_value;
 #ifdef DEBUG_ENABLED
         constant_data[static_cast<int8_t>(p_type)].value_ordered.emplace_back(p_constant_name);
@@ -71,12 +72,12 @@ struct _VariantCall {
     }
 
     static void add_variant_constant(
-            VariantType p_type, const StringName &p_constant_name, const Variant &p_constant_value) {
+            VariantType p_type, const char *p_constant_name, const Variant &p_constant_value) {
         constant_data[static_cast<int8_t>(p_type)].variant_value[p_constant_name] = p_constant_value;
     }
 };
 
-_VariantCall::ConstantData *_VariantCall::constant_data = nullptr;
+_VariantCall::ConstantData _VariantCall::constant_data[(int)VariantType::VARIANT_MAX];
 
 } // namespace
 
@@ -139,7 +140,7 @@ Variant Variant::construct_default(const VariantType p_type) {
             return PoolByteArray();
         case VariantType::POOL_INT_ARRAY:
             return PoolIntArray();
-        case VariantType::POOL_REAL_ARRAY:
+        case VariantType::POOL_FLOAT32_ARRAY:
             return PoolRealArray();
         case VariantType::POOL_STRING_ARRAY:
             return PoolStringArray();
@@ -177,7 +178,7 @@ Variant Variant::construct(const VariantType p_type, const Variant &p_arg, Calla
                 return static_cast<int64_t>(p_arg);
             }
             case VariantType::FLOAT: {
-                return static_cast<real_t>(p_arg);
+                return static_cast<float>(p_arg);
             }
             case VariantType::STRING: {
                 return static_cast<String>(p_arg);
@@ -229,7 +230,7 @@ Variant Variant::construct(const VariantType p_type, const Variant &p_arg, Calla
                 return static_cast<PoolByteArray>(p_arg);
             case VariantType::POOL_INT_ARRAY:
                 return static_cast<PoolIntArray>(p_arg);
-            case VariantType::POOL_REAL_ARRAY:
+            case VariantType::POOL_FLOAT32_ARRAY:
                 return static_cast<PoolRealArray>(p_arg);
             case VariantType::POOL_STRING_ARRAY:
                 return static_cast<PoolStringArray>(p_arg);
@@ -259,16 +260,16 @@ void Variant::get_constants_for_type(VariantType p_type, Vector<StringName> *p_c
     _VariantCall::ConstantData &cd = _VariantCall::constant_data[static_cast<int>(p_type)];
 
 #ifdef DEBUG_ENABLED
-    for (const StringName &E : cd.value_ordered) {
-        p_constants->push_back(E);
+    for (StringView E : cd.value_ordered) {
+        p_constants->emplace_back(StaticCString(E.data(),true));
 #else
     for (const auto &E : cd.value) {
         p_constants->emplace_back(E.first);
 #endif
     }
 
-    for (eastl::pair<const StringName, Variant> &E : cd.variant_value) {
-        p_constants->push_back(E.first);
+    for (eastl::pair<const StringView, Variant> &E : cd.variant_value) {
+        p_constants->push_back(StaticCString(E.first.data(),true));
     }
 }
 
@@ -289,13 +290,13 @@ Variant Variant::get_constant_value(VariantType p_type, const StringName &p_valu
     auto E = cd.value.find(p_value);
     if (E == cd.value.end()) {
         auto F = cd.variant_value.find(p_value);
-        if (F != cd.variant_value.end()) {
+        if (F == cd.variant_value.end()) {
+            return -1;
+        }
             if (r_valid) {
                 *r_valid = true;
             }
             return F->second;
-        }
-        return -1;
     }
     if (r_valid) {
         *r_valid = true;
@@ -303,15 +304,13 @@ Variant Variant::get_constant_value(VariantType p_type, const StringName &p_valu
 
     return E->second;
 }
-void register_variant_methods() {
-    _VariantCall::constant_data = memnew_arr(_VariantCall::ConstantData, static_cast<int>(VariantType::VARIANT_MAX));
 
+void register_variant_methods() {
     /* REGISTER CONSTANTS */
 
     for (const eastl::pair<const char *const, Color> &color : _named_colors) {
-        _VariantCall::add_variant_constant(VariantType::COLOR, StringName(color.first), color.second);
+        _VariantCall::add_variant_constant(VariantType::COLOR, color.first, color.second);
     }
-
     _VariantCall::add_constant(VariantType::VECTOR3, "AXIS_X", Vector3::AXIS_X);
     _VariantCall::add_constant(VariantType::VECTOR3, "AXIS_Y", Vector3::AXIS_Y);
     _VariantCall::add_constant(VariantType::VECTOR3, "AXIS_Z", Vector3::AXIS_Z);
@@ -358,8 +357,4 @@ void register_variant_methods() {
     _VariantCall::add_variant_constant(VariantType::PLANE, "PLANE_XY", Plane(Vector3(0, 0, 1), 0));
 
     _VariantCall::add_variant_constant(VariantType::QUAT, "IDENTITY", Quat(0, 0, 0, 1));
-}
-
-void unregister_variant_methods() {
-    memdelete_arr(_VariantCall::constant_data);
 }

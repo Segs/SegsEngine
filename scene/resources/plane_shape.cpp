@@ -87,8 +87,8 @@ Plane PlaneShape::get_plane() const {
 
 void PlaneShape::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_plane", {"plane"}), &PlaneShape::set_plane);
-    MethodBinder::bind_method(D_METHOD("get_plane"), &PlaneShape::get_plane);
+    BIND_METHOD(PlaneShape,set_plane);
+    BIND_METHOD(PlaneShape,get_plane);
 
     ADD_PROPERTY(PropertyInfo(VariantType::PLANE, "plane"), "set_plane", "get_plane");
 }

@@ -147,8 +147,8 @@ void Room::_bounds_changed() {
 
 void Room::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_room", {"room"}), &Room::set_room);
-    MethodBinder::bind_method(D_METHOD("get_room"), &Room::get_room);
+    BIND_METHOD(Room,set_room);
+    BIND_METHOD(Room,get_room);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "room/room", PropertyHint::ResourceType, "Area"), "set_room", "get_room");
 }

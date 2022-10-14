@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  resource_importer_texture.cpp                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,17 +31,20 @@
 #include "resource_importer_texture.h"
 
 #include "core/dictionary.h"
+#include "core/print_string.h"
 #include "core/io/config_file.h"
 #include "core/io/image_loader.h"
 #include "core/io/resource_importer.h"
 #include "core/os/mutex.h"
 #include "core/project_settings.h"
+#include "core/string_formatter.h"
+#include "core/translation_helpers.h"
 #include "editor/service_interfaces/EditorServiceInterface.h"
 #include "scene/resources/texture.h"
 
 void ResourceImporterTexture::_texture_reimport_srgb(StringName p_tex_path) {
 
-    singleton->mutex->lock();
+    MutexGuard guard(singleton->mutex);
 
     if (!singleton->make_flags.contains(p_tex_path)) {
         singleton->make_flags[p_tex_path] = 0;
@@ -49,12 +52,11 @@ void ResourceImporterTexture::_texture_reimport_srgb(StringName p_tex_path) {
 
     singleton->make_flags[p_tex_path] |= MAKE_SRGB_FLAG;
 
-    singleton->mutex->unlock();
 }
 
 void ResourceImporterTexture::_texture_reimport_3d(StringName p_tex_path) {
 
-    singleton->mutex->lock();
+    MutexGuard guard(singleton->mutex);
 
     if (!singleton->make_flags.contains(p_tex_path)) {
         singleton->make_flags[p_tex_path] = 0;
@@ -62,12 +64,11 @@ void ResourceImporterTexture::_texture_reimport_3d(StringName p_tex_path) {
 
     singleton->make_flags[p_tex_path] |= MAKE_3D_FLAG;
 
-    singleton->mutex->unlock();
 }
 
 void ResourceImporterTexture::_texture_reimport_normal(StringName p_tex_path) {
 
-    singleton->mutex->lock();
+    MutexGuard guard(singleton->mutex);
 
     if (!singleton->make_flags.contains(p_tex_path)) {
         singleton->make_flags[p_tex_path] = 0;
@@ -75,15 +76,13 @@ void ResourceImporterTexture::_texture_reimport_normal(StringName p_tex_path) {
 
     singleton->make_flags[p_tex_path] |= MAKE_NORMAL_FLAG;
 
-    singleton->mutex->unlock();
 }
 
 void ResourceImporterTexture::build_reconfigured_list(Vector<String> &to_reimport) {
 
-    mutex->lock();
+    MutexGuard guard(mutex);
 
     if (make_flags.empty()) {
-        mutex->unlock();
         return;
     }
 
@@ -103,11 +102,15 @@ void ResourceImporterTexture::build_reconfigured_list(Vector<String> &to_reimpor
         }
 
         if (E.second & MAKE_NORMAL_FLAG && cf->get_value("params", "compress/normal_map").as<int>() == 0) {
+            print_line(FormatVE(TTR("%s: Texture detected as used as a normal map in 3D. Enabling red-green texture compression to reduce memory usage (blue channel is discarded).").asCString(), E.first.asCString()));
+
             cf->set_value("params", "compress/normal_map", 1);
             changed = true;
         }
 
         if (E.second & MAKE_3D_FLAG && cf->get_value("params", "detect_3d").as<bool>()) {
+            print_line(FormatVE(TTR("%s: Texture detected as used in 3D. Enabling filter, repeat, mipmap generation and VRAM texture compression.").asCString(), E.first.asCString()));
+
             cf->set_value("params", "detect_3d", false);
             cf->set_value("params", "compress/mode", 2);
             cf->set_value("params", "flags/repeat", true);
@@ -124,7 +127,6 @@ void ResourceImporterTexture::build_reconfigured_list(Vector<String> &to_reimpor
 
     make_flags.clear();
 
-    mutex->unlock();
 
 }
 
@@ -160,6 +162,11 @@ bool ResourceImporterTexture::get_option_visibility(const StringName &p_option, 
     } else if (p_option == "compress/hdr_mode") {
         int compress_mode= p_options.at("compress/mode").as<int>();
         if (compress_mode != COMPRESS_VIDEO_RAM) {
+            return false;
+        }
+    } else if (p_option == "compress/normal_map") {
+        int compress_mode = p_options.at("compress/mode").as<int>();
+        if (compress_mode == COMPRESS_LOSSLESS) {
             return false;
         }
     } else if (p_option == "compress/bptc_ldr") {
@@ -206,6 +213,7 @@ void ResourceImporterTexture::get_import_options(Vector<ResourceImporterInterfac
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "process/premult_alpha"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "process/HDR_as_SRGB"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "process/invert_color"), false));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "process/normal_map_invert_y"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "stream"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "size_limit", PropertyHint::Range, "0,4096,1"), 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "detect_3d"), p_preset == PRESET_DETECT));
@@ -218,6 +226,7 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, StringView p
         bool p_force_normal, bool p_force_po2_for_compressed) {
 
     FileAccess *f = FileAccess::open(p_to_path, FileAccess::WRITE);
+    ERR_FAIL_NULL(f);
     f->store_8('G');
     f->store_8('D');
     f->store_8('S');
@@ -252,12 +261,14 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, StringView p
     if (p_detect_normal)
         format |= StreamTexture::FORMAT_BIT_DETECT_NORMAL;
 
-    if ((p_compress_mode == COMPRESS_LOSSLESS || p_compress_mode == COMPRESS_LOSSY) && p_image->get_format() > Image::FORMAT_RGBA8) {
+    if ((p_compress_mode == COMPRESS_LOSSLESS || p_compress_mode == COMPRESS_LOSSY) && p_image->get_format() > ImageData::FORMAT_RGBA8) {
         p_compress_mode = COMPRESS_UNCOMPRESSED; //these can't go as lossy
     }
 
     switch (p_compress_mode) {
         case COMPRESS_LOSSLESS: {
+            bool lossless_force_png = ProjectSettings::get_singleton()->get("rendering/misc/lossless_compression/force_png").as<bool>();
+            bool use_webp = !lossless_force_png && p_image->get_width() <= 16383 && p_image->get_height() <= 16383; // WebP has a size limit
 
             Ref<Image> image = dynamic_ref_cast<Image>(p_image->duplicate());
             if (p_mipmaps) {
@@ -268,7 +279,12 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, StringView p
 
             int mmc = image->get_mipmap_count() + 1;
 
-            format |= StreamTexture::FORMAT_BIT_LOSSLESS;
+            if (use_webp) {
+                format |= StreamTexture::FORMAT_BIT_WEBP;
+            } else {
+                format |= StreamTexture::FORMAT_BIT_PNG;
+            }
+            format |= StreamTexture::FORMAT_BIT_PNG;
             f->store_32(format);
             f->store_32(mmc);
 
@@ -296,7 +312,7 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, StringView p
 
             int mmc = image->get_mipmap_count() + 1;
 
-            format |= StreamTexture::FORMAT_BIT_LOSSY;
+            format |= StreamTexture::FORMAT_BIT_WEBP;
             f->store_32(format);
             f->store_32(mmc);
 
@@ -323,8 +339,8 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, StringView p
                 image->generate_mipmaps(p_force_normal);
             }
 
-            if (p_force_rgbe && image->get_format() >= Image::FORMAT_R8 && image->get_format() <= Image::FORMAT_RGBE9995) {
-                image->convert(Image::FORMAT_RGBE9995);
+            if (p_force_rgbe && image->get_format() >= ImageData::FORMAT_R8 && image->get_format() <= ImageData::FORMAT_RGBE9995) {
+                image->convert(ImageData::FORMAT_RGBE9995);
             } else {
                 ImageCompressSource csource = ImageCompressSource::COMPRESS_SOURCE_GENERIC;
                 if (p_force_normal) {
@@ -382,6 +398,7 @@ Error ResourceImporterTexture::import(StringView p_source_file, StringView p_sav
     bool fix_alpha_border = p_options.at("process/fix_alpha_border").as<bool>();
     bool premult_alpha = p_options.at("process/premult_alpha").as<bool>();
     bool invert_color = p_options.at("process/invert_color").as<bool>();
+    bool normal_map_invert_y = p_options.at("process/normal_map_invert_y").as<bool>();
     bool stream = p_options.at("stream").as<bool>();
     int size_limit= p_options.at("size_limit").as<int>();
     bool hdr_as_srgb = p_options.at("process/HDR_as_SRGB").as<bool>();
@@ -453,6 +470,23 @@ Error ResourceImporterTexture::import(StringView p_source_file, StringView p_sav
         image->unlock();
     }
 
+    if (normal_map_invert_y) {
+        // Inverting the green channel can be used to flip a normal map's direction.
+        // There's no standard when it comes to normal map Y direction, so this is
+        // sometimes needed when using a normal map exported from another program.
+        // See <http://wiki.polycount.com/wiki/Normal_Map_Technical_Details#Common_Swizzle_Coordinates>.
+        const int height = image->get_height();
+        const int width = image->get_width();
+
+        image->lock();
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                const Color color = image->get_pixel(i, j);
+                image->set_pixel(i, j, Color(color.r, 1 - color.g, color.b));
+            }
+        }
+        image->unlock();
+    }
     bool detect_3d = p_options.at("detect_3d").as<bool>();
     bool detect_srgb = srgb == 2;
     bool detect_normal = normal == 0;
@@ -463,8 +497,8 @@ Error ResourceImporterTexture::import(StringView p_source_file, StringView p_sav
         //Android, GLES 2.x
 
         bool ok_on_pc = false;
-        bool is_hdr = (image->get_format() >= Image::FORMAT_RF && image->get_format() <= Image::FORMAT_RGBE9995);
-        bool is_ldr = (image->get_format() >= Image::FORMAT_L8 && image->get_format() <= Image::FORMAT_RGB565);
+        bool is_hdr = (image->get_format() >= ImageData::FORMAT_RF && image->get_format() <= ImageData::FORMAT_RGBE9995);
+        bool is_ldr = (image->get_format() >= ImageData::FORMAT_L8 && image->get_format() <= ImageData::FORMAT_RGB565);
         bool can_bptc = ProjectSettings::get_singleton()->get("rendering/vram_compression/import_bptc").as<bool>();
         bool can_s3tc = ProjectSettings::get_singleton()->get("rendering/vram_compression/import_s3tc").as<bool>();
 
@@ -488,7 +522,7 @@ Error ResourceImporterTexture::import(StringView p_source_file, StringView p_sav
 
         if (!can_bptc && is_hdr && !force_rgbe) {
             //convert to ldr if this can't be stored hdr
-            image->convert(Image::FORMAT_RGBA8);
+            image->convert(ImageData::FORMAT_RGBA8);
         }
 
         if (can_bptc || can_s3tc) {
@@ -498,29 +532,9 @@ Error ResourceImporterTexture::import(StringView p_source_file, StringView p_sav
             ok_on_pc = true;
         }
 
-        if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc2").as<bool>()) {
-
-            _save_stex(image, String(p_save_path) + ".etc2.stex", compress_mode, lossy, ImageCompressMode::COMPRESS_ETC2, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, true);
-            r_platform_variants->push_back("etc2");
-            formats_imported.push_back("etc2");
-        }
-
-        if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc").as<bool>()) {
-            _save_stex(image, String(p_save_path) + ".etc.stex", compress_mode, lossy, ImageCompressMode::COMPRESS_ETC, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, true);
-            r_platform_variants->push_back("etc");
-            formats_imported.push_back("etc");
-        }
-
-        if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_pvrtc").as<bool>()) {
-
-            _save_stex(image, String(p_save_path) + ".pvrtc.stex", compress_mode, lossy, ImageCompressMode::COMPRESS_PVRTC4, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, true);
-            r_platform_variants->push_back("pvrtc");
-            formats_imported.push_back("pvrtc");
-        }
-
         if (!ok_on_pc) {
-            m_editor_interface->reportError("Warning, no suitable PC VRAM compression enabled in Project Settings. This texture "
-                                              "will not display correctly on PC.");
+            m_editor_interface->reportError(TTR("Warning, no suitable PC VRAM compression enabled in Project Settings. This texture "
+                                              "will not display correctly on PC."));
         }
     } else {
         //import normally
@@ -541,9 +555,6 @@ Error ResourceImporterTexture::import(StringView p_source_file, StringView p_sav
 const char *ResourceImporterTexture::compression_formats[] = {
     "bptc",
     "s3tc",
-    "etc",
-    "etc2",
-    "pvrtc",
     nullptr
 };
 String ResourceImporterTexture::get_import_settings_string() const {
@@ -608,10 +619,5 @@ ResourceImporterTexture::ResourceImporterTexture() {
     StreamTexture::request_3d_callback = _texture_reimport_3d;
     StreamTexture::request_srgb_callback = _texture_reimport_srgb;
     StreamTexture::request_normal_callback = _texture_reimport_normal;
-    mutex = memnew(Mutex);
 }
 
-ResourceImporterTexture::~ResourceImporterTexture() {
-
-    memdelete(mutex);
-}

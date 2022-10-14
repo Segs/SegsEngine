@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  sky.h                                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -73,7 +73,7 @@ class GODOT_EXPORT PanoramaSky : public Sky {
     GDCLASS(PanoramaSky,Sky)
 
 private:
-    RID sky;
+    RenderingEntity sky;
     Ref<Texture> panorama;
 
 protected:
@@ -84,7 +84,7 @@ public:
     void set_panorama(const Ref<Texture> &p_panorama);
     Ref<Texture> get_panorama() const;
 
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     PanoramaSky();
     ~PanoramaSky() override;
@@ -125,8 +125,8 @@ private:
 
     TextureSize texture_size;
 
-    RID sky;
-    RID texture;
+    RenderingEntity sky;
+    RenderingEntity texture;
     Ref<Image> panorama;
 
     bool update_queued;
@@ -195,9 +195,9 @@ public:
     void set_texture_size(TextureSize p_size);
     TextureSize get_texture_size() const;
 
-    Ref<Image> get_panorama() const;
+    Ref<Image> get_data() const;
 
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     ProceduralSky(bool p_desaturate=false);
     ~ProceduralSky() override;

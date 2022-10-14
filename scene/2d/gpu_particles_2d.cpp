@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  gpu_particles_2d.cpp                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,21 +30,37 @@
 
 #include "gpu_particles_2d.h"
 
+#include "core/ecs_registry.h"
 #include "core/method_bind.h"
-#include "core/os/os.h"
 #include "core/object_tooling.h"
+#include "core/os/os.h"
 #include "core/translation_helpers.h"
+#include "scene/2d/canvas_item_material.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/particles_material.h"
 #include "scene/scene_string_names.h"
+#include "servers/rendering_server.h"
 
 #ifdef TOOLS_ENABLED
 #include "core/engine.h"
 #endif
 
+#include "entt/entity/registry.hpp"
+
+extern ECS_Registry<GameEntity, true> game_object_registry;
 IMPL_GDCLASS(GPUParticles2D)
 VARIANT_ENUM_CAST(GPUParticles2D::DrawOrder);
 
+struct ParticleVisibilityEditor {
+    bool visbility_rect;
+};
+namespace GpuParticle2D_Tools {
+void set_show_visibility_rect(GPUParticles2D *part, bool show_hide) {
+    game_object_registry.registry.get_or_emplace<ParticleVisibilityEditor>(part->get_instance_id()).visbility_rect =
+            show_hide;
+    part->update();
+}
+} // namespace GpuParicles2D_Tools
 void GPUParticles2D::set_emitting(bool p_emitting) {
 
     RenderingServer::get_singleton()->particles_set_emitting(particles, p_emitting);
@@ -143,7 +159,7 @@ void GPUParticles2D::set_process_material(const Ref<Material> &p_material) {
         pm->set_flag(ParticlesMaterial::FLAG_DISABLE_Z, true);
         pm->set_gravity(Vector3(0, 98, 0));
     }
-    RID material_rid;
+    RenderingEntity material_rid = entt::null;
     if (process_material)
         material_rid = process_material->get_rid();
     RenderingServer::get_singleton()->particles_set_process_material(particles, material_rid);
@@ -223,24 +239,35 @@ String GPUParticles2D::get_configuration_warning() const {
 
     String warning = BaseClassName::get_configuration_warning();
 
+#ifdef OSX_ENABLED
+    if (!warning.empty()) {
+        warning += "\n\n";
+    }
+
+    warning += "- " +
+               TTR("On macOS, Particles2D rendering is much slower than CPUParticles2D due to transform feedback being "
+                   "implemented on the CPU instead of the GPU.\nConsider using CPUParticles2D instead when targeting "
+                   "macOS.\nYou can use the \"Convert to CPUParticles2D\" toolbar option for this purpose.");
+#endif
     if (!process_material) {
         if (!warning.empty())
             warning += "\n\n";
-        warning += String("- ") + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
+        warning +=
+                String("- ") + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
     } else {
 
         CanvasItemMaterial *mat = object_cast<CanvasItemMaterial>(get_material().get());
 
         if (!get_material() || (mat && !mat->get_particles_animation())) {
             const ParticlesMaterial *process = object_cast<ParticlesMaterial>(process_material.get());
-            if (process &&
-                    ((float)process->get_param(ParticlesMaterial::PARAM_ANIM_SPEED) != 0.0 ||
+            if (process && ((float)process->get_param(ParticlesMaterial::PARAM_ANIM_SPEED) != 0.0 ||
                      (float)process->get_param(ParticlesMaterial::PARAM_ANIM_OFFSET) != 0.0 ||
                             process->get_param_texture(ParticlesMaterial::PARAM_ANIM_SPEED) ||
                             process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET))) {
                 if (warning != String())
                     warning += "\n\n";
-                warning += String("- ") + TTR("Particles2D animation requires the usage of a CanvasItemMaterial with \"Particles Animation\" enabled.");
+                warning += String("- ") + TTR("Particles2D animation requires the usage of a CanvasItemMaterial with "
+                                              "\"Particles Animation\" enabled.");
             }
         }
     }
@@ -278,8 +305,7 @@ Ref<Texture> GPUParticles2D::get_normal_map() const {
     return normal_map;
 }
 
-void GPUParticles2D::_validate_property(PropertyInfo &property) const {
-}
+void GPUParticles2D::_validate_property(PropertyInfo &property) const {}
 
 void GPUParticles2D::restart() {
     RenderingServer::get_singleton()->particles_restart(particles);
@@ -289,20 +315,16 @@ void GPUParticles2D::restart() {
 void GPUParticles2D::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
+        RenderingEntity texture_rid = texture ? texture->get_rid() : entt::null;
+        RenderingEntity normal_rid = normal_map ? normal_map->get_rid() : entt::null;
 
-        RID texture_rid;
-        if (texture)
-            texture_rid = texture->get_rid();
-        RID normal_rid;
-        if (normal_map)
-            normal_rid = normal_map->get_rid();
-
-        RenderingServer::get_singleton()->canvas_item_add_particles(get_canvas_item(), particles, texture_rid, normal_rid);
+        RenderingServer::get_singleton()->canvas_item_add_particles(
+                get_canvas_item(), particles, texture_rid, normal_rid);
 
 #ifdef TOOLS_ENABLED
-        if (Engine::get_singleton()->is_editor_hint() && (this == get_tree()->get_edited_scene_root() || get_tree()->get_edited_scene_root()->is_a_parent_of(this))) {
-
-            draw_rect(visibility_rect, Color(0, 0.7, 0.9, 0.4), false);
+        auto *editing_visibility = game_object_registry.try_get<ParticleVisibilityEditor>(get_instance_id());
+        if (editing_visibility && editing_visibility->visbility_rect) {
+            draw_rect_stroke(visibility_rect, Color(0, 0.7f, 0.9f, 0.4f));
         }
 #endif
     }
@@ -331,67 +353,83 @@ void GPUParticles2D::_notification(int p_what) {
 
 void GPUParticles2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_emitting", {"emitting"}), &GPUParticles2D::set_emitting);
-    MethodBinder::bind_method(D_METHOD("set_amount", {"amount"}), &GPUParticles2D::set_amount);
-    MethodBinder::bind_method(D_METHOD("set_lifetime", {"secs"}), &GPUParticles2D::set_lifetime);
-    MethodBinder::bind_method(D_METHOD("set_one_shot", {"secs"}), &GPUParticles2D::set_one_shot);
-    MethodBinder::bind_method(D_METHOD("set_pre_process_time", {"secs"}), &GPUParticles2D::set_pre_process_time);
-    MethodBinder::bind_method(D_METHOD("set_explosiveness_ratio", {"ratio"}), &GPUParticles2D::set_explosiveness_ratio);
-    MethodBinder::bind_method(D_METHOD("set_randomness_ratio", {"ratio"}), &GPUParticles2D::set_randomness_ratio);
-    MethodBinder::bind_method(D_METHOD("set_visibility_rect", {"visibility_rect"}), &GPUParticles2D::set_visibility_rect);
-    MethodBinder::bind_method(D_METHOD("set_use_local_coordinates", {"enable"}), &GPUParticles2D::set_use_local_coordinates);
-    MethodBinder::bind_method(D_METHOD("set_fixed_fps", {"fps"}), &GPUParticles2D::set_fixed_fps);
-    MethodBinder::bind_method(D_METHOD("set_fractional_delta", {"enable"}), &GPUParticles2D::set_fractional_delta);
-    MethodBinder::bind_method(D_METHOD("set_process_material", {"material"}), &GPUParticles2D::set_process_material);
-    MethodBinder::bind_method(D_METHOD("set_speed_scale", {"scale"}), &GPUParticles2D::set_speed_scale);
+    BIND_METHOD(GPUParticles2D,set_emitting);
+    BIND_METHOD(GPUParticles2D,set_amount);
+    BIND_METHOD(GPUParticles2D,set_lifetime);
+    BIND_METHOD(GPUParticles2D,set_one_shot);
+    BIND_METHOD(GPUParticles2D,set_pre_process_time);
+    MethodBinder::bind_method(
+            D_METHOD("set_explosiveness_ratio", { "ratio" }), &GPUParticles2D::set_explosiveness_ratio);
+    BIND_METHOD(GPUParticles2D,set_randomness_ratio);
+    MethodBinder::bind_method(
+            D_METHOD("set_visibility_rect", { "visibility_rect" }), &GPUParticles2D::set_visibility_rect);
+    MethodBinder::bind_method(
+            D_METHOD("set_use_local_coordinates", { "enable" }), &GPUParticles2D::set_use_local_coordinates);
+    BIND_METHOD(GPUParticles2D,set_fixed_fps);
+    BIND_METHOD(GPUParticles2D,set_fractional_delta);
+    BIND_METHOD(GPUParticles2D,set_process_material);
+    BIND_METHOD(GPUParticles2D,set_speed_scale);
 
-    MethodBinder::bind_method(D_METHOD("is_emitting"), &GPUParticles2D::is_emitting);
-    MethodBinder::bind_method(D_METHOD("get_amount"), &GPUParticles2D::get_amount);
-    MethodBinder::bind_method(D_METHOD("get_lifetime"), &GPUParticles2D::get_lifetime);
-    MethodBinder::bind_method(D_METHOD("get_one_shot"), &GPUParticles2D::get_one_shot);
-    MethodBinder::bind_method(D_METHOD("get_pre_process_time"), &GPUParticles2D::get_pre_process_time);
-    MethodBinder::bind_method(D_METHOD("get_explosiveness_ratio"), &GPUParticles2D::get_explosiveness_ratio);
-    MethodBinder::bind_method(D_METHOD("get_randomness_ratio"), &GPUParticles2D::get_randomness_ratio);
-    MethodBinder::bind_method(D_METHOD("get_visibility_rect"), &GPUParticles2D::get_visibility_rect);
-    MethodBinder::bind_method(D_METHOD("get_use_local_coordinates"), &GPUParticles2D::get_use_local_coordinates);
-    MethodBinder::bind_method(D_METHOD("get_fixed_fps"), &GPUParticles2D::get_fixed_fps);
-    MethodBinder::bind_method(D_METHOD("get_fractional_delta"), &GPUParticles2D::get_fractional_delta);
-    MethodBinder::bind_method(D_METHOD("get_process_material"), &GPUParticles2D::get_process_material);
-    MethodBinder::bind_method(D_METHOD("get_speed_scale"), &GPUParticles2D::get_speed_scale);
+    BIND_METHOD(GPUParticles2D,is_emitting);
+    BIND_METHOD(GPUParticles2D,get_amount);
+    BIND_METHOD(GPUParticles2D,get_lifetime);
+    BIND_METHOD(GPUParticles2D,get_one_shot);
+    BIND_METHOD(GPUParticles2D,get_pre_process_time);
+    BIND_METHOD(GPUParticles2D,get_explosiveness_ratio);
+    BIND_METHOD(GPUParticles2D,get_randomness_ratio);
+    BIND_METHOD(GPUParticles2D,get_visibility_rect);
+    BIND_METHOD(GPUParticles2D,get_use_local_coordinates);
+    BIND_METHOD(GPUParticles2D,get_fixed_fps);
+    BIND_METHOD(GPUParticles2D,get_fractional_delta);
+    BIND_METHOD(GPUParticles2D,get_process_material);
+    BIND_METHOD(GPUParticles2D,get_speed_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_draw_order", {"order"}), &GPUParticles2D::set_draw_order);
-    MethodBinder::bind_method(D_METHOD("get_draw_order"), &GPUParticles2D::get_draw_order);
+    BIND_METHOD(GPUParticles2D,set_draw_order);
+    BIND_METHOD(GPUParticles2D,get_draw_order);
 
-    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &GPUParticles2D::set_texture);
-    MethodBinder::bind_method(D_METHOD("get_texture"), &GPUParticles2D::get_texture);
+    BIND_METHOD(GPUParticles2D,set_texture);
+    BIND_METHOD(GPUParticles2D,get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_normal_map", {"texture"}), &GPUParticles2D::set_normal_map);
-    MethodBinder::bind_method(D_METHOD("get_normal_map"), &GPUParticles2D::get_normal_map);
+    BIND_METHOD(GPUParticles2D,set_normal_map);
+    BIND_METHOD(GPUParticles2D,get_normal_map);
 
-    MethodBinder::bind_method(D_METHOD("capture_rect"), &GPUParticles2D::capture_rect);
+    BIND_METHOD(GPUParticles2D,capture_rect);
 
-    MethodBinder::bind_method(D_METHOD("restart"), &GPUParticles2D::restart);
+    BIND_METHOD(GPUParticles2D,restart);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emitting"), "set_emitting", "is_emitting");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PropertyHint::ExpRange, "1,1000000,1"), "set_amount", "get_amount");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PropertyHint::ExpRange, "1,1000000,1"), "set_amount",
+            "get_amount");
     ADD_GROUP("Time", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "lifetime", PropertyHint::Range, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "lifetime", PropertyHint::Range, "0.01,600.0,0.01,or_greater"),
+            "set_lifetime", "get_lifetime");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "one_shot"), "set_one_shot", "get_one_shot");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "preprocess", PropertyHint::Range, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "speed_scale", PropertyHint::Range, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "explosiveness", PropertyHint::Range, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "randomness", PropertyHint::Range, "0,1,0.01"), "set_randomness_ratio", "get_randomness_ratio");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_fps", PropertyHint::Range, "0,1000,1"), "set_fixed_fps", "get_fixed_fps");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "preprocess", PropertyHint::Range, "0.00,600.0,0.01"),
+            "set_pre_process_time", "get_pre_process_time");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "speed_scale", PropertyHint::Range, "0,64,0.01"), "set_speed_scale",
+            "get_speed_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "explosiveness", PropertyHint::Range, "0,1,0.01"),
+            "set_explosiveness_ratio", "get_explosiveness_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "randomness", PropertyHint::Range, "0,1,0.01"),
+            "set_randomness_ratio", "get_randomness_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_fps", PropertyHint::Range, "0,1000,1"), "set_fixed_fps",
+            "get_fixed_fps");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "fract_delta"), "set_fractional_delta", "get_fractional_delta");
     ADD_GROUP("Drawing", "");
     ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "visibility_rect"), "set_visibility_rect", "get_visibility_rect");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "local_coords"), "set_use_local_coordinates", "get_use_local_coordinates");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_order", PropertyHint::Enum, "Index,Lifetime"), "set_draw_order", "get_draw_order");
+    ADD_PROPERTY(
+            PropertyInfo(VariantType::BOOL, "local_coords"), "set_use_local_coordinates", "get_use_local_coordinates");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_order", PropertyHint::Enum, "Index,Lifetime"), "set_draw_order",
+            "get_draw_order");
     ADD_GROUP("Process Material", "process_");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "process_material", PropertyHint::ResourceType, "ShaderMaterial,ParticlesMaterial"), "set_process_material", "get_process_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "process_material", PropertyHint::ResourceType,
+                         "ShaderMaterial,ParticlesMaterial"),
+            "set_process_material", "get_process_material");
     ADD_GROUP("Textures", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal_map", PropertyHint::ResourceType, "Texture"), "set_normal_map", "get_normal_map");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture",
+            "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal_map", PropertyHint::ResourceType, "Texture"),
+            "set_normal_map", "get_normal_map");
 
     BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX);
     BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME);

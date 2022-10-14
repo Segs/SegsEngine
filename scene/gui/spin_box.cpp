@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  spin_box.cpp                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -96,6 +96,13 @@ void SpinBox::_range_click_timeout() {
     }
 }
 
+void SpinBox::_release_mouse() {
+    if (drag.enabled) {
+        drag.enabled = false;
+        Input::get_singleton()->set_mouse_mode(Input::MOUSE_MODE_VISIBLE);
+        warp_mouse(drag.capture_pos);
+    }
+}
 void SpinBox::_gui_input(const Ref<InputEvent> &p_event) {
 
     if (!is_editable()) {
@@ -149,11 +156,7 @@ void SpinBox::_gui_input(const Ref<InputEvent> &p_event) {
         //set_default_cursor_shape(CURSOR_ARROW);
         range_click_timer->stop();
 
-        if (drag.enabled) {
-            drag.enabled = false;
-            Input::get_singleton()->set_mouse_mode(Input::MOUSE_MODE_VISIBLE);
-            warp_mouse(drag.capture_pos);
-        }
+        _release_mouse();
         drag.allowed = false;
     }
 
@@ -202,7 +205,7 @@ void SpinBox::_notification(int p_what) {
 
         _adjust_width_for_icon(updown);
 
-        RID ci = get_canvas_item();
+        RenderingEntity ci = get_canvas_item();
         Size2i size = get_size();
 
         updown->draw(ci, Point2i(size.width - updown->get_width(), (size.height - updown->get_height()) / 2));
@@ -214,6 +217,8 @@ void SpinBox::_notification(int p_what) {
 
         _adjust_width_for_icon(get_theme_icon("updown"));
         _value_changed(0);
+    } else if (p_what == NOTIFICATION_EXIT_TREE) {
+        _release_mouse();
     } else if (p_what == NOTIFICATION_THEME_CHANGED) {
         call_deferred([this]() { minimum_size_changed(); });
 
@@ -266,17 +271,17 @@ void SpinBox::apply() {
 }
 void SpinBox::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_gui_input"), &SpinBox::_gui_input);
-    MethodBinder::bind_method(D_METHOD("set_align", {"align"}), &SpinBox::set_align);
-    MethodBinder::bind_method(D_METHOD("get_align"), &SpinBox::get_align);
-    MethodBinder::bind_method(D_METHOD("set_suffix", {"suffix"}), &SpinBox::set_suffix);
-    MethodBinder::bind_method(D_METHOD("get_suffix"), &SpinBox::get_suffix);
-    MethodBinder::bind_method(D_METHOD("set_prefix", {"prefix"}), &SpinBox::set_prefix);
-    MethodBinder::bind_method(D_METHOD("get_prefix"), &SpinBox::get_prefix);
-    MethodBinder::bind_method(D_METHOD("set_editable", {"editable"}), &SpinBox::set_editable);
-    MethodBinder::bind_method(D_METHOD("is_editable"), &SpinBox::is_editable);
-    MethodBinder::bind_method(D_METHOD("apply"), &SpinBox::apply);
-    MethodBinder::bind_method(D_METHOD("get_line_edit"), &SpinBox::get_line_edit);
+    BIND_METHOD(SpinBox,_gui_input);
+    BIND_METHOD(SpinBox,set_align);
+    BIND_METHOD(SpinBox,get_align);
+    BIND_METHOD(SpinBox,set_suffix);
+    BIND_METHOD(SpinBox,get_suffix);
+    BIND_METHOD(SpinBox,set_prefix);
+    BIND_METHOD(SpinBox,get_prefix);
+    BIND_METHOD(SpinBox,set_editable);
+    BIND_METHOD(SpinBox,is_editable);
+    BIND_METHOD(SpinBox,apply);
+    BIND_METHOD(SpinBox,get_line_edit);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PropertyHint::Enum, "Left,Center,Right,Fill"), "set_align", "get_align");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editable"), "set_editable", "is_editable");
@@ -293,10 +298,9 @@ SpinBox::SpinBox() {
     line_edit->set_anchors_and_margins_preset(Control::PRESET_WIDE);
     line_edit->set_mouse_filter(MOUSE_FILTER_PASS);
 
-    line_edit->connect("text_entered",callable_mp(this, &ClassName::_text_entered), null_variant_pvec, ObjectNS::CONNECT_QUEUED);
-    line_edit->connect("focus_exited",callable_mp(this, &ClassName::_line_edit_focus_exit), null_variant_pvec, ObjectNS::CONNECT_QUEUED);
+    line_edit->connect("text_entered",callable_mp(this, &ClassName::_text_entered), ObjectNS::CONNECT_QUEUED);
+    line_edit->connect("focus_exited",callable_mp(this, &ClassName::_line_edit_focus_exit), ObjectNS::CONNECT_QUEUED);
     line_edit->connect("gui_input",callable_mp(this, &ClassName::_line_edit_input));
-    drag.enabled = false;
 
     range_click_timer = memnew(Timer);
     range_click_timer->connect("timeout",callable_mp(this, &ClassName::_range_click_timeout));

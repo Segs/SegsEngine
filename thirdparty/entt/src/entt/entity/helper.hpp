@@ -1,26 +1,26 @@
 #ifndef ENTT_ENTITY_HELPER_HPP
 #define ENTT_ENTITY_HELPER_HPP
 
-#include "EASTL/type_traits.h"
+#include <type_traits>
 #include "../config/config.h"
+#include "../core/fwd.hpp"
 #include "../core/type_traits.hpp"
 #include "../signal/delegate.hpp"
-#include "registry.hpp"
 #include "fwd.hpp"
-
+#include "registry.hpp"
 
 namespace entt {
 
-
 /**
  * @brief Converts a registry to a view.
- * @tparam Const Constness of the accepted registry.
  * @tparam Entity A valid entity type (see entt_traits for more details).
  */
-template<bool Const, typename Entity, typename Allocator>
+template<typename Entity, typename Allocator>
 struct as_view {
+    /*! @brief Underlying entity identifier. */
+    using entity_type = std::remove_const_t<Entity>;
     /*! @brief Type of registry to convert. */
-    using registry_type = eastl::conditional_t<Const, const entt::basic_registry<Entity,Allocator>, entt::basic_registry<Entity,Allocator>>;
+    using registry_type = constness_as_t<basic_registry<entity_type,Allocator>, Entity>;
 
     /**
      * @brief Constructs a converter for a given registry.
@@ -35,7 +35,7 @@ struct as_view {
      * @return A newly created view.
      */
     template<typename Exclude, typename... Component>
-    operator entt::basic_view<Entity, Allocator, Exclude, Component...>() const {
+    operator basic_view<entity_type,Allocator, get_t<Component...>, Exclude>() const {
         return reg.template view<Component...>(Exclude{});
     }
 
@@ -43,33 +43,30 @@ private:
     registry_type &reg;
 };
 
+/**
+ * @brief Deduction guide.
+ * @tparam Entity A valid entity type (see entt_traits for more details).
+ */
+template<typename Entity, typename Allocator>
+as_view(basic_registry<Entity,Allocator> &) -> as_view<Entity,Allocator>;
 
 /**
  * @brief Deduction guide.
- *
- * It allows to deduce the constness of a registry directly from the instance
- * provided to the constructor.
- *
  * @tparam Entity A valid entity type (see entt_traits for more details).
  */
 template<typename Entity, typename Allocator>
-as_view(basic_registry<Entity,Allocator> &) ENTT_NOEXCEPT -> as_view<false, Entity,Allocator>;
-
-
-/*! @copydoc as_view */
-template<typename Entity, typename Allocator>
-as_view(const basic_registry<Entity,Allocator> &) ENTT_NOEXCEPT -> as_view<true, Entity,Allocator>;
-
+as_view(const basic_registry<Entity,Allocator> &) -> as_view<const Entity,Allocator>;
 
 /**
  * @brief Converts a registry to a group.
- * @tparam Const Constness of the accepted registry.
  * @tparam Entity A valid entity type (see entt_traits for more details).
  */
-template<bool Const, typename Entity, typename Allocator>
+template<typename Entity,typename Allocator>
 struct as_group {
+    /*! @brief Underlying entity identifier. */
+    using entity_type = std::remove_const_t<Entity>;
     /*! @brief Type of registry to convert. */
-    using registry_type = eastl::conditional_t<Const, const entt::basic_registry<Entity,Allocator>, entt::basic_registry<Entity,Allocator>>;
+    using registry_type = constness_as_t<basic_registry<entity_type,Allocator>, Entity>;
 
     /**
      * @brief Constructs a converter for a given registry.
@@ -79,37 +76,37 @@ struct as_group {
 
     /**
      * @brief Conversion function from a registry to a group.
-     * @tparam Exclude Types of components used to filter the group.
      * @tparam Get Types of components observed by the group.
+     * @tparam Exclude Types of components used to filter the group.
      * @tparam Owned Types of components owned by the group.
      * @return A newly created group.
      */
-    template<typename Exclude, typename Get, typename... Owned>
-    operator entt::basic_group<Entity,Allocator, Exclude, Get, Owned...>() const {
-        return reg.template group<Owned...>(Get{}, Exclude{});
+    template<typename Get, typename Exclude, typename... Owned>
+    operator basic_group<entity_type,Allocator, owned_t<Owned...>, Get, Exclude>() const {
+        if constexpr(std::is_const_v<registry_type>) {
+            return reg.template group_if_exists<Owned...>(Get{}, Exclude{});
+        } else {
+            return reg.template group<Owned...>(Get{}, Exclude{});
+        }
     }
 
 private:
     registry_type &reg;
 };
 
-
 /**
  * @brief Deduction guide.
- *
- * It allows to deduce the constness of a registry directly from the instance
- * provided to the constructor.
- *
  * @tparam Entity A valid entity type (see entt_traits for more details).
  */
 template<typename Entity,typename Allocator>
-as_group(basic_registry<Entity,Allocator> &) ENTT_NOEXCEPT -> as_group<false, Entity,Allocator>;
+as_group(basic_registry<Entity,Allocator> &) -> as_group<Entity,Allocator>;
 
-
-/*! @copydoc as_group */
+/**
+ * @brief Deduction guide.
+ * @tparam Entity A valid entity type (see entt_traits for more details).
+ */
 template<typename Entity,typename Allocator>
-as_group(const basic_registry<Entity,Allocator> &) ENTT_NOEXCEPT -> as_group<true, Entity,Allocator>;
-
+as_group(const basic_registry<Entity,Allocator> &) -> as_group<const Entity,Allocator>;
 
 /**
  * @brief Helper to create a listener that directly invokes a member function.
@@ -120,14 +117,40 @@ as_group(const basic_registry<Entity,Allocator> &) ENTT_NOEXCEPT -> as_group<tru
  */
 template<auto Member, typename Entity = entity>
 void invoke(basic_registry<Entity> &reg, const Entity entt) {
-    static_assert(eastl::is_member_function_pointer_v<decltype(Member)>);
+    static_assert(std::is_member_function_pointer_v<decltype(Member)>, "Invalid pointer to non-static member function");
     delegate<void(basic_registry<Entity> &, const Entity)> func;
     func.template connect<Member>(reg.template get<member_class_t<decltype(Member)>>(entt));
     func(reg, entt);
 }
 
+/**
+ * @brief Returns the entity associated with a given component.
+ *
+ * @warning
+ * Currently, this function only works correctly with the default pool as it
+ * makes assumptions about how the components are laid out.
+ *
+ * @tparam Entity A valid entity type (see entt_traits for more details).
+ * @tparam Component Type of component.
+ * @param reg A registry that contains the given entity and its components.
+ * @param instance A valid component instance.
+ * @return The entity associated with the given component.
+ */
+template<typename Entity, typename Component, typename Allocator>
+Entity to_entity(const basic_registry<Entity,Allocator> &reg, const Component &instance) {
+    const auto &storage = reg.template storage<Component>();
+    const typename basic_registry<Entity,Allocator>::base_type &base = storage;
+    const auto *addr = std::addressof(instance);
 
+    for(auto it = base.rbegin(), last = base.rend(); it < last; it += ENTT_PACKED_PAGE) {
+        if(const auto dist = (addr - std::addressof(storage.get(*it))); dist >= 0 && dist < ENTT_PACKED_PAGE) {
+            return *(it + dist);
+        }
+    }
+
+    return null;
 }
 
+} // namespace entt
 
 #endif

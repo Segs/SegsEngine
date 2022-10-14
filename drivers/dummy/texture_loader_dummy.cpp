@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  texture_loader_dummy.cpp                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -40,7 +40,7 @@ RES ResourceFormatDummyTexture::load(const String &p_path, const String &p_origi
     unsigned int height = 8;
 
     //We just use some format
-    Image::Format fmt = Image::FORMAT_RGB8;
+    Image::Format fmt = ImageData::FORMAT_RGB8;
     int rowsize = 3 * width;
 
     PoolVector<uint8_t> dstbuff;
@@ -75,9 +75,7 @@ void ResourceFormatDummyTexture::get_recognized_extensions(List<String> *p_exten
     p_extensions->push_back("hdr");
     p_extensions->push_back("pkm");
     p_extensions->push_back("png");
-    p_extensions->push_back("pvr");
     p_extensions->push_back("svg");
-    p_extensions->push_back("svgz");
     p_extensions->push_back("tga");
     p_extensions->push_back("webp");
 }
@@ -97,9 +95,7 @@ String ResourceFormatDummyTexture::get_resource_type(const String &p_path) const
             extension == "hdr" ||
             extension == "pkm" ||
             extension == "png" ||
-            extension == "pvr" ||
             extension == "svg" ||
-            extension == "svgz" ||
             extension == "tga" ||
             extension == "webp") {
         return "ImageTexture";

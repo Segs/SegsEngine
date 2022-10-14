@@ -154,7 +154,7 @@ EditorSceneImporterAssimp::~EditorSceneImporterAssimp() {
     Assimp::DefaultLogger::kill();
 }
 
-Node *EditorSceneImporterAssimp::import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
+Node *EditorSceneImporterAssimp::import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, uint32_t p_compress_flags, Vector<String> *r_missing_deps, Error *r_err) {
     Assimp::Importer importer;
     String s_path(ProjectSettings::get_singleton()->globalize_path(p_path));
     importer.SetPropertyBool(AI_CONFIG_PP_FD_REMOVE, true);
@@ -434,7 +434,7 @@ Node3D *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *s
             if (parent_lookup!=state.flat_node_map.end()) {
                 Node3D *parent_node = parent_lookup->second;
 
-                ERR_FAIL_COND_V_MSG(parent_node == NULL, state.root, "Parent node invalid even though lookup successful, out of ram?");
+                ERR_FAIL_COND_V_MSG(parent_node == nullptr, state.root, "Parent node invalid even though lookup successful, out of ram?");
 
                 if (spatial != state.root) {
                     parent_node->add_child(spatial);
@@ -479,7 +479,7 @@ Node3D *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *s
             aiNode *parent_node = bone_node->mParent;
 
             String bone_name = AssimpUtils::get_anim_string_from_assimp(bone->mName);
-            ERR_CONTINUE_MSG(armature_for_bone == NULL, "Armature for bone invalid: " + bone_name);
+            ERR_CONTINUE_MSG(armature_for_bone == nullptr, "Armature for bone invalid: " + bone_name);
             Skeleton *skeleton = state.armature_skeletons[armature_for_bone];
 
             state.skeleton_bone_map[bone] = skeleton;
@@ -1489,7 +1489,7 @@ void EditorSceneImporterAssimp::_generate_node(
         ImportState &state,
         const aiNode *assimp_node) {
 
-    ERR_FAIL_COND(assimp_node == NULL);
+    ERR_FAIL_COND(assimp_node == nullptr);
     state.nodes.push_back(assimp_node);
     String parent_name = AssimpUtils::get_assimp_string(assimp_node->mParent->mName);
 

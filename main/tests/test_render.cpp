@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  test_render.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -47,16 +47,16 @@ namespace TestRender {
 
 class TestMainLoop : public MainLoop {
 
-    RID test_cube;
-    RID instance;
-    RID camera;
-    RID viewport;
-    RID light;
-    RID scenario;
+    RenderingEntity test_cube=entt::null;
+    RenderingEntity instance;
+    RenderingEntity camera=entt::null;
+    RenderingEntity viewport=entt::null;
+    RenderingEntity light=entt::null;
+    RenderingEntity scenario=entt::null;
 
     struct InstanceInfo {
 
-        RID instance;
+        RenderingEntity instance=entt::null;
         Transform base;
         Vector3 rot_axis;
     };
@@ -66,8 +66,8 @@ class TestMainLoop : public MainLoop {
     float ofs;
     bool quit;
 protected:
-    RID test_material;
-    RID _make_test_cube(RenderingServer *rs) {
+    RenderingEntity test_material;
+    RenderingEntity _make_test_cube(RenderingServer *rs) {
         Vector<Vector3> vertices;
         Vector<Vector3> normals;
         Vector<float> tangents;
@@ -114,7 +114,7 @@ protected:
             ADD_VTX(0)
         }
 
-        RID test_cube = rs->mesh_create();
+        RenderingEntity test_cube = rs->mesh_create();
 
         Vector<int> indices(vertices.size());
 
@@ -145,8 +145,8 @@ protected:
         return test_cube;
     }
 
-    RID get_test_cube(RenderingServer *rs) {
-        if (!test_cube.is_valid()) {
+    RenderingEntity get_test_cube(RenderingServer *rs) {
+        if (test_cube==entt::null) {
             test_cube = _make_test_cube(rs);
         }
         return test_cube;
@@ -215,11 +215,11 @@ public:
         //vs->scenario_set_debug(scenario,RS::SCENARIO_DEBUG_WIREFRAME);
 
         /*
-        RID sm = vs->shader_create();
+        RenderingEntity sm = vs->shader_create();
         //vs->shader_set_fragment_code(sm,"OUT_ALPHA=mod(TIME,1);");
         //vs->shader_set_vertex_code(sm,"OUT_VERTEX=IN_VERTEX*mod(TIME,1);");
         vs->shader_set_fragment_code(sm,"OUT_DIFFUSE=vec3(1,0,1);OUT_GLOW=abs(sin(TIME));");
-        RID tcmat = vs->mesh_surface_get_material(test_cube,0);
+        RenderingEntity tcmat = vs->mesh_surface_get_material(test_cube,0);
         vs->material_set_shader(tcmat,sm);
         */
 
@@ -259,7 +259,7 @@ public:
         vs->camera_set_transform(camera, Transform(Basis(), Vector3(0, 3, 30)));
         vs->camera_set_perspective(camera, 60, 0.1f, 1000);
 
-        RID lightaux = vs->directional_light_create();
+        RenderingEntity lightaux = vs->directional_light_create();
 
         //vs->light_set_color( lightaux, RenderingServer::LIGHT_COLOR_AMBIENT, Color(0.0,0.0,0.0) );
         vs->light_set_color(lightaux, Color(1.0, 1.0, 1.0));

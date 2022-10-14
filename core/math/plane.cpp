@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  plane.cpp                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,9 +34,6 @@
 #include "core/string.h"
 #include "core/string_utils.h"
 
-void Plane::set_normal(const Vector3 &p_normal) {
-    normal = p_normal;
-}
 
 void Plane::normalize() {
     real_t l = normal.length();
@@ -54,9 +51,6 @@ Plane Plane::normalized() const {
     return p;
 }
 
-Vector3 Plane::get_any_point() const {
-    return get_normal() * d;
-}
 
 Vector3 Plane::get_any_perpendicular_normal() const {
     static const Vector3 p1 = Vector3(1, 0, 0);

@@ -75,8 +75,9 @@ bool Rect2::intersects_segment(const Point2 &p_from, const Point2 &p_to, Point2 
         if (cmax < max) {
             max = cmax;
         }
-        if (max < min)
+        if (max < min) {
             return false;
+        }
     }
 
     Vector2 rel = p_to - p_from;

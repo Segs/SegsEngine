@@ -45,49 +45,16 @@ class AreaBullet;
 class SpaceBullet;
 class btRigidBody;
 class GodotMotionState;
-class BulletPhysicsDirectBodyState;
 
-/// This class could be used in multi thread with few changes but currently
-/// is set to be only in one single thread.
-///
-/// In the system there is only one object at a time that manage all bodies and is
-/// created by BulletPhysicsServer and is held by the "singleton" variable of this class
-/// Each time something require it, the body must be set again.
 class BulletPhysicsDirectBodyState : public PhysicsDirectBodyState3D {
     GDCLASS(BulletPhysicsDirectBodyState,PhysicsDirectBodyState3D)
 
-    static BulletPhysicsDirectBodyState *singleton;
 
 public:
-    /// This class avoid the creation of more object of this class
-    static void initSingleton() {
-        if (!singleton) {
-            singleton = memnew(BulletPhysicsDirectBodyState);
-        }
-    }
+    RigidBodyBullet *body = nullptr;
 
-    static void destroySingleton() {
-        memdelete(singleton);
-        singleton = nullptr;
-    }
-
-    static void singleton_setDeltaTime(real_t p_deltaTime) {
-        singleton->deltaTime = p_deltaTime;
-    }
-
-    static BulletPhysicsDirectBodyState *get_singleton(RigidBodyBullet *p_body) {
-        singleton->body = p_body;
-        return singleton;
-    }
-
-public:
-    RigidBodyBullet *body;
-    real_t deltaTime;
-
-private:
     BulletPhysicsDirectBodyState() {}
 
-public:
     Vector3 get_total_gravity() const override;
     float get_total_angular_damp() const override;
     float get_total_linear_damp() const override;
@@ -109,6 +76,7 @@ public:
 
     void set_transform(const Transform &p_transform) override;
     Transform get_transform() const override;
+    Vector3 get_velocity_at_local_position(const Vector3 &p_position) const override;
 
     void add_central_force(const Vector3 &p_force) override;
     void add_force(const Vector3 &p_force, const Vector3 &p_pos) override;
@@ -129,11 +97,11 @@ public:
 
     RID get_contact_collider(int p_contact_idx) const override;
     Vector3 get_contact_collider_position(int p_contact_idx) const override;
-    ObjectID get_contact_collider_id(int p_contact_idx) const override;
+    GameEntity get_contact_collider_id(int p_contact_idx) const override;
     int get_contact_collider_shape(int p_contact_idx) const override;
     Vector3 get_contact_collider_velocity_at_position(int p_contact_idx) const override;
 
-    real_t get_step() const override { return deltaTime; }
+    real_t get_step() const override;
     void integrate_forces() override {
         // Skip the execution of this function
     }
@@ -155,7 +123,7 @@ public:
     };
 
     struct ForceIntegrationCallback {
-        ObjectID id;
+        GameEntity id;
         StringName method;
         Variant udata;
     };
@@ -187,6 +155,7 @@ public:
     };
 
 private:
+    BulletPhysicsDirectBodyState *direct_access = nullptr;
     friend class BulletPhysicsDirectBodyState;
 
     // This is required only for Kinematic movement
@@ -230,6 +199,7 @@ private:
 public:
     RigidBodyBullet();
     ~RigidBodyBullet() override;
+    BulletPhysicsDirectBodyState *get_direct_state() const { return direct_access; }
 
     void init_kinematic_utilities();
     void destroy_kinematic_utilities();

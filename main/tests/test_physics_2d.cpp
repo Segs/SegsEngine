@@ -127,8 +127,8 @@ class TestPhysics2DMainLoop : public MainLoop {
     RID circle_img;
     RID circle_shape;
     RID space;
-    RID canvas;
-    RID ray;
+    RenderingEntity canvas;
+    RenderingEntity ray;
     RID ray_query;
     Transform2D view_xform;
 
@@ -136,7 +136,7 @@ class TestPhysics2DMainLoop : public MainLoop {
 
     struct BodyShapeData {
 
-        RID image;
+        RenderingEntity image;
         RID shape;
     };
 
@@ -161,7 +161,7 @@ class TestPhysics2DMainLoop : public MainLoop {
                 }
             }
 
-            Ref<Image> image(make_ref_counted<Image>(32, 2, 0, Image::FORMAT_LA8, pixels));
+            Ref<Image> image(make_ref_counted<Image>(32, 2, 0, ImageData::FORMAT_LA8, pixels));
 
             body_shape_data[PhysicsServer2D::SHAPE_SEGMENT].image = vs->texture_create_from_image(image);
 
@@ -188,7 +188,7 @@ class TestPhysics2DMainLoop : public MainLoop {
                 }
             }
 
-            Ref<Image> image(make_ref_counted<Image>(32, 32, 0, Image::FORMAT_LA8, pixels));
+            Ref<Image> image(make_ref_counted<Image>(32, 32, 0, ImageData::FORMAT_LA8, pixels));
 
             body_shape_data[PhysicsServer2D::SHAPE_CIRCLE].image = vs->texture_create_from_image(image);
 
@@ -215,7 +215,7 @@ class TestPhysics2DMainLoop : public MainLoop {
                 }
             }
 
-            Ref<Image> image(make_ref_counted<Image>(32, 32, 0, Image::FORMAT_LA8, pixels));
+            Ref<Image> image(make_ref_counted<Image>(32, 32, 0, ImageData::FORMAT_LA8, pixels));
 
             body_shape_data[PhysicsServer2D::SHAPE_RECTANGLE].image = vs->texture_create_from_image(image);
 
@@ -243,7 +243,7 @@ class TestPhysics2DMainLoop : public MainLoop {
                 }
             }
 
-            Ref<Image> image(make_ref_counted<Image>(32, 64, 0, Image::FORMAT_LA8, pixels));
+            Ref<Image> image(make_ref_counted<Image>(32, 64, 0, ImageData::FORMAT_LA8, pixels));
 
             body_shape_data[PhysicsServer2D::SHAPE_CAPSULE].image = vs->texture_create_from_image(image);
 
@@ -335,7 +335,7 @@ protected:
         ps->body_set_state(body, PhysicsServer2D::BODY_STATE_TRANSFORM, p_xform);
 
         //print_line("add body with xform: "+p_xform);
-        RID sprite = vs->canvas_item_create();
+        RenderingEntity sprite = vs->canvas_item_create();
         vs->canvas_item_set_parent(sprite, canvas);
         vs->canvas_item_set_transform(sprite, p_xform);
         Size2 imgsize(vs->texture_get_width(body_shape_data[p_shape].image), vs->texture_get_height(body_shape_data[p_shape].image));
@@ -380,7 +380,7 @@ protected:
         ps->body_add_shape(body, concave);
         ps->body_set_state(body, PhysicsServer2D::BODY_STATE_TRANSFORM, p_xform);
 
-        RID sprite = vs->canvas_item_create();
+        RenderingEntity sprite = vs->canvas_item_create();
         vs->canvas_item_set_parent(sprite, canvas);
         vs->canvas_item_set_transform(sprite, p_xform);
         for (int i = 0; i < p_points.size(); i += 2) {
@@ -388,12 +388,12 @@ protected:
         }
     }
 
-    void _body_moved(Object *p_state, RID p_sprite) {
+    void _body_moved(Object *p_state, RenderingEntity p_sprite) {
         PhysicsDirectBodyState2D *state = (PhysicsDirectBodyState2D *)p_state;
         RenderingServer::get_singleton()->canvas_item_set_transform(p_sprite, state->get_transform());
     }
 
-    void _ray_query_callback(const RID &p_rid, ObjectID p_id, int p_shape, const Vector2 &p_point, const Vector2 &p_normal) {
+    void _ray_query_callback(const RID &p_rid, GameEntity p_id, int p_shape, const Vector2 &p_point, const Vector2 &p_normal) {
 
         Vector2 ray_end;
 
@@ -413,8 +413,8 @@ protected:
 
     static void _bind_methods() {
 
-        MethodBinder::bind_method(D_METHOD("_body_moved"), &TestPhysics2DMainLoop::_body_moved);
-        MethodBinder::bind_method(D_METHOD("_ray_query_callback"), &TestPhysics2DMainLoop::_ray_query_callback);
+        BIND_METHOD(TestPhysics2DMainLoop,_body_moved);
+        BIND_METHOD(TestPhysics2DMainLoop,_ray_query_callback);
     }
 
 public:
@@ -431,7 +431,7 @@ public:
 
         {
 
-            RID vp = vs->viewport_create();
+            RenderingEntity vp = vs->viewport_create();
             canvas = vs->canvas_create();
 
             Size2i screen_size = OS::get_singleton()->get_window_size();

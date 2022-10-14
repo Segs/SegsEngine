@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  animation_blend_space_2d_editor.cpp                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -41,10 +41,12 @@
 #include "core/callable_method_pointer.h"
 #include "core/project_settings.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_settings.h"
 #include "scene/animation/animation_blend_tree.h"
 #include "scene/animation/animation_player.h"
 #include "scene/gui/menu_button.h"
 #include "scene/gui/panel.h"
+#include "scene/gui/panel_container.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
@@ -122,7 +124,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
             if (name == "Animation")
                 continue; // nope
             int idx = menu->get_item_count();
-            menu->add_item(StringName(FormatVE("Add %s", name.c_str())), idx);
+            menu->add_item(StringName(FormatVE(TTR("Add %s").asCString(), name.c_str())), idx);
             menu->set_item_metadata(idx, E);
         }
 
@@ -428,21 +430,22 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
 
     if (blend_space_draw->has_focus()) {
         Color color = get_theme_color("accent_color", "Editor");
-        blend_space_draw->draw_rect(Rect2(Point2(), s), color, false);
+        blend_space_draw->draw_rect_stroke(Rect2(Point2(), s), color);
     }
     blend_space_draw->draw_line(Point2(1, 0), Point2(1, s.height - 1), linecolor);
     blend_space_draw->draw_line(Point2(1, s.height - 1), Point2(s.width - 1, s.height - 1), linecolor);
 
     blend_space_draw->draw_line(Point2(0, 0), Point2(5 * EDSCALE, 0), linecolor);
-    if (blend_space->get_min_space().y < 0) {
-        int y = blend_space->get_max_space().y / (blend_space->get_max_space().y - blend_space->get_min_space().y) * s.height;
+    Vector2 min_blend_space(blend_space->get_min_space());
+    if (min_blend_space.y < 0) {
+        int y = blend_space->get_max_space().y / (blend_space->get_max_space().y - min_blend_space.y) * s.height;
         blend_space_draw->draw_line(Point2(0, y), Point2(5 * EDSCALE, y), linecolor);
         blend_space_draw->draw_ui_string(font, Point2(2 * EDSCALE, y - font->get_height() + font->get_ascent()), UIString("0"), linecolor);
         blend_space_draw->draw_line(Point2(5 * EDSCALE, y), Point2(s.width, y), linecolor_soft);
     }
 
-    if (blend_space->get_min_space().x < 0) {
-        int x = -blend_space->get_min_space().x / (blend_space->get_max_space().x - blend_space->get_min_space().x) * s.width;
+    if (min_blend_space.x < 0) {
+        int x = -min_blend_space.x / (blend_space->get_max_space().x - min_blend_space.x) * s.width;
         blend_space_draw->draw_line(Point2(x, s.height - 1), Point2(x, s.height - 5 * EDSCALE), linecolor);
         blend_space_draw->draw_ui_string(font, Point2(x + 2 * EDSCALE, s.height - 2 * EDSCALE - font->get_height() + font->get_ascent()), UIString("0"), linecolor);
         blend_space_draw->draw_line(Point2(x, s.height - 5 * EDSCALE), Point2(x, 0), linecolor_soft);
@@ -457,7 +460,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
             int prev_idx = 0;
             for (int i = 0; i < s.x; i++) {
 
-                float v = blend_space->get_min_space().x + i * (blend_space->get_max_space().x - blend_space->get_min_space().x) / s.x;
+                float v = min_blend_space.x + i * (blend_space->get_max_space().x - min_blend_space.x) / s.x;
                 int idx = int(v / blend_space->get_snap().x);
 
                 if (i > 0 && prev_idx != idx) {
@@ -473,7 +476,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
             int prev_idx = 0;
             for (int i = 0; i < s.y; i++) {
 
-                float v = blend_space->get_max_space().y - i * (blend_space->get_max_space().y - blend_space->get_min_space().y) / s.y;
+                float v = blend_space->get_max_space().y - i * (blend_space->get_max_space().y - min_blend_space.y) / s.y;
                 int idx = int(v / blend_space->get_snap().y);
 
                 if (i > 0 && prev_idx != idx) {
@@ -501,7 +504,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
                     point.y = Math::stepify(point.y, blend_space->get_snap().y);
                 }
             }
-            point = (point - blend_space->get_min_space()) / (blend_space->get_max_space() - blend_space->get_min_space());
+            point = (point - min_blend_space) / (blend_space->get_max_space() - min_blend_space);
             point *= s;
             point.y = s.height - point.y;
             points.emplace_back(point);
@@ -520,10 +523,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
             color.a *= 0.2f;
         }
 
-        PoolVector<Color> colors;
-        colors.push_back(color);
-        colors.push_back(color);
-        colors.push_back(color);
+        Color colors[3] = {color,color,color};
         blend_space_draw->draw_primitive(points, colors, PoolVector<Vector2>());
     }
 
@@ -538,7 +538,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
                 point.y = Math::stepify(point.y, blend_space->get_snap().y);
             }
         }
-        point = (point - blend_space->get_min_space()) / (blend_space->get_max_space() - blend_space->get_min_space());
+        point = (point - min_blend_space) / (blend_space->get_max_space() - min_blend_space);
         point *= s;
         point.y = s.height - point.y;
 
@@ -557,7 +557,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
         Vector<Vector2> points;
         for (int i = 0; i < making_triangle.size(); i++) {
             Vector2 point = blend_space->get_blend_point_position(making_triangle[i]);
-            point = (point - blend_space->get_min_space()) / (blend_space->get_max_space() - blend_space->get_min_space());
+            point = (point - min_blend_space) / (blend_space->get_max_space() - min_blend_space);
             point *= s;
             point.y = s.height - point.y;
             points.push_back(point);
@@ -583,13 +583,13 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
         Vector2 blend_pos = AnimationTreeEditor::get_singleton()->get_tree()->getT<Vector2>(get_blend_position_path());
         Vector2 point = blend_pos;
 
-        point = (point - blend_space->get_min_space()) / (blend_space->get_max_space() - blend_space->get_min_space());
+        point = (point - min_blend_space) / (blend_space->get_max_space() - min_blend_space);
         point *= s;
         point.y = s.height - point.y;
 
         if (blend_space->get_triangle_count()) {
             Vector2 closest = blend_space->get_closest_point(blend_pos);
-            closest = (closest - blend_space->get_min_space()) / (blend_space->get_max_space() - blend_space->get_min_space());
+            closest = (closest - min_blend_space) / (blend_space->get_max_space() - min_blend_space);
             closest *= s;
             closest.y = s.height - closest.y;
 
@@ -866,28 +866,28 @@ AnimationNodeBlendSpace2DEditor::AnimationNodeBlendSpace2DEditor() {
     top_hb->add_child(tool_blend);
     tool_blend->set_pressed(true);
     tool_blend->set_tooltip(TTR("Set the blending position within the space"));
-    tool_blend->connect("pressed",callable_mp(this, &ClassName::_tool_switch), varray(3));
+    tool_blend->connectF("pressed",this,[=]() { _tool_switch(3); });
 
     tool_select = memnew(ToolButton);
     tool_select->set_toggle_mode(true);
     tool_select->set_button_group(bg);
     top_hb->add_child(tool_select);
     tool_select->set_tooltip(TTR("Select and move points, create points with RMB."));
-    tool_select->connect("pressed",callable_mp(this, &ClassName::_tool_switch), varray(0));
+    tool_select->connectF("pressed",this,[=]() { _tool_switch(0); });
 
     tool_create = memnew(ToolButton);
     tool_create->set_toggle_mode(true);
     tool_create->set_button_group(bg);
     top_hb->add_child(tool_create);
     tool_create->set_tooltip(TTR("Create points."));
-    tool_create->connect("pressed",callable_mp(this, &ClassName::_tool_switch), varray(1));
+    tool_create->connectF("pressed",this,[=]() { _tool_switch(1); });
 
     tool_triangle = memnew(ToolButton);
     tool_triangle->set_toggle_mode(true);
     tool_triangle->set_button_group(bg);
     top_hb->add_child(tool_triangle);
     tool_triangle->set_tooltip(TTR("Create triangles by connecting points."));
-    tool_triangle->connect("pressed",callable_mp(this, &ClassName::_tool_switch), varray(2));
+    tool_triangle->connectF("pressed",this,[=]() { _tool_switch(2); });
 
     tool_erase_sep = memnew(VSeparator);
     top_hb->add_child(tool_erase_sep);
@@ -954,7 +954,7 @@ AnimationNodeBlendSpace2DEditor::AnimationNodeBlendSpace2DEditor() {
     open_editor = memnew(Button);
     edit_hb->add_child(open_editor);
     open_editor->set_text(TTR("Open Editor"));
-    open_editor->connect("pressed",callable_mp(this, &ClassName::_open_editor), varray(),ObjectNS::CONNECT_QUEUED);
+    open_editor->connect("pressed",callable_mp(this, &ClassName::_open_editor), ObjectNS::CONNECT_QUEUED);
     edit_hb->hide();
     open_editor->hide();
 

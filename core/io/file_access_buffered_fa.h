@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  file_access_buffered_fa.h                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -38,7 +38,7 @@ class FileAccessBufferedFA : public FileAccessBuffered {
 
     T f;
 
-    int read_data_block(int p_offset, int p_size, uint8_t *p_dest = nullptr) const {
+    int read_data_block(int p_offset, uint64_t p_size, uint8_t *p_dest = nullptr) const {
 
         ERR_FAIL_COND_V_MSG(!f.is_open(), -1, "Can't read data block when file is not opened.");
 
@@ -59,7 +59,7 @@ class FileAccessBufferedFA : public FileAccessBuffered {
             //f.get_buffer(write.ptrw(), p_size);
 
             // on vector
-            f.get_buffer(cache.buffer.ptrw(), p_size);
+            f.get_buffer(cache.buffer.data(), p_size);
 
             return p_size;
         }
@@ -71,18 +71,18 @@ class FileAccessBufferedFA : public FileAccessBuffered {
     }
 
 protected:
-    virtual void _set_access_type(AccessType p_access) {
+    void _set_access_type(AccessType p_access) override {
         f._set_access_type(p_access);
         FileAccessBuffered::_set_access_type(p_access);
     };
 
 public:
-    void flush() {
+    void flush() override {
 
         f.flush();
     };
 
-    void store_8(uint8_t p_dest) {
+    void store_8(uint8_t p_dest) override {
 
         f.store_8(p_dest);
     };
@@ -97,7 +97,7 @@ public:
         return f.file_exists(p_name);
     }
 
-    Error _open(StringView p_path, int p_mode_flags) {
+    Error _open(StringView p_path, int p_mode_flags) override {
 
         close();
 
@@ -118,7 +118,7 @@ public:
         return set_error(OK);
     }
 
-    void close() {
+    void close() override {
 
         f.close();
 

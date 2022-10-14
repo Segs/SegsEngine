@@ -43,49 +43,49 @@ IMPL_GDCLASS(NavigationAgent)
 
 void NavigationAgent::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_target_desired_distance", {"desired_distance"}),&NavigationAgent::set_target_desired_distance);
-    MethodBinder::bind_method(D_METHOD("get_target_desired_distance"), &NavigationAgent::get_target_desired_distance);
+    BIND_METHOD(NavigationAgent,set_target_desired_distance);
+    BIND_METHOD(NavigationAgent,get_target_desired_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}),&NavigationAgent::set_radius);
-    MethodBinder::bind_method(D_METHOD("get_radius"), &NavigationAgent::get_radius);
+    BIND_METHOD(NavigationAgent,set_radius);
+    BIND_METHOD(NavigationAgent,get_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_agent_height_offset", {"agent_height_offset"}),&NavigationAgent::set_agent_height_offset);
-    MethodBinder::bind_method(D_METHOD("get_agent_height_offset"), &NavigationAgent::get_agent_height_offset);
+    BIND_METHOD(NavigationAgent,set_agent_height_offset);
+    BIND_METHOD(NavigationAgent,get_agent_height_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_ignore_y", {"ignore"}),&NavigationAgent::set_ignore_y);
-    MethodBinder::bind_method(D_METHOD("get_ignore_y"), &NavigationAgent::get_ignore_y);
+    BIND_METHOD(NavigationAgent,set_ignore_y);
+    BIND_METHOD(NavigationAgent,get_ignore_y);
 
     MethodBinder::bind_method(D_METHOD("set_navigation", {"navigation"}),&NavigationAgent::set_navigation_node);
     MethodBinder::bind_method(D_METHOD("get_navigation"), &NavigationAgent::get_navigation_node);
 
-    MethodBinder::bind_method(D_METHOD("set_neighbor_dist", {"neighbor_dist"}),&NavigationAgent::set_neighbor_dist);
-    MethodBinder::bind_method(D_METHOD("get_neighbor_dist"), &NavigationAgent::get_neighbor_dist);
+    BIND_METHOD(NavigationAgent,set_neighbor_dist);
+    BIND_METHOD(NavigationAgent,get_neighbor_dist);
 
-    MethodBinder::bind_method(D_METHOD("set_max_neighbors", {"max_neighbors"}),&NavigationAgent::set_max_neighbors);
-    MethodBinder::bind_method(D_METHOD("get_max_neighbors"), &NavigationAgent::get_max_neighbors);
+    BIND_METHOD(NavigationAgent,set_max_neighbors);
+    BIND_METHOD(NavigationAgent,get_max_neighbors);
 
-    MethodBinder::bind_method(D_METHOD("set_time_horizon", {"time_horizon"}),&NavigationAgent::set_time_horizon);
-    MethodBinder::bind_method(D_METHOD("get_time_horizon"), &NavigationAgent::get_time_horizon);
+    BIND_METHOD(NavigationAgent,set_time_horizon);
+    BIND_METHOD(NavigationAgent,get_time_horizon);
 
-    MethodBinder::bind_method(D_METHOD("set_max_speed", {"max_speed"}),&NavigationAgent::set_max_speed);
-    MethodBinder::bind_method(D_METHOD("get_max_speed"), &NavigationAgent::get_max_speed);
+    BIND_METHOD(NavigationAgent,set_max_speed);
+    BIND_METHOD(NavigationAgent,get_max_speed);
 
-    MethodBinder::bind_method(D_METHOD("set_path_max_distance", {"max_speed"}),&NavigationAgent::set_path_max_distance);
-    MethodBinder::bind_method(D_METHOD("get_path_max_distance"), &NavigationAgent::get_path_max_distance);
+    BIND_METHOD(NavigationAgent,set_path_max_distance);
+    BIND_METHOD(NavigationAgent,get_path_max_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_target_location", {"location"}),&NavigationAgent::set_target_location);
-    MethodBinder::bind_method(D_METHOD("get_target_location"), &NavigationAgent::get_target_location);
-    MethodBinder::bind_method(D_METHOD("get_next_location"), &NavigationAgent::get_next_location);
-    MethodBinder::bind_method(D_METHOD("distance_to_target"), &NavigationAgent::distance_to_target);
-    MethodBinder::bind_method(D_METHOD("set_velocity", {"velocity"}),&NavigationAgent::set_velocity);
-    MethodBinder::bind_method(D_METHOD("get_nav_path"), &NavigationAgent::get_nav_path);
-    MethodBinder::bind_method(D_METHOD("get_nav_path_index"), &NavigationAgent::get_nav_path_index);
-    MethodBinder::bind_method(D_METHOD("is_target_reached"), &NavigationAgent::is_target_reached);
-    MethodBinder::bind_method(D_METHOD("is_target_reachable"), &NavigationAgent::is_target_reachable);
-    MethodBinder::bind_method(D_METHOD("is_navigation_finished"), &NavigationAgent::is_navigation_finished);
-    MethodBinder::bind_method(D_METHOD("get_final_location"), &NavigationAgent::get_final_location);
+    BIND_METHOD(NavigationAgent,set_target_location);
+    BIND_METHOD(NavigationAgent,get_target_location);
+    BIND_METHOD(NavigationAgent,get_next_location);
+    BIND_METHOD(NavigationAgent,distance_to_target);
+    BIND_METHOD(NavigationAgent,set_velocity);
+    BIND_METHOD(NavigationAgent,get_nav_path);
+    BIND_METHOD(NavigationAgent,get_nav_path_index);
+    BIND_METHOD(NavigationAgent,is_target_reached);
+    BIND_METHOD(NavigationAgent,is_target_reachable);
+    BIND_METHOD(NavigationAgent,is_navigation_finished);
+    BIND_METHOD(NavigationAgent,get_final_location);
 
-    MethodBinder::bind_method(D_METHOD("_avoidance_done", {"new_velocity"}),&NavigationAgent::_avoidance_done);
+    BIND_METHOD(NavigationAgent,_avoidance_done);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "target_desired_distance", PropertyHint::Range, "0.1,100,0.01"), "set_target_desired_distance", "get_target_desired_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.1,100,0.01"), "set_radius", "get_radius");
@@ -117,10 +117,11 @@ void NavigationAgent::_notification(int p_what) {
                 Node *p = get_parent();
                 while (p != nullptr) {
                     nav = object_cast<Navigation3D>(p);
-                    if (nav != nullptr)
+                    if (nav != nullptr) {
                         p = nullptr;
-                    else
+                    } else {
                         p = p->get_parent();
+                    }
                 }
 
                 set_navigation(nav);
@@ -132,17 +133,15 @@ void NavigationAgent::_notification(int p_what) {
             agent_parent = nullptr;
             set_navigation(nullptr);
             set_physics_process_internal(false);
+            // Want to call ready again when the node enters the tree again. We're not using enter_tree notification because
+            // the navigation map may not be ready at that time. This fixes issues with taking the agent out of the scene tree.
+            request_ready();
         } break;
         case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
             if (agent_parent) {
 
                 NavigationServer::get_singleton()->agent_set_position(agent, agent_parent->get_global_transform().origin);
-                if (!target_reached) {
-                    if (distance_to_target() < target_desired_distance) {
-                        emit_signal("target_reached");
-                        target_reached = true;
-                    }
-                }
+                _check_distance_to_target();
             }
         } break;
     }
@@ -168,14 +167,15 @@ NavigationAgent::NavigationAgent() :
 }
 
 NavigationAgent::~NavigationAgent() {
-    NavigationServer::get_singleton()->free(agent);
+    NavigationServer::get_singleton()->free_rid(agent);
     agent = RID(); // Pointless
 }
 
 void NavigationAgent::set_navigation(Navigation3D *p_nav) {
-    if (navigation == p_nav)
+    if (navigation == p_nav) {
         return; // Pointless
 
+    }
     navigation = p_nav;
     NavigationServer::get_singleton()->agent_set_map(agent, navigation == nullptr ? RID() : navigation->get_rid());
 }
@@ -241,6 +241,7 @@ void NavigationAgent::set_target_location(Vector3 p_location) {
     navigation_path.clear();
     target_reached = false;
     navigation_finished = false;
+    update_frame_id = 0;
 }
 
 Vector3 NavigationAgent::get_target_location() const {
@@ -250,7 +251,7 @@ Vector3 NavigationAgent::get_target_location() const {
 Vector3 NavigationAgent::get_next_location() {
     update_navigation();
     if (navigation_path.empty()) {
-        ERR_FAIL_COND_V(agent_parent == NULL, Vector3());
+        ERR_FAIL_COND_V(agent_parent == nullptr, Vector3());
         return agent_parent->get_global_transform().origin;
     } else {
         return navigation_path[nav_path_index] - Vector3(0, navigation_height_offset, 0);
@@ -312,9 +313,15 @@ String NavigationAgent::get_configuration_warning() const {
 
 void NavigationAgent::update_navigation() {
 
-    if (agent_parent == nullptr) return;
-    if (navigation == nullptr) return;
-    if (update_frame_id == Engine::get_singleton()->get_physics_frames()) return;
+    if (agent_parent == nullptr) {
+        return;
+    }
+    if (navigation == nullptr) {
+        return;
+    }
+    if (update_frame_id == Engine::get_singleton()->get_physics_frames()) {
+        return;
+    }
 
     update_frame_id = Engine::get_singleton()->get_physics_frames();
 
@@ -349,8 +356,9 @@ void NavigationAgent::update_navigation() {
         emit_signal("path_changed");
     }
 
-    if (navigation_path.size() == 0)
+    if (navigation_path.empty()) {
         return;
+    }
 
     // Check if we can advance the navigation path
     if (navigation_finished == false) {
@@ -358,11 +366,21 @@ void NavigationAgent::update_navigation() {
         while (o.distance_to(navigation_path[nav_path_index] - Vector3(0, navigation_height_offset, 0)) < target_desired_distance) {
             nav_path_index += 1;
             if (nav_path_index == navigation_path.size()) {
+                _check_distance_to_target();
                 nav_path_index -= 1;
                 navigation_finished = true;
                 emit_signal("navigation_finished");
                 break;
             }
+        }
+    }
+}
+
+void NavigationAgent::_check_distance_to_target() {
+    if (!target_reached) {
+        if (distance_to_target() < target_desired_distance) {
+            target_reached = true;
+            emit_signal("target_reached");
         }
     }
 }

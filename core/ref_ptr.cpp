@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  ref_ptr.cpp                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,8 +35,10 @@
 #include "core/rid.h"
 
 RefPtr &RefPtr::operator=(const RefPtr &p_other) {
-    if(data==p_other.data)
+    if (data == p_other.data) {
         return *this;
+    }
+
     Ref<RefCounted> *ref = reinterpret_cast<Ref<RefCounted> *>(&data);
     Ref<RefCounted> *ref_other = reinterpret_cast<Ref<RefCounted> *>(&p_other.data);
 
@@ -44,22 +46,14 @@ RefPtr &RefPtr::operator=(const RefPtr &p_other) {
     return *this;
 }
 
-bool RefPtr::operator==(const RefPtr &p_other) const {
-
+bool RefPtr::operator==(const RefPtr &p_other) const noexcept {
     Ref<RefCounted> *ref = reinterpret_cast<Ref<RefCounted> *>(&data);
     Ref<RefCounted> *ref_other = reinterpret_cast<Ref<RefCounted> *>(&p_other.data);
 
     return *ref == *ref_other;
 }
-bool RefPtr::operator!=(const RefPtr &p_other) const {
 
-    Ref<RefCounted> *ref = reinterpret_cast<Ref<RefCounted> *>(&data);
-    Ref<RefCounted> *ref_other = reinterpret_cast<Ref<RefCounted> *>(&p_other.data);
-
-    return *ref != *ref_other;
-}
 RefPtr::RefPtr(const RefPtr &p_other) {
-
     memnew_placement(&data, Ref<RefCounted>);
 
     Ref<RefCounted> *ref = reinterpret_cast<Ref<RefCounted> *>(&data);
@@ -69,37 +63,53 @@ RefPtr::RefPtr(const RefPtr &p_other) {
 }
 
 bool RefPtr::is_null() const {
-
     Ref<RefCounted> *ref = reinterpret_cast<Ref<RefCounted> *>(&data);
-    return data==0 || not (*ref);
+    return data == 0 || not(*ref);
 }
 
-RID RefPtr::get_rid() const {
-
+RenderingEntity RefPtr::get_rid() const {
     Ref<RefCounted> *ref = reinterpret_cast<Ref<RefCounted> *>(&data);
-    if ( not *ref)
-        return RID();
+    if (not *ref) {
+        return entt::null;
+    }
     Resource *res = object_cast<Resource>(ref->get());
-    if (res)
+    if (res) {
         return res->get_rid();
+    }
+    return entt::null;
+}
+
+RID RefPtr::get_phys_rid() const
+{
+    Ref<RefCounted> *ref = reinterpret_cast<Ref<RefCounted> *>(&data);
+    if (not *ref) {
+        return RID();
+    }
+    Resource *res = object_cast<Resource>(ref->get());
+    if (res) {
+        return res->get_phys_rid();
+    }
     return RID();
 }
 
 void RefPtr::unref() {
-    if(0==data)
+    if (0 == data) {
         return;
+    }
+
     Ref<RefCounted> *ref = reinterpret_cast<Ref<RefCounted> *>(&data);
     ref->unref();
 }
 
-RefPtr::RefPtr() {
+RefPtr::RefPtr() noexcept {
     static_assert(sizeof(Ref<RefCounted>) <= sizeof(data));
     memnew_placement(&data, Ref<RefCounted>);
 }
 
 RefPtr::~RefPtr() {
-    if(!data)
+    if (!data) {
         return;
+    }
     Ref<RefCounted> *ref = reinterpret_cast<Ref<RefCounted> *>(&data);
     ref->~Ref<RefCounted>();
 }

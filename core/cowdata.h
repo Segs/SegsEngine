@@ -38,22 +38,23 @@
 #include "EASTL/type_traits.h"
 #include <cstring>
 
-template <class T, class V>
-class VMap;
+SAFE_NUMERIC_TYPE_PUN_GUARANTEES(uint32_t)
 
 template <class T>
 class CowData {
-    template <class TV, class VV>
-    friend class VMap;
 
 private:
     mutable T *_ptr = nullptr;
 
     // internal helpers
 
-    _FORCE_INLINE_ uint32_t *_get_refcount() const;
+    _FORCE_INLINE_ SafeNumeric<uint32_t> *_get_refcount() const {
+
+        if (!_ptr) return nullptr;
+
+        return reinterpret_cast<SafeNumeric<uint32_t> *>(_ptr) - 2;
+    }
     _FORCE_INLINE_ uint32_t *_get_size() const;
-    _FORCE_INLINE_ T *_get_data() const;
     static size_t _get_alloc_size(size_t p_elements) {
         return next_power_of_2(uint32_t(p_elements * sizeof(T)));
     }
@@ -83,18 +84,18 @@ private:
     void _unref(void *p_data);
     void _ref(const CowData *p_from);
     void _ref(const CowData &p_from);
-    void _copy_on_write();
+    uint32_t _copy_on_write();
 
 public:
     CowData &operator=(const CowData<T> &p_from) { _ref(p_from); return *this; }
 
     _FORCE_INLINE_ T *ptrw() {
         _copy_on_write();
-        return _get_data();
+        return _ptr;
     }
 
     const T *ptr() const {
-        return _get_data();
+        return _ptr;
     }
 
     _FORCE_INLINE_ int size() const {
@@ -112,7 +113,7 @@ public:
 
         CRASH_BAD_INDEX(p_index, size());
         _copy_on_write();
-        _get_data()[p_index] = p_elem;
+        _ptr[p_index] = p_elem;
     }
 
     _FORCE_INLINE_ T &get_m(int p_index);
@@ -132,5 +133,5 @@ public:
     _FORCE_INLINE_ CowData(const CowData<T> &p_from) { _ref(p_from); }
 };
 
-extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) CowData<String>;
+extern template class EXPORT_TEMPLATE_DECL CowData<String>;
 //GODOT_TEMPLATE_EXT_DECLARE(CowData<char16_t>)

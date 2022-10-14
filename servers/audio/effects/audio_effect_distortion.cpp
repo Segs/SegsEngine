@@ -69,7 +69,8 @@ void AudioEffectDistortionInstance::process(const AudioFrame *p_src_frames, Audi
 
             case AudioEffectDistortion::MODE_CLIP: {
 
-                a = powf(a, 1.0001 - drive_f);
+                float a_sign = a < 0 ? -1.0f : 1.0f;
+                a = powf(abs(a), 1.0001 - drive_f) * a_sign;
                 if (a > 1.0)
                     a = 1.0;
                 else if (a < (-1.0))
@@ -162,20 +163,20 @@ float AudioEffectDistortion::get_post_gain() const {
 
 void AudioEffectDistortion::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_mode", {"mode"}), &AudioEffectDistortion::set_mode);
-    MethodBinder::bind_method(D_METHOD("get_mode"), &AudioEffectDistortion::get_mode);
+    BIND_METHOD(AudioEffectDistortion,set_mode);
+    BIND_METHOD(AudioEffectDistortion,get_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_pre_gain", {"pre_gain"}), &AudioEffectDistortion::set_pre_gain);
-    MethodBinder::bind_method(D_METHOD("get_pre_gain"), &AudioEffectDistortion::get_pre_gain);
+    BIND_METHOD(AudioEffectDistortion,set_pre_gain);
+    BIND_METHOD(AudioEffectDistortion,get_pre_gain);
 
-    MethodBinder::bind_method(D_METHOD("set_keep_hf_hz", {"keep_hf_hz"}), &AudioEffectDistortion::set_keep_hf_hz);
-    MethodBinder::bind_method(D_METHOD("get_keep_hf_hz"), &AudioEffectDistortion::get_keep_hf_hz);
+    BIND_METHOD(AudioEffectDistortion,set_keep_hf_hz);
+    BIND_METHOD(AudioEffectDistortion,get_keep_hf_hz);
 
-    MethodBinder::bind_method(D_METHOD("set_drive", {"drive"}), &AudioEffectDistortion::set_drive);
-    MethodBinder::bind_method(D_METHOD("get_drive"), &AudioEffectDistortion::get_drive);
+    BIND_METHOD(AudioEffectDistortion,set_drive);
+    BIND_METHOD(AudioEffectDistortion,get_drive);
 
-    MethodBinder::bind_method(D_METHOD("set_post_gain", {"post_gain"}), &AudioEffectDistortion::set_post_gain);
-    MethodBinder::bind_method(D_METHOD("get_post_gain"), &AudioEffectDistortion::get_post_gain);
+    BIND_METHOD(AudioEffectDistortion,set_post_gain);
+    BIND_METHOD(AudioEffectDistortion,get_post_gain);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Clip,ATan,LoFi,Overdrive,WaveShape"), "set_mode", "get_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pre_gain", PropertyHint::Range, "-60,60,0.01"), "set_pre_gain", "get_pre_gain");

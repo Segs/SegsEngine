@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  shape_2d.h                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -60,11 +60,14 @@ public:
     Array collide_with_motion_and_get_contacts(const Transform2D &p_local_xform, const Vector2 &p_local_motion, const Ref<Shape2D> &p_shape, const Transform2D &p_shape_xform, const Vector2 &p_shape_motion);
     Array collide_and_get_contacts(const Transform2D &p_local_xform, const Ref<Shape2D> &p_shape, const Transform2D &p_shape_xform);
 
+    /// Returns the radius of a sphere that fully enclose this shape
     virtual real_t get_enclosing_radius() const = 0;
 
-    virtual void draw(const RID &p_to_rid, const Color &p_color) {}
+    virtual void draw(RenderingEntity p_to_rid, const Color &p_color) {}
     virtual Rect2 get_rect() const { return Rect2(); }
-    RID get_rid() const override;
-    Shape2D();
+    RID get_phys_rid() const override;
+
+    bool is_collision_outline_enabled();
+
     ~Shape2D() override;
 };

@@ -6,7 +6,9 @@
 #include "editor/editor_settings.h"
 #include "editor/editor_node.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
+#include "scene/gui/button.h"
 #include "scene/gui/item_list.h"
+#include "scene/gui/label.h"
 #include "scene/gui/tree.h"
 
 IMPL_GDCLASS(SceneMapEditor)
@@ -20,7 +22,7 @@ SceneMapEditor::SceneMapEditor(EditorNode* p_editor) {
     add_child(track_vbox);
 
     Button* select_all_button = memnew(Button);
-    select_all_button->set_text(TTR("Select All/None"));
+    select_all_button->set_text(TTRS("Select All/None"));
     track_vbox->add_child(select_all_button);
 
     auto t = memnew(Tree);
@@ -69,14 +71,14 @@ void SceneMapEditor::edit(SceneMap *p_scenemap) {
 }
 
 void SceneMapEditor::_notification(int p_what) {
-    NodeNotification nn=static_cast<NodeNotification>(p_what);
+    //NodeNotification nn=static_cast<NodeNotification>(p_what);
     switch(p_what) {
     case NOTIFICATION_PROCESS: {
         if (!m_node) {
             return;
         }
 
-        Transform xf = m_node->get_global_transform();
+        //Transform xf = m_node->get_global_transform();
 
         /*if (xf != grid_xform) {
             for (int i = 0; i < 3; i++) {

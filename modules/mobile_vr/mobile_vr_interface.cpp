@@ -106,7 +106,7 @@ Basis MobileVRInterface::combine_acc_mag(const Vector3 &p_grav, const Vector3 &p
 };
 
 void MobileVRInterface::set_position_from_sensors() {
-	_THREAD_SAFE_METHOD_
+	_THREAD_SAFE_METHOD_;
 
 	// this is a helper function that attempts to adjust our transform using our 9dof sensors
 	// 9dof is a misleading marketing term coming from 3 accelerometer axis + 3 gyro axis + 3 magnetometer axis = 9 axis
@@ -336,7 +336,7 @@ void MobileVRInterface::uninitialize() {
 };
 
 Size2 MobileVRInterface::get_render_targetsize() {
-	_THREAD_SAFE_METHOD_
+	_THREAD_SAFE_METHOD_;
 
 	// we use half our window size
 	Size2 target_size = OS::get_singleton()->get_window_size();
@@ -348,7 +348,7 @@ Size2 MobileVRInterface::get_render_targetsize() {
 };
 
 Transform MobileVRInterface::get_transform_for_eye(ARVREyes p_eye, const Transform &p_cam_transform) {
-	_THREAD_SAFE_METHOD_
+	_THREAD_SAFE_METHOD_;
 
 	Transform transform_for_eye;
 
@@ -383,7 +383,7 @@ Transform MobileVRInterface::get_transform_for_eye(ARVREyes p_eye, const Transfo
 };
 
 CameraMatrix MobileVRInterface::get_projection_for_eye(ARVREyes p_eye, real_t p_aspect, real_t p_z_near, real_t p_z_far) {
-	_THREAD_SAFE_METHOD_
+	_THREAD_SAFE_METHOD_;
 
 	CameraMatrix eye;
 
@@ -402,7 +402,7 @@ CameraMatrix MobileVRInterface::get_projection_for_eye(ARVREyes p_eye, real_t p_
 };
 
 void MobileVRInterface::commit_for_eye(ARVREyes p_eye, RID p_render_target, const Rect2 &p_screen_rect) {
-	_THREAD_SAFE_METHOD_
+	_THREAD_SAFE_METHOD_;
 
 	// We must have a valid render target
 	ERR_FAIL_COND(!p_render_target.is_valid());
@@ -433,7 +433,7 @@ void MobileVRInterface::commit_for_eye(ARVREyes p_eye, RID p_render_target, cons
 };
 
 void MobileVRInterface::process() {
-	_THREAD_SAFE_METHOD_
+	_THREAD_SAFE_METHOD_;
 
 	if (initialized) {
 		set_position_from_sensors();
@@ -441,7 +441,7 @@ void MobileVRInterface::process() {
 };
 
 void MobileVRInterface::notification(int p_what){
-	_THREAD_SAFE_METHOD_
+	_THREAD_SAFE_METHOD_;
 
 	// nothing to do here, I guess we could pauze our sensors...
 }

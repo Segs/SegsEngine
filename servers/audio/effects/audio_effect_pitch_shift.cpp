@@ -346,14 +346,14 @@ AudioEffectPitchShift::FFT_Size AudioEffectPitchShift::get_fft_size() const {
 
 void AudioEffectPitchShift::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_pitch_scale", {"rate"}), &AudioEffectPitchShift::set_pitch_scale);
-    MethodBinder::bind_method(D_METHOD("get_pitch_scale"), &AudioEffectPitchShift::get_pitch_scale);
+    BIND_METHOD(AudioEffectPitchShift,set_pitch_scale);
+    BIND_METHOD(AudioEffectPitchShift,get_pitch_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_oversampling", {"amount"}), &AudioEffectPitchShift::set_oversampling);
-    MethodBinder::bind_method(D_METHOD("get_oversampling"), &AudioEffectPitchShift::get_oversampling);
+    BIND_METHOD(AudioEffectPitchShift,set_oversampling);
+    BIND_METHOD(AudioEffectPitchShift,get_oversampling);
 
-    MethodBinder::bind_method(D_METHOD("set_fft_size", {"size"}), &AudioEffectPitchShift::set_fft_size);
-    MethodBinder::bind_method(D_METHOD("get_fft_size"), &AudioEffectPitchShift::get_fft_size);
+    BIND_METHOD(AudioEffectPitchShift,set_fft_size);
+    BIND_METHOD(AudioEffectPitchShift,get_fft_size);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pitch_scale", PropertyHint::Range, "0.01,16,0.01"), "set_pitch_scale", "get_pitch_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "oversampling", PropertyHint::Range, "4,32,1"), "set_oversampling", "get_oversampling");

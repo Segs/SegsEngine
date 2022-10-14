@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  video_stream.h                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,12 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VIDEO_STREAM_H
-#define VIDEO_STREAM_H
+#pragma once
 
 #include "scene/resources/texture.h"
 
-class VideoStreamPlayback : public Resource {
+class GODOT_EXPORT VideoStreamPlayback : public Resource {
 
     GDCLASS(VideoStreamPlayback,Resource)
 
@@ -68,7 +67,7 @@ public:
     VideoStreamPlayback() {}
 };
 
-class VideoStream : public Resource {
+class GODOT_EXPORT VideoStream : public Resource {
 
     GDCLASS(VideoStream,Resource)
 
@@ -80,5 +79,3 @@ public:
 
     VideoStream() {}
 };
-
-#endif

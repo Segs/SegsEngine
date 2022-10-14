@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  capsule_shape_2d.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CAPSULE_SHAPE_2D_H
-#define CAPSULE_SHAPE_2D_H
+#pragma once
 
 #include "scene/resources/shape_2d.h"
 
@@ -59,10 +58,9 @@ public:
     real_t get_enclosing_radius() const override {
         return radius + height * 0.5f;
     }
-    void draw(const RID &p_to_rid, const Color &p_color) override;
+    void draw(RenderingEntity p_to_rid, const Color &p_color) override;
     Rect2 get_rect() const override;
 
     CapsuleShape2D();
 };
 
-#endif // CAPSULE_SHAPE_2D_H

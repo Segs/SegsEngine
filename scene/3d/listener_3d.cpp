@@ -150,23 +150,13 @@ bool Listener3D::is_current() const {
     return false;
 }
 
-bool Listener3D::_can_gizmo_scale() const {
-
-    return false;
-}
-
-RES Listener3D::_get_gizmo_geometry() const {
-    Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
-
-    return mesh;
-}
 
 void Listener3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("make_current"), &Listener3D::make_current);
-    MethodBinder::bind_method(D_METHOD("clear_current"), &Listener3D::clear_current);
-    MethodBinder::bind_method(D_METHOD("is_current"), &Listener3D::is_current);
-    MethodBinder::bind_method(D_METHOD("get_listener_transform"), &Listener3D::get_listener_transform);
+    BIND_METHOD(Listener3D,make_current);
+    BIND_METHOD(Listener3D,clear_current);
+    BIND_METHOD(Listener3D,is_current);
+    BIND_METHOD(Listener3D,get_listener_transform);
 }
 
 Listener3D::Listener3D() {
@@ -174,7 +164,6 @@ Listener3D::Listener3D() {
     current = false;
     force_change = false;
     set_notify_transform(true);
-    //active=false;
 }
 
 Listener3D::~Listener3D() {

@@ -38,6 +38,8 @@
 #include "core/translation_helpers.h"
 #include "editor/editor_settings.h"
 #include "editor/editor_scale.h"
+#include "scene/gui/menu_button.h"
+#include "scene/gui/separator.h"
 
 IMPL_GDCLASS(Path2DEditor)
 IMPL_GDCLASS(Path2DEditorPlugin)
@@ -296,8 +298,9 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
             Vector2 gpoint = mm->get_position();
 
             Ref<Curve2D> curve = node->get_curve();
-            if (curve == nullptr) return true;
-            if (curve->get_point_count() < 2) return true;
+            if (curve == nullptr || curve->get_point_count() < 2) {
+                return true;
+            }
 
             // Find edge
             edge_point = xform.xform(curve->get_closest_point(xform.affine_inverse().xform(mm->get_position())));
@@ -555,34 +558,34 @@ Path2DEditor::Path2DEditor(EditorNode *p_editor) {
     curve_edit->set_toggle_mode(true);
     curve_edit->set_focus_mode(Control::FOCUS_NONE);
     curve_edit->set_tooltip(TTR("Select Points") + "\n" + TTR("Shift+Drag: Select Control Points") + "\n" + String(keycode_get_string(KEY_MASK_CMD)) + TTR("Click: Add Point") + "\n" + TTR("Left Click: Split Segment (in curve)") + "\n" + TTR("Right Click: Delete Point"));
-    curve_edit->connect("pressed",callable_mp(this, &ClassName::_mode_selected), varray(MODE_EDIT));
+    curve_edit->connectF("pressed",this,[this]() { _mode_selected(MODE_EDIT); });
     base_hb->add_child(curve_edit);
     curve_edit_curve = memnew(ToolButton);
     curve_edit_curve->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("CurveCurve", "EditorIcons"));
     curve_edit_curve->set_toggle_mode(true);
     curve_edit_curve->set_focus_mode(Control::FOCUS_NONE);
     curve_edit_curve->set_tooltip(TTR("Select Control Points (Shift+Drag)"));
-    curve_edit_curve->connect("pressed",callable_mp(this, &ClassName::_mode_selected), varray(MODE_EDIT_CURVE));
+    curve_edit_curve->connectF("pressed",this,[this]() { _mode_selected(MODE_EDIT_CURVE); });
     base_hb->add_child(curve_edit_curve);
     curve_create = memnew(ToolButton);
     curve_create->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("CurveCreate", "EditorIcons"));
     curve_create->set_toggle_mode(true);
     curve_create->set_focus_mode(Control::FOCUS_NONE);
     curve_create->set_tooltip(TTR("Add Point (in empty space)"));
-    curve_create->connect("pressed",callable_mp(this, &ClassName::_mode_selected), varray(MODE_CREATE));
+    curve_create->connectF("pressed",this,[this]() { _mode_selected(MODE_CREATE); });
     base_hb->add_child(curve_create);
     curve_del = memnew(ToolButton);
     curve_del->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("CurveDelete", "EditorIcons"));
     curve_del->set_toggle_mode(true);
     curve_del->set_focus_mode(Control::FOCUS_NONE);
     curve_del->set_tooltip(TTR("Delete Point"));
-    curve_del->connect("pressed",callable_mp(this, &ClassName::_mode_selected), varray(MODE_DELETE));
+    curve_del->connectF("pressed",this,[this]() { _mode_selected(MODE_DELETE); });
     base_hb->add_child(curve_del);
     curve_close = memnew(ToolButton);
     curve_close->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("CurveClose", "EditorIcons"));
     curve_close->set_focus_mode(Control::FOCUS_NONE);
     curve_close->set_tooltip(TTR("Close Curve"));
-    curve_close->connect("pressed",callable_mp(this, &ClassName::_mode_selected), varray(ACTION_CLOSE));
+    curve_close->connectF("pressed",this,[this]() { _mode_selected(ACTION_CLOSE); });
     base_hb->add_child(curve_close);
 
     PopupMenu *menu;

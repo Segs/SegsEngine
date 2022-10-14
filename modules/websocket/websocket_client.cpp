@@ -69,7 +69,7 @@ Error WebSocketClient::connect_to_url(StringView p_url, const PoolStringArray &p
     }
 
     // Port
-    p_len = StringUtils::find_last(host,":");
+    p_len = StringUtils::rfind(host,":");
     if (p_len != String::npos && p_len == StringUtils::find(host,":")) {
         port = StringUtils::to_int(StringUtils::substr(host,p_len, host.length() - p_len));
         host = StringUtils::substr(host,0, p_len);
@@ -148,10 +148,10 @@ void WebSocketClient::_on_error() {
 void WebSocketClient::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("connect_to_url", {"url", "protocols", "gd_mp_api", "custom_headers"}), &WebSocketClient::connect_to_url, {DEFVAL(PoolStringArray()), DEFVAL(false), DEFVAL(PoolStringArray())});
     MethodBinder::bind_method(D_METHOD("disconnect_from_host", {"code", "reason"}), &WebSocketClient::disconnect_from_host, {DEFVAL(1000), DEFVAL("")});
-    MethodBinder::bind_method(D_METHOD("get_connected_host"), &WebSocketClient::get_connected_host);
-    MethodBinder::bind_method(D_METHOD("get_connected_port"), &WebSocketClient::get_connected_port);
-    MethodBinder::bind_method(D_METHOD("set_verify_ssl_enabled", {"enabled"}), &WebSocketClient::set_verify_ssl_enabled);
-    MethodBinder::bind_method(D_METHOD("is_verify_ssl_enabled"), &WebSocketClient::is_verify_ssl_enabled);
+    BIND_METHOD(WebSocketClient,get_connected_host);
+    BIND_METHOD(WebSocketClient,get_connected_port);
+    BIND_METHOD(WebSocketClient,set_verify_ssl_enabled);
+    BIND_METHOD(WebSocketClient,is_verify_ssl_enabled);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "verify_ssl", PropertyHint::None, "", 0), "set_verify_ssl_enabled", "is_verify_ssl_enabled");
 

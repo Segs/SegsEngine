@@ -162,8 +162,15 @@ private:
 #ifndef JAVASCRIPT_ENABLED
     Status status;
     IP::ResolverID resolving;
-    int conn_port;
+    Array ip_candidates;
+    int conn_port;  // Server to make requests to.
     String conn_host;
+    int server_port; // Server to connect to (might be a proxy server).
+    String server_host;
+    int http_proxy_port; // Proxy server for http requests.
+    String http_proxy_host;
+    int https_proxy_port; // Proxy server for https requests.
+    String https_proxy_host;
     bool ssl;
     bool ssl_verify_host;
     bool blocking;
@@ -176,12 +183,13 @@ private:
     Vector<uint8_t> chunk;
     int chunk_left;
     bool chunk_trailer_part;
-    int body_size;
-    int body_left;
+    int64_t body_size;
+    int64_t body_left;
     bool read_until_eof;
 
     Ref<StreamPeerTCP> tcp_connection;
     Ref<StreamPeer> connection;
+    Ref<HTTPClient> proxy_client;
 
     int response_num;
     Vector<String> response_headers;
@@ -215,7 +223,7 @@ public:
     bool is_response_chunked() const;
     int get_response_code() const;
     Error get_response_headers(List<String> *r_response);
-    int get_response_body_length() const;
+    int64_t get_response_body_length() const;
 
     PoolByteArray read_response_body_chunk(); // Can't get body as partial text because of most encodings UTF8, gzip, etc.
 
@@ -228,6 +236,10 @@ public:
     Error poll();
 
     String query_string_from_dict(const Dictionary &p_dict);
+
+    // Use empty string or -1 to unset.
+    void set_http_proxy(const String &p_host, int p_port);
+    void set_https_proxy(const String &p_host, int p_port);
 
     HTTPClient();
     ~HTTPClient() override;

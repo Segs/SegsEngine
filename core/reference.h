@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  reference.h                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -27,20 +27,12 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
-
 #pragma once
 
 #include "core/object.h"
 #include "core/ref_ptr.h"
 #include "core/safe_refcount.h"
 #include "core/typesystem_decls.h"
-#include <cassert>
-
-#ifdef DEBUG_METHODS_ENABLED
-
-template <class T, typename>
-struct GetTypeInfo;
-#endif
 
 class GODOT_EXPORT RefCounted : public Object {
 
@@ -67,14 +59,14 @@ public:
 class GODOT_EXPORT EncodedObjectAsID : public RefCounted {
     GDCLASS(EncodedObjectAsID, RefCounted)
 
-    ObjectID id {0ULL};
+    GameEntity id {entt::null};
 
 protected:
     static void _bind_methods();
 
 public:
-    void set_object_id(ObjectID p_id);
-    ObjectID get_object_id() const;
+    void set_object_id(GameEntity p_id);
+    GameEntity get_object_id() const;
 
     EncodedObjectAsID() = default;
 };
@@ -185,18 +177,19 @@ public:
         reference = nullptr;
     }
 
-    operator Variant() const {
-
+    [[nodiscard]] operator Variant() const {
         return Variant(get_ref_ptr());
     }
-    RefPtr get_ref_ptr() const {
+
+    [[nodiscard]] RefPtr get_ref_ptr() const {
 
         RefPtr refptr;
         Ref<RefCounted> *irr = reinterpret_cast<Ref<RefCounted> *>(refptr.get());
         *irr = *this;
         return refptr;
     }
-    T *get() const { return reference; }
+
+    [[nodiscard]] T *get() const { return reference; }
 
     void reset()
     {
@@ -276,20 +269,17 @@ Ref<T>::Ref(const Variant &p_variant) {
    reference = nullptr;
    *this = refFromRefPtr<T>(refptr);
 }
-//template <class T, class U>
-//Ref<T> static_ref_cast(const Ref<U>& intrusivePtr)
-//{
-//    return static_cast<T*>(intrusivePtr.ptr());
-//}
+
 template <class T, class U>
 Ref<T> dynamic_ref_cast(const Ref<U>& intrusivePtr)
 {
     return Ref<T>(object_cast<T>(intrusivePtr.get()));
 }
+
 template <class T, class U>
-Ref<T> dynamic_ref_cast(Ref<U>& intrusivePtr)
+Ref<T> static_ref_cast(const Ref<U>& intrusivePtr)
 {
-    return Ref<T>(object_cast<T>(intrusivePtr.get()));
+    return Ref<T>(static_cast<T *>(intrusivePtr.get()));
 }
 
 using REF = Ref<RefCounted>;
@@ -298,7 +288,7 @@ class GODOT_EXPORT WeakRef : public RefCounted {
 
     GDCLASS(WeakRef,RefCounted)
 
-    ObjectID ref {0ULL};
+    GameEntity ref {entt::null};
 
 protected:
     static void _bind_methods();
@@ -311,7 +301,8 @@ public:
     WeakRef() = default;
 };
 
-#ifdef DEBUG_METHODS_ENABLED
+template <class T, typename>
+struct GetTypeInfo;
 
 template <class T>
 struct GetTypeInfo<Ref<T>,void> {
@@ -335,7 +326,6 @@ struct GetTypeInfo<const Ref<T> &,void> {
     }
 };
 
-#endif // DEBUG_METHODS_ENABLED
 
 namespace eastl {
 template<typename T>

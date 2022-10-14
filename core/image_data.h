@@ -1,9 +1,11 @@
-#pragma once
+﻿#pragma once
 
+#include "core/reflection_macros.h"
 #include "core/pool_vector.h"
 
 struct ImageData
 {
+    SE_CLASS()
     enum Format : uint8_t {
 
         FORMAT_L8=0, //luminance
@@ -31,26 +33,14 @@ struct ImageData
         FORMAT_BPTC_RGBA, //btpc bc7
         FORMAT_BPTC_RGBF, //float bc6h
         FORMAT_BPTC_RGBFU, //unsigned float bc6hu
-        FORMAT_PVRTC2, //pvrtc
-        FORMAT_PVRTC2A,
-        FORMAT_PVRTC4,
-        FORMAT_PVRTC4A,
-        FORMAT_ETC, //etc1
-        FORMAT_ETC2_R11, //etc2
-        FORMAT_ETC2_R11S, //signed, NOT srgb.
-        FORMAT_ETC2_RG11,
-        FORMAT_ETC2_RG11S,
-        FORMAT_ETC2_RGB8,
-        FORMAT_ETC2_RGBA8,
-        FORMAT_ETC2_RGB8A1,
-        FORMAT_ETC2_RA_AS_RG, //used to make basis universal happy
         FORMAT_DXT5_RA_AS_RG, //used to make basis universal happy
         FORMAT_MAX
     };
+    SE_ENUM(Format)
+
     enum {
         MAX_WIDTH = 16384, // force a limit somehow
         MAX_HEIGHT = 16384, // force a limit somehow
-        MAX_PIXELS = 268435456
     };
 
     PoolVector<uint8_t> data;

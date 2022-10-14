@@ -157,17 +157,17 @@ AudioEffectFilter::FilterDB AudioEffectFilter::get_db() const {
 
 void AudioEffectFilter::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_cutoff", {"freq"}), &AudioEffectFilter::set_cutoff);
-    MethodBinder::bind_method(D_METHOD("get_cutoff"), &AudioEffectFilter::get_cutoff);
+    BIND_METHOD(AudioEffectFilter,set_cutoff);
+    BIND_METHOD(AudioEffectFilter,get_cutoff);
 
-    MethodBinder::bind_method(D_METHOD("set_resonance", {"amount"}), &AudioEffectFilter::set_resonance);
-    MethodBinder::bind_method(D_METHOD("get_resonance"), &AudioEffectFilter::get_resonance);
+    BIND_METHOD(AudioEffectFilter,set_resonance);
+    BIND_METHOD(AudioEffectFilter,get_resonance);
 
-    MethodBinder::bind_method(D_METHOD("set_gain", {"amount"}), &AudioEffectFilter::set_gain);
-    MethodBinder::bind_method(D_METHOD("get_gain"), &AudioEffectFilter::get_gain);
+    BIND_METHOD(AudioEffectFilter,set_gain);
+    BIND_METHOD(AudioEffectFilter,get_gain);
 
-    MethodBinder::bind_method(D_METHOD("set_db", {"amount"}), &AudioEffectFilter::set_db);
-    MethodBinder::bind_method(D_METHOD("get_db"), &AudioEffectFilter::get_db);
+    BIND_METHOD(AudioEffectFilter,set_db);
+    BIND_METHOD(AudioEffectFilter,get_db);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "cutoff_hz", PropertyHint::Range, "1,20500,1"), "set_cutoff", "get_cutoff");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "resonance", PropertyHint::Range, "0,1,0.01"), "set_resonance", "get_resonance");

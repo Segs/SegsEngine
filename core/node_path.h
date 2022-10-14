@@ -40,8 +40,8 @@ class GODOT_EXPORT NodePath {
 
 private:
     mutable struct NodePathData *data=nullptr;
+    mutable uint32_t hash_cache = 0;
     mutable bool hash_cache_valid=false;
-    mutable uint32_t hash_cache;
 
     void unref();
 
@@ -66,8 +66,6 @@ public:
 
     void prepend_period();
 
-    NodePath get_parent() const;
-
     _FORCE_INLINE_ uint32_t hash() const {
         if (!data) {
             return 0;
@@ -80,24 +78,23 @@ public:
 
     explicit operator String() const;
 
-    //!< this function only checks if `data` is set/allocated
+    //! this function only checks if `data` is set/allocated
     bool is_empty() const { return !data; }
 
     bool empty() const noexcept;
 
     bool operator==(const NodePath &p_path) const;
-    bool operator!=(const NodePath &p_path) const;
+    bool operator!=(const NodePath &p_path) const { return (!(*this == p_path)); }
     NodePath &operator=(const NodePath &p_path);
     NodePath& operator=(NodePath&& p_path) noexcept {
-        if(this==&p_path)
-            return *this;
         unref();
+        // NOTE: no need to check if this == &from,
+        // since in that case data is nullptr, the code below will just cost a few assignments, instead of conditional
         data = p_path.data;
         hash_cache_valid = p_path.hash_cache_valid;
         hash_cache = p_path.hash_cache;
         p_path.data = nullptr;
         p_path.hash_cache_valid = false;
-        p_path.hash_cache = 0;
         return *this;
     }
     void simplify();
@@ -107,13 +104,12 @@ public:
     NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p_subpath, bool p_absolute);
     NodePath(Vector<StringName> &&p_path, Vector<StringName> &&p_subpath, bool p_absolute);
     NodePath(const NodePath &p_path);
-    NodePath(NodePath &&p_path) noexcept : data(p_path.data),hash_cache_valid(p_path.hash_cache_valid),hash_cache(p_path.hash_cache) {
+    NodePath(NodePath &&p_path) noexcept : data(p_path.data),hash_cache(p_path.hash_cache),hash_cache_valid(p_path.hash_cache_valid) {
         p_path.data = nullptr;
         p_path.hash_cache_valid = false;
-        p_path.hash_cache = 0;
     }
     explicit NodePath(StringView p_path);
-    NodePath();
+    NodePath() = default;
     ~NodePath();
 };
 

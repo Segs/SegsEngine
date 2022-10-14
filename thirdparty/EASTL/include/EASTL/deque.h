@@ -513,7 +513,7 @@ namespace eastl
 
 	template <typename T, typename Allocator, unsigned kDequeSubarraySize>
 	DequeBase<T, Allocator, kDequeSubarraySize>::DequeBase(const allocator_type& allocator)
-		: mpPtrArray(NULL),
+		: mpPtrArray(nullptr),
 		  mnPtrArraySize(0),
 		  mItBegin(),
 		  mItEnd(),
@@ -525,7 +525,7 @@ namespace eastl
 
 	template <typename T, typename Allocator, unsigned kDequeSubarraySize>
 	DequeBase<T, Allocator, kDequeSubarraySize>::DequeBase(size_type n)
-		: mpPtrArray(NULL),
+		: mpPtrArray(nullptr),
 		  mnPtrArraySize(0),
 		  mItBegin(),
 		  mItEnd(),
@@ -540,7 +540,7 @@ namespace eastl
 
 	template <typename T, typename Allocator, unsigned kDequeSubarraySize>
 	DequeBase<T, Allocator, kDequeSubarraySize>::DequeBase(size_type n, const allocator_type& allocator)
-		: mpPtrArray(NULL),
+		: mpPtrArray(nullptr),
 		  mnPtrArraySize(0),
 		  mItBegin(),
 		  mItEnd(),

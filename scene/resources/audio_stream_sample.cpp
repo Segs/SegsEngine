@@ -237,9 +237,15 @@ void AudioStreamPlaybackSample::mix(AudioFrame *p_buffer, float p_rate_scale, in
 
     int len = base->data_bytes;
     switch (base->format) {
-        case AudioStreamSample::FORMAT_8_BITS: len /= 1; break;
-        case AudioStreamSample::FORMAT_16_BITS: len /= 2; break;
-        case AudioStreamSample::FORMAT_IMA_ADPCM: len *= 2; break;
+        case AudioStreamSample::FORMAT_8_BITS:
+            len /= 1;
+            break;
+        case AudioStreamSample::FORMAT_16_BITS:
+            len /= 2;
+            break;
+        case AudioStreamSample::FORMAT_IMA_ADPCM:
+            len *= 2;
+            break;
     }
 
     if (base->stereo) {
@@ -473,9 +479,15 @@ float AudioStreamSample::get_length() const {
 
     int len = data_bytes;
     switch (format) {
-        case AudioStreamSample::FORMAT_8_BITS: len /= 1; break;
-        case AudioStreamSample::FORMAT_16_BITS: len /= 2; break;
-        case AudioStreamSample::FORMAT_IMA_ADPCM: len *= 2; break;
+        case AudioStreamSample::FORMAT_8_BITS:
+            len /= 1;
+            break;
+        case AudioStreamSample::FORMAT_16_BITS:
+            len /= 2;
+            break;
+        case AudioStreamSample::FORMAT_IMA_ADPCM:
+            len *= 2;
+            break;
     }
 
     if (stereo) {
@@ -542,9 +554,15 @@ Error AudioStreamSample::save_to_wav(StringView p_path) {
 
     int byte_pr_sample = 0;
     switch (format) {
-        case AudioStreamSample::FORMAT_8_BITS: byte_pr_sample = 1; break;
-        case AudioStreamSample::FORMAT_16_BITS: byte_pr_sample = 2; break;
-        case AudioStreamSample::FORMAT_IMA_ADPCM: byte_pr_sample = 4; break;
+        case AudioStreamSample::FORMAT_8_BITS:
+            byte_pr_sample = 1;
+            break;
+        case AudioStreamSample::FORMAT_16_BITS:
+            byte_pr_sample = 2;
+            break;
+        case AudioStreamSample::FORMAT_IMA_ADPCM:
+            byte_pr_sample = 4;
+            break;
     }
 
     String file_path(p_path);
@@ -611,28 +629,28 @@ String AudioStreamSample::get_stream_name() const {
 
 void AudioStreamSample::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_data", {"data"}), &AudioStreamSample::set_data);
-    MethodBinder::bind_method(D_METHOD("get_data"), &AudioStreamSample::get_data);
+    BIND_METHOD(AudioStreamSample,set_data);
+    BIND_METHOD(AudioStreamSample,get_data);
 
-    MethodBinder::bind_method(D_METHOD("set_format", {"format"}), &AudioStreamSample::set_format);
-    MethodBinder::bind_method(D_METHOD("get_format"), &AudioStreamSample::get_format);
+    BIND_METHOD(AudioStreamSample,set_format);
+    BIND_METHOD(AudioStreamSample,get_format);
 
-    MethodBinder::bind_method(D_METHOD("set_loop_mode", {"loop_mode"}), &AudioStreamSample::set_loop_mode);
-    MethodBinder::bind_method(D_METHOD("get_loop_mode"), &AudioStreamSample::get_loop_mode);
+    BIND_METHOD(AudioStreamSample,set_loop_mode);
+    BIND_METHOD(AudioStreamSample,get_loop_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_loop_begin", {"loop_begin"}), &AudioStreamSample::set_loop_begin);
-    MethodBinder::bind_method(D_METHOD("get_loop_begin"), &AudioStreamSample::get_loop_begin);
+    BIND_METHOD(AudioStreamSample,set_loop_begin);
+    BIND_METHOD(AudioStreamSample,get_loop_begin);
 
-    MethodBinder::bind_method(D_METHOD("set_loop_end", {"loop_end"}), &AudioStreamSample::set_loop_end);
-    MethodBinder::bind_method(D_METHOD("get_loop_end"), &AudioStreamSample::get_loop_end);
+    BIND_METHOD(AudioStreamSample,set_loop_end);
+    BIND_METHOD(AudioStreamSample,get_loop_end);
 
-    MethodBinder::bind_method(D_METHOD("set_mix_rate", {"mix_rate"}), &AudioStreamSample::set_mix_rate);
-    MethodBinder::bind_method(D_METHOD("get_mix_rate"), &AudioStreamSample::get_mix_rate);
+    BIND_METHOD(AudioStreamSample,set_mix_rate);
+    BIND_METHOD(AudioStreamSample,get_mix_rate);
 
-    MethodBinder::bind_method(D_METHOD("set_stereo", {"stereo"}), &AudioStreamSample::set_stereo);
-    MethodBinder::bind_method(D_METHOD("is_stereo"), &AudioStreamSample::is_stereo);
+    BIND_METHOD(AudioStreamSample,set_stereo);
+    BIND_METHOD(AudioStreamSample,is_stereo);
 
-    MethodBinder::bind_method(D_METHOD("save_to_wav", {"path"}), &AudioStreamSample::save_to_wav);
+    BIND_METHOD(AudioStreamSample,save_to_wav);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "format", PropertyHint::Enum, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");

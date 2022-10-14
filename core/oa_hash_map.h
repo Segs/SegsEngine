@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  oa_hash_map.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -93,7 +93,7 @@ private:
         uint32_t pos = hash % capacity;
         uint32_t distance = 0;
 
-        while (42) {
+        while (true) {
             if (hashes[pos] == EMPTY_HASH) {
                 return false;
             }
@@ -121,7 +121,7 @@ private:
         TKey key = p_key;
         TValue value = p_value;
 
-        while (42) {
+        while (true) {
             if (hashes[pos] == EMPTY_HASH) {
                 _construct(pos, hash, key, value);
 
@@ -153,9 +153,9 @@ private:
         num_elements = 0;
 
 
-        keys = static_cast<TKey *>(Memory::alloc_static(sizeof(TKey) * capacity));
-        values = static_cast<TValue *>(Memory::alloc_static(sizeof(TValue) * capacity));
-        hashes = static_cast<uint32_t *>(Memory::alloc_static(sizeof(uint32_t) * capacity));
+        keys = static_cast<TKey *>(Memory::alloc(sizeof(TKey) * capacity));
+        values = static_cast<TValue *>(Memory::alloc(sizeof(TValue) * capacity));
+        hashes = static_cast<uint32_t *>(Memory::alloc(sizeof(uint32_t) * capacity));
 
         for (uint32_t i = 0; i < capacity; i++) {
             hashes[i] = 0;
@@ -174,9 +174,9 @@ private:
                 old_values[i].~TValue();
         }
 
-        Memory::free_static(old_keys);
-        Memory::free_static(old_values);
-        Memory::free_static(old_hashes);
+        Memory::free(old_keys);
+        Memory::free(old_values);
+        Memory::free(old_hashes);
     }
 
     void _resize_and_rehash() {
@@ -249,6 +249,25 @@ public:
         return false;
     }
 
+    const TValue *lookup_ptr(const TKey &p_key) const {
+        uint32_t pos = 0;
+        bool exists = _lookup_pos(p_key, pos);
+
+        if (exists) {
+            return &values[pos];
+        }
+        return nullptr;
+    }
+
+    TValue *lookup_ptr(const TKey &p_key) {
+        uint32_t pos = 0;
+        bool exists = _lookup_pos(p_key, pos);
+
+        if (exists) {
+            return &values[pos];
+        }
+        return nullptr;
+    }
     _FORCE_INLINE_ bool has(const TKey &p_key) const {
         uint32_t _pos = 0;
         return _lookup_pos(p_key, _pos);
@@ -345,9 +364,9 @@ public:
         capacity = p_initial_capacity;
         num_elements = 0;
 
-        keys = static_cast<TKey *>(Memory::alloc_static(sizeof(TKey) * capacity));
-        values = static_cast<TValue *>(Memory::alloc_static(sizeof(TValue) * capacity));
-        hashes = static_cast<uint32_t *>(Memory::alloc_static(sizeof(uint32_t) * capacity));
+        keys = static_cast<TKey *>(Memory::alloc(sizeof(TKey) * capacity));
+        values = static_cast<TValue *>(Memory::alloc(sizeof(TValue) * capacity));
+        hashes = static_cast<uint32_t *>(Memory::alloc(sizeof(uint32_t) * capacity));
 
         for (uint32_t i = 0; i < p_initial_capacity; i++) {
             hashes[i] = EMPTY_HASH;
@@ -367,8 +386,8 @@ public:
                 values[i].~TValue();
         }
 
-        Memory::free_static(keys);
-        Memory::free_static(values);
-        Memory::free_static(hashes);
+        Memory::free(keys);
+        Memory::free(values);
+        Memory::free(hashes);
     }
 };

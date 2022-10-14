@@ -69,7 +69,7 @@ void PanelContainer::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
 
-        RID ci = get_canvas_item();
+        RenderingEntity ci = get_canvas_item();
         Ref<StyleBox> style;
 
         if (has_stylebox("panel"))

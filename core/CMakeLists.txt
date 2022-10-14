@@ -1,4 +1,4 @@
-# Generate AES256 script encryption key
+﻿# Generate AES256 script encryption key
 add_custom_command(
     COMMAND editor_to_header encryption ${CMAKE_CURRENT_BINARY_DIR}
     OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/script_encryption_key.gen.cpp
@@ -10,9 +10,9 @@ update_version("")
 
 
 add_custom_command(
-    COMMAND editor_to_header license "${PROJECT_SOURCE_DIR}/COPYRIGHT.txt" "${PROJECT_SOURCE_DIR}/LICENSE.txt" ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h
+    COMMAND editor_to_header license "${PROJECT_SOURCE_DIR}/COPYRIGHT.txt" "${PROJECT_SOURCE_DIR}/LICENSE.md" ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h
     OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h
-    DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/COPYRIGHT.txt ${PROJECT_SOURCE_DIR}/LICENSE.txt
+    DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/COPYRIGHT.txt ${PROJECT_SOURCE_DIR}/LICENSE.md
     COMMENT "Generating license header"
 )
 add_custom_command(
@@ -27,6 +27,8 @@ add_custom_command(
     DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/DONORS.md
     COMMENT "Generating donors header"
 )
+
+add_subdirectory(build_specific)
 
 # Godot's own sources
 set(core_sources
@@ -103,8 +105,6 @@ set(core_sources
     math/bsp_tree.h
     math/disjoint_set.cpp
     math/disjoint_set.h
-    #math/expression.cpp
-    #math/expression.h
     math/random_number_generator.cpp
     math/random_number_generator.h
     math/triangle_mesh.cpp
@@ -132,7 +132,7 @@ set(core_sources
 
     object.cpp
     object.h
-    os/alloc_wrapper.h
+    object_private.h
     os/input.cpp
     os/input.h
     os/main_loop.cpp
@@ -148,7 +148,11 @@ set(core_sources
     resource/manifest.h
     resource/resource_manager.h
     resource/resource_manager.cpp
+    resource/resource_tools.h
+    resource/resource_manager_tooling.h
 
+    bitfield_dynamic.cpp
+    bitfield_dynamic.h
     class_db.cpp
     class_db.h
     callable.cpp
@@ -165,8 +169,6 @@ set(core_sources
     cowdata_impl.h
     engine.cpp
     engine.h
-#    func_ref.cpp
-#    func_ref.h
     global_constants.cpp
     global_constants.h
     hashfuncs.h
@@ -182,13 +184,11 @@ set(core_sources
     method_info.h
     method_ptrcall.h
     object_tooling.h
-    object_tooling.cpp
     pool_vector.cpp
     pool_vector.h
 
     packed_data_container.cpp
     packed_data_container.h
-    precompiled.h
     project_settings.cpp
     project_settings.h
     ref_ptr.cpp
@@ -205,6 +205,7 @@ set(core_sources
     script_debugger_local.h
     script_language.cpp
     script_language.h
+    threaded_callable_queue.h
     translation.cpp
     translation.h
     translation_helpers.cpp
@@ -224,6 +225,7 @@ set(core_sources
     variant_op.cpp
     variant_parser.cpp
     variant_parser.h
+    ${CMAKE_CURRENT_BINARY_DIR}/version_hash.gen.cpp
 )
 set(editor_core_sources
     reflection_support/reflection_generator.cpp
@@ -250,6 +252,9 @@ set(generic_core_sources
     math/audio_frame.h
     math/basis.cpp
     math/basis.h
+    math/convex_hull.cpp
+    math/convex_hull.h
+    math/camera_matrix.h
     math/camera_matrix.cpp
     math/camera_matrix.h
     math/delaunay.h
@@ -300,6 +305,7 @@ set(generic_core_sources
     os/memory.h
     os/mutex.cpp
     os/mutex.h
+    os/spin_lock.h
     os/rw_lock.h
     os/semaphore.cpp
     os/semaphore.h
@@ -307,14 +313,19 @@ set(generic_core_sources
     os/thread.h
     os/thread_safe.cpp
     os/thread_safe.h
+    os/thread_work_pool.cpp
+    os/thread_work_pool.h
     os/threaded_array_processor.h
 
+    os/time.h
+    os/time.cpp
     service_interfaces/CoreInterface.h
 
     color.cpp
     color.h
     core_string_names.cpp
     core_string_names.h
+    engine_tooling.h
     error_list.h
     error_macros.cpp
     error_macros.h
@@ -339,6 +350,9 @@ set(generic_core_sources
     property_info.cpp
     property_info.h
     typesystem_decls.h
+
+    engine_entities.cpp
+    engine_entities.h
 
     hash_map.h
     hash_set.h
@@ -421,12 +435,12 @@ if(USE_PRECOMPILED_HEADERS)
     set_property(SOURCE ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/se_core.dir/cmake_pch.cxx PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
 endif()
 #zstd_internal is in public part of target_link_libraries to propagate it's flags to all users of se_core
-target_link_libraries(se_core PUBLIC core_service_interfaces Qt5::Core zstd_internal EnTT::EnTT)
-target_link_libraries(se_core PRIVATE EASTL minizip thirdparty_misc )
+target_link_libraries(se_core PUBLIC EASTL core_service_interfaces Qt5::Core zstd_internal EnTT::EnTT)
+target_link_libraries(se_core PRIVATE minizip thirdparty_misc stb_rect_pack)
 target_include_directories(se_core PUBLIC ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 set_common_target_properties(se_core)
 # TODO: this should use interface library common to all targets!
-target_link_libraries(se_core PUBLIC common_interface)
+target_link_libraries(se_core PRIVATE common_interface)
 
 #add_subdirectory(helper)
 # Build it all as a library
@@ -443,12 +457,11 @@ foreach(tgt ${global_targets})
             target_precompile_headers(${tgt}_core REUSE_FROM se_core)
         endforeach()
     endif()
-    get_target_property(ccc common_interface INTERFACE_COMPILE_DEFINITIONS)
 
-    target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces )
-    target_link_libraries(${tgt}_core PUBLIC se_core EASTL_Import zlib_interface concurrent_queue ${tgt}_interface)
+    target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces ${tgt}_interface)
+    target_link_libraries(${tgt}_core PUBLIC se_core se_core_${tgt} EASTL_Import zlib_interface concurrent_queue)
 
-    target_link_libraries(${tgt}_engine PRIVATE EASTL minizip)
+    target_link_libraries(${tgt}_engine PRIVATE EASTL minizip zlib)
     target_link_libraries(${tgt}_engine INTERFACE EASTL_Import minizip_interface)
     INSTALL (
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

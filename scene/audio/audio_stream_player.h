@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_stream_player.h                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AUDIO_STREAM_PLAYER_H
-#define AUDIO_STREAM_PLAYER_H
+#pragma once
 
 #include "scene/main/node.h"
 #include "servers/audio/audio_stream.h"
@@ -39,7 +38,7 @@ class GODOT_EXPORT AudioStreamPlayer : public Node {
     GDCLASS(AudioStreamPlayer,Node)
 
 public:
-    enum MixTarget {
+    enum MixTarget : uint8_t {
         MIX_TARGET_STEREO,
         MIX_TARGET_SURROUND,
         MIX_TARGET_CENTER
@@ -50,22 +49,21 @@ private:
     Ref<AudioStream> stream;
     Vector<AudioFrame> mix_buffer;
     Vector<AudioFrame> fadeout_buffer;
-    bool use_fadeout;
 
-    volatile float setseek;
-    volatile bool active;
-    volatile bool setstop;
-    volatile bool stop_has_priority;
+    SafeNumeric<float> setseek;
+    SafeFlag active;
+    SafeFlag setstop;
+    SafeFlag stop_has_priority;
+    StringName bus;
 
     float mix_volume_db;
     float pitch_scale;
     float volume_db;
+    MixTarget mix_target;
+    bool use_fadeout=false;
     bool autoplay;
     bool stream_paused;
     bool stream_paused_fade;
-    StringName bus;
-
-    MixTarget mix_target;
 
     void _mix_internal(bool p_fadeout);
     void _mix_audio();
@@ -117,4 +115,3 @@ public:
 };
 
 
-#endif // AUDIO_STREAM_PLAYER_H

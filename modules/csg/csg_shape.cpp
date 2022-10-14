@@ -52,6 +52,7 @@ IMPL_GDCLASS(CSGPolygon)
 VARIANT_ENUM_CAST(CSGShape::Operation);
 VARIANT_ENUM_CAST(CSGPolygon::Mode);
 VARIANT_ENUM_CAST(CSGPolygon::PathRotation);
+VARIANT_ENUM_CAST(CSGPolygon::PathIntervalType);
 
 //TODO: original code was casting Vector3 to string and hashing a string.. yuck
 template<>
@@ -75,10 +76,10 @@ void CSGShape::set_use_collision(bool p_enable) {
 
     if (use_collision) {
         root_collision_shape = make_ref_counted<ConcavePolygonShape3D>();
-        root_collision_instance = PhysicsServer3D::get_singleton()->body_create(PhysicsServer3D::BODY_MODE_STATIC);
+        root_collision_instance = RID_PRIME(PhysicsServer3D::get_singleton()->body_create(PhysicsServer3D::BODY_MODE_STATIC));
         PhysicsServer3D::get_singleton()->body_set_state(root_collision_instance, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
-        PhysicsServer3D::get_singleton()->body_add_shape(root_collision_instance, root_collision_shape->get_rid());
-        PhysicsServer3D::get_singleton()->body_set_space(root_collision_instance, get_world()->get_space());
+        PhysicsServer3D::get_singleton()->body_add_shape(root_collision_instance, root_collision_shape->get_phys_rid());
+        PhysicsServer3D::get_singleton()->body_set_space(root_collision_instance, get_world_3d()->get_space());
         PhysicsServer3D::get_singleton()->body_attach_object_instance_id(root_collision_instance, get_instance_id());
         set_collision_layer(collision_layer);
         set_collision_mask(collision_mask);
@@ -121,6 +122,7 @@ uint32_t CSGShape::get_collision_mask() const {
 }
 
 void CSGShape::set_collision_mask_bit(int p_bit, bool p_value) {
+    ERR_FAIL_INDEX_MSG(p_bit, 32, "Collision mask bit must be between 0 and 31 inclusive.");
 
     uint32_t mask = get_collision_mask();
     if (p_value)
@@ -131,28 +133,30 @@ void CSGShape::set_collision_mask_bit(int p_bit, bool p_value) {
 }
 
 bool CSGShape::get_collision_mask_bit(int p_bit) const {
+    ERR_FAIL_INDEX_V_MSG(p_bit, 32, false, "Collision mask bit must be between 0 and 31 inclusive.");
 
     return get_collision_mask() & (1 << p_bit);
 }
 
 void CSGShape::set_collision_layer_bit(int p_bit, bool p_value) {
 
-    uint32_t mask = get_collision_layer();
-    if (p_value)
-        mask |= 1 << p_bit;
-    else
-        mask &= ~(1 << p_bit);
-    set_collision_layer(mask);
+    ERR_FAIL_INDEX_MSG(p_bit, 32, "Collision layer bit must be between 0 and 31 inclusive.");
+    uint32_t layer = get_collision_layer();
+    if (p_value) {
+        layer |= 1 << p_bit;
+    } else {
+        layer &= ~(1 << p_bit);
+    }
+    set_collision_layer(layer);
 }
 
 bool CSGShape::get_collision_layer_bit(int p_bit) const {
-
+    ERR_FAIL_INDEX_V_MSG(p_bit, 32, false, "Collision layer bit must be between 0 and 31 inclusive.");
     return get_collision_layer() & (1 << p_bit);
 }
 
 bool CSGShape::is_root_shape() const {
-
-    return !parent;
+    return !parent_shape;
 }
 
 void CSGShape::set_snap(float p_snap) {
@@ -163,13 +167,14 @@ float CSGShape::get_snap() const {
     return snap;
 }
 
-void CSGShape::_make_dirty() {
+void CSGShape::_make_dirty(bool p_parent_removing) {
+    if ((p_parent_removing || is_root_shape()) && !dirty) {
+        // Must be deferred; otherwise, is_root_shape() will use the previous parent
+        call_deferred([this]() { _update_shape(); });
+    }
 
-    if (!is_inside_tree())
-        return;
-
-    if (parent) {
-        parent->_make_dirty();
+    if (!is_root_shape()) {
+        parent_shape->_make_dirty();
     } else if (!dirty) {
         call_deferred([this]() { _update_shape(); });
     }
@@ -179,66 +184,72 @@ void CSGShape::_make_dirty() {
 
 CSGBrush *CSGShape::_get_brush() {
 
-    if (dirty) {
-        memdelete(brush);
-        brush = nullptr;
-
-        CSGBrush *n = _build_brush();
-
-        for (int i = 0; i < get_child_count(); i++) {
-
-            CSGShape *child = object_cast<CSGShape>(get_child(i));
-            if (!child)
-                continue;
-            if (!child->is_visible_in_tree())
-                continue;
-
-            CSGBrush *n2 = child->_get_brush();
-            if (!n2)
-                continue;
-            if (!n) {
-                n = memnew(CSGBrush);
-
-                n->copy_from(*n2, child->get_transform());
-
-            } else {
-
-                CSGBrush *nn = memnew(CSGBrush);
-                CSGBrush *nn2 = memnew(CSGBrush);
-                nn2->copy_from(*n2, child->get_transform());
-
-                CSGBrushOperation bop;
-
-                switch (child->get_operation()) {
-                    case CSGShape::OPERATION_UNION: bop.merge_brushes(CSGBrushOperation::OPERATION_UNION, *n, *nn2, *nn, snap); break;
-                    case CSGShape::OPERATION_INTERSECTION: bop.merge_brushes(CSGBrushOperation::OPERATION_INTERSECTION, *n, *nn2, *nn, snap); break;
-                    case CSGShape::OPERATION_SUBTRACTION: bop.merge_brushes(CSGBrushOperation::OPERATION_SUBSTRACTION, *n, *nn2, *nn, snap); break;
-                }
-                memdelete(n);
-                memdelete(nn2);
-                n = nn;
-            }
-        }
-
-        if (n) {
-            AABB aabb;
-            for (int i = 0; i < n->faces.size(); i++) {
-                for (int j = 0; j < 3; j++) {
-                    if (i == 0 && j == 0)
-                        aabb.position = n->faces[i].vertices[j];
-                    else
-                        aabb.expand_to(n->faces[i].vertices[j]);
-                }
-            }
-            node_aabb = aabb;
-        } else {
-            node_aabb = AABB();
-        }
-
-        brush = n;
-
-        dirty = false;
+    if (!dirty) {
+        return brush;
     }
+    memdelete(brush);
+    brush = nullptr;
+
+    CSGBrush *n = _build_brush();
+
+    for (int i = 0; i < get_child_count(); i++) {
+
+        CSGShape *child = object_cast<CSGShape>(get_child(i));
+        if (!child || !child->is_visible()) {
+            continue;
+        }
+
+        CSGBrush *n2 = child->_get_brush();
+        if (!n2)
+            continue;
+        if (!n) {
+            n = memnew(CSGBrush);
+
+            n->copy_from(*n2, child->get_transform());
+
+        } else {
+
+            CSGBrush *nn = memnew(CSGBrush);
+            CSGBrush *nn2 = memnew(CSGBrush);
+            nn2->copy_from(*n2, child->get_transform());
+
+            CSGBrushOperation bop;
+
+            switch (child->get_operation()) {
+                case CSGShape::OPERATION_UNION:
+                    bop.merge_brushes(CSGBrushOperation::OPERATION_UNION, *n, *nn2, *nn, snap);
+                    break;
+                case CSGShape::OPERATION_INTERSECTION:
+                    bop.merge_brushes(CSGBrushOperation::OPERATION_INTERSECTION, *n, *nn2, *nn, snap);
+                    break;
+                case CSGShape::OPERATION_SUBTRACTION:
+                    bop.merge_brushes(CSGBrushOperation::OPERATION_SUBTRACTION, *n, *nn2, *nn, snap);
+                    break;
+            }
+            memdelete(n);
+            memdelete(nn2);
+            n = nn;
+        }
+    }
+
+    if (n) {
+        AABB aabb;
+        for (int i = 0; i < n->faces.size(); i++) {
+            for (int j = 0; j < 3; j++) {
+                if (i == 0 && j == 0)
+                    aabb.position = n->faces[i].vertices[j];
+                else
+                    aabb.expand_to(n->faces[i].vertices[j]);
+            }
+        }
+        node_aabb = aabb;
+    } else {
+        node_aabb = AABB();
+    }
+
+    brush = n;
+
+    dirty = false;
 
     return brush;
 }
@@ -300,10 +311,11 @@ void CSGShape::mikktSetTSpaceDefault(const SMikkTSpaceContext *pContext, const f
 
 void CSGShape::_update_shape() {
 
-    if (parent)
+    if (!is_root_shape()) {
         return;
+    }
 
-    set_base(RID());
+    set_base(entt::null);
     root_mesh.unref(); //byebye root mesh
 
     CSGBrush *n = _get_brush();
@@ -318,6 +330,7 @@ void CSGShape::_update_shape() {
         int mat = n->faces[i].material;
         ERR_CONTINUE(mat < -1 || mat >= face_count.size());
         int idx = mat == -1 ? face_count.size() - 1 : mat;
+        if (n->faces[i].smooth) {
         Plane p(n->faces[i].vertices[0], n->faces[i].vertices[1], n->faces[i].vertices[2]);
 
         for (int j = 0; j < 3; j++) {
@@ -331,6 +344,7 @@ void CSGShape::_update_shape() {
             vec_map.set(v, add);
         }
 
+        }
         face_count[idx]++;
     }
 
@@ -354,28 +368,6 @@ void CSGShape::_update_shape() {
         }
     }
 
-    // Update collision faces.
-    if (root_collision_shape) {
-
-        PoolVector<Vector3> physics_faces;
-        physics_faces.resize(n->faces.size() * 3);
-        PoolVector<Vector3>::Write physicsw = physics_faces.write();
-
-        for (int i = 0; i < n->faces.size(); i++) {
-
-            int order[3] = { 0, 1, 2 };
-
-            if (n->faces[i].invert) {
-                SWAP(order[1], order[2]);
-            }
-
-            physicsw[i * 3 + 0] = n->faces[i].vertices[order[0]];
-            physicsw[i * 3 + 1] = n->faces[i].vertices[order[1]];
-            physicsw[i * 3 + 2] = n->faces[i].vertices[order[2]];
-        }
-
-        root_collision_shape->set_faces(physics_faces);
-    }
     //fill arrays
     {
         for (int i = 0; i < n->faces.size(); i++) {
@@ -469,7 +461,33 @@ void CSGShape::_update_shape() {
     }
 
     set_base(root_mesh->get_rid());
+    _update_collision_faces();
 }
+
+void CSGShape::_update_collision_faces() {
+    if (use_collision && is_root_shape() && root_collision_shape) {
+        CSGBrush *n = _get_brush();
+        ERR_FAIL_COND_MSG(!n, "Cannot get CSGBrush.");
+        PoolVector<Vector3> physics_faces;
+        physics_faces.resize(n->faces.size() * 3);
+        PoolVector<Vector3>::Write physicsw = physics_faces.write();
+
+        for (int i = 0; i < n->faces.size(); i++) {
+            int order[3] = { 0, 1, 2 };
+
+            if (n->faces[i].invert) {
+                SWAP(order[1], order[2]);
+            }
+
+            physicsw[i * 3 + 0] = n->faces[i].vertices[order[0]];
+            physicsw[i * 3 + 1] = n->faces[i].vertices[order[1]];
+            physicsw[i * 3 + 2] = n->faces[i].vertices[order[2]];
+        }
+
+        root_collision_shape->set_faces(physics_faces);
+    }
+}
+
 AABB CSGShape::get_aabb() const {
     return node_aabb;
 }
@@ -502,63 +520,85 @@ Vector<Face3> CSGShape::get_faces(uint32_t p_usage_flags) const {
 
 void CSGShape::_notification(int p_what) {
 
-    if (p_what == NOTIFICATION_ENTER_TREE) {
+    auto *phys_serv=PhysicsServer3D::get_singleton();
+    switch (p_what) {
+        case NOTIFICATION_PARENTED: {
 
         Node *parentn = get_parent();
         if (parentn) {
-            parent = object_cast<CSGShape>(parentn);
-            if (parent) {
-                set_base(RID());
+                parent_shape = object_cast<CSGShape>(parentn);
+                if (parent_shape) {
+                set_base(entt::null);
                 root_mesh.unref();
             }
         }
 
-        if (use_collision && is_root_shape()) {
-            root_collision_shape = make_ref_counted<ConcavePolygonShape3D>();
-            root_collision_instance = PhysicsServer3D::get_singleton()->body_create(PhysicsServer3D::BODY_MODE_STATIC);
-            PhysicsServer3D::get_singleton()->body_set_state(root_collision_instance, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
-            PhysicsServer3D::get_singleton()->body_add_shape(root_collision_instance, root_collision_shape->get_rid());
-            PhysicsServer3D::get_singleton()->body_set_space(root_collision_instance, get_world()->get_space());
-            PhysicsServer3D::get_singleton()->body_attach_object_instance_id(root_collision_instance, get_instance_id());
-            set_collision_layer(collision_layer);
-            set_collision_mask(collision_mask);
-        }
+            if (!brush || parent_shape) {
+                // Update this node if uninitialized, or both this node and its new parent if it gets added to another
+                // CSG shape
 
         _make_dirty();
     }
+            last_visible = is_visible();
+        } break;
 
-    if (p_what == NOTIFICATION_TRANSFORM_CHANGED) {
-        if (use_collision && is_root_shape() && root_collision_instance.is_valid()) {
-            PhysicsServer3D::get_singleton()->body_set_state(root_collision_instance, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
+        case NOTIFICATION_UNPARENTED: {
+            if (!is_root_shape()) {
+                // Update this node and its previous parent only if it's currently being removed from another CSG shape
+                _make_dirty(true); // Must be forced since is_root_shape() uses the previous parent
         }
+            parent_shape = nullptr;
+        } break;
+        case NOTIFICATION_VISIBILITY_CHANGED: {
+            if (!is_root_shape() && last_visible != is_visible()) {
+                // Update this node's parent only if its own visibility has changed, not the visibility of parent nodes
+                parent_shape->_make_dirty();
     }
+            last_visible = is_visible();
+        } break;
 
-    if (p_what == NOTIFICATION_LOCAL_TRANSFORM_CHANGED) {
-
-        if (parent) {
-            parent->_make_dirty();
+        case NOTIFICATION_LOCAL_TRANSFORM_CHANGED: {
+            if (!is_root_shape()) {
+                // Update this node's parent only if its own transformation has changed, not the transformation of
+                // parent nodes
+                parent_shape->_make_dirty();
         }
-    }
+        } break;
 
-    if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
-
-        if (parent) {
-            parent->_make_dirty();
+        case NOTIFICATION_ENTER_TREE: {
+            if (use_collision && is_root_shape()) {
+                root_collision_shape = make_ref_counted<ConcavePolygonShape3D>();
+                root_collision_instance = PhysicsServer3D::get_singleton()->body_create();
+                PhysicsServer3D::get_singleton()->body_set_mode(
+                        root_collision_instance, PhysicsServer3D::BODY_MODE_STATIC);
+                PhysicsServer3D::get_singleton()->body_set_state(
+                        root_collision_instance, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
+                PhysicsServer3D::get_singleton()->body_add_shape(
+                        root_collision_instance, root_collision_shape->get_phys_rid());
+                PhysicsServer3D::get_singleton()->body_set_space(root_collision_instance, get_world_3d()->get_space());
+                PhysicsServer3D::get_singleton()->body_attach_object_instance_id(
+                        root_collision_instance, get_instance_id());
+                set_collision_layer(collision_layer);
+                set_collision_mask(collision_mask);
+                _update_collision_faces();
         }
-    }
+        } break;
 
-    if (p_what == NOTIFICATION_EXIT_TREE) {
+        case NOTIFICATION_EXIT_TREE: {
 
-        if (parent)
-            parent->_make_dirty();
-        parent = nullptr;
+            if (use_collision && is_root_shape() && root_collision_instance.is_valid()) {
+                PhysicsServer3D::get_singleton()->free_rid(root_collision_instance);
+                root_collision_instance = RID();
+                root_collision_shape.unref();
+            }
+        } break;
 
-        if (use_collision && is_root_shape() && root_collision_instance.is_valid()) {
-            PhysicsServer3D::get_singleton()->free_rid(root_collision_instance);
-            root_collision_instance = RID();
-            root_collision_shape.unref();
-        }
-        _make_dirty();
+        case NOTIFICATION_TRANSFORM_CHANGED: {
+            if (use_collision && is_root_shape() && root_collision_instance.is_valid()) {
+                PhysicsServer3D::get_singleton()->body_set_state(
+                        root_collision_instance, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
+            }
+        } break;
     }
 }
 
@@ -592,6 +632,18 @@ void CSGShape::_validate_property(PropertyInfo &property) const {
     }
 }
 
+
+// Calling _make_dirty() normally calls a deferred _update_shape.
+// This is problematic if we need to read the geometry immediately.
+// This function provides a means to make sure the shape is updated
+// immediately. It should only be used where necessary to prevent
+// updating CSGs multiple times per frame. Use _make_dirty in preference.
+void CSGShape::force_update_shape() {
+    if (dirty) {
+        _update_shape();
+    }
+}
+
 Array CSGShape::get_meshes() const {
 
     if (root_mesh) {
@@ -606,34 +658,34 @@ Array CSGShape::get_meshes() const {
 }
 void CSGShape::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_update_shape"), &CSGShape::_update_shape);
-    MethodBinder::bind_method(D_METHOD("is_root_shape"), &CSGShape::is_root_shape);
+    BIND_METHOD(CSGShape,_update_shape);
+    BIND_METHOD(CSGShape,is_root_shape);
 
-    MethodBinder::bind_method(D_METHOD("set_operation", {"operation"}), &CSGShape::set_operation);
-    MethodBinder::bind_method(D_METHOD("get_operation"), &CSGShape::get_operation);
+    BIND_METHOD(CSGShape,set_operation);
+    BIND_METHOD(CSGShape,get_operation);
 
-    MethodBinder::bind_method(D_METHOD("set_snap", {"snap"}), &CSGShape::set_snap);
-    MethodBinder::bind_method(D_METHOD("get_snap"), &CSGShape::get_snap);
+    BIND_METHOD(CSGShape,set_snap);
+    BIND_METHOD(CSGShape,get_snap);
 
-    MethodBinder::bind_method(D_METHOD("set_use_collision", {"operation"}), &CSGShape::set_use_collision);
-    MethodBinder::bind_method(D_METHOD("is_using_collision"), &CSGShape::is_using_collision);
+    BIND_METHOD(CSGShape,set_use_collision);
+    BIND_METHOD(CSGShape,is_using_collision);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_layer", {"layer"}), &CSGShape::set_collision_layer);
-    MethodBinder::bind_method(D_METHOD("get_collision_layer"), &CSGShape::get_collision_layer);
+    BIND_METHOD(CSGShape,set_collision_layer);
+    BIND_METHOD(CSGShape,get_collision_layer);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"mask"}), &CSGShape::set_collision_mask);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &CSGShape::get_collision_mask);
+    BIND_METHOD(CSGShape,set_collision_mask);
+    BIND_METHOD(CSGShape,get_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", {"bit", "value"}), &CSGShape::set_collision_mask_bit);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", {"bit"}), &CSGShape::get_collision_mask_bit);
+    BIND_METHOD(CSGShape,set_collision_mask_bit);
+    BIND_METHOD(CSGShape,get_collision_mask_bit);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_layer_bit", {"bit", "value"}), &CSGShape::set_collision_layer_bit);
-    MethodBinder::bind_method(D_METHOD("get_collision_layer_bit", {"bit"}), &CSGShape::get_collision_layer_bit);
+    BIND_METHOD(CSGShape,set_collision_layer_bit);
+    BIND_METHOD(CSGShape,get_collision_layer_bit);
 
-    MethodBinder::bind_method(D_METHOD("set_calculate_tangents", {"enabled"}), &CSGShape::set_calculate_tangents);
-    MethodBinder::bind_method(D_METHOD("is_calculating_tangents"), &CSGShape::is_calculating_tangents);
+    BIND_METHOD(CSGShape,set_calculate_tangents);
+    BIND_METHOD(CSGShape,is_calculating_tangents);
 
-    MethodBinder::bind_method(D_METHOD("get_meshes"), &CSGShape::get_meshes);
+    BIND_METHOD(CSGShape,get_meshes);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "operation", PropertyHint::Enum, "Union,Intersection,Subtraction"), "set_operation", "get_operation");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "snap", PropertyHint::Range, "0.0001,1,0.001"), "set_snap", "get_snap");
@@ -651,7 +703,7 @@ void CSGShape::_bind_methods() {
 
 CSGShape::CSGShape() {
     operation = OPERATION_UNION;
-    parent = nullptr;
+    parent_shape = nullptr;
     brush = nullptr;
     dirty = false;
     snap = 0.001f;
@@ -697,8 +749,8 @@ CSGBrush *CSGPrimitive::_create_brush_from_arrays(const PoolVector<Vector3> &p_v
 
 void CSGPrimitive::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_invert_faces", {"invert_faces"}), &CSGPrimitive::set_invert_faces);
-    MethodBinder::bind_method(D_METHOD("is_inverting_faces"), &CSGPrimitive::is_inverting_faces);
+    BIND_METHOD(CSGPrimitive,set_invert_faces);
+    BIND_METHOD(CSGPrimitive,is_inverting_faces);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "invert_faces"), "set_invert_faces", "is_inverting_faces");
 }
@@ -881,11 +933,11 @@ Ref<Material> CSGMesh::get_material() const {
 
 void CSGMesh::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_mesh", {"mesh"}), &CSGMesh::set_mesh);
-    MethodBinder::bind_method(D_METHOD("get_mesh"), &CSGMesh::get_mesh);
+    BIND_METHOD(CSGMesh,set_mesh);
+    BIND_METHOD(CSGMesh,get_mesh);
 
-    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGMesh::set_material);
-    MethodBinder::bind_method(D_METHOD("get_material"), &CSGMesh::get_material);
+    BIND_METHOD(CSGMesh,set_material);
+    BIND_METHOD(CSGMesh,get_material);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh"), "set_mesh", "get_mesh");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PropertyHint::ResourceType, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
@@ -904,7 +956,7 @@ void CSGMesh::set_mesh(const Ref<Mesh> &p_mesh) {
         mesh->connect("changed",callable_mp(this, &ClassName::_mesh_changed));
     }
 
-    _make_dirty();
+    _mesh_changed();
 }
 
 Ref<Mesh> CSGMesh::get_mesh() {
@@ -945,47 +997,56 @@ CSGBrush *CSGSphere::_build_brush() {
         PoolVector<Ref<Material> >::Write materialsw = materials.write();
         PoolVector<bool>::Write invertw = invert.write();
 
+        // We want to follow an order that's convenient for UVs.
+        // For latitude step we start at the top and move down like in an image.
+        const double latitude_step = -Math_PI / rings;
+        const double longitude_step = Math_TAU / radial_segments;
         int face = 0;
 
         for (int i = 1; i <= rings; i++) {
-            double lat0 = Math_PI * (-0.5 + (double)(i - 1) / rings);
-            double z0 = Math::sin(lat0);
-            double zr0 = Math::cos(lat0);
-            double u0 = double(i - 1) / rings;
+            double latitude0 = latitude_step * i + Math_TAU / 4;
+            double cos0 = Math::cos(latitude0);
+            double sin0 = Math::sin(latitude0);
+            double v0 = double(i) / rings;
 
-            double lat1 = Math_PI * (-0.5 + (double)i / rings);
-            double z1 = Math::sin(lat1);
-            double zr1 = Math::cos(lat1);
-            double u1 = double(i) / rings;
+            double latitude1 = latitude_step * (i + 1) + Math_TAU / 4;
+            double cos1 = Math::cos(latitude1);
+            double sin1 = Math::sin(latitude1);
+            double v1 = double(i + 1) / rings;
 
-            for (int j = radial_segments; j >= 1; j--) {
+            for (int j = 0; j < radial_segments; j++) {
+                double longitude0 = longitude_step * j;
+                // We give sin to X and cos to Z on purpose.
+                // This allows UVs to be CCW on +X so it maps to images well.
+                double x0 = Math::sin(longitude0);
+                double z0 = Math::cos(longitude0);
+                double u0 = double(j) / radial_segments;
 
-                double lng0 = 2 * Math_PI * (double)(j - 1) / radial_segments;
-                double x0 = Math::cos(lng0);
-                double y0 = Math::sin(lng0);
-                double v0 = double(i - 1) / radial_segments;
-
-                double lng1 = 2 * Math_PI * (double)(j) / radial_segments;
-                double x1 = Math::cos(lng1);
-                double y1 = Math::sin(lng1);
-                double v1 = double(i) / radial_segments;
+                double longitude1 = longitude_step * (j + 1);
+                if (j == radial_segments - 1) {
+                    longitude1 = 0;
+                }
+                double x1 = Math::sin(longitude1);
+                double z1 = Math::cos(longitude1);
+                double u1 = double(j + 1) / radial_segments;
 
                 Vector3 v[4] = {
-                    Vector3(x1 * zr0, z0, y1 * zr0) * radius,
-                    Vector3(x1 * zr1, z1, y1 * zr1) * radius,
-                    Vector3(x0 * zr1, z1, y0 * zr1) * radius,
-                    Vector3(x0 * zr0, z0, y0 * zr0) * radius
+                    Vector3(x0 * cos0, sin0, z0 * cos0) * radius,
+                    Vector3(x1 * cos0, sin0, z1 * cos0) * radius,
+                    Vector3(x1 * cos1, sin1, z1 * cos1) * radius,
+                    Vector3(x0 * cos1, sin1, z0 * cos1) * radius,
                 };
 
                 Vector2 u[4] = {
-                    Vector2(v1, u0),
-                    Vector2(v1, u1),
-                    Vector2(v0, u1),
-                    Vector2(v0, u0),
+                    Vector2(u0, v0),
+                    Vector2(u1, v0),
+                    Vector2(u1, v1),
+                    Vector2(u0, v1),
 
                 };
 
-                if (i < rings) {
+                // Draw the first face, but skip this at the north pole (i == 0).
+                if (i > 0) {
 
                     //face 1
                     facesw[face * 3 + 0] = v[0];
@@ -1003,8 +1064,8 @@ CSGBrush *CSGSphere::_build_brush() {
                     face++;
                 }
 
-                if (i > 1) {
-                    //face 2
+                // Draw the second face, but skip this at the south pole (i == rings - 1).
+                if (i < rings - 1) {
                     facesw[face * 3 + 0] = v[2];
                     facesw[face * 3 + 1] = v[3];
                     facesw[face * 3 + 2] = v[0];
@@ -1033,19 +1094,19 @@ CSGBrush *CSGSphere::_build_brush() {
 }
 
 void CSGSphere::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}), &CSGSphere::set_radius);
-    MethodBinder::bind_method(D_METHOD("get_radius"), &CSGSphere::get_radius);
+    BIND_METHOD(CSGSphere,set_radius);
+    BIND_METHOD(CSGSphere,get_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_radial_segments", {"radial_segments"}), &CSGSphere::set_radial_segments);
-    MethodBinder::bind_method(D_METHOD("get_radial_segments"), &CSGSphere::get_radial_segments);
-    MethodBinder::bind_method(D_METHOD("set_rings", {"rings"}), &CSGSphere::set_rings);
-    MethodBinder::bind_method(D_METHOD("get_rings"), &CSGSphere::get_rings);
+    BIND_METHOD(CSGSphere,set_radial_segments);
+    BIND_METHOD(CSGSphere,get_radial_segments);
+    BIND_METHOD(CSGSphere,set_rings);
+    BIND_METHOD(CSGSphere,get_rings);
 
-    MethodBinder::bind_method(D_METHOD("set_smooth_faces", {"smooth_faces"}), &CSGSphere::set_smooth_faces);
-    MethodBinder::bind_method(D_METHOD("get_smooth_faces"), &CSGSphere::get_smooth_faces);
+    BIND_METHOD(CSGSphere,set_smooth_faces);
+    BIND_METHOD(CSGSphere,get_smooth_faces);
 
-    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGSphere::set_material);
-    MethodBinder::bind_method(D_METHOD("get_material"), &CSGSphere::get_material);
+    BIND_METHOD(CSGSphere,set_material);
+    BIND_METHOD(CSGSphere,get_material);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.001,100.0,0.001"), "set_radius", "get_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "radial_segments", PropertyHint::Range, "1,100,1"), "set_radial_segments", "get_radial_segments");
@@ -1222,17 +1283,17 @@ CSGBrush *CSGBox::_build_brush() {
 }
 
 void CSGBox::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_width", {"width"}), &CSGBox::set_width);
-    MethodBinder::bind_method(D_METHOD("get_width"), &CSGBox::get_width);
+    BIND_METHOD(CSGBox,set_width);
+    BIND_METHOD(CSGBox,get_width);
 
-    MethodBinder::bind_method(D_METHOD("set_height", {"height"}), &CSGBox::set_height);
-    MethodBinder::bind_method(D_METHOD("get_height"), &CSGBox::get_height);
+    BIND_METHOD(CSGBox,set_height);
+    BIND_METHOD(CSGBox,get_height);
 
-    MethodBinder::bind_method(D_METHOD("set_depth", {"depth"}), &CSGBox::set_depth);
-    MethodBinder::bind_method(D_METHOD("get_depth"), &CSGBox::get_depth);
+    BIND_METHOD(CSGBox,set_depth);
+    BIND_METHOD(CSGBox,get_depth);
 
-    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGBox::set_material);
-    MethodBinder::bind_method(D_METHOD("get_material"), &CSGBox::get_material);
+    BIND_METHOD(CSGBox,set_material);
+    BIND_METHOD(CSGBox,get_material);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "width", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_width", "get_width");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_height", "get_height");
@@ -1336,7 +1397,9 @@ CSGBrush *CSGCylinder::_build_brush() {
 
                 float inc = float(i) / sides;
                 float inc_n = float((i + 1)) / sides;
-
+                if (i == sides - 1) {
+                    inc_n = 0;
+                }
                 float ang = inc * Math_PI * 2.0;
                 float ang_n = inc_n * Math_PI * 2.0;
 
@@ -1431,23 +1494,23 @@ CSGBrush *CSGCylinder::_build_brush() {
 }
 
 void CSGCylinder::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}), &CSGCylinder::set_radius);
-    MethodBinder::bind_method(D_METHOD("get_radius"), &CSGCylinder::get_radius);
+    BIND_METHOD(CSGCylinder,set_radius);
+    BIND_METHOD(CSGCylinder,get_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_height", {"height"}), &CSGCylinder::set_height);
-    MethodBinder::bind_method(D_METHOD("get_height"), &CSGCylinder::get_height);
+    BIND_METHOD(CSGCylinder,set_height);
+    BIND_METHOD(CSGCylinder,get_height);
 
-    MethodBinder::bind_method(D_METHOD("set_sides", {"sides"}), &CSGCylinder::set_sides);
-    MethodBinder::bind_method(D_METHOD("get_sides"), &CSGCylinder::get_sides);
+    BIND_METHOD(CSGCylinder,set_sides);
+    BIND_METHOD(CSGCylinder,get_sides);
 
-    MethodBinder::bind_method(D_METHOD("set_cone", {"cone"}), &CSGCylinder::set_cone);
-    MethodBinder::bind_method(D_METHOD("is_cone"), &CSGCylinder::is_cone);
+    BIND_METHOD(CSGCylinder,set_cone);
+    BIND_METHOD(CSGCylinder,is_cone);
 
-    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGCylinder::set_material);
-    MethodBinder::bind_method(D_METHOD("get_material"), &CSGCylinder::get_material);
+    BIND_METHOD(CSGCylinder,set_material);
+    BIND_METHOD(CSGCylinder,get_material);
 
-    MethodBinder::bind_method(D_METHOD("set_smooth_faces", {"smooth_faces"}), &CSGCylinder::set_smooth_faces);
-    MethodBinder::bind_method(D_METHOD("get_smooth_faces"), &CSGCylinder::get_smooth_faces);
+    BIND_METHOD(CSGCylinder,set_smooth_faces);
+    BIND_METHOD(CSGCylinder,get_smooth_faces);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_radius", "get_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_height", "get_height");
@@ -1585,6 +1648,9 @@ CSGBrush *CSGTorus::_build_brush() {
                 float inci = float(i) / sides;
                 float inci_n = float((i + 1)) / sides;
 
+                if (i == sides - 1) {
+                    inci_n = 0;
+                }
                 float angi = inci * Math_PI * 2.0;
                 float angi_n = inci_n * Math_PI * 2.0;
 
@@ -1595,6 +1661,9 @@ CSGBrush *CSGTorus::_build_brush() {
 
                     float incj = float(j) / ring_sides;
                     float incj_n = float((j + 1)) / ring_sides;
+                    if (j == ring_sides - 1) {
+                        incj_n = 0;
+                    }
 
                     float angj = incj * Math_PI * 2.0;
                     float angj_n = incj_n * Math_PI * 2.0;
@@ -1659,23 +1728,23 @@ CSGBrush *CSGTorus::_build_brush() {
 }
 
 void CSGTorus::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_inner_radius", {"radius"}), &CSGTorus::set_inner_radius);
-    MethodBinder::bind_method(D_METHOD("get_inner_radius"), &CSGTorus::get_inner_radius);
+    BIND_METHOD(CSGTorus,set_inner_radius);
+    BIND_METHOD(CSGTorus,get_inner_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_outer_radius", {"radius"}), &CSGTorus::set_outer_radius);
-    MethodBinder::bind_method(D_METHOD("get_outer_radius"), &CSGTorus::get_outer_radius);
+    BIND_METHOD(CSGTorus,set_outer_radius);
+    BIND_METHOD(CSGTorus,get_outer_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_sides", {"sides"}), &CSGTorus::set_sides);
-    MethodBinder::bind_method(D_METHOD("get_sides"), &CSGTorus::get_sides);
+    BIND_METHOD(CSGTorus,set_sides);
+    BIND_METHOD(CSGTorus,get_sides);
 
-    MethodBinder::bind_method(D_METHOD("set_ring_sides", {"sides"}), &CSGTorus::set_ring_sides);
-    MethodBinder::bind_method(D_METHOD("get_ring_sides"), &CSGTorus::get_ring_sides);
+    BIND_METHOD(CSGTorus,set_ring_sides);
+    BIND_METHOD(CSGTorus,get_ring_sides);
 
-    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGTorus::set_material);
-    MethodBinder::bind_method(D_METHOD("get_material"), &CSGTorus::get_material);
+    BIND_METHOD(CSGTorus,set_material);
+    BIND_METHOD(CSGTorus,get_material);
 
-    MethodBinder::bind_method(D_METHOD("set_smooth_faces", {"smooth_faces"}), &CSGTorus::set_smooth_faces);
-    MethodBinder::bind_method(D_METHOD("get_smooth_faces"), &CSGTorus::get_smooth_faces);
+    BIND_METHOD(CSGTorus,set_smooth_faces);
+    BIND_METHOD(CSGTorus,get_smooth_faces);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "inner_radius", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_inner_radius", "get_inner_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "outer_radius", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_outer_radius", "get_outer_radius");
@@ -1763,94 +1832,90 @@ CSGTorus::CSGTorus() {
 CSGBrush *CSGPolygon::_build_brush() {
 
     // set our bounding box
-
-    if (polygon.size() < 3) {
-        return memnew(CSGBrush);
-    }
-
-    Vector<Point2> final_polygon = polygon;
-
-    if (Triangulate::get_area(final_polygon) > 0) {
-        eastl::reverse(final_polygon.begin(),final_polygon.end());
-    }
-
-    Vector<int> triangles(Geometry::triangulate_polygon(final_polygon));
-
-    if (triangles.size() < 3) {
-        return memnew(CSGBrush);
-    }
-
-    Path3D *path = nullptr;
-    Ref<Curve3D> curve;
-
-    // get bounds for our polygon
-    Vector2 final_polygon_min;
-    Vector2 final_polygon_max;
-    for (int i = 0; i < final_polygon.size(); i++) {
-        Vector2 p = final_polygon[i];
-        if (i == 0) {
-            final_polygon_min = p;
-            final_polygon_max = final_polygon_min;
-        } else {
-            if (p.x < final_polygon_min.x) final_polygon_min.x = p.x;
-            if (p.y < final_polygon_min.y) final_polygon_min.y = p.y;
-
-            if (p.x > final_polygon_max.x) final_polygon_max.x = p.x;
-            if (p.y > final_polygon_max.y) final_polygon_max.y = p.y;
-        }
-    }
-    Vector2 final_polygon_size = final_polygon_max - final_polygon_min;
-
-    if (mode == MODE_PATH) {
-        if (!has_node(path_node)) {
-            return memnew(CSGBrush);
-        }
-        Node *n = get_node(path_node);
-        if (!n) {
-            return memnew(CSGBrush);
-        }
-        path = object_cast<Path3D>(n);
-        if (!path) {
-            return memnew(CSGBrush);
-        }
-
-        if (path != path_cache) {
-            if (path_cache) {
-                path_cache->disconnect("tree_exited",callable_mp(this, &ClassName::_path_exited));
-                path_cache->disconnect("curve_changed",callable_mp(this, &ClassName::_path_changed));
-                path_cache = nullptr;
-            }
-
-            path_cache = path;
-
-            path_cache->connect("tree_exited",callable_mp(this, &ClassName::_path_exited));
-            path_cache->connect("curve_changed",callable_mp(this, &ClassName::_path_changed));
-            path_cache = nullptr;
-        }
-        curve = path->get_curve();
-        if (!curve || curve->get_baked_length() <= 0) {
-            return memnew(CSGBrush);
-        }
-    }
     CSGBrush *brush = memnew(CSGBrush);
 
-    int face_count = 0;
+    if (polygon.size() < 3) {
+        return brush;
+    }
+
+    // Triangulate polygon shape.
+    Vector<Point2> shape_polygon = polygon;
+    if (Triangulate::get_area(shape_polygon) > 0) {
+        eastl::reverse(shape_polygon.begin(),shape_polygon.end());
+    }
+
+    int shape_sides = shape_polygon.size();
+    Vector<int> shape_faces = Geometry::triangulate_polygon(shape_polygon);
+    ERR_FAIL_COND_V_MSG(shape_faces.size() < 3, brush,
+            "Failed to triangulate CSGPolygon. Make sure the polygon doesn't have any intersecting edges.");
+    // Get polygon enclosing Rect2.
+    Rect2 shape_rect(shape_polygon[0], Vector2());
+    for (int i = 1; i < shape_sides; i++) {
+        shape_rect.expand_to(shape_polygon[i]);
+    }
+
+    // If MODE_PATH, check if curve has changed.
+    Ref<Curve3D> curve;
+
+
+    if (mode == MODE_PATH) {
+        Path3D *current_path = object_cast<Path3D>(get_node_or_null(path_node));
+        if (path != current_path) {
+            if (path) {
+                path->disconnect("tree_exited", callable_mp(this, &ClassName::_path_exited));
+                path->disconnect("curve_changed", callable_mp(this, &ClassName::_path_changed));
+        }
+            path = current_path;
+            if (path) {
+                path->connect("tree_exited", callable_mp(this, &ClassName::_path_exited));
+                path->connect("curve_changed", callable_mp(this, &ClassName::_path_changed));
+        }
+        }
+
+        if (!path) {
+            return brush;
+            }
+
+        curve = path->get_curve();
+        if (!curve || curve->get_point_count() < 2) {
+            return brush;
+        }
+    }
+
+    // Calculate the number of extrusions, ends and faces.
+    int extrusions = 0;
+    int extrusion_face_count = shape_sides * 2;
+    int end_count = 0;
+    int shape_face_count = shape_faces.size() / 3;
+    real_t curve_length = 1.0;
 
     switch (mode) {
-        case MODE_DEPTH: face_count = triangles.size() * 2 / 3 + (final_polygon.size()) * 2; break;
-        case MODE_SPIN: face_count = (spin_degrees < 360 ? triangles.size() * 2 / 3 : 0) + (final_polygon.size()) * 2 * spin_sides; break;
+        case MODE_DEPTH:
+            extrusions = 1;
+            end_count = 2;
+            break;
+        case MODE_SPIN:
+            extrusions = spin_sides;
+            if (spin_degrees < 360) {
+                end_count = 2;
+            }
+            break;
         case MODE_PATH: {
-            float bl = curve->get_baked_length();
-            int splits = M_MAX(2, Math::ceil(bl / path_interval));
-            if (path_joined) {
-                face_count = splits * final_polygon.size() * 2;
+            curve_length = curve->get_baked_length();
+            if (path_interval_type == PATH_INTERVAL_DISTANCE) {
+                extrusions = eastl::max(1, Math::ceil(curve_length / path_interval)) + 1;
             } else {
-                face_count = triangles.size() * 2 / 3 + splits * final_polygon.size() * 2;
+                extrusions = Math::ceil(1.0 * curve->get_point_count() / path_interval);
+            }
+            if (!path_joined) {
+                end_count = 2;
+                extrusions -= 1;
             }
         } break;
     }
+    int face_count = extrusions * extrusion_face_count + end_count * shape_face_count;
 
-    bool invert_val = is_inverting_faces();
+    // Initialize variables used to create the mesh.
     Ref<Material> material = get_material();
 
     PoolVector<Vector3> faces;
@@ -1865,8 +1930,8 @@ CSGBrush *CSGPolygon::_build_brush() {
     smooth.resize(face_count);
     materials.resize(face_count);
     invert.resize(face_count);
+    int faces_removed = 0;
 
-    AABB aabb; //must be computed
     {
 
         PoolVector<Vector3>::Write facesw = faces.write();
@@ -1877,271 +1942,171 @@ CSGBrush *CSGPolygon::_build_brush() {
 
         int face = 0;
 
-        switch (mode) {
-            case MODE_DEPTH: {
-
-                //add triangles, front and back
-                for (int i = 0; i < 2; i++) {
-
-                    for (int j = 0; j < triangles.size(); j += 3) {
-                        for (int k = 0; k < 3; k++) {
-                            int src[3] = { 0, i == 0 ? 1 : 2, i == 0 ? 2 : 1 };
-                            Vector2 p = final_polygon[triangles[j + src[k]]];
-                            Vector3 v = Vector3(p.x, p.y, 0);
-                            if (i == 0) {
-                                v.z -= depth;
+        Transform base_xform;
+        Transform current_xform;
+        Transform previous_xform;
+        Transform previous_previous_xform;
+        double u_step = 1.0 / extrusions;
+        if (path_u_distance > 0.0) {
+            u_step *= curve_length / path_u_distance;
                             }
-                            facesw[face * 3 + k] = v;
-                            uvsw[face * 3 + k] = (p - final_polygon_min) / final_polygon_size;
-                            if (i == 0) {
-                                uvsw[face * 3 + k].x = 1.0 - uvsw[face * 3 + k].x; /* flip x */
+        double v_step = 1.0 / shape_sides;
+        double spin_step = Math::deg2rad(spin_degrees / spin_sides);
+        double extrusion_step = 1.0 / extrusions;
+        if (mode == MODE_PATH) {
+            if (path_joined) {
+                extrusion_step = 1.0 / (extrusions - 1);
                             }
+            extrusion_step *= curve_length;
                         }
 
-                        smoothw[face] = false;
-                        materialsw[face] = material;
-                        invertw[face] = invert_val;
-                        face++;
-                    }
+        if (mode == MODE_PATH) {
+            if (!path_local) {
+                base_xform = path->get_global_transform();
                 }
 
-                //add triangles for depth
-                for (int i = 0; i < final_polygon.size(); i++) {
+            Vector3 current_point = curve->interpolate_baked(0);
+            Vector3 next_point = curve->interpolate_baked(extrusion_step);
+            Vector3 current_up = Vector3(0, 1, 0);
+            Vector3 direction = next_point - current_point;
 
-                    int i_n = (i + 1) % final_polygon.size();
+            if (path_joined) {
+                Vector3 last_point = curve->interpolate_baked(curve->get_baked_length());
+                direction = next_point - last_point;
+            }
 
-                    Vector3 v[4] = {
-                        Vector3(final_polygon[i].x, final_polygon[i].y, -depth),
-                        Vector3(final_polygon[i_n].x, final_polygon[i_n].y, -depth),
-                        Vector3(final_polygon[i_n].x, final_polygon[i_n].y, 0),
-                        Vector3(final_polygon[i].x, final_polygon[i].y, 0),
-                    };
+            switch (path_rotation) {
+                case PATH_ROTATION_POLYGON:
+                    direction = Vector3(0, 0, -1);
+                    break;
+                case PATH_ROTATION_PATH:
+                    break;
+                case PATH_ROTATION_PATH_FOLLOW:
+                    current_up = curve->interpolate_baked_up_vector(0);
+                    break;
+            }
 
-                    Vector2 u[4] = {
-                        Vector2(0, 0),
-                        Vector2(0, 1),
-                        Vector2(1, 1),
-                        Vector2(1, 0)
-                    };
-
-                    // face 1
-                    facesw[face * 3 + 0] = v[0];
-                    facesw[face * 3 + 1] = v[1];
-                    facesw[face * 3 + 2] = v[2];
-
-                    uvsw[face * 3 + 0] = u[0];
-                    uvsw[face * 3 + 1] = u[1];
-                    uvsw[face * 3 + 2] = u[2];
-
-                    smoothw[face] = smooth_faces;
-                    invertw[face] = invert_val;
-                    materialsw[face] = material;
-
-                    face++;
-
-                    // face 2
-                    facesw[face * 3 + 0] = v[2];
-                    facesw[face * 3 + 1] = v[3];
-                    facesw[face * 3 + 2] = v[0];
-
-                    uvsw[face * 3 + 0] = u[2];
-                    uvsw[face * 3 + 1] = u[3];
-                    uvsw[face * 3 + 2] = u[0];
-
-                    smoothw[face] = smooth_faces;
-                    invertw[face] = invert_val;
-                    materialsw[face] = material;
-
-                    face++;
+            Transform facing = Transform().looking_at(direction, current_up);
+            current_xform = base_xform.translated(current_point) * facing;
                 }
 
-            } break;
-            case MODE_SPIN: {
+        // Create the mesh.
+        if (end_count > 0) {
+            // Add front end face.
+            for (int face_idx = 0; face_idx < shape_face_count; face_idx++) {
+                for (int face_vertex_idx = 0; face_vertex_idx < 3; face_vertex_idx++) {
+                    // We need to reverse the rotation of the shape face vertices.
+                    int index = shape_faces[face_idx * 3 + 2 - face_vertex_idx];
+                    Point2 p = shape_polygon[index];
+                    Point2 uv = (p - shape_rect.position) / shape_rect.size;
 
-                for (int i = 0; i < spin_sides; i++) {
+                    // Use the left side of the bottom half of the y-inverted texture.
+                    uv.x = uv.x / 2;
+                    uv.y = 1 - (uv.y / 2);
 
-                    float inci = float(i) / spin_sides;
-                    float inci_n = float((i + 1)) / spin_sides;
-
-                    float angi = -(inci * spin_degrees / 360.0) * Math_PI * 2.0;
-                    float angi_n = -(inci_n * spin_degrees / 360.0) * Math_PI * 2.0;
-
-                    Vector3 normali = Vector3(Math::cos(angi), 0, Math::sin(angi));
-                    Vector3 normali_n = Vector3(Math::cos(angi_n), 0, Math::sin(angi_n));
-
-                    //add triangles for depth
-                    for (int j = 0; j < final_polygon.size(); j++) {
-
-                        int j_n = (j + 1) % final_polygon.size();
-
-                        Vector3 v[4] = {
-                            Vector3(normali.x * final_polygon[j].x, final_polygon[j].y, normali.z * final_polygon[j].x),
-                            Vector3(normali.x * final_polygon[j_n].x, final_polygon[j_n].y, normali.z * final_polygon[j_n].x),
-                            Vector3(normali_n.x * final_polygon[j_n].x, final_polygon[j_n].y, normali_n.z * final_polygon[j_n].x),
-                            Vector3(normali_n.x * final_polygon[j].x, final_polygon[j].y, normali_n.z * final_polygon[j].x),
-                        };
-
-                        Vector2 u[4] = {
-                            Vector2(0, 0),
-                            Vector2(0, 1),
-                            Vector2(1, 1),
-                            Vector2(1, 0)
-                        };
-
-                        // face 1
-                        facesw[face * 3 + 0] = v[0];
-                        facesw[face * 3 + 1] = v[2];
-                        facesw[face * 3 + 2] = v[1];
-
-                        uvsw[face * 3 + 0] = u[0];
-                        uvsw[face * 3 + 1] = u[2];
-                        uvsw[face * 3 + 2] = u[1];
-
-                        smoothw[face] = smooth_faces;
-                        invertw[face] = invert_val;
-                        materialsw[face] = material;
-
-                        face++;
-
-                        // face 2
-                        facesw[face * 3 + 0] = v[2];
-                        facesw[face * 3 + 1] = v[0];
-                        facesw[face * 3 + 2] = v[3];
-
-                        uvsw[face * 3 + 0] = u[2];
-                        uvsw[face * 3 + 1] = u[0];
-                        uvsw[face * 3 + 2] = u[3];
-
-                        smoothw[face] = smooth_faces;
-                        invertw[face] = invert_val;
-                        materialsw[face] = material;
-
-                        face++;
-                    }
-
-                    if (i == 0 && spin_degrees < 360) {
-
-                        for (int j = 0; j < triangles.size(); j += 3) {
-                            for (int k = 0; k < 3; k++) {
-                                int src[3] = { 0, 2, 1 };
-                                Vector2 p = final_polygon[triangles[j + src[k]]];
-                                Vector3 v = Vector3(p.x, p.y, 0);
-                                facesw[face * 3 + k] = v;
-                                uvsw[face * 3 + k] = (p - final_polygon_min) / final_polygon_size;
+                    facesw[face * 3 + face_vertex_idx] = current_xform.xform(Vector3(p.x, p.y, 0));
+                    uvsw[face * 3 + face_vertex_idx] = uv;
                             }
 
                             smoothw[face] = false;
                             materialsw[face] = material;
-                            invertw[face] = invert_val;
+                invertw[face] = invert_faces;
                             face++;
                         }
                     }
 
-                    if (i == spin_sides - 1 && spin_degrees < 360) {
+        real_t angle_simplify_dot = Math::cos(Math::deg2rad(path_simplify_angle));
+        Vector3 previous_simplify_dir = Vector3(0, 0, 0);
+        int faces_combined = 0;
 
-                        for (int j = 0; j < triangles.size(); j += 3) {
-                            for (int k = 0; k < 3; k++) {
-                                int src[3] = { 0, 1, 2 };
-                                Vector2 p = final_polygon[triangles[j + src[k]]];
-                                Vector3 v = Vector3(normali_n.x * p.x, p.y, normali_n.z * p.x);
-                                facesw[face * 3 + k] = v;
-                                uvsw[face * 3 + k] = (p - final_polygon_min) / final_polygon_size;
-                                uvsw[face * 3 + k].x = 1.0 - uvsw[face * 3 + k].x; /* flip x */
-                            }
+        // Add extrusion faces.
+        for (int x0 = 0; x0 < extrusions; x0++) {
+            previous_previous_xform = previous_xform;
+            previous_xform = current_xform;
 
-                            smoothw[face] = false;
-                            materialsw[face] = material;
-                            invertw[face] = invert_val;
-                            face++;
-                        }
-                    }
-                }
+            switch (mode) {
+                case MODE_DEPTH: {
+                    current_xform.translate(Vector3(0, 0, -depth));
+                } break;
+                case MODE_SPIN: {
+                    current_xform.rotate(Vector3(0, 1, 0), spin_step);
             } break;
             case MODE_PATH: {
 
-                float bl = curve->get_baked_length();
-                int splits = M_MAX(2, Math::ceil(bl / path_interval));
-                float u1 = 0.0;
-                float u2 = path_continuous_u ? 0.0 : 1.0;
-
-                Transform path_to_this;
-                if (!path_local) {
-                    // center on paths origin
-                    path_to_this = get_global_transform().affine_inverse() * path->get_global_transform();
+                    double previous_offset = x0 * extrusion_step;
+                    double current_offset = (x0 + 1) * extrusion_step;
+                    double next_offset = (x0 + 2) * extrusion_step;
+                    if (x0 == extrusions - 1) {
+                        if (path_joined) {
+                            current_offset = 0;
+                            next_offset = extrusion_step;
+                        } else {
+                            next_offset = current_offset;
+                        }
                 }
 
-                Transform prev_xf;
+                    Vector3 previous_point = curve->interpolate_baked(previous_offset);
+                    Vector3 current_point = curve->interpolate_baked(current_offset);
+                    Vector3 next_point = curve->interpolate_baked(next_offset);
+                    Vector3 current_up = Vector3(0, 1, 0);
+                    Vector3 direction = next_point - previous_point;
+                    Vector3 current_dir = (current_point - previous_point).normalized();
 
-                Vector3 lookat_dir;
-
-                if (path_rotation == PATH_ROTATION_POLYGON) {
-                    lookat_dir = (path->get_global_transform().affine_inverse() * get_global_transform()).xform(Vector3(0, 0, -1));
+                    // If the angles are similar, remove the previous face and replace it with this one.
+                    if (path_simplify_angle > 0.0 && x0 > 0 && previous_simplify_dir.dot(current_dir) > angle_simplify_dot) {
+                        faces_combined += 1;
+                        previous_xform = previous_previous_xform;
+                        face -= extrusion_face_count;
+                        faces_removed += extrusion_face_count;
                 } else {
-                    Vector3 p1, p2;
-                    p1 = curve->interpolate_baked(0);
-                    p2 = curve->interpolate_baked(0.1f);
-                    lookat_dir = (p2 - p1).normalized();
+                        faces_combined = 0;
+                        previous_simplify_dir = current_dir;
                 }
 
-                for (int i = 0; i <= splits; i++) {
-
-                    float ofs = i * path_interval;
-                    if (ofs > bl) {
-                        ofs = bl;
-                    }
-                    if (i == splits && path_joined) {
-                        ofs = 0.0;
-                    }
-
-                    Transform xf;
-                    xf.origin = curve->interpolate_baked(ofs);
-
-                    Vector3 local_dir;
-
-                    if (path_rotation == PATH_ROTATION_PATH_FOLLOW && ofs > 0) {
-                        //before end
-                        Vector3 p1 = curve->interpolate_baked(ofs - 0.1f);
-                        Vector3 p2 = curve->interpolate_baked(ofs);
-                        local_dir = (p2 - p1).normalized();
-
-                    } else {
-                        local_dir = lookat_dir;
+                    switch (path_rotation) {
+                        case PATH_ROTATION_POLYGON:
+                            direction = Vector3(0, 0, -1);
+                            break;
+                        case PATH_ROTATION_PATH:
+                            break;
+                        case PATH_ROTATION_PATH_FOLLOW:
+                            current_up = curve->interpolate_baked_up_vector(current_offset);
+                            break;
                     }
 
-                    xf = xf.looking_at(xf.origin + local_dir, Vector3(0, 1, 0));
-                    Basis rot(Vector3(0, 0, 1), curve->interpolate_baked_tilt(ofs));
+                    Transform facing = Transform().looking_at(direction, current_up);
+                    current_xform = base_xform.translated(current_point) * facing;
+                } break;
+                    }
 
-                    xf = xf * rot; //post mult
+            double u0 = (x0 - faces_combined) * u_step;
+            double u1 = ((x0 + 1) * u_step);
+            if (mode == MODE_PATH && !path_continuous_u) {
+                u0 = 0.0;
+                u1 = 1.0;
+                    }
 
-                    xf = path_to_this * xf;
-
-                    if (i > 0) {
-                        if (path_continuous_u) {
-                            u1 = u2;
-                            u2 += (prev_xf.origin - xf.origin).length();
-                        };
-
-                        //put triangles where they belong
-                        //add triangles for depth
-                        for (int j = 0; j < final_polygon.size(); j++) {
-
-                            int j_n = (j + 1) % final_polygon.size();
+            for (int y0 = 0; y0 < shape_sides; y0++) {
+                int y1 = (y0 + 1) % shape_sides;
+                // Use the top half of the texture.
+                double v0 = (y0 * v_step) / 2;
+                double v1 = ((y0 + 1) * v_step) / 2;
 
                             Vector3 v[4] = {
-                                prev_xf.xform(Vector3(final_polygon[j].x, final_polygon[j].y, 0)),
-                                prev_xf.xform(Vector3(final_polygon[j_n].x, final_polygon[j_n].y, 0)),
-                                xf.xform(Vector3(final_polygon[j_n].x, final_polygon[j_n].y, 0)),
-                                xf.xform(Vector3(final_polygon[j].x, final_polygon[j].y, 0)),
+                    previous_xform.xform(Vector3(shape_polygon[y0].x, shape_polygon[y0].y, 0)),
+                    current_xform.xform(Vector3(shape_polygon[y0].x, shape_polygon[y0].y, 0)),
+                    current_xform.xform(Vector3(shape_polygon[y1].x, shape_polygon[y1].y, 0)),
+                    previous_xform.xform(Vector3(shape_polygon[y1].x, shape_polygon[y1].y, 0)),
                             };
 
                             Vector2 u[4] = {
-                                Vector2(u1, 1),
-                                Vector2(u1, 0),
-                                Vector2(u2, 0),
-                                Vector2(u2, 1)
+                    Vector2(u0, v0),
+                    Vector2(u1, v0),
+                    Vector2(u1, v1),
+                    Vector2(u0, v1),
                             };
 
-                            // face 1
+                // Face 1
                             facesw[face * 3 + 0] = v[0];
                             facesw[face * 3 + 1] = v[1];
                             facesw[face * 3 + 2] = v[2];
@@ -2151,12 +2116,12 @@ CSGBrush *CSGPolygon::_build_brush() {
                             uvsw[face * 3 + 2] = u[2];
 
                             smoothw[face] = smooth_faces;
-                            invertw[face] = invert_val;
+                invertw[face] = invert_faces;
                             materialsw[face] = material;
 
                             face++;
 
-                            // face 2
+                // Face 2
                             facesw[face * 3 + 0] = v[2];
                             facesw[face * 3 + 1] = v[3];
                             facesw[face * 3 + 2] = v[0];
@@ -2166,69 +2131,46 @@ CSGBrush *CSGPolygon::_build_brush() {
                             uvsw[face * 3 + 2] = u[0];
 
                             smoothw[face] = smooth_faces;
-                            invertw[face] = invert_val;
+                invertw[face] = invert_faces;
                             materialsw[face] = material;
 
                             face++;
                         }
                     }
 
-                    if (i == 0 && !path_joined) {
+        if (end_count > 1) {
+            // Add back end face.
+            for (int face_idx = 0; face_idx < shape_face_count; face_idx++) {
+                for (int face_vertex_idx = 0; face_vertex_idx < 3; face_vertex_idx++) {
+                    int index = shape_faces[face_idx * 3 + face_vertex_idx];
+                    Point2 p = shape_polygon[index];
+                    Point2 uv = (p - shape_rect.position) / shape_rect.size;
 
-                        for (int j = 0; j < triangles.size(); j += 3) {
-                            for (int k = 0; k < 3; k++) {
-                                int src[3] = { 0, 1, 2 };
-                                Vector2 p = final_polygon[triangles[j + src[k]]];
-                                Vector3 v = Vector3(p.x, p.y, 0);
-                                facesw[face * 3 + k] = xf.xform(v);
-                                uvsw[face * 3 + k] = (p - final_polygon_min) / final_polygon_size;
+                    // Use the x-inverted ride side of the bottom half of the y-inverted texture.
+                    uv.x = 1 - uv.x / 2;
+                    uv.y = 1 - (uv.y / 2);
+
+                    facesw[face * 3 + face_vertex_idx] = current_xform.xform(Vector3(p.x, p.y, 0));
+                    uvsw[face * 3 + face_vertex_idx] = uv;
                             }
 
                             smoothw[face] = false;
                             materialsw[face] = material;
-                            invertw[face] = invert_val;
+                invertw[face] = invert_faces;
                             face++;
                         }
                     }
 
-                    if (i == splits && !path_joined) {
-
-                        for (int j = 0; j < triangles.size(); j += 3) {
-                            for (int k = 0; k < 3; k++) {
-                                int src[3] = { 0, 2, 1 };
-                                Vector2 p = final_polygon[triangles[j + src[k]]];
-                                Vector3 v = Vector3(p.x, p.y, 0);
-                                facesw[face * 3 + k] = xf.xform(v);
-                                uvsw[face * 3 + k] = (p - final_polygon_min) / final_polygon_size;
-                                uvsw[face * 3 + k].x = 1.0 - uvsw[face * 3 + k].x; /* flip x */
-                            }
-
-                            smoothw[face] = false;
-                            materialsw[face] = material;
-                            invertw[face] = invert_val;
-                            face++;
-                        }
-                    }
-
-                    prev_xf = xf;
+        face_count -= faces_removed;
+        ERR_FAIL_COND_V_MSG(face != face_count, brush, "Bug: Failed to create the CSGPolygon mesh correctly.");
                 }
 
-            } break;
-        }
-
-        if (face != face_count) {
-            ERR_PRINT("Face mismatch bug! fix code");
-        }
-        for (int i = 0; i < face_count * 3; i++) {
-            if (i == 0) {
-                aabb.position = facesw[i];
-            } else {
-                aabb.expand_to(facesw[i]);
-            }
-
-            // invert UVs on the Y-axis OpenGL = upside down
-            uvsw[i].y = 1.0 - uvsw[i].y;
-        }
+    if (faces_removed > 0) {
+        faces.resize(face_count * 3);
+        uvs.resize(face_count * 3);
+        smooth.resize(face_count);
+        materials.resize(face_count);
+        invert.resize(face_count);
     }
 
     brush->build_from_faces(faces, uvs, smooth, materials, invert);
@@ -2238,10 +2180,10 @@ CSGBrush *CSGPolygon::_build_brush() {
 
 void CSGPolygon::_notification(int p_what) {
     if (p_what == NOTIFICATION_EXIT_TREE) {
-        if (path_cache) {
-            path_cache->disconnect("tree_exited",callable_mp(this, &ClassName::_path_exited));
-            path_cache->disconnect("curve_changed",callable_mp(this, &ClassName::_path_changed));
-            path_cache = nullptr;
+        if (path) {
+            path->disconnect("tree_exited", callable_mp(this, &ClassName::_path_exited));
+            path->disconnect("curve_changed", callable_mp(this, &ClassName::_path_changed));
+            path = nullptr;
         }
     }
 }
@@ -2266,62 +2208,73 @@ void CSGPolygon::_path_changed() {
 }
 
 void CSGPolygon::_path_exited() {
-    path_cache = nullptr;
+    path = nullptr;
 }
 
 void CSGPolygon::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_polygon", {"polygon"}), &CSGPolygon::set_polygon);
-    MethodBinder::bind_method(D_METHOD("get_polygon"), &CSGPolygon::get_polygon);
+    BIND_METHOD(CSGPolygon,set_polygon);
+    BIND_METHOD(CSGPolygon,get_polygon);
 
-    MethodBinder::bind_method(D_METHOD("set_mode", {"mode"}), &CSGPolygon::set_mode);
-    MethodBinder::bind_method(D_METHOD("get_mode"), &CSGPolygon::get_mode);
+    BIND_METHOD(CSGPolygon,set_mode);
+    BIND_METHOD(CSGPolygon,get_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_depth", {"depth"}), &CSGPolygon::set_depth);
-    MethodBinder::bind_method(D_METHOD("get_depth"), &CSGPolygon::get_depth);
+    BIND_METHOD(CSGPolygon,set_depth);
+    BIND_METHOD(CSGPolygon,get_depth);
 
-    MethodBinder::bind_method(D_METHOD("set_spin_degrees", {"degrees"}), &CSGPolygon::set_spin_degrees);
-    MethodBinder::bind_method(D_METHOD("get_spin_degrees"), &CSGPolygon::get_spin_degrees);
+    BIND_METHOD(CSGPolygon,set_spin_degrees);
+    BIND_METHOD(CSGPolygon,get_spin_degrees);
 
-    MethodBinder::bind_method(D_METHOD("set_spin_sides", {"spin_sides"}), &CSGPolygon::set_spin_sides);
-    MethodBinder::bind_method(D_METHOD("get_spin_sides"), &CSGPolygon::get_spin_sides);
+    BIND_METHOD(CSGPolygon,set_spin_sides);
+    BIND_METHOD(CSGPolygon,get_spin_sides);
 
-    MethodBinder::bind_method(D_METHOD("set_path_node", {"path"}), &CSGPolygon::set_path_node);
-    MethodBinder::bind_method(D_METHOD("get_path_node"), &CSGPolygon::get_path_node);
+    BIND_METHOD(CSGPolygon,set_path_node);
+    BIND_METHOD(CSGPolygon,get_path_node);
 
-    MethodBinder::bind_method(D_METHOD("set_path_interval", {"distance"}), &CSGPolygon::set_path_interval);
-    MethodBinder::bind_method(D_METHOD("get_path_interval"), &CSGPolygon::get_path_interval);
+    BIND_METHOD(CSGPolygon,set_path_interval_type);
+    BIND_METHOD(CSGPolygon,get_path_interval_type);
 
-    MethodBinder::bind_method(D_METHOD("set_path_rotation", {"mode"}), &CSGPolygon::set_path_rotation);
-    MethodBinder::bind_method(D_METHOD("get_path_rotation"), &CSGPolygon::get_path_rotation);
+    BIND_METHOD(CSGPolygon,set_path_interval);
+    BIND_METHOD(CSGPolygon,get_path_interval);
 
-    MethodBinder::bind_method(D_METHOD("set_path_local", {"enable"}), &CSGPolygon::set_path_local);
-    MethodBinder::bind_method(D_METHOD("is_path_local"), &CSGPolygon::is_path_local);
+    BIND_METHOD(CSGPolygon,set_path_simplify_angle);
+    BIND_METHOD(CSGPolygon,get_path_simplify_angle);
 
-    MethodBinder::bind_method(D_METHOD("set_path_continuous_u", {"enable"}), &CSGPolygon::set_path_continuous_u);
-    MethodBinder::bind_method(D_METHOD("is_path_continuous_u"), &CSGPolygon::is_path_continuous_u);
+    BIND_METHOD(CSGPolygon,set_path_rotation);
+    BIND_METHOD(CSGPolygon,get_path_rotation);
 
-    MethodBinder::bind_method(D_METHOD("set_path_joined", {"enable"}), &CSGPolygon::set_path_joined);
-    MethodBinder::bind_method(D_METHOD("is_path_joined"), &CSGPolygon::is_path_joined);
+    BIND_METHOD(CSGPolygon,set_path_local);
+    BIND_METHOD(CSGPolygon,is_path_local);
 
-    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGPolygon::set_material);
-    MethodBinder::bind_method(D_METHOD("get_material"), &CSGPolygon::get_material);
+    BIND_METHOD(CSGPolygon,set_path_continuous_u);
+    BIND_METHOD(CSGPolygon,is_path_continuous_u);
+    BIND_METHOD(CSGPolygon,set_path_u_distance);
+    BIND_METHOD(CSGPolygon,get_path_u_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_smooth_faces", {"smooth_faces"}), &CSGPolygon::set_smooth_faces);
-    MethodBinder::bind_method(D_METHOD("get_smooth_faces"), &CSGPolygon::get_smooth_faces);
+    BIND_METHOD(CSGPolygon,set_path_joined);
+    BIND_METHOD(CSGPolygon,is_path_joined);
 
-    MethodBinder::bind_method(D_METHOD("_is_editable_3d_polygon"), &CSGPolygon::_is_editable_3d_polygon);
-    MethodBinder::bind_method(D_METHOD("_has_editable_3d_polygon_no_depth"), &CSGPolygon::_has_editable_3d_polygon_no_depth);
+    BIND_METHOD(CSGPolygon,set_material);
+    BIND_METHOD(CSGPolygon,get_material);
+
+    BIND_METHOD(CSGPolygon,set_smooth_faces);
+    BIND_METHOD(CSGPolygon,get_smooth_faces);
+
+    BIND_METHOD(CSGPolygon,_is_editable_3d_polygon);
+    BIND_METHOD(CSGPolygon,_has_editable_3d_polygon_no_depth);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Depth,Spin,Path"), "set_mode", "get_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "depth", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_depth", "get_depth");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "depth", PropertyHint::ExpRange, "0.01,100.0,0.01,or_greater"), "set_depth", "get_depth");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "spin_degrees", PropertyHint::Range, "1,360,0.1"), "set_spin_degrees", "get_spin_degrees");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "spin_sides", PropertyHint::Range, "3,64,1"), "set_spin_sides", "get_spin_sides");
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "path_node", PropertyHint::NodePathValidTypes, "Path3D"), "set_path_node", "get_path_node");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "path_interval", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_path_interval", "get_path_interval");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "path_interval_type", PropertyHint::Enum, "Distance,Subdivide"), "set_path_interval_type", "get_path_interval_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "path_interval", PropertyHint::Range, "0.01,1.0,0.01,exp,or_greater"), "set_path_interval", "get_path_interval");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "path_simplify_angle", PropertyHint::ExpRange, "0.0,180.0,0.1,or_greater"), "set_path_simplify_angle", "get_path_simplify_angle");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "path_rotation", PropertyHint::Enum, "Polygon,Path,PathFollow"), "set_path_rotation", "get_path_rotation");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "path_local"), "set_path_local", "is_path_local");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "path_continuous_u"), "set_path_continuous_u", "is_path_continuous_u");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "path_u_distance", PropertyHint::Range, "0.0,10.0,0.01,or_greater"), "set_path_u_distance", "get_path_u_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "path_joined"), "set_path_joined", "is_path_joined");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smooth_faces"), "set_smooth_faces", "get_smooth_faces");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PropertyHint::ResourceType, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
@@ -2333,6 +2286,9 @@ void CSGPolygon::_bind_methods() {
     BIND_ENUM_CONSTANT(PATH_ROTATION_POLYGON);
     BIND_ENUM_CONSTANT(PATH_ROTATION_PATH);
     BIND_ENUM_CONSTANT(PATH_ROTATION_PATH_FOLLOW);
+
+    BIND_ENUM_CONSTANT(PATH_INTERVAL_DISTANCE);
+    BIND_ENUM_CONSTANT(PATH_INTERVAL_SUBDIVIDE);
 }
 
 void CSGPolygon::set_polygon(const Vector<Vector2> &p_polygon) {
@@ -2376,6 +2332,16 @@ bool CSGPolygon::is_path_continuous_u() const {
     return path_continuous_u;
 }
 
+void CSGPolygon::set_path_u_distance(real_t p_path_u_distance) {
+    path_u_distance = p_path_u_distance;
+    _make_dirty();
+    update_gizmo();
+}
+
+real_t CSGPolygon::get_path_u_distance() const {
+    return path_u_distance;
+}
+
 void CSGPolygon::set_spin_degrees(const float p_spin_degrees) {
     ERR_FAIL_COND(p_spin_degrees < 0.01f || p_spin_degrees > 360);
     spin_degrees = p_spin_degrees;
@@ -2387,7 +2353,7 @@ float CSGPolygon::get_spin_degrees() const {
     return spin_degrees;
 }
 
-void CSGPolygon::set_spin_sides(const int p_spin_sides) {
+void CSGPolygon::set_spin_sides(int p_spin_sides) {
     ERR_FAIL_COND(p_spin_sides < 3);
     spin_sides = p_spin_sides;
     _make_dirty();
@@ -2408,14 +2374,33 @@ NodePath CSGPolygon::get_path_node() const {
     return path_node;
 }
 
+void CSGPolygon::set_path_interval_type(PathIntervalType p_interval_type) {
+    path_interval_type = p_interval_type;
+    _make_dirty();
+    update_gizmo();
+}
+
+CSGPolygon::PathIntervalType CSGPolygon::get_path_interval_type() const {
+    return path_interval_type;
+}
+
 void CSGPolygon::set_path_interval(float p_interval) {
-    ERR_FAIL_COND(p_interval < 0.001);
     path_interval = p_interval;
     _make_dirty();
     update_gizmo();
 }
 float CSGPolygon::get_path_interval() const {
     return path_interval;
+}
+
+void CSGPolygon::set_path_simplify_angle(float angle) {
+    path_simplify_angle = angle;
+    _make_dirty();
+    update_gizmo();
+}
+
+float CSGPolygon::get_path_simplify_angle() const {
+    return path_simplify_angle;
 }
 
 void CSGPolygon::set_path_rotation(PathRotation p_rotation) {
@@ -2478,19 +2463,8 @@ bool CSGPolygon::_has_editable_3d_polygon_no_depth() const {
 
 CSGPolygon::CSGPolygon() {
     // defaults
-    mode = MODE_DEPTH;
     polygon.push_back(Vector2(0, 0));
     polygon.push_back(Vector2(0, 1));
     polygon.push_back(Vector2(1, 1));
     polygon.push_back(Vector2(1, 0));
-    depth = 1.0;
-    spin_degrees = 360;
-    spin_sides = 8;
-    smooth_faces = false;
-    path_interval = 1;
-    path_rotation = PATH_ROTATION_PATH;
-    path_local = false;
-    path_continuous_u = false;
-    path_joined = false;
-    path_cache = nullptr;
 }

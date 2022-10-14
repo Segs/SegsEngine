@@ -42,22 +42,24 @@
 #include "drivers/windows/file_access_windows.h"
 #include "joypad_windows.h"
 #include "lang_table.h"
-#include "main/main.h"
+#include "main/main_class.h"
 #include "servers/audio_server.h"
 #include "servers/rendering/rendering_server_raster.h"
 #include "servers/rendering/rendering_server_wrap_mt.h"
 #include "windows_terminal_logger.h"
 
-#include <QString>
+#include <windows.h>
 #include <avrt.h>
 #include <direct.h>
+#include <dwmapi.h>
 #include <knownfolders.h>
 #include <process.h>
+#include <shellapi.h>
 #include <regstr.h>
+#include <timeapi.h>
 #include <shlobj.h>
-#include <dwmapi.h>
 
-
+#include <QString>
 
 static const WORD MAX_CONSOLE_LINES = 1500;
 
@@ -83,6 +85,12 @@ HINSTANCE godot_hinstance;
 typedef struct {
     int count;
     int screen;
+    HMONITOR monitor;
+} EnumScreenData;
+
+typedef struct {
+    int count;
+    int screen;
     Size2 size;
 } EnumSizeData;
 
@@ -92,6 +100,15 @@ typedef struct {
     Point2 pos;
 } EnumPosData;
 
+static BOOL CALLBACK _MonitorEnumProcScreen(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
+    EnumScreenData *data = (EnumScreenData *)dwData;
+    if (data->monitor == hMonitor) {
+        data->screen = data->count;
+    }
+
+    data->count++;
+    return TRUE;
+}
 static BOOL CALLBACK _MonitorEnumProcSize(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
 
     EnumSizeData *data = (EnumSizeData *)dwData;
@@ -104,11 +121,11 @@ static BOOL CALLBACK _MonitorEnumProcSize(HMONITOR hMonitor, HDC hdcMonitor, LPR
     return TRUE;
 }
 
-#ifdef DEBUG_ENABLED
 static String format_error_message(DWORD id) {
 
     LPWSTR messageBuffer = nullptr;
-    size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+    size_t size =
+            FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
             nullptr, id, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, nullptr);
 
     String msg = "Error " + itos(id) + ": " + StringUtils::to_utf8(StringUtils::from_wchar(messageBuffer, size));
@@ -117,73 +134,26 @@ static String format_error_message(DWORD id) {
 
     return msg;
 }
-#endif // DEBUG_ENABLED
+void RedirectStream(const char *p_file_name, const char *p_mode, FILE *p_cpp_stream, const DWORD p_std_handle) {
+    const HANDLE h_existing = GetStdHandle(p_std_handle);
+    if (h_existing != INVALID_HANDLE_VALUE) { // Redirect only if attached console have a valid handle.
+        const HANDLE h_cpp = reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(p_cpp_stream)));
+        if (h_cpp == INVALID_HANDLE_VALUE) { // Redirect only if it's not already redirected to the pipe or file.
+            FILE *fp = p_cpp_stream;
+            freopen_s(&fp, p_file_name, p_mode, p_cpp_stream); // Redirect stream.
+            setvbuf(p_cpp_stream, nullptr, _IONBF, 0); // Disable stream buffering.
+        }
+    }
+}
 
 void RedirectIOToConsole() {
+    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+        RedirectStream("CONIN$", "r", stdin, STD_INPUT_HANDLE);
+        RedirectStream("CONOUT$", "w", stdout, STD_OUTPUT_HANDLE);
+        RedirectStream("CONOUT$", "w", stderr, STD_ERROR_HANDLE);
 
-    int hConHandle;
-
-    intptr_t lStdHandle;
-
-    CONSOLE_SCREEN_BUFFER_INFO coninfo;
-
-    FILE *fp;
-
-    // allocate a console for this app
-
-    AllocConsole();
-
-    // set the screen buffer to be big enough to let us scroll text
-
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),
-
-            &coninfo);
-
-    coninfo.dwSize.Y = MAX_CONSOLE_LINES;
-
-    SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE),
-
-            coninfo.dwSize);
-
-    // redirect unbuffered STDOUT to the console
-
-    lStdHandle = (intptr_t)GetStdHandle(STD_OUTPUT_HANDLE);
-
-    hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
-
-    fp = _fdopen(hConHandle, "w");
-
-    *stdout = *fp;
-
-    setvbuf(stdout, nullptr, _IONBF, 0);
-
-    // redirect unbuffered STDIN to the console
-
-    lStdHandle = (intptr_t)GetStdHandle(STD_INPUT_HANDLE);
-
-    hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
-
-    fp = _fdopen(hConHandle, "r");
-
-    *stdin = *fp;
-
-    setvbuf(stdin, nullptr, _IONBF, 0);
-
-    // redirect unbuffered STDERR to the console
-
-    lStdHandle = (intptr_t)GetStdHandle(STD_ERROR_HANDLE);
-
-    hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
-
-    fp = _fdopen(hConHandle, "w");
-
-    *stderr = *fp;
-
-    setvbuf(stderr, nullptr, _IONBF, 0);
-
-    // make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog
-
-    // point to console as well
+        printf("\n"); // Make sure our output is starting from the new line.
+    }
 }
 
 BOOL WINAPI HandlerRoutine(_In_ DWORD dwCtrlType) {
@@ -212,8 +182,11 @@ void OS_Windows::initialize_core() {
     crash_handler.initialize();
 
     last_button_state = 0;
+    restore_mouse_trails = 0;
 
-    //RedirectIOToConsole();
+#ifndef WINDOWS_SUBSYSTEM_CONSOLE
+    RedirectIOToConsole();
+#endif
     maximized = false;
     minimized = false;
     borderless = false;
@@ -228,11 +201,8 @@ void OS_Windows::initialize_core() {
     NetSocketPosix::make_default();
 
     // We need to know how often the clock is updated
-    if (!QueryPerformanceFrequency((LARGE_INTEGER *)&ticks_per_second))
-        ticks_per_second = 1000;
-    // If timeAtGameStart is 0 then we get the time since
-    // the start of the computer when we call GetGameTime()
-    ticks_start = get_ticks_usec();
+    QueryPerformanceFrequency((LARGE_INTEGER *)&ticks_per_second);
+    QueryPerformanceCounter((LARGE_INTEGER *)&ticks_start);
 
     // set minimum resolution for periodic timers, otherwise Sleep(n) may wait at least as
     //  long as the windows scheduler resolution (~16-30ms) even for calls like Sleep(1)
@@ -276,7 +246,7 @@ void OS_Windows::_touch_event(bool p_pressed, float p_x, float p_y, int idx) {
     event->set_position(Vector2(p_x, p_y));
 
     if (main_loop) {
-        input->accumulate_input_event(event);
+        input->parse_input_event(event);
     }
 };
 
@@ -297,7 +267,7 @@ void OS_Windows::_drag_event(float p_x, float p_y, int idx) {
     event->set_relative(Vector2(p_x, p_y) - curr->second);
 
     if (main_loop)
-        input->accumulate_input_event(event);
+        input->parse_input_event(event);
 
     curr->second = Vector2(p_x, p_y);
 };
@@ -449,7 +419,6 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
                 mm->set_position(c);
                 mm->set_global_position(c);
-                input->set_mouse_position(c);
                 mm->set_speed(Vector2(0, 0));
 
                 if (raw->data.mouse.usFlags == MOUSE_MOVE_RELATIVE) {
@@ -463,8 +432,10 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     int nScreenTop = GetSystemMetrics(SM_YVIRTUALSCREEN);
 
                     Vector2 abs_pos(
-                            (float(raw->data.mouse.lLastX) - 65536.0f / (nScreenWidth)) * nScreenWidth / 65536.0f + nScreenLeft,
-                            (float(raw->data.mouse.lLastY) - 65536.0f / (nScreenHeight)) * nScreenHeight / 65536.0f + nScreenTop);
+                            (float(raw->data.mouse.lLastX) - 65536.0f / (nScreenWidth)) * nScreenWidth / 65536.0f +
+                                    nScreenLeft,
+                            (float(raw->data.mouse.lLastY) - 65536.0f / (nScreenHeight)) * nScreenHeight / 65536.0f +
+                                    nScreenTop);
 
                     POINT coords; //client coords
                     coords.x = abs_pos.x;
@@ -476,13 +447,14 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     old_x = coords.x;
                     old_y = coords.y;
 
-                    /*Input.mi.dx = (int)((((double)(pos.x)-nScreenLeft) * 65536) / nScreenWidth + 65536 / (nScreenWidth));
-                    Input.mi.dy = (int)((((double)(pos.y)-nScreenTop) * 65536) / nScreenHeight + 65536 / (nScreenHeight));
+                    /*Input.mi.dx = (int)((((double)(pos.x)-nScreenLeft) * 65536) / nScreenWidth + 65536 /
+                    (nScreenWidth)); Input.mi.dy = (int)((((double)(pos.y)-nScreenTop) * 65536) / nScreenHeight + 65536
+                    / (nScreenHeight));
                     */
                 }
 
                 if (window_has_focus && main_loop && mm->get_relative() != Vector2())
-                    input->accumulate_input_event(mm);
+                    input->parse_input_event(mm);
             }
             delete[] lpb;
         } break;
@@ -539,13 +511,15 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 }
 
                 // Don't calculate relative mouse movement if we don't have focus in CAPTURED mode.
-                if (!window_has_focus && mouse_mode == MOUSE_MODE_CAPTURED)
+                if (!window_has_focus && mouse_mode == MOUSE_MODE_CAPTURED) {
                         break;
+                }
 
                 Ref<InputEventMouseMotion> mm(make_ref_counted<InputEventMouseMotion >());
 
                 mm->set_pressure(pen_info.pressure ? (float)pen_info.pressure / 1024 : 0);
-                mm->set_tilt(Vector2(pen_info.tiltX ? (float)pen_info.tiltX / 90 : 0, pen_info.tiltY ? (float)pen_info.tiltY / 90 : 0));
+                mm->set_tilt(Vector2(
+                    pen_info.tiltX ? (float)pen_info.tiltX / 90 : 0, pen_info.tiltY ? (float)pen_info.tiltY / 90 : 0));
 
                 mm->set_control((wParam & MK_CONTROL) != 0);
                 mm->set_shift((wParam & MK_SHIFT) != 0);
@@ -580,7 +554,6 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         SetCursorPos(pos.x, pos.y);
                 }
 
-                input->set_mouse_position(mm->get_position());
                 mm->set_speed(input->get_last_mouse_speed());
 
                 if (old_invalid) {
@@ -633,8 +606,9 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             }
 
             // Don't calculate relative mouse movement if we don't have focus in CAPTURED mode.
-            if (!window_has_focus && mouse_mode == MOUSE_MODE_CAPTURED)
+            if (!window_has_focus && mouse_mode == MOUSE_MODE_CAPTURED) {
                 break;
+            }
 
             Ref<InputEventMouseMotion> mm(make_ref_counted<InputEventMouseMotion>());
 
@@ -665,7 +639,6 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 SetCursorPos(pos.x, pos.y);
             }
 
-            input->set_mouse_position(mm->get_position());
             mm->set_speed(input->get_last_mouse_speed());
 
             if (old_invalid) {
@@ -679,7 +652,7 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             old_x = mm->get_position().x;
             old_y = mm->get_position().y;
             if (window_has_focus && main_loop)
-                input->accumulate_input_event(mm);
+                input->parse_input_event(mm);
 
         } break;
         case WM_LBUTTONDOWN:
@@ -754,10 +727,12 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     if (!motion)
                         return 0;
 
-                    if (motion > 0)
+                    if (motion > 0) {
                         mb->set_button_index(BUTTON_WHEEL_UP);
-                    else
+                    } else {
                         mb->set_button_index(BUTTON_WHEEL_DOWN);
+                    }
+                    mb->set_factor(fabs((double)motion / (double)WHEEL_DELTA));
 
                 } break;
                 case WM_MOUSEHWHEEL: {
@@ -769,11 +744,10 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
                     if (motion < 0) {
                         mb->set_button_index(BUTTON_WHEEL_LEFT);
-                        mb->set_factor(fabs((double)motion / (double)WHEEL_DELTA));
                     } else {
                         mb->set_button_index(BUTTON_WHEEL_RIGHT);
-                        mb->set_factor(fabs((double)motion / (double)WHEEL_DELTA));
                     }
+                    mb->set_factor(fabs((double)motion / (double)WHEEL_DELTA));
                 } break;
                 case WM_XBUTTONDOWN: {
 
@@ -850,14 +824,14 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             mb->set_global_position(mb->get_position());
 
             if (main_loop) {
-                input->accumulate_input_event(mb);
+                input->parse_input_event(mb);
                 if (mb->is_pressed() && mb->get_button_index() > 3 && mb->get_button_index() < 8) {
                     //send release for mouse wheel
                     Ref<InputEventMouseButton> mbd = dynamic_ref_cast<InputEventMouseButton>(mb->duplicate());
                     last_button_state &= ~(1 << (mbd->get_button_index() - 1));
                     mbd->set_button_mask(last_button_state);
                     mbd->set_pressed(false);
-                    input->accumulate_input_event(mbd);
+                    input->parse_input_event(mbd);
                 }
             }
         } break;
@@ -1012,7 +986,8 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         } break;
         case WM_SETCURSOR: {
             if (LOWORD(lParam) == HTCLIENT) {
-                if (window_has_focus && (mouse_mode == MOUSE_MODE_HIDDEN || mouse_mode == MOUSE_MODE_CAPTURED)) {
+                if (window_has_focus &&
+                        (mouse_mode == MOUSE_MODE_HIDDEN || mouse_mode == MOUSE_MODE_CAPTURED || mouse_mode == MOUSE_MODE_CONFINED_HIDDEN)) {
                     //Hide the cursor
                     if (hCursor == nullptr)
                         hCursor = SetCursor(nullptr);
@@ -1082,7 +1057,8 @@ void OS_Windows::process_key_events() {
 
             case WM_CHAR: {
                 // extended keys should only be processed as WM_KEYDOWN message.
-                if (!KeyMappingWindows::is_extended_key(ke.wParam) && ((i == 0 && ke.uMsg == WM_CHAR) || (i > 0 && key_event_buffer[i - 1].uMsg == WM_CHAR))) {
+                if (!KeyMappingWindows::is_extended_key(ke.wParam) &&
+                        ((i == 0 && ke.uMsg == WM_CHAR) || (i > 0 && key_event_buffer[i - 1].uMsg == WM_CHAR))) {
                     Ref<InputEventKey> k(make_ref_counted<InputEventKey>());
 
                     k->set_shift(ke.shift);
@@ -1091,6 +1067,8 @@ void OS_Windows::process_key_events() {
                     k->set_metakey(ke.meta);
                     k->set_pressed(true);
                     k->set_keycode(KeyMappingWindows::get_keysym(ke.wParam));
+                    k->set_physical_scancode(
+                            KeyMappingWindows::get_scansym((ke.lParam >> 16) & 0xFF, ke.lParam & (1 << 24)));
                     k->set_unicode(ke.wParam);
                     if (k->get_unicode() && gr_mem) {
                         k->set_alt(false);
@@ -1100,7 +1078,7 @@ void OS_Windows::process_key_events() {
                     if (k->get_unicode() < 32)
                         k->set_unicode(0);
 
-                    input->accumulate_input_event(k);
+                    input->parse_input_event(k);
                 }
 
                 //do nothing
@@ -1124,6 +1102,8 @@ void OS_Windows::process_key_events() {
                     k->set_keycode(KeyMappingWindows::get_keysym(ke.wParam));
                 }
 
+                k->set_physical_scancode(
+                        KeyMappingWindows::get_scansym((ke.lParam >> 16) & 0xFF, ke.lParam & (1 << 24)));
                 if (i + 1 < key_event_pos && key_event_buffer[i + 1].uMsg == WM_CHAR) {
                     k->set_unicode(key_event_buffer[i + 1].wParam);
                 }
@@ -1137,7 +1117,7 @@ void OS_Windows::process_key_events() {
 
                 k->set_echo((ke.uMsg == WM_KEYDOWN && (ke.lParam & (1 << 30))));
 
-                input->accumulate_input_event(k);
+                input->parse_input_event(k);
 
             } break;
         }
@@ -1223,7 +1203,8 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
         if (Shcore != nullptr) {
             using SetProcessDpiAwareness_t = HRESULT (*)(SHC_PROCESS_DPI_AWARENESS);
 
-            SetProcessDpiAwareness_t SetProcessDpiAwareness = (SetProcessDpiAwareness_t)GetProcAddress(Shcore, "SetProcessDpiAwareness");
+            SetProcessDpiAwareness_t SetProcessDpiAwareness =
+                    (SetProcessDpiAwareness_t)GetProcAddress(Shcore, "SetProcessDpiAwareness");
 
             if (SetProcessDpiAwareness) {
                 SetProcessDpiAwareness(SHC_PROCESS_SYSTEM_DPI_AWARE);
@@ -1232,7 +1213,8 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
     }
 
     video_mode = p_desired;
-    //printf("**************** desired %s, mode %s\n", p_desired.fullscreen?"true":"false", video_mode.fullscreen?"true":"false");
+    // printf("**************** desired %s, mode %s\n", p_desired.fullscreen?"true":"false",
+    // video_mode.fullscreen?"true":"false");
     RECT WindowRect;
 
     WindowRect.left = 0;
@@ -1286,7 +1268,13 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
 
         */
 
-        EnumSizeData data = { 0, 0, Size2() };
+        // Get the primary monitor without providing hwnd
+        // Solution from https://devblogs.microsoft.com/oldnewthing/20070809-00/?p=25643
+        const POINT ptZero = { 0, 0 };
+        EnumScreenData primary_data = { 0, 0, MonitorFromPoint(ptZero, MONITOR_DEFAULTTOPRIMARY) };
+        EnumDisplayMonitors(NULL, NULL, _MonitorEnumProcScreen, (LPARAM)&primary_data);
+
+        EnumSizeData data = { 0, primary_data.screen, Size2() };
         EnumDisplayMonitors(nullptr, nullptr, _MonitorEnumProcSize, (LPARAM)&data);
 
         WindowRect.right = data.size.width;
@@ -1306,6 +1294,12 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
             video_mode.fullscreen=false;
         }*/
         pre_fs_valid = false;
+        // If the user has mouse trails enabled in windows, then sometimes the cursor disappears in fullscreen mode.
+        // Save number of trails so we can restore when exiting, then turn off mouse trails
+        SystemParametersInfoA(SPI_GETMOUSETRAILS, 0, &restore_mouse_trails, 0);
+        if (restore_mouse_trails > 1) {
+            SystemParametersInfoA(SPI_SETMOUSETRAILS, 0, 0, 0);
+        }
     }
 
     DWORD dwExStyle;
@@ -1354,7 +1348,7 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
         }
         GetWindowLongPtr(hWnd, GWLP_WNDPROC);
 
-        RECT rect;
+        RECT rect {0,0,0,0};
         if (!GetClientRect(hWnd, &rect)) {
             MessageBoxW(nullptr, L"Window Creation Error.", L"ERROR", MB_OK | MB_ICONEXCLAMATION);
             return ERR_UNAVAILABLE;
@@ -1364,15 +1358,10 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
         video_mode.fullscreen = false;
     } else {
 
-        hWnd = CreateWindowExW(
-                dwExStyle,
-                L"Engine", L"",
-                dwStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        hWnd = CreateWindowExW(dwExStyle, L"Engine", L"", dwStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
                 (GetSystemMetrics(SM_CXSCREEN) - WindowRect.right) / 2,
-                (GetSystemMetrics(SM_CYSCREEN) - WindowRect.bottom) / 2,
-                WindowRect.right - WindowRect.left,
-                WindowRect.bottom - WindowRect.top,
-                nullptr, nullptr, hInstance, nullptr);
+                (GetSystemMetrics(SM_CYSCREEN) - WindowRect.bottom) / 2, WindowRect.right - WindowRect.left,
+                WindowRect.bottom - WindowRect.top, nullptr, nullptr, hInstance, nullptr);
         if (!hWnd) {
             MessageBoxW(nullptr, L"Window Creation Error.", L"ERROR", MB_OK | MB_ICONEXCLAMATION);
             return ERR_UNAVAILABLE;
@@ -1380,7 +1369,8 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
     }
 
     if (video_mode.always_on_top) {
-        SetWindowPos(hWnd, video_mode.always_on_top ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        SetWindowPos(
+                hWnd, video_mode.always_on_top ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
     }
 
 #if defined(OPENGL_ENABLED)
@@ -1462,8 +1452,11 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
 
     set_ime_active(false);
 
-    if (!OS::get_singleton()->is_in_low_processor_usage_mode()) {
-        //SetPriorityClass(GetCurrentProcess(), ABOVE_NORMAL_PRIORITY_CLASS);
+    if (!Engine::get_singleton()->is_editor_hint() && !OS::get_singleton()->is_in_low_processor_usage_mode()) {
+        // Increase priority for projects that are not in low-processor mode (typically games)
+        // to reduce the risk of frame stuttering.
+        // This is not done for the editor to prevent importers or resource bakers
+        // from making the system unresponsive.
         SetPriorityClass(GetCurrentProcess(), ABOVE_NORMAL_PRIORITY_CLASS);
         DWORD index = 0;
         HANDLE handle = AvSetMmThreadCharacteristics("Games", &index);
@@ -1480,6 +1473,23 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
     return OK;
 }
 
+bool OS_Windows::is_offscreen_gl_available() const {
+#if defined(OPENGL_ENABLED)
+    return gl_context->is_offscreen_available();
+#else
+    return false;
+#endif
+}
+
+void OS_Windows::set_offscreen_gl_current(bool p_current) {
+#if defined(OPENGL_ENABLED)
+    if (p_current) {
+        return gl_context->make_offscreen_current();
+    } else {
+        return gl_context->release_offscreen_current();
+    }
+#endif
+}
 void OS_Windows::set_clipboard(StringView p_text) {
 
     // Convert LF line endings to CRLF in clipboard content
@@ -1505,8 +1515,10 @@ void OS_Windows::set_clipboard(StringView p_text) {
     ERR_FAIL_COND_MSG(mem == nullptr, "Unable to allocate memory for clipboard contents.");
 
     LPTSTR ptr = (LPTSTR)GlobalLock(mem);
+    if (ptr) {
     memcpy(ptr, text.data(), text.length());
     ptr[text.length()] = 0;
+    }
     GlobalUnlock(mem);
 
     SetClipboardData(CF_TEXT, mem);
@@ -1520,33 +1532,25 @@ String OS_Windows::get_clipboard() const {
     if (!OpenClipboard(hWnd)) {
         ERR_FAIL_V_MSG("", "Unable to open clipboard.");
     }
+    const HGLOBAL mem = GetClipboardData(CF_UNICODETEXT);
+    if (mem==nullptr) {
+        CloseClipboard();
+        return ret;
+    }
+    const LPVOID clip_contents = GlobalLock(mem);
+    if (!clip_contents) {
+        CloseClipboard();
+        return ret;
+    }
 
     if (IsClipboardFormatAvailable(CF_UNICODETEXT)) {
-
-        HGLOBAL mem = GetClipboardData(CF_UNICODETEXT);
-        if (mem != nullptr) {
-
-            LPWSTR ptr = (LPWSTR)GlobalLock(mem);
-            if (ptr != nullptr) {
-
-                ret = StringUtils::to_utf8(StringUtils::from_wchar(ptr));
-                GlobalUnlock(mem);
-            }
-        }
-
+        const LPWSTR ptr = static_cast<const LPWSTR>(clip_contents);
+        ret = StringUtils::to_utf8(StringUtils::from_wchar(ptr));
     } else if (IsClipboardFormatAvailable(CF_TEXT)) {
-
-        HGLOBAL mem = GetClipboardData(CF_UNICODETEXT);
-        if (mem != nullptr) {
-
-            LPTSTR ptr = (LPTSTR)GlobalLock(mem);
-            if (ptr != nullptr) {
-
-                ret = ptr;
-                GlobalUnlock(mem);
-            }
-        }
+        const LPTSTR ptr = static_cast<const LPTSTR>(clip_contents);
+        ret = ptr;
     }
+    GlobalUnlock(mem);
 
     CloseClipboard();
 
@@ -1581,6 +1585,7 @@ void OS_Windows::finalize() {
     memdelete(input);
     touch_state.clear();
 
+    icon.unref();
     cursors_cache.clear();
     rendering_server->finish();
     memdelete(rendering_server);
@@ -1592,6 +1597,10 @@ void OS_Windows::finalize() {
     if (user_proc) {
         SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)user_proc);
     }
+    if (restore_mouse_trails > 1) {
+        SystemParametersInfoA(SPI_SETMOUSETRAILS, restore_mouse_trails, 0, 0);
+    }
+    CoUninitialize();
 }
 
 void OS_Windows::finalize_core() {
@@ -1608,8 +1617,8 @@ void OS_Windows::alert(StringView p_alert, StringView p_title) {
         print_line("ALERT: " + p_title + ": " + p_alert);
         return;
     }
-    MessageBoxW(nullptr, qUtf16Printable(StringUtils::from_utf8(p_alert)), qUtf16Printable(StringUtils::from_utf8(p_title)),
-            MB_OK | MB_ICONEXCLAMATION | MB_TASKMODAL);
+    MessageBoxW(nullptr, qUtf16Printable(StringUtils::from_utf8(p_alert)),
+            qUtf16Printable(StringUtils::from_utf8(p_title)), MB_OK | MB_ICONEXCLAMATION | MB_TASKMODAL);
 }
 
 void OS_Windows::set_mouse_mode(MouseMode p_mode) {
@@ -1624,7 +1633,7 @@ void OS_Windows::set_mouse_mode(MouseMode p_mode) {
 
 void OS_Windows::_set_mouse_mode_impl(MouseMode p_mode) {
 
-    if (p_mode == MOUSE_MODE_CAPTURED || p_mode == MOUSE_MODE_CONFINED) {
+    if (p_mode == MOUSE_MODE_CAPTURED || p_mode == MOUSE_MODE_CONFINED || p_mode == MOUSE_MODE_CONFINED_HIDDEN) {
         RECT clipRect;
         GetClientRect(hWnd, &clipRect);
         ClientToScreen(hWnd, (POINT *)&clipRect.left);
@@ -1729,15 +1738,13 @@ void OS_Windows::_update_window_mouse_passthrough() {
     }
 }
 
-void OS_Windows::set_video_mode(const VideoMode &p_video_mode, int p_screen) {
-}
+void OS_Windows::set_video_mode(const VideoMode &p_video_mode, int p_screen) {}
 
 OS::VideoMode OS_Windows::get_video_mode(int p_screen) const {
 
     return video_mode;
 }
-void OS_Windows::get_fullscreen_mode_list(Vector<VideoMode> *p_list, int p_screen) const {
-}
+void OS_Windows::get_fullscreen_mode_list(Vector<VideoMode> *p_list, int p_screen) const {}
 
 static BOOL CALLBACK _MonitorEnumProcCount(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
 
@@ -1753,22 +1760,6 @@ int OS_Windows::get_screen_count() const {
     return data;
 }
 
-typedef struct {
-    int count;
-    int screen;
-    HMONITOR monitor;
-} EnumScreenData;
-
-static BOOL CALLBACK _MonitorEnumProcScreen(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
-
-    EnumScreenData *data = (EnumScreenData *)dwData;
-    if (data->monitor == hMonitor) {
-        data->screen = data->count;
-    }
-
-    data->count++;
-    return TRUE;
-}
 
 int OS_Windows::get_current_screen() const {
 
@@ -1778,9 +1769,19 @@ int OS_Windows::get_current_screen() const {
 }
 
 void OS_Windows::set_current_screen(int p_screen) {
+    if (video_mode.fullscreen) {
+        int cs = get_current_screen();
+        if (cs == p_screen) {
+            return;
+        }
+        Point2 pos = get_screen_position(p_screen);
+        Size2 size = get_screen_size(p_screen);
 
+        MoveWindow(hWnd, pos.x, pos.y, size.width, size.height, TRUE);
+    } else {
     Vector2 ofs = get_window_position() - get_screen_position(get_current_screen());
     set_window_position(ofs + get_screen_position(p_screen));
+}
 }
 
 static BOOL CALLBACK _MonitorEnumProcPos(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
@@ -1814,6 +1815,11 @@ typedef struct {
     int screen;
     int dpi;
 } EnumDpiData;
+typedef struct {
+    int count;
+    int screen;
+    float rate;
+} EnumRefreshRateData;
 
 static BOOL CALLBACK _MonitorEnumProcDpi(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
 
@@ -1825,12 +1831,45 @@ static BOOL CALLBACK _MonitorEnumProcDpi(HMONITOR hMonitor, HDC hdcMonitor, LPRE
     data->count++;
     return TRUE;
 }
+static BOOL CALLBACK _MonitorEnumProcRefreshRate(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
+    EnumRefreshRateData *data = (EnumRefreshRateData *)dwData;
+    if (data->count == data->screen) {
+        MONITORINFOEXW minfo;
+        memset(&minfo, 0, sizeof(minfo));
+        minfo.cbSize = sizeof(minfo);
+        GetMonitorInfoW(hMonitor, &minfo);
+
+        DEVMODEW dm;
+        memset(&dm, 0, sizeof(dm));
+        dm.dmSize = sizeof(dm);
+        EnumDisplaySettingsW(minfo.szDevice, ENUM_CURRENT_SETTINGS, &dm);
+
+        data->rate = dm.dmDisplayFrequency;
+    }
+
+    data->count++;
+    return TRUE;
+}
 
 int OS_Windows::get_screen_dpi(int p_screen) const {
 
-    EnumDpiData data = { 0, p_screen == -1 ? get_current_screen() : p_screen, 72 };
+    EnumDpiData data = {
+        0,
+        p_screen == -1 ? get_current_screen() : p_screen,
+        72,
+    };
     EnumDisplayMonitors(nullptr, nullptr, _MonitorEnumProcDpi, (LPARAM)&data);
     return data.dpi;
+}
+
+float OS_Windows::get_screen_refresh_rate(int p_screen) const {
+    EnumRefreshRateData data = {
+        0,
+        p_screen == -1 ? get_current_screen() : p_screen,
+        OS::get_singleton()->SCREEN_REFRESH_RATE_FALLBACK,
+    };
+    EnumDisplayMonitors(nullptr, nullptr, _MonitorEnumProcRefreshRate, (LPARAM)&data);
+    return data.rate;
 }
 
 Point2 OS_Windows::get_window_position() const {
@@ -1846,13 +1885,14 @@ Point2 OS_Windows::get_window_position() const {
 
 void OS_Windows::set_window_position(const Point2 &p_position) {
 
-    if (video_mode.fullscreen) return;
+    if (video_mode.fullscreen)
+        return;
     RECT r;
     GetWindowRect(hWnd, &r);
     MoveWindow(hWnd, p_position.x, p_position.y, r.right - r.left, r.bottom - r.top, TRUE);
 
     // Don't let the mouse leave the window when moved
-    if (mouse_mode == MOUSE_MODE_CONFINED) {
+    if (mouse_mode == MOUSE_MODE_CONFINED || mouse_mode == MOUSE_MODE_CONFINED_HIDDEN) {
         RECT rect;
         GetClientRect(hWnd, &rect);
         ClientToScreen(hWnd, (POINT *)&rect.left);
@@ -1870,11 +1910,11 @@ Size2 OS_Windows::get_window_size() const {
         return Size2(video_mode.width, video_mode.height);
     }
 
-    RECT r;
+    RECT r {0,0,0,0};
     if (GetClientRect(hWnd, &r)) { // Only area inside of window border
         return Size2(r.right - r.left, r.bottom - r.top);
     }
-    return Size2();
+    return {};
 }
 
 Size2 OS_Windows::get_max_window_size() const {
@@ -1905,11 +1945,11 @@ void OS_Windows::set_max_window_size(const Size2 p_size) {
 
 Size2 OS_Windows::get_real_window_size() const {
 
-    RECT r;
+    RECT r {0,0,0,0};
     if (GetWindowRect(hWnd, &r)) { // Includes area of the window border
         return Size2(r.right - r.left, r.bottom - r.top);
     }
-    return Size2();
+    return {};
 }
 
 void OS_Windows::set_window_size(const Size2 p_size) {
@@ -1938,7 +1978,7 @@ void OS_Windows::set_window_size(const Size2 p_size) {
     MoveWindow(hWnd, rect.left, rect.top, w, h, TRUE);
 
     // Don't let the mouse leave the window when resizing to a smaller resolution
-    if (mouse_mode == MOUSE_MODE_CONFINED) {
+    if (mouse_mode == MOUSE_MODE_CONFINED || mouse_mode == MOUSE_MODE_CONFINED_HIDDEN) {
         RECT crect;
         GetClientRect(hWnd, &crect);
         ClientToScreen(hWnd, (POINT *)&crect.left);
@@ -1971,6 +2011,10 @@ void OS_Windows::set_window_fullscreen(bool p_enabled) {
 
         MoveWindow(hWnd, pos.x, pos.y, size.width, size.height, TRUE);
 
+        SystemParametersInfoA(SPI_GETMOUSETRAILS, 0, &restore_mouse_trails, 0);
+        if (restore_mouse_trails > 1) {
+            SystemParametersInfoA(SPI_SETMOUSETRAILS, 0, 0, 0);
+        }
     } else {
 
         RECT rect;
@@ -1991,6 +2035,9 @@ void OS_Windows::set_window_fullscreen(bool p_enabled) {
         MoveWindow(hWnd, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, TRUE);
 
         pre_fs_valid = true;
+        if (restore_mouse_trails > 1) {
+            SystemParametersInfoA(SPI_SETMOUSETRAILS, restore_mouse_trails, 0, 0);
+        }
     }
 }
 bool OS_Windows::is_window_fullscreen() const {
@@ -2062,26 +2109,18 @@ bool OS_Windows::is_window_always_on_top() const {
 bool OS_Windows::is_window_focused() const {
     return window_focused;
 }
-void OS_Windows::set_console_visible(bool p_enabled) {
-    if (console_visible == p_enabled)
-        return;
-    ShowWindow(GetConsoleWindow(), p_enabled ? SW_SHOW : SW_HIDE);
-    console_visible = p_enabled;
-}
-
-bool OS_Windows::is_console_visible() const {
-    return console_visible;
-}
 
 bool OS_Windows::get_window_per_pixel_transparency_enabled() const {
 
-    if (!is_layered_allowed()) return false;
+    if (!is_layered_allowed())
+        return false;
     return layered_window;
 }
 
 void OS_Windows::set_window_per_pixel_transparency_enabled(bool p_enabled) {
 
-    if (!is_layered_allowed()) return;
+    if (!is_layered_allowed())
+        return;
     if (layered_window != p_enabled) {
         if (p_enabled) {
             //enable per-pixel alpha
@@ -2094,8 +2133,7 @@ void OS_Windows::set_window_per_pixel_transparency_enabled(bool p_enabled) {
             DwmEnableBlurBehindWindow(hWnd, &bb);
 
             layered_window = true;
-        }
-        else {
+        } else {
             //disable per-pixel alpha
             layered_window = false;
 
@@ -2139,7 +2177,12 @@ void OS_Windows::_update_window_style(bool p_repaint, bool p_maximized) {
         }
     }
 
-    SetWindowPos(hWnd, video_mode.always_on_top ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
+    if (icon) {
+        set_icon(icon);
+    }
+
+    SetWindowPos(hWnd, video_mode.always_on_top ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0,
+            SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
 
     if (p_repaint) {
         RECT rect;
@@ -2173,7 +2216,8 @@ Error OS_Windows::open_dynamic_library(StringView p_path, void *&p_library_handl
 
     p_library_handle = (void *)LoadLibraryExW(qUtf16Printable(StringUtils::from_utf8(path)), nullptr,
             (p_also_set_library_path && has_dll_directory_api) ? LOAD_LIBRARY_SEARCH_DEFAULT_DIRS : 0);
-    ERR_FAIL_COND_V_MSG(!p_library_handle, ERR_CANT_OPEN, "Can't open dynamic library: " + p_path + ", error: " + format_error_message(GetLastError()) + ".");
+    ERR_FAIL_COND_V_MSG(!p_library_handle, ERR_CANT_OPEN,
+            "Can't open dynamic library: " + p_path + ", error: " + format_error_message(GetLastError()) + ".");
 
     if (cookie) {
         remove_dll_directory(cookie);
@@ -2189,11 +2233,13 @@ Error OS_Windows::close_dynamic_library(void *p_library_handle) {
     return OK;
 }
 
-Error OS_Windows::get_dynamic_library_symbol_handle(void *p_library_handle, StringView p_name, void *&p_symbol_handle, bool p_optional) {
+Error OS_Windows::get_dynamic_library_symbol_handle(
+        void *p_library_handle, StringView p_name, void *&p_symbol_handle, bool p_optional) {
     p_symbol_handle = (void *)GetProcAddress((HMODULE)p_library_handle, String(p_name).c_str());
     if (!p_symbol_handle) {
         if (!p_optional) {
-            ERR_FAIL_V_MSG(ERR_CANT_RESOLVE, "Can't resolve symbol " + p_name + ", error: " + StringUtils::num(GetLastError()) + ".");
+            ERR_FAIL_V_MSG(ERR_CANT_RESOLVE,
+                    "Can't resolve symbol " + p_name + ", error: " + StringUtils::num(GetLastError()) + ".");
         } else {
             return ERR_CANT_RESOLVE;
         }
@@ -2214,12 +2260,18 @@ void OS_Windows::request_attention() {
 
 void *OS_Windows::get_native_handle(int p_handle_type) {
     switch (p_handle_type) {
-        case APPLICATION_HANDLE: return hInstance;
-        case DISPLAY_HANDLE: return NULL; // Do we have a value to return here?
-        case WINDOW_HANDLE: return hWnd;
-        case WINDOW_VIEW: return gl_context->get_hdc();
-        case OPENGL_CONTEXT: return gl_context->get_hglrc();
-        default: return NULL;
+        case APPLICATION_HANDLE:
+            return hInstance;
+        case DISPLAY_HANDLE:
+            return NULL; // Do we have a value to return here?
+        case WINDOW_HANDLE:
+            return hWnd;
+        case WINDOW_VIEW:
+            return gl_context->get_hdc();
+        case OPENGL_CONTEXT:
+            return gl_context->get_hglrc();
+        default:
+            return NULL;
     }
 }
 
@@ -2235,13 +2287,19 @@ OS::Date OS_Windows::get_date(bool utc) const {
         GetSystemTime(&systemtime);
     else
         GetLocalTime(&systemtime);
+    // Get DST information from Windows, but only if utc is false.
+    TIME_ZONE_INFORMATION info;
+    bool daylight = false;
+    if (!utc && GetTimeZoneInformation(&info) == TIME_ZONE_ID_DAYLIGHT) {
+        daylight = true;
+    }
 
     Date date;
     date.day = systemtime.wDay;
     date.month = Month(systemtime.wMonth);
     date.weekday = Weekday(systemtime.wDayOfWeek);
     date.year = systemtime.wYear;
-    date.dst = false;
+    date.dst = daylight;
     return date;
 }
 OS::Time OS_Windows::get_time(bool utc) const {
@@ -2268,13 +2326,15 @@ OS::TimeZoneInfo OS_Windows::get_time_zone_info() const {
     TimeZoneInfo ret;
     if (daylight) {
         ret.name = StringUtils::to_utf8(QString::fromWCharArray(info.DaylightName));
+        ret.bias = info.Bias + info.DaylightBias;
     } else {
         ret.name = StringUtils::to_utf8(QString::fromWCharArray(info.StandardName));
+        ret.bias = info.Bias + info.StandardBias;
     }
 
     // Bias value returned by GetTimeZoneInformation is inverted of what we expect
-    // For example on GMT-3 GetTimeZoneInformation return a Bias of 180, so invert the value to get -180
-    ret.bias = -info.Bias;
+    // For example, on GMT-3 GetTimeZoneInformation return a Bias of 180, so invert the value to get -180
+    ret.bias = -ret.bias;
     return ret;
 }
 
@@ -2330,6 +2390,22 @@ uint64_t OS_Windows::get_system_time_msecs() const {
 
     return (uint64_t)(ret / WINDOWS_TICK - MSEC_TO_UNIX_EPOCH);
 }
+double OS_Windows::get_subsecond_unix_time() const {
+    // 1 Windows tick is 100ns
+    const uint64_t WINDOWS_TICKS_PER_SECOND = 10000000;
+    const uint64_t TICKS_TO_UNIX_EPOCH = 116444736000000000LL;
+
+    SYSTEMTIME st;
+    GetSystemTime(&st);
+    FILETIME ft;
+    SystemTimeToFileTime(&st, &ft);
+    uint64_t ticks_time;
+    ticks_time = ft.dwHighDateTime;
+    ticks_time <<= 32;
+    ticks_time |= ft.dwLowDateTime;
+
+    return (double)(ticks_time - TICKS_TO_UNIX_EPOCH) / WINDOWS_TICKS_PER_SECOND;
+}
 
 void OS_Windows::delay_usec(uint32_t p_usec) const {
 
@@ -2341,15 +2417,13 @@ void OS_Windows::delay_usec(uint32_t p_usec) const {
 uint64_t OS_Windows::get_ticks_usec() const {
 
     uint64_t ticks;
-    uint64_t time;
     // This is the number of clock ticks since start
-    if (!QueryPerformanceCounter((LARGE_INTEGER *)&ticks))
-        ticks = (UINT64)timeGetTime();
+    QueryPerformanceCounter((LARGE_INTEGER *)&ticks);
+    // Subtract the ticks at game start to get
+    // the ticks since the game started
+    ticks -= ticks_start;
     // Divide by frequency to get the time in seconds
-    time = ticks * 1000000L / ticks_per_second;
-    // Subtract the time at game start to get
-    // the time since the game started
-    time -= ticks_start;
+    uint64_t time = ticks * 1000000L / ticks_per_second;
     return time;
 }
 
@@ -2369,7 +2443,7 @@ void OS_Windows::process_events() {
 
     if (!drop_events) {
         process_key_events();
-        input->flush_accumulated_events();
+        input->flush_buffered_events();
     }
 }
 
@@ -2385,25 +2459,10 @@ void OS_Windows::set_cursor_shape(CursorShape p_shape) {
         return;
     }
 
-    static const LPCTSTR win_cursors[CURSOR_MAX] = {
-        IDC_ARROW,
-        IDC_IBEAM,
+    static const LPCTSTR win_cursors[CURSOR_MAX] = { IDC_ARROW, IDC_IBEAM,
         IDC_HAND, //finger
-        IDC_CROSS,
-        IDC_WAIT,
-        IDC_APPSTARTING,
-        IDC_ARROW,
-        IDC_ARROW,
-        IDC_NO,
-        IDC_SIZENS,
-        IDC_SIZEWE,
-        IDC_SIZENESW,
-        IDC_SIZENWSE,
-        IDC_SIZEALL,
-        IDC_SIZENS,
-        IDC_SIZEWE,
-        IDC_HELP
-    };
+        IDC_CROSS, IDC_WAIT, IDC_APPSTARTING, IDC_ARROW, IDC_ARROW, IDC_NO, IDC_SIZENS, IDC_SIZEWE, IDC_SIZENESW,
+        IDC_SIZENWSE, IDC_SIZEALL, IDC_SIZENS, IDC_SIZEWE, IDC_HELP };
 
     if (cursors[p_shape] != nullptr) {
         SetCursor(cursors[p_shape]);
@@ -2546,7 +2605,8 @@ void OS_Windows::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shap
     DeleteObject(bitmap);
 }
 
-void OS_Windows::GetMaskBitmaps(HBITMAP hSourceBitmap, COLORREF clrTransparent, OUT HBITMAP &hAndMaskBitmap, OUT HBITMAP &hXorMaskBitmap) {
+void OS_Windows::GetMaskBitmaps(
+        HBITMAP hSourceBitmap, COLORREF clrTransparent, OUT HBITMAP &hAndMaskBitmap, OUT HBITMAP &hXorMaskBitmap) {
 
     // Get the system display DC
     HDC hDC = GetDC(nullptr);
@@ -2598,52 +2658,42 @@ void OS_Windows::GetMaskBitmaps(HBITMAP hSourceBitmap, COLORREF clrTransparent, 
 static String _quote_command_line_argument(StringView p_text) {
     for (int i = 0; i < p_text.size(); i++) {
         CharType c = p_text[i];
-        if (c == ' ' || c == '&' || c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '^' || c == '=' || c == ';' || c == '!' || c == '\'' || c == '+' || c == ',' || c == '`' || c == '~') {
+        if (c == ' ' || c == '&' || c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '^' ||
+                c == '=' || c == ';' || c == '!' || c == '\'' || c == '+' || c == ',' || c == '`' || c == '~') {
             return String("\"") + p_text + "\"";
         }
     }
     return String(p_text);
 }
 
-Error OS_Windows::execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
+static void _append_to_pipe(char *p_bytes, int p_size, String *r_pipe, Mutex *p_pipe_mutex) {
+    // Try to convert from default ANSI code page to Unicode.
+    Vector<wchar_t> wchars;
+    int total_wchars = MultiByteToWideChar(CP_ACP, 0, p_bytes, p_size, nullptr, 0);
+    if (total_wchars > 0) {
+        wchars.resize(total_wchars);
+        if (MultiByteToWideChar(CP_ACP, 0, p_bytes, p_size, wchars.data(), total_wchars) == 0) {
+            wchars.clear();
+        }
+    }
+
+    if (p_pipe_mutex) {
+        p_pipe_mutex->lock();
+    }
+    if (wchars.empty()) {
+        // Let's hope it's compatible with UTF-8.
+        (*r_pipe) += String(p_bytes, p_size);
+    } else {
+        (*r_pipe) += StringUtils::to_utf8(StringUtils::from_wchar(wchars.data(), total_wchars));
+    }
+    if (p_pipe_mutex) {
+        p_pipe_mutex->unlock();
+    }
+}
+Error OS_Windows::execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking, ProcessID *r_child_id,
+        String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex,bool p_open_console) {
     String path(PathUtils::to_win_path(p_path));
 
-    if (p_blocking && r_pipe) {
-
-        String argss = _quote_command_line_argument(path);
-
-        for (const String &E : p_arguments) {
-            argss += " " + _quote_command_line_argument(E);
-        }
-
-        if (read_stderr) {
-            argss += " 2>&1"; // Read stderr too
-        }
-        // Note: _wpopen is calling command as "cmd.exe /c argss", instead of executing it directly, add extra quotes around full command, to prevent it from stripping quotes in the command.
-        argss = _quote_command_line_argument(argss);
-
-        FILE *f = _wpopen(qUtf16Printable(StringUtils::from_utf8(argss)), L"r");
-
-        ERR_FAIL_COND_V(!f, ERR_CANT_OPEN);
-
-        char buf[65535];
-        while (fgets(buf, 65535, f)) {
-
-            if (p_pipe_mutex) {
-                p_pipe_mutex->lock();
-            }
-            (*r_pipe) += buf;
-            if (p_pipe_mutex) {
-                p_pipe_mutex->unlock();
-            }
-        }
-
-        int rv = _pclose(f);
-        if (r_exitcode)
-            *r_exitcode = rv;
-
-        return OK;
-    }
 
     String cmdline = _quote_command_line_argument(path);
 
@@ -2658,12 +2708,62 @@ Error OS_Windows::execute(StringView p_path, const Vector<String> &p_arguments, 
     LPSTARTUPINFOW si_w = (LPSTARTUPINFOW)&pi.si;
 
     auto modstr = StringUtils::from_utf8(cmdline).toStdWString();
-    int ret = CreateProcessW(nullptr, modstr.data(), nullptr, nullptr, 0, NORMAL_PRIORITY_CLASS & CREATE_NO_WINDOW, nullptr, nullptr, si_w, &pi.pi);
+    bool inherit_handles = false;
+    HANDLE pipe[2] = { NULL, NULL };
+    if (p_blocking && r_pipe) {
+        // Create pipe for StdOut and StdErr.
+        SECURITY_ATTRIBUTES sa;
+        sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+        sa.bInheritHandle = true;
+        sa.lpSecurityDescriptor = NULL;
+
+        ERR_FAIL_COND_V(!CreatePipe(&pipe[0], &pipe[1], &sa, 0), ERR_CANT_FORK);
+        ERR_FAIL_COND_V(!SetHandleInformation(pipe[0], HANDLE_FLAG_INHERIT, 0), ERR_CANT_FORK); // Read handle is for host process only and should not be inherited.
+
+        pi.si.dwFlags |= STARTF_USESTDHANDLES;
+        pi.si.hStdOutput = pipe[1];
+        if (read_stderr) {
+            pi.si.hStdError = pipe[1];
+        }
+        inherit_handles = true;
+    }
+    DWORD creaton_flags = NORMAL_PRIORITY_CLASS;
+    if (p_open_console) {
+        creaton_flags |= CREATE_NEW_CONSOLE;
+    } else {
+        creaton_flags |= CREATE_NO_WINDOW;
+    }
+
+    int ret = CreateProcessW(NULL, modstr.data(), NULL, NULL, inherit_handles, creaton_flags, NULL, NULL, si_w, &pi.pi);
+    if (!ret && r_pipe) {
+        CloseHandle(pipe[0]); // Cleanup pipe handles.
+        CloseHandle(pipe[1]);
+    }
     ERR_FAIL_COND_V(ret == 0, ERR_CANT_FORK);
 
     if (p_blocking) {
 
+        if (r_pipe) {
+            CloseHandle(pipe[1]); // Close pipe write handle (only child process is writing).
+            char buf[4096];
+            DWORD read = 0;
+            for (;;) { // Read StdOut and StdErr from pipe.
+                bool success = ReadFile(pipe[0], buf, 4096, &read, NULL);
+                if (!success || read == 0) {
+                    break;
+                }
+                if (p_pipe_mutex) {
+                    p_pipe_mutex->lock();
+                }
+                (*r_pipe) += String(buf, read);
+                if (p_pipe_mutex) {
+                    p_pipe_mutex->unlock();
+                }
+            };
+            CloseHandle(pipe[0]); // Close pipe read handle.
+        } else {
         WaitForSingleObject(pi.pi.hProcess, INFINITE);
+        }
         if (r_exitcode) {
             DWORD ret2;
             GetExitCodeProcess(pi.pi.hProcess, &ret2);
@@ -2704,8 +2804,9 @@ int OS_Windows::get_process_id() const {
 
 Error OS_Windows::set_cwd(StringView p_cwd) {
 
-    if (_wchdir(qUtf16Printable(StringUtils::from_utf8(p_cwd))) != 0)
+    if (_wchdir(qUtf16Printable(StringUtils::from_utf8(p_cwd))) != 0) {
         return ERR_CANT_OPEN;
+    }
 
     return OK;
 }
@@ -2769,7 +2870,8 @@ void OS_Windows::set_native_icon(const String &p_filename) {
     ERR_FAIL_COND_MSG(big_icon_index == -1, "No valid icons found!");
 
     if (small_icon_index == -1) {
-        WARN_PRINT("No small icon found, reusing " + itos(big_icon_width) + "x" + itos(big_icon_width) + " @" + itos(big_icon_cc) + " icon!");
+        WARN_PRINT("No small icon found, reusing " + itos(big_icon_width) + "x" + itos(big_icon_width) + " @" +
+                   itos(big_icon_cc) + " icon!");
         small_icon_index = big_icon_index;
         small_icon_cc = big_icon_cc;
     }
@@ -2782,7 +2884,9 @@ void OS_Windows::set_native_icon(const String &p_filename) {
     f->seek(pos);
     f->get_buffer((uint8_t *)data_big.data(), bytecount_big);
     HICON icon_big = CreateIconFromResource((PBYTE)data_big.data(), bytecount_big, TRUE, 0x00030000);
-    ERR_FAIL_COND_MSG(!icon_big, "Could not create " + itos(big_icon_width) + "x" + itos(big_icon_width) + " @" + itos(big_icon_cc) + " icon, error: " + format_error_message(GetLastError()) + ".");
+    ERR_FAIL_COND_MSG(!icon_big, "Could not create " + itos(big_icon_width) + "x" + itos(big_icon_width) + " @" +
+                                         itos(big_icon_cc) + " icon, error: " + format_error_message(GetLastError()) +
+                                         ".");
 
     // Read the small icon
     DWORD bytecount_small = icon_dir->idEntries[small_icon_index].dwBytesInRes;
@@ -2792,7 +2896,8 @@ void OS_Windows::set_native_icon(const String &p_filename) {
     f->seek(pos);
     f->get_buffer((uint8_t *)data_small.data(), bytecount_small);
     HICON icon_small = CreateIconFromResource((PBYTE)data_small.data(), bytecount_small, TRUE, 0x00030000);
-    ERR_FAIL_COND_MSG(!icon_small, "Could not create 16x16 @" + itos(small_icon_cc) + " icon, error: " + format_error_message(GetLastError()) + ".");
+    ERR_FAIL_COND_MSG(!icon_small, "Could not create 16x16 @" + itos(small_icon_cc) +
+                                           " icon, error: " + format_error_message(GetLastError()) + ".");
 
     // Online tradition says to be sure last error is cleared and set the small icon first
     int err = 0;
@@ -2813,9 +2918,16 @@ void OS_Windows::set_native_icon(const String &p_filename) {
 void OS_Windows::set_icon(const Ref<Image> &p_icon) {
 
     ERR_FAIL_COND(not p_icon);
+    if (icon != p_icon) {
+
+        icon = dynamic_ref_cast<Image>(p_icon->duplicate());
+        if (icon->get_format() != ImageData::FORMAT_RGBA8) {
+            icon->convert(ImageData::FORMAT_RGBA8);
+        }
+    }
     Ref<Image> icon = dynamic_ref_cast<Image>(p_icon->duplicate());
-    if (icon->get_format() != Image::FORMAT_RGBA8)
-        icon->convert(Image::FORMAT_RGBA8);
+    if (icon->get_format() != ImageData::FORMAT_RGBA8)
+        icon->convert(ImageData::FORMAT_RGBA8);
     int w = icon->get_width();
     int h = icon->get_height();
 
@@ -2888,7 +3000,8 @@ String OS_Windows::get_environment(StringView p_var) const {
 
 bool OS_Windows::set_environment(StringView p_var, StringView p_value) const {
 
-    return (bool)SetEnvironmentVariableW(qUtf16Printable(StringUtils::from_utf8(p_var)), qUtf16Printable(StringUtils::from_utf8(p_value)));
+    return (bool)SetEnvironmentVariableW(
+            qUtf16Printable(StringUtils::from_utf8(p_var)), qUtf16Printable(StringUtils::from_utf8(p_value)));
 }
 
 String OS_Windows::get_stdin_string(bool p_block) {
@@ -2913,7 +3026,27 @@ void OS_Windows::move_window_to_foreground() {
 
 Error OS_Windows::shell_open(StringView p_uri) {
 
-    ShellExecuteW(nullptr, nullptr, qUtf16Printable(StringUtils::from_utf8(p_uri)), nullptr, nullptr, SW_SHOWNORMAL);
+    INT_PTR ret=(INT_PTR)ShellExecuteW(nullptr, nullptr, qUtf16Printable(StringUtils::from_utf8(p_uri)), nullptr, nullptr, SW_SHOWNORMAL);
+    if (ret > 32) {
+        return OK;
+    } else {
+        switch (ret) {
+            case ERROR_FILE_NOT_FOUND:
+            case SE_ERR_DLLNOTFOUND:
+                return ERR_FILE_NOT_FOUND;
+            case ERROR_PATH_NOT_FOUND:
+                return ERR_FILE_BAD_PATH;
+            case ERROR_BAD_FORMAT:
+                return ERR_FILE_CORRUPT;
+            case SE_ERR_ACCESSDENIED:
+                return ERR_UNAUTHORIZED;
+            case 0:
+            case SE_ERR_OOM:
+                return ERR_OUT_OF_MEMORY;
+            default:
+                return FAILED;
+        }
+    }
     return OK;
 }
 
@@ -2921,24 +3054,29 @@ const char *OS_Windows::get_locale() const {
 
     const _WinLocale *wl = &_win_locales[0];
 
+    static char locale_buf[1024];
     LANGID langid = GetUserDefaultUILanguage();
     const char *neutral=nullptr;
-    int lang = langid & ((1 << 9) - 1);
-    int sublang = langid & ~((1 << 9) - 1);
+    int sublang = SUBLANGID(langid);
+    int lang = PRIMARYLANGID(langid);
 
     while (wl->locale) {
+        if (wl->main_lang == lang && wl->sublang == SUBLANG_NEUTRAL) {
+            neutral = locale_buf;
+        }
 
-        if (wl->main_lang == lang && wl->sublang == SUBLANG_NEUTRAL)
-            neutral = wl->locale;
-
-        if (lang == wl->main_lang && sublang == wl->sublang)
-            return wl->locale;
+        if (lang == wl->main_lang && sublang == wl->sublang) {
+            strncpy(locale_buf,String(wl->locale).replaced("-", "_").c_str(),1024);
+            return locale_buf;
+        }
 
         wl++;
     }
 
-    if (neutral)
-        return neutral;
+    if (neutral) {
+        strncpy(locale_buf,String(neutral).replaced("-", "_").c_str(),1024);
+        return locale_buf;
+    }
 
     return "en";
 }
@@ -3016,19 +3154,22 @@ OS::LatinKeyboardVariant OS_Windows::get_latin_keyboard_variant() const {
 
     int i = 0;
     while (azerty[i] != 0) {
-        if (azerty[i] == hex) return LATIN_KEYBOARD_AZERTY;
+        if (azerty[i] == hex)
+            return LATIN_KEYBOARD_AZERTY;
         i++;
     }
 
     i = 0;
     while (qwertz[i] != 0) {
-        if (qwertz[i] == hex) return LATIN_KEYBOARD_QWERTZ;
+        if (qwertz[i] == hex)
+            return LATIN_KEYBOARD_QWERTZ;
         i++;
     }
 
     i = 0;
     while (dvorak[i] != 0) {
-        if (dvorak[i] == hex) return LATIN_KEYBOARD_DVORAK;
+        if (dvorak[i] == hex)
+            return LATIN_KEYBOARD_DVORAK;
         i++;
     }
 
@@ -3076,6 +3217,58 @@ MainLoop *OS_Windows::get_main_loop() const {
     return main_loop;
 }
 
+uint64_t OS_Windows::get_embedded_pck_offset() const {
+    FileAccessRef f = FileAccess::open(get_executable_path(), FileAccess::READ);
+    if (!f) {
+        return 0;
+    }
+
+    // Process header.
+    {
+        f->seek(0x3c);
+        uint32_t pe_pos = f->get_32();
+
+        f->seek(pe_pos);
+        uint32_t magic = f->get_32();
+        if (magic != 0x00004550) {
+            return 0;
+        }
+    }
+
+    int num_sections;
+    {
+        int64_t header_pos = f->get_position();
+
+        f->seek(header_pos + 2);
+        num_sections = f->get_16();
+        f->seek(header_pos + 16);
+        uint16_t opt_header_size = f->get_16();
+
+        // Skip rest of header + optional header to go to the section headers.
+        f->seek(f->get_position() + 2 + opt_header_size);
+    }
+    int64_t section_table_pos = f->get_position();
+
+    // Search for the "pck" section.
+    int64_t off = 0;
+    for (int i = 0; i < num_sections; ++i) {
+        int64_t section_header_pos = section_table_pos + i * 40;
+        f->seek(section_header_pos);
+
+        uint8_t section_name[9];
+        f->get_buffer(section_name, 8);
+        section_name[8] = '\0';
+
+        if (strcmp((char *)section_name, "pck") == 0) {
+            f->seek(section_header_pos + 20);
+            off = f->get_32();
+            break;
+        }
+    }
+
+    return off;
+}
+
 // Get properly capitalized engine name for system paths
 String OS_Windows::get_godot_dir_name() const {
 
@@ -3083,28 +3276,25 @@ String OS_Windows::get_godot_dir_name() const {
 }
 
 String OS_Windows::get_user_data_dir() const {
+    const String appname = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/name").as<String>());
+    const bool use_custom_dir = ProjectSettings::get_singleton()->getT<bool>("application/config/use_custom_user_dir");
+    const String current_dp(get_data_path());
+    StringView path_components[3] = {
+        current_dp,
+        "app_userdata",
+        appname.empty() ? StringView("[unnamed project]") : StringView(appname)
+    };
 
-    String appname = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/name").as<String>());
-    if (appname.empty())
-        return ProjectSettings::get_singleton()->get_resource_path();
-
-    bool use_custom_dir = ProjectSettings::get_singleton()->getT<bool>("application/config/use_custom_user_dir");
-    if (use_custom_dir) {
+    if (use_custom_dir && !appname.empty()) {
         String custom_dir = get_safe_dir_name(
                 ProjectSettings::get_singleton()->get("application/config/custom_user_dir_name").as<String>(), true);
         if (custom_dir.empty()) {
             custom_dir = appname;
         }
-        return PathUtils::from_native_path(PathUtils::plus_file(get_data_path(), custom_dir));
+        return PathUtils::from_native_path(PathUtils::plus_file(current_dp, custom_dir));
     }
-    // adding get_godot_dir_name() is not needed, since QStandardPaths::AppDataLocation is already decorated with it.
-    String current_dp(get_data_path());
-    StringView path_components[3] = { current_dp , "app_userdata", appname };
-    return PathUtils::from_native_path(PathUtils::join_path( path_components ));
 
-/*    return PathUtils::from_native_path(PathUtils::plus_file(
-            PathUtils::plus_file(PathUtils::plus_file(get_data_path(), get_godot_dir_name()), "app_userdata"),
-            appname));*/
+    return PathUtils::join_path(path_components);
 }
 
 void OS_Windows::set_ime_active(const bool p_active) {
@@ -3176,32 +3366,6 @@ void OS_Windows::process_and_drop_events() {
     drop_events = false;
 }
 
-Error OS_Windows::move_to_trash(StringView p_path) {
-    SHFILEOPSTRUCTW sf;
-    WCHAR *from = new WCHAR[p_path.length() + 2];
-    wcscpy_s(from, p_path.length() + 1, qUtf16Printable(StringUtils::from_utf8(p_path)));
-    from[p_path.length() + 1] = 0;
-
-    sf.hwnd = hWnd;
-    sf.wFunc = FO_DELETE;
-    sf.pFrom = from;
-    sf.pTo = nullptr;
-    sf.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION;
-    sf.fAnyOperationsAborted = FALSE;
-    sf.hNameMappings = nullptr;
-    sf.lpszProgressTitle = nullptr;
-
-    int ret = SHFileOperationW(&sf);
-    delete[] from;
-
-    if (ret) {
-        ERR_PRINT("SHFileOperation error: " + itos(ret));
-        return FAILED;
-    }
-
-    return OK;
-}
-
 OS_Windows::OS_Windows(HINSTANCE _hInstance) {
 
     drop_events = false;
@@ -3216,7 +3380,6 @@ OS_Windows::OS_Windows(HINSTANCE _hInstance) {
     minimized = false;
     was_maximized = false;
     window_focused = true;
-    console_visible = IsWindowVisible(GetConsoleWindow());
 
     //Note: Functions for pen input, available on Windows 8+
     HMODULE user32_lib = LoadLibraryW(L"user32.dll");

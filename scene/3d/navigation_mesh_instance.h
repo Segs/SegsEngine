@@ -41,12 +41,12 @@ class GODOT_EXPORT NavigationMeshInstance : public Node3D {
 
     GDCLASS(NavigationMeshInstance, Node3D)
 
-    bool enabled;
+    bool enabled = true;
     RID region;
     Ref<NavigationMesh> navmesh;
 
-    Navigation3D *navigation;
-    Node *debug_view;
+    Navigation3D *navigation = nullptr;
+    Node *debug_view = nullptr;
     Thread bake_thread;
 
 protected:

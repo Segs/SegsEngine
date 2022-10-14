@@ -85,7 +85,7 @@ Dictionary RegExMatch::get_names() const {
     Dictionary result;
 
     for (const auto &i : names) {
-        result[(i.first)] = i.second;
+        result[StringName(i.first)] = i.second;
     }
 
     return result;
@@ -153,10 +153,10 @@ int RegExMatch::get_end(const Variant &p_name) const {
 
 void RegExMatch::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_subject"), &RegExMatch::get_subject);
-    MethodBinder::bind_method(D_METHOD("get_group_count"), &RegExMatch::get_group_count);
-    MethodBinder::bind_method(D_METHOD("get_names"), &RegExMatch::get_names);
-    MethodBinder::bind_method(D_METHOD("get_strings"), &RegExMatch::get_strings);
+    BIND_METHOD(RegExMatch,get_subject);
+    BIND_METHOD(RegExMatch,get_group_count);
+    BIND_METHOD(RegExMatch,get_names);
+    BIND_METHOD(RegExMatch,get_strings);
     MethodBinder::bind_method(D_METHOD("get_string", {"name"}), &RegExMatch::get_string, {DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("get_start", {"name"}), &RegExMatch::get_start, {DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("get_end", {"name"}), &RegExMatch::get_end, {DEFVAL(0)});
@@ -226,6 +226,7 @@ Ref<RegExMatch> RegEx::search(const String &p_subject, int p_offset, int p_end) 
 
     if (res < 0) {
         pcre2_match_data_free_8(match);
+        pcre2_match_context_free_8(mctx);
         return Ref<RegExMatch>();
     }
 
@@ -395,13 +396,13 @@ RegEx::~RegEx() {
 
 void RegEx::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("clear"), &RegEx::clear);
-    MethodBinder::bind_method(D_METHOD("compile", {"pattern"}), &RegEx::compile);
+    BIND_METHOD(RegEx,clear);
+    BIND_METHOD(RegEx,compile);
     MethodBinder::bind_method(D_METHOD("search", {"subject", "offset", "end"}), &RegEx::search, {DEFVAL(0), DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("search_all", {"subject", "offset", "end"}), &RegEx::search_all, {DEFVAL(0), DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("sub", {"subject", "replacement", "all", "offset", "end"}), &RegEx::sub, {DEFVAL(false), DEFVAL(0), DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("is_valid"), &RegEx::is_valid);
-    MethodBinder::bind_method(D_METHOD("get_pattern"), &RegEx::get_pattern);
-    MethodBinder::bind_method(D_METHOD("get_group_count"), &RegEx::get_group_count);
-    MethodBinder::bind_method(D_METHOD("get_names"), &RegEx::get_names);
+    BIND_METHOD(RegEx,is_valid);
+    BIND_METHOD(RegEx,get_pattern);
+    BIND_METHOD(RegEx,get_group_count);
+    BIND_METHOD(RegEx,get_names);
 }

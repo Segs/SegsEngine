@@ -4,686 +4,767 @@
         <file>../AUTHORS.md</file>
     </qresource>
     <qresource prefix="/binary/fonts">
-        <file alias="DroidSansFallback.ttf">../thirdparty/fonts/DroidSansFallback.ttf</file>
-        <file alias="DroidSansJapanese.ttf">../thirdparty/fonts/DroidSansJapanese.ttf</file>
-        <file alias="Hack_Regular.ttf">../thirdparty/fonts/Hack_Regular.ttf</file>
-        <file alias="NotoNaskhArabicUI_Regular.ttf">../thirdparty/fonts/NotoNaskhArabicUI_Regular.ttf</file>
-        <file alias="NotoSansDevanagariUI_Regular.ttf">../thirdparty/fonts/NotoSansDevanagariUI_Regular.ttf</file>
-        <file alias="NotoSansHebrew_Regular.ttf">../thirdparty/fonts/NotoSansHebrew_Regular.ttf</file>
-        <file alias="NotoSansThaiUI_Regular.ttf">../thirdparty/fonts/NotoSansThaiUI_Regular.ttf</file>
-        <file alias="NotoSansUI_Bold.ttf">../thirdparty/fonts/NotoSansUI_Bold.ttf</file>
-        <file alias="NotoSansUI_Regular.ttf">../thirdparty/fonts/NotoSansUI_Regular.ttf</file>
+        <file alias="DroidSansFallback.woff2">../thirdparty/fonts/DroidSansFallback.woff2</file>
+        <file alias="DroidSansJapanese.woff2">../thirdparty/fonts/DroidSansJapanese.woff2</file>
+        <file alias="Hack_Regular.woff2">../thirdparty/fonts/Hack_Regular.woff2</file>
+        <file alias="NotoNaskhArabicUI_Regular.woff2">../thirdparty/fonts/NotoNaskhArabicUI_Regular.woff2</file>
+        <file alias="NotoSansDevanagariUI_Regular.woff2">../thirdparty/fonts/NotoSansDevanagariUI_Regular.woff2</file>
+        <file alias="NotoSansHebrew_Regular.woff2">../thirdparty/fonts/NotoSansHebrew_Regular.woff2</file>
+        <file alias="NotoSansThaiUI_Regular.woff2">../thirdparty/fonts/NotoSansThaiUI_Regular.woff2</file>
+        <file alias="NotoSansUI_Bold.woff2">../thirdparty/fonts/NotoSansUI_Bold.woff2</file>
+        <file alias="NotoSansUI_Regular.woff2">../thirdparty/fonts/NotoSansUI_Regular.woff2</file>
     </qresource>
     <qresource prefix="/">
-        <file>icons/2D.svg</file>
-        <file>icons/3D.svg</file>
-        <file>icons/AABB.svg</file>
-        <file>icons/ARVRAnchor.svg</file>
-        <file>icons/ARVRCamera.svg</file>
-        <file>icons/ARVRController.svg</file>
-        <file>icons/ARVROrigin.svg</file>
-        <file>icons/AcceptDialog.svg</file>
-        <file>icons/ActionCopy.svg</file>
-        <file>icons/ActionCut.svg</file>
-        <file>icons/ActionPaste.svg</file>
-        <file>icons/Add.svg</file>
-        <file>icons/AddAtlasTile.svg</file>
-        <file>icons/AddAutotile.svg</file>
-        <file>icons/AddSingleTile.svg</file>
-        <file>icons/AddSplit.svg</file>
-        <file>icons/Anchor.svg</file>
-        <file>icons/AnimatedTexture.svg</file>
-        <file>icons/Animation.svg</file>
-        <file>icons/AnimationFilter.svg</file>
-        <file>icons/AnimationPlayer.svg</file>
-        <file>icons/AnimationTrackGroup.svg</file>
-        <file>icons/AnimationTrackList.svg</file>
-        <file>icons/AnimationTree.svg</file>
-        <file>icons/AnimationTreePlayer.svg</file>
-        <file>icons/Array.svg</file>
-        <file>icons/ArrayMesh.svg</file>
-        <file>icons/ArrowDown.svg</file>
-        <file>icons/ArrowLeft.svg</file>
-        <file>icons/ArrowRight.svg</file>
-        <file>icons/ArrowUp.svg</file>
-        <file>icons/AssetLib.svg</file>
-        <file>icons/AtlasTexture.svg</file>
-        <file>icons/AudioBusBypass.svg</file>
-        <file>icons/AudioBusLayout.svg</file>
-        <file>icons/AudioBusMute.svg</file>
-        <file>icons/AudioBusSolo.svg</file>
-        <file>icons/AudioStreamOGGVorbis.svg</file>
-        <file>icons/AudioStreamPlayer.svg</file>
-        <file>icons/AudioStreamPlayer2D.svg</file>
-        <file>icons/AudioStreamPlayer3D.svg</file>
-        <file>icons/AudioStreamSample.svg</file>
-        <file>icons/AutoEnd.svg</file>
-        <file>icons/AutoKey.svg</file>
-        <file>icons/AutoPlay.svg</file>
-        <file>icons/AutoTriangle.svg</file>
-        <file>icons/Back.svg</file>
-        <file>icons/BackBufferCopy.svg</file>
-        <file>icons/Bake.svg</file>
-        <file>icons/BakedLightmap.svg</file>
-        <file>icons/BakedLightmapData.svg</file>
-        <file>icons/Basis.svg</file>
-        <file>icons/BezierHandlesBalanced.svg</file>
-        <file>icons/BezierHandlesFree.svg</file>
-        <file>icons/BezierHandlesMirror.svg</file>
-        <file>icons/BitMap.svg</file>
-        <file>icons/BitmapFont.svg</file>
-        <file>icons/Blend.svg</file>
-        <file>icons/Bone.svg</file>
-        <file>icons/Bone2D.svg</file>
-        <file>icons/BoneTrack.svg</file>
-        <file>icons/Bucket.svg</file>
-        <file>icons/BusVuEmpty.svg</file>
-        <file>icons/BusVuFrozen.svg</file>
-        <file>icons/BusVuFull.svg</file>
-        <file>icons/Button.svg</file>
-        <file>icons/ButtonGroup.svg</file>
-        <file>icons/CPUParticles2D.svg</file>
-        <file>icons/Camera3D.svg</file>
-        <file>icons/CameraTexture.svg</file>
-        <file>icons/CanvasItem.svg</file>
-        <file>icons/CanvasItemMaterial.svg</file>
-        <file>icons/CanvasItemShader.svg</file>
-        <file>icons/CanvasItemShaderGraph.svg</file>
-        <file>icons/CanvasLayer.svg</file>
-        <file>icons/CanvasModulate.svg</file>
-        <file>icons/CapsuleMesh.svg</file>
-        <file>icons/CenterContainer.svg</file>
-        <file>icons/CheckBox.svg</file>
-        <file>icons/CheckButton.svg</file>
-        <file>icons/Checkerboard.svg</file>
-        <file>icons/ClassList.svg</file>
-        <file>icons/Clear.svg</file>
-        <file>icons/Close.svg</file>
-        <file>icons/Collapse.svg</file>
-        <file>icons/Color.svg</file>
-        <file>icons/ColorPick.svg</file>
-        <file>icons/ColorPicker.svg</file>
-        <file>icons/ColorPickerButton.svg</file>
-        <file>icons/ColorRamp.svg</file>
-        <file>icons/ColorRect.svg</file>
-        <file>icons/ColorTrackVu.svg</file>
-        <file>icons/ConeTwistJoint3D.svg</file>
-        <file>icons/ConfirmationDialog.svg</file>
-        <file>icons/Container.svg</file>
-        <file>icons/Control.svg</file>
-        <file>icons/ControlAlignBottomCenter.svg</file>
-        <file>icons/ControlAlignBottomLeft.svg</file>
-        <file>icons/ControlAlignBottomRight.svg</file>
-        <file>icons/ControlAlignBottomWide.svg</file>
-        <file>icons/ControlAlignCenter.svg</file>
-        <file>icons/ControlAlignCenterLeft.svg</file>
-        <file>icons/ControlAlignCenterRight.svg</file>
-        <file>icons/ControlAlignLeftCenter.svg</file>
-        <file>icons/ControlAlignLeftWide.svg</file>
-        <file>icons/ControlAlignRightCenter.svg</file>
-        <file>icons/ControlAlignRightWide.svg</file>
-        <file>icons/ControlAlignTopCenter.svg</file>
-        <file>icons/ControlAlignTopLeft.svg</file>
-        <file>icons/ControlAlignTopRight.svg</file>
-        <file>icons/ControlAlignTopWide.svg</file>
-        <file>icons/ControlAlignWide.svg</file>
-        <file>icons/ControlHcenterWide.svg</file>
-        <file>icons/ControlLayout.svg</file>
-        <file>icons/ControlVcenterWide.svg</file>
-        <file>icons/ConvexPolygonShape3D.svg</file>
-        <file>icons/CopyNodePath.svg</file>
-        <file>icons/CreateNewSceneFrom.svg</file>
-        <file>icons/Crosshair.svg</file>
-        <file>icons/CryptoKey.svg</file>
-        <file>icons/CubeMap.svg</file>
-        <file>icons/CubeMesh.svg</file>
-        <file>icons/Curve.svg</file>
-        <file>icons/CurveClose.svg</file>
-        <file>icons/CurveConstant.svg</file>
-        <file>icons/CurveCreate.svg</file>
-        <file>icons/CurveCurve.svg</file>
-        <file>icons/CurveDelete.svg</file>
-        <file>icons/CurveEdit.svg</file>
-        <file>icons/CurveIn.svg</file>
-        <file>icons/CurveInOut.svg</file>
-        <file>icons/CurveLinear.svg</file>
-        <file>icons/CurveOut.svg</file>
-        <file>icons/CurveOutIn.svg</file>
-        <file>icons/CurveTexture.svg</file>
-        <file>icons/CylinderMesh.svg</file>
-        <file>icons/Debug.svg</file>
-        <file>icons/DebugContinue.svg</file>
-        <file>icons/DebugNext.svg</file>
-        <file>icons/DebugSkipBreakpointsOff.svg</file>
-        <file>icons/DebugSkipBreakpointsOn.svg</file>
-        <file>icons/DebugStep.svg</file>
-        <file>icons/DefaultProjectIcon.svg</file>
-        <file>icons/DeleteSplit.svg</file>
-        <file>icons/Dictionary.svg</file>
-        <file>icons/DirectionalLight3D.svg</file>
-        <file>icons/DistractionFree.svg</file>
-        <file>icons/Duplicate.svg</file>
-        <file>icons/DynamicFont.svg</file>
-        <file>icons/DynamicFontData.svg</file>
-        <file>icons/Edit.svg</file>
-        <file>icons/EditBezier.svg</file>
-        <file>icons/EditInternal.svg</file>
-        <file>icons/EditKey.svg</file>
-        <file>icons/EditPivot.svg</file>
-        <file>icons/EditResource.svg</file>
-        <file>icons/Editor3DHandle.svg</file>
-        <file>icons/EditorControlAnchor.svg</file>
-        <file>icons/EditorCurveHandle.svg</file>
-        <file>icons/EditorHandle.svg</file>
-        <file>icons/EditorHandleAdd.svg</file>
-        <file>icons/EditorInternalHandle.svg</file>
-        <file>icons/EditorPathSharpHandle.svg</file>
-        <file>icons/EditorPathSmoothHandle.svg</file>
-        <file>icons/EditorPivot.svg</file>
-        <file>icons/EditorPlugin.svg</file>
-        <file>icons/EditorPosition.svg</file>
-        <file>icons/EditorPositionPrevious.svg</file>
-        <file>icons/EditorPositionUnselected.svg</file>
-        <file>icons/Enum.svg</file>
-        <file>icons/Environment.svg</file>
-        <file>icons/Error.svg</file>
-        <file>icons/ErrorSign.svg</file>
-        <file>icons/ErrorWarning.svg</file>
-        <file>icons/ExpandBottomDock.svg</file>
-        <file>icons/Favorites.svg</file>
-        <file>icons/File.svg</file>
-        <file>icons/FileBroken.svg</file>
-        <file>icons/FileDead.svg</file>
-        <file>icons/FileDialog.svg</file>
-        <file>icons/FileList.svg</file>
-        <file>icons/FileThumbnail.svg</file>
-        <file>icons/Filesystem.svg</file>
-        <file>icons/FixedMaterial.svg</file>
-        <file>icons/FixedSpatialMaterial.svg</file>
-        <file>icons/Folder.svg</file>
-        <file>icons/Font.svg</file>
-        <file>icons/Forward.svg</file>
-        <file>icons/GIProbe.svg</file>
-        <file>icons/GIProbeData.svg</file>
-        <file>icons/Generic6DOFJoint3D.svg</file>
-        <file>icons/GizmoBakedLightmap.svg</file>
-        <file>icons/GizmoCPUParticles3D.svg</file>
-        <file>icons/GizmoCamera.svg</file>
-        <file>icons/GizmoDirectionalLight.svg</file>
-        <file>icons/GizmoGIProbe.svg</file>
-        <file>icons/GizmoLight.svg</file>
-        <file>icons/GizmoListener.svg</file>
-        <file>icons/GizmoGPUParticles3D.svg</file>
-        <file>icons/GizmoReflectionProbe.svg</file>
-        <file>icons/GizmoSpatialSamplePlayer.svg</file>
-        <file>icons/GizmoSpatialStreamPlayer.svg</file>
-        <file>icons/GizmoSpotLight.svg</file>
-        <file>icons/Godot.svg</file>
-        <file>icons/GodotDocs.svg</file>
-        <file>icons/Gradient.svg</file>
-        <file>icons/GradientTexture.svg</file>
-        <file>icons/GraphEdit.svg</file>
-        <file>icons/GraphNode.svg</file>
-        <file>icons/Grid.svg</file>
-        <file>icons/GridContainer.svg</file>
-        <file>icons/GridMinimap.svg</file>
-        <file>icons/Group.svg</file>
-        <file>icons/GroupViewport.svg</file>
-        <file>icons/Groups.svg</file>
-        <file>icons/GuiClose.svg</file>
-        <file>icons/GuiCloseCustomizable.svg</file>
-        <file>icons/GuiGraphNodePort.svg</file>
-        <file>icons/GuiResizer.svg</file>
-        <file>icons/HBoxContainer.svg</file>
-        <file>icons/HScrollBar.svg</file>
-        <file>icons/HSeparator.svg</file>
-        <file>icons/HSlider.svg</file>
-        <file>icons/HSplitContainer.svg</file>
-        <file>icons/HTTPRequest.svg</file>
-        <file>icons/Headphones.svg</file>
-        <file>icons/HeightMapShape3D.svg</file>
-        <file>icons/Help.svg</file>
-        <file>icons/HelpSearch.svg</file>
-        <file>icons/HingeJoint3D.svg</file>
-        <file>icons/History.svg</file>
-        <file>icons/Hsize.svg</file>
-        <file>icons/Image.svg</file>
-        <file>icons/ImageTexture.svg</file>
-        <file>icons/ImmediateGeometry3D.svg</file>
-        <file>icons/ImportCheck.svg</file>
-        <file>icons/ImportFail.svg</file>
-        <file>icons/InformationSign.svg</file>
-        <file>icons/InsertAfter.svg</file>
-        <file>icons/InsertBefore.svg</file>
-        <file>icons/Instance.svg</file>
-        <file>icons/InstanceOptions.svg</file>
-        <file>icons/InterpCubic.svg</file>
-        <file>icons/InterpLinear.svg</file>
-        <file>icons/InterpRaw.svg</file>
-        <file>icons/InterpWrapClamp.svg</file>
-        <file>icons/InterpWrapLoop.svg</file>
-        <file>icons/InterpolatedCamera.svg</file>
-        <file>icons/InverseKinematics.svg</file>
-        <file>icons/Issue.svg</file>
-        <file>icons/ItemList.svg</file>
-        <file>icons/JoyAxis.svg</file>
-        <file>icons/JoyButton.svg</file>
-        <file>icons/Joypad.svg</file>
-        <file>icons/Key.svg</file>
-        <file>icons/KeyAnimation.svg</file>
-        <file>icons/KeyAudio.svg</file>
-        <file>icons/KeyBezier.svg</file>
-        <file>icons/KeyBezierHandle.svg</file>
-        <file>icons/KeyBezierPoint.svg</file>
-        <file>icons/KeyBezierSelected.svg</file>
-        <file>icons/KeyCall.svg</file>
-        <file>icons/KeyHover.svg</file>
-        <file>icons/KeyInvalid.svg</file>
-        <file>icons/KeyNext.svg</file>
-        <file>icons/KeyPosition.svg</file>
-        <file>icons/KeyRotation.svg</file>
-        <file>icons/KeyScale.svg</file>
-        <file>icons/KeySelected.svg</file>
-        <file>icons/KeyValue.svg</file>
-        <file>icons/KeyXform.svg</file>
-        <file>icons/Keyboard.svg</file>
-        <file>icons/KinematicBody3D.svg</file>
-        <file>icons/Label.svg</file>
-        <file>icons/LargeTexture.svg</file>
-        <file>icons/LineEdit.svg</file>
-        <file>icons/LinkButton.svg</file>
-        <file>icons/ListSelect.svg</file>
-        <file>icons/Listener3D.svg</file>
-        <file>icons/Load.svg</file>
-        <file>icons/Lock.svg</file>
-        <file>icons/LockViewport.svg</file>
-        <file>icons/Logo.svg</file>
-        <file>icons/Loop.svg</file>
-        <file>icons/LoopInterpolation.svg</file>
-        <file>icons/MainPlay.svg</file>
-        <file>icons/MarginContainer.svg</file>
-        <file>icons/MatchCase.svg</file>
-        <file>icons/MaterialPreviewCube.svg</file>
-        <file>icons/MaterialPreviewCubeOff.svg</file>
-        <file>icons/MaterialPreviewLight1.svg</file>
-        <file>icons/MaterialPreviewLight1Off.svg</file>
-        <file>icons/MaterialPreviewLight2.svg</file>
-        <file>icons/MaterialPreviewLight2Off.svg</file>
-        <file>icons/MaterialPreviewSphere.svg</file>
-        <file>icons/MaterialPreviewSphereOff.svg</file>
-        <file>icons/MemberConstant.svg</file>
-        <file>icons/MemberMethod.svg</file>
-        <file>icons/MemberProperty.svg</file>
-        <file>icons/MemberSignal.svg</file>
-        <file>icons/MemberTheme.svg</file>
-        <file>icons/MenuButton.svg</file>
-        <file>icons/Mesh.svg</file>
-        <file>icons/MeshInstance3D.svg</file>
-        <file>icons/MeshLibrary.svg</file>
-        <file>icons/MeshTexture.svg</file>
-        <file>icons/MiniObject.svg</file>
-        <file>icons/MirrorX.svg</file>
-        <file>icons/MirrorY.svg</file>
-        <file>icons/Mouse.svg</file>
-        <file>icons/MoveDown.svg</file>
-        <file>icons/MoveLeft.svg</file>
-        <file>icons/MovePoint.svg</file>
-        <file>icons/MoveRight.svg</file>
-        <file>icons/MoveUp.svg</file>
-        <file>icons/MultiEdit.svg</file>
-        <file>icons/MultiLine.svg</file>
-        <file>icons/MultiMesh.svg</file>
-        <file>icons/MultiMeshInstance3D.svg</file>
-        <file>icons/Navigation3D.svg</file>
-        <file>icons/NavigationMesh.svg</file>
-        <file>icons/NavigationMeshInstance.svg</file>
-        <file>icons/NavigationPolygon.svg</file>
-        <file>icons/NavigationPolygonInstance.svg</file>
-        <file>icons/New.svg</file>
-        <file>icons/NewRoot.svg</file>
-        <file>icons/Nil.svg</file>
-        <file>icons/NinePatchRect.svg</file>
-        <file>icons/Node.svg</file>
-        <file>icons/NodePath.svg</file>
-        <file>icons/NodeWarning.svg</file>
-        <file>icons/NonFavorite.svg</file>
-        <file>icons/Object.svg</file>
-        <file>icons/OmniLight3D.svg</file>
-        <file>icons/Onion.svg</file>
-        <file>icons/OptionButton.svg</file>
-        <file>icons/OverbrightIndicator.svg</file>
-        <file>icons/Override.svg</file>
-        <file>icons/PackedDataContainer.svg</file>
-        <file>icons/PackedScene.svg</file>
-        <file>icons/Panel.svg</file>
-        <file>icons/PanelContainer.svg</file>
-        <file>icons/Panels1.svg</file>
-        <file>icons/Panels2.svg</file>
-        <file>icons/Panels2Alt.svg</file>
-        <file>icons/Panels3.svg</file>
-        <file>icons/Panels3Alt.svg</file>
-        <file>icons/Panels4.svg</file>
-        <file>icons/PanoramaSky.svg</file>
-        <file>icons/ParallaxBackground.svg</file>
-        <file>icons/ParallaxLayer.svg</file>
-        <file>icons/ParticlesMaterial.svg</file>
-        <file>icons/Path3D.svg</file>
-        <file>icons/PathFollow3D.svg</file>
-        <file>icons/Pause.svg</file>
-        <file>icons/PhysicalBone3D.svg</file>
-        <file>icons/Pin.svg</file>
-        <file>icons/PinJoint3D.svg</file>
-        <file>icons/PinPressed.svg</file>
-        <file>icons/Plane.svg</file>
-        <file>icons/PlaneMesh.svg</file>
-        <file>icons/PlaneShape.svg</file>
-        <file>icons/Play.svg</file>
-        <file>icons/PlayBackwards.svg</file>
-        <file>icons/PlayCustom.svg</file>
-        <file>icons/PlayOverlay.svg</file>
-        <file>icons/PlayScene.svg</file>
-        <file>icons/PlayStart.svg</file>
-        <file>icons/PlayStartBackwards.svg</file>
-        <file>icons/PlayTravel.svg</file>
-        <file>icons/PluginScript.svg</file>
-        <file>icons/PointMesh.svg</file>
-        <file>icons/Polygon2D.svg</file>
-        <file>icons/PolygonPathFinder.svg</file>
-        <file>icons/PoolByteArray.svg</file>
-        <file>icons/PoolColorArray.svg</file>
-        <file>icons/PoolIntArray.svg</file>
-        <file>icons/PoolRealArray.svg</file>
-        <file>icons/PoolStringArray.svg</file>
-        <file>icons/PoolVector2Array.svg</file>
-        <file>icons/PoolVector3Array.svg</file>
-        <file>icons/Popup.svg</file>
-        <file>icons/PopupDialog.svg</file>
-        <file>icons/PopupMenu.svg</file>
-        <file>icons/PopupPanel.svg</file>
-        <file>icons/Portal.svg</file>
-        <file>icons/PrismMesh.svg</file>
-        <file>icons/ProceduralSky.svg</file>
-        <file>icons/Progress1.svg</file>
-        <file>icons/Progress2.svg</file>
-        <file>icons/Progress3.svg</file>
-        <file>icons/Progress4.svg</file>
-        <file>icons/Progress5.svg</file>
-        <file>icons/Progress6.svg</file>
-        <file>icons/Progress7.svg</file>
-        <file>icons/Progress8.svg</file>
-        <file>icons/ProgressBar.svg</file>
-        <file>icons/ProjectIconLoading.svg</file>
-        <file>icons/ProximityGroup.svg</file>
-        <file>icons/ProxyTexture.svg</file>
-        <file>icons/Quad.svg</file>
-        <file>icons/QuadMesh.svg</file>
-        <file>icons/Quat.svg</file>
-        <file>icons/RID.svg</file>
-        <file>icons/RayCast3D.svg</file>
-        <file>icons/RayShape3D.svg</file>
-        <file>icons/Rayito.svg</file>
-        <file>icons/Rect2.svg</file>
-        <file>icons/ReferenceRect.svg</file>
-        <file>icons/ReflectionProbe.svg</file>
-        <file>icons/RegionEdit.svg</file>
-        <file>icons/Reload.svg</file>
-        <file>icons/ReloadSmall.svg</file>
-        <file>icons/RemoteTransform3D.svg</file>
-        <file>icons/Remove.svg</file>
-        <file>icons/RemoveInternal.svg</file>
-        <file>icons/Rename.svg</file>
-        <file>icons/Reparent.svg</file>
-        <file>icons/ReparentToNewNode.svg</file>
-        <file>icons/ResourcePreloader.svg</file>
-        <file>icons/RichTextEffect.svg</file>
-        <file>icons/RichTextLabel.svg</file>
-        <file>icons/RigidBody3D.svg</file>
-        <file>icons/Room.svg</file>
-        <file>icons/RoomBounds.svg</file>
-        <file>icons/Rotate0.svg</file>
-        <file>icons/Rotate180.svg</file>
-        <file>icons/Rotate270.svg</file>
-        <file>icons/Rotate90.svg</file>
-        <file>icons/RotateLeft.svg</file>
-        <file>icons/RotateRight.svg</file>
-        <file>icons/Ruler.svg</file>
-        <file>icons/SampleLibrary.svg</file>
-        <file>icons/Save.svg</file>
-        <file>icons/Script.svg</file>
-        <file>icons/ScriptCreate.svg</file>
-        <file>icons/ScriptCreateDialog.svg</file>
-        <file>icons/ScriptExtend.svg</file>
-        <file>icons/ScriptRemove.svg</file>
-        <file>icons/ScrollContainer.svg</file>
-        <file>icons/Search.svg</file>
-        <file>icons/Shader.svg</file>
-        <file>icons/ShaderMaterial.svg</file>
-        <file>icons/ShortCut.svg</file>
-        <file>icons/Signal.svg</file>
-        <file>icons/Signals.svg</file>
-        <file>icons/SignalsAndGroups.svg</file>
-        <file>icons/SliderJoint3D.svg</file>
-        <file>icons/Slot.svg</file>
-        <file>icons/Snap.svg</file>
-        <file>icons/SnapGrid.svg</file>
-        <file>icons/SoftBody3D.svg</file>
-        <file>icons/Sort.svg</file>
-        <file>icons/Node3D.svg</file>
-        <file>icons/SpatialMaterial.svg</file>
-        <file>icons/SphereMesh.svg</file>
-        <file>icons/SphereShape3D.svg</file>
-        <file>icons/SpinBox.svg</file>
-        <file>icons/SpotLight3D.svg</file>
-        <file>icons/SpringArm3D.svg</file>
-        <file>icons/SpriteFrames.svg</file>
-        <file>icons/SpriteSheet.svg</file>
-        <file>icons/StaticBody3D.svg</file>
-        <file>icons/StatusError.svg</file>
-        <file>icons/StatusSuccess.svg</file>
-        <file>icons/StatusWarning.svg</file>
-        <file>icons/Stop.svg</file>
-        <file>icons/StreamTexture.svg</file>
-        <file>icons/String.svg</file>
-        <file>icons/StyleBoxEmpty.svg</file>
-        <file>icons/StyleBoxFlat.svg</file>
-        <file>icons/StyleBoxLine.svg</file>
-        <file>icons/StyleBoxTexture.svg</file>
-        <file>icons/TabContainer.svg</file>
-        <file>icons/Tabs.svg</file>
-        <file>icons/TestCube.svg</file>
-        <file>icons/TextEdit.svg</file>
-        <file>icons/TextFile.svg</file>
-        <file>icons/Texture3D.svg</file>
-        <file>icons/TextureArray.svg</file>
-        <file>icons/TextureButton.svg</file>
-        <file>icons/TextureProgress.svg</file>
-        <file>icons/TextureRect.svg</file>
-        <file>icons/Theme.svg</file>
-        <file>icons/ThumbnailWait.svg</file>
-        <file>icons/TileMap.svg</file>
-        <file>icons/TileSet.svg</file>
-        <file>icons/Time.svg</file>
-        <file>icons/TimelineIndicator.svg</file>
-        <file>icons/Timer.svg</file>
-        <file>icons/ToolAddNode.svg</file>
-        <file>icons/ToolButton.svg</file>
-        <file>icons/ToolConnect.svg</file>
-        <file>icons/ToolMove.svg</file>
-        <file>icons/ToolPan.svg</file>
-        <file>icons/ToolRotate.svg</file>
-        <file>icons/ToolScale.svg</file>
-        <file>icons/ToolSelect.svg</file>
-        <file>icons/ToolTriangle.svg</file>
-        <file>icons/Tools.svg</file>
-        <file>icons/TouchScreenButton.svg</file>
-        <file>icons/TrackAddKey.svg</file>
-        <file>icons/TrackAddKeyHl.svg</file>
-        <file>icons/TrackCapture.svg</file>
-        <file>icons/TrackContinuous.svg</file>
-        <file>icons/TrackDiscrete.svg</file>
-        <file>icons/TrackTrigger.svg</file>
-        <file>icons/Transform.svg</file>
-        <file>icons/Transform2D.svg</file>
-        <file>icons/TransitionEnd.svg</file>
-        <file>icons/TransitionEndAuto.svg</file>
-        <file>icons/TransitionEndAutoBig.svg</file>
-        <file>icons/TransitionEndBig.svg</file>
-        <file>icons/TransitionImmediate.svg</file>
-        <file>icons/TransitionImmediateAuto.svg</file>
-        <file>icons/TransitionImmediateAutoBig.svg</file>
-        <file>icons/TransitionImmediateBig.svg</file>
-        <file>icons/TransitionSync.svg</file>
-        <file>icons/TransitionSyncAuto.svg</file>
-        <file>icons/TransitionSyncAutoBig.svg</file>
-        <file>icons/TransitionSyncBig.svg</file>
-        <file>icons/Translation.svg</file>
-        <file>icons/Transpose.svg</file>
-        <file>icons/Tree.svg</file>
-        <file>icons/Tween.svg</file>
-        <file>icons/Unbone.svg</file>
-        <file>icons/Ungroup.svg</file>
-        <file>icons/Unlock.svg</file>
-        <file>icons/Uv.svg</file>
-        <file>icons/VBoxContainer.svg</file>
-        <file>icons/VScrollBar.svg</file>
-        <file>icons/VSeparator.svg</file>
-        <file>icons/VSlider.svg</file>
-        <file>icons/VSplitContainer.svg</file>
-        <file>icons/Variant.svg</file>
-        <file>icons/Vector2.svg</file>
-        <file>icons/Vector3.svg</file>
-        <file>icons/VehicleBody3D.svg</file>
-        <file>icons/VehicleWheel3D.svg</file>
-        <file>icons/VideoPlayer.svg</file>
-        <file>icons/Viewport.svg</file>
-        <file>icons/ViewportContainer.svg</file>
-        <file>icons/ViewportSpeed.svg</file>
-        <file>icons/ViewportTexture.svg</file>
-        <file>icons/ViewportZoom.svg</file>
-        <file>icons/VisibilityEnabler.svg</file>
-        <file>icons/VisualShader.svg</file>
-        <file>icons/VisualShaderPort.svg</file>
-        <file>icons/Warning.svg</file>
-        <file>icons/WindowDialog.svg</file>
-        <file>icons/WorldEnvironment.svg</file>
-        <file>icons/X509Certificate.svg</file>
-        <file>icons/YSort.svg</file>
-        <file>icons/Zoom.svg</file>
-        <file>icons/ZoomLess.svg</file>
-        <file>icons/ZoomMore.svg</file>
-        <file>icons/ZoomReset.svg</file>
-        <file>icons/SceneLibrary.svg</file>
-        <file>icons/Area2D.svg</file>
-        <file>icons/Area3D.svg</file>
-        <file>icons/AnimatedSprite2D.svg</file>
-        <file>icons/AnimatedSprite3D.svg</file>
-        <file>icons/BoneAttachment3D.svg</file>
-        <file>icons/BoxShape3D.svg</file>
-        <file>icons/Callable.svg</file>
-        <file>icons/Camera2D.svg</file>
-        <file>icons/CapsuleShape2D.svg</file>
-        <file>icons/CircleShape2D.svg</file>
-        <file>icons/CollisionPolygon2D.svg</file>
-        <file>icons/CollisionShape2D.svg</file>
-        <file>icons/ConcavePolygonShape2D.svg</file>
-        <file>icons/ConvexPolygonShape2D.svg</file>
-        <file>icons/CPUParticles3D.svg</file>
-        <file>icons/Curve2D.svg</file>
-        <file>icons/Curve3D.svg</file>
-        <file>icons/DampedSpringJoint2D.svg</file>
-        <file>icons/GrooveJoint2D.svg</file>
-        <file>icons/GuiChecked.svg</file>
-        <file>icons/GuiDropdown.svg</file>
-        <file>icons/GuiEllipsis.svg</file>
-        <file>icons/GuiHsplitter.svg</file>
-        <file>icons/GuiHTick.svg</file>
-        <file>icons/GuiMiniCheckerboard.svg</file>
-        <file>icons/GuiOptionArrow.svg</file>
-        <file>icons/GuiProgressBar.svg</file>
-        <file>icons/GuiProgressFill.svg</file>
-        <file>icons/GuiRadioChecked.svg</file>
-        <file>icons/GuiRadioUnchecked.svg</file>
-        <file>icons/GuiScrollArrowLeft.svg</file>
-        <file>icons/GuiScrollArrowLeftHl.svg</file>
-        <file>icons/GuiScrollArrowRight.svg</file>
-        <file>icons/GuiScrollArrowRightHl.svg</file>
-        <file>icons/GuiScrollBg.svg</file>
-        <file>icons/GuiScrollGrabber.svg</file>
-        <file>icons/GuiScrollGrabberHl.svg</file>
-        <file>icons/GuiScrollGrabberPressed.svg</file>
-        <file>icons/GuiSliderGrabber.svg</file>
-        <file>icons/GuiSliderGrabberHl.svg</file>
-        <file>icons/GuiSpace.svg</file>
-        <file>icons/GuiSpinboxUpdown.svg</file>
-        <file>icons/GuiTab.svg</file>
-        <file>icons/GuiTabMenu.svg</file>
-        <file>icons/GuiTabMenuHl.svg</file>
-        <file>icons/GuiToggleOff.svg</file>
-        <file>icons/GuiToggleOn.svg</file>
-        <file>icons/GuiTreeArrowDown.svg</file>
-        <file>icons/GuiTreeArrowRight.svg</file>
-        <file>icons/GuiTreeArrowUp.svg</file>
-        <file>icons/GuiTreeUpdown.svg</file>
-        <file>icons/GuiUnchecked.svg</file>
-        <file>icons/GuiViewportHdiagsplitter.svg</file>
-        <file>icons/GuiViewportVdiagsplitter.svg</file>
-        <file>icons/GuiViewportVhsplitter.svg</file>
-        <file>icons/GuiVisibilityHidden.svg</file>
-        <file>icons/GuiVisibilityVisible.svg</file>
-        <file>icons/GuiVisibilityXray.svg</file>
-        <file>icons/GuiVsplitBg.svg</file>
-        <file>icons/GuiVsplitter.svg</file>
-        <file>icons/GuiVTick.svg</file>
-        <file>icons/KinematicBody2D.svg</file>
-        <file>icons/Light2D.svg</file>
-        <file>icons/LightOccluder2D.svg</file>
-        <file>icons/Line2D.svg</file>
-        <file>icons/LineShape2D.svg</file>
-        <file>icons/MeshInstance2D.svg</file>
-        <file>icons/MultiMeshInstance2D.svg</file>
-        <file>icons/Navigation2D.svg</file>
-        <file>icons/Node2D.svg</file>
-        <file>icons/OccluderPolygon2D.svg</file>
-        <file>icons/ParticleAttractor2D.svg</file>
-        <file>icons/Path2D.svg</file>
-        <file>icons/PathFollow2D.svg</file>
-        <file>icons/PinJoint2D.svg</file>
-        <file>icons/Position2D.svg</file>
-        <file>icons/Position3D.svg</file>
-        <file>icons/RayCast2D.svg</file>
-        <file>icons/RayShape2D.svg</file>
-        <file>icons/RectangleShape2D.svg</file>
-        <file>icons/RemoteTransform2D.svg</file>
-        <file>icons/RigidBody2D.svg</file>
-        <file>icons/SegmentShape2D.svg</file>
-        <file>icons/Skeleton2D.svg</file>
-        <file>icons/Sprite3D.svg</file>
-        <file>icons/StaticBody2D.svg</file>
-        <file>icons/VisibilityEnabler2D.svg</file>
-        <file>icons/VisibilityNotifier2D.svg</file>
-        <file>icons/World2D.svg</file>
-        <file>icons/bool.svg</file>
-        <file>icons/CapsuleShape3D.svg</file>
-        <file>icons/ClippedCamera3D.svg</file>
-        <file>icons/CollisionPolygon3D.svg</file>
-        <file>icons/CollisionShape3D.svg</file>
-        <file>icons/float.svg</file>
-        <file>icons/int.svg</file>
-        <file>icons/World3D.svg</file>
-        <file>icons/VisibilityNotifier3D.svg</file>
-        <file>icons/ConcavePolygonShape3D.svg</file>
-        <file>icons/CylinderShape3D.svg</file>
-        <file>icons/GPUParticles2D.svg</file>
-        <file>icons/GPUParticles3D.svg</file>
-        <file>icons/Skeleton3D.svg</file>
-        <file>icons/SkeletonIK3D.svg</file>
-        <file>icons/Sprite2D.svg</file>
-        <file>icons/KeyboardPhysical.svg</file>
-        <file>icons/Rect2i.svg</file>
-        <file>icons/StringName.svg</file>
-        <file>icons/TrackColor.svg</file>
-        <file>icons/Vector2i.svg</file>
-        <file>icons/Vector3i.svg</file>
+<file>icons/2D.svg</file>
+<file>icons/3D.svg</file>
+<file>icons/AABB.svg</file>
+<file>icons/AcceptDialog.svg</file>
+<file>icons/ActionCopy.svg</file>
+<file>icons/ActionCut.svg</file>
+<file>icons/ActionPaste.svg</file>
+<file>icons/Add.svg</file>
+<file>icons/AddAtlasTile.svg</file>
+<file>icons/AddAutotile.svg</file>
+<file>icons/AddSingleTile.svg</file>
+<file>icons/AddSplit.svg</file>
+<file>icons/Anchor.svg</file>
+<file>icons/AnimatedSprite2D.svg</file>
+<file>icons/AnimatedSprite3D.svg</file>
+<file>icons/AnimatedTexture.svg</file>
+<file>icons/Animation.svg</file>
+<file>icons/AnimationFilter.svg</file>
+<file>icons/AnimationPlayer.svg</file>
+<file>icons/AnimationTrackGroup.svg</file>
+<file>icons/AnimationTrackList.svg</file>
+<file>icons/AnimationTree.svg</file>
+<file>icons/AnimationTreePlayer.svg</file>
+<file>icons/Area2D.svg</file>
+<file>icons/Area3D.svg</file>
+<file>icons/Array.svg</file>
+<file>icons/ArrayMesh.svg</file>
+<file>icons/ArrowDown.svg</file>
+<file>icons/ArrowLeft.svg</file>
+<file>icons/ArrowRight.svg</file>
+<file>icons/ArrowUp.svg</file>
+<file>icons/ARVRAnchor.svg</file>
+<file>icons/ARVRCamera.svg</file>
+<file>icons/ARVRController.svg</file>
+<file>icons/ARVROrigin.svg</file>
+<file>icons/AspectRatioContainer.svg</file>
+<file>icons/AssetLib.svg</file>
+<file>icons/AtlasTexture.svg</file>
+<file>icons/AudioBusBypass.svg</file>
+<file>icons/AudioBusLayout.svg</file>
+<file>icons/AudioBusMute.svg</file>
+<file>icons/AudioBusSolo.svg</file>
+<file>icons/AudioStreamMP3.svg</file>
+<file>icons/AudioStreamOGGVorbis.svg</file>
+<file>icons/AudioStreamPlayer.svg</file>
+<file>icons/AudioStreamPlayer2D.svg</file>
+<file>icons/AudioStreamPlayer3D.svg</file>
+<file>icons/AudioStreamSample.svg</file>
+<file>icons/AutoEnd.svg</file>
+<file>icons/AutoKey.svg</file>
+<file>icons/AutoPlay.svg</file>
+<file>icons/AutoTriangle.svg</file>
+<file>icons/Back.svg</file>
+<file>icons/BackBufferCopy.svg</file>
+<file>icons/Bake.svg</file>
+<file>icons/BakedLightmap.svg</file>
+<file>icons/BakedLightmapData.svg</file>
+<file>icons/Basis.svg</file>
+<file>icons/BezierHandlesBalanced.svg</file>
+<file>icons/BezierHandlesFree.svg</file>
+<file>icons/BezierHandlesMirror.svg</file>
+<file>icons/BitMap.svg</file>
+<file>icons/BitmapFont.svg</file>
+<file>icons/Blend.svg</file>
+<file>icons/Bone.svg</file>
+<file>icons/Bone2D.svg</file>
+<file>icons/BoneAttachment3D.svg</file>
+<file>icons/BoneTrack.svg</file>
+<file>icons/bool.svg</file>
+<file>icons/BoxShape3D.svg</file>
+<file>icons/Bucket.svg</file>
+<file>icons/BusVuEmpty.svg</file>
+<file>icons/BusVuFrozen.svg</file>
+<file>icons/BusVuFull.svg</file>
+<file>icons/Button.svg</file>
+<file>icons/ButtonGroup.svg</file>
+<file>icons/Callable.svg</file>
+<file>icons/Camera2D.svg</file>
+<file>icons/Camera3D.svg</file>
+<file>icons/CameraTexture.svg</file>
+<file>icons/CanvasItem.svg</file>
+<file>icons/CanvasItemMaterial.svg</file>
+<file>icons/CanvasItemShader.svg</file>
+<file>icons/CanvasItemShaderGraph.svg</file>
+<file>icons/CanvasLayer.svg</file>
+<file>icons/CanvasModulate.svg</file>
+<file>icons/CapsuleMesh.svg</file>
+<file>icons/CapsuleShape2D.svg</file>
+<file>icons/CapsuleShape3D.svg</file>
+<file>icons/CenterContainer.svg</file>
+<file>icons/CheckBox.svg</file>
+<file>icons/CheckButton.svg</file>
+<file>icons/Checkerboard.svg</file>
+<file>icons/CircleShape2D.svg</file>
+<file>icons/ClassList.svg</file>
+<file>icons/Clear.svg</file>
+<file>icons/ClippedCamera3D.svg</file>
+<file>icons/Close.svg</file>
+<file>icons/Collapse.svg</file>
+<file>icons/CollapseTree.svg</file>
+<file>icons/CollisionPolygon2D.svg</file>
+<file>icons/CollisionPolygon3D.svg</file>
+<file>icons/CollisionShape2D.svg</file>
+<file>icons/CollisionShape3D.svg</file>
+<file>icons/Color.svg</file>
+<file>icons/ColorPick.svg</file>
+<file>icons/ColorPicker.svg</file>
+<file>icons/ColorPickerButton.svg</file>
+<file>icons/ColorRamp.svg</file>
+<file>icons/ColorRect.svg</file>
+<file>icons/ColorTrackVu.svg</file>
+<file>icons/ConcavePolygonShape2D.svg</file>
+<file>icons/ConcavePolygonShape3D.svg</file>
+<file>icons/ConeTwistJoint3D.svg</file>
+<file>icons/ConfirmationDialog.svg</file>
+<file>icons/Container.svg</file>
+<file>icons/Control.svg</file>
+<file>icons/ControlAlignBottomCenter.svg</file>
+<file>icons/ControlAlignBottomLeft.svg</file>
+<file>icons/ControlAlignBottomRight.svg</file>
+<file>icons/ControlAlignBottomWide.svg</file>
+<file>icons/ControlAlignCenter.svg</file>
+<file>icons/ControlAlignCenterLeft.svg</file>
+<file>icons/ControlAlignCenterRight.svg</file>
+<file>icons/ControlAlignLeftCenter.svg</file>
+<file>icons/ControlAlignLeftWide.svg</file>
+<file>icons/ControlAlignRightCenter.svg</file>
+<file>icons/ControlAlignRightWide.svg</file>
+<file>icons/ControlAlignTopCenter.svg</file>
+<file>icons/ControlAlignTopLeft.svg</file>
+<file>icons/ControlAlignTopRight.svg</file>
+<file>icons/ControlAlignTopWide.svg</file>
+<file>icons/ControlAlignWide.svg</file>
+<file>icons/ControlHcenterWide.svg</file>
+<file>icons/ControlLayout.svg</file>
+<file>icons/ControlVcenterWide.svg</file>
+<file>icons/ConvexPolygonShape2D.svg</file>
+<file>icons/ConvexPolygonShape3D.svg</file>
+<file>icons/CopyNodePath.svg</file>
+<file>icons/CPUParticles2D.svg</file>
+<file>icons/CPUParticles3D.svg</file>
+<file>icons/CreateNewSceneFrom.svg</file>
+<file>icons/Crosshair.svg</file>
+<file>icons/CryptoKey.svg</file>
+<file>icons/CubeMap.svg</file>
+<file>icons/CubeMesh.svg</file>
+<file>icons/Curve.svg</file>
+<file>icons/Curve2D.svg</file>
+<file>icons/Curve3D.svg</file>
+<file>icons/CurveClose.svg</file>
+<file>icons/CurveConstant.svg</file>
+<file>icons/CurveCreate.svg</file>
+<file>icons/CurveCurve.svg</file>
+<file>icons/CurveDelete.svg</file>
+<file>icons/CurveEdit.svg</file>
+<file>icons/CurveIn.svg</file>
+<file>icons/CurveInOut.svg</file>
+<file>icons/CurveLinear.svg</file>
+<file>icons/CurveOut.svg</file>
+<file>icons/CurveOutIn.svg</file>
+<file>icons/CurveTexture.svg</file>
+<file>icons/CylinderMesh.svg</file>
+<file>icons/CylinderShape3D.svg</file>
+<file>icons/DampedSpringJoint2D.svg</file>
+<file>icons/Debug.svg</file>
+<file>icons/DebugContinue.svg</file>
+<file>icons/DebugNext.svg</file>
+<file>icons/DebugSkipBreakpointsOff.svg</file>
+<file>icons/DebugSkipBreakpointsOn.svg</file>
+<file>icons/DebugStep.svg</file>
+<file>icons/DefaultProjectIcon.svg</file>
+<file>icons/DeleteSplit.svg</file>
+<file>icons/Dictionary.svg</file>
+<file>icons/DirectionalLight3D.svg</file>
+<file>icons/DistractionFree.svg</file>
+<file>icons/Duplicate.svg</file>
+<file>icons/DynamicFont.svg</file>
+<file>icons/DynamicFontData.svg</file>
+<file>icons/Edit.svg</file>
+<file>icons/EditBezier.svg</file>
+<file>icons/EditInternal.svg</file>
+<file>icons/EditKey.svg</file>
+<file>icons/Editor3DHandle.svg</file>
+<file>icons/EditorControlAnchor.svg</file>
+<file>icons/EditorCurveHandle.svg</file>
+<file>icons/EditorHandle.svg</file>
+<file>icons/EditorHandleAdd.svg</file>
+<file>icons/EditorInternalHandle.svg</file>
+<file>icons/EditorPathSharpHandle.svg</file>
+<file>icons/EditorPathSmoothHandle.svg</file>
+<file>icons/EditorPivot.svg</file>
+<file>icons/EditorPlugin.svg</file>
+<file>icons/EditorPosition.svg</file>
+<file>icons/EditorPositionPrevious.svg</file>
+<file>icons/EditorPositionUnselected.svg</file>
+<file>icons/EditPivot.svg</file>
+<file>icons/EditResource.svg</file>
+<file>icons/Enum.svg</file>
+<file>icons/Environment.svg</file>
+<file>icons/Error.svg</file>
+<file>icons/ErrorSign.svg</file>
+<file>icons/ErrorWarning.svg</file>
+<file>icons/ExpandBottomDock.svg</file>
+<file>icons/ExpandTree.svg</file>
+<file>icons/ExternalLink.svg</file>
+<file>icons/Favorites.svg</file>
+<file>icons/File.svg</file>
+<file>icons/FileBroken.svg</file>
+<file>icons/FileDead.svg</file>
+<file>icons/FileDialog.svg</file>
+<file>icons/FileList.svg</file>
+<file>icons/Filesystem.svg</file>
+<file>icons/FileThumbnail.svg</file>
+<file>icons/FixedMaterial.svg</file>
+<file>icons/FixedSpatialMaterial.svg</file>
+<file>icons/float.svg</file>
+<file>icons/Folder.svg</file>
+<file>icons/Font.svg</file>
+<file>icons/Forward.svg</file>
+<file>icons/Generic6DOFJoint3D.svg</file>
+<file>icons/GIProbe.svg</file>
+<file>icons/GIProbeData.svg</file>
+<file>icons/GizmoBakedLightmap.svg</file>
+<file>icons/GizmoCamera.svg</file>
+<file>icons/GizmoCPUParticles3D.svg</file>
+<file>icons/GizmoDirectionalLight.svg</file>
+<file>icons/GizmoDirectionalLight3D.svg</file>
+<file>icons/GizmoGIProbe.svg</file>
+<file>icons/GizmoGPUParticles3D.svg</file>
+<file>icons/GizmoLight.svg</file>
+<file>icons/GizmoLight3D.svg</file>
+<file>icons/GizmoListener.svg</file>
+<file>icons/GizmoPortal.svg</file>
+<file>icons/GizmoReflectionProbe.svg</file>
+<file>icons/GizmoSpatialSamplePlayer.svg</file>
+<file>icons/GizmoSpatialStreamPlayer.svg</file>
+<file>icons/GizmoSpotLight.svg</file>
+<file>icons/GizmoSpotLight3D.svg</file>
+<file>icons/Godot.svg</file>
+<file>icons/GodotDocs.svg</file>
+<file>icons/GPUParticles2D.svg</file>
+<file>icons/GPUParticles3D.svg</file>
+<file>icons/Gradient.svg</file>
+<file>icons/GradientTexture.svg</file>
+<file>icons/GradientTexture2D.svg</file>
+<file>icons/GraphEdit.svg</file>
+<file>icons/GraphNode.svg</file>
+<file>icons/Grid.svg</file>
+<file>icons/GridContainer.svg</file>
+<file>icons/GridMinimap.svg</file>
+<file>icons/GrooveJoint2D.svg</file>
+<file>icons/Group.svg</file>
+<file>icons/Groups.svg</file>
+<file>icons/GroupViewport.svg</file>
+<file>icons/GuiChecked.svg</file>
+<file>icons/GuiCheckedDisabled.svg</file>
+<file>icons/GuiClose.svg</file>
+<file>icons/GuiCloseCustomizable.svg</file>
+<file>icons/GuiDropdown.svg</file>
+<file>icons/GuiEllipsis.svg</file>
+<file>icons/GuiGraphNodePort.svg</file>
+<file>icons/GuiHsplitter.svg</file>
+<file>icons/GuiHTick.svg</file>
+<file>icons/GuiMiniCheckerboard.svg</file>
+<file>icons/GuiOptionArrow.svg</file>
+<file>icons/GuiProgressBar.svg</file>
+<file>icons/GuiProgressFill.svg</file>
+<file>icons/GuiRadioChecked.svg</file>
+<file>icons/GuiRadioCheckedDisabled.svg</file>
+<file>icons/GuiRadioUnchecked.svg</file>
+<file>icons/GuiRadioUncheckedDisabled.svg</file>
+<file>icons/GuiResizer.svg</file>
+<file>icons/GuiScrollArrowLeft.svg</file>
+<file>icons/GuiScrollArrowLeftHl.svg</file>
+<file>icons/GuiScrollArrowRight.svg</file>
+<file>icons/GuiScrollArrowRightHl.svg</file>
+<file>icons/GuiScrollBg.svg</file>
+<file>icons/GuiScrollGrabber.svg</file>
+<file>icons/GuiScrollGrabberHl.svg</file>
+<file>icons/GuiScrollGrabberPressed.svg</file>
+<file>icons/GuiSliderGrabber.svg</file>
+<file>icons/GuiSliderGrabberHl.svg</file>
+<file>icons/GuiSpace.svg</file>
+<file>icons/GuiSpinboxUpdown.svg</file>
+<file>icons/GuiTab.svg</file>
+<file>icons/GuiTabMenu.svg</file>
+<file>icons/GuiTabMenuHl.svg</file>
+<file>icons/GuiToggleOff.svg</file>
+<file>icons/GuiToggleOffDisabled.svg</file>
+<file>icons/GuiToggleOn.svg</file>
+<file>icons/GuiToggleOnDisabled.svg</file>
+<file>icons/GuiTreeArrowDown.svg</file>
+<file>icons/GuiTreeArrowRight.svg</file>
+<file>icons/GuiTreeArrowUp.svg</file>
+<file>icons/GuiTreeUpdown.svg</file>
+<file>icons/GuiUnchecked.svg</file>
+<file>icons/GuiUncheckedDisabled.svg</file>
+<file>icons/GuiViewportHdiagsplitter.svg</file>
+<file>icons/GuiViewportVdiagsplitter.svg</file>
+<file>icons/GuiViewportVhsplitter.svg</file>
+<file>icons/GuiVisibilityHidden.svg</file>
+<file>icons/GuiVisibilityVisible.svg</file>
+<file>icons/GuiVisibilityXray.svg</file>
+<file>icons/GuiVsplitBg.svg</file>
+<file>icons/GuiVsplitter.svg</file>
+<file>icons/GuiVTick.svg</file>
+<file>icons/HBoxContainer.svg</file>
+<file>icons/Headphones.svg</file>
+<file>icons/Heart.svg</file>
+<file>icons/HeightMapShape3D.svg</file>
+<file>icons/Help.svg</file>
+<file>icons/HelpSearch.svg</file>
+<file>icons/HFlowContainer.svg</file>
+<file>icons/HingeJoint3D.svg</file>
+<file>icons/History.svg</file>
+<file>icons/HScrollBar.svg</file>
+<file>icons/HSeparator.svg</file>
+<file>icons/Hsize.svg</file>
+<file>icons/HSlider.svg</file>
+<file>icons/HSplitContainer.svg</file>
+<file>icons/HTTPRequest.svg</file>
+<file>icons/Image.svg</file>
+<file>icons/ImageTexture.svg</file>
+<file>icons/ImmediateGeometry3D.svg</file>
+<file>icons/ImportCheck.svg</file>
+<file>icons/ImportFail.svg</file>
+<file>icons/InformationSign.svg</file>
+<file>icons/InsertAfter.svg</file>
+<file>icons/InsertBefore.svg</file>
+<file>icons/Instance.svg</file>
+<file>icons/InstanceOptions.svg</file>
+<file>icons/int.svg</file>
+<file>icons/InterpCubic.svg</file>
+<file>icons/InterpLinear.svg</file>
+<file>icons/InterpolatedCamera.svg</file>
+<file>icons/InterpRaw.svg</file>
+<file>icons/InterpWrapClamp.svg</file>
+<file>icons/InterpWrapLoop.svg</file>
+<file>icons/InverseKinematics.svg</file>
+<file>icons/Issue.svg</file>
+<file>icons/ItemList.svg</file>
+<file>icons/JoyAxis.svg</file>
+<file>icons/JoyButton.svg</file>
+<file>icons/Joypad.svg</file>
+<file>icons/Key.svg</file>
+<file>icons/KeyAnimation.svg</file>
+<file>icons/KeyAudio.svg</file>
+<file>icons/KeyBezier.svg</file>
+<file>icons/KeyBezierHandle.svg</file>
+<file>icons/KeyBezierPoint.svg</file>
+<file>icons/KeyBezierSelected.svg</file>
+<file>icons/Keyboard.svg</file>
+<file>icons/KeyboardPhysical.svg</file>
+<file>icons/KeyCall.svg</file>
+<file>icons/KeyEasedSelected.svg</file>
+<file>icons/KeyHover.svg</file>
+<file>icons/KeyInvalid.svg</file>
+<file>icons/KeyNext.svg</file>
+<file>icons/KeyPosition.svg</file>
+<file>icons/KeyRotation.svg</file>
+<file>icons/KeyScale.svg</file>
+<file>icons/KeySelected.svg</file>
+<file>icons/KeyValue.svg</file>
+<file>icons/KeyValueEased.svg</file>
+<file>icons/KeyXform.svg</file>
+<file>icons/KinematicBody2D.svg</file>
+<file>icons/KinematicBody3D.svg</file>
+<file>icons/Label.svg</file>
+<file>icons/Label3D.svg</file>
+<file>icons/LargeTexture.svg</file>
+<file>icons/Light2D.svg</file>
+<file>icons/LightOccluder2D.svg</file>
+<file>icons/Line2D.svg</file>
+<file>icons/LineEdit.svg</file>
+<file>icons/LineShape2D.svg</file>
+<file>icons/LinkButton.svg</file>
+<file>icons/Listener2D.svg</file>
+<file>icons/Listener3D.svg</file>
+<file>icons/ListSelect.svg</file>
+<file>icons/Load.svg</file>
+<file>icons/Lock.svg</file>
+<file>icons/LockViewport.svg</file>
+<file>icons/Logo.svg</file>
+<file>icons/Loop.svg</file>
+<file>icons/LoopInterpolation.svg</file>
+<file>icons/MainPlay.svg</file>
+<file>icons/MarginContainer.svg</file>
+<file>icons/MatchCase.svg</file>
+<file>icons/MaterialPreviewCube.svg</file>
+<file>icons/MaterialPreviewCubeOff.svg</file>
+<file>icons/MaterialPreviewLight1.svg</file>
+<file>icons/MaterialPreviewLight1Off.svg</file>
+<file>icons/MaterialPreviewLight2.svg</file>
+<file>icons/MaterialPreviewLight2Off.svg</file>
+<file>icons/MaterialPreviewSphere.svg</file>
+<file>icons/MaterialPreviewSphereOff.svg</file>
+<file>icons/MemberConstant.svg</file>
+<file>icons/MemberMethod.svg</file>
+<file>icons/MemberProperty.svg</file>
+<file>icons/MemberSignal.svg</file>
+<file>icons/MemberTheme.svg</file>
+<file>icons/MenuButton.svg</file>
+<file>icons/Mesh.svg</file>
+<file>icons/MeshInstance2D.svg</file>
+<file>icons/MeshInstance3D.svg</file>
+<file>icons/MeshLibrary.svg</file>
+<file>icons/MeshTexture.svg</file>
+<file>icons/MiniObject.svg</file>
+<file>icons/MirrorX.svg</file>
+<file>icons/MirrorY.svg</file>
+<file>icons/Mouse.svg</file>
+<file>icons/MoveDown.svg</file>
+<file>icons/MoveLeft.svg</file>
+<file>icons/MovePoint.svg</file>
+<file>icons/MoveRight.svg</file>
+<file>icons/MoveUp.svg</file>
+<file>icons/MultiEdit.svg</file>
+<file>icons/MultiLine.svg</file>
+<file>icons/MultiMesh.svg</file>
+<file>icons/MultiMeshInstance2D.svg</file>
+<file>icons/MultiMeshInstance3D.svg</file>
+<file>icons/Navigation2D.svg</file>
+<file>icons/Navigation3D.svg</file>
+<file>icons/NavigationAgent.svg</file>
+<file>icons/NavigationAgent2D.svg</file>
+<file>icons/NavigationMesh.svg</file>
+<file>icons/NavigationMeshInstance.svg</file>
+<file>icons/NavigationObstacle.svg</file>
+<file>icons/NavigationObstacle2D.svg</file>
+<file>icons/NavigationPolygon.svg</file>
+<file>icons/NavigationPolygonInstance.svg</file>
+<file>icons/New.svg</file>
+<file>icons/NewRoot.svg</file>
+<file>icons/Nil.svg</file>
+<file>icons/NinePatchRect.svg</file>
+<file>icons/Node.svg</file>
+<file>icons/Node2D.svg</file>
+<file>icons/Node3D.svg</file>
+<file>icons/NodeDisabled.svg</file>
+<file>icons/NodePath.svg</file>
+<file>icons/NodeWarning.svg</file>
+<file>icons/NonFavorite.svg</file>
+<file>icons/Object.svg</file>
+<file>icons/Occluder.svg</file>
+<file>icons/OccluderPolygon2D.svg</file>
+<file>icons/OccluderShape.svg</file>
+<file>icons/OccluderShapePolygon.svg</file>
+<file>icons/OccluderShapeSphere.svg</file>
+<file>icons/OmniLight3D.svg</file>
+<file>icons/Onion.svg</file>
+<file>icons/Open.svg</file>
+<file>icons/OptionButton.svg</file>
+<file>icons/OverbrightIndicator.svg</file>
+<file>icons/Override.svg</file>
+<file>icons/PackedDataContainer.svg</file>
+<file>icons/PackedScene.svg</file>
+<file>icons/Panel.svg</file>
+<file>icons/PanelContainer.svg</file>
+<file>icons/Panels1.svg</file>
+<file>icons/Panels2.svg</file>
+<file>icons/Panels2Alt.svg</file>
+<file>icons/Panels3.svg</file>
+<file>icons/Panels3Alt.svg</file>
+<file>icons/Panels4.svg</file>
+<file>icons/PanoramaSky.svg</file>
+<file>icons/ParallaxBackground.svg</file>
+<file>icons/ParallaxLayer.svg</file>
+<file>icons/ParticleAttractor2D.svg</file>
+<file>icons/ParticlesMaterial.svg</file>
+<file>icons/Path2D.svg</file>
+<file>icons/Path3D.svg</file>
+<file>icons/PathFollow2D.svg</file>
+<file>icons/PathFollow3D.svg</file>
+<file>icons/Pause.svg</file>
+<file>icons/PhysicalBone3D.svg</file>
+<file>icons/Pin.svg</file>
+<file>icons/PinJoint2D.svg</file>
+<file>icons/PinJoint3D.svg</file>
+<file>icons/PinPressed.svg</file>
+<file>icons/Plane.svg</file>
+<file>icons/PlaneMesh.svg</file>
+<file>icons/PlaneShape.svg</file>
+<file>icons/Play.svg</file>
+<file>icons/PlayBackwards.svg</file>
+<file>icons/PlayCustom.svg</file>
+<file>icons/PlayOverlay.svg</file>
+<file>icons/PlayScene.svg</file>
+<file>icons/PlayStart.svg</file>
+<file>icons/PlayStartBackwards.svg</file>
+<file>icons/PlayTravel.svg</file>
+<file>icons/PluginScript.svg</file>
+<file>icons/PointMesh.svg</file>
+<file>icons/Polygon2D.svg</file>
+<file>icons/PolygonPathFinder.svg</file>
+<file>icons/PoolByteArray.svg</file>
+<file>icons/PoolColorArray.svg</file>
+<file>icons/PoolIntArray.svg</file>
+<file>icons/PoolRealArray.svg</file>
+<file>icons/PoolStringArray.svg</file>
+<file>icons/PoolVector2Array.svg</file>
+<file>icons/PoolVector3Array.svg</file>
+<file>icons/Popup.svg</file>
+<file>icons/PopupDialog.svg</file>
+<file>icons/PopupMenu.svg</file>
+<file>icons/PopupPanel.svg</file>
+<file>icons/Portal.svg</file>
+<file>icons/Position2D.svg</file>
+<file>icons/Position3D.svg</file>
+<file>icons/PrismMesh.svg</file>
+<file>icons/ProceduralSky.svg</file>
+<file>icons/Progress1.svg</file>
+<file>icons/Progress2.svg</file>
+<file>icons/Progress3.svg</file>
+<file>icons/Progress4.svg</file>
+<file>icons/Progress5.svg</file>
+<file>icons/Progress6.svg</file>
+<file>icons/Progress7.svg</file>
+<file>icons/Progress8.svg</file>
+<file>icons/ProgressBar.svg</file>
+<file>icons/ProjectIconLoading.svg</file>
+<file>icons/ProximityGroup.svg</file>
+<file>icons/ProxyTexture.svg</file>
+<file>icons/Quad.svg</file>
+<file>icons/QuadMesh.svg</file>
+<file>icons/Quat.svg</file>
+<file>icons/RayCast2D.svg</file>
+<file>icons/RayCast3D.svg</file>
+<file>icons/Rayito.svg</file>
+<file>icons/RayShape2D.svg</file>
+<file>icons/RayShape3D.svg</file>
+<file>icons/README.md</file>
+<file>icons/Rect2.svg</file>
+<file>icons/Rect2i.svg</file>
+<file>icons/RectangleShape2D.svg</file>
+<file>icons/ReferenceRect.svg</file>
+<file>icons/ReflectionProbe.svg</file>
+<file>icons/Refresh.svg</file>
+<file>icons/RegionEdit.svg</file>
+<file>icons/Reload.svg</file>
+<file>icons/ReloadSmall.svg</file>
+<file>icons/RemoteTransform.svg</file>
+<file>icons/RemoteTransform2D.svg</file>
+<file>icons/RemoteTransform3D.svg</file>
+<file>icons/Remove.svg</file>
+<file>icons/RemoveInternal.svg</file>
+<file>icons/Rename.svg</file>
+<file>icons/Reparent.svg</file>
+<file>icons/ReparentToNewNode.svg</file>
+<file>icons/ResourcePreloader.svg</file>
+<file>icons/ReverseGradient.svg</file>
+<file>icons/RichTextEffect.svg</file>
+<file>icons/RichTextLabel.svg</file>
+<file>icons/RID.svg</file>
+<file>icons/RigidBody2D.svg</file>
+<file>icons/RigidBody3D.svg</file>
+<file>icons/Room.svg</file>
+<file>icons/RoomBounds.svg</file>
+<file>icons/RoomGroup.svg</file>
+<file>icons/RoomManager.svg</file>
+<file>icons/RootMotionView.svg</file>
+<file>icons/Rotate0.svg</file>
+<file>icons/Rotate180.svg</file>
+<file>icons/Rotate270.svg</file>
+<file>icons/Rotate90.svg</file>
+<file>icons/RotateLeft.svg</file>
+<file>icons/RotateRight.svg</file>
+<file>icons/Ruler.svg</file>
+<file>icons/SampleLibrary.svg</file>
+<file>icons/Save.svg</file>
+<file>icons/SceneLibrary.svg</file>
+<file>icons/SceneUniqueName.svg</file>
+<file>icons/Script.svg</file>
+<file>icons/ScriptCreate.svg</file>
+<file>icons/ScriptCreateDialog.svg</file>
+<file>icons/ScriptExtend.svg</file>
+<file>icons/ScriptRemove.svg</file>
+<file>icons/ScrollContainer.svg</file>
+<file>icons/Search.svg</file>
+<file>icons/SegmentShape2D.svg</file>
+<file>icons/Shader.svg</file>
+<file>icons/ShaderMaterial.svg</file>
+<file>icons/ShapeCast2D.svg</file>
+<file>icons/ShapeCast3D.svg</file>
+<file>icons/ShortCut.svg</file>
+<file>icons/Signal.svg</file>
+<file>icons/Signals.svg</file>
+<file>icons/SignalsAndGroups.svg</file>
+<file>icons/Skeleton2D.svg</file>
+<file>icons/Skeleton3D.svg</file>
+<file>icons/SkeletonIK3D.svg</file>
+<file>icons/SliderJoint3D.svg</file>
+<file>icons/Slot.svg</file>
+<file>icons/Snap.svg</file>
+<file>icons/SnapGrid.svg</file>
+<file>icons/SoftBody3D.svg</file>
+<file>icons/Sort.svg</file>
+<file>icons/SpatialMaterial.svg</file>
+<file>icons/SphereMesh.svg</file>
+<file>icons/SphereShape3D.svg</file>
+<file>icons/SpinBox.svg</file>
+<file>icons/SpotLight3D.svg</file>
+<file>icons/SpringArm3D.svg</file>
+<file>icons/Sprite2D.svg</file>
+<file>icons/Sprite3D.svg</file>
+<file>icons/SpriteFrames.svg</file>
+<file>icons/SpriteSheet.svg</file>
+<file>icons/StaticBody2D.svg</file>
+<file>icons/StaticBody3D.svg</file>
+<file>icons/StatusError.svg</file>
+<file>icons/StatusSuccess.svg</file>
+<file>icons/StatusWarning.svg</file>
+<file>icons/Stop.svg</file>
+<file>icons/StreamTexture.svg</file>
+<file>icons/String.svg</file>
+<file>icons/StringName.svg</file>
+<file>icons/StyleBoxEmpty.svg</file>
+<file>icons/StyleBoxFlat.svg</file>
+<file>icons/StyleBoxLine.svg</file>
+<file>icons/StyleBoxTexture.svg</file>
+<file>icons/TabContainer.svg</file>
+<file>icons/Tabs.svg</file>
+<file>icons/TestCube.svg</file>
+<file>icons/TextEdit.svg</file>
+<file>icons/TextEditFold.svg</file>
+<file>icons/TextEditFolded.svg</file>
+<file>icons/TextEditorPlay.svg</file>
+<file>icons/TextFile.svg</file>
+<file>icons/TextMesh.svg</file>
+<file>icons/Texture3D.svg</file>
+<file>icons/TextureArray.svg</file>
+<file>icons/TextureButton.svg</file>
+<file>icons/TextureProgress.svg</file>
+<file>icons/TextureRect.svg</file>
+<file>icons/Theme.svg</file>
+<file>icons/ThemeDeselectAll.svg</file>
+<file>icons/ThemeRemoveAllItems.svg</file>
+<file>icons/ThemeRemoveCustomItems.svg</file>
+<file>icons/ThemeSelectAll.svg</file>
+<file>icons/ThemeSelectFull.svg</file>
+<file>icons/ThumbnailWait.svg</file>
+<file>icons/TileMap.svg</file>
+<file>icons/TileSet.svg</file>
+<file>icons/Time.svg</file>
+<file>icons/TimelineIndicator.svg</file>
+<file>icons/Timer.svg</file>
+<file>icons/ToolAddNode.svg</file>
+<file>icons/ToolButton.svg</file>
+<file>icons/ToolConnect.svg</file>
+<file>icons/ToolMove.svg</file>
+<file>icons/ToolPan.svg</file>
+<file>icons/ToolRotate.svg</file>
+<file>icons/Tools.svg</file>
+<file>icons/ToolScale.svg</file>
+<file>icons/ToolSelect.svg</file>
+<file>icons/ToolTriangle.svg</file>
+<file>icons/TorusMesh.svg</file>
+<file>icons/TouchScreenButton.svg</file>
+<file>icons/TrackAddKey.svg</file>
+<file>icons/TrackAddKeyHl.svg</file>
+<file>icons/TrackCapture.svg</file>
+<file>icons/TrackColor.svg</file>
+<file>icons/TrackContinuous.svg</file>
+<file>icons/TrackDiscrete.svg</file>
+<file>icons/TrackTrigger.svg</file>
+<file>icons/Transform.svg</file>
+<file>icons/Transform2D.svg</file>
+<file>icons/TransitionEnd.svg</file>
+<file>icons/TransitionEndAuto.svg</file>
+<file>icons/TransitionEndAutoBig.svg</file>
+<file>icons/TransitionEndBig.svg</file>
+<file>icons/TransitionImmediate.svg</file>
+<file>icons/TransitionImmediateAuto.svg</file>
+<file>icons/TransitionImmediateAutoBig.svg</file>
+<file>icons/TransitionImmediateBig.svg</file>
+<file>icons/TransitionSync.svg</file>
+<file>icons/TransitionSyncAuto.svg</file>
+<file>icons/TransitionSyncAutoBig.svg</file>
+<file>icons/TransitionSyncBig.svg</file>
+<file>icons/Translation.svg</file>
+<file>icons/Transpose.svg</file>
+<file>icons/Tree.svg</file>
+<file>icons/TripleBar.svg</file>
+<file>icons/Tween.svg</file>
+<file>icons/Unbone.svg</file>
+<file>icons/Undo.svg</file>
+<file>icons/Ungroup.svg</file>
+<file>icons/Unlock.svg</file>
+<file>icons/Uv.svg</file>
+<file>icons/Variant.svg</file>
+<file>icons/VBoxContainer.svg</file>
+<file>icons/VcsBranches.svg</file>
+<file>icons/Vector2.svg</file>
+<file>icons/Vector2i.svg</file>
+<file>icons/Vector3.svg</file>
+<file>icons/Vector3i.svg</file>
+<file>icons/VehicleBody3D.svg</file>
+<file>icons/VehicleWheel3D.svg</file>
+<file>icons/VFlowContainer.svg</file>
+<file>icons/VideoPlayer.svg</file>
+<file>icons/Viewport.svg</file>
+<file>icons/ViewportContainer.svg</file>
+<file>icons/ViewportSpeed.svg</file>
+<file>icons/ViewportTexture.svg</file>
+<file>icons/ViewportZoom.svg</file>
+<file>icons/VisibilityEnabler2D.svg</file>
+<file>icons/VisibilityEnabler3D.svg</file>
+<file>icons/VisibilityNotifier2D.svg</file>
+<file>icons/VisibilityNotifier3D.svg</file>
+<file>icons/VisualShader.svg</file>
+<file>icons/VisualShaderNodeBooleanUniform.svg</file>
+<file>icons/VisualShaderNodeColorConstant.svg</file>
+<file>icons/VisualShaderNodeColorOp.svg</file>
+<file>icons/VisualShaderNodeColorUniform.svg</file>
+<file>icons/VisualShaderNodeCubeMap.svg</file>
+<file>icons/VisualShaderNodeCubeMapUniform.svg</file>
+<file>icons/VisualShaderNodeCurveTexture.svg</file>
+<file>icons/VisualShaderNodeExpression.svg</file>
+<file>icons/VisualShaderNodeGlobalExpression.svg</file>
+<file>icons/VisualShaderNodeInput.svg</file>
+<file>icons/VisualShaderNodeScalarFunc.svg</file>
+<file>icons/VisualShaderNodeScalarOp.svg</file>
+<file>icons/VisualShaderNodeScalarUniform.svg</file>
+<file>icons/VisualShaderNodeTextureUniform.svg</file>
+<file>icons/VisualShaderNodeTextureUniformTriplanar.svg</file>
+<file>icons/VisualShaderNodeTransformCompose.svg</file>
+<file>icons/VisualShaderNodeTransformDecompose.svg</file>
+<file>icons/VisualShaderNodeTransformUniform.svg</file>
+<file>icons/VisualShaderNodeTransformVecMult.svg</file>
+<file>icons/VisualShaderNodeVec3Uniform.svg</file>
+<file>icons/VisualShaderNodeVectorCompose.svg</file>
+<file>icons/VisualShaderNodeVectorDecompose.svg</file>
+<file>icons/VisualShaderNodeVectorDistance.svg</file>
+<file>icons/VisualShaderNodeVectorFunc.svg</file>
+<file>icons/VisualShaderNodeVectorLen.svg</file>
+<file>icons/VisualShaderPort.svg</file>
+<file>icons/VScrollBar.svg</file>
+<file>icons/VSeparator.svg</file>
+<file>icons/VSlider.svg</file>
+<file>icons/VSplitContainer.svg</file>
+<file>icons/Warning.svg</file>
+<file>icons/WindowDialog.svg</file>
+<file>icons/World2D.svg</file>
+<file>icons/World3D.svg</file>
+<file>icons/WorldEnvironment.svg</file>
+<file>icons/X509Certificate.svg</file>
+<file>icons/YSort.svg</file>
+<file>icons/Zoom.svg</file>
+<file>icons/ZoomLess.svg</file>
+<file>icons/ZoomMore.svg</file>
+<file>icons/ZoomReset.svg</file>
     </qresource>
     <qresource prefix="/icons/big_thumbs">
         <file alias="FileBigThumb.svg">icons/FileBigThumb.svg</file>

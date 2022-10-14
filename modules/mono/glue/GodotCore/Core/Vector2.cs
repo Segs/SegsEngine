@@ -22,7 +22,13 @@ namespace Godot
         /// </summary>
         public enum Axis
         {
+            /// <summary>
+            /// The vector's X axis.
+            /// </summary>
             X = 0,
+            /// <summary>
+            /// The vector's Y axis.
+            /// </summary>
             Y
         }
 

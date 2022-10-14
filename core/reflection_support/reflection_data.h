@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  doc_data.h                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -37,6 +37,7 @@
 #include "core/doc_support/doc_data.h"
 
 class QJsonObject;
+class VisitorInterface;
 #define DEFAULT_NS "Godot"
 // TODO: consider switching to flag enum for APIType
 enum class APIType {
@@ -55,6 +56,7 @@ enum class TypeRefKind : int8_t {
 
 struct TypeReference {
     String cname;
+    String template_argument = {};
     TypeRefKind is_enum = TypeRefKind::Simple;
     TypePassBy pass_by = TypePassBy::Value;
 
@@ -91,8 +93,7 @@ struct EnumInterface {
 
     EnumInterface() {}
 
-    EnumInterface(const String& p_cname) {
-        cname = p_cname;
+    EnumInterface(const String& p_cname) : cname(p_cname) {
     }
 
     void toJson(QJsonObject& obj) const;
@@ -289,7 +290,7 @@ public:
     void fromJson(const QJsonObject &obj);
 };
 struct NamespaceInterface {
-    String namespace_name;
+    String name;
     String required_header;
 
     HashMap<String, TypeInterface> obj_types;

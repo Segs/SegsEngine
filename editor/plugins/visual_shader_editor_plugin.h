@@ -203,8 +203,6 @@ private:
     void _delete_request(int);
     void _on_nodes_delete();
 
-    void _removed_from_graph();
-
     void _node_changed(int p_id);
 
     void _edit_port_default_input(Object *p_button, int p_node, int p_port);

@@ -41,6 +41,7 @@
 #include "core/math/delaunay.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
+#include "core/script_language.h"
 #include "core/project_settings.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_scale.h"
@@ -62,13 +63,13 @@ void AnimationTreeEditor::edit(AnimationTree *p_tree) {
         return;
 
     tree = p_tree;
-
-    if (!tree->has_meta("_tree_edit_path")) {
-        current_root = ObjectID(0ULL);
-        return;
+    Vector<String> path;
+    if (!tree || !tree->has_meta("_tree_edit_path")) {
+        current_root = entt::null;
     }
-
-    Vector<String> path(tree->get_meta("_tree_edit_path").as<Vector<String>>());
+    else {
+        path = eastl::move(tree->get_meta("_tree_edit_path").as<Vector<String>>());
+    }
     edit_path(path);
 }
 
@@ -93,17 +94,17 @@ void AnimationTreeEditor::_update_path() {
     b->set_button_group(group);
     b->set_pressed(true);
     b->set_focus_mode(FOCUS_NONE);
-    b->connect("pressed",callable_mp(this, &ClassName::_path_button_pressed), varray(-1));
+    b->connect("pressed",callable_gen(this, [this] { _path_button_pressed(-1); }));
     path_hb->add_child(b);
     for (int i = 0; i < button_path.size(); i++) {
         b = memnew(Button);
-        b->set_text_utf8(button_path[i]);
+        b->set_text(button_path[i]);
         b->set_toggle_mode(true);
         b->set_button_group(group);
         path_hb->add_child(b);
         b->set_pressed(true);
         b->set_focus_mode(FOCUS_NONE);
-        b->connect("pressed",callable_mp(this, &ClassName::_path_button_pressed), varray(i));
+        b->connectF("pressed",this,[this,i] { _path_button_pressed(i); });
     }
 }
 
@@ -114,8 +115,12 @@ void AnimationTreeEditor::edit_path(const Vector<String> &p_path) {
     Ref<AnimationNode> node = tree->get_tree_root();
 
     if (!node) {
-        current_root = ObjectID(0ULL);
+        current_root = entt::null;
         edited_path = button_path;
+        for (int i = 0; i < editors.size(); i++) {
+            editors[i]->edit(Ref<AnimationNode>());
+            editors[i]->hide();
+        }
         _update_path();
         return;
     }
@@ -161,7 +166,7 @@ void AnimationTreeEditor::_about_to_show_root() {
 
 void AnimationTreeEditor::_notification(int p_what) {
     if (p_what == NOTIFICATION_PROCESS) {
-        ObjectID root(0ULL);
+        GameEntity root(entt::null);
         if (tree && tree->get_tree_root()) {
             root = tree->get_tree_root()->get_instance_id();
         }
@@ -247,7 +252,7 @@ AnimationTreeEditor::AnimationTreeEditor() {
 
     add_child(memnew(HSeparator));
 
-    current_root = ObjectID(0ULL);
+    current_root = entt::null;
     singleton = this;
     editor_base = memnew(MarginContainer);
     editor_base->set_v_size_flags(SIZE_EXPAND_FILL);

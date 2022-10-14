@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  arvr_interface.cpp                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -38,21 +38,21 @@ VARIANT_ENUM_CAST(ARVREyes);
 VARIANT_ENUM_CAST(ARVRInterface::Tracking_status);
 
 void ARVRInterface::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("get_name"), &ARVRInterface::get_name);
-    MethodBinder::bind_method(D_METHOD("get_capabilities"), &ARVRInterface::get_capabilities);
+    BIND_METHOD(ARVRInterface,get_name);
+    BIND_METHOD(ARVRInterface,get_capabilities);
 
-    MethodBinder::bind_method(D_METHOD("is_primary"), &ARVRInterface::is_primary);
-    MethodBinder::bind_method(D_METHOD("set_is_primary", {"enable"}), &ARVRInterface::set_is_primary);
+    BIND_METHOD(ARVRInterface,is_primary);
+    BIND_METHOD(ARVRInterface,set_is_primary);
 
-    MethodBinder::bind_method(D_METHOD("is_initialized"), &ARVRInterface::is_initialized);
-    MethodBinder::bind_method(D_METHOD("set_is_initialized", {"initialized"}), &ARVRInterface::set_is_initialized);
-    MethodBinder::bind_method(D_METHOD("initialize"), &ARVRInterface::initialize);
-    MethodBinder::bind_method(D_METHOD("uninitialize"), &ARVRInterface::uninitialize);
+    BIND_METHOD(ARVRInterface,is_initialized);
+    BIND_METHOD(ARVRInterface,set_is_initialized);
+    BIND_METHOD(ARVRInterface,initialize);
+    BIND_METHOD(ARVRInterface,uninitialize);
 
-    MethodBinder::bind_method(D_METHOD("get_tracking_status"), &ARVRInterface::get_tracking_status);
+    BIND_METHOD(ARVRInterface,get_tracking_status);
 
-    MethodBinder::bind_method(D_METHOD("get_render_targetsize"), &ARVRInterface::get_render_targetsize);
-    MethodBinder::bind_method(D_METHOD("is_stereo"), &ARVRInterface::is_stereo);
+    BIND_METHOD(ARVRInterface,get_render_targetsize);
+    BIND_METHOD(ARVRInterface,is_stereo);
 
     ADD_GROUP("Interface", "interface_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "interface_is_primary"), "set_is_primary", "is_primary");
@@ -61,9 +61,9 @@ void ARVRInterface::_bind_methods() {
     // we don't have any properties specific to VR yet....
 
     // but we do have properties specific to AR....
-    MethodBinder::bind_method(D_METHOD("get_anchor_detection_is_enabled"), &ARVRInterface::get_anchor_detection_is_enabled);
-    MethodBinder::bind_method(D_METHOD("set_anchor_detection_is_enabled", {"enable"}), &ARVRInterface::set_anchor_detection_is_enabled);
-    MethodBinder::bind_method(D_METHOD("get_camera_feed_id"), &ARVRInterface::get_camera_feed_id);
+    BIND_METHOD(ARVRInterface,get_anchor_detection_is_enabled);
+    BIND_METHOD(ARVRInterface,set_anchor_detection_is_enabled);
+    BIND_METHOD(ARVRInterface,get_camera_feed_id);
 
     ADD_GROUP("AR", "ar_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ar_is_anchor_detection_enabled"), "set_anchor_detection_is_enabled", "get_anchor_detection_is_enabled");
@@ -126,7 +126,6 @@ ARVRInterface::Tracking_status ARVRInterface::get_tracking_status() const {
 }
 
 ARVRInterface::ARVRInterface() {
-    __thread__safe__.reset(new Mutex);
     tracking_state = ARVR_UNKNOWN_TRACKING;
 }
 
@@ -136,6 +135,10 @@ ARVRInterface::~ARVRInterface(){}
 unsigned int ARVRInterface::get_external_texture_for_eye(ARVREyes p_eye) {
     return 0;
 }
+// optional render to external depth texture which enhances performance on those platforms that require us to submit our end result into special textures.
+unsigned int ARVRInterface::get_external_depth_for_eye(ARVREyes p_eye) {
+    return 0;
+};
 
 /** these will only be implemented on AR interfaces, so we want dummies for VR **/
 bool ARVRInterface::get_anchor_detection_is_enabled() const {

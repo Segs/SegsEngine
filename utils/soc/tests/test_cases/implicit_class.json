@@ -1,0 +1,66 @@
+{
+    "api_hash" : "",
+    "api_version" : "",
+    "dependencies" : [],
+    "module_name" : "",
+    "namespaces" : [ {
+      "contents" : {
+          "subtypes" : [ {
+              "contents" : {
+                  "functions" : [
+                  {
+                      "name": "get_selection",
+                      "return_type": {
+                          "name": "EditorSelection",
+                          "pass_by" : 4
+                      }
+                  },
+                  {
+                      "arguments": [
+                          {
+                              "name": "p_obj",
+                              "type": {
+                                  "name": "Object",
+                                  "pass_by": 4
+                              }
+                          },
+                          {
+                              "default_argument": "{}",
+                              "name": "p_for_property",
+                              "type": {
+                                  "name": "StringView"
+                              }
+                          },
+                          {
+                              "default_argument": "false",
+                              "name": "p_inspector_only",
+                              "type": {
+                                  "name": "bool"
+                              }
+                          }
+                      ],
+                      "name": "inspect_object",
+                      "return_type": {
+                          "name": "void"
+                      }
+                  },
+                  {
+                      "is_virtual": true,
+                      "name": "v_func",
+                      "return_type": {"name": "void"}
+                  },
+                  {
+                      "is_static": true,
+                      "name": "s_func",
+                      "return_type": {"name": "void"}
+                  }
+                  ]
+              },
+              "name" : "Bar",
+              "required_header" : "implicit_class.h"
+          } ]
+      },
+      "name" : "GodotCore"
+    } ],
+    "version" : ""
+}

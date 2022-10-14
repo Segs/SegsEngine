@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_stream_mp3.cpp                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -166,7 +166,8 @@ void AudioStreamMP3::set_data(const PoolVector<uint8_t> &p_data) {
     PoolVector<uint8_t>::Read src_datar = p_data.read();
 
     mp3dec_ex_t mp3d;
-    mp3dec_ex_open_buf(&mp3d, src_datar.ptr(), src_data_len, MP3D_SEEK_TO_SAMPLE);
+    int err = mp3dec_ex_open_buf(&mp3d, src_datar.ptr(), src_data_len, MP3D_SEEK_TO_SAMPLE);
+    ERR_FAIL_COND_MSG(err || mp3d.info.hz == 0, "Failed to decode mp3 file. Make sure it is a valid mp3 audio file.");
 
     channels = mp3d.info.channels;
     sample_rate = mp3d.info.hz;
@@ -215,18 +216,18 @@ float AudioStreamMP3::get_length() const {
 }
 
 void AudioStreamMP3::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_data", {"data"}), &AudioStreamMP3::set_data);
-    MethodBinder::bind_method(D_METHOD("get_data"), &AudioStreamMP3::get_data);
+    BIND_METHOD(AudioStreamMP3,set_data);
+    BIND_METHOD(AudioStreamMP3,get_data);
 
-    MethodBinder::bind_method(D_METHOD("set_loop", {"enable"}), &AudioStreamMP3::set_loop);
-    MethodBinder::bind_method(D_METHOD("has_loop"), &AudioStreamMP3::has_loop);
+    BIND_METHOD(AudioStreamMP3,set_loop);
+    BIND_METHOD(AudioStreamMP3,has_loop);
 
-    MethodBinder::bind_method(D_METHOD("set_loop_offset", {"seconds"}), &AudioStreamMP3::set_loop_offset);
-    MethodBinder::bind_method(D_METHOD("get_loop_offset"), &AudioStreamMP3::get_loop_offset);
+    BIND_METHOD(AudioStreamMP3,set_loop_offset);
+    BIND_METHOD(AudioStreamMP3,get_loop_offset);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_loop", "has_loop");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "loop_offset", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_loop_offset", "get_loop_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "loop_offset"), "set_loop_offset", "get_loop_offset");
 }
 
 AudioStreamMP3::AudioStreamMP3() {

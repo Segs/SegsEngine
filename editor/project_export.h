@@ -74,7 +74,8 @@ private:
     Button *button_export;
     bool updating;
 
-    AcceptDialog *error_dialog;
+    RichTextLabel* result_dialog_log;
+    AcceptDialog* result_dialog;
     ConfirmationDialog *delete_confirm;
 
     OptionButton *export_filter;
@@ -105,6 +106,7 @@ private:
     Label *script_key_error;
 
     Label *export_error;
+    Label *export_warning;
     HBoxContainer *export_templates_error;
 
     String default_filename;
@@ -165,6 +167,7 @@ private:
     void _script_encryption_key_changed(const String &p_key);
     bool _validate_script_encryption_key(StringView p_key);
 
+    void _open_key_help_link();
     void _tab_changed(int);
 
 protected:

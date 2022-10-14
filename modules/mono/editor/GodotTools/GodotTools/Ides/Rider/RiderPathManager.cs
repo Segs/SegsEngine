@@ -65,6 +65,9 @@ namespace GodotTools.Ides.Rider
             if (string.IsNullOrEmpty(path))
                 return false;
 
+            if (path.IndexOfAny(System.IO.Path.GetInvalidPathChars()) != -1)
+                return false;
+
             var fileInfo = new FileInfo(path);
             var filename = fileInfo.Name.ToLowerInvariant();
             return filename.StartsWith("rider", StringComparison.Ordinal);
@@ -104,7 +107,7 @@ namespace GodotTools.Ides.Rider
             if (line >= 0)
             {
                 args.Add("--line");
-                args.Add(line.ToString());
+                args.Add((line + 1).ToString()); // https://github.com/JetBrains/godot-support/issues/61
             }
             args.Add(scriptPath);
             try

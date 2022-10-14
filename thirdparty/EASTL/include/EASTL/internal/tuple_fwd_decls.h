@@ -49,6 +49,9 @@ namespace eastl
 
 	template <typename T, typename... ts_>
 	T&& get(tuple<ts_...>&& t);
+
+    template <typename T, typename... ts_>
+    const T&& get(const tuple<ts_...>&& t);
 }
 
 #endif  // EASTL_VARIADIC_TEMPLATES_ENABLED

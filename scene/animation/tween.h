@@ -86,20 +86,20 @@ private:
         bool finish=false;
         bool call_deferred=false;
         real_t elapsed;
-        ObjectID id;
+        GameEntity id;
         Vector<StringName> key;
         StringName concatenated_key;
         Variant initial_val;
         Variant delta_val;
         Variant final_val;
-        ObjectID target_id;
+        GameEntity target_id;
         Vector<StringName> target_key;
         real_t duration;
         TransitionType trans_type;
         EaseType ease_type;
         real_t delay;
         int args;
-        Variant arg[5];
+        Variant arg[VARIANT_ARG_MAX];
         int uid=0;
     };
 
@@ -110,6 +110,7 @@ private:
     mutable int pending_update;
     int uid;
 
+    bool was_stopped = false;
     List<InterpolateData> interpolates;
 
     struct PendingCommand {

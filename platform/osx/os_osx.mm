@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  os_osx.mm                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,8 +36,7 @@
 #include "dir_access_osx.h"
 #include "drivers/gles2/rasterizer_gles2.h"
 #include "drivers/gles3/rasterizer_gles3.h"
-#include "main/main.h"
-#include "semaphore_osx.h"
+#include "main/main_class.h"
 #include "servers/visual/visual_server_raster.h"
 
 #include <mach-o/dyld.h>
@@ -161,6 +160,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
             get_key_modifier_state([event modifierFlags], k);
             k->set_pressed(true);
             k->set_scancode(KEY_PERIOD);
+            k->set_physical_scancode(KEY_PERIOD);
             k->set_echo([event isARepeat]);
 
             OS_OSX::singleton->push_input(k);
@@ -323,6 +323,8 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
     [OS_OSX::singleton->window_object setContentMinSize:NSMakeSize(0, 0)];
     [OS_OSX::singleton->window_object setContentMaxSize:NSMakeSize(FLT_MAX, FLT_MAX)];
+    // Force window resize event.
+    [self windowDidResize:notification];
 }
 
 - (void)windowDidExitFullScreen:(NSNotification *)notification {
@@ -339,6 +341,8 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
     if (!OS_OSX::singleton->resizable)
         [OS_OSX::singleton->window_object setStyleMask:[OS_OSX::singleton->window_object styleMask] & ~NSWindowStyleMaskResizable];
+    // Force window resize event.
+    [self windowDidResize:notification];
 }
 
 - (void)windowDidChangeBackingProperties:(NSNotification *)notification {
@@ -629,6 +633,7 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
         ke.echo = false;
         ke.raw = false; // IME input event
         ke.scancode = 0;
+        ke.physical_scancode = 0;
         ke.unicode = codepoint;
 
         push_to_key_event_buffer(ke);
@@ -731,28 +736,82 @@ static void _mouseDownEvent(NSEvent *event, int index, int mask, bool pressed) {
 
 - (void)mouseMoved:(NSEvent *)event {
 
-    Ref<InputEventMouseMotion> mm(make_ref_counted<InputEventMouseMotion>());
+    NSPoint delta = NSMakePoint([event deltaX], [event deltaY]);
+    NSPoint mpos = [event locationInWindow];
+
+    if (OS_OSX::singleton->ignore_warp) {
+        // Discard late events, before warp
+        if (([event timestamp]) < OS_OSX::singleton->last_warp) {
+            return;
+        }
+        OS_OSX::singleton->ignore_warp = false;
+        return;
+    }
+
+    if (OS_OSX::singleton->mouse_mode == OS::MOUSE_MODE_CONFINED) {
+        // Discard late events
+        if (([event timestamp]) < OS_OSX::singleton->last_warp) {
+            return;
+        }
+
+        // Warp affects next event delta, subtract previous warp deltas
+        List<OS_OSX::WarpEvent>::Element *F = OS_OSX::singleton->warp_events.front();
+        while (F) {
+            if (F->get().timestamp < [event timestamp]) {
+                List<OS_OSX::WarpEvent>::Element *E = F;
+                delta.x -= E->get().delta.x;
+                delta.y -= E->get().delta.y;
+                F = F->next();
+                OS_OSX::singleton->warp_events.erase(E);
+            } else {
+                F = F->next();
+            }
+        }
+
+        // Confine mouse position to the window, and update delta
+        NSRect frame = [OS_OSX::singleton->window_object frame];
+        NSPoint conf_pos = mpos;
+        conf_pos.x = CLAMP(conf_pos.x + delta.x, 0.f, frame.size.width);
+        conf_pos.y = CLAMP(conf_pos.y - delta.y, 0.f, frame.size.height);
+        delta.x = conf_pos.x - mpos.x;
+        delta.y = mpos.y - conf_pos.y;
+        mpos = conf_pos;
+
+        // Move mouse cursor
+        NSRect pointInWindowRect = NSMakeRect(conf_pos.x, conf_pos.y, 0, 0);
+        conf_pos = [[OS_OSX::singleton->window_view window] convertRectToScreen:pointInWindowRect].origin;
+        conf_pos.y = CGDisplayBounds(CGMainDisplayID()).size.height - conf_pos.y;
+        CGWarpMouseCursorPosition(conf_pos);
+
+        // Save warp data
+        OS_OSX::singleton->last_warp = [[NSProcessInfo processInfo] systemUptime];
+        OS_OSX::WarpEvent ev;
+        ev.timestamp = OS_OSX::singleton->last_warp;
+        ev.delta = delta;
+        OS_OSX::singleton->warp_events.push_back(ev);
+    }
+
+    Ref<InputEventMouseMotion> mm;
+    mm.instance();
 
     mm->set_button_mask(button_mask);
-    const CGFloat backingScaleFactor = [[event window] backingScaleFactor];
-    const Vector2 pos = get_mouse_pos([event locationInWindow], backingScaleFactor);
+    const Vector2 pos = get_mouse_pos(mpos);
     mm->set_position(pos);
-    mm->set_global_position(pos);
     mm->set_pressure([event pressure]);
-    if ([event subtype] == NSTabletPointEventSubtype) {
-            const NSPoint p = [event tilt];
-            mm->set_tilt(Vector2(p.x, p.y));
+    if ([event subtype] == NSEventSubtypeTabletPoint) {
+        const NSPoint p = [event tilt];
+        mm->set_tilt(Vector2(p.x, p.y));
     }
+    mm->set_global_position(pos);
     mm->set_speed(OS_OSX::singleton->input->get_last_mouse_speed());
-    Vector2 relativeMotion = Vector2();
-    relativeMotion.x = [event deltaX] * OS_OSX::singleton -> _mouse_scale(backingScaleFactor);
-    relativeMotion.y = [event deltaY] * OS_OSX::singleton -> _mouse_scale(backingScaleFactor);
+    const Vector2 relativeMotion = Vector2(delta.x, delta.y) * OS_OSX::singleton->get_screen_max_scale();
     mm->set_relative(relativeMotion);
     get_key_modifier_state([event modifierFlags], mm);
 
     OS_OSX::singleton->input->set_mouse_position(Point2(mouse_x, mouse_y));
     OS_OSX::singleton->push_input(mm);
 }
+
 
 - (void)rightMouseDown:(NSEvent *)event {
     _mouseDownEvent(event, BUTTON_RIGHT, BUTTON_MASK_RIGHT, true);
@@ -1149,6 +1208,7 @@ static int remapKey(unsigned int key, unsigned int state) {
                 ke.pressed = true;
                 ke.echo = [event isARepeat];
                 ke.scancode = remapKey([event keyCode], [event modifierFlags]);
+                ke.physical_scancode = translateKey([event keyCode]);
                 ke.raw = true;
                 ke.unicode = [characters characterAtIndex:i];
 
@@ -1161,6 +1221,7 @@ static int remapKey(unsigned int key, unsigned int state) {
             ke.pressed = true;
             ke.echo = [event isARepeat];
             ke.scancode = remapKey([event keyCode], [event modifierFlags]);
+            ke.physical_scancode = translateKey([event keyCode]);
             ke.raw = false;
             ke.unicode = 0;
 
@@ -1241,6 +1302,7 @@ static int remapKey(unsigned int key, unsigned int state) {
                 ke.pressed = false;
                 ke.echo = [event isARepeat];
                 ke.scancode = remapKey([event keyCode], [event modifierFlags]);
+                ke.physical_scancode = translateKey([event keyCode]);
                 ke.raw = true;
                 ke.unicode = [characters characterAtIndex:i];
 
@@ -1253,6 +1315,7 @@ static int remapKey(unsigned int key, unsigned int state) {
             ke.pressed = false;
             ke.echo = [event isARepeat];
             ke.scancode = remapKey([event keyCode], [event modifierFlags]);
+            ke.physical_scancode = translateKey([event keyCode]);
             ke.raw = true;
             ke.unicode = 0;
 
@@ -1420,8 +1483,6 @@ void OS_OSX::initialize_core() {
     DirAccess::make_default<DirAccessOSX>(DirAccess::ACCESS_RESOURCES);
     DirAccess::make_default<DirAccessOSX>(DirAccess::ACCESS_USERDATA);
     DirAccess::make_default<DirAccessOSX>(DirAccess::ACCESS_FILESYSTEM);
-
-    SemaphoreOSX::make_default();
 }
 
 static bool keyboard_layout_dirty = true;
@@ -2059,7 +2120,7 @@ void OS_OSX::set_native_icon(const String &p_filename) {
     ERR_FAIL_COND(!f);
 
     Vector<uint8_t> data;
-    uint32_t len = f->get_len();
+    uint64_t len = f->get_len();
     data.resize(len);
     f->get_buffer((uint8_t *)&data.write[0], len);
     memdelete(f);
@@ -2883,17 +2944,39 @@ void OS_OSX::set_mouse_mode(MouseMode p_mode) {
         // Apple Docs state that the display parameter is not used.
         // "This parameter is not used. By default, you may pass kCGDirectMainDisplay."
         // https://developer.apple.com/library/mac/documentation/graphicsimaging/reference/Quartz_Services_Ref/Reference/reference.html
-        CGDisplayHideCursor(kCGDirectMainDisplay);
+        if (mouse_mode == MOUSE_MODE_VISIBLE || mouse_mode == MOUSE_MODE_CONFINED) {
+            CGDisplayHideCursor(kCGDirectMainDisplay);
+        }
         CGAssociateMouseAndMouseCursorPosition(false);
+
+        const NSRect contentRect = [window_view frame];
+        NSRect pointInWindowRect = NSMakeRect(contentRect.size.width / 2, contentRect.size.height / 2, 0, 0);
+        NSPoint pointOnScreen = [[window_view window] convertRectToScreen:pointInWindowRect].origin;
+        CGPoint lMouseWarpPos = { pointOnScreen.x, CGDisplayBounds(CGMainDisplayID()).size.height - pointOnScreen.y };
+        CGWarpMouseCursorPosition(lMouseWarpPos);
     } else if (p_mode == MOUSE_MODE_HIDDEN) {
-        CGDisplayHideCursor(kCGDirectMainDisplay);
+        if (mouse_mode == MOUSE_MODE_VISIBLE || mouse_mode == MOUSE_MODE_CONFINED) {
+            CGDisplayHideCursor(kCGDirectMainDisplay);
+        }
         CGAssociateMouseAndMouseCursorPosition(true);
+    } else if (p_mode == MOUSE_MODE_CONFINED) {
+        CGDisplayShowCursor(kCGDirectMainDisplay);
+        CGAssociateMouseAndMouseCursorPosition(false);
     } else {
         CGDisplayShowCursor(kCGDirectMainDisplay);
         CGAssociateMouseAndMouseCursorPosition(true);
     }
 
+    last_warp = [[NSProcessInfo processInfo] systemUptime];
+    ignore_warp = true;
+    warp_events.clear();
     mouse_mode = p_mode;
+
+    if (mouse_mode == MOUSE_MODE_VISIBLE || mouse_mode == MOUSE_MODE_CONFINED) {
+        CursorShape p_shape = cursor_shape;
+        cursor_shape = OS::CURSOR_MAX;
+        set_cursor_shape(p_shape);
+    }
 }
 
 OS::MouseMode OS_OSX::get_mouse_mode() const {
@@ -2903,20 +2986,6 @@ OS::MouseMode OS_OSX::get_mouse_mode() const {
 
 StringName OS_OSX::get_joy_guid(int p_device) const {
     return input->get_joy_guid_remapped(p_device);
-}
-
-
-Error OS_OSX::move_to_trash(const String &p_path) {
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSURL *url = [NSURL fileURLWithPath:@(p_path.utf8().get_data())];
-    NSError *err;
-
-    if (![fm trashItemAtURL:url resultingItemURL:nil error:&err]) {
-        ERR_PRINTS("trashItemAtURL error: " + String(err.localizedDescription.UTF8String));
-        return FAILED;
-    }
-
-    return OK;
 }
 
 void OS_OSX::_set_use_vsync(bool p_enable) {

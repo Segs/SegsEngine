@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  settings_config_dialog.cpp                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,8 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "editor_log.h"
 #include "settings_config_dialog.h"
+#include "editor_log.h"
 #include "script_editor_debugger.h"
 
 #include "core/callable_method_pointer.h"
@@ -41,7 +41,9 @@
 #include "core/string_utils.h"
 #include "editor_file_system.h"
 #include "editor_node.h"
+#include "editor_property_name_processor.h"
 #include "editor/editor_scale.h"
+#include "editor/plugins/script_editor_plugin.h"
 #include "editor_settings.h"
 #include "scene/gui/margin_container.h"
 #include "scene/resources/style_box.h"
@@ -50,8 +52,9 @@ IMPL_GDCLASS(EditorSettingsDialog)
 
 void EditorSettingsDialog::ok_pressed() {
 
-    if (!EditorSettings::get_singleton())
+    if (!EditorSettings::get_singleton()) {
         return;
+    }
 
     _settings_save();
     timer->stop();
@@ -152,7 +155,9 @@ void EditorSettingsDialog::_unhandled_input(const Ref<InputEvent> &p_event) {
 
     const Ref<InputEventKey> k(dynamic_ref_cast<InputEventKey>(p_event));
 
-    if (k && is_window_modal_on_top() && k->is_pressed()) {
+    if (!k || !is_window_modal_on_top() || !k->is_pressed()) {
+        return;
+    }
         bool handled = false;
 
         if (ED_IS_SHORTCUT("editor/undo", p_event)) {
@@ -175,7 +180,6 @@ void EditorSettingsDialog::_unhandled_input(const Ref<InputEvent> &p_event) {
         }
         if (handled) {
             accept_event();
-        }
     }
 }
 
@@ -209,6 +213,8 @@ void EditorSettingsDialog::_update_shortcuts() {
     TreeItem *root = shortcuts->create_item();
 
     Map<String, TreeItem *> sections;
+    const EditorPropertyNameStyle name_style = EditorPropertyNameProcessor::get_settings_style();
+    const EditorPropertyNameStyle tooltip_style = EditorPropertyNameProcessor::get_tooltip_style(name_style);
 
     for (const String &E : slist) {
 
@@ -227,8 +233,10 @@ void EditorSettingsDialog::_update_shortcuts() {
         } else {
             section = shortcuts->create_item(root);
 
-            String item_name = StringUtils::capitalize(section_name);
+            const String item_name = EditorPropertyNameProcessor::process_name(section_name, name_style);
+            const String tooltip = EditorPropertyNameProcessor::process_name(section_name, tooltip_style);
             section->set_text_utf8(0, item_name);
+            section->set_tooltip(0, StringName(tooltip));
 
             if (collapsed.contains(item_name)) {
                 section->set_collapsed(collapsed[item_name]);
@@ -388,9 +396,9 @@ void EditorSettingsDialog::_editor_restart_close() {
 
 void EditorSettingsDialog::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_unhandled_input"), &EditorSettingsDialog::_unhandled_input);
-    MethodBinder::bind_method(D_METHOD("_settings_changed"), &EditorSettingsDialog::_settings_changed);
-    MethodBinder::bind_method(D_METHOD("_update_shortcuts"), &EditorSettingsDialog::_update_shortcuts);
+    BIND_METHOD(EditorSettingsDialog,_unhandled_input);
+    BIND_METHOD(EditorSettingsDialog,_settings_changed);
+    BIND_METHOD(EditorSettingsDialog,_update_shortcuts);
 }
 
 EditorSettingsDialog::EditorSettingsDialog() {

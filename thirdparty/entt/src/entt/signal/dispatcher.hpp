@@ -1,22 +1,19 @@
 #ifndef ENTT_SIGNAL_DISPATCHER_HPP
 #define ENTT_SIGNAL_DISPATCHER_HPP
 
-
-#include "EASTL/vector.h"
-#include "EASTL/memory.h"
-#include "EASTL/utility.h"
-#include "EASTL/algorithm.h"
-#include "EASTL/type_traits.h"
-#include "EASTL/unique_ptr.h"
 #include <cstddef>
+#include <memory>
+#include <type_traits>
+#include <utility>
+#include <vector>
 #include "../config/config.h"
+#include "../container/dense_map.hpp"
 #include "../core/fwd.hpp"
 #include "../core/type_info.hpp"
+#include "../core/utility.hpp"
 #include "sigh.hpp"
 
-
 namespace entt {
-
 
 /**
  * @brief Basic dispatcher implementation.
@@ -25,7 +22,7 @@ namespace entt {
  * events to be published all together once per tick.<br/>
  * Listeners are provided in the form of member functions. For each event of
  * type `Event`, listeners are such that they can be invoked with an argument of
- * type `const Event &`, no matter what the return type is.
+ * type `Event &`, no matter what the return type is.
  *
  * The dispatcher creates instances of the `sigh` class internally. Refer to the
  * documentation of the latter for more details.
@@ -34,13 +31,15 @@ class dispatcher {
     struct basic_pool {
         virtual ~basic_pool() = default;
         virtual void publish() = 0;
+        virtual void disconnect(void *) = 0;
         virtual void clear() ENTT_NOEXCEPT = 0;
-        virtual id_type type_id() const ENTT_NOEXCEPT = 0;
     };
 
     template<typename Event>
     struct pool_handler final: basic_pool {
-        using signal_type = sigh<void(const Event &)>;
+        static_assert(std::is_same_v<Event, std::decay_t<Event>>, "Invalid event type");
+
+        using signal_type = sigh<void(Event &)>;
         using sink_type = typename signal_type::sink_type;
 
         void publish() override {
@@ -50,67 +49,68 @@ class dispatcher {
                 signal.publish(events[pos]);
             }
 
-            events.erase(events.cbegin(), events.cbegin()+length);
+            events.erase(events.cbegin(), events.cbegin() + length);
+        }
+
+        void disconnect(void *instance) override {
+            bucket().disconnect(instance);
         }
 
         void clear() ENTT_NOEXCEPT override {
             events.clear();
         }
 
-        sink_type sink() ENTT_NOEXCEPT {
-            return entt::sink{signal};
+        [[nodiscard]] sink_type bucket() ENTT_NOEXCEPT {
+            return sink_type{signal};
+        }
+
+        void trigger(Event event) {
+            signal.publish(event);
         }
 
         template<typename... Args>
-        void trigger(Args &&... args) {
-            signal.publish(Event{eastl::forward<Args>(args)...});
-        }
-
-        template<typename... Args>
-        void enqueue(Args &&... args) {
-            events.emplace_back(eastl::forward<Args>(args)...);
-        }
-
-        id_type type_id() const ENTT_NOEXCEPT override {
-            return type_info<Event>::id();
+        void enqueue(Args &&...args) {
+            if constexpr(std::is_aggregate_v<Event>) {
+                events.push_back(Event{std::forward<Args>(args)...});
+            } else {
+                events.emplace_back(std::forward<Args>(args)...);
+            }
         }
 
     private:
         signal_type signal{};
-        eastl::vector<Event> events;
+        std::vector<Event> events;
     };
 
     template<typename Event>
-    pool_handler<Event> & assure() {
-        static_assert(eastl::is_same_v<Event, eastl::decay_t<Event>>);
-
-        if constexpr(has_type_index_v<Event>) {
-            const auto index = type_index<Event>::value();
-
-            if(!(index < pools.size())) {
-                pools.resize(index+1);
-            }
-
-            if(!pools[index]) {
-                pools[index].reset(new pool_handler<Event>{});
-            }
-
-            return static_cast<pool_handler<Event> &>(*pools[index]);
+    [[nodiscard]] pool_handler<Event> &assure() {
+        if(auto &&ptr = pools[type_hash<Event>::value()]; !ptr) {
+            auto *cpool = new pool_handler<Event>{};
+            ptr.reset(cpool);
+            return *cpool;
         } else {
-            auto it = eastl::find_if(pools.begin(), pools.end(), [id = type_info<Event>::id()](const auto &cpool) { return id == cpool->type_id(); });
-            return static_cast<pool_handler<Event> &>(it == pools.cend() ? *pools.emplace_back(new pool_handler<Event>{}) : **it);
+            return static_cast<pool_handler<Event> &>(*ptr);
         }
     }
 
 public:
+    /*! @brief Default constructor. */
+    dispatcher() = default;
+
+    /*! @brief Default move constructor. */
+    dispatcher(dispatcher &&) = default;
+
+    /*! @brief Default move assignment operator. @return This dispatcher. */
+    dispatcher &operator=(dispatcher &&) = default;
+
     /**
      * @brief Returns a sink object for the given event.
      *
      * A sink is an opaque object used to connect listeners to events.
      *
-     * The function type for a listener is:
+     * The function type for a listener is _compatible_ with:
      * @code{.cpp}
-     * void(const Event &);
+     * void(Event &);
      * @endcode
      *
      * The order of invocation of the listeners isn't guaranteed.
@@ -121,8 +121,8 @@ public:
      * @return A temporary sink object.
      */
     template<typename Event>
-    auto sink() {
-        return assure<Event>().sink();
+    [[nodiscard]] auto sink() {
+        return assure<Event>().bucket();
     }
 
     /**
@@ -136,8 +136,8 @@ public:
      * @param args Arguments to use to construct the event.
      */
     template<typename Event, typename... Args>
-    void trigger(Args &&... args) {
-        assure<Event>().trigger(eastl::forward<Args>(args)...);
+    void trigger(Args &&...args) {
+        assure<Event>().trigger(Event{std::forward<Args>(args)...});
     }
 
     /**
@@ -151,7 +151,7 @@ public:
      */
     template<typename Event>
     void trigger(Event &&event) {
-        assure<eastl::decay_t<Event>>().trigger(eastl::forward<Event>(event));
+        assure<std::decay_t<Event>>().trigger(std::forward<Event>(event));
     }
 
     /**
@@ -165,8 +165,8 @@ public:
      * @param args Arguments to use to construct the event.
      */
     template<typename Event, typename... Args>
-    void enqueue(Args &&... args) {
-        assure<Event>().enqueue(eastl::forward<Args>(args)...);
+    void enqueue(Args &&...args) {
+        assure<Event>().enqueue(std::forward<Args>(args)...);
     }
 
     /**
@@ -180,7 +180,31 @@ public:
      */
     template<typename Event>
     void enqueue(Event &&event) {
-        assure<eastl::decay_t<Event>>().enqueue(eastl::forward<Event>(event));
+        assure<std::decay_t<Event>>().enqueue(std::forward<Event>(event));
+    }
+
+    /**
+     * @brief Utility function to disconnect everything related to a given value
+     * or instance from a dispatcher.
+     * @tparam Type Type of class or type of payload.
+     * @param value_or_instance A valid object that fits the purpose.
+     */
+    template<typename Type>
+    void disconnect(Type &value_or_instance) {
+        disconnect(&value_or_instance);
+    }
+
+    /**
+     * @brief Utility function to disconnect everything related to a given value
+     * or instance from a dispatcher.
+     * @tparam Type Type of class or type of payload.
+     * @param value_or_instance A valid object that fits the purpose.
+     */
+    template<typename Type>
+    void disconnect(Type *value_or_instance) {
+        for(auto &&cpool: pools) {
+            cpool.second->disconnect(value_or_instance);
+        }
     }
 
     /**
@@ -195,9 +219,7 @@ public:
     void clear() {
         if constexpr(sizeof...(Event) == 0) {
             for(auto &&cpool: pools) {
-                if(cpool) {
-                    cpool->clear();
-                }
+                cpool.second->clear();
             }
         } else {
             (assure<Event>().clear(), ...);
@@ -226,19 +248,15 @@ public:
      * to reduce at a minimum the time spent in the bodies of the listeners.
      */
     void update() const {
-        for(auto pos = pools.size(); pos; --pos) {
-            if(auto &&cpool = pools[pos-1]; cpool) {
-                cpool->publish();
-            }
+        for(auto &&cpool: pools) {
+            cpool.second->publish();
         }
     }
 
 private:
-    eastl::vector<eastl::unique_ptr<basic_pool>> pools;
+    dense_map<id_type, std::unique_ptr<basic_pool>, identity> pools;
 };
 
-
-}
-
+} // namespace entt
 
 #endif

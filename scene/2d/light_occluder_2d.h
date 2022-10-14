@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  light_occluder_2d.h                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef LIGHTOCCLUDER2D_H
-#define LIGHTOCCLUDER2D_H
+#pragma once
 
 #include "scene/2d/node_2d.h"
 
@@ -45,7 +44,7 @@ public:
     };
 
 private:
-    RID occ_polygon;
+    RenderingEntity occ_polygon;
     Vector<Vector2> polygon;
     bool closed;
     CullMode cull;
@@ -70,7 +69,7 @@ public:
     void set_cull_mode(CullMode p_mode);
     CullMode get_cull_mode() const;
 
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
     OccluderPolygon2D();
     ~OccluderPolygon2D() override;
 };
@@ -79,7 +78,7 @@ public:
 class GODOT_EXPORT LightOccluder2D : public Node2D {
     GDCLASS(LightOccluder2D,Node2D)
 
-    RID occluder;
+    RenderingEntity occluder;
     bool enabled;
     int mask;
     Ref<OccluderPolygon2D> occluder_polygon;
@@ -107,4 +106,3 @@ public:
     ~LightOccluder2D() override;
 };
 
-#endif // LIGHTOCCLUDER2D_H

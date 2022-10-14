@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_properties_array_dict.h                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,6 +34,8 @@
 #include "editor/editor_inspector.h"
 #include "editor/editor_spin_slider.h"
 #include "scene/gui/button.h"
+
+class HBoxContainer;
 
 class EditorPropertyArrayObject : public RefCounted {
 
@@ -81,21 +83,27 @@ class EditorPropertyArray : public EditorProperty {
     GDCLASS(EditorPropertyArray,EditorProperty)
 
     PopupMenu *change_type;
-    bool updating;
 
     Ref<EditorPropertyArrayObject> object;
-    int page_len;
-    int page_idx;
-    int changing_type_idx;
     Button *edit;
-    VBoxContainer *vbox;
-    EditorSpinSlider *length;
-    EditorSpinSlider *page;
-    HBoxContainer *page_hb;
+    VBoxContainer *vbox = nullptr;
+    EditorSpinSlider *size_slider = nullptr;
+    EditorSpinSlider *page_slider = nullptr;
+    HBoxContainer *page_hbox = nullptr;
     VariantType array_type;
-    VariantType subtype;
-    PropertyHint subtype_hint;
+    VariantType subtype = VariantType::NIL;
+    PropertyHint subtype_hint= PropertyHint::None;
     String subtype_hint_string;
+    int page_length = 20;
+    int page_index = 0;
+    int changing_type_index = -1;
+    int reorder_from_index = -1;
+    int reorder_to_index = -1;
+    float reorder_mouse_y_delta = 0.0f;
+    HBoxContainer *reorder_selected_element_hbox = nullptr;
+    Button *reorder_selected_button = nullptr;
+    bool updating = false;
+    bool dropping = false;
 
     void _page_changed(double p_page);
     void _length_changed(double p_page);
@@ -104,8 +112,16 @@ class EditorPropertyArray : public EditorProperty {
     void _change_type(Object *p_button, int p_index);
     void _change_type_menu(int p_index);
 
-    void _object_id_selected(StringView p_property, ObjectID p_id);
+    void _object_id_selected(StringView p_property, GameEntity p_id);
     void _remove_pressed(int p_index);
+    void _reorder_button_gui_input(const Ref<InputEvent> &p_event);
+    void _reorder_button_down(int p_index);
+    void _reorder_button_up();
+
+    void _button_draw();
+    bool _is_drop_valid(const Dictionary &p_drag_data) const;
+    bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
+    void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
 
 protected:
     static void _bind_methods() {}
@@ -124,14 +140,15 @@ class EditorPropertyDictionary : public EditorProperty {
     bool updating;
 
     Ref<EditorPropertyDictionaryObject> object;
-    int page_len;
-    int page_idx;
-    int changing_type_idx;
+    int page_length = 20;
+    int page_index = 0;
+    int changing_type_index;
     Button *edit;
     VBoxContainer *vbox;
-    EditorSpinSlider *length;
-    EditorSpinSlider *page;
-    HBoxContainer *page_hb;
+    EditorSpinSlider *size_slider = nullptr;
+    EditorSpinSlider *page_slider = nullptr;
+    HBoxContainer *page_hbox = nullptr;
+    Button *button_add_item = nullptr;
 
     void _page_changed(double p_page);
     void _edit_pressed();
@@ -140,7 +157,7 @@ class EditorPropertyDictionary : public EditorProperty {
     void _change_type_menu(int p_index);
 
     void _add_key_value();
-    void _object_id_selected(StringView p_property, ObjectID p_id);
+    void _object_id_selected(StringView p_property, GameEntity p_id);
 
 protected:
     static void _bind_methods() {}

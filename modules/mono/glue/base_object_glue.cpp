@@ -73,8 +73,8 @@ void godot_icall_Object_Disposed(MonoObject *p_obj, Object *p_ptr) {
         iter.mpNode = (Map<Object *, CSharpScriptBinding>::iterator::node_type *)data;
         CSharpScriptBinding &script_binding = iter->second;
         if (script_binding.inited) {
-			MonoGCHandleData &gchandle = script_binding.gchandle;
-			if (!gchandle.is_released()) {
+            MonoGCHandleData &gchandle = script_binding.gchandle;
+            if (!gchandle.is_released()) {
                 CSharpLanguage::release_script_gchandle(p_obj, gchandle);
             }
         }
@@ -122,8 +122,8 @@ void godot_icall_Reference_Disposed(MonoObject *p_obj, Object *p_ptr, MonoBoolea
             iter.mpNode = (Map<Object *, CSharpScriptBinding>::iterator::node_type *)data;
             CSharpScriptBinding &script_binding = iter->second;
             if (script_binding.inited) {
-				MonoGCHandleData &gchandle = script_binding.gchandle;
-				if (!gchandle.is_released()) {
+                MonoGCHandleData &gchandle = script_binding.gchandle;
+                if (!gchandle.is_released()) {
                     CSharpLanguage::release_script_gchandle(p_obj, gchandle);
                 }
             }
@@ -131,13 +131,13 @@ void godot_icall_Reference_Disposed(MonoObject *p_obj, Object *p_ptr, MonoBoolea
     }
 }
 void godot_icall_Object_ConnectEventSignals(Object *p_ptr) {
-	CSharpInstance *csharp_instance = CAST_CSHARP_INSTANCE(p_ptr->get_script_instance());
-	if (csharp_instance) {
-		csharp_instance->connect_event_signals();
-	}
+    CSharpInstance *csharp_instance = CAST_CSHARP_INSTANCE(p_ptr->get_script_instance());
+    if (csharp_instance) {
+        csharp_instance->connect_event_signals();
+    }
 }
 MethodBind *godot_icall_Object_ClassDB_get_method(StringName *p_type, MonoString *p_method) {
-	StringName type = p_type ? *p_type : StringName();
+    StringName type = p_type ? *p_type : StringName();
     StringName method(GDMonoMarshal::mono_string_to_godot(p_method));
     return ClassDB::get_method(type, method);
 }
@@ -145,7 +145,7 @@ MethodBind *godot_icall_Object_ClassDB_get_method(StringName *p_type, MonoString
 MonoObject *godot_icall_Object_weakref(Object *p_obj) {
     if (!p_obj) {
         return nullptr;
-	}
+    }
 
     Ref<WeakRef> wref;
     RefCounted  *ref = object_cast<RefCounted>(p_obj);
@@ -165,8 +165,8 @@ MonoObject *godot_icall_Object_weakref(Object *p_obj) {
 }
 
 Error godot_icall_SignalAwaiter_connect(Object *p_source, StringName *p_signal, Object *p_target, MonoObject *p_awaiter) {
-	StringName signal = p_signal ? *p_signal : StringName();
-	return gd_mono_connect_signal_awaiter(p_source, signal, p_target, p_awaiter);
+    StringName signal = p_signal ? *p_signal : StringName();
+    return gd_mono_connect_signal_awaiter(p_source, signal, p_target, p_awaiter);
 }
 
 MonoArray *godot_icall_DynamicGodotObject_SetMemberList(Object *p_ptr) {
@@ -238,7 +238,7 @@ MonoString *godot_icall_Object_ToString(Object *p_ptr) {
 
 #endif
 
-    String result = String("[") + p_ptr->get_class() + ":" + itos(p_ptr->get_instance_id()) + "]";
+    String result = String("[") + p_ptr->get_class() + ":" + itos(entt::to_integral(p_ptr->get_instance_id())) + "]";
     return GDMonoMarshal::mono_string_from_godot(result);
 }
 
@@ -246,7 +246,7 @@ void godot_register_object_icalls() {
     mono_add_internal_call("Godot.Object::godot_icall_Object_Ctor", (void *)godot_icall_Object_Ctor);
     mono_add_internal_call("Godot.Object::godot_icall_Object_Disposed", (void *)godot_icall_Object_Disposed);
     mono_add_internal_call("Godot.Object::godot_icall_Reference_Disposed", (void *)godot_icall_Reference_Disposed);
-	mono_add_internal_call("Godot.Object::godot_icall_Object_ConnectEventSignals", (void *)godot_icall_Object_ConnectEventSignals);
+    mono_add_internal_call("Godot.Object::godot_icall_Object_ConnectEventSignals", (void *)godot_icall_Object_ConnectEventSignals);
     mono_add_internal_call("Godot.Object::godot_icall_Object_ClassDB_get_method", (void *)godot_icall_Object_ClassDB_get_method);
     mono_add_internal_call("Godot.Object::godot_icall_Object_ToString", (void *)godot_icall_Object_ToString);
     mono_add_internal_call("Godot.Object::godot_icall_Object_weakref", (void *)godot_icall_Object_weakref);

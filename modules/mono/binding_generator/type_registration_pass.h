@@ -1,6 +1,7 @@
 #pragma once
 
 #include "reflection_visitor_support.h"
+#include "type_system.h"
 
 struct ConstantInterface;
 struct MethodInterface;
@@ -22,6 +23,8 @@ struct TypeRegistrationPass : public ReflectionVisitorBase {
     void visitEnum(const EnumInterface *ei);
     void visitMethodInterface(const MethodInterface *fi);
     void visitSignalInterface(const SignalInterface *fi);
+    bool processProperty(const PropertyInterface *pi, TS_Type *curr_type, TS_Property *prop,
+            const PropertyInterface::TypedEntry &val);
     void visitTypeProperty(const PropertyInterface *pi);
 
     void registerTypesPass(const TypeInterface *ti);

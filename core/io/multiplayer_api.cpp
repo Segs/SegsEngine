@@ -54,7 +54,7 @@ class MultiplayerAPI::DebugData {
 public:
 #ifdef DEBUG_ENABLED
     struct BandwidthFrame {
-        uint32_t timestamp;
+        uint64_t timestamp;
         int packet_size;
     };
 
@@ -62,7 +62,7 @@ public:
     Vector<BandwidthFrame> bandwidth_incoming_data;
     int bandwidth_outgoing_pointer;
     Vector<BandwidthFrame> bandwidth_outgoing_data;
-    Map<ObjectID, ProfilingInfo> profiler_frame_data;
+    HashMap<GameEntity, ProfilingInfo> profiler_frame_data;
     bool profiling=false;
 #endif
     enum Mode {
@@ -74,8 +74,8 @@ public:
 #ifdef DEBUG_ENABLED
         const Vector<BandwidthFrame> &p_buffer = (m==Incoming) ? bandwidth_incoming_data : bandwidth_outgoing_data;
         int p_pointer = (m==Incoming) ? bandwidth_incoming_pointer : bandwidth_outgoing_pointer;
-        uint32_t timestamp = OS::get_singleton()->get_ticks_msec();
-        uint32_t final_timestamp = timestamp - 1000;
+        uint64_t timestamp = OS::get_singleton()->get_ticks_msec();
+        uint64_t final_timestamp = timestamp - 1000;
 
         int i = (p_pointer + p_buffer.size() - 1) % p_buffer.size();
 
@@ -91,13 +91,13 @@ public:
 #endif
         return total_bandwidth;
     }
-    void _init_node_profile(ObjectID p_node) {
+    void _init_node_profile(GameEntity p_node) {
 #ifdef DEBUG_ENABLED
         if (profiler_frame_data.contains(p_node))
             return;
         profiler_frame_data.emplace(p_node, ProfilingInfo());
         profiler_frame_data[p_node].node = p_node;
-        profiler_frame_data[p_node].node_path = (String)object_cast<Node>(ObjectDB::get_instance(p_node))->get_path();
+        profiler_frame_data[p_node].node_path = (String)object_cast<Node>(object_for_entity(p_node))->get_path();
         profiler_frame_data[p_node].incoming_rpc = 0;
         profiler_frame_data[p_node].incoming_rset = 0;
         profiler_frame_data[p_node].outgoing_rpc = 0;
@@ -118,7 +118,7 @@ public:
     {
 #ifdef DEBUG_ENABLED
         if (profiling) {
-            ObjectID id = p_node->get_instance_id();
+            GameEntity id = p_node->get_instance_id();
             _init_node_profile(id);
             profiler_frame_data[id].incoming_rpc += 1;
         }
@@ -130,7 +130,7 @@ public:
     {
 #ifdef DEBUG_ENABLED
         if (profiling) {
-            ObjectID id = p_node->get_instance_id();
+            GameEntity id = p_node->get_instance_id();
             _init_node_profile(id);
             profiler_frame_data[id].outgoing_rpc += 1;
         }
@@ -154,7 +154,7 @@ public:
     {
 #ifdef DEBUG_ENABLED
     if (profiling) {
-        ObjectID id = p_node->get_instance_id();
+        GameEntity id = p_node->get_instance_id();
         _init_node_profile(id);
         profiler_frame_data[id].outgoing_rset += 1;
     }
@@ -191,7 +191,7 @@ public:
     int profiling_frame(ProfilingInfo *r_info) {
         int i = 0;
     #ifdef DEBUG_ENABLED
-        for (eastl::pair<const ObjectID,ProfilingInfo> &E : profiler_frame_data) {
+        for (eastl::pair<const GameEntity,ProfilingInfo> &E : profiler_frame_data) {
             r_info[i] = E.second;
             ++i;
         }
@@ -533,7 +533,7 @@ void MultiplayerAPI::_process_simplify_path(int p_from, const uint8_t *p_packet,
 
     PathGetCache::NodeInfo ni;
     ni.path = path;
-    ni.instance = ObjectID(0ULL);
+    ni.instance = entt::null;
 
     path_get_cache[p_from].nodes[id] = ni;
 
@@ -941,10 +941,7 @@ int MultiplayerAPI::get_network_unique_id() const {
 }
 
 bool MultiplayerAPI::is_network_server() const {
-
-    // XXX Maybe fail silently? Maybe should actually return true to make development of both local and online multiplayer easier?
-    ERR_FAIL_COND_V_MSG(not network_peer, false, "No network peer is assigned. I can't be a server.");
-    return network_peer->is_server();
+    return network_peer && network_peer->is_server();
 }
 
 void MultiplayerAPI::set_refuse_new_network_connections(bool p_refuse) {
@@ -1003,29 +1000,29 @@ int MultiplayerAPI::get_outgoing_bandwidth_usage() {
 }
 
 void MultiplayerAPI::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_root_node", {"node"}), &MultiplayerAPI::set_root_node);
-    MethodBinder::bind_method(D_METHOD("get_root_node"), &MultiplayerAPI::get_root_node);
+    BIND_METHOD(MultiplayerAPI,set_root_node);
+    BIND_METHOD(MultiplayerAPI,get_root_node);
 
     MethodBinder::bind_method(D_METHOD("send_bytes", {"bytes", "id", "mode"}), &MultiplayerAPI::send_bytes, {DEFVAL(NetworkedMultiplayerPeer::TARGET_PEER_BROADCAST), DEFVAL(NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE)});
-    MethodBinder::bind_method(D_METHOD("has_network_peer"), &MultiplayerAPI::has_network_peer);
-    MethodBinder::bind_method(D_METHOD("get_network_peer"), &MultiplayerAPI::get_network_peer);
-    MethodBinder::bind_method(D_METHOD("get_network_unique_id"), &MultiplayerAPI::get_network_unique_id);
-    MethodBinder::bind_method(D_METHOD("is_network_server"), &MultiplayerAPI::is_network_server);
-    MethodBinder::bind_method(D_METHOD("get_rpc_sender_id"), &MultiplayerAPI::get_rpc_sender_id);
-    MethodBinder::bind_method(D_METHOD("_add_peer", {"id"}), &MultiplayerAPI::_add_peer);
-    MethodBinder::bind_method(D_METHOD("_del_peer", {"id"}), &MultiplayerAPI::_del_peer);
-    MethodBinder::bind_method(D_METHOD("set_network_peer", {"peer"}), &MultiplayerAPI::set_network_peer);
-    MethodBinder::bind_method(D_METHOD("poll"), &MultiplayerAPI::poll);
-    MethodBinder::bind_method(D_METHOD("clear"), &MultiplayerAPI::clear);
+    BIND_METHOD(MultiplayerAPI,has_network_peer);
+    BIND_METHOD(MultiplayerAPI,get_network_peer);
+    BIND_METHOD(MultiplayerAPI,get_network_unique_id);
+    BIND_METHOD(MultiplayerAPI,is_network_server);
+    BIND_METHOD(MultiplayerAPI,get_rpc_sender_id);
+    BIND_METHOD(MultiplayerAPI,_add_peer);
+    BIND_METHOD(MultiplayerAPI,_del_peer);
+    BIND_METHOD(MultiplayerAPI,set_network_peer);
+    BIND_METHOD(MultiplayerAPI,poll);
+    BIND_METHOD(MultiplayerAPI,clear);
 
-    MethodBinder::bind_method(D_METHOD("_connected_to_server"), &MultiplayerAPI::_connected_to_server);
-    MethodBinder::bind_method(D_METHOD("_connection_failed"), &MultiplayerAPI::_connection_failed);
-    MethodBinder::bind_method(D_METHOD("_server_disconnected"), &MultiplayerAPI::_server_disconnected);
-    MethodBinder::bind_method(D_METHOD("get_network_connected_peers"), &MultiplayerAPI::get_network_connected_peers);
-    MethodBinder::bind_method(D_METHOD("set_refuse_new_network_connections", {"refuse"}), &MultiplayerAPI::set_refuse_new_network_connections);
-    MethodBinder::bind_method(D_METHOD("is_refusing_new_network_connections"), &MultiplayerAPI::is_refusing_new_network_connections);
-    MethodBinder::bind_method(D_METHOD("set_allow_object_decoding", {"enable"}), &MultiplayerAPI::set_allow_object_decoding);
-    MethodBinder::bind_method(D_METHOD("is_object_decoding_allowed"), &MultiplayerAPI::is_object_decoding_allowed);
+    BIND_METHOD(MultiplayerAPI,_connected_to_server);
+    BIND_METHOD(MultiplayerAPI,_connection_failed);
+    BIND_METHOD(MultiplayerAPI,_server_disconnected);
+    BIND_METHOD(MultiplayerAPI,get_network_connected_peers);
+    BIND_METHOD(MultiplayerAPI,set_refuse_new_network_connections);
+    BIND_METHOD(MultiplayerAPI,is_refusing_new_network_connections);
+    BIND_METHOD(MultiplayerAPI,set_allow_object_decoding);
+    BIND_METHOD(MultiplayerAPI,is_object_decoding_allowed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_object_decoding"), "set_allow_object_decoding", "is_object_decoding_allowed");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "refuse_new_network_connections"), "set_refuse_new_network_connections", "is_refusing_new_network_connections");

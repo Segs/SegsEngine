@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  font.h                                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -44,6 +44,13 @@
 
 class Texture;
 
+struct CharContour {
+    Vector<Vector3> points;
+    Vector<int> contour;
+    bool orientation;
+    bool valid=false;
+};
+
 class GODOT_EXPORT Font : public Resource {
 
     GDCLASS(Font,Resource)
@@ -52,6 +59,12 @@ protected:
     static void _bind_methods();
 
 public:
+    enum ContourPointTag {
+        CONTOUR_CURVE_TAG_ON = 0x01,
+        CONTOUR_CURVE_TAG_OFF_CONIC = 0x00,
+        CONTOUR_CURVE_TAG_OFF_CUBIC = 0x02
+    };
+
     virtual float get_height() const = 0;
 
     virtual float get_ascent() const = 0;
@@ -65,13 +78,23 @@ public:
 
     virtual bool is_distance_field_hint() const = 0;
 
-    void draw(RID p_canvas_item, const Point2 &p_pos, StringView p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1, const Color &p_outline_modulate = Color(1, 1, 1)) const;
-    void draw_ui_string(RID p_canvas_item, const Point2 &p_pos, const UIString &p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1, const Color &p_outline_modulate = Color(1, 1, 1)) const;
-    void draw_halign(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, const UIString &p_text, const Color &p_modulate = Color(1, 1, 1), const Color &p_outline_modulate = Color(1, 1, 1)) const;
-    void draw_halign_utf8(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, StringView p_text, const Color &p_modulate = Color(1, 1, 1), const Color &p_outline_modulate = Color(1, 1, 1)) const;
+    void draw(RenderingEntity p_canvas_item, const Point2 &p_pos, StringView p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1, const Color &p_outline_modulate = Color(1, 1, 1)) const;
+    void draw_ui_string(RenderingEntity p_canvas_item, const Point2 &p_pos, const UIString &p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1, const Color &p_outline_modulate = Color(1, 1, 1)) const;
+    void draw_halign(RenderingEntity p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, const UIString &p_text, const Color &p_modulate = Color(1, 1, 1), const Color &p_outline_modulate = Color(1, 1, 1)) const;
+    void draw_halign_utf8(RenderingEntity p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, StringView p_text, const Color &p_modulate = Color(1, 1, 1), const Color &p_outline_modulate = Color(1, 1, 1)) const;
 
     virtual bool has_outline() const { return false; }
-    virtual float draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next = 0, const Color &p_modulate = Color(1, 1, 1), bool p_outline = false) const = 0;
+    virtual float draw_char(RenderingEntity p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next = 0, const Color &p_modulate = Color(1, 1, 1), bool p_outline = false) const = 0;
+
+    virtual RenderingEntity get_char_texture(CharType p_char, CharType p_next, bool p_outline) const = 0;
+    virtual Size2 get_char_texture_size(CharType p_char, CharType p_next, bool p_outline) const = 0;
+
+    virtual Vector2 get_char_tx_offset(CharType p_char, CharType p_next, bool p_outline) const = 0;
+    virtual Size2 get_char_tx_size(CharType p_char, CharType p_next, bool p_outline) const = 0;
+    virtual Rect2 get_char_tx_uv_rect(CharType p_char, CharType p_next, bool p_outline) const = 0;
+
+    virtual CharContour get_char_contours(CharType p_char, CharType p_next = 0) const { return CharContour(); }
+
 
     void update_changes();
     Font();
@@ -84,7 +107,7 @@ class FontDrawer {
     bool has_outline;
 
     struct PendingDraw {
-        RID canvas_item;
+        RenderingEntity canvas_item;
         Point2 pos;
         CharType chr;
         CharType next;
@@ -100,7 +123,7 @@ public:
         has_outline = p_font->has_outline();
     }
 
-    float draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next = 0, const Color &p_modulate = Color(1, 1, 1)) {
+    float draw_char(RenderingEntity p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next = 0, const Color &p_modulate = Color(1, 1, 1)) {
         if (has_outline) {
             PendingDraw draw = { p_canvas_item, p_pos, p_char, p_next, p_modulate };
             pending_draws.push_back(draw);
@@ -148,7 +171,7 @@ public:
     };
 
 private:
-    HashMap<uint16_t, Character> char_map;
+    HashMap<int32_t, Character> char_map;
     Map<KerningPairKey, int> kerning_map;
 
     Ref<BitmapFont> fallback;
@@ -178,17 +201,17 @@ public:
     float get_descent() const override;
 
     void add_texture(const Ref<Texture> &p_texture);
-    void add_char(CharType p_char, int p_texture_idx, const Rect2 &p_rect, const Size2 &p_align, float p_advance = -1);
+    void add_char(int32_t p_char, int p_texture_idx, const Rect2 &p_rect, const Size2 &p_align, float p_advance = -1);
 
     int get_character_count() const;
-    Vector<CharType> get_char_keys() const;
-    Character get_character(CharType p_char) const;
+    Vector<int32_t> get_char_keys() const;
+    Character get_character(int32_t p_char) const;
 
     int get_texture_count() const;
     Ref<Texture> get_texture(int p_idx) const;
 
-    void add_kerning_pair(CharType p_A, CharType p_B, int p_kerning);
-    int get_kerning_pair(CharType p_A, CharType p_B) const;
+    void add_kerning_pair(int32_t p_A, int32_t p_B, int p_kerning);
+    int get_kerning_pair(int32_t p_A, int32_t p_B) const;
     Vector<KerningPairKey> get_kerning_pair_keys() const;
 
     Size2 get_char_size(CharType p_char, CharType p_next = 0) const override;
@@ -201,7 +224,14 @@ public:
     void set_distance_field_hint(bool p_distance_field);
     bool is_distance_field_hint() const override;
 
-    float draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next = 0, const Color &p_modulate = Color(1, 1, 1), bool p_outline = false) const override;
+    float draw_char(RenderingEntity p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next = 0, const Color &p_modulate = Color(1, 1, 1), bool p_outline = false) const override;
+
+    RenderingEntity get_char_texture(CharType p_char, CharType p_next, bool p_outline) const override;
+    Size2 get_char_texture_size(CharType p_char, CharType p_next, bool p_outline) const override;
+
+    Vector2 get_char_tx_offset(CharType p_char, CharType p_next, bool p_outline) const override;
+    Size2 get_char_tx_size(CharType p_char, CharType p_next, bool p_outline) const override;
+    Rect2 get_char_tx_uv_rect(CharType p_char, CharType p_next, bool p_outline) const override;
 
     BitmapFont();
     ~BitmapFont() override;

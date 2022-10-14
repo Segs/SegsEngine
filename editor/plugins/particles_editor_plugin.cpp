@@ -41,6 +41,8 @@
 #include "editor/plugins/node_3d_editor_plugin.h"
 #include "editor/scene_tree_dock.h"
 #include "scene/3d/cpu_particles_3d.h"
+#include "scene/gui/menu_button.h"
+#include "scene/gui/option_button.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/particles_material.h"
 
@@ -387,7 +389,7 @@ void ParticlesEditor::_generate_emission_points() {
         }
     }
 
-    Ref<Image> image(make_ref_counted<Image>(w, h, false, Image::FORMAT_RGBF, point_img));
+    Ref<Image> image(make_ref_counted<Image>(w, h, false, ImageData::FORMAT_RGBF, point_img));
 
     Ref<ImageTexture> tex(make_ref_counted<ImageTexture>());
     tex->create_from_image(image, Texture::FLAG_FILTER);
@@ -416,7 +418,7 @@ void ParticlesEditor::_generate_emission_points() {
             }
         }
 
-        Ref<Image> image2(make_ref_counted<Image>(w, h, false, Image::FORMAT_RGBF, point_img2));
+        Ref<Image> image2(make_ref_counted<Image>(w, h, false, ImageData::FORMAT_RGBF, point_img2));
 
         Ref<ImageTexture> tex2(make_ref_counted<ImageTexture>());
         tex2->create_from_image(image2, Texture::FLAG_FILTER);

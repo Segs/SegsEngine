@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  mesh_instance_3d.cpp                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -39,6 +39,7 @@
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/project_settings.h"
+#include "core/print_string.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/material.h"
 #include "scene/scene_string_names.h"
@@ -48,14 +49,38 @@
 #include "EASTL/sort.h"
 
 IMPL_GDCLASS(MeshInstance3D)
+namespace {
+    void _merge_log(StringView v) {
+        print_verbose(v);
+    }
+    bool _triangle_is_degenerate(const Vector3 &p_a, const Vector3 &p_b, const Vector3 &p_c, real_t p_epsilon) {
+        // not interested in the actual area, but numerical stability
+        Vector3 edge1 = p_b - p_a;
+        Vector3 edge2 = p_c - p_a;
+
+        // for numerical stability keep these values reasonably high
+        edge1 *= 1024.0f;
+        edge2 *= 1024.0f;
+
+        Vector3 vec = edge1.cross(edge2);
+        real_t sl = vec.length_squared();
+
+        if (sl <= p_epsilon) {
+            return true;
+        }
+
+        return false;
+    }
+}
 
 bool MeshInstance3D::_set(const StringName &p_name, const Variant &p_value) {
 
     //this is not _too_ bad performance wise, really. it only arrives here if the property was not set anywhere else.
     //add to it that it's probably found on first call to _set anyway.
 
-    if (!get_instance().is_valid())
+    if (get_instance()==entt::null) {
         return false;
+    }
 
     HashMap<StringName, BlendShapeTrack>::iterator E = blend_shape_tracks.find(p_name);
     if (E!=blend_shape_tracks.end()) {
@@ -78,7 +103,7 @@ bool MeshInstance3D::_set(const StringName &p_name, const Variant &p_value) {
 
 bool MeshInstance3D::_get(const StringName &p_name, Variant &r_ret) const {
 
-    if (!get_instance().is_valid())
+    if (get_instance() == entt::null)
         return false;
 
     const HashMap<StringName, BlendShapeTrack>::const_iterator E = blend_shape_tracks.find(p_name);
@@ -108,8 +133,8 @@ void MeshInstance3D::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     eastl::sort(ls.begin(), ls.end());
 
-    for (const StringName &E : ls) {
-        p_list->push_back(PropertyInfo(VariantType::FLOAT, E, PropertyHint::Range, "0,1,0.00001"));
+    for (StringName &E : ls) {
+        p_list->push_back(PropertyInfo(VariantType::FLOAT, eastl::move(E), PropertyHint::Range, "-1,1,0.00001"));
     }
 
     if (mesh) {
@@ -154,10 +179,10 @@ void MeshInstance3D::set_mesh(const Ref<Mesh> &p_mesh) {
         mesh->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &MeshInstance3D::_mesh_changed));
         materials.resize(mesh->get_surface_count());
 
-        _initialize_skinning();
+        _initialize_skinning(false,false);
     } else {
 
-        set_base(RID());
+        set_base(entt::null);
     }
 
     update_gizmo();
@@ -219,7 +244,7 @@ bool MeshInstance3D::_is_software_skinning_enabled() const {
     return global_software_skinning;
 }
 
-void MeshInstance3D::_initialize_skinning(bool p_force_reset) {
+void MeshInstance3D::_initialize_skinning(bool p_force_reset, bool p_call_attach_skeleton) {
     if (!mesh) {
         return;
     }
@@ -251,7 +276,7 @@ void MeshInstance3D::_initialize_skinning(bool p_force_reset) {
 
                 Ref<ArrayMesh> software_mesh = make_ref_counted<ArrayMesh>();
 
-                RID mesh_rid = software_mesh->get_rid();
+                RenderingEntity mesh_rid = software_mesh->get_rid();
 
                 // Initialize mesh for dynamic update.
                 int surface_count = mesh->get_surface_count();
@@ -335,10 +360,12 @@ void MeshInstance3D::_initialize_skinning(bool p_force_reset) {
                 update_mesh = true;
             }
 
-            visual_server->instance_attach_skeleton(get_instance(), RID());
+            if (p_call_attach_skeleton) {
+            visual_server->instance_attach_skeleton(get_instance(), entt::null);
+            }
 
             if (is_visible_in_tree() && (software_skinning_flags & SoftwareSkinning::FLAG_BONES_READY)) {
-                // Intialize from current skeleton pose.
+                // Initialize from current skeleton pose.
                 _update_skinning();
             }
         } else {
@@ -347,7 +374,9 @@ void MeshInstance3D::_initialize_skinning(bool p_force_reset) {
                 skin_ref->get_skeleton_node()->disconnect("skeleton_updated", callable_mp(this, &MeshInstance3D::_update_skinning));
             }
 
+            if (p_call_attach_skeleton) {
             visual_server->instance_attach_skeleton(get_instance(), skin_ref->get_skeleton());
+            }
 
             if (software_skinning) {
                 memdelete(software_skinning);
@@ -356,7 +385,9 @@ void MeshInstance3D::_initialize_skinning(bool p_force_reset) {
             }
         }
     } else {
-        visual_server->instance_attach_skeleton(get_instance(), RID());
+        if (p_call_attach_skeleton) {
+        visual_server->instance_attach_skeleton(get_instance(), entt::null);
+        }
         if (software_skinning) {
             memdelete(software_skinning);
             software_skinning = nullptr;
@@ -364,7 +395,7 @@ void MeshInstance3D::_initialize_skinning(bool p_force_reset) {
         }
     }
 
-    RID render_mesh = software_skinning ? software_skinning->mesh_instance->get_rid() : mesh->get_rid();
+    RenderingEntity render_mesh = software_skinning ? software_skinning->mesh_instance->get_rid() : mesh->get_rid();
     if (update_mesh || (render_mesh != get_base())) {
         set_base(render_mesh);
 
@@ -389,17 +420,19 @@ void MeshInstance3D::_update_skinning() {
     ERR_FAIL_COND(!software_skinning);
     Ref<Mesh> software_skinning_mesh = software_skinning->mesh_instance;
     ERR_FAIL_COND(!software_skinning_mesh);
-    RID mesh_rid = software_skinning_mesh->get_rid();
-    ERR_FAIL_COND(!mesh_rid.is_valid());
+    RenderingEntity mesh_rid = software_skinning_mesh->get_rid();
+    ERR_FAIL_COND(mesh_rid == entt::null);
 
     ERR_FAIL_COND(!mesh);
-    RID source_mesh_rid = mesh->get_rid();
-    ERR_FAIL_COND(!source_mesh_rid.is_valid());
+    RenderingEntity source_mesh_rid = mesh->get_rid();
+    ERR_FAIL_COND(source_mesh_rid == entt::null);
 
     ERR_FAIL_COND(!skin_ref);
-    RID skeleton = skin_ref->get_skeleton();
-    ERR_FAIL_COND(!skeleton.is_valid());
+    RenderingEntity skeleton = skin_ref->get_skeleton();
+    ERR_FAIL_COND(skeleton == entt::null);
 
+    Vector3 aabb_min = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
+    Vector3 aabb_max = Vector3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
     RenderingServer *visual_server = RenderingServer::get_singleton();
 
     // Prepare bone transforms.
@@ -424,7 +457,11 @@ void MeshInstance3D::_update_skinning() {
         const int index_count_write = software_skinning_mesh->surface_get_array_index_len(surface_index);
 
         uint32_t array_offsets_write[Mesh::ARRAY_MAX];
-        const uint32_t stride_write = visual_server->mesh_surface_make_offsets_from_format(format_write, vertex_count_write, index_count_write, array_offsets_write);
+        uint32_t array_strides_write[Mesh::ARRAY_MAX];
+
+        visual_server->mesh_surface_make_offsets_from_format(format_write, vertex_count_write, index_count_write, array_offsets_write, array_strides_write);
+        ERR_FAIL_COND(array_strides_write[Mesh::ARRAY_VERTEX] != array_strides_write[Mesh::ARRAY_NORMAL]);
+        const uint32_t stride_write = array_strides_write[Mesh::ARRAY_VERTEX];
         const uint32_t offset_vertices_write = array_offsets_write[Mesh::ARRAY_VERTEX];
         const uint32_t offset_normals_write = array_offsets_write[Mesh::ARRAY_NORMAL];
         const uint32_t offset_tangents_write = array_offsets_write[Mesh::ARRAY_TANGENT];
@@ -443,7 +480,9 @@ void MeshInstance3D::_update_skinning() {
         ERR_CONTINUE(vertex_count != vertex_count_write);
 
         uint32_t array_offsets[Mesh::ARRAY_MAX];
-        const uint32_t stride = visual_server->mesh_surface_make_offsets_from_format(format_read, vertex_count, index_count, array_offsets);
+        uint32_t array_strides[Mesh::ARRAY_MAX];
+        visual_server->mesh_surface_make_offsets_from_format(format_read, vertex_count, index_count, array_offsets,array_strides);
+        const uint32_t stride = array_strides[Mesh::ARRAY_VERTEX];
         const uint32_t offset_vertices = array_offsets[Mesh::ARRAY_VERTEX];
         const uint32_t offset_normals = array_offsets[Mesh::ARRAY_NORMAL];
         const uint32_t offset_tangents = array_offsets[Mesh::ARRAY_TANGENT];
@@ -503,11 +542,18 @@ void MeshInstance3D::_update_skinning() {
                     tangent = transform.basis.xform(tangent_read);
                 }
             }
+            aabb_min.x = MIN(aabb_min.x, vertex.x);
+            aabb_min.y = MIN(aabb_min.y, vertex.y);
+            aabb_min.z = MIN(aabb_min.z, vertex.z);
+            aabb_max.x = M_MAX(aabb_max.x, vertex.x);
+            aabb_max.y = M_MAX(aabb_max.y, vertex.y);
+            aabb_max.z = M_MAX(aabb_max.z, vertex.z);
         }
 
         visual_server->mesh_surface_update_region(mesh_rid, surface_index, 0, buffer);
     }
 
+    visual_server->mesh_set_custom_aabb(mesh_rid, AABB(aabb_min, aabb_max - aabb_min));
     software_skinning_flags |= SoftwareSkinning::FLAG_BONES_READY;
 }
 
@@ -584,13 +630,47 @@ void MeshInstance3D::create_trimesh_collision() {
         cshape->set_owner(get_owner());
     }
 }
-
-Node *MeshInstance3D::create_convex_collision_node() {
-
-    if (not mesh)
+Node *MeshInstance3D::create_multiple_convex_collisions_node() {
+    if (not mesh) {
         return nullptr;
+}
 
-    Ref<Shape> shape = mesh->create_convex_shape();
+    Vector<Ref<Shape>> shapes = mesh->convex_decompose();
+    if (!shapes.size()) {
+        return nullptr;
+    }
+
+    StaticBody3D *static_body = memnew(StaticBody3D);
+    for (int i = 0; i < shapes.size(); i++) {
+        CollisionShape3D *cshape = memnew(CollisionShape3D);
+        cshape->set_shape(shapes[i]);
+        static_body->add_child(cshape);
+    }
+    return static_body;
+}
+
+void MeshInstance3D::create_multiple_convex_collisions() {
+    StaticBody3D *static_body = object_cast<StaticBody3D>(create_multiple_convex_collisions_node());
+    ERR_FAIL_COND(!static_body);
+    static_body->set_name(String(get_name()) + "_col");
+
+    add_child(static_body);
+    if (get_owner()) {
+        static_body->set_owner(get_owner());
+        int count = static_body->get_child_count();
+        for (int i = 0; i < count; i++) {
+            CollisionShape3D *cshape = object_cast<CollisionShape3D>(static_body->get_child(i));
+            cshape->set_owner(get_owner());
+        }
+    }
+}
+Node *MeshInstance3D::create_convex_collision_node(bool p_clean, bool p_simplify) {
+
+    if (not mesh) {
+        return nullptr;
+    }
+
+    Ref<Shape> shape = mesh->create_convex_shape(p_clean, p_simplify);
     if (not shape)
         return nullptr;
 
@@ -601,9 +681,9 @@ Node *MeshInstance3D::create_convex_collision_node() {
     return static_body;
 }
 
-void MeshInstance3D::create_convex_collision() {
+void MeshInstance3D::create_convex_collision(bool p_clean, bool p_simplify) {
 
-    StaticBody3D *static_body = object_cast<StaticBody3D>(create_convex_collision_node());
+    StaticBody3D *static_body = object_cast<StaticBody3D>(create_convex_collision_node(p_clean, p_simplify));
     ERR_FAIL_COND(!static_body);
     static_body->set_name(String(get_name()) + "_col");
 
@@ -647,7 +727,7 @@ void MeshInstance3D::set_surface_material(int p_surface, const Ref<Material> &p_
     if (materials[p_surface])
         RenderingServer::get_singleton()->instance_set_surface_material(get_instance(), p_surface, materials[p_surface]->get_rid());
     else
-        RenderingServer::get_singleton()->instance_set_surface_material(get_instance(), p_surface, RID());
+        RenderingServer::get_singleton()->instance_set_surface_material(get_instance(), p_surface, entt::null);
 
     if (software_skinning) {
         _initialize_skinning(true);
@@ -692,6 +772,14 @@ void MeshInstance3D::set_material_override(const Ref<Material> &p_material) {
     }
 }
 
+void MeshInstance3D::set_material_overlay(const Ref<Material> &p_material) {
+    if (p_material == get_material_overlay()) {
+        return;
+    }
+
+    GeometryInstance::set_material_overlay(p_material);
+}
+
 void MeshInstance3D::set_software_skinning_transform_normals(bool p_enabled) {
     if (p_enabled == is_software_skinning_transform_normals_enabled()) {
         return;
@@ -714,6 +802,7 @@ bool MeshInstance3D::is_software_skinning_transform_normals_enabled() const {
 
 void MeshInstance3D::_mesh_changed() {
 
+    ERR_FAIL_COND(!mesh);
     materials.resize(mesh->get_surface_count());
 
     if (software_skinning) {
@@ -784,7 +873,7 @@ void MeshInstance3D::create_debug_tangents() {
         add_child(mi);
 #ifdef TOOLS_ENABLED
 
-        if (this == get_tree()->get_edited_scene_root())
+        if (is_inside_tree() && this == get_tree()->get_edited_scene_root())
             mi->set_owner(this);
         else
             mi->set_owner(get_owner());
@@ -792,25 +881,412 @@ void MeshInstance3D::create_debug_tangents() {
     }
 }
 
+bool MeshInstance3D::is_mergeable_with(const MeshInstance3D &p_other) const {
+    if (!get_mesh() || !p_other.get_mesh()) {
+        return false;
+    }
+    CullInstanceComponent &self_cic(game_object_registry.registry.get<CullInstanceComponent>(get_instance_id()));
+    CullInstanceComponent &other_cic(game_object_registry.registry.get<CullInstanceComponent>(get_instance_id()));
+
+
+    if (!self_cic.get_allow_merging() || !other_cic.get_allow_merging()) {
+        return false;
+    }
+    // various settings that must match
+    if (get_material_overlay() != p_other.get_material_overlay()) {
+        return false;
+    }
+    if (get_material_override() != p_other.get_material_override()) {
+        return false;
+    }
+    if (get_cast_shadows_setting() != p_other.get_cast_shadows_setting()) {
+        return false;
+    }
+    if (get_flag(FLAG_USE_BAKED_LIGHT) != p_other.get_flag(FLAG_USE_BAKED_LIGHT)) {
+        return false;
+    }
+    if (is_visible() != p_other.is_visible()) {
+        return false;
+    }
+
+    Ref<Mesh> rmesh_a = get_mesh();
+    Ref<Mesh> rmesh_b = p_other.get_mesh();
+
+    int num_surfaces = rmesh_a->get_surface_count();
+    if (num_surfaces != rmesh_b->get_surface_count()) {
+        return false;
+    }
+
+    for (int n = 0; n < num_surfaces; n++) {
+        // materials must match
+        if (get_active_material(n) != p_other.get_active_material(n)) {
+            return false;
+        }
+
+        // formats must match
+        uint32_t format_a = rmesh_a->surface_get_format(n);
+        uint32_t format_b = rmesh_b->surface_get_format(n);
+
+        if (format_a != format_b) {
+            return false;
+        }
+    }
+
+    // NOTE : These three commented out sections below are more conservative
+    // checks for whether to allow mesh merging. I am not absolutely sure a priori
+    // how conservative we need to be, so we can further enable this if testing
+    // shows they are required.
+
+    //	if (get_surface_material_count() != p_other.get_surface_material_count()) {
+    //		return false;
+    //	}
+
+    //	for (int n = 0; n < get_surface_material_count(); n++) {
+    //		if (get_surface_material(n) != p_other.get_surface_material(n)) {
+    //			return false;
+    //		}
+    //	}
+
+    // test only allow identical meshes
+    //	if (get_mesh() != p_other.get_mesh()) {
+    //		return false;
+    //	}
+
+    return true;
+}
+
+void MeshInstance3D::_merge_into_mesh_data(const MeshInstance3D &p_mi, const Transform &p_dest_tr_inv, int p_surface_id,
+        Vector<Vector3> &r_verts,
+        Vector<Vector3> &r_norms, Vector<real_t> &r_tangents, Vector<Color> &r_colors, Vector<Vector2> &r_uvs,
+        Vector<Vector2> &r_uv2s, Vector<int> &r_inds) {
+    _merge_log(String("\t\t\tmesh data from ") + p_mi.get_name());
+
+    // get the mesh verts in local space
+    Ref<Mesh> rmesh = p_mi.get_mesh();
+
+    if (rmesh->get_surface_count() <= p_surface_id) {
+        return;
+    }
+
+    SurfaceArrays arrays = rmesh->surface_get_arrays(p_surface_id);
+
+    Span<const Vector3> verts = arrays.positions3();
+    const Vector<Vector3> &normals = arrays.m_normals;
+    const Vector<real_t> &tangents = arrays.m_tangents;
+    const Vector<Color> &colors = arrays.m_colors;
+    const Vector<Vector2> &uvs = arrays.m_uv_1;
+    const Vector<Vector2> &uv2s = arrays.m_uv_2;
+    Vector<int> indices = arrays.m_indices;
+
+	// The attributes present must match the first mesh for the attributes
+    // to remain in sync. Here we reject meshes with different attributes.
+    // We could alternatively invent missing attributes.
+    // This should hopefully be already caught by the mesh_format, but is included just in case here.
+
+    // Don't perform these checks on the first Mesh, the first Mesh is a master
+    // and determines the attributes we want to be present.
+    if (!r_verts.empty()) {
+        if (r_norms.empty() != normals.empty()) {
+            ERR_FAIL_MSG("Attribute mismatch with first Mesh (Normals), ignoring surface.");
+        }
+        if (r_tangents.empty() != tangents.empty()) {
+            ERR_FAIL_MSG("Attribute mismatch with first Mesh (Tangents), ignoring surface.");
+        }
+        if ((bool)r_colors.size() != (bool)colors.size()) {
+            ERR_FAIL_MSG("Attribute mismatch with first Mesh (Colors), ignoring surface.");
+        }
+        if ((bool)r_uvs.size() != (bool)uvs.size()) {
+            ERR_FAIL_MSG("Attribute mismatch with first Mesh (UVs), ignoring surface.");
+        }
+        if ((bool)r_uv2s.size() != (bool)uv2s.size()) {
+            ERR_FAIL_MSG("Attribute mismatch with first Mesh (UV2s), ignoring surface.");
+        }
+    }
+
+    // The checking for valid triangles should be on WORLD SPACE vertices,
+    // NOT model space
+
+    // special case, if no indices, create some
+    int num_indices_before = indices.size();
+    if (!_ensure_indices_valid(indices, verts)) {
+        _merge_log(String("\tignoring INVALID TRIANGLES (duplicate indices or zero area triangle) detected in ") +
+                   p_mi.get_name() + ", num inds before / after " + itos(num_indices_before) + " / " + itos(indices.size()));
+    }
+
+    // the first index of this mesh is offset from the verts we already have stored in the merged mesh
+    int first_index = r_verts.size();
+
+    // transform verts to world space
+    Transform tr = p_mi.get_global_transform();
+
+    // But relative to the destination transform.
+    // This can either be identity (when the destination is global space),
+    // or the global transform of the owner MeshInstance (if using local space is selected).
+    tr = p_dest_tr_inv * tr;
+
+    // to transform normals
+    Basis normal_basis = tr.basis.inverse();
+    normal_basis.transpose();
+
+    for (int n = 0; n < verts.size(); n++) {
+        Vector3 pt_world = tr.xform(verts[n]);
+        r_verts.push_back(pt_world);
+
+        if (normals.size()) {
+            Vector3 pt_norm = normal_basis.xform(normals[n]);
+            pt_norm.normalize();
+            r_norms.push_back(pt_norm);
+        }
+
+        if (tangents.size()) {
+            int tstart = n * 4;
+            Vector3 pt_tangent = Vector3(tangents[tstart], tangents[tstart + 1], tangents[tstart + 2]);
+            real_t fourth = tangents[tstart + 3];
+
+            pt_tangent = normal_basis.xform(pt_tangent);
+            pt_tangent.normalize();
+            r_tangents.push_back(pt_tangent.x);
+            r_tangents.push_back(pt_tangent.y);
+            r_tangents.push_back(pt_tangent.z);
+            r_tangents.push_back(fourth);
+        }
+
+        if (colors.size()) {
+            r_colors.push_back(colors[n]);
+        }
+
+        if (uvs.size()) {
+            r_uvs.push_back(uvs[n]);
+        }
+
+        if (uv2s.size()) {
+            r_uv2s.push_back(uv2s[n]);
+        }
+    }
+
+    // indices
+    for (int n = 0; n < indices.size(); n++) {
+        int ind = indices[n] + first_index;
+        r_inds.push_back(ind);
+    }
+}
+
+bool MeshInstance3D::_ensure_indices_valid(Vector<int> &r_indices, Span<const Vector3> p_verts) const {
+    // no indices? create some
+    if (r_indices.empty()) {
+        _merge_log("\t\t\t\tindices are blank, creating...");
+
+        // indices are blank!! let's create some, assuming the mesh is using triangles
+        r_indices.resize(p_verts.size());
+        // this is assuming each triangle vertex is unique
+        for (int n = 0; n < p_verts.size(); n++) {
+            r_indices[n] = n;
+        }
+    }
+
+    if (!_check_for_valid_indices(r_indices, p_verts, nullptr)) {
+        Vector<int> new_inds;
+        _check_for_valid_indices(r_indices, p_verts, &new_inds);
+
+        // copy the new indices
+        r_indices = eastl::move(new_inds);
+
+        return false;
+    }
+
+    return true;
+}
+
+// check for invalid tris, or make a list of the valid triangles, depending on whether r_inds is set
+bool MeshInstance3D::_check_for_valid_indices(Span<const int> p_inds, Span<const Vector3> p_verts, Vector<int> *r_inds) const {
+    int nTris = p_inds.size();
+    nTris /= 3;
+    int indCount = 0;
+
+    for (int t = 0; t < nTris; t++) {
+        int i0 = p_inds[indCount++];
+        int i1 = p_inds[indCount++];
+        int i2 = p_inds[indCount++];
+
+        bool ok = true;
+
+        // if the indices are the same, the triangle is invalid
+        if (i0 == i1) {
+            ok = false;
+        }
+        if (i1 == i2) {
+            ok = false;
+        }
+        if (i0 == i2) {
+            ok = false;
+        }
+
+        // check positions
+        if (ok) {
+            // vertex positions
+            const Vector3 &p0 = p_verts[i0];
+            const Vector3 &p1 = p_verts[i1];
+            const Vector3 &p2 = p_verts[i2];
+
+            // if the area is zero, the triangle is invalid (and will crash xatlas if we use it)
+            if (_triangle_is_degenerate(p0, p1, p2, 0.00001)) {
+                _merge_log("\t\tdetected zero area triangle, ignoring");
+                ok = false;
+            }
+        }
+
+        if (ok) {
+            // if the triangle is ok, we will output it if we are outputting
+            if (r_inds) {
+                r_inds->push_back(i0);
+                r_inds->push_back(i1);
+                r_inds->push_back(i2);
+            }
+        } else {
+            // if triangle not ok, return failed check if we are not outputting
+            if (!r_inds) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+// If p_check_compatibility is set to false you MUST have performed a prior check using
+// is_mergeable_with, otherwise you could get mismatching surface formats leading to graphical errors etc.
+bool MeshInstance3D::_merge_meshes(Span<MeshInstance3D *> p_list, bool p_use_global_space, bool p_check_compatibility) {
+    if (p_list.size() < 1) {
+        // should not happen but just in case
+        return false;
+    }
+
+    // use the first mesh instance to get common data like number of surfaces
+    const MeshInstance3D *first = p_list[0];
+
+    // Mesh compatibility checking. This is relatively expensive, so if done already (e.g. in Room system)
+    // this step can be avoided.
+    FixedVector<bool,256,true> compat_list;
+    if (p_check_compatibility) {
+        compat_list.resize(p_list.size());
+
+        for (int n = 0; n < p_list.size(); n++) {
+            compat_list[n] = false;
+        }
+
+        compat_list[0] = true;
+
+        for (uint32_t n = 1; n < compat_list.size(); n++) {
+            compat_list[n] = first->is_mergeable_with(*p_list[n]);
+
+            if (compat_list[n] == false) {
+                WARN_PRINT("MeshInstance " + p_list[n]->get_name() + " is incompatible for merging with " +
+                           first->get_name() + ", ignoring.");
+            }
+        }
+    }
+
+    Ref<ArrayMesh> am(make_ref_counted<ArrayMesh>());
+
+    // If we want a local space result, we need the world space transform of this MeshInstance
+    // available to back transform verts from world space.
+    Transform dest_tr_inv;
+    if (!p_use_global_space) {
+        if (is_inside_tree()) {
+            dest_tr_inv = get_global_transform();
+            dest_tr_inv.affine_invert();
+        } else {
+            WARN_PRINT("MeshInstance must be inside tree to merge using local space, falling back to global space.");
+        }
+    }
+
+    for (int s = 0; s < first->get_mesh()->get_surface_count(); s++) {
+        Vector<Vector3> verts;
+        Vector<Vector3> normals;
+        Vector<real_t> tangents;
+        Vector<Color> colors;
+        Vector<Vector2> uvs;
+        Vector<Vector2> uv2s;
+        Vector<int> inds;
+
+        for (int n = 0; n < p_list.size(); n++) {
+            // Ignore if the mesh is incompatible
+            if (p_check_compatibility && (!compat_list[n])) {
+                continue;
+            }
+            _merge_into_mesh_data(*p_list[n], dest_tr_inv, s, verts, normals, tangents, colors, uvs, uv2s, inds);
+        } // for n through source meshes
+
+        if (!verts.size()) {
+            WARN_PRINT_ONCE("No vertices for surface");
+        }
+
+        // sanity check on the indices
+        for (int n = 0; n < inds.size(); n++) {
+            int i = inds[n];
+            if (i >= verts.size()) {
+                WARN_PRINT_ONCE("Mesh index out of range, invalid mesh, aborting");
+                return false;
+            }
+        }
+
+        SurfaceArrays arr(eastl::move(verts));
+        if (normals.size()) {
+            arr.m_normals = eastl::move(normals);
+        }
+        if (tangents.size()) {
+            arr.m_tangents = eastl::move(tangents);
+        }
+        if (colors.size()) {
+            arr.m_colors = eastl::move(colors);
+        }
+        if (uvs.size()) {
+            arr.m_uv_1 = eastl::move(uvs);
+        }
+        if (uv2s.size()) {
+            arr.m_uv_2 = eastl::move(uv2s);
+        }
+        arr.m_indices = eastl::move(inds);
+
+        am->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, eastl::move(arr), {}, Mesh::ARRAY_COMPRESS_DEFAULT);
+    } // for s through surfaces
+
+    // set all the surfaces on the mesh
+    set_mesh(am);
+
+    // set merged materials
+    int num_surfaces = first->get_mesh()->get_surface_count();
+    for (int n = 0; n < num_surfaces; n++) {
+        set_surface_material(n, first->get_active_material(n));
+    }
+
+    // set some properties to match the merged meshes
+    set_material_overlay(first->get_material_overlay());
+    set_material_override(first->get_material_override());
+    set_cast_shadows_setting(first->get_cast_shadows_setting());
+    set_flag(FLAG_USE_BAKED_LIGHT, first->get_flag(FLAG_USE_BAKED_LIGHT));
+
+    return true;
+}
+
 void MeshInstance3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_mesh", {"mesh"}), &MeshInstance3D::set_mesh);
-    MethodBinder::bind_method(D_METHOD("get_mesh"), &MeshInstance3D::get_mesh);
-    MethodBinder::bind_method(D_METHOD("set_skeleton_path", {"skeleton_path"}), &MeshInstance3D::set_skeleton_path);
-    MethodBinder::bind_method(D_METHOD("get_skeleton_path"), &MeshInstance3D::get_skeleton_path);
-    MethodBinder::bind_method(D_METHOD("set_skin", {"skin"}), &MeshInstance3D::set_skin);
-    MethodBinder::bind_method(D_METHOD("get_skin"), &MeshInstance3D::get_skin);
+    BIND_METHOD(MeshInstance3D,set_mesh);
+    BIND_METHOD(MeshInstance3D,get_mesh);
+    BIND_METHOD(MeshInstance3D,set_skeleton_path);
+    BIND_METHOD(MeshInstance3D,get_skeleton_path);
+    BIND_METHOD(MeshInstance3D,set_skin);
+    BIND_METHOD(MeshInstance3D,get_skin);
 
-    MethodBinder::bind_method(D_METHOD("get_surface_material_count"), &MeshInstance3D::get_surface_material_count);
-    MethodBinder::bind_method(D_METHOD("set_surface_material", {"surface", "material"}), &MeshInstance3D::set_surface_material);
-    MethodBinder::bind_method(D_METHOD("get_surface_material", {"surface"}), &MeshInstance3D::get_surface_material);
-    MethodBinder::bind_method(D_METHOD("get_active_material", {"surface"}), &MeshInstance3D::get_active_material);
+    BIND_METHOD(MeshInstance3D,get_surface_material_count);
+    BIND_METHOD(MeshInstance3D,set_surface_material);
+    BIND_METHOD(MeshInstance3D,get_surface_material);
+    BIND_METHOD(MeshInstance3D,get_active_material);
 
-    MethodBinder::bind_method(D_METHOD("set_software_skinning_transform_normals", {"enabled"}), &MeshInstance3D::set_software_skinning_transform_normals);
-    MethodBinder::bind_method(D_METHOD("is_software_skinning_transform_normals_enabled"), &MeshInstance3D::is_software_skinning_transform_normals_enabled);
+    BIND_METHOD(MeshInstance3D,set_software_skinning_transform_normals);
+    BIND_METHOD(MeshInstance3D,is_software_skinning_transform_normals_enabled);
 
-    MethodBinder::bind_method(D_METHOD("create_trimesh_collision"), &MeshInstance3D::create_trimesh_collision);
-    MethodBinder::bind_method(D_METHOD("create_convex_collision"), &MeshInstance3D::create_convex_collision);
+    BIND_METHOD(MeshInstance3D,create_trimesh_collision);
+    BIND_METHOD(MeshInstance3D,create_convex_collision);
 
     MethodBinder::bind_method(D_METHOD("create_debug_tangents"), &MeshInstance3D::create_debug_tangents,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 

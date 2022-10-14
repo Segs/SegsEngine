@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  ip_unix.h                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,26 +28,24 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef IP_UNIX_H
-#define IP_UNIX_H
+#pragma once
 
 #include "core/io/ip.h"
 
 #if defined(UNIX_ENABLED) || defined(WINDOWS_ENABLED)
 
-class IP_Unix : public IP {
+class IP_Unix final : public IP {
     GDCLASS(IP_Unix,IP)
 
-    IP_Address _resolve_hostname(StringView p_hostname, IP::Type p_type) override;
+    void _resolve_hostname(Vector<IP_Address> &r_addresses, StringView p_hostname, IP::Type p_type) override;
 
     static IP *_create_unix();
 
 public:
     void get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const override;
 
-    static GODOT_EXPORT void make_default();
+    GODOT_EXPORT static void make_default();
     IP_Unix();
 };
 
 #endif
-#endif // IP_UNIX_H

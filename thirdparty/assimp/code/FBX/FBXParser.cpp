@@ -45,8 +45,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef ASSIMP_BUILD_NO_FBX_IMPORTER
-
+extern "C"{
 #include "zlib.h"
+}
 
 #include "FBXTokenizer.h"
 #include "FBXParser.h"
@@ -565,7 +566,7 @@ void ReadBinaryDataArray(char type, uint32_t count, const char*& data, const cha
         zstream.data_type = Z_BINARY;
 
         // http://hewgill.com/journal/entries/349-how-to-decompress-gzip-stream-with-zlib
-        if(Z_OK != inflateInit(&zstream)) {
+        if (Z_OK != inflateInit2(&zstream, 15)) {
             ParseError("failure initializing zlib");
         }
 

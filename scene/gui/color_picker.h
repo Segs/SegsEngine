@@ -43,21 +43,20 @@
 #include "scene/gui/texture_rect.h"
 #include "scene/gui/tool_button.h"
 
+class GridContainer;
 class GODOT_EXPORT ColorPicker : public BoxContainer {
 
     GDCLASS(ColorPicker,BoxContainer)
 
 private:
+    Vector<Color> presets;
     Control *screen;
     Control *uv_edit;
     Control *w_edit;
     TextureRect *sample;
-    TextureRect *preset;
-    HBoxContainer *preset_container;
-    HBoxContainer *preset_container2;
+    GridContainer *preset_container;
     HSeparator *preset_separator;
-    Button *bt_add_preset;
-    Vector<Color> presets;
+    Button *btn_add_preset;
     ToolButton *btn_pick;
     CheckButton *btn_hsv;
     CheckButton *btn_raw;
@@ -69,9 +68,11 @@ private:
     bool edit_alpha;
     Size2i ms;
     bool text_is_constructor;
-    int presets_per_row;
+    const int preset_column_count = 10;
 
     Color color;
+    Color old_color;
+    bool display_old_color = false;
     bool raw_mode_enabled;
     bool hsv_mode_enabled;
     bool deferred_mode_enabled;
@@ -86,21 +87,23 @@ private:
     void _value_changed(double);
     void _update_controls();
     void _update_color(bool p_update_sliders = true);
-    void _update_presets();
     void _update_text_value();
     void _text_type_toggled();
+    void _sample_input(const Ref<InputEvent> &p_event);
     void _sample_draw();
     void _hsv_draw(int p_which, Control *c);
 
     void _uv_input(const Ref<InputEvent> &p_event);
     void _w_input(const Ref<InputEvent> &p_event);
-    void _preset_input(const Ref<InputEvent> &p_event);
+    void _preset_input(const Ref<InputEvent> &p_event, const Color &p_color);
     void _screen_input(const Ref<InputEvent> &p_event);
     void _add_preset_pressed();
     void _screen_pick_pressed();
     void _focus_enter();
     void _focus_exit();
     void _html_focus_exit();
+    inline int _get_preset_size();
+    void _add_preset_button(int p_size, const Color &p_color);
 
 protected:
     void _notification(int);
@@ -113,10 +116,15 @@ public:
     void _set_pick_color(const Color &p_color, bool p_update_sliders);
     void set_pick_color(const Color &p_color);
     Color get_pick_color() const;
+    void set_old_color(const Color &p_color);
+
+    void set_display_old_color(bool p_enabled);
+    bool is_displaying_old_color() const;
 
     void add_preset(const Color &p_color);
     void erase_preset(const Color &p_color);
     PoolColorArray get_presets() const;
+    void _update_presets();
 
     void set_hsv_mode(bool p_enabled);
     bool is_hsv_mode() const;
@@ -147,6 +155,7 @@ class GODOT_EXPORT ColorPickerButton : public Button {
     Color color;
     bool edit_alpha;
 
+    void _about_to_show();
     void _color_changed(const Color &p_color);
     void _modal_closed();
 

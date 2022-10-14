@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  variant.cpp                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -124,7 +124,7 @@ const char *Variant::get_type_name(VariantType p_type) {
             return "PoolByteArray";
         case VariantType::POOL_INT_ARRAY:
             return "PoolIntArray";
-        case VariantType::POOL_REAL_ARRAY:
+        case VariantType::POOL_FLOAT32_ARRAY:
             return "PoolRealArray";
         case VariantType::POOL_STRING_ARRAY:
             return "PoolStringArray";
@@ -195,7 +195,7 @@ StringName Variant::interned_type_name(VariantType p_type) {
             return "PoolByteArray";
         case VariantType::POOL_INT_ARRAY:
             return "PoolIntArray";
-        case VariantType::POOL_REAL_ARRAY:
+        case VariantType::POOL_FLOAT32_ARRAY:
             return "PoolRealArray";
         case VariantType::POOL_STRING_ARRAY:
             return "PoolStringArray";
@@ -323,7 +323,7 @@ bool Variant::can_convert(VariantType p_type_from, VariantType p_type_to) {
         } break;
         case VariantType::ARRAY: {
             static const VariantType valid[] = { VariantType::POOL_BYTE_ARRAY, VariantType::POOL_INT_ARRAY,
-                VariantType::POOL_STRING_ARRAY, VariantType::POOL_REAL_ARRAY, VariantType::POOL_COLOR_ARRAY,
+                VariantType::POOL_STRING_ARRAY, VariantType::POOL_FLOAT32_ARRAY, VariantType::POOL_COLOR_ARRAY,
                 VariantType::POOL_VECTOR2_ARRAY, VariantType::POOL_VECTOR3_ARRAY, VariantType::NIL };
 
             valid_types = valid;
@@ -338,7 +338,7 @@ bool Variant::can_convert(VariantType p_type_from, VariantType p_type_to) {
             static const VariantType valid[] = { VariantType::ARRAY, VariantType::NIL };
             valid_types = valid;
         } break;
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             static const VariantType valid[] = { VariantType::ARRAY, VariantType::NIL };
 
             valid_types = valid;
@@ -501,7 +501,7 @@ bool Variant::can_convert_strict(VariantType p_type_from, VariantType p_type_to)
         } break;
         case VariantType::ARRAY: {
             static const VariantType valid[] = { VariantType::POOL_BYTE_ARRAY, VariantType::POOL_INT_ARRAY,
-                VariantType::POOL_STRING_ARRAY, VariantType::POOL_REAL_ARRAY, VariantType::POOL_COLOR_ARRAY,
+                VariantType::POOL_STRING_ARRAY, VariantType::POOL_FLOAT32_ARRAY, VariantType::POOL_COLOR_ARRAY,
                 VariantType::POOL_VECTOR2_ARRAY, VariantType::POOL_VECTOR3_ARRAY, VariantType::NIL };
 
             valid_types = valid;
@@ -516,7 +516,7 @@ bool Variant::can_convert_strict(VariantType p_type_from, VariantType p_type_to)
             static const VariantType valid[] = { VariantType::ARRAY, VariantType::NIL };
             valid_types = valid;
         } break;
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             static const VariantType valid[] = { VariantType::ARRAY, VariantType::NIL };
 
             valid_types = valid;
@@ -556,6 +556,37 @@ bool Variant::can_convert_strict(VariantType p_type_from, VariantType p_type_to)
     }
 
     return false;
+}
+
+bool Variant::deep_equal(const Variant &p_variant, int p_recursion_count) const {
+    ERR_FAIL_COND_V_MSG(p_recursion_count > MAX_RECURSION, true, "Max recursion reached");
+
+    // Containers must be handled with recursivity checks
+    switch (type) {
+        case VariantType::DICTIONARY: {
+            if (p_variant.type != VariantType::DICTIONARY) {
+                return false;
+            }
+
+            const Dictionary v1_as_d = Dictionary(*this);
+            const Dictionary v2_as_d = Dictionary(p_variant);
+
+            return v1_as_d.deep_equal(v2_as_d, p_recursion_count + 1);
+        }
+        case VariantType::ARRAY: {
+            if (p_variant.type != VariantType::ARRAY) {
+                return false;
+            }
+
+            const Array v1_as_a = Array(*this);
+            const Array v2_as_a = Array(p_variant);
+
+            return v1_as_a.deep_equal(v2_as_a, p_recursion_count + 1);
+        }
+        default: {
+            return *this == p_variant;
+        }
+    }
 }
 
 bool Variant::operator==(const Variant &p_variant) const {
@@ -598,6 +629,9 @@ bool Variant::is_zero() const {
         }
         case VariantType::FLOAT: {
             return _data._real == 0.0;
+        }
+        case VariantType::REN_ENT: {
+            return _data._int == entt::to_integral(RenderingEntity(entt::null));
         }
         case VariantType::STRING: {
             return reinterpret_cast<const String *>(_data._mem)->empty();
@@ -655,7 +689,7 @@ bool Variant::is_zero() const {
         }
         case VariantType::STRING_NAME: {
             return reinterpret_cast<const StringName *>(_data._mem)->empty();
-        } break;
+        }
         case VariantType::NODE_PATH: {
             return reinterpret_cast<const NodePath *>(_data._mem)->is_empty();
         }
@@ -673,7 +707,7 @@ bool Variant::is_zero() const {
         case VariantType::POOL_INT_ARRAY: {
             return reinterpret_cast<const PoolVector<int> *>(_data._mem)->empty();
         }
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             return reinterpret_cast<const PoolVector<real_t> *>(_data._mem)->empty();
         }
         case VariantType::POOL_STRING_ARRAY: {
@@ -689,46 +723,6 @@ bool Variant::is_zero() const {
             return reinterpret_cast<const PoolVector<Color> *>(_data._mem)->empty();
         }
         default: {
-        }
-    }
-
-    return false;
-}
-
-bool Variant::is_one() const {
-    switch (type) {
-        case VariantType::NIL: {
-            return true;
-        }
-
-        // atomic types
-        case VariantType::BOOL: {
-            return _data._bool;
-        }
-        case VariantType::INT: {
-            return _data._int == 1;
-        }
-        case VariantType::FLOAT: {
-            return _data._real == 1.0;
-        }
-        case VariantType::VECTOR2: {
-            return *reinterpret_cast<const Vector2 *>(_data._mem) == Vector2(1, 1);
-        }
-        case VariantType::RECT2: {
-            return *reinterpret_cast<const Rect2 *>(_data._mem) == Rect2(1, 1, 1, 1);
-        }
-        case VariantType::VECTOR3: {
-            return *reinterpret_cast<const Vector3 *>(_data._mem) == Vector3(1, 1, 1);
-        }
-        case VariantType::PLANE: {
-            return *reinterpret_cast<const Plane *>(_data._mem) == Plane(1, 1, 1, 1);
-        }
-        case VariantType::COLOR: {
-            return *reinterpret_cast<const Color *>(_data._mem) == Color(1, 1, 1, 1);
-        }
-
-        default: {
-            return !is_zero();
         }
     }
 
@@ -757,6 +751,7 @@ void Variant::reference(const Variant &p_variant) {
         case VariantType::BOOL: {
             _data._bool = p_variant._data._bool;
         } break;
+        case VariantType::REN_ENT:
         case VariantType::INT: {
             _data._int = p_variant._data._int;
         } break;
@@ -809,11 +804,9 @@ void Variant::reference(const Variant &p_variant) {
         } break;
         case VariantType::OBJECT: {
             memnew_placement(_data._mem, ObjData(p_variant._get_obj()));
-#ifdef DEBUG_ENABLED
-            if (_get_obj().rc) {
+            if (likely(_get_obj().rc)) {
                 _get_obj().rc->increment();
             }
-#endif
         } break;
         case VariantType::CALLABLE: {
             memnew_placement(_data._mem, Callable(*reinterpret_cast<const Callable *>(p_variant._data._mem)));
@@ -850,7 +843,7 @@ void Variant::reference(const Variant &p_variant) {
                     _data._mem, PoolVector<int>(*reinterpret_cast<const PoolVector<int> *>(p_variant._data._mem)));
 
         } break;
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             memnew_placement(_data._mem,
                     PoolVector<real_t>(*reinterpret_cast<const PoolVector<real_t> *>(p_variant._data._mem)));
 
@@ -889,6 +882,9 @@ void Variant::zero() {
             break;
         case VariantType::INT:
             this->_data._int = 0;
+            break;
+        case VariantType::REN_ENT:
+            _data._int = entt::to_integral(RenderingEntity(entt::null));
             break;
         case VariantType::FLOAT:
             this->_data._real = 0;
@@ -953,7 +949,6 @@ void Variant::clear() {
             reinterpret_cast<NodePath *>(_data._mem)->~NodePath();
         } break;
         case VariantType::OBJECT: {
-#ifdef DEBUG_ENABLED
             if (likely(_get_obj().rc)) {
                 if (unlikely(_get_obj().rc->decrement())) {
                     memdelete(_get_obj().rc);
@@ -961,10 +956,6 @@ void Variant::clear() {
             } else {
                 _get_obj().ref.unref();
             }
-#else
-            _get_obj().obj = NULL;
-            _get_obj().ref.unref();
-#endif
         } break;
         case VariantType::CALLABLE: {
             reinterpret_cast<Callable *>(_data._mem)->~Callable();
@@ -990,7 +981,7 @@ void Variant::clear() {
         case VariantType::POOL_INT_ARRAY: {
             reinterpret_cast<PoolVector<int> *>(_data._mem)->~PoolVector<int>();
         } break;
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             reinterpret_cast<PoolVector<real_t> *>(_data._mem)->~PoolVector<real_t>();
         } break;
         case VariantType::POOL_STRING_ARRAY: {
@@ -1261,7 +1252,7 @@ Variant::operator NodePath() const {
 }
 
 Variant::operator IP_Address() const {
-    if (type == VariantType::POOL_REAL_ARRAY || type == VariantType::POOL_INT_ARRAY ||
+    if (type == VariantType::POOL_FLOAT32_ARRAY || type == VariantType::POOL_INT_ARRAY ||
             type == VariantType::POOL_BYTE_ARRAY) {
         PoolVector<int> addr = (PoolVector<int>)*this;
         if (addr.size() == 4) {
@@ -1325,18 +1316,24 @@ Variant::operator Quat() const {
     return Quat();
 }
 
-Variant::operator ObjectID() const {
+Variant::operator GameEntity() const {
     if (type == VariantType::INT) {
-        return ObjectID(_data._int);
+        return GE(_data._int);
     } else if (type == VariantType::OBJECT) {
 #ifdef DEBUG_ENABLED
         return _get_obj().rc->instance_id;
 #else
-        return _get_obj().obj ? _get_obj().obj->get_instance_id() : ObjectID();
+        return _get_obj().obj ? _get_obj().obj->get_instance_id() : entt::null;
 #endif
     } else {
-        return ObjectID();
+        return entt::null;
     }
+}
+Variant::operator RenderingEntity() const {
+    if (type == VariantType::REN_ENT) {
+        return RE(_data._int);
+    }
+    return entt::null;
 }
 
 struct _VariantStrPair {
@@ -1420,13 +1417,13 @@ String Variant::stringify(Vector<const void *> &stack) const {
 
             // const String *K=NULL;
             String str("{");
-            Vector<Variant> keys(d.get_key_list());
+            auto keys(d.get_key_list());
 
             Vector<_VariantStrPair> pairs;
 
-            for (Variant &E : keys) {
+            for (auto &E : keys) {
                 _VariantStrPair sp;
-                sp.key = E.stringify(stack);
+                sp.key = E;
                 sp.value = d[E].stringify(stack);
 
                 pairs.push_back(sp);
@@ -1491,7 +1488,7 @@ String Variant::stringify(Vector<const void *> &stack) const {
             str += "]";
             return str;
         }
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             PoolVector<real_t> vec = as<PoolVector<real_t>>();
             String str("[");
             for (int i = 0; i < vec.size(); i++) {
@@ -1524,16 +1521,14 @@ String Variant::stringify(Vector<const void *> &stack) const {
         }
         case VariantType::OBJECT: {
             Object *obj = _OBJ_PTR(*this);
-            if (obj) {
+        if (likely(obj)) {
                 return obj->to_string();
-            }
-#ifdef DEBUG_ENABLED
-            if (ScriptDebugger::get_singleton() && _get_obj().rc &&
-                    !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
+        } else {
+            if (_get_obj().rc) {
                 return "[Deleted Object]";
             }
-#endif
             return "[Object:null]";
+        }
         }
         case VariantType::CALLABLE: {
             const Callable &c = *reinterpret_cast<const Callable *>(_data._mem);
@@ -1552,7 +1547,6 @@ String Variant::stringify(Vector<const void *> &stack) const {
         }
     }
 
-    return null_string;
 }
 
 Variant::operator Vector2() const {
@@ -1644,7 +1638,7 @@ Variant::operator RID() const {
         return RID();
     }
     if (!_get_obj().ref.is_null()) {
-        return _get_obj().ref.get_rid();
+        return _get_obj().ref.get_phys_rid();
     }
 #ifdef DEBUG_ENABLED
     Object *obj = likely(_get_obj().rc) ? _get_obj().rc->get_ptr() : nullptr;
@@ -1653,7 +1647,7 @@ Variant::operator RID() const {
 #endif
     if (unlikely(!obj)) {
 #ifdef DEBUG_ENABLED
-        if (ScriptDebugger::get_singleton() && _get_obj().rc && !ObjectDB::get_instance(_get_obj().rc->instance_id)) {
+        if (ScriptDebugger::get_singleton() && _get_obj().rc && !object_for_entity(_get_obj().rc->instance_id)) {
             WARN_PRINT("Attempted get RID on a deleted object.");
         }
 #endif
@@ -1668,29 +1662,7 @@ Variant::operator RID() const {
     return RID();
 }
 
-//Variant::operator Node *() const {
-//    if (type != VariantType::OBJECT) {
-//        return nullptr;
-//    }
-//#ifdef DEBUG_ENABLED
-//    Object *obj = _get_obj().rc ? _get_obj().rc->get_ptr() : nullptr;
-//#else
-//    Object *obj = _get_obj().obj;
-//#endif
-//    return object_cast<Node>(obj);
-//}
 
-//Variant::operator Control *() const {
-//    if (type != VariantType::OBJECT) {
-//        return nullptr;
-//    }
-//#ifdef DEBUG_ENABLED
-//    Object *obj = _get_obj().rc ? _get_obj().rc->get_ptr() : nullptr;
-//#else
-//    Object *obj = _get_obj().obj;
-//#endif
-//    return object_cast<Control>(obj);
-//}
 
 Variant::operator Object *() const {
     if (type == VariantType::OBJECT) {
@@ -1746,7 +1718,7 @@ template <class DA> DA _convert_array_from_variant(const Variant &p_variant) {
         case VariantType::POOL_INT_ARRAY: {
             return _convert_array<DA, PoolVector<int>>(p_variant.as<PoolVector<int>>());
         }
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             return _convert_array<DA, PoolVector<real_t>>(p_variant.as<PoolVector<real_t>>());
         }
         case VariantType::POOL_STRING_ARRAY: {
@@ -1793,7 +1765,7 @@ Variant::operator PoolVector<int>() const {
 }
 
 Variant::operator PoolVector<real_t>() const {
-    if (type == VariantType::POOL_REAL_ARRAY) {
+    if (type == VariantType::POOL_FLOAT32_ARRAY) {
         return *reinterpret_cast<const PoolVector<real_t> *>(_data._mem);
     }
     return _convert_array_from_variant<PoolVector<real_t>>(*this);
@@ -1846,7 +1818,7 @@ Variant::operator Vector<int>() const {
 
 Variant::operator Vector<float>() const {
     PoolVector<float> tmp;
-    if (type == VariantType::POOL_REAL_ARRAY) {
+    if (type == VariantType::POOL_FLOAT32_ARRAY) {
         tmp = *reinterpret_cast<const PoolVector<float> *>(_data._mem);
     } else {
         WARN_PRINT("Inefficient code, converting non int-array Variant to array");
@@ -1864,7 +1836,8 @@ Variant::operator Vector<Color>() const {
         WARN_PRINT("Inefficient code, converting non Color-array Variant to array");
         tmp = _convert_array_from_variant<PoolVector<Color>>(*this);
     }
-    return Vector<Color>(tmp.read().ptr(), tmp.read().ptr() + tmp.size());
+    auto as_span(tmp.toSpan());
+    return Vector<Color>(as_span.begin(),as_span.end());
 }
 
 Variant::operator Vector<Vector2>() const {
@@ -1875,7 +1848,8 @@ Variant::operator Vector<Vector2>() const {
         WARN_PRINT("Inefficient code, converting non Vector2-array Variant to array");
         tmp = _convert_array_from_variant<PoolVector<Vector2>>(*this);
     }
-    return Vector<Vector2>(tmp.read().ptr(), tmp.read().ptr() + tmp.size());
+    auto as_span(tmp.toSpan());
+    return Vector<Vector2>(as_span.begin(),as_span.end());
 }
 
 Variant::operator Vector<Vector3>() const {
@@ -1886,7 +1860,8 @@ Variant::operator Vector<Vector3>() const {
         WARN_PRINT("Inefficient code, converting non Vector3-array Variant to array");
         tmp = _convert_array_from_variant<PoolVector<Vector3>>(*this);
     }
-    return Vector<Vector3>(tmp.read().ptr(), tmp.read().ptr() + tmp.size());
+    auto as_span(tmp.toSpan());
+    return Vector<Vector3>(as_span.begin(),as_span.end());
 }
 
 Variant::operator Span<const uint8_t>() const {
@@ -1904,7 +1879,7 @@ Variant::operator Span<const int>() const {
 }
 
 Variant::operator Span<const float>() const {
-    ERR_FAIL_COND_V(type != VariantType::POOL_REAL_ARRAY, Span<const float>());
+    ERR_FAIL_COND_V(type != VariantType::POOL_FLOAT32_ARRAY, Span<const float>());
 
     auto tmp = reinterpret_cast<const PoolVector<float> *>(_data._mem);
     return Span<const float>(tmp->read().ptr(), tmp->size());
@@ -1924,6 +1899,12 @@ Variant::operator Span<const Vector3>() const {
     return Span<const Vector3>(tmp->read().ptr(), tmp->size());
 }
 
+Variant::operator Span<const Color>() const {
+    ERR_FAIL_COND_V(type != VariantType::POOL_COLOR_ARRAY, Span<const Color>());
+
+    auto tmp = reinterpret_cast<const PoolVector<Color> *>(_data._mem);
+    return Span<const Color>(tmp->read().ptr(), tmp->size());
+}
 Variant::operator PoolVector<Vector3>() const {
     if (type == VariantType::POOL_VECTOR3_ARRAY) {
         return *reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
@@ -1958,6 +1939,15 @@ Variant::operator PoolVector<RID>() const {
     return rids;
 }
 
+Variant::operator Vector<RID>() const {
+    Array va = (Array) * this;
+    Vector<RID> rids;
+    rids.resize(va.size());
+    for (int i = 0; i < rids.size(); i++) {
+        rids[i] = va[i].as<RID>();
+    }
+    return rids;
+}
 Variant::operator PoolVector<Plane>() const {
     Array va = (Array) * this;
     PoolVector<Plane> planes;
@@ -2100,12 +2090,7 @@ Variant::Variant(const NodePath &p_node_path) {
 Variant::Variant(const RefPtr &p_resource) {
     type = VariantType::OBJECT;
     memnew_placement(_data._mem, ObjData);
-#ifdef DEBUG_ENABLED
     _get_obj().rc = nullptr;
-#else
-    REF *ref = reinterpret_cast<REF *>(p_resource.get());
-    _get_obj().obj = ref->get();
-#endif
     _get_obj().ref = p_resource;
 }
 
@@ -2122,15 +2107,10 @@ Variant::Variant(const Object *p_object) {
     RefCounted *ref = object_cast<RefCounted>(obj);
     if (unlikely(ref)) {
         *reinterpret_cast<Ref<RefCounted> *>(_get_obj().ref.get()) = Ref<RefCounted>(ref);
-#ifdef DEBUG_ENABLED
         _get_obj().rc = nullptr;
     } else {
         _get_obj().rc = likely(obj) ? obj->_use_rc() : nullptr;
-#endif
     }
-#if !defined(DEBUG_ENABLED)
-    _get_obj().obj = obj;
-#endif
 }
 
 
@@ -2181,7 +2161,7 @@ constexpr VariantType getBulitinArrayType(const PoolVector<int> &) {
     return VariantType::POOL_INT_ARRAY;
 }
 constexpr VariantType getBulitinArrayType(const PoolVector<float> &) {
-    return VariantType::POOL_REAL_ARRAY;
+    return VariantType::POOL_FLOAT32_ARRAY;
 }
 constexpr VariantType getBulitinArrayType(const PoolVector<String> &) {
     return VariantType::POOL_STRING_ARRAY;
@@ -2380,18 +2360,18 @@ Variant::Variant(const PoolVector<int> &p_int_array) {
     static_assert(sizeof(PoolVector<int>) <= sizeof(_data));
     memnew_placement(_data._mem, PoolVector<int>(p_int_array));
 }
-Variant::Variant(const Vector<int> &p_raw_array) {
+Variant::Variant(const Vector<int> &p_int_array) {
     type = VariantType::POOL_INT_ARRAY;
     PoolVector<int> to_add;
-    to_add.resize(p_raw_array.size());
-    if (!p_raw_array.empty()) {
-        memcpy(to_add.write().ptr(), p_raw_array.data(), p_raw_array.size() * sizeof(int));
+    to_add.resize(p_int_array.size());
+    if (!p_int_array.empty()) {
+        memcpy(to_add.write().ptr(), p_int_array.data(), p_int_array.size() * sizeof(int));
     }
     static_assert(sizeof(PoolVector<uint8_t>) <= sizeof(_data));
     memnew_placement(_data._mem, PoolVector<int>(to_add));
 }
 Variant::Variant(const PoolVector<real_t> &p_real_array) {
-    type = VariantType::POOL_REAL_ARRAY;
+    type = VariantType::POOL_FLOAT32_ARRAY;
     memnew_placement(_data._mem, PoolVector<real_t>(p_real_array));
 }
 Variant::Variant(const PoolVector<UIString> &p_string_array) {
@@ -2470,6 +2450,9 @@ Variant &Variant::operator=(const Variant &p_variant) {
         case VariantType::FLOAT: {
             _data._real = p_variant._data._real;
         } break;
+        case VariantType::REN_ENT: {
+            _data._int = p_variant._data._int;
+        } break;
         case VariantType::STRING: {
             *reinterpret_cast<String *>(_data._mem) = *reinterpret_cast<const String *>(p_variant._data._mem);
         } break;
@@ -2512,19 +2495,15 @@ Variant &Variant::operator=(const Variant &p_variant) {
             *reinterpret_cast<RID *>(_data._mem) = *reinterpret_cast<const RID *>(p_variant._data._mem);
         } break;
         case VariantType::OBJECT: {
-#ifdef DEBUG_ENABLED
             if (likely(_get_obj().rc)) {
                 if (unlikely(_get_obj().rc->decrement())) {
                     memdelete(_get_obj().rc);
                 }
             }
-#endif
             *reinterpret_cast<ObjData *>(_data._mem) = p_variant._get_obj();
-#ifdef DEBUG_ENABLED
             if (likely(_get_obj().rc)) {
                 _get_obj().rc->increment();
             }
-#endif
         } break;
         case VariantType::CALLABLE: {
             *reinterpret_cast<Callable *>(_data._mem) = *reinterpret_cast<const Callable *>(p_variant._data._mem);
@@ -2554,7 +2533,7 @@ Variant &Variant::operator=(const Variant &p_variant) {
             *reinterpret_cast<PoolVector<int> *>(_data._mem) =
                     *reinterpret_cast<const PoolVector<int> *>(p_variant._data._mem);
         } break;
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             *reinterpret_cast<PoolVector<real_t> *>(_data._mem) =
                     *reinterpret_cast<const PoolVector<real_t> *>(p_variant._data._mem);
         } break;
@@ -2609,6 +2588,9 @@ uint32_t Variant::hash() const {
         }
         case VariantType::FLOAT: {
             return hash_djb2_one_float(_data._real);
+        }
+        case VariantType::REN_ENT: {
+            return _data._int;
         }
         case VariantType::STRING: {
             return StringUtils::hash(*reinterpret_cast<const String *>(_data._mem));
@@ -2666,7 +2648,7 @@ uint32_t Variant::hash() const {
             hash = hash_djb2_one_float(reinterpret_cast<const Quat *>(_data._mem)->z, hash);
             return hash_djb2_one_float(reinterpret_cast<const Quat *>(_data._mem)->w, hash);
 
-        } break;
+        }
         case VariantType::BASIS: {
             uint32_t hash = 5831;
             for (int i = 0; i < 3; i++) {
@@ -2704,7 +2686,7 @@ uint32_t Variant::hash() const {
         }
         case VariantType::STRING_NAME: {
             return reinterpret_cast<const StringName *>(_data._mem)->hash();
-        } break;
+        }
 
         case VariantType::NODE_PATH: {
             return reinterpret_cast<const NodePath *>(_data._mem)->hash();
@@ -2718,7 +2700,7 @@ uint32_t Variant::hash() const {
         case VariantType::SIGNAL: {
             const Signal &s = *reinterpret_cast<const Signal *>(_data._mem);
             uint32_t hash = s.get_name().hash();
-            return hash_djb2_one_64(s.get_object_id(), hash);
+            return hash_djb2_one_64(entt::to_integral(s.get_object_id()), hash);
         }
         case VariantType::ARRAY: {
             const Array &arr = *reinterpret_cast<const Array *>(_data._mem);
@@ -2742,7 +2724,7 @@ uint32_t Variant::hash() const {
             }
             return hash_djb2_one_64(0);
         }
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             const PoolVector<real_t> &arr = *reinterpret_cast<const PoolVector<real_t> *>(_data._mem);
             int len = arr.size();
 
@@ -2863,12 +2845,24 @@ template <> bool hash_compare_helper<Color>(Color p_lhs, Color p_rhs) {
                                                                                                                        \
     return true
 
+static bool can_compare(VariantType a,VariantType b)
+{
+    if( (a == VariantType::STRING || a == VariantType::STRING_NAME) &&
+        (b == VariantType::STRING || b == VariantType::STRING_NAME) )
+        return true;
+    return a==b;
+}
+
 bool Variant::hash_compare(const Variant &p_variant) const {
-    if (type != p_variant.type) {
+    if (!can_compare(type,p_variant.type)) {
         return false;
     }
 
     switch (type) {
+        case VariantType::INT:
+        case VariantType::REN_ENT: {
+            return _data._int == p_variant._data._int;
+        }
         case VariantType::FLOAT: {
             return hash_compare_helper<float>(_data._real, p_variant._data._real);
         }
@@ -2978,7 +2972,7 @@ bool Variant::hash_compare(const Variant &p_variant) const {
             return true;
         }
 
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             hash_compare_pool_array(_data._mem, p_variant._data._mem, real_t, hash_compare_helper);
         } break;
 
@@ -3003,21 +2997,6 @@ bool Variant::hash_compare(const Variant &p_variant) const {
 
 bool Variant::is_ref() const {
     return type == VariantType::OBJECT && !_get_obj().ref.is_null();
-}
-
-bool Variant::is_shared() const {
-    switch (type) {
-        case VariantType::OBJECT:
-            return true;
-        case VariantType::ARRAY:
-            return true;
-        case VariantType::DICTIONARY:
-            return true;
-        default: {
-        }
-    }
-
-    return false;
 }
 
 String Variant::get_construct_string() const {
@@ -3155,7 +3134,7 @@ void VariantOps::resize(Variant &arg, int new_size) {
             reinterpret_cast<PoolVector<int> *>(arg._data._mem)->resize(new_size);
             break;
         }
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             reinterpret_cast<PoolVector<real_t> *>(arg._data._mem)->resize(new_size);
             break;
         }
@@ -3199,7 +3178,7 @@ int VariantOps::size(const Variant &arg) {
         case VariantType::POOL_INT_ARRAY: {
             return reinterpret_cast<const PoolVector<int> *>(arg._data._mem)->size();
         }
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             return reinterpret_cast<const PoolVector<real_t> *>(arg._data._mem)->size();
         }
         case VariantType::POOL_STRING_ARRAY: {
@@ -3249,7 +3228,7 @@ void VariantOps::remove(Variant &arg, int idx) {
             reinterpret_cast<PoolVector<int> *>(arg._data._mem)->remove(idx);
             break;
         }
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
             reinterpret_cast<PoolVector<real_t> *>(arg._data._mem)->remove(idx);
             break;
         }
@@ -3267,6 +3246,44 @@ void VariantOps::remove(Variant &arg, int idx) {
         }
         case VariantType::POOL_COLOR_ARRAY: {
             reinterpret_cast<PoolVector<Color> *>(arg._data._mem)->remove(idx);
+            break;
+        }
+        default:
+            ERR_PRINT("Unhandled variant operation");
+    }
+}
+void VariantOps::insert(Variant &arg, int idx, Variant &&val) {
+    switch (arg.get_type()) {
+        case VariantType::ARRAY: {
+            reinterpret_cast<Array *>(arg._data._mem)->insert(idx,eastl::move(val));
+            break;
+        }
+        case VariantType::POOL_BYTE_ARRAY: {
+            reinterpret_cast<PoolVector<uint8_t> *>(arg._data._mem)->insert(idx,val.as<uint8_t>());
+            break;
+        }
+        case VariantType::POOL_INT_ARRAY: {
+            reinterpret_cast<PoolVector<int> *>(arg._data._mem)->insert(idx,val.as<int>());
+            break;
+        }
+        case VariantType::POOL_FLOAT32_ARRAY: {
+            reinterpret_cast<PoolVector<real_t> *>(arg._data._mem)->insert(idx,val.as<real_t>());
+            break;
+        }
+        case VariantType::POOL_STRING_ARRAY: {
+            reinterpret_cast<PoolVector<String> *>(arg._data._mem)->insert(idx,val.as<String>());
+            break;
+        }
+        case VariantType::POOL_VECTOR2_ARRAY: {
+            reinterpret_cast<PoolVector<Vector2> *>(arg._data._mem)->insert(idx,val.as<Vector2>());
+            break;
+        }
+        case VariantType::POOL_VECTOR3_ARRAY: {
+            reinterpret_cast<PoolVector<Vector3> *>(arg._data._mem)->insert(idx,val.as<Vector3>());
+            break;
+        }
+        case VariantType::POOL_COLOR_ARRAY: {
+            reinterpret_cast<PoolVector<Color> *>(arg._data._mem)->insert(idx,val.as<Color>());
             break;
         }
         default:

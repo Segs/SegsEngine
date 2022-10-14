@@ -31,19 +31,21 @@
 #include "create_dialog.h"
 #include "editor_feature_profile.h"
 
-#include "core/class_db.h"
-#include "core/callable_method_pointer.h"
-#include "core/doc_support/doc_data.h"
-#include "core/method_bind.h"
-#include "core/os/keyboard.h"
-#include "core/string_formatter.h"
-#include "core/translation_helpers.h"
-
 #include "editor_help.h"
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "editor_settings.h"
+#include "core/callable_method_pointer.h"
+#include "core/class_db.h"
+#include "core/method_bind.h"
+#include "core/string_formatter.h"
+#include "core/string_utils.inl"
+#include "core/translation_helpers.h"
+#include "core/doc_support/doc_data.h"
+#include "core/os/keyboard.h"
 #include "scene/gui/box_container.h"
+#include "scene/gui/rich_text_label.h"
+
 #include "EASTL/sort.h"
 
 IMPL_GDCLASS(CreateDialog)
@@ -170,7 +172,7 @@ void CreateDialog::add_type(
         StringView script_path = ScriptServer::get_global_class_path(p_type);
         if (StringUtils::contains(script_path, "res://addons/")) {
             if (!EditorNode::get_singleton()->is_addon_plugin_enabled(
-                        StringName(StringUtils::get_slice(script_path, '/', 3))))
+                        StringUtils::get_slice(script_path, '/', 3)))
                 return;
         }
     }
@@ -261,7 +263,7 @@ void CreateDialog::add_type(
         item->set_collapsed(collapse);
     }
 
-    const String &description = EditorHelp::get_doc_data()->class_doc(p_type).brief_description;
+    StringName description = DTR(EditorHelp::get_doc_data()->class_doc(p_type).brief_description);
     item->set_tooltip(0, StringName(description));
 
     item->set_icon(0, EditorNode::get_singleton()->get_class_icon(p_type, base_type));
@@ -314,6 +316,8 @@ void CreateDialog::select_type(const StringName &p_type) {
 void CreateDialog::_update_search() {
     search_options->clear();
     favorite->set_disabled(true);
+    help_bit->set_text(FormatVE(TTR("No results for \"%s\".").asCString(), search_box->get_text().c_str()));
+    help_bit->get_rich_text()->set_self_modulate(Color(1, 1, 1, 0.5));
 
     help_bit->set_text("");
 
@@ -513,6 +517,14 @@ StringName CreateDialog::get_base_type() const {
     return base_type;
 }
 
+
+void CreateDialog::select_base() {
+    if (search_options_types.empty()) {
+        _update_search();
+    }
+    select_type(base_type);
+}
+
 void CreateDialog::set_preferred_search_result_type(const StringName &p_preferred_type) {
     preferred_search_result_type = p_preferred_type;
 }
@@ -561,14 +573,28 @@ Object *CreateDialog::instance_selected() {
 void CreateDialog::_item_selected() {
 
     TreeItem *item = search_options->get_selected();
-    if (!item) return;
+    if (!item)
+        return;
 
     StringName name(item->get_text(0));
 
     favorite->set_disabled(false);
     favorite->set_pressed(favorite_list.contains(String(name)));
 
-    if (!EditorHelp::get_doc_data()->class_list.contains(name.asCString())) return;
+    if (!EditorHelp::get_doc_data()->class_list.contains(name.asCString()))
+        return;
+
+    const StringName brief_desc = DTR(EditorHelp::get_doc_data()->class_doc(name).brief_description);
+    if (!brief_desc.empty()) {
+        // Display both class name and description, since the help bit may be displayed
+        // far away from the location (especially if the dialog was resized to be taller).
+        help_bit->set_text(FormatVE("[b]%s[/b]: %s", name.asCString(), brief_desc.asCString()));
+        help_bit->get_rich_text()->set_self_modulate(Color(1, 1, 1, 1));
+    } else {
+        // Use nested `vformat()` as translators shouldn't interfere with BBCode tags.
+        help_bit->set_text(FormatVE(TTR("No description available for %s.").asCString(), FormatVE("[b]%s[/b]", name.asCString()).c_str()));
+        help_bit->get_rich_text()->set_self_modulate(Color(1, 1, 1, 0.5));
+    }
 
     help_bit->set_text(EditorHelp::get_doc_data()->class_list[name.asCString()].brief_description);
 
@@ -669,7 +695,7 @@ Variant CreateDialog::get_drag_data_fw(const Point2 &p_point, Control *p_from) {
 
         ToolButton *tb = memnew(ToolButton);
         tb->set_button_icon(ti->get_icon(0));
-        tb->set_text_utf8(ti->get_text(0));
+        tb->set_text(ti->get_text(0));
         set_drag_preview(tb);
 
         return d;

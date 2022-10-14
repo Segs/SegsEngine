@@ -63,7 +63,7 @@ class GODOT_EXPORT AnimationTreeEditor : public VBoxContainer {
 
     void _update_path();
     void _about_to_show_root();
-    ObjectID current_root;
+    GameEntity current_root;
 
     void _path_button_pressed(int p_path);
 

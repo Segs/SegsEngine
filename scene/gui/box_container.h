@@ -34,54 +34,52 @@
 
 class GODOT_EXPORT BoxContainer : public Container {
 
-	GDCLASS(BoxContainer,Container)
-
+    GDCLASS(BoxContainer,Container)
+    friend class BoxContainerImpl;
 public:
-	enum AlignMode {
-		ALIGN_BEGIN,
-		ALIGN_CENTER,
-		ALIGN_END
-	};
+    enum AlignMode : int8_t {
+        ALIGN_BEGIN,
+        ALIGN_CENTER,
+        ALIGN_END
+    };
 
 private:
-	bool vertical;
-	AlignMode align;
-
-	void _resort();
+    bool vertical;
+    AlignMode align;
 
 protected:
-	void _notification(int p_what);
+    void _notification(int p_what);
 
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void add_spacer(bool p_begin = false);
+    void add_spacer(bool p_begin = false);
 
-	void set_alignment(AlignMode p_align);
-	AlignMode get_alignment() const;
+    void set_alignment(AlignMode p_align);
+    AlignMode get_alignment() const { return align; }
 
-	Size2 get_minimum_size() const override;
+    Size2 get_minimum_size() const override;
 
-	BoxContainer(bool p_vertical = false);
+    BoxContainer(bool p_vertical = false);
 };
 
 class GODOT_EXPORT HBoxContainer : public BoxContainer {
 
-	GDCLASS(HBoxContainer,BoxContainer)
+    GDCLASS(HBoxContainer,BoxContainer)
 
 public:
-	HBoxContainer() :
-			BoxContainer(false) {}
+    HBoxContainer() :
+            BoxContainer(false) {}
 };
 
 class MarginContainer;
 class GODOT_EXPORT VBoxContainer : public BoxContainer {
 
-	GDCLASS(VBoxContainer,BoxContainer)
+    GDCLASS(VBoxContainer,BoxContainer)
 
 public:
-	MarginContainer *add_margin_child(const StringName &p_label, Control *p_control, bool p_expand = false);
+    MarginContainer *add_margin_child(const StringName &p_label, Control *p_control, bool p_expand = false);
 
-	VBoxContainer() :
-			BoxContainer(true) {}
+    VBoxContainer() : BoxContainer(true) {
+    }
 };

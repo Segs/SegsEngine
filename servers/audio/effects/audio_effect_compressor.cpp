@@ -213,26 +213,26 @@ void AudioEffectCompressor::_validate_property(PropertyInfo &property) const {
 
 void AudioEffectCompressor::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_threshold", {"threshold"}), &AudioEffectCompressor::set_threshold);
-    MethodBinder::bind_method(D_METHOD("get_threshold"), &AudioEffectCompressor::get_threshold);
+    BIND_METHOD(AudioEffectCompressor,set_threshold);
+    BIND_METHOD(AudioEffectCompressor,get_threshold);
 
-    MethodBinder::bind_method(D_METHOD("set_ratio", {"ratio"}), &AudioEffectCompressor::set_ratio);
-    MethodBinder::bind_method(D_METHOD("get_ratio"), &AudioEffectCompressor::get_ratio);
+    BIND_METHOD(AudioEffectCompressor,set_ratio);
+    BIND_METHOD(AudioEffectCompressor,get_ratio);
 
-    MethodBinder::bind_method(D_METHOD("set_gain", {"gain"}), &AudioEffectCompressor::set_gain);
-    MethodBinder::bind_method(D_METHOD("get_gain"), &AudioEffectCompressor::get_gain);
+    BIND_METHOD(AudioEffectCompressor,set_gain);
+    BIND_METHOD(AudioEffectCompressor,get_gain);
 
-    MethodBinder::bind_method(D_METHOD("set_attack_us", {"attack_us"}), &AudioEffectCompressor::set_attack_us);
-    MethodBinder::bind_method(D_METHOD("get_attack_us"), &AudioEffectCompressor::get_attack_us);
+    BIND_METHOD(AudioEffectCompressor,set_attack_us);
+    BIND_METHOD(AudioEffectCompressor,get_attack_us);
 
-    MethodBinder::bind_method(D_METHOD("set_release_ms", {"release_ms"}), &AudioEffectCompressor::set_release_ms);
-    MethodBinder::bind_method(D_METHOD("get_release_ms"), &AudioEffectCompressor::get_release_ms);
+    BIND_METHOD(AudioEffectCompressor,set_release_ms);
+    BIND_METHOD(AudioEffectCompressor,get_release_ms);
 
-    MethodBinder::bind_method(D_METHOD("set_mix", {"mix"}), &AudioEffectCompressor::set_mix);
-    MethodBinder::bind_method(D_METHOD("get_mix"), &AudioEffectCompressor::get_mix);
+    BIND_METHOD(AudioEffectCompressor,set_mix);
+    BIND_METHOD(AudioEffectCompressor,get_mix);
 
-    MethodBinder::bind_method(D_METHOD("set_sidechain", {"sidechain"}), &AudioEffectCompressor::set_sidechain);
-    MethodBinder::bind_method(D_METHOD("get_sidechain"), &AudioEffectCompressor::get_sidechain);
+    BIND_METHOD(AudioEffectCompressor,set_sidechain);
+    BIND_METHOD(AudioEffectCompressor,get_sidechain);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "threshold", PropertyHint::Range, "-60,0,0.1"), "set_threshold", "get_threshold");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "ratio", PropertyHint::Range, "1,48,0.1"), "set_ratio", "get_ratio");

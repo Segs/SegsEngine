@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "core/forward_decls.h"
 #include "core/string.h"
 #include <cstdint>
@@ -7,7 +7,7 @@ class Animation;
 class Node;
 enum Error : int;
 
-class EditorSceneImporterInterface {
+class GODOT_EXPORT EditorSceneImporterInterface {
 public:
     enum ImportFlags {
         IMPORT_SCENE = 1,
@@ -21,20 +21,21 @@ public:
         IMPORT_MATERIALS_IN_INSTANCES = 1024,
         IMPORT_USE_COMPRESSION = 2048,
         IMPORT_USE_NAMED_SKIN_BINDS = 4096,
+        IMPORT_USE_LEGACY_NAMES = 8192,
 
     };
     virtual uint32_t get_import_flags() const=0;
     virtual void get_extensions(Vector<String> &p_extensions) const = 0;
     virtual bool can_import(StringView /*p_path*/) const { return true; }
-    virtual Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr)=0;
+    virtual Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, uint32_t p_compress_flags, Vector<String> *r_missing_deps, Error *r_err = nullptr)=0;
     virtual Ref<Animation> import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps)=0;
 
     virtual ~EditorSceneImporterInterface() = default;
 };
 
 
-class EditorSceneExporterInterface {
-//    friend class ImageSaver;
+class GODOT_EXPORT EditorSceneExporterInterface {
+    //    friend class ImageSaver;
 public:
     virtual bool can_save(const String &extension)=0; // support for multi-format plugins
     virtual void get_extensions(Vector<String> *p_extensions) const = 0;

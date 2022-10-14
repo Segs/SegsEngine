@@ -72,5 +72,5 @@ public:
     String get_string_value(MonoObject *p_object);
 
     GDMonoField(MonoClassField *p_mono_field, GDMonoClass *p_owner);
-    ~GDMonoField();
+    ~GDMonoField() override;
 };

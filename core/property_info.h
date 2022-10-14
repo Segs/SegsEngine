@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <utility>
 
 #include "core/string.h"
@@ -19,11 +19,6 @@ public:
     VariantType type = VariantType(0);
     PropertyHint hint = PropertyHint::None;
 
-    [[nodiscard]] PropertyInfo with_added_usage(int p_fl) const {
-        PropertyInfo pi = *this;
-        pi.usage |= p_fl;
-        return pi;
-    }
 
     operator Dictionary() const;
 
@@ -46,8 +41,8 @@ public:
     PropertyInfo(PropertyInfo &&) noexcept = default;
     PropertyInfo(const PropertyInfo &oth) = default;
 
-    PropertyInfo(VariantType p_type, StringName p_name, PropertyHint p_hint = PropertyHint::None,
-            StringView p_hint_string=StringView(""), uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
+    PropertyInfo(VariantType p_type, StringName &&p_name, PropertyHint p_hint = PropertyHint::None,
+            StringView p_hint_string=StringView(), uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
             const StringName &p_class_name = StringName()) :
             name(eastl::move(p_name)),
             hint_string(p_hint_string),
@@ -62,14 +57,14 @@ public:
         }
     }
     // For property array 'head' entry
-    PropertyInfo(StringName p_name,int count, const StringName &p_array_prefix = StringName()) :
+    PropertyInfo(StringName &&p_name,int count, const StringName &p_array_prefix = StringName()) :
             name(eastl::move(p_name)),
             hint_string(p_array_prefix),
             usage(PROPERTY_USAGE_ARRAY| PROPERTY_USAGE_INTERNAL),
             element_count(count) {
     }
 
-    PropertyInfo(StringName p_class_name, VariantType t) : class_name(eastl::move(p_class_name)), type(t) {}
+    PropertyInfo(StringName &&p_class_name, VariantType t) : class_name(eastl::move(p_class_name)), type(t) {}
     PropertyInfo(const RawPropertyInfo &rp) :
         name(rp.name ? StaticCString(rp.name, true) : StringName()),
         hint_string(rp.hint_string ? rp.hint_string : ""),

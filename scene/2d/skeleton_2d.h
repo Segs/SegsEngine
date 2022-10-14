@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  skeleton_2d.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,81 +36,82 @@
 class Skeleton2D;
 
 class GODOT_EXPORT Bone2D : public Node2D {
-	GDCLASS(Bone2D,Node2D)
+    GDCLASS(Bone2D,Node2D)
 
-	friend class Skeleton2D;
+    friend class Skeleton2D;
 #ifdef TOOLS_ENABLED
-	friend class AnimatedValuesBackup;
+    friend class AnimatedValuesBackup;
 #endif
 
-	Bone2D *parent_bone;
-	Skeleton2D *skeleton;
-	Transform2D rest;
-	float default_length;
+    Bone2D *parent_bone;
+    Skeleton2D *skeleton;
+    Transform2D rest;
+    float default_length;
 
-	int skeleton_index;
+    int skeleton_index;
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_rest(const Transform2D &p_rest);
-	Transform2D get_rest() const;
-	void apply_rest();
-	Transform2D get_skeleton_rest() const;
+    void set_rest(const Transform2D &p_rest);
+    Transform2D get_rest() const;
+    void apply_rest();
+    Transform2D get_skeleton_rest() const;
 
     String get_configuration_warning() const override;
 
-	void set_default_length(float p_length);
-	float get_default_length() const;
+    void set_default_length(float p_length);
+    float get_default_length() const;
 
-	int get_index_in_skeleton() const;
+    int get_index_in_skeleton() const;
 
-	Bone2D();
+    Bone2D();
 };
 
 class GODOT_EXPORT Skeleton2D : public Node2D {
-	GDCLASS(Skeleton2D,Node2D)
+    GDCLASS(Skeleton2D,Node2D)
 
-	friend class Bone2D;
+    friend class Bone2D;
 #ifdef TOOLS_ENABLED
-	friend class AnimatedValuesBackup;
+    friend class AnimatedValuesBackup;
 #endif
 
-	struct Bone {
-		bool operator<(const Bone &p_bone) const {
-			return p_bone.bone->is_greater_than(bone);
-		}
-		Bone2D *bone;
-		int parent_index;
-		Transform2D accum_transform;
-		Transform2D rest_inverse;
-	};
+    struct Bone {
+        bool operator<(const Bone &p_bone) const {
+            return p_bone.bone->is_greater_than(bone);
+        }
+        Bone2D *bone;
+        int parent_index;
+        Transform2D accum_transform;
+        Transform2D rest_inverse;
+    };
 
-	Vector<Bone> bones;
+    Vector<Bone> bones;
 
-	bool bone_setup_dirty;
-	void _make_bone_setup_dirty();
-	void _update_bone_setup();
+    RenderingEntity skeleton;
+    bool bone_setup_dirty;
+    bool transform_dirty;
 
-	bool transform_dirty;
-	void _make_transform_dirty();
-	void _update_transform();
+    void _make_bone_setup_dirty();
+    void _update_bone_setup();
 
-	RID skeleton;
+    void _make_transform_dirty();
+    void _update_transform();
+
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	int get_bone_count() const;
-	Bone2D *get_bone(int p_idx);
+    int get_bone_count() const;
+    Bone2D *get_bone(int p_idx);
 
-	RID get_skeleton() const;
-	Skeleton2D();
-	~Skeleton2D() override;
+    RenderingEntity get_skeleton() const;
+    Skeleton2D();
+    ~Skeleton2D() override;
 };
 
 #endif // SKELETON_2D_H

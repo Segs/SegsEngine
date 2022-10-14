@@ -10,12 +10,26 @@ namespace Godot
             return instance != null && instance.NativeInstance != IntPtr.Zero;
         }
 
+        /// <summary>
+        /// Returns a weak reference to an object, or <see langword="null"/>
+        /// if the argument is invalid.
+        /// A weak reference to an object is not enough to keep the object alive:
+        /// when the only remaining references to a referent are weak references,
+        /// garbage collection is free to destroy the referent and reuse its memory
+        /// for something else. However, until the object is actually destroyed the
+        /// weak reference may return the object even if there are no strong references
+        /// to it.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns>
+        /// The <see cref="WeakRef"/> reference to the object or <see langword="null"/>.
+        /// </returns>
         public static WeakRef WeakRef(Object obj)
         {
             return godot_icall_Object_weakref(Object.GetPtr(obj));
         }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static WeakRef godot_icall_Object_weakref(IntPtr obj);
+        internal static extern WeakRef godot_icall_Object_weakref(IntPtr obj);
     }
 }

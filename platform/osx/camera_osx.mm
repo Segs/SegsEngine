@@ -163,7 +163,7 @@
 			memcpy(w.ptr(), dataY, new_width * new_height);
 
 			img[0].instance();
-			img[0]->create(new_width, new_height, 0, Image::FORMAT_R8, img_data[0]);
+            img[0]->create(new_width, new_height, 0, Image::FORMAT_R8, img_data[0]);
 		}
 
 		{
@@ -182,7 +182,7 @@
 
 			///TODO GLES2 doesn't support FORMAT_RG8, need to do some form of conversion
 			img[1].instance();
-			img[1]->create(new_width, new_height, 0, Image::FORMAT_RG8, img_data[1]);
+            img[1]->create(new_width, new_height, 0, Image::FORMAT_RG8, img_data[1]);
 		}
 
 		// set our texture...
@@ -253,10 +253,25 @@ CameraFeedOSX::~CameraFeedOSX() {
 
 bool CameraFeedOSX::activate_feed() {
 	if (capture_session) {
-		// already recording!
+        // Already recording!
 	} else {
-		// start camera capture
+        // Start camera capture, check permission.
+        if (@available(macOS 10.14, *)) {
+            AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+            if (status == AVAuthorizationStatusAuthorized) {
 		capture_session = [[MyCaptureSession alloc] initForFeed:this andDevice:device];
+            } else if (status == AVAuthorizationStatusNotDetermined) {
+                // Request permission.
+                [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
+                                         completionHandler:^(BOOL granted) {
+                                             if (granted) {
+                                                 capture_session = [[MyCaptureSession alloc] initForFeed:this andDevice:device];
+                                             }
+                                         }];
+            }
+        } else {
+            capture_session = [[MyCaptureSession alloc] initForFeed:this andDevice:device];
+        }
 	};
 
 	return true;

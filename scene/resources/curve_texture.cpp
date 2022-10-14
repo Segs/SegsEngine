@@ -1,4 +1,4 @@
-#include "curve_texture.h"
+﻿#include "curve_texture.h"
 
 #include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
@@ -17,12 +17,12 @@ IMPL_GDCLASS(CurveTexture)
 
 void CurveTexture::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_width", {"width"}), &CurveTexture::set_width);
+    BIND_METHOD(CurveTexture,set_width);
 
-    MethodBinder::bind_method(D_METHOD("set_curve", {"curve"}), &CurveTexture::set_curve);
-    MethodBinder::bind_method(D_METHOD("get_curve"), &CurveTexture::get_curve);
+    BIND_METHOD(CurveTexture,set_curve);
+    BIND_METHOD(CurveTexture,get_curve);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PropertyHint::Range, "32,4096"), "set_width", "get_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PropertyHint::Range, "1,4096"), "set_width", "get_width");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "curve", PropertyHint::ResourceType, "Curve"), "set_curve", "get_curve");
 }
 
@@ -87,9 +87,9 @@ void CurveTexture::_update() {
         }
     }
 
-    Ref<Image> image(make_ref_counted<Image>(_width, 1, false, Image::FORMAT_RF, data));
+    Ref<Image> image(make_ref_counted<Image>(_width, 1, false, ImageData::FORMAT_RF, data));
 
-    RenderingServer::get_singleton()->texture_allocate(_texture, _width, 1, 0, Image::FORMAT_RF, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAG_FILTER);
+    RenderingServer::get_singleton()->texture_allocate(_texture, _width, 1, 0, ImageData::FORMAT_RF, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAG_FILTER);
     RenderingServer::get_singleton()->texture_set_data(_texture, image);
 
     emit_changed();
@@ -100,7 +100,7 @@ Ref<Curve> CurveTexture::get_curve() const {
     return _curve;
 }
 
-RID CurveTexture::get_rid() const {
+RenderingEntity CurveTexture::get_rid() const {
 
     return _texture;
 }

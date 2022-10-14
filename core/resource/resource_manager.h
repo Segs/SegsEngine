@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/pair.h"
 #include "core/io/resource_format_loader.h"
 #include "core/io/resource_loader.h"
 #include "core/resource.h"
@@ -21,19 +22,23 @@ public:
     void clear_path_remaps();
 
 };
-extern GODOT_EXPORT ResourceRemapper& gResourceRemapper();
+GODOT_EXPORT extern ResourceRemapper& gResourceRemapper();
 
 class GODOT_EXPORT ResourceManager {
-    //TODO: SEGS: timestamp_on_save variable is only used when TOOLS_ENABLED is set.
-    bool timestamp_on_save;
-    bool timestamp_on_load;
-
+    SE_CLASS()
+    struct QueuedCallbackCall {
+        Ref<Resource> res;
+        String path;
+    };
+    Vector<QueuedCallbackCall> queued_save_updates; // here we collect all files to be updated when saving callback is disabled
     void* err_notify_ud = nullptr;
     ResourceLoadErrorNotify err_notify = nullptr;
     void* dep_err_notify_ud = nullptr;
     DependencyErrorNotify dep_err_notify = nullptr;
-    bool abort_on_missing_resource = false;
     void *m_priv;
+    bool abort_on_missing_resource = false;
+    bool pause_save_callback = false;
+
 public:
     ResourceManager();
     ResourceManager(const ResourceManager&) = delete;
@@ -51,8 +56,7 @@ public:
         FLAG_REPLACE_SUBRESOURCE_PATHS = 64,
     };
 
-    void set_timestamp_on_save(bool p_timestamp) { timestamp_on_save = p_timestamp; }
-    bool get_timestamp_on_save() const { return timestamp_on_save; }
+    SE_ENUM(SaverFlags);
 
     void add_resource_format_saver(const Ref<ResourceFormatSaver> &p_format_saver, bool p_at_front=false);
     void remove_resource_format_saver(const Ref<ResourceFormatSaver> &p_format_saver);
@@ -63,10 +67,11 @@ public:
     void add_custom_savers();
     Error save(StringView p_path, const RES &p_resource, uint32_t p_flags = 0);
     void set_save_callback(ResourceSavedCallback p_callback);
+    bool is_save_callback_paused() const { return pause_save_callback; }
+    void set_save_callback_pause(bool v);
+
     void get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions);
 
-    void set_timestamp_on_load(bool p_timestamp) { timestamp_on_load = p_timestamp; }
-    bool get_timestamp_on_load() const { return timestamp_on_load; }
     bool add_custom_resource_format_loader(StringView script_path);
     void remove_custom_resource_format_loader(StringView script_path);
     void add_custom_loaders();
@@ -124,5 +129,9 @@ public:
 
     void initialize();
     void finalize();
+private:
+    Error save_impl(StringView p_path, const RES &p_resource, uint32_t p_flags);
+    bool load_impl(RES &p_res, StringView p_path, StringView p_type_hint = StringView(), bool p_no_cache = false,
+            Error *r_error = nullptr);
 };
-extern GODOT_EXPORT ResourceManager &  gResourceManager();
+GODOT_EXPORT extern ResourceManager &  gResourceManager();

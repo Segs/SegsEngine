@@ -1,4 +1,4 @@
-add_executable(bindings_generator
+﻿add_executable(bindings_generator
         bindings_generator.cpp
 
         cmake_support.cpp

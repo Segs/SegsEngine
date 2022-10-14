@@ -73,58 +73,58 @@ static Node *_find_first_script(Node *p_root, Node *p_node) {
     return nullptr;
 }
 
-class ConnectDialogBinds : public Object {
+//class ConnectDialogBinds : public Object {
 
-    GDCLASS(ConnectDialogBinds,Object)
+//    GDCLASS(ConnectDialogBinds,Object)
 
-public:
-    Vector<Variant> params;
+//public:
+//    Vector<Variant> params;
 
-    bool _set(const StringName &p_name, const Variant &p_value) {
+//    bool _set(const StringName &p_name, const Variant &p_value) {
 
-        if (StringUtils::begins_with(p_name,"bind/")) {
-            int which = StringUtils::to_int(StringUtils::get_slice(p_name,"/", 1)) - 1;
-            ERR_FAIL_INDEX_V(which, params.size(), false);
-            params[which] = p_value;
-        } else
-            return false;
+//        if (StringUtils::begins_with(p_name,"bind/")) {
+//            int which = StringUtils::to_int(StringUtils::get_slice(p_name,"/", 1)) - 1;
+//            ERR_FAIL_INDEX_V(which, params.size(), false);
+//            params[which] = p_value;
+//        } else
+//            return false;
 
-        return true;
-    }
+//        return true;
+//    }
 
-    bool _get(const StringName &p_name, Variant &r_ret) const {
+//    bool _get(const StringName &p_name, Variant &r_ret) const {
 
-        if (StringUtils::begins_with(p_name,"bind/")) {
-            int which = StringUtils::to_int(StringUtils::get_slice(p_name,"/", 1)) - 1;
-            ERR_FAIL_INDEX_V(which, params.size(), false);
-            r_ret = params[which];
-        } else
-            return false;
+//        if (StringUtils::begins_with(p_name,"bind/")) {
+//            int which = StringUtils::to_int(StringUtils::get_slice(p_name,"/", 1)) - 1;
+//            ERR_FAIL_INDEX_V(which, params.size(), false);
+//            r_ret = params[which];
+//        } else
+//            return false;
 
-        return true;
-    }
+//        return true;
+//    }
 
-    void _get_property_list(Vector<PropertyInfo> *p_list) const {
+//    void _get_property_list(Vector<PropertyInfo> *p_list) const {
 
-        for (size_t i = 0; i < params.size(); i++) {
-            p_list->push_back(PropertyInfo(params[i].get_type(), StringName("bind/" + itos(i + 1))));
-        }
-    }
+//        for (size_t i = 0; i < params.size(); i++) {
+//            p_list->push_back(PropertyInfo(params[i].get_type(), StringName("bind/" + itos(i + 1))));
+//        }
+//    }
 
-    void notify_changed() {
+//    void notify_changed() {
 
-        Object_change_notify(this);
-    }
+//        Object_change_notify(this);
+//    }
 
-    ConnectDialogBinds() {
-    }
-};
-IMPL_GDCLASS(ConnectDialogBinds)
+//    ConnectDialogBinds() {
+//    }
+//};
+//IMPL_GDCLASS(ConnectDialogBinds)
 
-void register_connection_dialog_classes()
-{
-    ConnectDialogBinds::initialize_class();
-}
+//void register_connection_dialog_classes()
+//{
+//    ConnectDialogBinds::initialize_class();
+//}
 /*
  * Signal automatically called by parent dialog.
 */
@@ -174,54 +174,54 @@ void ConnectDialog::_tree_node_selected() {
 /*
  * Adds a new parameter bind to connection.
 */
-void ConnectDialog::_add_bind() {
+//void ConnectDialog::_add_bind() {
 
-    if (cdbinds->params.size() >= VARIANT_ARG_MAX)
-        return;
-    VariantType vt = (VariantType)type_list->get_item_id(type_list->get_selected());
+//    if (cdbinds->params.size() >= VARIANT_ARG_MAX)
+//        return;
+//    VariantType vt = (VariantType)type_list->get_item_id(type_list->get_selected());
 
-    Variant value;
+//    Variant value;
 
-    switch (vt) {
-        case VariantType::BOOL: value = false; break;
-        case VariantType::INT: value = 0; break;
-        case VariantType::FLOAT: value = 0.0; break;
-        case VariantType::STRING: value = ""; break;
-        case VariantType::STRING_NAME: value = ""; break;
-        case VariantType::VECTOR2: value = Vector2(); break;
-        case VariantType::RECT2: value = Rect2(); break;
-        case VariantType::VECTOR3: value = Vector3(); break;
-        case VariantType::PLANE: value = Plane(); break;
-        case VariantType::QUAT: value = Quat(); break;
-        case VariantType::AABB: value = AABB(); break;
-        case VariantType::BASIS: value = Basis(); break;
-        case VariantType::TRANSFORM: value = Transform(); break;
-        case VariantType::COLOR: value = Color(); break;
-        default: {
-            ERR_FAIL();
-        } break;
-    }
+//    switch (vt) {
+//        case VariantType::BOOL: value = false; break;
+//        case VariantType::INT: value = 0; break;
+//        case VariantType::FLOAT: value = 0.0; break;
+//        case VariantType::STRING: value = ""; break;
+//        case VariantType::STRING_NAME: value = ""; break;
+//        case VariantType::VECTOR2: value = Vector2(); break;
+//        case VariantType::RECT2: value = Rect2(); break;
+//        case VariantType::VECTOR3: value = Vector3(); break;
+//        case VariantType::PLANE: value = Plane(); break;
+//        case VariantType::QUAT: value = Quat(); break;
+//        case VariantType::AABB: value = AABB(); break;
+//        case VariantType::BASIS: value = Basis(); break;
+//        case VariantType::TRANSFORM: value = Transform(); break;
+//        case VariantType::COLOR: value = Color(); break;
+//        default: {
+//            ERR_FAIL();
+//        } break;
+//    }
 
-    ERR_FAIL_COND(value.get_type() == VariantType::NIL);
+//    ERR_FAIL_COND(value.get_type() == VariantType::NIL);
 
-    cdbinds->params.push_back(value);
-    cdbinds->notify_changed();
-}
+//    cdbinds->params.push_back(value);
+//    cdbinds->notify_changed();
+//}
 
 /*
 Remove parameter bind from connection.
 */
-void ConnectDialog::_remove_bind() {
+//void ConnectDialog::_remove_bind() {
 
-    const StringName &st(bind_editor->get_selected_path());
-    if (st.empty())
-        return;
-    int idx = StringUtils::to_int(StringUtils::get_slice(st,"/", 1)) - 1;
+//    const StringName &st(bind_editor->get_selected_path());
+//    if (st.empty())
+//        return;
+//    int idx = StringUtils::to_int(StringUtils::get_slice(st,"/", 1)) - 1;
 
-    ERR_FAIL_INDEX(idx, cdbinds->params.size());
-    cdbinds->params.erase_at(idx);
-    cdbinds->notify_changed();
-}
+//    ERR_FAIL_INDEX(idx, cdbinds->params.size());
+//    cdbinds->params.erase_at(idx);
+//    cdbinds->notify_changed();
+//}
 
 /*
  * Enables or disables the connect button. The connect button is enabled if a
@@ -243,12 +243,12 @@ void ConnectDialog::_update_ok_enabled() {
 
     get_ok()->set_disabled(false);
 }
-void ConnectDialog::_notification(int p_what) {
+//void ConnectDialog::_notification(int p_what) {
 
-    if (p_what == NOTIFICATION_ENTER_TREE) {
-        bind_editor->edit(cdbinds);
-    }
-}
+//    if (p_what == NOTIFICATION_ENTER_TREE) {
+//        //bind_editor->edit(cdbinds);
+//    }
+//}
 
 void ConnectDialog::_bind_methods() {
 
@@ -288,10 +288,10 @@ void ConnectDialog::set_dst_method(const StringName &p_method) {
     dst_method->set_text(p_method);
 }
 
-const Vector<Variant> &ConnectDialog::get_binds() const {
+//const Vector<Variant> &ConnectDialog::get_binds() const {
 
-    return cdbinds->params;
-}
+//    return cdbinds->params;
+//}
 
 bool ConnectDialog::get_deferred() const {
 
@@ -339,9 +339,9 @@ void ConnectDialog::init(const ConnectionData &c, bool bEdit) {
     deferred->set_pressed(bDeferred);
     oneshot->set_pressed(bOneshot);
 
-    cdbinds->params.clear();
-    cdbinds->params = c.binds;
-    cdbinds->notify_changed();
+//    cdbinds->params.clear();
+//    cdbinds->params = c.binds;
+//    cdbinds->notify_changed();
 
     bEditMode = bEdit;
 }
@@ -419,38 +419,38 @@ ConnectDialog::ConnectDialog() {
     vbc_right->set_h_size_flags(SIZE_EXPAND_FILL);
     vbc_right->hide();
 
-    HBoxContainer *add_bind_hb = memnew(HBoxContainer);
+//    HBoxContainer *add_bind_hb = memnew(HBoxContainer);
 
-    type_list = memnew(OptionButton);
-    type_list->set_h_size_flags(SIZE_EXPAND_FILL);
-    add_bind_hb->add_child(type_list);
-    type_list->add_item("bool", (int)VariantType::BOOL);
-    type_list->add_item("int", (int)VariantType::INT);
-    type_list->add_item("float", (int)VariantType::FLOAT);
-    type_list->add_item("String", (int)VariantType::STRING);
-    type_list->add_item("StringName", (int)VariantType::STRING_NAME);
-    type_list->add_item("Vector2", (int)VariantType::VECTOR2);
-    type_list->add_item("Rect2", (int)VariantType::RECT2);
-    type_list->add_item("Vector3", (int)VariantType::VECTOR3);
-    type_list->add_item("Plane", (int)VariantType::PLANE);
-    type_list->add_item("Quat", (int)VariantType::QUAT);
-    type_list->add_item("AABB", (int)VariantType::AABB);
-    type_list->add_item("Basis", (int)VariantType::BASIS);
-    type_list->add_item("Transform", (int)VariantType::TRANSFORM);
-    type_list->add_item("Color", (int)VariantType::COLOR);
-    type_list->select(0);
+//    type_list = memnew(OptionButton);
+//    type_list->set_h_size_flags(SIZE_EXPAND_FILL);
+//    add_bind_hb->add_child(type_list);
+//    type_list->add_item("bool", (int)VariantType::BOOL);
+//    type_list->add_item("int", (int)VariantType::INT);
+//    type_list->add_item("float", (int)VariantType::FLOAT);
+//    type_list->add_item("String", (int)VariantType::STRING);
+//    type_list->add_item("StringName", (int)VariantType::STRING_NAME);
+//    type_list->add_item("Vector2", (int)VariantType::VECTOR2);
+//    type_list->add_item("Rect2", (int)VariantType::RECT2);
+//    type_list->add_item("Vector3", (int)VariantType::VECTOR3);
+//    type_list->add_item("Plane", (int)VariantType::PLANE);
+//    type_list->add_item("Quat", (int)VariantType::QUAT);
+//    type_list->add_item("AABB", (int)VariantType::AABB);
+//    type_list->add_item("Basis", (int)VariantType::BASIS);
+//    type_list->add_item("Transform", (int)VariantType::TRANSFORM);
+//    type_list->add_item("Color", (int)VariantType::COLOR);
+//    type_list->select(0);
 
-    Button *add_bind = memnew(Button);
-    add_bind->set_text(TTR("Add"));
-    add_bind_hb->add_child(add_bind);
-    add_bind->connect("pressed",callable_mp(this, &ClassName::_add_bind));
+//    Button *add_bind = memnew(Button);
+//    add_bind->set_text(TTR("Add"));
+//    add_bind_hb->add_child(add_bind);
+//    add_bind->connect("pressed",callable_mp(this, &ClassName::_add_bind));
 
-    Button *del_bind = memnew(Button);
-    del_bind->set_text(TTR("Remove"));
-    add_bind_hb->add_child(del_bind);
-    del_bind->connect("pressed",callable_mp(this, &ClassName::_remove_bind));
+//    Button *del_bind = memnew(Button);
+//    del_bind->set_text(TTR("Remove"));
+//    add_bind_hb->add_child(del_bind);
+//    del_bind->connect("pressed",callable_mp(this, &ClassName::_remove_bind));
 
-    vbc_right->add_margin_child(TTR("Add Extra Call Argument:"), add_bind_hb);
+//    vbc_right->add_margin_child(TTR("Add Extra Call Argument:"), add_bind_hb);
 
     bind_editor = memnew(EditorInspector);
 
@@ -483,7 +483,7 @@ ConnectDialog::ConnectDialog() {
 
     set_as_top_level(true);
 
-    cdbinds = memnew(ConnectDialogBinds);
+    //cdbinds = memnew(ConnectDialogBinds);
 
     error = memnew(AcceptDialog);
     add_child(error);
@@ -493,7 +493,7 @@ ConnectDialog::ConnectDialog() {
 }
 
 ConnectDialog::~ConnectDialog() {
-    memdelete(cdbinds);
+    //memdelete(cdbinds);
 }
 
 //////////////////////////////////////////
@@ -547,7 +547,7 @@ void ConnectionsDock::_make_or_edit_connection() {
     cToMake.target = target;
     cToMake.signal = connect_dialog->get_signal_name();
     cToMake.method = connect_dialog->get_dst_method_name();
-    cToMake.binds = connect_dialog->get_binds();
+    //cToMake.binds = connect_dialog->get_binds();
     bool defer = connect_dialog->get_deferred();
     bool oshot = connect_dialog->get_oneshot();
     cToMake.flags = ObjectNS::CONNECT_PERSIST | (defer ? ObjectNS::CONNECT_QUEUED : 0) | (oshot ? ObjectNS::CONNECT_ONESHOT : 0);
@@ -576,9 +576,9 @@ void ConnectionsDock::_make_or_edit_connection() {
     if (add_script_function) {
         // Pick up args here before "it" is deleted by update_tree.
         script_function_args = it->get_metadata(0).as<Dictionary>()["args"].as<PoolVector<String>>();
-        for (int i = 0; i < cToMake.binds.size(); i++) {
-            script_function_args.append("extra_arg_" + itos(i) + ":" + Variant::get_type_name(cToMake.binds[i].get_type()));
-        }
+//        for (int i = 0; i < cToMake.binds.size(); i++) {
+//            script_function_args.append("extra_arg_" + itos(i) + ":" + Variant::get_type_name(cToMake.binds[i].get_type()));
+//        }
     }
 
     if (connect_dialog->is_editing()) {
@@ -612,7 +612,7 @@ void ConnectionsDock::_connect(const ConnectDialog::ConnectionData& cToMake) {
     String translated_fmt(TTR("Connect '%s' to '%s'"));
     undo_redo->create_action(FormatVE(translated_fmt.c_str(), ((String)cToMake.signal).c_str(), ((String)cToMake.method).c_str()));
     Variant method_variant(Callable(target, cToMake.method));
-    undo_redo->add_do_method(source, "connect", cToMake.signal, method_variant, Variant::fromVector(Span<const Variant>(cToMake.binds)), cToMake.flags);
+    undo_redo->add_do_method(source, "connect", cToMake.signal, method_variant, cToMake.flags);
     undo_redo->add_undo_method(source, "disconnect", cToMake.signal, method_variant);
     undo_redo->add_do_method(this, "update_tree");
     undo_redo->add_undo_method(this, "update_tree");
@@ -636,7 +636,7 @@ void ConnectionsDock::_disconnect(TreeItem &item) {
     Variant method_variant(Callable(c.target, c.method));
 
     undo_redo->add_do_method(selectedNode, "disconnect", c.signal,method_variant);
-    undo_redo->add_undo_method(selectedNode, "connect", c.signal, method_variant, Variant::fromVector(Span<const Variant>(c.binds)), c.flags);
+    undo_redo->add_undo_method(selectedNode, "connect", c.signal, method_variant, c.flags);
     undo_redo->add_do_method(this, "update_tree");
     undo_redo->add_undo_method(this, "update_tree");
     undo_redo->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock()->get_tree_editor(), "update_tree"); // To force redraw of scene tree.
@@ -665,7 +665,7 @@ void ConnectionsDock::_disconnect_all() {
         Connection cd = child->get_metadata(0);
         ConnectDialog::ConnectionData c = cd;
         undo_redo->add_do_method(selectedNode, "disconnect", c.signal, Variant(c.target), c.method);
-        undo_redo->add_undo_method(selectedNode, "connect", c.signal, Variant(c.target), c.method, Variant::fromVector(Span<const Variant>(c.binds)), c.flags);
+        undo_redo->add_undo_method(selectedNode, "connect", c.signal, Variant(c.target), c.method, c.flags);
         child = child->get_next();
     }
 
@@ -1015,7 +1015,7 @@ void ConnectionsDock::update_tree() {
                     while (F!=dd->class_list.end() && descr.empty()) {
                         for (size_t i = 0; i < F->second.defined_signals.size(); i++) {
                             if (F->second.defined_signals[i].name == signal_name.asCString()) {
-                                descr = F->second.defined_signals[i].description.trimmed();
+                                descr = DTR(F->second.defined_signals[i].description);
                                 break;
                             }
                         }
@@ -1051,17 +1051,17 @@ void ConnectionsDock::update_tree() {
                     path += " (deferred)";
                 if (c.flags & ObjectNS::CONNECT_ONESHOT)
                     path += " (oneshot)";
-                if (!c.binds.empty()) {
+//                if (!c.binds.empty()) {
 
-                    path += " binds( ";
-                    for (int i = 0; i < c.binds.size(); i++) {
+//                    path += " binds( ";
+//                    for (int i = 0; i < c.binds.size(); i++) {
 
-                        if (i > 0)
-                            path += ", ";
-                        path += c.binds[i].as<String>();
-                    }
-                    path += " )";
-                }
+//                        if (i > 0)
+//                            path += ", ";
+//                        path += c.binds[i].as<String>();
+//                    }
+//                    path += " )";
+//                }
 
                 TreeItem *connection_item = tree->create_item(signal_item);
                 connection_item->set_text_utf8(0, path);
@@ -1134,7 +1134,7 @@ ConnectionsDock::ConnectionsDock(EditorNode *p_editor) {
     add_child(slot_menu);
     slot_menu->connect("id_pressed", callable_mp(this, &ConnectionsDock::_handle_slot_menu_option));
     slot_menu->add_item(TTR("Edit..."), EDIT);
-    slot_menu->add_item(TTR("Go To Method"), GO_TO_SCRIPT);
+    slot_menu->add_item(TTR("Go to Method"), GO_TO_SCRIPT);
     slot_menu->add_item(TTR("Disconnect"), DISCONNECT);
 
     connect_dialog->connect("connected", callable_mp(this, &ConnectionsDock::_make_or_edit_connection));

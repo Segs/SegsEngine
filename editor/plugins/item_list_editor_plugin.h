@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ITEM_LIST_EDITOR_PLUGIN_H
-#define ITEM_LIST_EDITOR_PLUGIN_H
+#pragma once
 
 #include "canvas_item_editor_plugin.h"
 #include "editor/editor_inspector.h"
@@ -38,6 +37,8 @@
 #include "scene/gui/menu_button.h"
 #include "scene/gui/option_button.h"
 #include "scene/gui/popup_menu.h"
+
+class ItemList;
 
 class ItemListPlugin : public Object {
 
@@ -64,7 +65,7 @@ public:
     virtual int get_flags() const = 0;
 
     virtual void set_item_text(int p_idx, const StringName &p_text) {}
-    virtual StringName get_item_text(int p_idx) const { return StringName(); }
+    virtual const String & get_item_text(int p_idx) const { return null_string; }
 
     virtual void set_item_icon(int p_idx, const Ref<Texture> &p_tex) {}
     virtual Ref<Texture> get_item_icon(int p_idx) const { return Ref<Texture>(); }
@@ -107,7 +108,7 @@ public:
     int get_flags() const override;
 
     void set_item_text(int p_idx, const StringName &p_text) override { ob->set_item_text(p_idx, p_text); }
-    StringName get_item_text(int p_idx) const override { return ob->get_item_text(p_idx); }
+    const String & get_item_text(int p_idx) const override { return ob->get_item_text(p_idx); }
 
     void set_item_icon(int p_idx, const Ref<Texture> &p_tex) override { ob->set_item_icon(p_idx, p_tex); }
     Ref<Texture> get_item_icon(int p_idx) const override { return ob->get_item_icon(p_idx); }
@@ -137,7 +138,7 @@ public:
     int get_flags() const override;
 
     void set_item_text(int p_idx, const StringName &p_text) override { pp->set_item_text(p_idx, p_text); }
-    StringName get_item_text(int p_idx) const override { return pp->get_item_text(p_idx); }
+    const String &get_item_text(int p_idx) const override { return pp->get_item_text(p_idx); }
 
     void set_item_icon(int p_idx, const Ref<Texture> &p_tex) override { pp->set_item_icon(p_idx, p_tex); }
     Ref<Texture> get_item_icon(int p_idx) const override { return pp->get_item_icon(p_idx); }
@@ -180,7 +181,7 @@ public:
     int get_flags() const override;
 
     void set_item_text(int p_idx, const StringName &p_text) override;
-    StringName get_item_text(int p_idx) const override;
+    const String & get_item_text(int p_idx) const override;
 
     void set_item_icon(int p_idx, const Ref<Texture> &p_tex) override;
     Ref<Texture> get_item_icon(int p_idx) const override;
@@ -251,5 +252,3 @@ public:
     ItemListEditorPlugin(EditorNode *p_node);
     ~ItemListEditorPlugin() override;
 };
-
-#endif // ITEM_LIST_EDITOR_PLUGIN_H

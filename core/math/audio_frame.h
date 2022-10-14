@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_frame.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -46,10 +46,14 @@ static inline float undenormalise(volatile float f) {
     return (v.i & 0x7f800000) < 0x08000000 ? 0.0f : f;
 }
 
+constexpr float AUDIO_PEAK_OFFSET = 0.0000000001f;
+constexpr float AUDIO_MIN_PEAK_DB = -200.0f; // linear2db(AUDIO_PEAK_OFFSET)
+
 struct AudioFrame {
 
     //left and right samples
-    float l, r;
+    float l=0;
+    float r=0;
 
     _ALWAYS_INLINE_ const float &operator[](int idx) const { return idx == 0 ? l : r; }
     _ALWAYS_INLINE_ float &operator[](int idx) { return idx == 0 ? l : r; }
@@ -103,7 +107,7 @@ struct AudioFrame {
         r = ::undenormalise(r);
     }
 
-    [[nodiscard]] _FORCE_INLINE_ AudioFrame lerp(const AudioFrame &p_b, float p_t) const {
+    [[nodiscard]] _FORCE_INLINE_ AudioFrame linear_interpolate(const AudioFrame &p_b, float p_t) const {
 
         AudioFrame res = *this;
 

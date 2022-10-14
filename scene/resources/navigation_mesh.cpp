@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  navigation_mesh.cpp                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -50,8 +50,9 @@ void NavigationMesh::create_from_mesh(const Ref<Mesh> &p_mesh) {
         SurfaceArrays arr = p_mesh->surface_get_arrays(i);
         auto varr = arr.positions3();
         const auto &iarr = arr.m_indices;
-        if (varr.size() == 0 || iarr.size() == 0)
+        if (varr.empty() || iarr.empty()) {
             continue;
+        }
 
         int from = vertices.size();
         vertices.insert(vertices.end(),varr.begin(),varr.end());
@@ -68,22 +69,22 @@ void NavigationMesh::create_from_mesh(const Ref<Mesh> &p_mesh) {
     }
 }
 
-void NavigationMesh::set_sample_partition_type(int p_value) {
-    ERR_FAIL_COND(p_value >= SAMPLE_PARTITION_MAX);
-    partition_type = static_cast<SamplePartitionType>(p_value);
+void NavigationMesh::set_sample_partition_type(SamplePartitionType p_value) {
+    ERR_FAIL_INDEX(p_value, SAMPLE_PARTITION_MAX);
+    partition_type = p_value;
 }
 
-int NavigationMesh::get_sample_partition_type() const {
-    return static_cast<int>(partition_type);
+NavigationMesh::SamplePartitionType NavigationMesh::get_sample_partition_type() const {
+    return partition_type;
 }
 
-void NavigationMesh::set_parsed_geometry_type(int p_value) {
-    ERR_FAIL_COND(p_value >= PARSED_GEOMETRY_MAX);
-    parsed_geometry_type = static_cast<ParsedGeometryType>(p_value);
+void NavigationMesh::set_parsed_geometry_type(ParsedGeometryType p_value) {
+    ERR_FAIL_INDEX(p_value, PARSED_GEOMETRY_MAX);
+    parsed_geometry_type = p_value;
     Object_change_notify(this,StringName());
 }
 
-int NavigationMesh::get_parsed_geometry_type() const {
+NavigationMesh::ParsedGeometryType NavigationMesh::get_parsed_geometry_type() const {
     return parsed_geometry_type;
 }
 
@@ -98,27 +99,30 @@ uint32_t NavigationMesh::get_collision_mask() const {
 }
 
 void NavigationMesh::set_collision_mask_bit(int p_bit, bool p_value) {
+    ERR_FAIL_INDEX_MSG(p_bit, 32, "Collision mask bit must be between 0 and 31 inclusive.");
 
     uint32_t mask = get_collision_mask();
-    if (p_value)
+    if (p_value) {
         mask |= 1 << p_bit;
-    else
+    } else {
         mask &= ~(1 << p_bit);
+    }
     set_collision_mask(mask);
 }
 
 bool NavigationMesh::get_collision_mask_bit(int p_bit) const {
+    ERR_FAIL_INDEX_V_MSG(p_bit, 32, false, "Collision mask bit must be between 0 and 31 inclusive.");
 
     return get_collision_mask() & (1 << p_bit);
 }
 
-void NavigationMesh::set_source_geometry_mode(int p_geometry_mode) {
+void NavigationMesh::set_source_geometry_mode(SourceGeometryMode p_geometry_mode) {
     ERR_FAIL_INDEX(p_geometry_mode, SOURCE_GEOMETRY_MAX);
-    source_geometry_mode = static_cast<SourceGeometryMode>(p_geometry_mode);
+    source_geometry_mode = p_geometry_mode;
     Object_change_notify(this,StringName());
 }
 
-int NavigationMesh::get_source_geometry_mode() const {
+NavigationMesh::SourceGeometryMode NavigationMesh::get_source_geometry_mode() const {
     return source_geometry_mode;
 }
 
@@ -131,6 +135,7 @@ StringName NavigationMesh::get_source_group_name() const {
 }
 
 void NavigationMesh::set_cell_size(float p_value) {
+    ERR_FAIL_COND(p_value <= 0);
     cell_size = p_value;
 }
 
@@ -139,6 +144,7 @@ float NavigationMesh::get_cell_size() const {
 }
 
 void NavigationMesh::set_cell_height(float p_value) {
+    ERR_FAIL_COND(p_value <= 0);
     cell_height = p_value;
 }
 
@@ -147,6 +153,7 @@ float NavigationMesh::get_cell_height() const {
 }
 
 void NavigationMesh::set_agent_height(float p_value) {
+    ERR_FAIL_COND(p_value < 0);
     agent_height = p_value;
 }
 
@@ -155,6 +162,7 @@ float NavigationMesh::get_agent_height() const {
 }
 
 void NavigationMesh::set_agent_radius(float p_value) {
+    ERR_FAIL_COND(p_value < 0);
     agent_radius = p_value;
 }
 
@@ -163,6 +171,7 @@ float NavigationMesh::get_agent_radius() {
 }
 
 void NavigationMesh::set_agent_max_climb(float p_value) {
+    ERR_FAIL_COND(p_value < 0);
     agent_max_climb = p_value;
 }
 
@@ -171,6 +180,7 @@ float NavigationMesh::get_agent_max_climb() const {
 }
 
 void NavigationMesh::set_agent_max_slope(float p_value) {
+    ERR_FAIL_COND(p_value < 0 || p_value > 90);
     agent_max_slope = p_value;
 }
 
@@ -179,6 +189,7 @@ float NavigationMesh::get_agent_max_slope() const {
 }
 
 void NavigationMesh::set_region_min_size(float p_value) {
+    ERR_FAIL_COND(p_value < 0);
     region_min_size = p_value;
 }
 
@@ -187,6 +198,7 @@ float NavigationMesh::get_region_min_size() const {
 }
 
 void NavigationMesh::set_region_merge_size(float p_value) {
+    ERR_FAIL_COND(p_value < 0);
     region_merge_size = p_value;
 }
 
@@ -195,6 +207,7 @@ float NavigationMesh::get_region_merge_size() const {
 }
 
 void NavigationMesh::set_edge_max_length(float p_value) {
+    ERR_FAIL_COND(p_value < 0);
     edge_max_length = p_value;
 }
 
@@ -203,6 +216,7 @@ float NavigationMesh::get_edge_max_length() const {
 }
 
 void NavigationMesh::set_edge_max_error(float p_value) {
+    ERR_FAIL_COND(p_value < 0);
     edge_max_error = p_value;
 }
 
@@ -211,6 +225,7 @@ float NavigationMesh::get_edge_max_error() const {
 }
 
 void NavigationMesh::set_verts_per_poly(float p_value) {
+    ERR_FAIL_COND(p_value < 3);
     verts_per_poly = p_value;
 }
 
@@ -219,6 +234,7 @@ float NavigationMesh::get_verts_per_poly() const {
 }
 
 void NavigationMesh::set_detail_sample_distance(float p_value) {
+    ERR_FAIL_COND(p_value < 0);
     detail_sample_distance = p_value;
 }
 
@@ -227,6 +243,7 @@ float NavigationMesh::get_detail_sample_distance() const {
 }
 
 void NavigationMesh::set_detail_sample_max_error(float p_value) {
+    ERR_FAIL_COND(p_value < 0);
     detail_sample_max_error = p_value;
 }
 
@@ -312,8 +329,9 @@ void NavigationMesh::clear_polygons() {
 
 Ref<Mesh> NavigationMesh::get_debug_mesh() {
 
-    if (debug_mesh)
+    if (debug_mesh) {
         return debug_mesh;
+    }
 
     const Vector<Vector3> &vertices = get_vertices();
     Vector<Face3> faces;
@@ -348,8 +366,9 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
                 _EdgeKey ek;
                 ek.from = f.vertex[j].snapped(Vector3(CMP_EPSILON, CMP_EPSILON, CMP_EPSILON));
                 ek.to = f.vertex[(j + 1) % 3].snapped(Vector3(CMP_EPSILON, CMP_EPSILON, CMP_EPSILON));
-                if (ek.from < ek.to)
+                if (ek.from < ek.to) {
                     SWAP(ek.from, ek.to);
+                }
 
                 auto F = edge_map.find(ek);
 
@@ -384,92 +403,85 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
 }
 
 void NavigationMesh::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_sample_partition_type", {"sample_partition_type"}), &NavigationMesh::set_sample_partition_type);
-    MethodBinder::bind_method(D_METHOD("get_sample_partition_type"), &NavigationMesh::get_sample_partition_type);
+    BIND_METHOD(NavigationMesh,set_sample_partition_type);
+    BIND_METHOD(NavigationMesh,get_sample_partition_type);
 
-    MethodBinder::bind_method(D_METHOD("set_parsed_geometry_type", {"geometry_type"}),&NavigationMesh::set_parsed_geometry_type);
-    MethodBinder::bind_method(D_METHOD("get_parsed_geometry_type"), &NavigationMesh::get_parsed_geometry_type);
+    BIND_METHOD(NavigationMesh,set_parsed_geometry_type);
+    BIND_METHOD(NavigationMesh,get_parsed_geometry_type);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"mask"}),&NavigationMesh::set_collision_mask);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &NavigationMesh::get_collision_mask);
+    BIND_METHOD(NavigationMesh,set_collision_mask);
+    BIND_METHOD(NavigationMesh,get_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", {"bit", "value"}),&NavigationMesh::set_collision_mask_bit);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", {"bit"}),&NavigationMesh::get_collision_mask_bit);
+    BIND_METHOD(NavigationMesh,set_collision_mask_bit);
+    BIND_METHOD(NavigationMesh,get_collision_mask_bit);
 
-    MethodBinder::bind_method(D_METHOD("set_source_geometry_mode", {"mask"}),&NavigationMesh::set_source_geometry_mode);
-    MethodBinder::bind_method(D_METHOD("get_source_geometry_mode"), &NavigationMesh::get_source_geometry_mode);
+    BIND_METHOD(NavigationMesh,set_source_geometry_mode);
+    BIND_METHOD(NavigationMesh,get_source_geometry_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_source_group_name", {"mask"}),&NavigationMesh::set_source_group_name);
-    MethodBinder::bind_method(D_METHOD("get_source_group_name"), &NavigationMesh::get_source_group_name);
+    BIND_METHOD(NavigationMesh,set_source_group_name);
+    BIND_METHOD(NavigationMesh,get_source_group_name);
 
-    MethodBinder::bind_method(D_METHOD("set_cell_size", {"cell_size"}),&NavigationMesh::set_cell_size);
-    MethodBinder::bind_method(D_METHOD("get_cell_size"), &NavigationMesh::get_cell_size);
+    BIND_METHOD(NavigationMesh,set_cell_size);
+    BIND_METHOD(NavigationMesh,get_cell_size);
 
-    MethodBinder::bind_method(D_METHOD("set_cell_height", {"cell_height"}),&NavigationMesh::set_cell_height);
-    MethodBinder::bind_method(D_METHOD("get_cell_height"), &NavigationMesh::get_cell_height);
+    BIND_METHOD(NavigationMesh,set_cell_height);
+    BIND_METHOD(NavigationMesh,get_cell_height);
 
-    MethodBinder::bind_method(D_METHOD("set_agent_height", {"agent_height"}),&NavigationMesh::set_agent_height);
-    MethodBinder::bind_method(D_METHOD("get_agent_height"), &NavigationMesh::get_agent_height);
+    BIND_METHOD(NavigationMesh,set_agent_height);
+    BIND_METHOD(NavigationMesh,get_agent_height);
 
-    MethodBinder::bind_method(D_METHOD("set_agent_radius", {"agent_radius"}),&NavigationMesh::set_agent_radius);
-    MethodBinder::bind_method(D_METHOD("get_agent_radius"), &NavigationMesh::get_agent_radius);
+    BIND_METHOD(NavigationMesh,set_agent_radius);
+    BIND_METHOD(NavigationMesh,get_agent_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_agent_max_climb", {"agent_max_climb"}),&NavigationMesh::set_agent_max_climb);
-    MethodBinder::bind_method(D_METHOD("get_agent_max_climb"), &NavigationMesh::get_agent_max_climb);
+    BIND_METHOD(NavigationMesh,set_agent_max_climb);
+    BIND_METHOD(NavigationMesh,get_agent_max_climb);
 
-    MethodBinder::bind_method(D_METHOD("set_agent_max_slope", {"agent_max_slope"}),&NavigationMesh::set_agent_max_slope);
-    MethodBinder::bind_method(D_METHOD("get_agent_max_slope"), &NavigationMesh::get_agent_max_slope);
+    BIND_METHOD(NavigationMesh,set_agent_max_slope);
+    BIND_METHOD(NavigationMesh,get_agent_max_slope);
 
-    MethodBinder::bind_method(D_METHOD("set_region_min_size", {"region_min_size"}),&NavigationMesh::set_region_min_size);
-    MethodBinder::bind_method(D_METHOD("get_region_min_size"), &NavigationMesh::get_region_min_size);
+    BIND_METHOD(NavigationMesh,set_region_min_size);
+    BIND_METHOD(NavigationMesh,get_region_min_size);
 
-    MethodBinder::bind_method(D_METHOD("set_region_merge_size", {"region_merge_size"}),&NavigationMesh::set_region_merge_size);
-    MethodBinder::bind_method(D_METHOD("get_region_merge_size"), &NavigationMesh::get_region_merge_size);
+    BIND_METHOD(NavigationMesh,set_region_merge_size);
+    BIND_METHOD(NavigationMesh,get_region_merge_size);
 
-    MethodBinder::bind_method(D_METHOD("set_edge_max_length", {"edge_max_length"}),&NavigationMesh::set_edge_max_length);
-    MethodBinder::bind_method(D_METHOD("get_edge_max_length"), &NavigationMesh::get_edge_max_length);
+    BIND_METHOD(NavigationMesh,set_edge_max_length);
+    BIND_METHOD(NavigationMesh,get_edge_max_length);
 
-    MethodBinder::bind_method(D_METHOD("set_edge_max_error", {"edge_max_error"}),&NavigationMesh::set_edge_max_error);
-    MethodBinder::bind_method(D_METHOD("get_edge_max_error"), &NavigationMesh::get_edge_max_error);
+    BIND_METHOD(NavigationMesh,set_edge_max_error);
+    BIND_METHOD(NavigationMesh,get_edge_max_error);
 
-    MethodBinder::bind_method(D_METHOD("set_verts_per_poly", {"verts_per_poly"}),&NavigationMesh::set_verts_per_poly);
-    MethodBinder::bind_method(D_METHOD("get_verts_per_poly"), &NavigationMesh::get_verts_per_poly);
+    BIND_METHOD(NavigationMesh,set_verts_per_poly);
+    BIND_METHOD(NavigationMesh,get_verts_per_poly);
 
-    MethodBinder::bind_method(D_METHOD("set_detail_sample_distance", {"detail_sample_dist"}),&NavigationMesh::set_detail_sample_distance);
-    MethodBinder::bind_method(D_METHOD("get_detail_sample_distance"), &NavigationMesh::get_detail_sample_distance);
+    BIND_METHOD(NavigationMesh,set_detail_sample_distance);
+    BIND_METHOD(NavigationMesh,get_detail_sample_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_detail_sample_max_error", {"detail_sample_max_error"}),&NavigationMesh::set_detail_sample_max_error);
-    MethodBinder::bind_method(D_METHOD("get_detail_sample_max_error"), &NavigationMesh::get_detail_sample_max_error);
+    BIND_METHOD(NavigationMesh,set_detail_sample_max_error);
+    BIND_METHOD(NavigationMesh,get_detail_sample_max_error);
 
-    MethodBinder::bind_method(D_METHOD("set_filter_low_hanging_obstacles", {"filter_low_hanging_obstacles"}),&NavigationMesh::set_filter_low_hanging_obstacles);
-    MethodBinder::bind_method(D_METHOD("get_filter_low_hanging_obstacles"), &NavigationMesh::get_filter_low_hanging_obstacles);
+    BIND_METHOD(NavigationMesh,set_filter_low_hanging_obstacles);
+    BIND_METHOD(NavigationMesh,get_filter_low_hanging_obstacles);
 
-    MethodBinder::bind_method(D_METHOD("set_filter_ledge_spans", {"filter_ledge_spans"}),&NavigationMesh::set_filter_ledge_spans);
-    MethodBinder::bind_method(D_METHOD("get_filter_ledge_spans"), &NavigationMesh::get_filter_ledge_spans);
+    BIND_METHOD(NavigationMesh,set_filter_ledge_spans);
+    BIND_METHOD(NavigationMesh,get_filter_ledge_spans);
 
-    MethodBinder::bind_method(D_METHOD("set_filter_walkable_low_height_spans", {"filter_walkable_low_height_spans"}),&NavigationMesh::set_filter_walkable_low_height_spans);
-    MethodBinder::bind_method(D_METHOD("get_filter_walkable_low_height_spans"), &NavigationMesh::get_filter_walkable_low_height_spans);
+    BIND_METHOD(NavigationMesh,set_filter_walkable_low_height_spans);
+    BIND_METHOD(NavigationMesh,get_filter_walkable_low_height_spans);
 
-    MethodBinder::bind_method(D_METHOD("set_vertices", {"vertices"}),&NavigationMesh::set_vertices);
-    MethodBinder::bind_method(D_METHOD("get_vertices"), &NavigationMesh::get_vertices);
+    BIND_METHOD(NavigationMesh,set_vertices);
+    BIND_METHOD(NavigationMesh,get_vertices);
 
-    MethodBinder::bind_method(D_METHOD("add_polygon", {"polygon"}),&NavigationMesh::add_polygon);
-    MethodBinder::bind_method(D_METHOD("get_polygon_count"), &NavigationMesh::get_polygon_count);
-    MethodBinder::bind_method(D_METHOD("get_polygon", {"idx"}),&NavigationMesh::get_polygon);
-    MethodBinder::bind_method(D_METHOD("clear_polygons"), &NavigationMesh::clear_polygons);
+    BIND_METHOD(NavigationMesh,add_polygon);
+    BIND_METHOD(NavigationMesh,get_polygon_count);
+    BIND_METHOD(NavigationMesh,get_polygon);
+    BIND_METHOD(NavigationMesh,clear_polygons);
 
-    MethodBinder::bind_method(D_METHOD("create_from_mesh", {"mesh"}),&NavigationMesh::create_from_mesh);
+    BIND_METHOD(NavigationMesh,create_from_mesh);
 
-    MethodBinder::bind_method(D_METHOD("_set_polygons", {"polygons"}),&NavigationMesh::_set_polygons);
-    MethodBinder::bind_method(D_METHOD("_get_polygons"), &NavigationMesh::_get_polygons);
+    BIND_METHOD(NavigationMesh,_set_polygons);
+    BIND_METHOD(NavigationMesh,_get_polygons);
 
-    BIND_CONSTANT(SAMPLE_PARTITION_WATERSHED)
-    BIND_CONSTANT(SAMPLE_PARTITION_MONOTONE)
-    BIND_CONSTANT(SAMPLE_PARTITION_LAYERS)
-
-    BIND_CONSTANT(PARSED_GEOMETRY_MESH_INSTANCES)
-    BIND_CONSTANT(PARSED_GEOMETRY_STATIC_COLLIDERS)
-    BIND_CONSTANT(PARSED_GEOMETRY_BOTH)
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "vertices", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_vertices", "get_vertices");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "polygons", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_polygons", "_get_polygons");
@@ -497,6 +509,20 @@ void NavigationMesh::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "filter/low_hanging_obstacles"), "set_filter_low_hanging_obstacles", "get_filter_low_hanging_obstacles");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "filter/ledge_spans"), "set_filter_ledge_spans", "get_filter_ledge_spans");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "filter/filter_walkable_low_height_spans"), "set_filter_walkable_low_height_spans", "get_filter_walkable_low_height_spans");
+    BIND_ENUM_CONSTANT(SAMPLE_PARTITION_WATERSHED);
+    BIND_ENUM_CONSTANT(SAMPLE_PARTITION_MONOTONE);
+    BIND_ENUM_CONSTANT(SAMPLE_PARTITION_LAYERS);
+    BIND_ENUM_CONSTANT(SAMPLE_PARTITION_MAX);
+
+    BIND_ENUM_CONSTANT(PARSED_GEOMETRY_MESH_INSTANCES);
+    BIND_ENUM_CONSTANT(PARSED_GEOMETRY_STATIC_COLLIDERS);
+    BIND_ENUM_CONSTANT(PARSED_GEOMETRY_BOTH);
+    BIND_ENUM_CONSTANT(PARSED_GEOMETRY_MAX);
+
+    BIND_ENUM_CONSTANT(SOURCE_GEOMETRY_NAVMESH_CHILDREN);
+    BIND_ENUM_CONSTANT(SOURCE_GEOMETRY_GROUPS_WITH_CHILDREN);
+    BIND_ENUM_CONSTANT(SOURCE_GEOMETRY_GROUPS_EXPLICIT);
+    BIND_ENUM_CONSTANT(SOURCE_GEOMETRY_MAX);
 }
 
 void NavigationMesh::_validate_property(PropertyInfo &property) const {
@@ -528,7 +554,7 @@ NavigationMesh::NavigationMesh() {
     edge_max_error = 1.3f;
     verts_per_poly = 6.0f;
     detail_sample_distance = 6.0f;
-    detail_sample_max_error = 1.0f;
+    detail_sample_max_error = 5.0f;
 
     partition_type = SAMPLE_PARTITION_WATERSHED;
     parsed_geometry_type = PARSED_GEOMETRY_MESH_INSTANCES;

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  doc_data.cpp                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -103,48 +103,40 @@ void DocData::merge_from(const DocData &p_data) {
         for (int i = 0; i < c.second.defined_signals.size(); i++) {
             MethodDoc &m = c.second.defined_signals[i];
 
-            for (int j = 0; j < cf.defined_signals.size(); j++) {
-                if (cf.defined_signals[j].name != m.name) {
+            for (const MethodDoc &mf : cf.defined_signals) {
+                if (mf.name != m.name) {
                     continue;
                 }
-                const MethodDoc &mf = cf.defined_signals[j];
-
                 m.description = mf.description;
                 break;
             }
         }
 
         for (ConstantDoc &m : c.second.constants) {
-            for (int j = 0; j < cf.constants.size(); j++) {
-                if (cf.constants[j].name != m.name) {
+            for (const ConstantDoc &mf : cf.constants) {
+                if (mf.name != m.name) {
                     continue;
                 }
-                const ConstantDoc &mf = cf.constants[j];
-
                 m.description = mf.description;
                 break;
             }
         }
 
         for (PropertyDoc &p : c.second.properties) {
-            for (int j = 0; j < cf.properties.size(); j++) {
-                if (cf.properties[j].name != p.name) {
+            for (const PropertyDoc &pf : cf.properties) {
+                if (pf.name != p.name) {
                     continue;
                 }
-                const PropertyDoc &pf = cf.properties[j];
-
                 p.description = pf.description;
                 break;
             }
         }
 
-        for (PropertyDoc &p : c.second.theme_properties) {
-            for (int j = 0; j < cf.theme_properties.size(); j++) {
-                if (cf.theme_properties[j].name != p.name) {
+        for (ThemeItemDoc &p : c.second.theme_properties) {
+            for (const ThemeItemDoc &pf : cf.theme_properties) {
+                if (pf.name != p.name) {
                     continue;
                 }
-                const PropertyDoc &pf = cf.theme_properties[j];
-
                 p.description = pf.description;
                 break;
             }
@@ -245,7 +237,7 @@ Error DocData::load_classes(QByteArray p_dir, bool recursively) {
             recursively ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags);
     QDebug inst(qDebug());
     inst.setAutoInsertSpaces(false);
-    inst << "Lading docs:";
+    inst << "Loading docs:";
     while (fl.hasNext()) {
         QString name = fl.next();
         auto fi(fl.fileInfo());
@@ -342,9 +334,13 @@ Error _load(QXmlStreamReader &parser, DocData &tgt) {
                             const QStringRef name3 = parser.name();
 
                             if (name3 == "link") {
+                                const auto linkattrs=parser.attributes();
                                 parser.readNext();
                                 if (parser.tokenType() == QXmlStreamReader::Characters) {
-                                    c.tutorials.emplace_back(parser.text().trimmed().toUtf8().data());
+                                    TutorialDoc entry;
+                                    entry.title = linkattrs.value("title").toUtf8().data();
+                                    entry.link = parser.text().trimmed().toUtf8().data();
+                                    c.tutorials.emplace_back(eastl::move(entry));
                                 }
                             } else {
                                 qCritical().noquote() << "Invalid tag in doc file: " + name3 + ".";
@@ -412,13 +408,15 @@ Error _load(QXmlStreamReader &parser, DocData &tgt) {
                             if (name3 == "theme_item") {
                                 in_theme_item = true;
 
-                                DocContents::PropertyDoc prop2;
+                                DocContents::ThemeItemDoc prop2;
                                 const auto attrs(parser.attributes());
                                 ERR_FAIL_COND_V(!attrs.hasAttribute("name"), ERR_FILE_CORRUPT);
                                 prop2.name = attrs.value("name").toUtf8().data();
                                 ERR_FAIL_COND_V(!attrs.hasAttribute("type"), ERR_FILE_CORRUPT);
                                 prop2.type = attrs.value("type").toUtf8().data();
-                                c.theme_properties.emplace_back(prop2);
+                                ERR_FAIL_COND_V(!attrs.hasAttribute("data_type"), ERR_FILE_CORRUPT);
+                                prop2.data_type = attrs.value("data_type").toUtf8().data();
+                                c.theme_properties.emplace_back(eastl::move(prop2));
                             } else {
                                 qCritical() << "Invalid tag in doc file: " + name3 + ".";
                                 return ERR_FILE_CORRUPT;
@@ -454,7 +452,7 @@ Error _load(QXmlStreamReader &parser, DocData &tgt) {
                                 if (attrs.hasAttribute("enum")) {
                                     constant2.enumeration = attrs.value("enum").toUtf8().data();
                                 }
-                                c.constants.push_back(constant2);
+                                c.constants.push_back(eastl::move(constant2));
                             } else {
                                 qCritical() << "Invalid tag in doc file: " + name3 + ".";
                                 return ERR_FILE_CORRUPT;
@@ -518,8 +516,11 @@ Error DocData::save_classes(
 
         writer.writeStartElement("tutorials");
 
-        for (size_t i = 0; i < c.tutorials.size(); i++) {
-            writer.writeTextElement("link", c.tutorials[i].trimmed().c_str());
+        for (auto & tutorial : c.tutorials) {
+            writer.writeStartElement("link");
+            writer.writeAttribute("title", tutorial.title.trimmed().c_str());
+            writer.writeCharacters(tutorial.link.trimmed().c_str());
+            writer.writeEndElement();
         }
         writer.writeEndElement();
 
@@ -649,10 +650,11 @@ Error DocData::save_classes(
 
             writer.writeStartElement("theme_items");
             for (size_t i = 0; i < c.theme_properties.size(); i++) {
-                const PropertyDoc &p = c.theme_properties[i];
+                const ThemeItemDoc &p = c.theme_properties[i];
                 writer.writeStartElement("theme_item");
                 writer.writeAttribute("name", p.name.c_str());
                 writer.writeAttribute("type", p.type.c_str());
+                writer.writeAttribute("data_type", p.data_type.c_str());
                 if (!p.default_value.empty()) {
                     writer.writeAttribute("default_value", p.default_value.c_str());
                 }
@@ -686,6 +688,10 @@ Error DocData::load_compressed(const uint8_t *p_data, int p_compressed_size, int
     data.resize(p_uncompressed_size);
     data = uncompr_zip((const char *)p_data, p_compressed_size, p_uncompressed_size);
 
+    if(data.isEmpty()) {
+        qCritical() << "Compressed file is corrupt.";
+        return ERR_FILE_CORRUPT;
+    }
     class_list.clear();
     // convert it to valid xml!
     if (data.count(R"(<?xml version="1.0" encoding="UTF-8" ?>)") > 1) {

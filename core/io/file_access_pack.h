@@ -106,7 +106,6 @@ private:
     Vector<PackSourceInterface *> sources;
 
     PackedDir *root;
-    //Map<String,PackedDir*> dirs;
 
     static PackedData *singleton;
     bool disabled;
@@ -170,7 +169,9 @@ class DirAccessPack : public DirAccess {
 
 public:
     Error list_dir_begin() override;
+    bool has_next() const override;
     String get_next() override;
+
     [[nodiscard]] bool current_is_dir() const override;
     [[nodiscard]] bool current_is_hidden() const override;
     void list_dir_end() override;
@@ -189,7 +190,11 @@ public:
     Error rename(StringView p_from, StringView p_to) override;
     Error remove(StringView p_name) override;
 
-    size_t get_space_left() override;
+    bool is_link(StringView /*p_file*/) override { return false; }
+    String read_link(StringView p_file) override { return String(p_file); }
+    Error create_link(StringView /*p_source*/, StringView /*p_target*/) override { return FAILED; }
+
+    uint64_t get_space_left() override;
 
     String get_filesystem_type() const override;
 

@@ -32,7 +32,6 @@
 
 #include "core/math/rect2.h"
 #include "core/math/transform.h"
-#include "core/vector.h"
 
 struct GODOT_EXPORT Frustum {
     Plane planes[6];
@@ -41,6 +40,19 @@ struct GODOT_EXPORT Frustum {
     [[nodiscard]] Plane *begin() { return planes; }
     [[nodiscard]] Plane *end() { return planes+6; }
     Plane &operator[](int idx) { return planes[idx]; }
+    constexpr bool empty() const {
+        return *this == Frustum();
+    }
+    constexpr bool operator==(const Frustum &other) const {
+        for(int i=0; i<6; ++i) {
+            if(planes[i]!=other.planes[i])
+                return false;
+        }
+        return true;
+    }
+    void clear() {
+        *this = Frustum();
+    }
     // MSVC in conformance mode fails to resolve eastl::internal::HasSizeAndData<Frustum>::value to false, so we pretend we're a container :/
     constexpr Plane *data() { return planes; }
     constexpr const Plane *data() const { return planes; }
@@ -134,6 +146,6 @@ Vector3 CameraMatrix::xform(const Vector3 &p_vec3) const {
     ret.x = matrix[0][0] * p_vec3.x + matrix[1][0] * p_vec3.y + matrix[2][0] * p_vec3.z + matrix[3][0];
     ret.y = matrix[0][1] * p_vec3.x + matrix[1][1] * p_vec3.y + matrix[2][1] * p_vec3.z + matrix[3][1];
     ret.z = matrix[0][2] * p_vec3.x + matrix[1][2] * p_vec3.y + matrix[2][2] * p_vec3.z + matrix[3][2];
-    real_t w = matrix[0][3] * p_vec3.x + matrix[1][3] * p_vec3.y + matrix[2][3] * p_vec3.z + matrix[3][3];
+    const real_t w = matrix[0][3] * p_vec3.x + matrix[1][3] * p_vec3.y + matrix[2][3] * p_vec3.z + matrix[3][3];
     return ret / w;
 }

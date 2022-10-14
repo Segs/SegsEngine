@@ -58,7 +58,7 @@ public:
         FEED_CBCR_IMAGE = 1,
         FEED_IMAGES = 2
     };
-    typedef CameraServer *(*CreateFunc)();
+    using CreateFunc = CameraServer *(*)();
 
 private:
 protected:
@@ -102,7 +102,7 @@ public:
     int get_feed_count();
     Array get_feeds();
 
-    RID feed_texture(int p_id, FeedImage p_texture);
+    RenderingEntity feed_texture(int p_id, FeedImage p_texture);
 
     CameraServer();
     ~CameraServer() override;

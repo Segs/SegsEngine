@@ -37,20 +37,20 @@ VARIANT_ENUM_CAST(WebRTCDataChannel::WriteMode);
 VARIANT_ENUM_CAST(WebRTCDataChannel::ChannelState);
 
 void WebRTCDataChannel::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("poll"), &WebRTCDataChannel::poll);
-    MethodBinder::bind_method(D_METHOD("close"), &WebRTCDataChannel::close);
+    BIND_METHOD(WebRTCDataChannel,poll);
+    BIND_METHOD(WebRTCDataChannel,close);
 
-    MethodBinder::bind_method(D_METHOD("was_string_packet"), &WebRTCDataChannel::was_string_packet);
-    MethodBinder::bind_method(D_METHOD("set_write_mode", {"write_mode"}), &WebRTCDataChannel::set_write_mode);
-    MethodBinder::bind_method(D_METHOD("get_write_mode"), &WebRTCDataChannel::get_write_mode);
-    MethodBinder::bind_method(D_METHOD("get_ready_state"), &WebRTCDataChannel::get_ready_state);
-    MethodBinder::bind_method(D_METHOD("get_label"), &WebRTCDataChannel::get_label);
-    MethodBinder::bind_method(D_METHOD("is_ordered"), &WebRTCDataChannel::is_ordered);
-    MethodBinder::bind_method(D_METHOD("get_id"), &WebRTCDataChannel::get_id);
-    MethodBinder::bind_method(D_METHOD("get_max_packet_life_time"), &WebRTCDataChannel::get_max_packet_life_time);
-    MethodBinder::bind_method(D_METHOD("get_max_retransmits"), &WebRTCDataChannel::get_max_retransmits);
-    MethodBinder::bind_method(D_METHOD("get_protocol"), &WebRTCDataChannel::get_protocol);
-    MethodBinder::bind_method(D_METHOD("is_negotiated"), &WebRTCDataChannel::is_negotiated);
+    BIND_METHOD(WebRTCDataChannel,was_string_packet);
+    BIND_METHOD(WebRTCDataChannel,set_write_mode);
+    BIND_METHOD(WebRTCDataChannel,get_write_mode);
+    BIND_METHOD(WebRTCDataChannel,get_ready_state);
+    BIND_METHOD(WebRTCDataChannel,get_label);
+    BIND_METHOD(WebRTCDataChannel,is_ordered);
+    BIND_METHOD(WebRTCDataChannel,get_id);
+    BIND_METHOD(WebRTCDataChannel,get_max_packet_life_time);
+    BIND_METHOD(WebRTCDataChannel,get_max_retransmits);
+    BIND_METHOD(WebRTCDataChannel,get_protocol);
+    BIND_METHOD(WebRTCDataChannel,is_negotiated);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "write_mode", PropertyHint::Enum), "set_write_mode", "get_write_mode");
 

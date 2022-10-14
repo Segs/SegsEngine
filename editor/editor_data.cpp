@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_data.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -38,6 +38,7 @@
 #include "core/os/file_access.h"
 #include "core/project_settings.h"
 #include "core/resource/resource_manager.h"
+#include "editor/plugins/script_editor_plugin.h"
 #include "editor_node.h"
 #include "editor_settings.h"
 #include "scene/resources/packed_scene.h"
@@ -51,16 +52,19 @@ void EditorHistory::cleanup_history() {
         bool fail = false;
 
         for (int j = 0; j < history[i].path.size(); j++) {
-            if (history[i].path[j].ref)
+            if (history[i].path[j].ref) {
                 continue;
+            }
 
-            Object *obj = ObjectDB::get_instance(history[i].path[j].object);
+            Object *obj = object_for_entity(history[i].path[j].object);
             if (obj) {
                 Node *n = object_cast<Node>(obj);
-                if (n && n->is_inside_tree())
+                if (n && n->is_inside_tree()) {
                     continue;
-                if (!n) // Possibly still alive
+                }
+                if (!n) { // Possibly still alive
                     continue;
+                }
             }
 
             if (j <= history[i].level) {
@@ -80,18 +84,20 @@ void EditorHistory::cleanup_history() {
         }
     }
 
-    if (current >= history.size())
+    if (current >= history.size()) {
         current = history.size() - 1;
+    }
 }
 
-void EditorHistory::_add_object(ObjectID p_object, StringView p_property, int p_level_change, bool p_inspector_only) {
+void EditorHistory::_add_object(GameEntity p_object, StringView p_property, int p_level_change, bool p_inspector_only) {
 
-    Object *obj = ObjectDB::get_instance(p_object);
+    Object *obj = object_for_entity(p_object);
     ERR_FAIL_COND(!obj);
     RefCounted *r = object_cast<RefCounted>(obj);
     Obj o;
-    if (r)
+    if (r) {
         o.ref = REF(r);
+    }
     o.object = p_object;
     o.property = p_property;
     o.inspector_only = p_inspector_only;
@@ -127,22 +133,22 @@ void EditorHistory::_add_object(ObjectID p_object, StringView p_property, int p_
     current++;
 }
 
-void EditorHistory::add_object_inspector_only(ObjectID p_object) {
+void EditorHistory::add_object_inspector_only(GameEntity p_object) {
 
     _add_object(p_object, null_string, -1, true);
 }
 
-void EditorHistory::add_object(ObjectID p_object) {
+void EditorHistory::add_object(GameEntity p_object) {
 
     _add_object(p_object, null_string, -1);
 }
 
-void EditorHistory::add_object(ObjectID p_object, StringView p_subprop) {
+void EditorHistory::add_object(GameEntity p_object, StringView p_subprop) {
 
     _add_object(p_object, p_subprop, -1);
 }
 
-void EditorHistory::add_object(ObjectID p_object, int p_relevel) {
+void EditorHistory::add_object(GameEntity p_object, int p_relevel) {
 
     _add_object(p_object, null_string, p_relevel);
 }
@@ -161,9 +167,9 @@ bool EditorHistory::is_history_obj_inspector_only(int p_obj) const {
     return history[p_obj].path[history[p_obj].level].inspector_only;
 }
 
-ObjectID EditorHistory::get_history_obj(int p_obj) const {
-    ERR_FAIL_INDEX_V(p_obj, history.size(), ObjectID(0ULL));
-    ERR_FAIL_INDEX_V(history[p_obj].level, history[p_obj].path.size(), ObjectID(0ULL));
+GameEntity EditorHistory::get_history_obj(int p_obj) const {
+    ERR_FAIL_INDEX_V(p_obj, history.size(), entt::null);
+    ERR_FAIL_INDEX_V(history[p_obj].level, history[p_obj].path.size(), entt::null);
     return history[p_obj].path[history[p_obj].level].object;
 }
 
@@ -172,17 +178,18 @@ bool EditorHistory::is_at_beginning() const {
 }
 bool EditorHistory::is_at_end() const {
 
-    return current + 1 >= history.size();
+    return ((current + 1) >= history.size());
 }
 
 bool EditorHistory::next() {
 
     cleanup_history();
 
-    if (current + 1 < history.size())
+    if ((current + 1) < history.size()) {
         current++;
-    else
+    } else {
         return false;
+    }
 
     return true;
 }
@@ -191,56 +198,59 @@ bool EditorHistory::previous() {
 
     cleanup_history();
 
-    if (current > 0)
+    if (current > 0) {
         current--;
-    else
+    } else {
         return false;
+    }
 
     return true;
 }
 
 bool EditorHistory::is_current_inspector_only() const {
 
-    if (current < 0 || current >= history.size())
+    if (current < 0 || current >= history.size()) {
         return false;
+    }
 
     const History &h = history[current];
     return h.path[h.level].inspector_only;
 }
-ObjectID EditorHistory::get_current() {
+GameEntity EditorHistory::get_current() {
 
     if (current < 0 || current >= history.size())
-        return ObjectID(0ULL);
+        return entt::null;
 
     History &h = history[current];
-    Object *obj = ObjectDB::get_instance(h.path[h.level].object);
+    Object *obj = object_for_entity(h.path[h.level].object);
     if (!obj)
-        return ObjectID(0ULL);
+        return entt::null;
 
     return obj->get_instance_id();
 }
 
 int EditorHistory::get_path_size() const {
 
-    if (current < 0 || current >= history.size())
+    if (current < 0 || current >= history.size()) {
         return 0;
+    }
 
     const History &h = history[current];
     return h.path.size();
 }
 
-ObjectID EditorHistory::get_path_object(int p_index) const {
+GameEntity EditorHistory::get_path_object(int p_index) const {
 
     if (current < 0 || current >= history.size())
-        return ObjectID(0ULL);
+        return entt::null;
 
     const History &h = history[current];
 
-    ERR_FAIL_INDEX_V(p_index, h.path.size(), ObjectID(0ULL));
+    ERR_FAIL_INDEX_V(p_index, h.path.size(), entt::null);
 
-    Object *obj = ObjectDB::get_instance(h.path[p_index].object);
+    Object *obj = object_for_entity(h.path[p_index].object);
     if (!obj)
-        return ObjectID(0ULL);
+        return entt::null;
 
     return obj->get_instance_id();
 }
@@ -344,9 +354,10 @@ Dictionary EditorData::get_editor_states() const {
     for (int i = 0; i < editor_plugins.size(); i++) {
 
         Dictionary state = editor_plugins[i]->get_state();
-        if (state.empty())
+        if (state.empty()) {
             continue;
-        metadata[editor_plugins[i]->get_name()] = state;
+        }
+        metadata[StringName(editor_plugins[i]->get_name())] = state;
     }
 
     return metadata;
@@ -360,11 +371,11 @@ Dictionary EditorData::get_scene_editor_states(int p_idx) const {
 
 void EditorData::set_editor_states(const Dictionary &p_states) {
 
-    Vector<Variant> keys(p_states.get_key_list());
+    auto keys(p_states.get_key_list());
 
-    for (const Variant & k : keys) {
+    for (const auto & k : keys) {
 
-        String name = k.as<String>();
+        String name(k);
         int idx = -1;
         for (int i = 0; i < editor_plugins.size(); i++) {
 
@@ -374,9 +385,10 @@ void EditorData::set_editor_states(const Dictionary &p_states) {
             }
         }
 
-        if (idx == -1)
+        if (idx == -1) {
             continue;
-        editor_plugins[idx]->set_state(p_states[name].as<Dictionary>());
+        }
+        editor_plugins[idx]->set_state(p_states[k].as<Dictionary>());
     }
 }
 
@@ -457,7 +469,7 @@ bool EditorData::call_build() {
         result &= editor_plugins[i]->build();
         //FIXME: remove this when we're sure things are working.
         if(result==false)
-            static const char *a="I'm here to be a possible breakpoint location in case of plugin `build` failures";
+            printf("I'm here to be a possible breakpoint location in case of plugin `build` failures");
     }
 
     return result;
@@ -545,21 +557,26 @@ void EditorData::remove_custom_type(const StringName &p_type) {
 
 int EditorData::add_edited_scene(int p_at_pos) {
 
-    if (p_at_pos < 0)
+    if (p_at_pos < 0) {
         p_at_pos = edited_scene.size();
+    }
     EditedScene es;
     es.root = nullptr;
+    es.path = String();
+    es.file_modified_time = 0;
     es.history_current = -1;
     es.version = 0;
     es.live_edit_root = NodePath("/root");
 
-    if (p_at_pos == edited_scene.size())
+    if (p_at_pos == edited_scene.size()) {
         edited_scene.push_back(es);
-    else
+    } else {
         edited_scene.insert_at(p_at_pos, es);
+    }
 
-    if (current_edited_scene < 0)
+    if (current_edited_scene < 0) {
         current_edited_scene = 0;
+    }
     return p_at_pos;
 }
 
@@ -581,10 +598,14 @@ void EditorData::remove_scene(int p_idx) {
         memdelete(edited_scene[p_idx].root);
     }
 
-    if (current_edited_scene > p_idx)
+    if (current_edited_scene > p_idx) {
         current_edited_scene--;
-    else if (current_edited_scene == p_idx && current_edited_scene > 0) {
+    } else if (current_edited_scene == p_idx && current_edited_scene > 0) {
         current_edited_scene--;
+    }
+
+    if (!edited_scene[p_idx].path.empty()) {
+        ScriptEditor::get_singleton()->close_builtin_scripts_from_scene(edited_scene[p_idx].path);
     }
 
     edited_scene.erase_at(p_idx);
@@ -622,8 +643,9 @@ bool EditorData::_find_updated_instances(Node *p_root, Node *p_node, Set<String>
     for (int i = 0; i < p_node->get_child_count(); i++) {
 
         bool found = _find_updated_instances(p_root, p_node->get_child(i), checked_paths);
-        if (found)
+        if (found) {
             return true;
+        }
     }
 
     return false;
@@ -632,8 +654,9 @@ bool EditorData::_find_updated_instances(Node *p_root, Node *p_node, Set<String>
 bool EditorData::check_and_update_scene(int p_idx) {
 
     ERR_FAIL_INDEX_V(p_idx, edited_scene.size(), false);
-    if (!edited_scene[p_idx].root)
+    if (!edited_scene[p_idx].root) {
         return false;
+    }
 
     Set<String> checked_scenes;
 
@@ -656,8 +679,9 @@ bool EditorData::check_and_update_scene(int p_idx) {
         for (Node * E : edited_scene[p_idx].selection) {
             NodePath p = edited_scene[p_idx].root->get_path_to(E);
             Node *new_node = new_scene->get_node(p);
-            if (new_node)
+            if (new_node) {
                 new_selection.push_back(new_node);
+            }
         }
 
         new_scene->set_filename(edited_scene[p_idx].root->get_filename());
@@ -703,6 +727,9 @@ void EditorData::set_edited_scene_root(Node *p_root) {
         else
             p_root->set_filename(edited_scene[current_edited_scene].path);
     }
+    if (!edited_scene[current_edited_scene].path.empty()) {
+        edited_scene[current_edited_scene].file_modified_time = FileAccess::get_modified_time(edited_scene[current_edited_scene].path);
+    }
 }
 
 int EditorData::get_edited_scene_count() const {
@@ -734,6 +761,20 @@ uint64_t EditorData::get_scene_version(int p_idx) const {
     return edited_scene[p_idx].version;
 }
 
+void EditorData::set_scene_modified_time(int p_idx, uint64_t p_time) {
+    if (p_idx == -1) {
+        p_idx = current_edited_scene;
+    }
+
+    ERR_FAIL_INDEX(p_idx, edited_scene.size());
+
+    edited_scene[p_idx].file_modified_time = p_time;
+}
+
+uint64_t EditorData::get_scene_modified_time(int p_idx) const {
+    ERR_FAIL_INDEX_V(p_idx, edited_scene.size(), 0);
+    return edited_scene[p_idx].file_modified_time;
+}
 UIString EditorData::get_scene_type(int p_idx) const {
 
     ERR_FAIL_INDEX_V(p_idx, edited_scene.size(), UIString());
@@ -768,18 +809,35 @@ Ref<Script> EditorData::get_scene_root_script(int p_idx) const {
     return s;
 }
 
-StringName EditorData::get_scene_title(int p_idx) const {
+StringName EditorData::get_scene_title(int p_idx, bool p_always_strip_extension) const {
     ERR_FAIL_INDEX_V(p_idx, edited_scene.size(), StringName());
-    if (!edited_scene[p_idx].root)
+    if (!edited_scene[p_idx].root) {
         return TTR("[empty]");
-    if (edited_scene[p_idx].root->get_filename().empty())
-        return TTR("[unsaved]");
-    bool show_ext = EDITOR_DEF_T("interface/scene_tabs/show_extension", false);
-    String name(PathUtils::get_file(edited_scene[p_idx].root->get_filename()));
-    if (!show_ext) {
-        name = PathUtils::get_basename(name);
     }
-    return StringName(name);
+    if (edited_scene[p_idx].root->get_filename().empty()) {
+        return TTR("[unsaved]");
+    }
+    const String filename(PathUtils::get_file(edited_scene[p_idx].root->get_filename()));
+    const String basename(PathUtils::get_basename(filename));
+
+    if (p_always_strip_extension) {
+        return StringName(basename);
+    }
+
+    // Return the filename including the extension if there's ambiguity (e.g. both `foo.tscn` and `foo.scn` are being edited).
+    for (int i = 0; i < edited_scene.size(); i++) {
+        if (i == p_idx) {
+            // Don't compare the edited scene against itself.
+            continue;
+        }
+        String ed_scen(PathUtils::get_basename(PathUtils::get_file(edited_scene[i].root->get_filename())));
+        if (edited_scene[i].root && basename == ed_scen) {
+            return StringName(filename);
+        }
+    }
+
+    // Else, return just the basename as there's no ambiguity.
+    return StringName(basename);
 }
 
 void EditorData::set_scene_path(int p_idx, StringView p_path) {
@@ -787,8 +845,9 @@ void EditorData::set_scene_path(int p_idx, StringView p_path) {
     ERR_FAIL_INDEX(p_idx, edited_scene.size());
     edited_scene[p_idx].path = p_path;
 
-    if (!edited_scene[p_idx].root)
+    if (!edited_scene[p_idx].root) {
         return;
+    }
     edited_scene[p_idx].root->set_filename(p_path);
 }
 
@@ -870,22 +929,19 @@ void EditorData::get_plugin_window_layout(const Ref<ConfigFile>& p_layout) {
 }
 
 bool EditorData::script_class_is_parent(const StringName & p_class, const StringName &p_inherits) {
-    if (!ScriptServer::is_global_class(p_class))
+    if (!ScriptServer::is_global_class(p_class)) {
         return false;
+    }
     StringName base = script_class_get_base(p_class);
-    Ref<Script> script = script_class_load_script(p_class);
-    Ref<Script> base_script = script->get_base_script();
 
-    while (p_inherits != base) {
+    while (base != p_inherits) {
         if (ClassDB::class_exists(base)) {
             return ClassDB::is_parent_class(base, p_inherits);
-        } else if (ScriptServer::is_global_class(base)) {
-            base = script_class_get_base(base);
-        } else if (base_script) {
-            return ClassDB::is_parent_class(base_script->get_instance_base_type(), p_inherits);
-        } else {
+        }
+        if (!ScriptServer::is_global_class(base)) {
             return false;
         }
+        base = ScriptServer::get_global_class_base(base);
     }
     return true;
 }
@@ -894,8 +950,9 @@ StringName EditorData::script_class_get_base(const StringName &p_class) const {
 
     Ref<Script> script = script_class_load_script(p_class);
 
-    if (not script)
+    if (not script) {
         return StringName();
+    }
 
     Ref<Script> base_script = script->get_base_script();
     if (not base_script) {
@@ -919,8 +976,9 @@ Object *EditorData::script_class_instance(const StringName & p_class) {
 }
 Ref<Script> EditorData::script_class_load_script(StringName p_class) const {
 
-    if (!ScriptServer::is_global_class(p_class))
+    if (!ScriptServer::is_global_class(p_class)) {
         return Ref<Script>();
+    }
 
     StringView path = ScriptServer::get_global_class_path(p_class);
     return dynamic_ref_cast<Script>(gResourceManager().load(path, "Script"));
@@ -931,8 +989,9 @@ void EditorData::script_class_set_icon_path(const StringName & p_class, StringVi
 }
 
 String EditorData::script_class_get_icon_path(const StringName &p_class) const {
-    if (!ScriptServer::is_global_class(p_class))
+    if (!ScriptServer::is_global_class(p_class)) {
         return String();
+    }
 
     StringName current(p_class);
     String ret = _script_class_icon_paths.at(p_class,String());
@@ -964,6 +1023,13 @@ void EditorData::script_class_save_icon_paths() {
             d[E.first] = _script_class_icon_paths[E.first];
     }
 
+    Dictionary old;
+    if (ProjectSettings::get_singleton()->has_setting("_global_script_class_icons")) {
+        old = ProjectSettings::get_singleton()->getT<Dictionary>("_global_script_class_icons");
+    }
+    if ((!old.empty() || d.empty()) && d.hash() == old.hash()) {
+        return;
+    }
     if (d.empty()) {
         if (ProjectSettings::get_singleton()->has_setting("_global_script_class_icons")) {
             ProjectSettings::get_singleton()->clear("_global_script_class_icons");
@@ -979,10 +1045,9 @@ void EditorData::script_class_load_icon_paths() {
 
     if (ProjectSettings::get_singleton()->has_setting("_global_script_class_icons")) {
         Dictionary d = ProjectSettings::get_singleton()->getT<Dictionary>("_global_script_class_icons");
-        Vector<Variant> keys(d.get_key_list());
+        auto keys(d.get_key_list());
 
-        for (const Variant &E : keys) {
-            StringName name(E.as<String>());
+        for (const auto & name : keys) {
             _script_class_icon_paths[name] = d[name].as<String>();
 
             script_class_set_name(ScriptServer::get_global_class_path(name), name);
@@ -1001,8 +1066,9 @@ EditorData::EditorData() {
 ///////////
 void EditorSelection::_node_removed(Node *p_node) {
 
-    if (!selection.contains(p_node))
+    if (!selection.contains(p_node)) {
         return;
+    }
 
     Object *meta = selection[p_node];
     memdelete(meta);
@@ -1015,8 +1081,9 @@ void EditorSelection::add_node(Node *p_node) {
 
     ERR_FAIL_NULL(p_node);
     ERR_FAIL_COND(!p_node->is_inside_tree());
-    if (selection.contains(p_node))
+    if (selection.contains(p_node)) {
         return;
+    }
 
     changed = true;
     nl_changed = true;
@@ -1030,7 +1097,7 @@ void EditorSelection::add_node(Node *p_node) {
     }
     selection[p_node] = meta;
 
-    p_node->connect("tree_exiting",callable_mp(this, &ClassName::_node_removed), varray(Variant(p_node)), ObjectNS::CONNECT_ONESHOT);
+    p_node->connect("tree_exiting",callable_gen(this, [=]() { _node_removed(p_node); }), ObjectNS::CONNECT_ONESHOT);
 
     //emit_signal("selection_changed");
 }
@@ -1039,15 +1106,16 @@ void EditorSelection::remove_node(Node *p_node) {
 
     ERR_FAIL_NULL(p_node);
 
-    if (!selection.contains(p_node))
+    if (!selection.contains(p_node)) {
         return;
+    }
 
     changed = true;
     nl_changed = true;
     Object *meta = selection[p_node];
     memdelete(meta);
     selection.erase(p_node);
-    p_node->disconnect("tree_exiting",callable_mp(this, &ClassName::_node_removed));
+    p_node->disconnect_all("tree_exiting",this->get_instance_id());
     //emit_signal("selection_changed");
 }
 bool EditorSelection::is_selected(Node *p_node) const {
@@ -1080,10 +1148,10 @@ Array EditorSelection::get_selected_nodes() {
 
 void EditorSelection::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("clear"), &EditorSelection::clear);
-    MethodBinder::bind_method(D_METHOD("add_node", {"node"}), &EditorSelection::add_node);
-    MethodBinder::bind_method(D_METHOD("remove_node", {"node"}), &EditorSelection::remove_node);
-    MethodBinder::bind_method(D_METHOD("get_selected_nodes"), &EditorSelection::get_selected_nodes);
+    BIND_METHOD(EditorSelection,clear);
+    BIND_METHOD(EditorSelection,add_node);
+    BIND_METHOD(EditorSelection,remove_node);
+    BIND_METHOD(EditorSelection,get_selected_nodes);
     MethodBinder::bind_method(D_METHOD("get_transformable_selected_nodes"), &EditorSelection::_get_transformable_selected_nodes);
     ADD_SIGNAL(MethodInfo("selection_changed"));
 }
@@ -1095,8 +1163,9 @@ void EditorSelection::add_editor_plugin(Object *p_object) {
 
 void EditorSelection::_update_nl() {
 
-    if (!nl_changed)
+    if (!nl_changed) {
         return;
+    }
 
     selected_node_list.clear();
 
@@ -1113,8 +1182,9 @@ void EditorSelection::_update_nl() {
             parent = parent->get_parent();
         }
 
-        if (skip)
+        if (skip) {
             continue;
+        }
         selected_node_list.push_back(E.first);
     }
 
@@ -1125,8 +1195,9 @@ void EditorSelection::update() {
 
     _update_nl();
 
-    if (!changed)
+    if (!changed) {
         return;
+    }
     changed = false;
     if (!emitted) {
         emitted = true;
@@ -1153,7 +1224,7 @@ Vector<Node *> EditorSelection::get_full_selected_node_list() {
     node_list.reserve(selection.size());
 
     for (const auto &E : selection) {
-        node_list.push_back(E.first);
+        node_list.emplace_back(E.first);
     }
 
     return node_list;

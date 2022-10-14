@@ -43,15 +43,19 @@ class CryptoKeyMbedTLS : public CryptoKey {
 
 private:
 	mbedtls_pk_context pkey;
-	int locks;
+    int locks = 0;
+    bool public_only = true;
 
 public:
 	static CryptoKey *create();
 	static void make_default() { CryptoKey::_create = create; }
 	static void finalize() { CryptoKey::_create = nullptr; }
 
-    Error load(StringView p_path) override;
-    Error save(StringView p_path) override;
+    Error load(StringView p_path, bool p_public_only = false) override;
+    Error save(StringView p_path, bool p_public_only = false) override;
+    String save_to_string(bool p_public_only) override;
+    Error load_from_string(StringView p_string_key, bool p_public_only) override;
+    bool is_public_only() const override { return public_only; };
 
 	CryptoKeyMbedTLS() {
 		mbedtls_pk_init(&pkey);
@@ -98,6 +102,27 @@ public:
 	friend class SSLContextMbedTLS;
 };
 
+class HMACContextMbedTLS : public HMACContext {
+private:
+    HashingContext::HashType hash_type;
+    int hash_len = 0;
+    void *ctx = nullptr;
+
+public:
+    static HMACContext *create();
+    static void make_default() { HMACContext::_create = create; }
+    static void finalize() { HMACContext::_create = nullptr; }
+
+    static bool is_md_type_allowed(mbedtls_md_type_t p_md_type);
+
+    virtual Error start(HashingContext::HashType p_hash_type, PoolByteArray p_key);
+    virtual Error update(PoolByteArray p_data);
+    virtual PoolByteArray finish();
+
+    HMACContextMbedTLS() {}
+    ~HMACContextMbedTLS();
+};
+
 class CryptoMbedTLS : public Crypto {
 
 private:
@@ -111,10 +136,15 @@ public:
 	static void finalize_crypto();
 	static X509CertificateMbedTLS *get_default_certificates();
     static void load_default_certificates(StringView p_path);
+    static mbedtls_md_type_t md_type_from_hashtype(HashingContext::HashType p_hash_type, int &r_size);
 
 	PoolByteArray generate_random_bytes(int p_bytes) override;
 	Ref<CryptoKey> generate_rsa(int p_bytes) override;
     Ref<X509Certificate> generate_self_signed_certificate(Ref<CryptoKey> p_key, StringView p_issuer_name, StringView p_not_before, StringView p_not_after) override;
+    Vector<uint8_t> sign(HashingContext::HashType p_hash_type, Vector<uint8_t> p_hash, const Ref<CryptoKey> &p_key) override;
+    bool verify(HashingContext::HashType p_hash_type, Vector<uint8_t> p_hash, Vector<uint8_t> p_signature, const Ref<CryptoKey> &p_key) override;
+    Vector<uint8_t> encrypt(const Ref<CryptoKey> &p_key, Vector<uint8_t> p_plaintext) override;
+    Vector<uint8_t> decrypt(const Ref<CryptoKey> &p_key, Vector<uint8_t> p_ciphertext) override;
 
 	CryptoMbedTLS();
 	~CryptoMbedTLS() override;

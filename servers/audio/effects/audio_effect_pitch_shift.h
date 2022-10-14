@@ -102,9 +102,9 @@ public:
     float pitch_scale;
     int oversampling;
     FFT_Size fft_size;
-    float wet;
-    float dry;
-    bool filter;
+    float wet = 0.0f;
+    float dry = 0.0f;
+    bool filter = false;
 
 protected:
     static void _bind_methods();

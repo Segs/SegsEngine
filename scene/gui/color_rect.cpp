@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  color_rect.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -47,14 +47,14 @@ Color ColorRect::get_frame_color() const {
 void ColorRect::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
-        draw_rect(Rect2(Point2(), get_size()), color);
+        draw_rect_filled(Rect2(Point2(), get_size()), color);
     }
 }
 
 void ColorRect::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_frame_color", {"color"}), &ColorRect::set_frame_color);
-    MethodBinder::bind_method(D_METHOD("get_frame_color"), &ColorRect::get_frame_color);
+    BIND_METHOD(ColorRect,set_frame_color);
+    BIND_METHOD(ColorRect,get_frame_color);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_frame_color", "get_frame_color");
 }

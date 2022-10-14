@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  node.cpp                                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,6 +35,7 @@
 
 #include "core/core_string_names.h"
 #include "core/debugger/script_debugger.h"
+#include "core/ecs_registry.h"
 #include "core/io/multiplayer_api.h"
 #include "core/io/resource_loader.h"
 #include "core/message_queue.h"
@@ -57,7 +58,15 @@
 #include "editor/editor_settings.h"
 #include "core/object_db.h"
 #endif
+#ifdef DEBUG_ENABLED
+#include "core/os/mutex.h"
+#include "entt/entity/registry.hpp"
 
+#include "EASTL/vector_set.h"
+
+extern ECS_Registry<GameEntity,true> game_object_registry;
+
+#endif
 IMPL_GDCLASS(Node)
 
 //TODO: SEGS: duplicated VARIANT_ENUM_CAST
@@ -86,54 +95,59 @@ struct Node::PrivData {
         StringName name;
         MultiplayerAPI_RPCMode mode;
     };
-    String *filename=nullptr;
+    HashMap<StringName, GroupData> grouped;
+    Vector<Node *> owned;
+    Vector<Node *> children; // list of children
+    Vector<NetData> rpc_methods;
+    Vector<NetData> rpc_properties;
     Ref<SceneState> instance_state;
     Ref<SceneState> inherited_state;
-
-    Node *parent;
-    Node *owner;
-    Vector<Node *> children; // list of children
-    int pos;
-    int depth;
-    StringName name;
 #ifdef TOOLS_ENABLED
     NodePath import_path; //path used when imported, used by scene editors to keep tracking
 #endif
 
-
-    HashMap<StringName, GroupData> grouped;
+    String *filename=nullptr;
+    Node *parent;
+    Node *owner;
     Node *OW; // owned element
-    Vector<Node *> owned;
-
-    PauseMode pause_mode;
     Node *pause_owner;
+    mutable NodePath *path_cache;
+    StringName name;
 
+    int pos;
+    int depth;
     int network_master;
-    Vector<NetData> rpc_methods;
-    Vector<NetData> rpc_properties;
+    //int process_priority;
+    PauseMode pause_mode;
 
 
-    bool ready_notified; //this is a small hack, so if a node is added during _ready() to the tree, it correctly gets the _ready() notification
-    bool ready_first;
     // variables used to properly sort the node when processing, ignored otherwise
     //should move all the stuff below to bits
-    bool physics_process;
-    bool idle_process;
+    bool physics_process : 1;
+    bool idle_process : 1;
 
-    bool physics_process_internal;
-    bool idle_process_internal;
+    bool physics_process_internal: 1;
+    bool idle_process_internal: 1;
 
-    bool input;
-    bool unhandled_input;
-    bool unhandled_key_input;
+    bool input: 1;
+    bool unhandled_input: 1;
+    bool unhandled_key_input: 1;
 
-    bool in_constructor;
-    bool use_placeholder;
+    // For certain nodes (e.g. CPU Particles in global mode)
+    // It can be useful to not send the instance transform to the
+    // VisualServer, and specify the mesh in world space.
+    bool use_identity_transform : 1;
 
-    bool display_folded;
-    bool editable_instance;
+    //bool parent_owned : 1;
+    bool in_constructor: 1;
+    bool use_placeholder: 1;
 
-    mutable NodePath *path_cache;
+    bool display_folded: 1;
+    bool editable_instance: 1;
+    //bool inside_tree : 1;
+    bool ready_notified : 1; // this is a small hack, so if a node is added during _ready() to the tree, it correctly
+                             // gets the _ready() notification
+    bool ready_first : 1;
     uint16_t get_node_rset_property_id(const StringName &p_property) const {
         for (int i = 0; i < rpc_properties.size(); i++) {
             if (rpc_properties[i].name == p_property) {
@@ -192,6 +206,7 @@ void Node::_notification(int p_notification) {
         case NOTIFICATION_ENTER_TREE: {
             ERR_FAIL_COND(!get_viewport());
             ERR_FAIL_COND(!get_tree());
+            game_object_registry.registry.emplace_or_replace<SceneTreeLink>(get_instance_id(),get_tree());
 
             if (priv_data->pause_mode == PAUSE_MODE_INHERIT) {
 
@@ -204,11 +219,11 @@ void Node::_notification(int p_notification) {
             }
 
             if (priv_data->input)
-                add_to_group(StringName("_vp_input" + itos(get_viewport()->get_instance_id())));
+                add_to_group(StringName("_vp_input" + itos(entt::to_integral(get_viewport()->get_instance_id()))));
             if (priv_data->unhandled_input)
-                add_to_group(StringName("_vp_unhandled_input" + itos(get_viewport()->get_instance_id())));
+                add_to_group(StringName("_vp_unhandled_input" + itos(entt::to_integral(get_viewport()->get_instance_id()))));
             if (priv_data->unhandled_key_input)
-                add_to_group(StringName("_vp_unhandled_key_input" + itos(get_viewport()->get_instance_id())));
+                add_to_group(StringName("_vp_unhandled_key_input" + itos(entt::to_integral(get_viewport()->get_instance_id()))));
 
             get_tree()->node_count++;
             orphan_node_count--;
@@ -218,15 +233,16 @@ void Node::_notification(int p_notification) {
             ERR_FAIL_COND(!get_viewport());
             ERR_FAIL_COND(!get_tree());
 
+            game_object_registry.registry.remove<SceneTreeLink>(get_instance_id());
             get_tree()->node_count--;
             orphan_node_count++;
 
             if (priv_data->input)
-                remove_from_group(StringName("_vp_input" + itos(get_viewport()->get_instance_id())));
+                remove_from_group(StringName("_vp_input" + itos(entt::to_integral(get_viewport()->get_instance_id()))));
             if (priv_data->unhandled_input)
-                remove_from_group(StringName("_vp_unhandled_input" + itos(get_viewport()->get_instance_id())));
+                remove_from_group(StringName("_vp_unhandled_input" + itos(entt::to_integral(get_viewport()->get_instance_id()))));
             if (priv_data->unhandled_key_input)
-                remove_from_group(StringName("_vp_unhandled_key_input" + itos(get_viewport()->get_instance_id())));
+                remove_from_group(StringName("_vp_unhandled_key_input" + itos(entt::to_integral(get_viewport()->get_instance_id()))));
 
             priv_data->pause_owner = nullptr;
             memdelete(priv_data->path_cache);
@@ -268,16 +284,7 @@ void Node::_notification(int p_notification) {
             priv_data->in_constructor = false;
         } break;
         case NOTIFICATION_PREDELETE: {
-
-            set_owner(nullptr);
-
-            while (!priv_data->owned.empty()) {
-
-                priv_data->owned.front()->set_owner(nullptr);
-            }
-
             if (priv_data->parent) {
-
                 priv_data->parent->remove_child(this);
             }
 
@@ -285,8 +292,7 @@ void Node::_notification(int p_notification) {
             while (!priv_data->children.empty()) {
 
                 //begin from the end because its faster and more consistent with creation
-                Node *child = priv_data->children.back();
-                remove_child(child);
+                Node *child = priv_data->children[priv_data->children.size() - 1];
                 memdelete(child);
             }
 
@@ -328,6 +334,7 @@ void Node::_propagate_enter_tree() {
     if (!viewport && priv_data->parent)
         viewport = priv_data->parent->viewport;
 
+    game_object_registry.registry.emplace_or_replace<InTreeMarkerComponent>(get_instance_id());
     inside_tree = true;
 
     for (eastl::pair<const StringName, GroupData> &E : priv_data->grouped) {
@@ -345,6 +352,9 @@ void Node::_propagate_enter_tree() {
 
     tree->node_added(this);
 
+    if (priv_data->parent) {
+        priv_data->parent->emit_signal(SceneStringNames::child_entered_tree, this);
+    }
     blocked++;
     //block while adding children
 
@@ -367,23 +377,44 @@ void Node::_propagate_enter_tree() {
     // enter groups
 }
 
-void Node::_propagate_after_exit_tree() {
+void Node::_propagate_after_exit_branch(bool p_exiting_tree) {
+    // Clear owner if it was not part of the pruned branch
+    if (priv_data->owner) {
+        bool found = false;
+        Node *parent = priv_data->parent;
+
+        while (parent) {
+            if (parent == priv_data->owner) {
+                found = true;
+                break;
+            }
+
+            parent = parent->priv_data->parent;
+        }
+
+        if (!found) {
+            priv_data->owner->priv_data->owned.erase_first(priv_data->OW);
+            priv_data->owner = nullptr;
+        }
+    }
 
     blocked++;
-    for (Node * child : priv_data->children) {
-        child->_propagate_after_exit_tree();
+    for (Node *i : priv_data->children) {
+        i->_propagate_after_exit_branch(p_exiting_tree);
     }
     blocked--;
-    emit_signal(SceneStringNames::tree_exited);
-}
 
+    if (p_exiting_tree) {
+        emit_signal(SceneStringNames::tree_exited);
+    }
+}
 void Node::_propagate_exit_tree() {
 
     //block while removing children
 
 #ifdef DEBUG_ENABLED
 
-    if (ScriptDebugger::get_singleton() && priv_data->filename && !priv_data->filename->empty()) {
+    if (tree && ScriptDebugger::get_singleton() && priv_data->filename && !priv_data->filename->empty()) {
         //used for live edit
         auto E = tree->get_live_scene_edit_cache().find(*priv_data->filename);
         if (E!=tree->get_live_scene_edit_cache().end()) {
@@ -395,7 +426,7 @@ void Node::_propagate_exit_tree() {
 
         auto F = tree->get_live_edit_remove_list().find(this);
         if (F!=tree->get_live_edit_remove_list().end()) {
-            for (eastl::pair<const ObjectID, Node *> &G : F->second) {
+            for (eastl::pair<const GameEntity, Node *> &G : F->second) {
 
                 memdelete(G.second);
             }
@@ -422,10 +453,14 @@ void Node::_propagate_exit_tree() {
         tree->node_removed(this);
     }
 
+    if (priv_data->parent) {
+        priv_data->parent->emit_signal(SceneStringNames::child_exiting_tree, this);
+    }
     // exit groups
 
     for (eastl::pair<const StringName, GroupData> &E : priv_data->grouped) {
-        tree->remove_from_group(E.first, this);
+        if (tree)
+            tree->remove_from_group(E.first, this);
         E.second.group = nullptr;
     }
 
@@ -434,6 +469,7 @@ void Node::_propagate_exit_tree() {
     if (tree)
         tree->tree_changed();
 
+    game_object_registry.registry.remove<InTreeMarkerComponent>(get_instance_id());
     inside_tree = false;
     priv_data->ready_notified = false;
     tree = nullptr;
@@ -443,7 +479,7 @@ void Node::_propagate_exit_tree() {
 void Node::move_child(Node *p_child, int p_pos) {
 
     ERR_FAIL_NULL(p_child);
-    ERR_FAIL_INDEX_MSG(p_pos, priv_data->children.size() + 1, "Invalid new child position: " + itos(p_pos) + ".");
+    ERR_FAIL_INDEX_MSG(p_pos, priv_data->children.size() + 1, FormatVE("Invalid new child position: %d.", p_pos).c_str());
     ERR_FAIL_COND_MSG(p_child->priv_data->parent != this, "Child is not a child of this node.");
     ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, move_child() failed. Consider using call_deferred(\"move_child\") instead (or \"popup\" if this is from a popup).");
 
@@ -486,25 +522,11 @@ void Node::move_child(Node *p_child, int p_pos) {
 
 void Node::raise() {
 
-    if (!priv_data->parent)
+    if (!priv_data->parent) {
         return;
+    }
 
     priv_data->parent->move_child(this, priv_data->parent->priv_data->children.size() - 1);
-}
-
-void Node::add_child_notify(Node *p_child) {
-
-    // to be used when not wanted
-}
-
-void Node::remove_child_notify(Node *p_child) {
-
-    // to be used when not wanted
-}
-
-void Node::move_child_notify(Node *p_child) {
-
-    // to be used when not wanted
 }
 
 void Node::set_physics_process(bool p_process) {
@@ -856,10 +878,6 @@ Ref<MultiplayerAPI> Node::get_multiplayer() const {
     return get_tree()->get_multiplayer();
 }
 
-Ref<MultiplayerAPI> Node::get_custom_multiplayer() const {
-    return multiplayer;
-}
-
 void Node::set_custom_multiplayer(Ref<MultiplayerAPI> p_multiplayer) {
 
     multiplayer = p_multiplayer;
@@ -931,19 +949,15 @@ bool Node::can_process() const {
 }
 
 float Node::get_physics_process_delta_time() const {
-
-    if (tree)
-        return tree->get_physics_process_time();
-    else
-        return 0;
+    return tree ? tree->get_physics_process_time() : 0;
 }
 
 float Node::get_process_delta_time() const {
-
-    if (tree)
+    if (tree) {
         return tree->get_idle_process_time();
-    else
+    } else {
         return 0;
+    }
 }
 
 void Node::set_process(bool p_idle_process) {
@@ -967,18 +981,18 @@ bool Node::is_processing() const {
 }
 
 void Node::set_process_internal(bool p_idle_process_internal) {
-
     if (priv_data->idle_process_internal == p_idle_process_internal)
         return;
 
     priv_data->idle_process_internal = p_idle_process_internal;
 
-    if (priv_data->idle_process_internal)
+    if (priv_data->idle_process_internal) {
         add_to_group("idle_process_internal", false);
-    else
+    } else {
         remove_from_group("idle_process_internal");
+    }
 
-    Object_change_notify(this,"idle_process_internal");
+    Object_change_notify(this, "idle_process_internal");
 }
 
 bool Node::is_processing_internal() const {
@@ -1011,11 +1025,6 @@ void Node::set_process_priority(int p_priority) {
     }
 }
 
-int Node::get_process_priority() const {
-
-    return process_priority;
-}
-
 void Node::set_process_input(bool p_enable) {
 
     if (p_enable == priv_data->input)
@@ -1026,9 +1035,9 @@ void Node::set_process_input(bool p_enable) {
         return;
 
     if (p_enable)
-        add_to_group(StringName("_vp_input" + itos(get_viewport()->get_instance_id())));
+        add_to_group(StringName("_vp_input" + itos(entt::to_integral(get_viewport()->get_instance_id()))));
     else
-        remove_from_group(StringName("_vp_input" + itos(get_viewport()->get_instance_id())));
+        remove_from_group(StringName("_vp_input" + itos(entt::to_integral(get_viewport()->get_instance_id()))));
 }
 
 bool Node::is_processing_input() const {
@@ -1044,9 +1053,9 @@ void Node::set_process_unhandled_input(bool p_enable) {
         return;
 
     if (p_enable)
-        add_to_group(StringName("_vp_unhandled_input" + itos(get_viewport()->get_instance_id())));
+        add_to_group(StringName("_vp_unhandled_input" + itos(entt::to_integral(get_viewport()->get_instance_id()))));
     else
-        remove_from_group(StringName("_vp_unhandled_input" + itos(get_viewport()->get_instance_id())));
+        remove_from_group(StringName("_vp_unhandled_input" + itos(entt::to_integral(get_viewport()->get_instance_id()))));
 }
 
 bool Node::is_processing_unhandled_input() const {
@@ -1062,13 +1071,21 @@ void Node::set_process_unhandled_key_input(bool p_enable) {
         return;
 
     if (p_enable)
-        add_to_group(StringName("_vp_unhandled_key_input" + itos(get_viewport()->get_instance_id())));
+        add_to_group(StringName("_vp_unhandled_key_input" + itos(entt::to_integral(get_viewport()->get_instance_id()))));
     else
-        remove_from_group(StringName("_vp_unhandled_key_input" + itos(get_viewport()->get_instance_id())));
+        remove_from_group(StringName("_vp_unhandled_key_input" + itos(entt::to_integral(get_viewport()->get_instance_id()))));
 }
 
 bool Node::is_processing_unhandled_key_input() const {
     return priv_data->unhandled_key_input;
+}
+
+void Node::_set_use_identity_transform(bool p_enable) {
+    priv_data->use_identity_transform = p_enable;
+}
+
+bool Node::_is_using_identity_transform() const {
+    return priv_data->use_identity_transform;
 }
 
 StringName Node::get_name() const {
@@ -1326,12 +1343,15 @@ void Node::_add_child_nocheck(Node *p_child, const StringName &p_name) {
 void Node::add_child(Node *p_child, bool p_legible_unique_name) {
 
     ERR_FAIL_NULL(p_child);
-    ERR_FAIL_COND_MSG(p_child == this, "Can't add child '" + String(p_child->get_name()) + "' to itself."); // adding to itself!
+    ERR_FAIL_COND_MSG(p_child == this, FormatVE("Can't add child '%s' to itself.", p_child->get_name().asCString())); // adding to itself!
     if (unlikely(p_child->priv_data->parent))  // Fail if node has a parent
     {
-        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"p_child->priv_data->parent\" ' is true.", DEBUG_STR("Can't add child '" + String(p_child->get_name()) + "' to '" + get_name() + "', already has a parent '" + p_child->priv_data->parent->get_name() + "'."));
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"p_child->priv_data->parent\" ' is true.", FormatVE("Can't add child '%s' to '%s', already has a parent '%s'.", p_child->get_name().asCString(), get_name().asCString(), p_child->priv_data->parent->get_name().asCString())); //Fail if node has a parent
         return;
     }
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_MSG(p_child->is_a_parent_of(this), FormatVE("Can't add child '%s' to '%s' as it would result in a cyclic dependency since '%s' is already a parent of '%s'.", p_child->get_name().asCString(), get_name().asCString(), p_child->get_name().asCString(), get_name().asCString()));
+#endif
     ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, add_node() failed. Consider using "
                                          "call_deferred(\"add_child\", child) instead.");
 
@@ -1355,37 +1375,6 @@ void Node::add_child_below_node(Node *p_node, Node *p_child, bool p_legible_uniq
     }
 }
 
-void Node::_propagate_validate_owner() {
-
-    if (priv_data->owner) {
-
-        bool found = false;
-        Node *parent = priv_data->parent;
-
-        while (parent) {
-
-            if (parent == priv_data->owner) {
-
-                found = true;
-                break;
-            }
-
-            parent = parent->priv_data->parent;
-        }
-
-        if (!found) {
-
-            priv_data->owner->priv_data->owned.erase_first(priv_data->OW);
-            priv_data->OW = nullptr;
-            priv_data->owner = nullptr;
-        }
-    }
-
-    for (size_t i = 0; i < priv_data->children.size(); i++) {
-
-        priv_data->children[i]->_propagate_validate_owner();
-    }
-}
 
 void Node::remove_child(Node *p_child) {
 
@@ -1413,8 +1402,7 @@ void Node::remove_child(Node *p_child) {
         }
     }
 
-    ERR_FAIL_COND_MSG(idx == -1, "Cannot remove child node " + String(p_child->get_name()) + " as it is not a child of this node.");
-    //ERR_FAIL_COND();
+    ERR_FAIL_COND_MSG(idx == -1, FormatVE("Cannot remove child node '%s' as it is not a child of this node.", p_child->get_name().asCString()));
 
     //if (data->scene) { does not matter
 
@@ -1439,12 +1427,7 @@ void Node::remove_child(Node *p_child) {
     p_child->priv_data->parent = nullptr;
     p_child->priv_data->pos = -1;
 
-    // validate owner
-    p_child->_propagate_validate_owner();
-
-    if (inside_tree) {
-        p_child->_propagate_after_exit_tree();
-    }
+    p_child->_propagate_after_exit_branch(inside_tree);
 }
 
 int Node::get_child_count() const {
@@ -1456,6 +1439,11 @@ Node *Node::get_child(int p_index) const {
     ERR_FAIL_INDEX_V(p_index, priv_data->children.size(), nullptr);
 
     return priv_data->children[p_index];
+}
+
+const Vector<Node *> &Node::children() const
+{
+    return priv_data->children;
 }
 
 Node *Node::_get_child_by_name(const StringName &p_name) const {
@@ -1525,8 +1513,9 @@ Node *Node::get_node_or_null(const NodePath &p_path) const {
             next = current->priv_data->parent;
         } else if (current == nullptr) {
 
-            if (name == root->get_name())
+            if (name == root->get_name()) {
                 next = root;
+            }
 
         } else {
 
@@ -1552,10 +1541,42 @@ Node *Node::get_node_or_null(const NodePath &p_path) const {
     return current;
 }
 
+Node *Node::find_node(StringView p_mask, bool p_recursive, bool p_owned) const
+{
+    Node *const *cptr = priv_data->children.data();
+    int ccount = priv_data->children.size();
+    for (int i = 0; i < ccount; i++) {
+        if (p_owned && !cptr[i]->priv_data->owner) {
+            continue;
+        }
+
+        if (StringUtils::match(cptr[i]->priv_data->name,p_mask)) {
+            return cptr[i];
+        }
+
+        if (!p_recursive) {
+            continue;
+        }
+
+        Node *ret = cptr[i]->find_node(p_mask, true, p_owned);
+        if (ret) {
+            return ret;
+        }
+    }
+    return nullptr;
+}
 Node *Node::get_node(const NodePath &p_path) const {
 
     Node *node = get_node_or_null(p_path);
-    ERR_FAIL_COND_V_MSG(!node, nullptr, "Node not found: " + (String)p_path + ".");
+    if (unlikely(!node)) {
+        if (p_path.is_absolute()) {
+            ERR_FAIL_V_MSG(nullptr, FormatSN("(Node not found: \"%s\" (absolute path attempted from \"%s\").)",
+                                            p_path.asString().c_str(), get_path().asString().c_str()));
+        } else {
+            ERR_FAIL_V_MSG(nullptr, FormatSN("(Node not found: \"%s\" (relative to \"%s\").)",
+                                            p_path.asString().c_str(), get_path().asString().c_str()));
+        }
+    }
     return node;
 }
 
@@ -1591,19 +1612,9 @@ bool Node::is_greater_than(const Node *p_node) const {
 
     ERR_FAIL_COND_V(priv_data->depth < 0, false);
     ERR_FAIL_COND_V(p_node->priv_data->depth < 0, false);
-#ifdef NO_ALLOCA
-
-    Vector<int> this_stack;
-    Vector<int> that_stack;
-    this_stack.resize(data->depth);
-    that_stack.resize(p_node->data->depth);
-
-#else
 
     int *this_stack = (int *)alloca(sizeof(int) * priv_data->depth);
     int *that_stack = (int *)alloca(sizeof(int) * p_node->priv_data->depth);
-
-#endif
 
     const Node *n = this;
 
@@ -1648,13 +1659,14 @@ bool Node::is_greater_than(const Node *p_node) const {
     return res;
 }
 
-void Node::get_owned_by(Node *p_by, Vector<Node *> *p_owned) {
+void Node::get_owned_by(Node *p_by, Vector<Node *> &p_owned) {
 
     if (priv_data->owner == p_by)
-        p_owned->push_back(this);
+        p_owned.emplace_back(this);
 
-    for (int i = 0; i < get_child_count(); i++)
-        get_child(i)->get_owned_by(p_by, p_owned);
+    for(Node * chld : priv_data->children) {
+        chld->get_owned_by(p_by, p_owned);
+    }
 }
 
 void Node::_set_owner_nocheck(Node *p_owner) {
@@ -1818,7 +1830,7 @@ bool Node::is_in_group(const StringName &p_identifier) const {
 
 void Node::add_to_group(const StringName &p_identifier, bool p_persistent) {
 
-    ERR_FAIL_COND(!p_identifier.asString().length());
+    ERR_FAIL_COND(StringView(p_identifier).empty());
 
     if (priv_data->grouped.contains(p_identifier))
         return;
@@ -1979,7 +1991,7 @@ void Node::remove_and_skip() {
 
     Node *new_owner = get_owner();
 
-    Deque<Node *> children;
+    Dequeue<Node *> children;
 
     while (true) {
 
@@ -2055,6 +2067,84 @@ bool Node::is_editable_instance(const Node *p_node) const {
     return p_node->priv_data->editable_instance;
 }
 
+Node *Node::get_deepest_editable_node(Node *p_start_node) const {
+    ERR_FAIL_NULL_V(p_start_node, nullptr);
+    ERR_FAIL_COND_V(!is_a_parent_of(p_start_node), p_start_node);
+
+    Node const *iterated_item = p_start_node;
+    Node *node = p_start_node;
+
+    while (iterated_item->get_owner() && iterated_item->get_owner() != this) {
+        if (!is_editable_instance(iterated_item->get_owner()))
+            node = iterated_item->get_owner();
+
+        iterated_item = iterated_item->get_owner();
+    }
+
+    return node;
+}
+
+#ifdef TOOLS_ENABLED
+void Node::set_property_pinned(const StringName &p_property, bool p_pinned) {
+    bool current_pinned = false;
+    bool has_pinned = has_meta("_edit_pinned_properties_");
+    Array pinned;
+    StringName psa = get_property_store_alias(p_property);
+    if (has_pinned) {
+        pinned = get_meta("_edit_pinned_properties_").as<Array>();
+        current_pinned = pinned.contains(psa);
+    }
+
+    if (current_pinned != p_pinned) {
+        if (p_pinned) {
+            pinned.append(psa);
+            if (!has_pinned) {
+                set_meta("_edit_pinned_properties_", pinned);
+            }
+        } else {
+            pinned.erase(psa);
+            if (pinned.empty()) {
+                remove_meta("_edit_pinned_properties_");
+            }
+        }
+    }
+}
+
+bool Node::is_property_pinned(const StringName &p_property) const {
+    if (!has_meta("_edit_pinned_properties_")) {
+        return false;
+    }
+    Array pinned = get_meta("_edit_pinned_properties_").as<Array>();
+    StringName psa = get_property_store_alias(p_property);
+    return pinned.contains(psa);
+}
+
+StringName Node::get_property_store_alias(const StringName &p_property) const {
+    return p_property;
+}
+#endif
+void Node::get_storable_properties(Set<StringName> &r_storable_properties) const {
+    Vector<PropertyInfo> pi;
+    get_property_list(&pi);
+    for (const PropertyInfo &prop : pi) {
+        if ((prop.usage & PROPERTY_USAGE_STORAGE)) {
+            r_storable_properties.insert(prop.name);
+        }
+    }
+}
+
+String Node::to_string() {
+    if (get_script_instance()) {
+        bool valid;
+        String ret = get_script_instance()->to_string(&valid);
+        if (valid) {
+            return ret;
+        }
+    }
+
+    return (get_name() ? String(get_name()) + ":" : "") + Object::to_string();
+}
+
 void Node::set_scene_instance_state(const Ref<SceneState> &p_state) {
 
     priv_data->instance_state = p_state;
@@ -2096,9 +2186,9 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
 
     bool instanced = false;
 
-    if (object_cast<InstancePlaceholder>(this)) {
+    const InstancePlaceholder *ip = object_cast<const InstancePlaceholder>(this);
 
-        const InstancePlaceholder *ip = object_cast<const InstancePlaceholder>(this);
+    if (ip) {
         InstancePlaceholder *nip = memnew(InstancePlaceholder);
         nip->set_instance_path(ip->get_instance_path());
         node = nip;
@@ -2114,6 +2204,7 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
 #endif
         node = res->instance(ges);
         ERR_FAIL_COND_V(!node, nullptr);
+        node->set_scene_instance_load_placeholder(get_scene_instance_load_placeholder());
 
         instanced = true;
 
@@ -2122,23 +2213,28 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
         Object *obj = ClassDB::instance(get_class_name());
         ERR_FAIL_COND_V(!obj, nullptr);
         node = object_cast<Node>(obj);
-        memdelete(obj);
+        if(!node) {
+            memdelete(obj);
+        }
         ERR_FAIL_COND_V(!node, nullptr);
     }
 
     if (!get_filename().empty()) { //an instance
         node->set_filename(get_filename());
+        node->priv_data->editable_instance = priv_data->editable_instance;
     }
 
     StringName script_property_name = CoreStringNames::get_singleton()->_script;
 
     Dequeue<const Node *> hidden_roots;
     Dequeue<const Node *> node_tree;
-    node_tree.push_front(this);
+    node_tree.emplace_front(this);
 
     if (instanced) {
         // Since nodes in the instanced hierarchy won't be duplicated explicitly, we need to make an inventory
         // of all the nodes in the tree of the instanced scene in order to transfer the values of the properties
+        eastl::vector_set<const Node *> instance_roots;
+        instance_roots.insert(this);
 
         for (auto N = node_tree.begin(); N!=node_tree.end(); ++N) {
             for (int i = 0; i < (*N)->get_child_count(); ++i) {
@@ -2146,13 +2242,16 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
                 Node *descendant = (*N)->get_child(i);
                 // Skip nodes not really belonging to the instanced hierarchy; they'll be processed normally later
                 // but remember non-instanced nodes that are hidden below instanced ones
-                if (descendant->priv_data->owner != this) {
-                    if (descendant->get_parent() && descendant->get_parent() != this && descendant->get_parent()->priv_data->owner == this && descendant->priv_data->owner != descendant->get_parent())
-                        hidden_roots.push_back(descendant);
+                if (instance_roots.contains(descendant->priv_data->owner)) {
+                    if (descendant->get_parent() && descendant->get_parent() != this && descendant->priv_data->owner != descendant->get_parent())
+                        hidden_roots.emplace_back(descendant);
                     continue;
                 }
 
-                node_tree.push_back(descendant);
+                node_tree.emplace_back(descendant);
+                if (!descendant->get_filename().empty() && instance_roots.contains(descendant->get_owner())) {
+                    instance_roots.insert(descendant);
+                }
             }
         }
     }
@@ -2197,7 +2296,7 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
         }
     }
 
-    if (get_name() != StringName()) {
+    if (!get_name().empty()) {
         node->set_name(get_name());
     }
 
@@ -2215,17 +2314,18 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
             if ((p_flags & DUPLICATE_FROM_EDITOR) && !E.persistent)
                 continue;
 #endif
-
             node->add_to_group(E.name, E.persistent);
         }
     }
 
     for (int i = 0; i < get_child_count(); i++) {
 
-        if (get_child(i)->parent_owned)
+        if (get_child(i)->parent_owned) {
             continue;
-        if (instanced && get_child(i)->priv_data->owner == this)
+        }
+        if (instanced && get_child(i)->priv_data->owner == this) {
             continue; //part of instance
+        }
 
         Node *dup = get_child(i)->_duplicate(p_flags, r_duplimap);
         if (!dup) {
@@ -2260,7 +2360,6 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
         int pos = E->get_position_in_parent();
 
         if (pos < parent->get_child_count() - 1) {
-
             parent->move_child(dup, pos);
         }
     }
@@ -2281,8 +2380,18 @@ Node *Node::duplicate(int p_flags) const {
 
 #ifdef TOOLS_ENABLED
 Node *Node::duplicate_from_editor(HashMap<const Node *, Node *> &r_duplimap) const {
+    return duplicate_from_editor(r_duplimap, HashMap<RES, RES>());
+}
 
-    Node *dupe = _duplicate(DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS | DUPLICATE_USE_INSTANCING | DUPLICATE_FROM_EDITOR, &r_duplimap);
+Node *Node::duplicate_from_editor(HashMap<const Node *, Node *> &r_duplimap, const HashMap<RES, RES> &p_resource_remap) const {
+
+    Node *dupe = _duplicate(
+            DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS | DUPLICATE_USE_INSTANCING | DUPLICATE_FROM_EDITOR,
+            &r_duplimap);
+    // This is used by SceneTreeDock's paste functionality. When pasting to foreign scene, resources are duplicated.
+    if (!p_resource_remap.empty()) {
+        remap_node_resources(dupe, p_resource_remap);
+    }
 
     // Duplication of signals must happen after all the node descendants have been copied,
     // because re-targeting of connections from some descendant to another is not possible
@@ -2291,12 +2400,60 @@ Node *Node::duplicate_from_editor(HashMap<const Node *, Node *> &r_duplimap) con
 
     return dupe;
 }
+void Node::remap_node_resources(Node *p_node, const HashMap<RES, RES> &p_resource_remap) const {
+    Vector<PropertyInfo> props;
+    p_node->get_property_list(&props);
+
+    for (PropertyInfo &inf : props) {
+        if (!(inf.usage & PROPERTY_USAGE_STORAGE)) {
+            continue;
+        }
+
+        Variant v = p_node->get(inf.name);
+        if (v.is_ref()) {
+            RES res = v;
+            if (res) {
+                if (p_resource_remap.contains(res)) {
+                    p_node->set(inf.name, p_resource_remap.at(res));
+                    remap_nested_resources(res, p_resource_remap);
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < p_node->get_child_count(); i++) {
+        remap_node_resources(p_node->get_child(i), p_resource_remap);
+    }
+}
+
+void Node::remap_nested_resources(const RES &p_resource, const HashMap<RES, RES> &p_resource_remap) const {
+    Vector<PropertyInfo> props;
+    p_resource->get_property_list(&props);
+
+    for (PropertyInfo &inf : props) {
+        if (!(inf.usage & PROPERTY_USAGE_STORAGE)) {
+            continue;
+        }
+
+        Variant v = p_resource->get(inf.name);
+        if (v.is_ref()) {
+            RES res = v;
+            if (res) {
+                if (p_resource_remap.contains(res)) {
+                    p_resource->set(inf.name, p_resource_remap.at(res));
+                    remap_nested_resources(res, p_resource_remap);
+                }
+            }
+        }
+    }
+}
 #endif
 
 void Node::_duplicate_and_reown(Node *p_new_parent, const HashMap<Node *, Node *> &p_reown_map) const {
 
-    if (get_owner() != get_parent()->get_owner())
+    if (get_owner() != get_parent()->get_owner()) {
         return;
+    }
 
     Node *node = nullptr;
 
@@ -2367,8 +2524,9 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const HashMap<Node *, Node *
 // if the emitter node comes later in tree order than the receiver
 void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
 
-    if (this != p_original && (get_owner() != p_original && get_owner() != p_original->get_owner()))
+    if (this != p_original && (get_owner() != p_original && get_owner() != p_original->get_owner())) {
         return;
+    }
 
     Vector<Connection> conns;
     get_all_signal_connections(&conns);
@@ -2398,7 +2556,7 @@ void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
             if (copy && copytarget) {
                 const Callable copy_callable = Callable(copytarget, E.callable.get_method());
                 if (!copy->is_connected(E.signal.get_name(), copy_callable)) {
-                    copy->connect(E.signal.get_name(), copy_callable, E.binds, E.flags);
+                    copy->connect(E.signal.get_name(), copy_callable, E.flags);
                 }
             }
         }
@@ -2453,22 +2611,21 @@ Node *Node::duplicate_and_reown(const HashMap<Node *, Node *> &p_reown_map) cons
     return node;
 }
 
-static void find_owned_by(Node *p_by, Node *p_node, List<Node *> *p_owned) {
+static void find_owned_by(Node *p_by, Node *p_node, Vector<Node *> &p_owned) {
 
     if (p_node->get_owner() == p_by)
-        p_owned->push_back(p_node);
+        p_owned.push_back(p_node);
 
-    for (int i = 0; i < p_node->get_child_count(); i++) {
-
-        find_owned_by(p_by, p_node->get_child(i), p_owned);
+    for(Node *chld : p_node->children()) {
+        find_owned_by(p_by, chld, p_owned);
     }
 }
 
-struct _NodeReplaceByPair {
-
-    StringName name;
-    Variant value;
-};
+//TODO: replace data was never used, so it was commented out.
+//struct _NodeReplaceByPair {
+//    StringName name;
+//    Variant value;
+//};
 
 void Node::replace_by(Node *p_node, bool p_keep_data) {
 
@@ -2476,24 +2633,24 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
     ERR_FAIL_COND(p_node->priv_data->parent);
 
     Vector<Node *> owned(priv_data->owned);
-    List<Node *> owned_by_owner;
+    Vector<Node *> owned_by_owner;
     Node *owner = (priv_data->owner == this) ? p_node : priv_data->owner;
 
-    Vector<_NodeReplaceByPair> replace_data;
+    //Vector<_NodeReplaceByPair> replace_data;
 
     if (p_keep_data) {
 
-        Vector<PropertyInfo> plist;
-        get_property_list(&plist);
+//        Vector<PropertyInfo> plist;
+//        get_property_list(&plist);
 
-        for (const PropertyInfo &E : plist) {
+//        for (const PropertyInfo &E : plist) {
 
-            _NodeReplaceByPair rd;
-            if (!(E.usage & PROPERTY_USAGE_STORAGE))
-                continue;
-            rd.name = E.name;
-            rd.value = get(rd.name);
-        }
+//            _NodeReplaceByPair rd;
+//            if (!(E.usage & PROPERTY_USAGE_STORAGE))
+//                continue;
+//            rd.name = E.name;
+//            rd.value = get(rd.name);
+//        }
 
         Vector<GroupInfo> groups;
         get_groups(&groups);
@@ -2506,7 +2663,7 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
 
     if (priv_data->owner) {
         for (int i = 0; i < get_child_count(); i++)
-            find_owned_by(priv_data->owner, get_child(i), &owned_by_owner);
+            find_owned_by(priv_data->owner, get_child(i), owned_by_owner);
     }
 
     Node *parent = priv_data->parent;
@@ -2530,18 +2687,20 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
     }
 
     p_node->set_owner(owner);
-    for (auto & e: owned)
-        e->set_owner(p_node);
 
-    for (Node * n: owned_by_owner)
+    for (auto & e: owned) {
+        e->set_owner(p_node);
+    }
+
+    for (Node * n: owned_by_owner) {
         n->set_owner(owner);
+    }
 
     p_node->set_filename(get_filename());
 
-    for (_NodeReplaceByPair & E : replace_data) {
-
-        p_node->set(E.name, E.value);
-    }
+//    for (_NodeReplaceByPair & E : replace_data) {
+//        p_node->set(E.name, E.value);
+//    }
 }
 
 void Node::_replace_connections_target(Node *p_new_target) {
@@ -2558,42 +2717,10 @@ void Node::_replace_connections_target(Node *p_new_target) {
                     || !refFromRefPtr<Script>(p_new_target->get_script())
                     || refFromRefPtr<Script>(p_new_target->get_script())->has_method(c.callable.get_method());
             ERR_CONTINUE_MSG(!valid, String("Attempt to connect signal '") + c.signal.get_object()->get_class() + "." + c.signal.get_name() + "' to nonexistent method '" + c.callable.get_object()->get_class() + "." + c.callable.get_method() + "'.");
-            c.signal.get_object()->connect(c.signal.get_name(), Callable(p_new_target, c.callable.get_method()), c.binds, c.flags);
+            c.signal.get_object()->connect(c.signal.get_name(), Callable(p_new_target, c.callable.get_method()), /*c.binds,*/ c.flags);
         }
     }
 }
-
-//Vector<Variant> Node::make_binds(VARIANT_ARG_DECLARE) {
-
-//    Vector<Variant> ret;
-
-//    if (p_arg1.get_type() == VariantType::NIL)
-//        return ret;
-
-//    ret.emplace_back(p_arg1);
-
-//    if (p_arg2.get_type() == VariantType::NIL)
-//        return ret;
-
-//    ret.emplace_back(p_arg2);
-
-//    if (p_arg3.get_type() == VariantType::NIL)
-//        return ret;
-
-//    ret.emplace_back(p_arg3);
-
-//    if (p_arg4.get_type() == VariantType::NIL)
-//        return ret;
-
-//    ret.emplace_back(p_arg4);
-
-//    if (p_arg5.get_type() == VariantType::NIL)
-//        return ret;
-
-//    ret.emplace_back(p_arg5);
-
-//    return ret;
-//}
 
 bool Node::has_node_and_resource(const NodePath &p_path) const {
 
@@ -2633,8 +2760,9 @@ Node *Node::get_node_and_resource(const NodePath &p_path, RES &r_res, Vector<Str
     Node *node = get_node(p_path);
     r_res = RES();
     r_leftover_subpath = Vector<StringName>();
-    if (!node)
+    if (!node) {
         return nullptr;
+    }
 
     if (p_path.get_subname_count()==0) {
         return node;
@@ -2693,6 +2821,7 @@ void Node::_set_tree(SceneTree *p_tree) {
 
     SceneTree *tree_changed_a = nullptr;
     SceneTree *tree_changed_b = nullptr;
+    //TODO: consider case where tree==p_tree
 
     //ERR_FAIL_COND(p_scene && data->parent && !data->parent->data->scene); //nobug if both are null
 
@@ -2716,16 +2845,12 @@ void Node::_set_tree(SceneTree *p_tree) {
 
     if (tree_changed_a)
         tree_changed_a->tree_changed();
-    if (tree_changed_b)
+    if (tree_changed_a!=tree_changed_b && tree_changed_b)
         tree_changed_b->tree_changed();
 }
 
 #ifdef DEBUG_ENABLED
-static void _Node_debug_sn(Object *p_obj) {
-
-    Node *n = object_cast<Node>(p_obj);
-    if (!n)
-        return;
+static void _Node_debug_sn(Node *n) {
 
     if (n->is_inside_tree())
         return;
@@ -2740,7 +2865,7 @@ static void _Node_debug_sn(Object *p_obj) {
         path = n->get_name();
     else
         path = StringName(String(p->get_name()) + "/" + (String)p->get_path_to(n));
-    print_line(itos(p_obj->get_instance_id()) + " - Stray Node: " + path + " (Type: " + n->get_class() + ")");
+    print_line(itos(entt::to_integral(n->get_instance_id())) + " - Stray Node: " + path + " (Type: " + n->get_class() + ")");
 }
 #endif // DEBUG_ENABLED
 
@@ -2752,7 +2877,15 @@ void Node::_print_stray_nodes() {
 void Node::print_stray_nodes() {
 
 #ifdef DEBUG_ENABLED
-    ObjectDB::debug_objects(_Node_debug_sn);
+    game_object_registry.lock_registry();
+    game_object_registry.registry.each([](const GameEntity ent) {
+        ObjectLink *link = game_object_registry.try_get<ObjectLink>(ent);
+        Node *obj = link ? object_cast<Node>(link->object) : nullptr;
+        if (obj) {
+            _Node_debug_sn(obj);
+        }
+    });
+    game_object_registry.unlock_registry();
 #endif
 }
 
@@ -2790,33 +2923,6 @@ NodePath Node::get_import_path() const {
 #else
     return NodePath();
 #endif
-}
-
-static void _add_nodes_to_options(const Node *p_base, const Node *p_node, List<String> *r_options) {
-
-#ifdef TOOLS_ENABLED
-    const char * quote_style(EDITOR_DEF_T<bool>("text_editor/completion/use_single_quotes", false) ? "'" : "\"");
-#else
-    const char * quote_style = "\"";
-#endif
-
-    if (p_node != p_base && !p_node->get_owner())
-        return;
-    String n(p_base->get_path_to(p_node).asString());
-    r_options->push_back(quote_style + n + quote_style);
-    for (int i = 0; i < p_node->get_child_count(); i++) {
-        _add_nodes_to_options(p_base, p_node->get_child(i), r_options);
-    }
-}
-
-void Node::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
-
-    StringName pf = p_function;
-    if ((pf == "has_node" || pf == "get_node") && p_idx == 0) {
-
-        _add_nodes_to_options(this, this, r_options);
-    }
-    Object::get_argument_options(p_function, p_idx, r_options);
 }
 
 void Node::clear_internal_tree_resource_paths() {
@@ -2874,94 +2980,94 @@ void Node::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_child_below_node", {"node", "child_node", "legible_unique_name"}), &Node::add_child_below_node, {DEFVAL(false)});
 
-    MethodBinder::bind_method(D_METHOD("set_name", {"name"}), &Node::set_name);
-    MethodBinder::bind_method(D_METHOD("get_name"), &Node::get_name);
+    BIND_METHOD(Node,set_name);
+    BIND_METHOD(Node,get_name);
     MethodBinder::bind_method(D_METHOD("add_child", {"node", "legible_unique_name"}), &Node::add_child, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("remove_child", {"node"}), &Node::remove_child);
-    MethodBinder::bind_method(D_METHOD("get_child_count"), &Node::get_child_count);
+    BIND_METHOD(Node,remove_child);
+    BIND_METHOD(Node,get_child_count);
     MethodBinder::bind_method(D_METHOD("get_children"), &Node::_get_children);
-    MethodBinder::bind_method(D_METHOD("get_child", {"idx"}), &Node::get_child);
-    MethodBinder::bind_method(D_METHOD("has_node", {"path"}), &Node::has_node);
-    MethodBinder::bind_method(D_METHOD("get_node", {"path"}), &Node::get_node);
-    MethodBinder::bind_method(D_METHOD("get_node_or_null", {"path"}), &Node::get_node_or_null);
-    MethodBinder::bind_method(D_METHOD("get_parent"), &Node::get_parent);
-    MethodBinder::bind_method(D_METHOD("has_node_and_resource", {"path"}), &Node::has_node_and_resource);
+    BIND_METHOD(Node,get_child);
+    BIND_METHOD(Node,has_node);
+    BIND_METHOD(Node,get_node);
+    BIND_METHOD(Node,get_node_or_null);
+    BIND_METHOD(Node,get_parent);
+    BIND_METHOD(Node,has_node_and_resource);
     MethodBinder::bind_method(D_METHOD("get_node_and_resource", {"path"}), &Node::_get_node_and_resource);
 
-    MethodBinder::bind_method(D_METHOD("is_inside_tree"), &Node::is_inside_tree);
-    MethodBinder::bind_method(D_METHOD("is_a_parent_of", {"node"}), &Node::is_a_parent_of);
-    MethodBinder::bind_method(D_METHOD("is_greater_than", {"node"}), &Node::is_greater_than);
-    MethodBinder::bind_method(D_METHOD("get_path"), &Node::get_path);
-    MethodBinder::bind_method(D_METHOD("get_path_to", {"node"}), &Node::get_path_to);
+    BIND_METHOD(Node,is_inside_tree);
+    BIND_METHOD(Node,is_a_parent_of);
+    BIND_METHOD(Node,is_greater_than);
+    BIND_METHOD(Node,get_path);
+    BIND_METHOD(Node,get_path_to);
     MethodBinder::bind_method(D_METHOD("add_to_group", {"group", "persistent"}), &Node::add_to_group, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("remove_from_group", {"group"}), &Node::remove_from_group);
-    MethodBinder::bind_method(D_METHOD("is_in_group", {"group"}), &Node::is_in_group);
-    MethodBinder::bind_method(D_METHOD("move_child", {"child_node", "to_position"}), &Node::move_child);
+    BIND_METHOD(Node,remove_from_group);
+    BIND_METHOD(Node,is_in_group);
+    BIND_METHOD(Node,move_child);
     MethodBinder::bind_method(D_METHOD("get_groups"), &Node::_get_groups);
-    MethodBinder::bind_method(D_METHOD("raise"), &Node::raise);
-    MethodBinder::bind_method(D_METHOD("set_owner", {"owner"}), &Node::set_owner);
-    MethodBinder::bind_method(D_METHOD("get_owner"), &Node::get_owner);
-    MethodBinder::bind_method(D_METHOD("remove_and_skip"), &Node::remove_and_skip);
-    MethodBinder::bind_method(D_METHOD("get_index"), &Node::get_index);
-    MethodBinder::bind_method(D_METHOD("print_tree"), &Node::print_tree);
+    BIND_METHOD(Node,raise);
+    BIND_METHOD(Node,set_owner);
+    BIND_METHOD(Node,get_owner);
+    BIND_METHOD(Node,remove_and_skip);
+    BIND_METHOD(Node,get_index);
+    BIND_METHOD(Node,print_tree);
 
-    MethodBinder::bind_method(D_METHOD("set_filename", {"filename"}), &Node::set_filename);
-    MethodBinder::bind_method(D_METHOD("get_filename"), &Node::get_filename);
-    MethodBinder::bind_method(D_METHOD("propagate_notification", {"what"}), &Node::propagate_notification);
+    BIND_METHOD(Node,set_filename);
+    BIND_METHOD(Node,get_filename);
+    BIND_METHOD(Node,propagate_notification);
     MethodBinder::bind_method(D_METHOD("propagate_call", {"method", "args", "parent_first"}), &Node::propagate_call, {DEFVAL(Array()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("set_physics_process", {"enable"}), &Node::set_physics_process);
-    MethodBinder::bind_method(D_METHOD("get_physics_process_delta_time"), &Node::get_physics_process_delta_time);
-    MethodBinder::bind_method(D_METHOD("is_physics_processing"), &Node::is_physics_processing);
-    MethodBinder::bind_method(D_METHOD("get_process_delta_time"), &Node::get_process_delta_time);
-    MethodBinder::bind_method(D_METHOD("set_process", {"enable"}), &Node::set_process);
-    MethodBinder::bind_method(D_METHOD("set_process_priority", {"priority"}), &Node::set_process_priority);
-    MethodBinder::bind_method(D_METHOD("get_process_priority"), &Node::get_process_priority);
-    MethodBinder::bind_method(D_METHOD("is_processing"), &Node::is_processing);
-    MethodBinder::bind_method(D_METHOD("set_process_input", {"enable"}), &Node::set_process_input);
-    MethodBinder::bind_method(D_METHOD("is_processing_input"), &Node::is_processing_input);
-    MethodBinder::bind_method(D_METHOD("set_process_unhandled_input", {"enable"}), &Node::set_process_unhandled_input);
-    MethodBinder::bind_method(D_METHOD("is_processing_unhandled_input"), &Node::is_processing_unhandled_input);
-    MethodBinder::bind_method(D_METHOD("set_process_unhandled_key_input", {"enable"}), &Node::set_process_unhandled_key_input);
-    MethodBinder::bind_method(D_METHOD("is_processing_unhandled_key_input"), &Node::is_processing_unhandled_key_input);
-    MethodBinder::bind_method(D_METHOD("set_pause_mode", {"mode"}), &Node::set_pause_mode);
-    MethodBinder::bind_method(D_METHOD("get_pause_mode"), &Node::get_pause_mode);
-    MethodBinder::bind_method(D_METHOD("can_process"), &Node::can_process);
+    BIND_METHOD(Node,set_physics_process);
+    BIND_METHOD(Node,get_physics_process_delta_time);
+    BIND_METHOD(Node,is_physics_processing);
+    BIND_METHOD(Node,get_process_delta_time);
+    BIND_METHOD(Node,set_process);
+    BIND_METHOD(Node,set_process_priority);
+    BIND_METHOD(Node,get_process_priority);
+    BIND_METHOD(Node,is_processing);
+    BIND_METHOD(Node,set_process_input);
+    BIND_METHOD(Node,is_processing_input);
+    BIND_METHOD(Node,set_process_unhandled_input);
+    BIND_METHOD(Node,is_processing_unhandled_input);
+    BIND_METHOD(Node,set_process_unhandled_key_input);
+    BIND_METHOD(Node,is_processing_unhandled_key_input);
+    BIND_METHOD(Node,set_pause_mode);
+    BIND_METHOD(Node,get_pause_mode);
+    BIND_METHOD(Node,can_process);
     MethodBinder::bind_method(D_METHOD("print_stray_nodes"), &Node::_print_stray_nodes);
-    MethodBinder::bind_method(D_METHOD("get_position_in_parent"), &Node::get_position_in_parent);
+    BIND_METHOD(Node,get_position_in_parent);
 
-    MethodBinder::bind_method(D_METHOD("set_display_folded", {"fold"}), &Node::set_display_folded);
-    MethodBinder::bind_method(D_METHOD("is_displayed_folded"), &Node::is_displayed_folded);
+    BIND_METHOD(Node,set_display_folded);
+    BIND_METHOD(Node,is_displayed_folded);
 
-    MethodBinder::bind_method(D_METHOD("set_process_internal", {"enable"}), &Node::set_process_internal);
-    MethodBinder::bind_method(D_METHOD("is_processing_internal"), &Node::is_processing_internal);
+    BIND_METHOD(Node,set_process_internal);
+    BIND_METHOD(Node,is_processing_internal);
 
-    MethodBinder::bind_method(D_METHOD("set_physics_process_internal", {"enable"}), &Node::set_physics_process_internal);
-    MethodBinder::bind_method(D_METHOD("is_physics_processing_internal"), &Node::is_physics_processing_internal);
+    BIND_METHOD(Node,set_physics_process_internal);
+    BIND_METHOD(Node,is_physics_processing_internal);
 
-    MethodBinder::bind_method(D_METHOD("get_tree"), &Node::get_tree);
+    BIND_METHOD(Node,get_tree);
 
     MethodBinder::bind_method(D_METHOD("duplicate", {"flags"}), &Node::duplicate, {DEFVAL(DUPLICATE_USE_INSTANCING | DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS)});
     MethodBinder::bind_method(D_METHOD("replace_by", {"node", "keep_data"}), &Node::replace_by, {DEFVAL(false)});
 
-    MethodBinder::bind_method(D_METHOD("set_scene_instance_load_placeholder", {"load_placeholder"}), &Node::set_scene_instance_load_placeholder);
-    MethodBinder::bind_method(D_METHOD("get_scene_instance_load_placeholder"), &Node::get_scene_instance_load_placeholder);
+    BIND_METHOD(Node,set_scene_instance_load_placeholder);
+    BIND_METHOD(Node,get_scene_instance_load_placeholder);
 
-    MethodBinder::bind_method(D_METHOD("get_viewport"), &Node::get_viewport);
+    BIND_METHOD(Node,get_viewport);
 
     MethodBinder::bind_method(D_METHOD("queue_free"), &Node::queue_delete);
 
-    MethodBinder::bind_method(D_METHOD("request_ready"), &Node::request_ready);
+    BIND_METHOD(Node,request_ready);
 
     MethodBinder::bind_method(D_METHOD("set_network_master", {"id", "recursive"}), &Node::set_network_master, {DEFVAL(true)});
-    MethodBinder::bind_method(D_METHOD("get_network_master"), &Node::get_network_master);
+    BIND_METHOD(Node,get_network_master);
 
-    MethodBinder::bind_method(D_METHOD("is_network_master"), &Node::is_network_master);
+    BIND_METHOD(Node,is_network_master);
 
-    MethodBinder::bind_method(D_METHOD("get_multiplayer"), &Node::get_multiplayer);
-    MethodBinder::bind_method(D_METHOD("get_custom_multiplayer"), &Node::get_custom_multiplayer);
-    MethodBinder::bind_method(D_METHOD("set_custom_multiplayer", {"api"}), &Node::set_custom_multiplayer);
-    MethodBinder::bind_method(D_METHOD("rpc_config", {"method", "mode"}), &Node::rpc_config);
-    MethodBinder::bind_method(D_METHOD("rset_config", {"property", "mode"}), &Node::rset_config);
+    BIND_METHOD(Node,get_multiplayer);
+    BIND_METHOD(Node,get_custom_multiplayer);
+    BIND_METHOD(Node,set_custom_multiplayer);
+    BIND_METHOD(Node,rpc_config);
+    BIND_METHOD(Node,rset_config);
 
     MethodBinder::bind_method(D_METHOD("_set_editor_description", {"editor_description"}), &Node::set_editor_description);
     MethodBinder::bind_method(D_METHOD("_get_editor_description"), &Node::get_editor_description);
@@ -2969,7 +3075,7 @@ void Node::_bind_methods() {
 
 
     MethodBinder::bind_method(D_METHOD("_set_import_path", {"import_path"}), &Node::set_import_path);
-    MethodBinder::bind_method(D_METHOD("get_import_path"), &Node::get_import_path);
+    BIND_METHOD(Node,get_import_path);
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "_import_path", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_import_path", "get_import_path");
 
     {
@@ -2989,12 +3095,12 @@ void Node::_bind_methods() {
         MethodBinder::bind_vararg_method( "rpc_unreliable_id", &Node::_rpc_unreliable_id_bind, eastl::move(mi));
     }
 
-    MethodBinder::bind_method(D_METHOD("rset", {"property", "value"}), &Node::rset);
-    MethodBinder::bind_method(D_METHOD("rset_id", {"peer_id", "property", "value"}), &Node::rset_id);
-    MethodBinder::bind_method(D_METHOD("rset_unreliable", {"property", "value"}), &Node::rset_unreliable);
-    MethodBinder::bind_method(D_METHOD("rset_unreliable_id", {"peer_id", "property", "value"}), &Node::rset_unreliable_id);
+    BIND_METHOD(Node,rset);
+    BIND_METHOD(Node,rset_id);
+    BIND_METHOD(Node,rset_unreliable);
+    BIND_METHOD(Node,rset_unreliable_id);
 
-    MethodBinder::bind_method(D_METHOD("update_configuration_warning"), &Node::update_configuration_warning);
+    BIND_METHOD(Node,update_configuration_warning);
 
     BIND_CONSTANT(NOTIFICATION_ENTER_TREE);
     BIND_CONSTANT(NOTIFICATION_EXIT_TREE);
@@ -3043,6 +3149,10 @@ void Node::_bind_methods() {
     ADD_SIGNAL(MethodInfo("tree_entered"));
     ADD_SIGNAL(MethodInfo("tree_exiting"));
     ADD_SIGNAL(MethodInfo("tree_exited"));
+    ADD_SIGNAL(MethodInfo("child_entered_tree",
+            PropertyInfo(VariantType::OBJECT, "node", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT, "Node")));
+    ADD_SIGNAL(MethodInfo(SceneStringNames::child_exiting_tree,
+            PropertyInfo(VariantType::OBJECT, "node", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT, "Node")));
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "pause_mode", PropertyHint::Enum, "Inherit,Stop,Process"), "set_pause_mode", "get_pause_mode");
 
@@ -3057,6 +3167,9 @@ void Node::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "multiplayer", PropertyHint::ResourceType, "MultiplayerAPI", 0), "", "get_multiplayer");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "custom_multiplayer", PropertyHint::ResourceType, "MultiplayerAPI", 0), "set_custom_multiplayer", "get_custom_multiplayer");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_priority"), "set_process_priority", "get_process_priority");
+    // Disabled for now
+    // ADD_PROPERTY(PropertyInfo(Variant::BOOL, "physics_interpolated"), "set_physics_interpolated",
+    // "is_physics_interpolated");
 
 
     BIND_VMETHOD(MethodInfo("_process", PropertyInfo(VariantType::FLOAT, "delta")));
@@ -3070,22 +3183,18 @@ void Node::_bind_methods() {
     BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_configuration_warning"));
 }
 
-Node::Node() {
+Node::Node() : tree(nullptr), viewport(nullptr), blocked(0), process_priority(0), inside_tree(false), parent_owned(false) {
     //TODO: SEGS: create a pool allocator for Node::PrivData !
     priv_data = memnew_basic(Node::PrivData);
     priv_data->pos = -1;
     priv_data->depth = -1;
-    blocked = 0;
     priv_data->parent = nullptr;
-    tree = nullptr;
     priv_data->physics_process = false;
     priv_data->idle_process = false;
-    process_priority = 0;
     priv_data->physics_process_internal = false;
     priv_data->idle_process_internal = false;
-    inside_tree = false;
     priv_data->ready_notified = false;
-
+    priv_data->use_identity_transform = false;
     priv_data->owner = nullptr;
     priv_data->OW = nullptr;
     priv_data->input = false;
@@ -3095,9 +3204,7 @@ Node::Node() {
     priv_data->pause_owner = nullptr;
     priv_data->network_master = 1; //server by default
     priv_data->path_cache = nullptr;
-    parent_owned = false;
     priv_data->in_constructor = true;
-    viewport = nullptr;
     priv_data->use_placeholder = false;
     priv_data->display_folded = false;
     priv_data->ready_first = true;
@@ -3124,7 +3231,7 @@ Node *_find_script_node(Node *p_edited_scene, Node *p_current_node, const Ref<Sc
     if (p_edited_scene != p_current_node && p_current_node->get_owner() != p_edited_scene)
         return nullptr;
 
-    Ref<Script> scr(refFromRefPtr<Script>(p_current_node->get_script()));
+    Ref scr(refFromRefPtr<Script>(p_current_node->get_script()));
 
     if (scr && scr == script)
         return p_current_node;
@@ -3139,3 +3246,18 @@ Node *_find_script_node(Node *p_edited_scene, Node *p_current_node, const Ref<Sc
 
 #endif
 ////////////////////////////////
+void mark_dirty_xform(GameEntity ge)
+{
+    game_object_registry.registry.emplace_or_replace<DirtXFormMarker>(ge);
+}
+
+void mark_clean_xform(GameEntity ge)
+{
+    game_object_registry.registry.remove<DirtXFormMarker>(ge);
+
+}
+
+bool is_dirty_xfrom(GameEntity ge)
+{
+    return game_object_registry.registry.all_of<DirtXFormMarker>(ge);
+}

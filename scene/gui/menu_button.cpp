@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  menu_button.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,6 +31,7 @@
 #include "menu_button.h"
 
 #include "core/callable_method_pointer.h"
+#include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "scene/main/viewport.h"
 #include "core/method_bind.h"
@@ -38,8 +39,9 @@
 IMPL_GDCLASS(MenuButton)
 
 void MenuButton::_unhandled_key_input(Ref<InputEvent> p_event) {
+    if (disable_shortcuts) {return;}
 
-    if (disable_shortcuts) return;
+    ERR_FAIL_COND(nullptr==p_event);
 
     if (p_event->is_pressed() && !p_event->is_echo() &&
             (object_cast<InputEventKey>(p_event.get()) || object_cast<InputEventJoypadButton>(p_event.get()) ||
@@ -64,6 +66,12 @@ void MenuButton::pressed() {
     popup->set_size(Size2(size.width, 0));
     popup->set_scale(get_global_transform().get_scale());
     popup->set_parent_rect(Rect2(Point2(gp - popup->get_global_position()), get_size()));
+    // If not triggered by the mouse, start the popup with its first item selected.
+    if (popup->get_item_count() > 0 &&
+            ((get_action_mode() == ActionMode::ACTION_MODE_BUTTON_PRESS && Input::get_singleton()->is_action_just_pressed("ui_accept")) ||
+                    (get_action_mode() == ActionMode::ACTION_MODE_BUTTON_RELEASE && Input::get_singleton()->is_action_just_released("ui_accept")))) {
+        popup->set_current_index(0);
+    }
     popup->popup();
 }
 
@@ -109,13 +117,13 @@ void MenuButton::_notification(int p_what) {
 
 void MenuButton::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_popup"), &MenuButton::get_popup);
-    MethodBinder::bind_method(D_METHOD("_unhandled_key_input"), &MenuButton::_unhandled_key_input);
-    MethodBinder::bind_method(D_METHOD("_set_items"), &MenuButton::_set_items);
-    MethodBinder::bind_method(D_METHOD("_get_items"), &MenuButton::_get_items);
-    MethodBinder::bind_method(D_METHOD("set_switch_on_hover", {"enable"}), &MenuButton::set_switch_on_hover);
-    MethodBinder::bind_method(D_METHOD("is_switch_on_hover"), &MenuButton::is_switch_on_hover);
-    MethodBinder::bind_method(D_METHOD("set_disable_shortcuts", {"disabled"}), &MenuButton::set_disable_shortcuts);
+    BIND_METHOD(MenuButton,get_popup);
+    BIND_METHOD(MenuButton,_unhandled_key_input);
+    BIND_METHOD(MenuButton,_set_items);
+    BIND_METHOD(MenuButton,_get_items);
+    BIND_METHOD(MenuButton,set_switch_on_hover);
+    BIND_METHOD(MenuButton,is_switch_on_hover);
+    BIND_METHOD(MenuButton,set_disable_shortcuts);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "switch_on_hover"), "set_switch_on_hover", "is_switch_on_hover");
@@ -142,8 +150,8 @@ MenuButton::MenuButton() {
     popup->hide();
     add_child(popup);
     popup->set_pass_on_modal_close_click(false);
-    popup->connect("about_to_show",callable_mp((BaseButton *)this, &BaseButton::set_pressed), varray(true)); // For when switching from another MenuButton.
-    popup->connect("popup_hide",callable_mp((BaseButton *)this, &BaseButton::set_pressed), varray(false));
+    popup->connectF("about_to_show",this,[=](){ set_pressed(true);}); // For when switching from another MenuButton.
+    popup->connectF("popup_hide",this,[=](){ set_pressed(false);});
 }
 
 MenuButton::~MenuButton() {

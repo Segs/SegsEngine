@@ -1,20 +1,17 @@
 #ifndef ENTT_SIGNAL_SIGH_HPP
 #define ENTT_SIGNAL_SIGH_HPP
 
+#include <algorithm>
+#include <functional>
+#include <iterator>
+#include <type_traits>
+#include <utility>
 #include "EASTL/vector.h"
-#include "EASTL/utility.h"
-#include "EASTL/iterator.h"
-#include "EASTL/algorithm.h"
-#include "EASTL/functional.h"
-#include "EASTL/type_traits.h"
-
 #include "../config/config.h"
 #include "delegate.hpp"
 #include "fwd.hpp"
 
-
 namespace entt {
-
 
 /**
  * @brief Sink class.
@@ -22,11 +19,10 @@ namespace entt {
  * Primary template isn't defined on purpose. All the specializations give a
  * compile-time error unless the template parameter is a function type.
  *
- * @tparam Function A valid function type.
+ * @tparam Type A valid signal handler type.
  */
-template<typename Function>
+template<typename Type>
 class sink;
-
 
 /**
  * @brief Unmanaged signal handler.
@@ -34,11 +30,11 @@ class sink;
  * Primary template isn't defined on purpose. All the specializations give a
  * compile-time error unless the template parameter is a function type.
  *
- * @tparam Function A valid function type.
+ * @tparam Type A valid function type.
+ * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Function>
+template<typename Type, typename Allocator>
 class sigh;
-
 
 /**
  * @brief Unmanaged signal handler.
@@ -54,17 +50,98 @@ class sigh;
  *
  * @tparam Ret Return type of a function type.
  * @tparam Args Types of arguments of a function type.
+ * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Ret, typename... Args>
-class sigh<Ret(Args...)> {
+template<typename Ret, typename... Args, typename Allocator>
+class sigh<Ret(Args...), Allocator> {
     /*! @brief A sink is allowed to modify a signal. */
-    friend class sink<Ret(Args...)>;
+    friend class sink<sigh<Ret(Args...), Allocator>>;
 
 public:
+    /*! @brief Allocator type. */
+    using allocator_type = Allocator;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Sink type. */
-    using sink_type = entt::sink<Ret(Args...)>;
+    using sink_type = sink<sigh<Ret(Args...), Allocator>>;
+
+    /*! @brief Default constructor. */
+    sigh()
+        : sigh{allocator_type{}} {}
+
+    /**
+     * @brief Constructs a signal handler with a given allocator.
+     * @param allocator The allocator to use.
+     */
+    explicit sigh(const allocator_type &allocator)
+        : calls{allocator} {}
+
+    /**
+     * @brief Default copy constructor.
+     * @param other The instance to copy from.
+     */
+    sigh(const sigh &other)
+        : calls{other.calls} {}
+
+    /**
+     * @brief Allocator-extended copy constructor.
+     * @param other The instance to copy from.
+     * @param allocator The allocator to use.
+     */
+    sigh(const sigh &other, const allocator_type &allocator)
+        : calls{other.calls, allocator} {}
+
+    /**
+     * @brief Default move constructor.
+     * @param other The instance to move from.
+     */
+    sigh(sigh &&other) ENTT_NOEXCEPT
+        : calls{std::move(other.calls)} {}
+
+    /**
+     * @brief Allocator-extended move constructor.
+     * @param other The instance to move from.
+     * @param allocator The allocator to use.
+     */
+    sigh(sigh &&other, const allocator_type &allocator) ENTT_NOEXCEPT
+        : calls{std::move(other.calls), allocator} {}
+
+    /**
+     * @brief Default copy assignment operator.
+     * @param other The instance to copy from.
+     * @return This signal handler.
+     */
+    sigh &operator=(const sigh &other) {
+        calls = other.calls;
+        return *this;
+    }
+
+    /**
+     * @brief Default move assignment operator.
+     * @param other The instance to move from.
+     * @return This signal handler.
+     */
+    sigh &operator=(sigh &&other) ENTT_NOEXCEPT {
+        calls = std::move(other.calls);
+        return *this;
+    }
+
+    /**
+     * @brief Exchanges the contents with those of a given signal handler.
+     * @param other Signal handler to exchange the content with.
+     */
+    void swap(sigh &other) {
+        using std::swap;
+        swap(calls, other.calls);
+    }
+
+    /**
+     * @brief Returns the associated allocator.
+     * @return The associated allocator.
+     */
+    [[nodiscard]] constexpr allocator_type get_allocator() const ENTT_NOEXCEPT {
+        return calls.get_allocator();
+    }
 
     /**
      * @brief Instance type when it comes to connecting member functions.
@@ -77,7 +154,7 @@ public:
      * @brief Number of listeners connected to the signal.
      * @return Number of listeners currently connected.
      */
-    size_type size() const ENTT_NOEXCEPT {
+    [[nodiscard]] size_type size() const ENTT_NOEXCEPT {
         return calls.size();
     }
 
@@ -85,7 +162,7 @@ public:
      * @brief Returns false if at least a listener is connected to the signal.
      * @return True if the signal has no listeners connected, false otherwise.
      */
-    bool empty() const ENTT_NOEXCEPT {
+    [[nodiscard]] bool empty() const ENTT_NOEXCEPT {
         return calls.empty();
     }
 
@@ -97,7 +174,7 @@ public:
      * @param args Arguments to use to invoke listeners.
      */
     void publish(Args... args) const {
-        for(auto &&call: eastl::as_const(calls)) {
+        for(auto &&call: std::as_const(calls)) {
             call(args...);
         }
     }
@@ -119,8 +196,8 @@ public:
     template<typename Func>
     void collect(Func func, Args... args) const {
         for(auto &&call: calls) {
-            if constexpr(eastl::is_void_v<Ret>) {
-                if constexpr(eastl::is_invocable_r_v<bool, Func>) {
+            if constexpr(std::is_void_v<Ret>) {
+                if constexpr(std::is_invocable_r_v<bool, Func>) {
                     call(args...);
                     if(func()) { break; }
                 } else {
@@ -128,7 +205,7 @@ public:
                     func();
                 }
             } else {
-                if constexpr(eastl::is_invocable_r_v<bool, Func, Ret>) {
+                if constexpr(std::is_invocable_r_v<bool, Func, Ret>) {
                     if(func(call(args...))) { break; }
                 } else {
                     func(call(args...));
@@ -138,9 +215,8 @@ public:
     }
 
 private:
-    eastl::vector<delegate<Ret(Args...)>> calls;
+    eastl::vector<delegate<Ret(Args...)>, Allocator> calls;
 };
-
 
 /**
  * @brief Connection class.
@@ -155,8 +231,7 @@ class connection {
     friend class sink;
 
     connection(delegate<void(void *)> fn, void *ref)
-        : disconnect{fn}, signal{ref}
-    {}
+        : disconnect{fn}, signal{ref} {}
 
 public:
     /*! @brief Default constructor. */
@@ -166,7 +241,7 @@ public:
      * @brief Checks whether a connection is properly initialized.
      * @return True if the connection is properly initialized, false otherwise.
      */
-    explicit operator bool() const ENTT_NOEXCEPT {
+    [[nodiscard]] explicit operator bool() const ENTT_NOEXCEPT {
         return static_cast<bool>(disconnect);
     }
 
@@ -183,7 +258,6 @@ private:
     void *signal{};
 };
 
-
 /**
  * @brief Scoped connection class.
  *
@@ -194,7 +268,6 @@ private:
  * when it goes out of scope.
  */
 struct scoped_connection {
-
     /*! @brief Default constructor. */
     scoped_connection() = default;
 
@@ -203,12 +276,17 @@ struct scoped_connection {
      * @param other A valid connection object.
      */
     scoped_connection(const connection &other)
-        : conn{other}
-    {}
+        : conn{other} {}
 
     /*! @brief Default copy constructor, deleted on purpose. */
     scoped_connection(const scoped_connection &) = delete;
 
+    /**
+     * @brief Move constructor.
+     * @param other The scoped connection to move from.
+     */
+    scoped_connection(scoped_connection &&other) ENTT_NOEXCEPT
+        : conn{std::exchange(other.conn, {})} {}
 
     /*! @brief Automatically breaks the link on destruction. */
     ~scoped_connection() {
@@ -219,15 +297,25 @@ struct scoped_connection {
      * @brief Default copy assignment operator, deleted on purpose.
      * @return This scoped connection.
      */
-    scoped_connection & operator=(const scoped_connection &) = delete;
+    scoped_connection &operator=(const scoped_connection &) = delete;
+
+    /**
+     * @brief Move assignment operator.
+     * @param other The scoped connection to move from.
+     * @return This scoped connection.
+     */
+    scoped_connection &operator=(scoped_connection &&other) ENTT_NOEXCEPT {
+        conn = std::exchange(other.conn, {});
+        return *this;
+    }
 
     /**
      * @brief Acquires a connection.
      * @param other The connection object to acquire.
      * @return This scoped connection.
      */
-    scoped_connection & operator=(connection other) {
-        conn = eastl::move(other);
+    scoped_connection &operator=(connection other) {
+        conn = std::move(other);
         return *this;
     }
 
@@ -235,9 +323,10 @@ struct scoped_connection {
      * @brief Checks whether a scoped connection is properly initialized.
      * @return True if the connection is properly initialized, false otherwise.
      */
-    explicit operator bool() const ENTT_NOEXCEPT {
+    [[nodiscard]] explicit operator bool() const ENTT_NOEXCEPT {
         return static_cast<bool>(conn);
     }
+
     /*! @brief Breaks the connection. */
     void release() {
         conn.release();
@@ -246,7 +335,6 @@ struct scoped_connection {
 private:
     connection conn;
 };
-
 
 /**
  * @brief Sink class.
@@ -259,13 +347,18 @@ private:
  * as private data member without exposing the publish functionality to the
  * users of the class.
  *
+ * @warning
+ * Lifetime of a sink must not overcome that of the signal to which it refers.
+ * In any other case, attempting to use a sink results in undefined behavior.
+ *
  * @tparam Ret Return type of a function type.
  * @tparam Args Types of arguments of a function type.
+ * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Ret, typename... Args>
-class sink<Ret(Args...)> {
-    using signal_type = sigh<Ret(Args...)>;
-    using difference_type = typename eastl::iterator_traits<typename decltype(signal_type::calls)::iterator>::difference_type;
+template<typename Ret, typename... Args, typename Allocator>
+class sink<sigh<Ret(Args...), Allocator>> {
+    using signal_type = sigh<Ret(Args...), Allocator>;
+    using difference_type = typename std::iterator_traits<typename decltype(signal_type::calls)::iterator>::difference_type;
 
     template<auto Candidate, typename Type>
     static void release(Type value_or_instance, void *signal) {
@@ -282,16 +375,15 @@ public:
      * @brief Constructs a sink that is allowed to modify a given signal.
      * @param ref A valid reference to a signal object.
      */
-    sink(sigh<Ret(Args...)> &ref) ENTT_NOEXCEPT
+    sink(sigh<Ret(Args...), Allocator> &ref) ENTT_NOEXCEPT
         : offset{},
-          signal{&ref}
-    {}
+          signal{&ref} {}
 
     /**
      * @brief Returns false if at least a listener is connected to the sink.
      * @return True if the sink has no listeners connected, false otherwise.
      */
-    bool empty() const ENTT_NOEXCEPT {
+    [[nodiscard]] bool empty() const ENTT_NOEXCEPT {
         return signal->calls.empty();
     }
 
@@ -302,15 +394,15 @@ public:
      * @return A properly initialized sink object.
      */
     template<auto Function>
-    sink before() {
+    [[nodiscard]] sink before() {
         delegate<Ret(Args...)> call{};
         call.template connect<Function>();
 
         const auto &calls = signal->calls;
-        const auto it = eastl::find(calls.cbegin(), calls.cend(), eastl::move(call));
+        const auto it = std::find(calls.cbegin(), calls.cend(), std::move(call));
 
         sink other{*this};
-        other.offset = eastl::distance(it, calls.cend());
+        other.offset = std::distance(it, calls.cend());
         return other;
     }
 
@@ -323,15 +415,15 @@ public:
      * @return A properly initialized sink object.
      */
     template<auto Candidate, typename Type>
-    sink before(Type &&value_or_instance) {
+    [[nodiscard]] sink before(Type &&value_or_instance) {
         delegate<Ret(Args...)> call{};
-        call.template connect<Candidate>(eastl::forward<Type>(value_or_instance));
+        call.template connect<Candidate>(value_or_instance);
 
         const auto &calls = signal->calls;
-        const auto it = eastl::find(calls.cbegin(), calls.cend(), eastl::move(call));
+        const auto it = std::find(calls.cbegin(), calls.cend(), std::move(call));
 
         sink other{*this};
-        other.offset = eastl::distance(it, calls.cend());
+        other.offset = std::distance(it, calls.cend());
         return other;
     }
 
@@ -343,7 +435,7 @@ public:
      * @return A properly initialized sink object.
      */
     template<typename Type>
-    sink before(Type &value_or_instance) {
+    [[nodiscard]] sink before(Type &value_or_instance) {
         return before(&value_or_instance);
     }
 
@@ -355,16 +447,16 @@ public:
      * @return A properly initialized sink object.
      */
     template<typename Type>
-    sink before(Type *value_or_instance) {
+    [[nodiscard]] sink before(Type *value_or_instance) {
         sink other{*this};
 
         if(value_or_instance) {
             const auto &calls = signal->calls;
-            const auto it = eastl::find_if(calls.cbegin(), calls.cend(), [value_or_instance](const auto &delegate) {
+            const auto it = std::find_if(calls.cbegin(), calls.cend(), [value_or_instance](const auto &delegate) {
                 return delegate.instance() == value_or_instance;
             });
 
-            other.offset = eastl::distance(it, calls.cend());
+            other.offset = std::distance(it, calls.cend());
         }
 
         return other;
@@ -374,7 +466,7 @@ public:
      * @brief Returns a sink that connects before anything else.
      * @return A properly initialized sink object.
      */
-    sink before() {
+    [[nodiscard]] sink before() {
         sink other{*this};
         other.offset = signal->calls.size();
         return other;
@@ -395,11 +487,11 @@ public:
 
         delegate<Ret(Args...)> call{};
         call.template connect<Candidate>();
-        signal->calls.insert(signal->calls.end() - offset, eastl::move(call));
+        signal->calls.insert(signal->calls.end() - offset, std::move(call));
 
         delegate<void(void *)> conn{};
         conn.template connect<&release<Candidate>>();
-        return { eastl::move(conn), signal };
+        return {std::move(conn), signal};
     }
 
     /**
@@ -425,11 +517,11 @@ public:
 
         delegate<Ret(Args...)> call{};
         call.template connect<Candidate>(value_or_instance);
-        signal->calls.insert(signal->calls.end() - offset, eastl::move(call));
+        signal->calls.insert(signal->calls.end() - offset, std::move(call));
 
         delegate<void(void *)> conn{};
         conn.template connect<&release<Candidate, Type>>(value_or_instance);
-        return { eastl::move(conn), signal };
+        return {std::move(conn), signal};
     }
 
     /**
@@ -441,7 +533,7 @@ public:
         auto &calls = signal->calls;
         delegate<Ret(Args...)> call{};
         call.template connect<Candidate>();
-        calls.erase(eastl::remove(calls.begin(), calls.end(), eastl::move(call)), calls.end());
+        calls.erase(std::remove(calls.begin(), calls.end(), std::move(call)), calls.end());
     }
 
     /**
@@ -455,8 +547,8 @@ public:
     void disconnect(Type &&value_or_instance) {
         auto &calls = signal->calls;
         delegate<Ret(Args...)> call{};
-        call.template connect<Candidate>(eastl::forward<Type>(value_or_instance));
-        calls.erase(eastl::remove(calls.begin(), calls.end(), eastl::move(call)), calls.end());
+        call.template connect<Candidate>(value_or_instance);
+        calls.erase(std::remove(calls.begin(), calls.end(), std::move(call)), calls.end());
     }
 
     /**
@@ -480,9 +572,8 @@ public:
     void disconnect(Type *value_or_instance) {
         if(value_or_instance) {
             auto &calls = signal->calls;
-            calls.erase(eastl::remove_if(calls.begin(), calls.end(), [value_or_instance](const auto &delegate) {
-                return delegate.instance() == value_or_instance;
-            }), calls.end());
+            auto predicate = [value_or_instance](const auto &delegate) { return delegate.instance() == value_or_instance; };
+            calls.erase(std::remove_if(calls.begin(), calls.end(), std::move(predicate)), calls.end());
         }
     }
 
@@ -496,21 +587,19 @@ private:
     signal_type *signal;
 };
 
-
 /**
  * @brief Deduction guide.
  *
- * It allows to deduce the function type of a sink directly from the signal it
- * refers to.
+ * It allows to deduce the signal handler type of a sink directly from the
+ * signal it refers to.
  *
  * @tparam Ret Return type of a function type.
  * @tparam Args Types of arguments of a function type.
+ * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Ret, typename... Args>
-sink(sigh<Ret(Args...)> &) ENTT_NOEXCEPT -> sink<Ret(Args...)>;
+template<typename Ret, typename... Args, typename Allocator>
+sink(sigh<Ret(Args...), Allocator> &) -> sink<sigh<Ret(Args...), Allocator>>;
 
-
-}
-
+} // namespace entt
 
 #endif

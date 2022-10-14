@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  random_pcg.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -33,6 +33,8 @@
 #include "thirdparty/misc/pcg.h"
 #include "core/os/os.h"
 
+#include <cmath>
+
 RandomPCG::RandomPCG(uint64_t p_seed, uint64_t p_inc) :
         pcg(),
         current_inc(p_inc) {
@@ -45,7 +47,7 @@ void RandomPCG::seed(uint64_t p_seed) {
 }
 
 void RandomPCG::randomize() {
-    seed(OS::get_singleton()->get_ticks_usec() * pcg.state + PCG_DEFAULT_INC_64);
+    seed((OS::get_singleton()->get_unix_time() + OS::get_singleton()->get_ticks_usec()) * pcg.state + PCG_DEFAULT_INC_64);
 }
 
 uint32_t RandomPCG::rand() {
@@ -83,6 +85,16 @@ float RandomPCG::randf() {
 #pragma message("RandomPCG::randf - intrinsic clz is not available, falling back to bit truncation")
         return (float)(rand() & 0xFFFFFF) / (float)0xFFFFFF;
 #endif
+}
+
+double RandomPCG::randfn(double p_mean, double p_deviation) {
+    return p_mean + p_deviation * (std::cos(MathConsts<double>::TAU * randd()) *
+                                          std::sqrt(-2.0 * std::log(randd()))); // Box-Muller transform
+}
+
+float RandomPCG::randfn(float p_mean, float p_deviation) {
+    return p_mean + p_deviation * (std::cos(float(Math_TAU) * randf()) *
+                                          std::sqrt(-2.0f * std::log(randf()))); // Box-Muller transform
 }
 
 double RandomPCG::random(double p_from, double p_to) {

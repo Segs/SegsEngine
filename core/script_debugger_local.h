@@ -37,7 +37,7 @@
 class GODOT_EXPORT ScriptDebuggerLocal : public ScriptDebugger {
 
     bool profiling;
-    float frame_time, idle_time, physics_time, physics_frame_time;
+    float frame_time, process_time, physics_time, physics_frame_time;
     uint64_t idle_accum;
     String target_function;
     Map<String, String> options;
@@ -59,7 +59,7 @@ public:
 
     void profiling_start() override;
     void profiling_end() override;
-    void profiling_set_frame_times(float p_frame_time, float p_idle_time, float p_physics_time, float p_physics_frame_time) override;
+    void profiling_set_frame_times(float p_frame_time, float p_process_time, float p_physics_time, float p_physics_frame_time) override;
 
     ScriptDebuggerLocal();
 };

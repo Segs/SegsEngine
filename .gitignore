@@ -344,3 +344,5 @@ compile_commands.json
 
 # Cppcheck
 *.cppcheck
+bin/
+bld/

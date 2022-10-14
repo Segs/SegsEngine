@@ -46,7 +46,7 @@
 #include "scene/gui/tree.h"
 
 class PopupMenu;
-class ConnectDialogBinds;
+//class ConnectDialogBinds;
 class EditorNode;
 class SceneTreeEditor;
 
@@ -59,7 +59,6 @@ public:
         StringName signal;
         StringName method;
         uint32_t flags = 0;
-        Vector<Variant> binds;
 
         ConnectionData() {
         }
@@ -69,14 +68,12 @@ public:
             target = object_cast<Node>(p_connection.callable.get_object());
             method = p_connection.callable.get_method();
             flags = p_connection.flags;
-            binds = p_connection.binds;
         }
         operator Connection() {
             Connection c;
             c.signal = ::Signal(source, signal);
             c.callable = Callable(target, method);
             c.flags = flags;
-            c.binds = binds;
             return c;
         }
     };
@@ -87,7 +84,7 @@ private:
     Node *source;
     StringName signal;
     LineEdit *dst_method;
-    ConnectDialogBinds *cdbinds;
+    //ConnectDialogBinds *cdbinds;
     bool bEditMode;
     NodePath dst_path;
     VBoxContainer *vbc_right;
@@ -95,7 +92,7 @@ private:
     SceneTreeEditor *tree;
     AcceptDialog *error;
     EditorInspector *bind_editor;
-    OptionButton *type_list;
+    //OptionButton *type_list;
     CheckBox *deferred;
     CheckBox *oneshot;
     CheckButton *advanced;
@@ -105,13 +102,13 @@ private:
     void ok_pressed() override;
     void _cancel_pressed();
     void _tree_node_selected();
-    void _add_bind();
-    void _remove_bind();
+    //void _add_bind();
+    //void _remove_bind();
     void _advanced_pressed();
     void _update_ok_enabled();
 
 protected:
-    void _notification(int p_what);
+    //void _notification(int p_what);
     static void _bind_methods();
 
 public:
@@ -121,7 +118,7 @@ public:
     void set_dst_node(Node *p_node);
     StringName get_dst_method_name() const;
     void set_dst_method(const StringName &p_method);
-    const Vector<Variant> &get_binds() const;
+    //const Vector<Variant> &get_binds() const;
 
     bool get_deferred() const;
     bool get_oneshot() const;
@@ -206,4 +203,4 @@ public:
     ConnectionsDock(EditorNode *p_editor = nullptr);
     ~ConnectionsDock() override;
 };
-void register_connection_dialog_classes();
+//void register_connection_dialog_classes();

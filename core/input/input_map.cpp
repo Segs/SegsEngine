@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  input_map.cpp                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,13 +32,14 @@
 
 #include "core/dictionary.h"
 #include "core/list.h"
+#include "core/string_formatter.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
 #include "core/method_bind.h"
 
 namespace  {
-Vector<Ref<InputEvent> >::iterator _find_event(InputMap::Action &p_action, const Ref<InputEvent> &p_event, bool *p_pressed=nullptr, float *p_strength=nullptr) {
+Vector<Ref<InputEvent> >::iterator _find_event(InputMap::Action &p_action, const Ref<InputEvent> &p_event, bool p_exact_match = false, bool *p_pressed=nullptr, float *p_strength=nullptr, float *p_raw_strength = nullptr) {
     ERR_FAIL_COND_V(!p_event, p_action.inputs.end());
 
     for (auto iter = p_action.inputs.begin(); iter!=p_action.inputs.end(); ++iter) {
@@ -46,11 +47,13 @@ Vector<Ref<InputEvent> >::iterator _find_event(InputMap::Action &p_action, const
         const Ref<InputEvent> &e(*iter);
 
         //if (e.type != Ref<InputEvent>::KEY && e.device != p_event.device) -- unsure about the KEY comparison, why is this here?
-        //	continue;
+        //    continue;
 
         int device = e->get_device();
         if (device == InputMap::ALL_DEVICES || device == p_event->get_device()) {
-            if (e->action_match(p_event, p_pressed, p_strength, p_action.deadzone)) {
+            if (p_exact_match && e->shortcut_match(p_event)) {
+                return iter;
+            } else if (!p_exact_match && e->action_match(p_event, p_exact_match, p_pressed, p_strength, p_raw_strength, p_action.deadzone)) {
                 return iter;
             }
         }
@@ -68,19 +71,20 @@ int InputMap::ALL_DEVICES = -1;
 
 void InputMap::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("has_action", {"action"}), &InputMap::has_action);
+    BIND_METHOD(InputMap,has_action);
     MethodBinder::bind_method(D_METHOD("get_actions"), &InputMap::_get_actions);
     MethodBinder::bind_method(D_METHOD("add_action", {"action", "deadzone"}), &InputMap::add_action, {DEFVAL(0.5f)});
-    MethodBinder::bind_method(D_METHOD("erase_action", {"action"}), &InputMap::erase_action);
+    BIND_METHOD(InputMap,erase_action);
 
-    MethodBinder::bind_method(D_METHOD("action_set_deadzone", {"action", "deadzone"}), &InputMap::action_set_deadzone);
-    MethodBinder::bind_method(D_METHOD("action_add_event", {"action", "event"}), &InputMap::action_add_event);
-    MethodBinder::bind_method(D_METHOD("action_has_event", {"action", "event"}), &InputMap::action_has_event);
-    MethodBinder::bind_method(D_METHOD("action_erase_event", {"action", "event"}), &InputMap::action_erase_event);
-    MethodBinder::bind_method(D_METHOD("action_erase_events", {"action"}), &InputMap::action_erase_events);
+    BIND_METHOD(InputMap,action_set_deadzone);
+    BIND_METHOD(InputMap,action_get_deadzone);
+    BIND_METHOD(InputMap,action_add_event);
+    BIND_METHOD(InputMap,action_has_event);
+    BIND_METHOD(InputMap,action_erase_event);
+    BIND_METHOD(InputMap,action_erase_events);
     MethodBinder::bind_method(D_METHOD("get_action_list", {"action"}), &InputMap::_get_action_list);
-    MethodBinder::bind_method(D_METHOD("event_is_action", {"event", "action"}), &InputMap::event_is_action);
-    MethodBinder::bind_method(D_METHOD("load_from_globals"), &InputMap::load_from_globals);
+    BIND_METHOD(InputMap,event_is_action);
+    BIND_METHOD(InputMap,load_from_globals);
 }
 
 void InputMap::add_action(const StringName &p_action, float p_deadzone) {
@@ -94,8 +98,7 @@ void InputMap::add_action(const StringName &p_action, float p_deadzone) {
 }
 
 void InputMap::erase_action(const StringName &p_action) {
-
-    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.");
+    ERR_FAIL_COND_MSG(!input_map.contains(p_action), suggest_actions(p_action));
     input_map.erase(p_action);
 }
 
@@ -125,9 +128,14 @@ bool InputMap::has_action(const StringName &p_action) const {
     return input_map.contains(p_action);
 }
 
-void InputMap::action_set_deadzone(const StringName &p_action, float p_deadzone) {
+float InputMap::action_get_deadzone(const StringName &p_action) {
+    ERR_FAIL_COND_V_MSG(!input_map.contains(p_action), 0.0f, suggest_actions(p_action));
 
-    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.");
+    return input_map[p_action].deadzone;
+}
+
+void InputMap::action_set_deadzone(const StringName &p_action, float p_deadzone) {
+    ERR_FAIL_COND_MSG(!input_map.contains(p_action), suggest_actions(p_action));
 
     input_map[p_action].deadzone = p_deadzone;
 }
@@ -135,24 +143,27 @@ void InputMap::action_set_deadzone(const StringName &p_action, float p_deadzone)
 void InputMap::action_add_event(const StringName &p_action, const Ref<InputEvent> &p_event) {
 
     ERR_FAIL_COND_MSG(not p_event, "It's not a reference to a valid InputEvent object.");
-    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.");
-    if (_find_event(input_map[p_action], p_event)!=input_map[p_action].inputs.end())
-        return; //already gots
+    ERR_FAIL_COND_MSG(!input_map.contains(p_action), suggest_actions(p_action));
 
-    input_map[p_action].inputs.push_back(p_event);
+    auto &map_entry(input_map[p_action]);
+    if (_find_event(map_entry, p_event, true)!=map_entry.inputs.end()) {
+        return; // Already added.
+    }
+
+    map_entry.inputs.emplace_back(p_event);
 }
 
 bool InputMap::action_has_event(const StringName &p_action, const Ref<InputEvent> &p_event) {
 
-    ERR_FAIL_COND_V_MSG(!input_map.contains(p_action), false, "Request for nonexistent InputMap action '" + String(p_action) + "'.");
-    return (_find_event(input_map[p_action], p_event) != input_map[p_action].inputs.end());
+    ERR_FAIL_COND_V_MSG(!input_map.contains(p_action), false, suggest_actions(p_action));
+    return (_find_event(input_map[p_action], p_event, true) != input_map[p_action].inputs.end());
 }
 
 void InputMap::action_erase_event(const StringName &p_action, const Ref<InputEvent> &p_event) {
 
-    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.");
+    ERR_FAIL_COND_MSG(!input_map.contains(p_action), suggest_actions(p_action));
 
-    auto iter = _find_event(input_map[p_action], p_event);
+    auto iter = _find_event(input_map[p_action], p_event, true);
     if (input_map[p_action].inputs.end()!=iter) {
         input_map[p_action].inputs.erase(iter);
         if (Input::get_singleton()->is_action_pressed(p_action)) {
@@ -166,6 +177,35 @@ void InputMap::action_erase_events(const StringName &p_action) {
     ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.");
 
     input_map[p_action].inputs.clear();
+}
+
+/**
+ * Returns an nonexistent action error message with a suggestion of the closest
+ * matching action name (if possible).
+ */
+String InputMap::suggest_actions(const StringName &p_action) const {
+
+    Vector<StringName> actions = get_actions();
+    StringName closest_action;
+    float closest_similarity = 0.0;
+
+    // Find the most action with the most similar name.
+    for (const StringName & E : actions) {
+        const float similarity = StringUtils::similarity(E,p_action);
+
+        if (similarity > closest_similarity) {
+            closest_action = E;
+            closest_similarity = similarity;
+        }
+    }
+
+    String error_message = FormatVE("The InputMap action \"%s\" doesn't exist.", p_action.asCString());
+
+    if (closest_similarity >= 0.4) {
+        // Only include a suggestion in the error message if it's similar enough.
+        error_message += FormatVE(" Did you mean \"%s\"?", closest_action.asCString());
+    }
+    return error_message;
 }
 
 Array InputMap::_get_action_list(const StringName &p_action) {
@@ -190,31 +230,38 @@ const Vector<Ref<InputEvent> > *InputMap::get_action_list(const StringName &p_ac
     return &E->second.inputs;
 }
 
-bool InputMap::event_is_action(const Ref<InputEvent> &p_event, const StringName &p_action) const {
-    return event_get_action_status(p_event, p_action);
+bool InputMap::event_is_action(const Ref<InputEvent> &p_event, const StringName &p_action, bool p_exact_match) const {
+    return event_get_action_status(p_event, p_action, p_exact_match);
 }
 
-bool InputMap::event_get_action_status(const Ref<InputEvent> &p_event, const StringName &p_action, bool *p_pressed, float *p_strength) const {
-    Map<StringName, Action>::iterator E = input_map.find(p_action);
-    ERR_FAIL_COND_V_MSG(E==input_map.end(), false, "Request for nonexistent InputMap action '" + String(p_action) + "'.");
+bool InputMap::event_get_action_status(const Ref<InputEvent> &p_event, const StringName &p_action, bool p_exact_match, bool *p_pressed, float *p_strength, float *p_raw_strength) const {
+    auto E = input_map.find(p_action);
+    ERR_FAIL_COND_V_MSG(E==input_map.end(), false, suggest_actions(p_action));
     //TODO: SEGS: holding a ref to p_event is not needed here, a simpler object_cast(p_event.ptr) would work here
     Ref<InputEventAction> input_event_action(dynamic_ref_cast<InputEventAction>(p_event));
     if (input_event_action) {
+        bool pressed = input_event_action->is_pressed();
         if (p_pressed != nullptr)
-            *p_pressed = input_event_action->is_pressed();
+            *p_pressed = pressed;
         if (p_strength != nullptr)
-            *p_strength = (p_pressed != nullptr && *p_pressed) ? input_event_action->get_strength() : 0.0f;
+            *p_strength = pressed ? input_event_action->get_strength() : 0.0f;
         return input_event_action->get_action() == p_action;
     }
 
     bool pressed;
     float strength;
-    Vector<Ref<InputEvent> >::iterator event = _find_event(E->second, p_event, &pressed, &strength);
+    float raw_strength;
+    Vector<Ref<InputEvent> >::iterator event = _find_event(E->second, p_event, p_exact_match,&pressed, &strength,&raw_strength);
     if (event != E->second.inputs.end()) {
-        if (p_pressed != nullptr)
+        if (p_pressed != nullptr) {
             *p_pressed = pressed;
-        if (p_strength != nullptr)
+        }
+        if (p_strength != nullptr) {
             *p_strength = strength;
+        }
+        if (p_raw_strength != nullptr) {
+            *p_raw_strength = raw_strength;
+        }
         return true;
     } else {
         return false;
@@ -232,8 +279,9 @@ void InputMap::load_from_globals() {
 
     for (const PropertyInfo &pi :pinfo) {
 
-        if (!begins_with(pi.name,"input/"))
+        if (!begins_with(pi.name,"input/")) {
             continue;
+        }
 
         String name(pi.name.asCString());
         name = substr(name,find(name,"/") + 1, name.length());
@@ -245,8 +293,9 @@ void InputMap::load_from_globals() {
         add_action(StringName(name), deadzone);
         for (int i = 0; i < events.size(); i++) {
             Ref<InputEvent> event = refFromVariant<InputEvent>(events[i]);
-            if (not event)
+            if (!event) {
                 continue;
+            }
             action_add_event(StringName(name), event);
         }
     }
@@ -257,8 +306,9 @@ void addActionKeys(InputMap &im,const StringName &n,std::initializer_list<KeyLis
     for(KeyList key : action_keys) {
         Ref<InputEventKey> k(make_ref_counted<InputEventKey>());
         k->set_keycode(key);
-        if(shifted)
+        if(shifted) {
             k->set_shift(true);
+        }
         im.action_add_event(n, k);
     }
 

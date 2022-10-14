@@ -38,6 +38,7 @@
 #include "core/ustring.h"
 
 #ifdef WINDOWS_ENABLED
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #define ENV_PATH_SEP ";"

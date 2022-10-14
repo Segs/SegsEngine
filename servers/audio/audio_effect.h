@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_effect.h                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,13 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AUDIOEFFECT_H
-#define AUDIOEFFECT_H
+#pragma once
 
 #include "core/math/audio_frame.h"
 #include "core/resource.h"
 
-class AudioEffectInstance : public RefCounted {
+class GODOT_EXPORT AudioEffectInstance : public RefCounted {
 	GDCLASS(AudioEffectInstance,RefCounted)
 
 public:
@@ -42,7 +41,7 @@ public:
 	virtual bool process_silence() const { return false; }
 };
 
-class AudioEffect : public Resource {
+class GODOT_EXPORT AudioEffect : public Resource {
 	GDCLASS(AudioEffect,Resource)
 
 public:
@@ -50,4 +49,3 @@ public:
 	AudioEffect();
 };
 
-#endif // AUDIOEFFECT_H

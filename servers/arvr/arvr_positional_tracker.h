@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  arvr_positional_tracker.h                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -42,8 +42,8 @@
     This is where potentially additional AR/VR interfaces may be active as there are AR/VR SDKs that solely deal with positional tracking.
 */
 
-class GODOT_EXPORT ARVRPositionalTracker : public Object {
-    GDCLASS(ARVRPositionalTracker,Object)
+class GODOT_EXPORT ARVRPositionalTracker : public RefCounted {
+    GDCLASS(ARVRPositionalTracker,RefCounted)
 
     _THREAD_SAFE_CLASS_
 

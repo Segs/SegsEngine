@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_node.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/translation_helpers.h"
 #include "editor/editor_folding.h"
 #include "editor/editor_run.h"
 #include "editor/editor_data.h"
@@ -50,6 +51,15 @@ class EditorAbout;
 class EditorLayoutsDialog;
 class EditorFeatureProfileManager;
 class EditorLog;
+class TextureRect;
+class ConfirmationDialog;
+class HBoxContainer;
+class MenuButton;
+class AcceptDialog;
+class Button;
+class EditorFileDialog;
+class Tree;
+
 
 class EditorPluginList;
 class Tabs;
@@ -113,7 +123,7 @@ public:
         Thread execute_output_thread;
         Mutex execute_output_mutex;
         int exitcode;
-        volatile bool done;
+        SafeFlag done;
     };
 
 private:
@@ -133,8 +143,6 @@ private:
         FILE_IMPORT_SUBSCENE,
         FILE_EXPORT_PROJECT,
         FILE_EXPORT_MESH_LIBRARY,
-        FILE_INSTALL_ANDROID_SOURCE,
-        FILE_EXPLORE_ANDROID_BUILD_TEMPLATES,
         FILE_EXPORT_TILESET,
         FILE_SAVE_OPTIMIZED,
         FILE_OPEN_RECENT,
@@ -149,6 +157,7 @@ private:
         FILE_CLOSE_ALL,
         FILE_CLOSE_ALL_AND_QUIT,
         FILE_CLOSE_ALL_AND_RUN_PROJECT_MANAGER,
+        FILE_CLOSE_ALL_AND_RELOAD_CURRENT_PROJECT,
         FILE_QUIT,
         FILE_EXTERNAL_OPEN_SCENE,
         EDIT_UNDO,
@@ -166,17 +175,20 @@ private:
         RUN_PLAY_CUSTOM_SCENE,
         RUN_SCENE_SETTINGS,
         RUN_SETTINGS,
-        RUN_PROJECT_DATA_FOLDER,
+        RUN_USER_DATA_FOLDER,
+        RELOAD_CURRENT_PROJECT,
         RUN_PROJECT_MANAGER,
         RUN_FILE_SERVER,
         RUN_LIVE_DEBUG,
         RUN_DEBUG_COLLISONS,
         RUN_DEBUG_NAVIGATION,
+        RUN_DEBUG_SHADER_FALLBACKS,
         RUN_DEPLOY_REMOTE_DEBUG,
         RUN_RELOAD_SCRIPTS,
         RUN_VCS_SETTINGS,
         RUN_VCS_SHUT_DOWN,
         SETTINGS_UPDATE_CONTINUOUSLY,
+        SETTINGS_UPDATE_VITAL_ONLY,
         SETTINGS_UPDATE_WHEN_CHANGED,
         SETTINGS_UPDATE_ALWAYS,
         SETTINGS_UPDATE_CHANGES,
@@ -190,7 +202,6 @@ private:
         SETTINGS_MANAGE_EXPORT_TEMPLATES,
         SETTINGS_MANAGE_FEATURE_PROFILES,
         SETTINGS_PICK_MAIN_SCENE,
-        SETTINGS_TOGGLE_CONSOLE,
         SETTINGS_TOGGLE_FULLSCREEN,
         SETTINGS_HELP,
         SCENE_TAB_CLOSE,
@@ -216,6 +227,11 @@ private:
         TOOL_MENU_BASE = 1000
     };
 
+    enum ScriptNameCasing {
+        SCENE_NAME_CASING_AUTO,
+        SCENE_NAME_CASING_PASCAL_CASE,
+        SCENE_NAME_CASING_SNAKE_CASE
+    };
     Viewport *scene_root; //root of the scene being edited
 
     PanelContainer *scene_root_parent;
@@ -308,7 +324,9 @@ private:
     ConfirmationDialog *save_confirmation;
     ConfirmationDialog *import_confirmation;
     ConfirmationDialog *pick_main_scene;
+    Button *select_current_scene_button;
     AcceptDialog *accept;
+    AcceptDialog *save_accept;
     EditorAbout *about;
     AcceptDialog *warning;
 
@@ -318,8 +336,7 @@ private:
     EditorLayoutsDialog *layout_dialog;
 
     ConfirmationDialog *custom_build_manage_templates;
-    ConfirmationDialog *install_android_build_template;
-    ConfirmationDialog *remove_android_build_template;
+
 
     EditorSettingsDialog *settings_config_dialog;
     RunSettingsDialog *run_settings_dialog;
@@ -332,6 +349,7 @@ private:
     EditorFileDialog *file_export_lib;
     EditorFileDialog *file_script;
     CheckBox *file_export_lib_merge;
+    CheckBox *file_export_lib_apply_xforms;
     UIString current_path;
     MenuButton *update_spinner;
 
@@ -396,7 +414,7 @@ private:
 
     bool waiting_for_sources_changed;
 
-    uint32_t update_spinner_step_msec;
+    uint64_t update_spinner_step_msec;
     uint64_t update_spinner_step_frame;
     int update_spinner_step;
 
@@ -430,6 +448,8 @@ private:
     VBoxContainer *bottom_panel_vb;
     Label *version_label;
     ToolButton *bottom_panel_raise;
+    Tree *disk_changed_list;
+    ConfirmationDialog *disk_changed;
 
     void _bottom_panel_raise_toggled(bool);
 
@@ -438,12 +458,12 @@ private:
     void _bottom_panel_switch(bool p_enable, int p_idx);
 
     String external_file;
-    List<String> previous_scenes;
+    Vector<String> previous_scenes;
     bool opening_prev;
 
     void _dialog_action(StringView p_file);
 
-    void _edit_current();
+    void _edit_current(bool p_skip_foreign = false);
     void _dialog_display_save_error(StringView p_file, Error p_error);
     void _dialog_display_load_error(StringView p_file, Error p_error);
 
@@ -462,9 +482,10 @@ private:
     void _update_file_menu_closed();
 public:
     // made public so it can be used in signal connection.
-    void _on_plugin_ready(Object *p_script, const StringName &p_activate_name);
+    void _on_plugin_ready(Object *p_script, const String &p_activate_name);
     void _editor_select(int p_which);
 private:
+    void _remove_plugin_from_enabled(const String &p_name);
     void _fs_changed();
     void _resources_reimported(const Vector<String> &p_resources);
     void _sources_changed(bool p_exist);
@@ -501,9 +522,6 @@ private:
 
     void _run(bool p_current = false, StringView p_custom = StringView());
 
-    void _save_optimized();
-    void _import_action(const UIString &p_action);
-    void _import(const UIString &p_file);
     void _add_to_recent_scenes(StringView p_scene);
     void _update_recent_scenes();
     void _open_recent_scene(int p_idx);
@@ -531,7 +549,7 @@ private:
     void _build_icon_type_cache();
 
     bool _initializing_addons;
-    HashMap<StringName, EditorPlugin *> plugin_addons;
+    HashMap<String, EditorPlugin *> plugin_addons;
 
     static Ref<Texture> _file_dialog_get_icon(StringView p_path);
     static void _file_dialog_register(FileDialog *p_dialog);
@@ -539,7 +557,6 @@ private:
     static void _editor_file_dialog_register(EditorFileDialog *p_dialog);
     static void _editor_file_dialog_unregister(EditorFileDialog *p_dialog);
 
-    void _cleanup_scene();
     void _remove_edited_scene(bool p_change_tab = true);
     void _remove_scene(int index, bool p_change_tab = true);
     bool _find_and_save_resource(const RES& p_res, Map<RES, bool> &processed, int32_t flags);
@@ -593,7 +610,7 @@ private:
     void _scene_tab_exit();
     void _scene_tab_input(const Ref<InputEvent> &p_input);
     void _reposition_active_tab(int idx_to);
-    void _thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
+    void _thumbnail_done(const Ref<Texture> &p_preview, int p_tab);
     void _scene_tab_script_edited(int p_tab);
 
     Dictionary _get_main_scene_state();
@@ -629,9 +646,6 @@ private:
 
     void _save_default_environment();
 
-
-    void _license_tree_selected();
-
     void _update_update_spinner();
 
 
@@ -642,11 +656,18 @@ private:
     static void _resource_loaded(RES p_resource, StringView p_path);
 
     void _resources_changed(const PoolVector<String> &p_resources);
+    void _scan_external_changes();
+    void _reload_modified_scenes();
+    void _reload_project_settings();
+    void _resave_scenes(const String &p_str);
 
+    void _project_settings_changed();
     void _feature_profile_changed();
     bool _is_class_editor_disabled_by_feature_profile(const StringName &p_class);
     Ref<ImageTexture> _load_custom_class_icon(StringView p_path) const;
 
+    static String _to_absolute_plugin_path(StringView p_path);
+    void _pick_main_scene_custom_action(const StringName &p_custom_action_name);
 protected:
     void _notification(int p_what);
 
@@ -699,8 +720,8 @@ public:
     void add_control_to_dock(DockSlot p_slot, Control *p_control);
     void remove_control_from_dock(Control *p_control);
 
-    void set_addon_plugin_enabled(const StringName &p_addon, bool p_enabled, bool p_config_changed = false);
-    bool is_addon_plugin_enabled(const StringName &p_addon) const;
+    void set_addon_plugin_enabled(StringView p_addon, bool p_enabled, bool p_config_changed = false);
+    bool is_addon_plugin_enabled(StringView p_addon) const;
 
     void edit_node(Node *p_node);
     void edit_resource(const Ref<Resource> &p_resource);
@@ -740,9 +761,9 @@ public:
     Viewport *get_scene_root() { return scene_root; } //root of the scene being edited
 
     void fix_dependencies(StringView p_for_file);
-    void clear_scene() { _cleanup_scene(); }
     int new_scene();
-    Error load_scene(StringView p_scene, bool p_ignore_broken_deps = false, bool p_set_inherited = false, bool p_clear_errors = true, bool p_force_open_imported = false);
+    Error load_scene(StringView p_scene, bool p_ignore_broken_deps = false, bool p_set_inherited = false,
+            bool p_clear_errors = true, bool p_force_open_imported = false, bool p_silent_change_tab = false);
     Error load_resource(StringView p_resource, bool p_ignore_broken_deps = false);
 
     bool is_scene_open(StringView p_path);
@@ -780,7 +801,8 @@ public:
     Ref<Texture> get_class_icon(const StringName &p_class, const StringName &p_fallback = "Object") const;
 
     void show_accept(const StringName &p_text, const StringName &p_title);
-    void show_warning(const StringName &p_text, const StringName &p_title = TTR("Warning!"));
+    void show_save_accept(const StringName &p_text, const StringName &p_title);
+    void show_warning(StringView p_text, const StringName &p_title = TTR("Warning!"));
 
     void _copy_warning(StringView p_str);
 
@@ -795,13 +817,13 @@ public:
     GODOT_EXPORT static void add_io_error(const StringName &p_error);
     GODOT_EXPORT static void add_io_error_utf8(StringView p_error);
 
-    static void progress_add_task(const StringName &p_task, const StringName &p_label, int p_steps, bool p_can_cancel = false);
-    static bool progress_task_step(const StringName &p_task, const StringName &p_state, int p_step = -1, bool p_force_refresh = true);
-    static void progress_end_task(const StringName &p_task);
+    GODOT_EXPORT static void progress_add_task(const StringName &p_task, const StringName &p_label, int p_steps, bool p_can_cancel = false);
+    GODOT_EXPORT static bool progress_task_step(StringView p_task, StringView p_state, int p_step = -1, bool p_force_refresh = true);
+    GODOT_EXPORT static void progress_end_task(const StringName &p_task);
 
-    static void progress_add_task_bg(const StringName &p_task, const StringName &p_label, int p_steps);
-    static void progress_task_step_bg(const StringName &p_task, int p_step = -1);
-    static void progress_end_task_bg(const StringName &p_task);
+    GODOT_EXPORT static void progress_add_task_bg(const StringName &p_task, const StringName &p_label, int p_steps);
+    GODOT_EXPORT static void progress_task_step_bg(const StringName &p_task, int p_step = -1);
+    GODOT_EXPORT static void progress_end_task_bg(const StringName &p_task);
 
     void save_scene_to_path(StringView p_file, bool p_with_preview = true) {
         if (p_with_preview)
@@ -812,7 +834,6 @@ public:
 
     bool is_scene_in_use(StringView p_path);
 
-    void scan_import_changes();
 
     void save_layout();
 
@@ -839,11 +860,11 @@ public:
     void remove_tool_menu_item(const StringName &p_name);
 
     void save_all_scenes();
-    void save_scene_list(const Vector<String> &p_scene_filenames);
+    void save_scene_list(Span<const StringView> p_scene_filenames);
     void restart_editor();
 
     void dim_editor(bool p_dimming, bool p_force_dim = false);
-    bool is_editor_dimmed() const;
+    bool is_editor_dimmed() const { return dimmed; }
 
     void edit_current() { _edit_current(); }
 
@@ -854,7 +875,6 @@ public:
 
     EditorNode();
     ~EditorNode() override;
-    void get_singleton(const char *arg1, bool arg2);
 
     void add_resource_conversion_plugin(const Ref<EditorResourceConversionPlugin> &p_plugin);
     void remove_resource_conversion_plugin(const Ref<EditorResourceConversionPlugin> &p_plugin);
@@ -877,7 +897,7 @@ public:
 struct EditorProgress {
 
     StringName task;
-    bool step(const StringName &p_state, int p_step = -1, bool p_force_refresh = true) {
+    bool step(StringView p_state, int p_step = -1, bool p_force_refresh = true) {
         return EditorNode::progress_task_step(task, p_state, p_step, p_force_refresh);
     }
     EditorProgress(const StringName &p_task, const StringName &p_label, int p_amount, bool p_can_cancel = false) {

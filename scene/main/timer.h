@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  timer.h                                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,6 +35,7 @@
 class GODOT_EXPORT Timer : public Node {
 
     GDCLASS(Timer,Node)
+    SE_CLASS()
 
     float wait_time;
     bool one_shot;
@@ -72,6 +73,8 @@ public:
     bool is_stopped() const;
 
     float get_time_left() const;
+
+    String get_configuration_warning() const override;
 
     void set_timer_process_mode(TimerProcessMode p_mode);
     TimerProcessMode get_timer_process_mode() const;

@@ -15,6 +15,7 @@ struct ItemPairs {
         num_pairs = 0;
         extended_pairs.clear();
         extended_pairs.shrink_to_fit();
+        expanded_aabb = AABB();
     }
 
     AABB expanded_aabb;

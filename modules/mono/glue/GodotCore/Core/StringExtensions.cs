@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -95,6 +95,36 @@ namespace Godot
             }
 
             return b;
+        }
+
+        /// <summary>
+        /// Converts a string containing a binary number into an integer.
+        /// Binary strings can either be prefixed with `0b` or not,
+        /// and they can also start with a `-` before the optional prefix.
+        /// </summary>
+        /// <param name="instance">The string to convert.</param>
+        /// <returns>The converted string.</returns>
+        public static int BinToInt(this string instance)
+        {
+            if (instance.Length == 0)
+            {
+                return 0;
+            }
+
+            int sign = 1;
+
+            if (instance[0] == '-')
+            {
+                sign = -1;
+                instance = instance.Substring(1);
+            }
+
+            if (instance.StartsWith("0b"))
+            {
+                instance = instance.Substring(2);
+            }
+
+            return sign * Convert.ToInt32(instance, 2);;
         }
 
         // <summary>
@@ -394,25 +424,34 @@ namespace Godot
         }
 
         // <summary>
-        // Hash the string and return a 32 bits integer.
+        // Hash the string and return a 32 bits unsigned integer.
         // </summary>
-        public static int Hash(this string instance)
+        public static uint Hash(this string instance)
         {
-            int index = 0;
-            int hashv = 5381;
-            int c;
+            uint hash = 5381;
+            
+            foreach(uint c in instance)
+            {
+                hash = (hash << 5) + hash + c; // hash * 33 + c
+                
+            }
 
-            while ((c = instance[index++]) != 0)
-                hashv = (hashv << 5) + hashv + c; // hash * 33 + c
-
-            return hashv;
+            return hash;
         }
 
-        // <summary>
-        // Convert a string containing an hexadecimal number into an int.
-        // </summary>
+        /// <summary>
+        /// Converts a string containing a hexadecimal number into an integer.
+        /// Hexadecimal strings can either be prefixed with `0x` or not,
+        /// and they can also start with a `-` before the optional prefix.
+        /// </summary>
+        /// <param name="instance">The string to convert.</param>
+        /// <returns>The converted string.</returns>
         public static int HexToInt(this string instance)
         {
+            if (instance.Length == 0)
+            {
+                return 0;
+            }
             int sign = 1;
 
             if (instance[0] == '-')
@@ -421,10 +460,12 @@ namespace Godot
                 instance = instance.Substring(1);
             }
 
-            if (!instance.StartsWith("0x"))
-                return 0;
+            if (instance.StartsWith("0x"))
+            {
+                instance = instance.Substring(2);
+            }
 
-            return sign * int.Parse(instance.Substring(2), NumberStyles.HexNumber);
+            return sign * int.Parse(instance, NumberStyles.HexNumber);
         }
 
         // <summary>
@@ -919,7 +960,7 @@ namespace Godot
         // </summary>
         public static string[] Split(this string instance, string divisor, bool allowEmpty = true)
         {
-            return instance.Split(new[] { divisor }, StringSplitOptions.RemoveEmptyEntries);
+                return instance.Split(new[] { divisor }, allowEmpty ? StringSplitOptions.None : StringSplitOptions.RemoveEmptyEntries);
         }
 
         // <summary>

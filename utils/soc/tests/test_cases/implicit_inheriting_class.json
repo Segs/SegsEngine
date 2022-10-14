@@ -1,0 +1,27 @@
+{
+    "api_hash" : "",
+    "api_version" : "",
+    "dependencies" : [],
+    "module_name" : "",
+    "namespaces" : [ {
+      "contents" : {
+          "subtypes" : [
+          {
+              "contents" : {},
+              "name" : "Bar",
+              "required_header" : "implicit_inheriting_class.h",
+              "base_type" : { "name" : "Node"}
+          },
+          {
+              "contents" : {},
+              "name" : "Foo",
+              "required_header" : "implicit_inheriting_class.h",
+              "base_type" : { "name" : "Node2" }
+          }
+
+          ]
+      },
+      "name" : "GodotCore"
+    } ],
+    "version" : ""
+}

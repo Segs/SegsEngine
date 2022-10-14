@@ -44,7 +44,8 @@ class PoolVector;
 
 
 class wrap_allocator;
-class DefaultAllocator;
+class Memory;
+using DefaultAllocator = Memory;
 
 template<class T>
 using Vector = eastl::vector<T,wrap_allocator>;

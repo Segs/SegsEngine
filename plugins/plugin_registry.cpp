@@ -1,4 +1,4 @@
-#include "plugin_registry.h"
+﻿#include "plugin_registry.h"
 #include "plugin_registry_interface.h"
 
 #include "core/os/os.h"
@@ -31,12 +31,10 @@ void load_all_plugins(const char *plugin_paths)
     print_line(qPrintable(QString("Retrieving dynamically linked plugins from:")+base_path));
 
     QDir plugins_dir(base_path);
-    QDirIterator iter(plugins_dir,QDirIterator::Subdirectories);
+    QDirIterator iter(base_path,QDir::NoDot|QDir::AllEntries,QDirIterator::Subdirectories);
 
     while(iter.hasNext()) {
         QString filename = iter.next();
-        if (!filename.contains(QLatin1String("plugin"),Qt::CaseInsensitive))
-            continue;
         QFileInfo fi=iter.fileInfo();
         if(!fi.isFile())
             continue;

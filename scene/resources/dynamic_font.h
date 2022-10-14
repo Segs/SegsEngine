@@ -91,6 +91,7 @@ private:
     bool force_autohinter;
     Hinting hinting;
     Vector<uint8_t> _fontdata;
+    float override_oversampling = 0.0f;
 
     String font_path;
     HashMap<CacheID, DynamicFontAtSize *> size_cache;
@@ -110,6 +111,8 @@ public:
     const String &get_font_path() const;
     void set_force_autohinter(bool p_force);
 
+    float get_override_oversampling() const;
+    void set_override_oversampling(float p_oversampling);
     DynamicFontData();
     ~DynamicFontData() override;
 };
@@ -138,10 +141,20 @@ public:
     Size2 get_char_size(CharType p_char, CharType p_next, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks) const;
     UIString get_available_chars() const;
 
-    float draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, const Color &p_modulate, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks, bool p_advance_only = false, bool p_outline=false) const;
+    float draw_char(RenderingEntity p_canvas_item, const Point2 &p_pos, CharType p_char,CharType p_next, const Color &p_modulate, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks, bool p_advance_only = false, bool p_outline=false) const;
+
+    RenderingEntity get_char_texture(CharType p_char, CharType p_next, const Vector<Ref<DynamicFontAtSize>> &p_fallbacks) const;
+    Size2 get_char_texture_size(CharType p_char, CharType p_next, const Vector<Ref<DynamicFontAtSize>> &p_fallbacks) const;
+
+    Vector2 get_char_tx_offset(CharType p_char, CharType p_next, const Vector<Ref<DynamicFontAtSize>> &p_fallbacks) const;
+    Size2 get_char_tx_size(CharType p_char, CharType p_next, const Vector<Ref<DynamicFontAtSize>> &p_fallbacks) const;
+    Rect2 get_char_tx_uv_rect(CharType p_char, CharType p_next, const Vector<Ref<DynamicFontAtSize>> &p_fallbacks) const;
+
 
     void set_texture_flags(uint32_t p_flags);
     void update_oversampling();
+
+    CharContour get_char_contours(CharType p_char, CharType p_next, const Vector<Ref<DynamicFontAtSize>> &p_fallbacks) const;
 
     DynamicFontAtSize();
     ~DynamicFontAtSize() override;
@@ -181,7 +194,7 @@ private:
     Color outline_color;
 
 protected:
-    void _reload_cache();
+    void _reload_cache(const char *p_triggering_property = "");
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
@@ -229,9 +242,18 @@ public:
 
     bool has_outline() const override;
 
-    float draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next = 0, const Color &p_modulate = Color(1, 1, 1), bool p_outline = false) const override;
+    float draw_char(RenderingEntity p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next = 0, const Color &p_modulate = Color(1, 1, 1), bool p_outline = false) const override;
 
-    static Mutex *dynamic_font_mutex;
+    RenderingEntity get_char_texture(CharType p_char, CharType p_next, bool p_outline) const override;
+    Size2 get_char_texture_size(CharType p_char, CharType p_next, bool p_outline) const override;
+
+    Vector2 get_char_tx_offset(CharType p_char, CharType p_next, bool p_outline) const override;
+    Size2 get_char_tx_size(CharType p_char, CharType p_next, bool p_outline) const override;
+    Rect2 get_char_tx_uv_rect(CharType p_char, CharType p_next, bool p_outline) const override;
+
+    CharContour get_char_contours(CharType p_char, CharType p_next) const;
+
+    static Mutex dynamic_font_mutex;
 
     static void initialize_dynamic_fonts();
     static void finish_dynamic_fonts();

@@ -64,8 +64,6 @@ class SSLContextMbedTLS : public RefCounted {
 protected:
     bool inited;
 
-    static PoolByteArray _read_file(UIString p_path);
-
 public:
     static void print_mbedtls_error(int p_ret);
 

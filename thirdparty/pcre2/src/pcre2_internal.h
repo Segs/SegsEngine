@@ -7,7 +7,7 @@ and semantics are as close as possible to those of the Perl 5 language.
 
                        Written by Philip Hazel
      Original API code Copyright (c) 1997-2012 University of Cambridge
-          New API code Copyright (c) 2016-2019 University of Cambridge
+          New API code Copyright (c) 2016-2022 University of Cambridge
 
 -----------------------------------------------------------------------------
 Redistribution and use in source and binary forms, with or without
@@ -74,6 +74,17 @@ typedef int BOOL;
 
 #ifdef SUPPORT_VALGRIND
 #include <valgrind/memcheck.h>
+#endif
+
+/* -ftrivial-auto-var-init support supports initializing all local variables
+to avoid some classes of bug, but this can cause an unacceptable slowdown
+for large on-stack arrays in hot functions. This macro lets us annotate
+such arrays. */
+
+#ifdef HAVE_ATTRIBUTE_UNINITIALIZED
+#define PCRE2_KEEP_UNINITIALIZED __attribute__((uninitialized))
+#else
+#define PCRE2_KEEP_UNINITIALIZED
 #endif
 
 /* Older versions of MSVC lack snprintf(). This define allows for
@@ -579,7 +590,7 @@ total length of the tables. */
 #define fcc_offset    256                           /* Flip case */
 #define cbits_offset  512                           /* Character classes */
 #define ctypes_offset (cbits_offset + cbit_length)  /* Character types */
-#define tables_length (ctypes_offset + 256)
+#define TABLES_LENGTH (ctypes_offset + 256)
 
 
 /* -------------------- Character and string names ------------------------ */
@@ -943,6 +954,13 @@ a positive value. */
 #define STRING_LIMIT_RECURSION_EQ         "LIMIT_RECURSION="
 #define STRING_MARK                       "MARK"
 
+#define STRING_bc                         "bc"
+#define STRING_bidiclass                  "bidiclass"
+#define STRING_sc                         "sc"
+#define STRING_script                     "script"
+#define STRING_scriptextensions           "scriptextensions"
+#define STRING_scx                        "scx"
+
 #else  /* SUPPORT_UNICODE */
 
 /* UTF-8 support is enabled; always use UTF-8 (=ASCII) character codes. This
@@ -1237,26 +1255,39 @@ only. */
 #define STRING_LIMIT_RECURSION_EQ         STR_L STR_I STR_M STR_I STR_T STR_UNDERSCORE STR_R STR_E STR_C STR_U STR_R STR_S STR_I STR_O STR_N STR_EQUALS_SIGN
 #define STRING_MARK                       STR_M STR_A STR_R STR_K
 
+#define STRING_bc                         STR_b STR_c
+#define STRING_bidiclass                  STR_b STR_i STR_d STR_i STR_c STR_l STR_a STR_s STR_s
+#define STRING_sc                         STR_s STR_c
+#define STRING_script                     STR_s STR_c STR_r STR_i STR_p STR_t
+#define STRING_scriptextensions           STR_s STR_c STR_r STR_i STR_p STR_t STR_e STR_x STR_t STR_e STR_n STR_s STR_i STR_o STR_n STR_s
+#define STRING_scx                        STR_s STR_c STR_x
+
+
 #endif  /* SUPPORT_UNICODE */
 
 /* -------------------- End of character and string names -------------------*/
 
 /* -------------------- Definitions for compiled patterns -------------------*/
 
-/* Codes for different types of Unicode property */
+/* Codes for different types of Unicode property. If these definitions are
+changed, the autopossessifying table in pcre2_auto_possess.c must be updated to
+match. */
 
 #define PT_ANY        0    /* Any property - matches all chars */
 #define PT_LAMP       1    /* L& - the union of Lu, Ll, Lt */
 #define PT_GC         2    /* Specified general characteristic (e.g. L) */
 #define PT_PC         3    /* Specified particular characteristic (e.g. Lu) */
-#define PT_SC         4    /* Script (e.g. Han) */
-#define PT_ALNUM      5    /* Alphanumeric - the union of L and N */
-#define PT_SPACE      6    /* Perl space - Z plus 9,10,12,13 */
-#define PT_PXSPACE    7    /* POSIX space - Z plus 9,10,11,12,13 */
-#define PT_WORD       8    /* Word - L plus N plus underscore */
-#define PT_CLIST      9    /* Pseudo-property: match character list */
-#define PT_UCNC      10    /* Universal Character nameable character */
-#define PT_TABSIZE   11    /* Size of square table for autopossessify tests */
+#define PT_SC         4    /* Script only (e.g. Han) */
+#define PT_SCX        5    /* Script extensions (includes SC) */
+#define PT_ALNUM      6    /* Alphanumeric - the union of L and N */
+#define PT_SPACE      7    /* Perl space - general category Z plus 9,10,12,13 */
+#define PT_PXSPACE    8    /* POSIX space - Z plus 9,10,11,12,13 */
+#define PT_WORD       9    /* Word - L plus N plus underscore */
+#define PT_CLIST     10    /* Pseudo-property: match character list */
+#define PT_UCNC      11    /* Universal Character nameable character */
+#define PT_BIDICL    12    /* Specified bidi class */
+#define PT_BOOL      13    /* Boolean property */
+#define PT_TABSIZE   14    /* Size of square table for autopossessify tests */
 
 /* The following special properties are used only in XCLASS items, when POSIX
 classes are specified and PCRE2_UCP is set - in other words, for Unicode
@@ -1264,22 +1295,27 @@ handling of these classes. They are not available via the \p or \P escapes like
 those in the above list, and so they do not take part in the autopossessifying
 table. */
 
-#define PT_PXGRAPH   11    /* [:graph:] - characters that mark the paper */
-#define PT_PXPRINT   12    /* [:print:] - [:graph:] plus non-control spaces */
-#define PT_PXPUNCT   13    /* [:punct:] - punctuation characters */
+#define PT_PXGRAPH   14    /* [:graph:] - characters that mark the paper */
+#define PT_PXPRINT   15    /* [:print:] - [:graph:] plus non-control spaces */
+#define PT_PXPUNCT   16    /* [:punct:] - punctuation characters */
+
+/* This value is used when parsing \p and \P escapes to indicate that neither
+\p{script:...} nor \p{scx:...} has been encountered. */
+
+#define PT_NOTSCRIPT 255
 
 /* Flag bits and data types for the extended class (OP_XCLASS) for classes that
 contain characters with values greater than 255. */
 
-#define XCL_NOT       0x01    /* Flag: this is a negative class */
-#define XCL_MAP       0x02    /* Flag: a 32-byte map is present */
-#define XCL_HASPROP   0x04    /* Flag: property checks are present. */
+#define XCL_NOT      0x01  /* Flag: this is a negative class */
+#define XCL_MAP      0x02  /* Flag: a 32-byte map is present */
+#define XCL_HASPROP  0x04  /* Flag: property checks are present. */
 
-#define XCL_END       0    /* Marks end of individual items */
-#define XCL_SINGLE    1    /* Single item (one multibyte char) follows */
-#define XCL_RANGE     2    /* A range (two multibyte chars) follows */
-#define XCL_PROP      3    /* Unicode property (2-byte property code follows) */
-#define XCL_NOTPROP   4    /* Unicode inverted property (ditto) */
+#define XCL_END      0     /* Marks end of individual items */
+#define XCL_SINGLE   1     /* Single item (one multibyte char) follows */
+#define XCL_RANGE    2     /* A range (two multibyte chars) follows */
+#define XCL_PROP     3     /* Unicode property (2-byte property code follows) */
+#define XCL_NOTPROP  4     /* Unicode inverted property (ditto) */
 
 /* These are escaped items that aren't just an encoding of a particular data
 value such as \n. They must have non-zero values, as check_escape() returns 0
@@ -1759,13 +1795,11 @@ typedef struct pcre2_memctl {
 
 /* Structure for building a chain of open capturing subpatterns during
 compiling, so that instructions to close them can be compiled when (*ACCEPT) is
-encountered. This is also used to identify subpatterns that contain recursive
-back references to themselves, so that they can be made atomic. */
+encountered. */
 
 typedef struct open_capitem {
   struct open_capitem *next;    /* Chain link */
   uint16_t number;              /* Capture number */
-  uint16_t flag;                /* Set TRUE if recursive back ref */
   uint16_t assert_depth;        /* Assertion depth when opened */
 } open_capitem;
 
@@ -1788,8 +1822,8 @@ typedef struct {
   uint8_t gbprop;     /* ucp_gbControl, etc. (grapheme break property) */
   uint8_t caseset;    /* offset to multichar other cases or zero */
   int32_t other_case; /* offset to other case, or zero if none */
-  int16_t scriptx;    /* script extension value */
-  int16_t dummy;      /* spare - to round to multiple of 4 bytes */
+  uint16_t scriptx_bidiclass; /* script extension (11 bit) and bidi class (5 bit) values */
+  uint16_t bprops;    /* binary properties offset */
 } ucd_record;
 
 /* UCD access macros */
@@ -1806,13 +1840,30 @@ typedef struct {
 #define GET_UCD(ch) REAL_GET_UCD(ch)
 #endif
 
+#define UCD_SCRIPTX_MASK 0x3ff
+#define UCD_BIDICLASS_SHIFT 11
+#define UCD_BPROPS_MASK 0xfff
+
+#define UCD_SCRIPTX_PROP(prop) ((prop)->scriptx_bidiclass & UCD_SCRIPTX_MASK)
+#define UCD_BIDICLASS_PROP(prop) ((prop)->scriptx_bidiclass >> UCD_BIDICLASS_SHIFT)
+#define UCD_BPROPS_PROP(prop) ((prop)->bprops & UCD_BPROPS_MASK)
+
 #define UCD_CHARTYPE(ch)    GET_UCD(ch)->chartype
 #define UCD_SCRIPT(ch)      GET_UCD(ch)->script
 #define UCD_CATEGORY(ch)    PRIV(ucp_gentype)[UCD_CHARTYPE(ch)]
 #define UCD_GRAPHBREAK(ch)  GET_UCD(ch)->gbprop
 #define UCD_CASESET(ch)     GET_UCD(ch)->caseset
 #define UCD_OTHERCASE(ch)   ((uint32_t)((int)ch + (int)(GET_UCD(ch)->other_case)))
-#define UCD_SCRIPTX(ch)     GET_UCD(ch)->scriptx
+#define UCD_SCRIPTX(ch)     UCD_SCRIPTX_PROP(GET_UCD(ch))
+#define UCD_BPROPS(ch)      UCD_BPROPS_PROP(GET_UCD(ch))
+#define UCD_BIDICLASS(ch)   UCD_BIDICLASS_PROP(GET_UCD(ch))
+
+/* The "scriptx" and bprops fields contain offsets into vectors of 32-bit words
+that form a bitmap representing a list of scripts or boolean properties. These
+macros test or set a bit in the map by number. */
+
+#define MAPBIT(map,n) ((map)[(n)/32]&(1u<<((n)%32)))
+#define MAPSET(map,n) ((map)[(n)/32]|=(1u<<((n)%32)))
 
 /* Header for serialized pcre2 codes. */
 
@@ -1869,6 +1920,7 @@ extern const uint8_t          PRIV(utf8_table4)[];
 #endif
 #define _pcre2_hspace_list             PCRE2_SUFFIX(_pcre2_hspace_list_)
 #define _pcre2_vspace_list             PCRE2_SUFFIX(_pcre2_vspace_list_)
+#define _pcre2_ucd_boolprop_sets       PCRE2_SUFFIX(_pcre2_ucd_boolprop_sets_)
 #define _pcre2_ucd_caseless_sets       PCRE2_SUFFIX(_pcre2_ucd_caseless_sets_)
 #define _pcre2_ucd_digit_sets          PCRE2_SUFFIX(_pcre2_ucd_digit_sets_)
 #define _pcre2_ucd_script_sets         PCRE2_SUFFIX(_pcre2_ucd_script_sets_)
@@ -1892,9 +1944,10 @@ extern const pcre2_match_context       PRIV(default_match_context);
 extern const uint8_t                   PRIV(default_tables)[];
 extern const uint32_t                  PRIV(hspace_list)[];
 extern const uint32_t                  PRIV(vspace_list)[];
+extern const uint32_t                  PRIV(ucd_boolprop_sets)[];
 extern const uint32_t                  PRIV(ucd_caseless_sets)[];
 extern const uint32_t                  PRIV(ucd_digit_sets)[];
-extern const uint8_t                   PRIV(ucd_script_sets)[];
+extern const uint32_t                  PRIV(ucd_script_sets)[];
 extern const ucd_record                PRIV(ucd_records)[];
 #if PCRE2_CODE_UNIT_WIDTH == 32
 extern const ucd_record                PRIV(dummy_ucd_record)[];
@@ -1954,7 +2007,7 @@ is available. */
 #define _pcre2_was_newline           PCRE2_SUFFIX(_pcre2_was_newline_)
 #define _pcre2_xclass                PCRE2_SUFFIX(_pcre2_xclass_)
 
-extern int          _pcre2_auto_possessify(PCRE2_UCHAR *, BOOL,
+extern int          _pcre2_auto_possessify(PCRE2_UCHAR *,
                       const compile_block *);
 extern int          _pcre2_check_escape(PCRE2_SPTR *, PCRE2_SPTR, uint32_t *,
                       int *, uint32_t, uint32_t, BOOL, compile_block *);

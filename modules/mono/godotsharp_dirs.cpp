@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  godotsharp_dirs.cpp                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -87,6 +87,13 @@ String _get_mono_user_dir() {
     return plus_file(OS::get_singleton()->get_user_data_dir(),"mono");
 #endif
 }
+static String get_parent_dir_for_buildfile(ProjectSettings *settings, const char *project_filetype) {
+    String parent_dir = settings->getT<String>(StringName(String("mono/project/") + project_filetype));
+    if (parent_dir.empty()) {
+        parent_dir = "res://";
+    }
+    return settings->globalize_path(parent_dir);
+}
 
 class _GodotSharpDirs {
 
@@ -106,6 +113,7 @@ public:
     String mono_solutions_dir;
     String build_logs_dir;
 
+    String project_assembly_name;
     String cmake_filepath;
     String sln_filepath;
     String csproj_filepath;
@@ -144,21 +152,34 @@ private:
         mono_user_dir = _get_mono_user_dir();
         mono_logs_dir = plus_file(mono_user_dir,"mono_logs");
 
-        String appname = ProjectSettings::get_singleton()->get("application/config/name").as<String>();
+        ProjectSettings * settings = ProjectSettings::get_singleton();
+        String appname = settings->get("application/config/name").as<String>();
 #ifdef TOOLS_ENABLED
         mono_solutions_dir = plus_file(mono_user_dir,"solutions");
         build_logs_dir = plus_file(mono_user_dir,"build_logs");
+
+        GLOBAL_DEF("mono/project/assembly_name", "");
+        GLOBAL_DEF("mono/project/solution_directory", "");
+        GLOBAL_DEF("mono/project/c#_project_directory", "");
+
 
         String appname_safe = OS::get_singleton()->get_safe_dir_name(appname);
         if (appname_safe.empty()) {
             appname_safe = "UnnamedProject";
         }
 
-        String base_path = ProjectSettings::get_singleton()->globalize_path("res://");
+		project_assembly_name = settings->getT<String>("mono/project/assembly_name");
+        if (project_assembly_name.empty()) {
+            project_assembly_name = appname_safe;
+            settings->set("mono/project/assembly_name", project_assembly_name);
+        }
+        String sln_parent_dir = get_parent_dir_for_buildfile(settings, "solution_directory");
+        String csproj_parent_dir = get_parent_dir_for_buildfile(settings, "c#_project_directory");
+        String cmake_parent_dir = get_parent_dir_for_buildfile(settings, "cmake_project_directory");
 
-        sln_filepath = plus_file(base_path,appname_safe + ".sln");
-        csproj_filepath = plus_file(base_path,appname_safe + ".csproj");
-        cmake_filepath = plus_file(base_path,"CMakeLists.txt");
+        sln_filepath = plus_file(sln_parent_dir,project_assembly_name + ".sln");
+        csproj_filepath = plus_file(csproj_parent_dir,project_assembly_name + ".csproj");
+        cmake_filepath = plus_file(cmake_parent_dir, "CMakeLists.txt");
 #endif
 
         String exe_dir(path(from_native_path(OS::get_singleton()->get_executable_path())));
@@ -170,11 +191,11 @@ private:
         data_editor_prebuilt_api_dir = plus_file(data_dir_root,"assemblies");
 #ifdef OSX_ENABLED
         if (!DirAccess::exists(data_editor_tools_dir)) {
-            data_editor_tools_dir = plus_file(exe_dir,"../Frameworks/GodotSharp/Tools");
+            data_editor_tools_dir = plus_file(exe_dir,"../Resources/GodotSharp/Tools");
         }
 
         if (!DirAccess::exists(data_editor_prebuilt_api_dir)) {
-            data_editor_prebuilt_api_dir = plus_file(exe_dir,"../Frameworks/GodotSharp/Api");
+            data_editor_prebuilt_api_dir = plus_file(exe_dir,"../Resources/GodotSharp/Api");
         }
 #endif
 #else
@@ -182,7 +203,7 @@ private:
         data_game_assemblies_dir = plus_file(data_dir_root,"assemblies");
 #ifdef OSX_ENABLED
         if (!DirAccess::exists(data_game_assemblies_dir)) {
-            data_game_assemblies_dir = exe_dir.plus_file("../Frameworks/GodotSharp/Assemblies");
+            data_game_assemblies_dir = exe_dir.plus_file("../Resources/GodotSharp/Assemblies");
         }
 #endif
 
@@ -195,7 +216,7 @@ private:
 #ifdef OSX_ENABLED
         if (!DirAccess::exists(data_mono_root_dir)) {
             data_mono_etc_dir = plus_file(exe_dir,"../Resources/GodotSharp/Mono/etc");
-            data_mono_lib_dir = plus_file(exe_dir,"../Frameworks/GodotSharp/Mono/lib");
+            data_mono_lib_dir = plus_file(exe_dir,"../Resources/GodotSharp/Mono/lib");
         }
 #endif
     }
@@ -253,6 +274,10 @@ String get_mono_solutions_dir() {
 
 String get_build_logs_dir() {
     return _GodotSharpDirs::get_singleton().build_logs_dir;
+}
+
+String get_project_assembly_name() {
+    return _GodotSharpDirs::get_singleton().project_assembly_name;
 }
 
 String get_project_sln_path() {

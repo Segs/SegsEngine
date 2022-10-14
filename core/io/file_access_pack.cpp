@@ -164,6 +164,18 @@ Error DirAccessPack::list_dir_begin() {
     return OK;
 }
 
+bool DirAccessPack::has_next() const {
+    if (m_dir_offset < list_dirs.size()) {
+        return true;
+    }
+
+    if (m_file_offset < list_files.size()) {
+        return true;
+    }
+
+    return false;
+}
+
 String DirAccessPack::get_next() {
 
     if (m_dir_offset<list_dirs.size()) {

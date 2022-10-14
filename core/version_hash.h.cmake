@@ -1,1 +1,0 @@
-#define VERSION_HASH "@VERSION_HASH@"

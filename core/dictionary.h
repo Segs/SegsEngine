@@ -35,6 +35,7 @@
 
 class Variant;
 struct DictionaryPrivate;
+class StringName;
 
 class GODOT_EXPORT Dictionary {
 
@@ -44,47 +45,57 @@ class GODOT_EXPORT Dictionary {
     void _unref() const;
 
 public:
-    Vector<Variant> get_key_list() const;
-    Variant get_key_at_index(int p_index) const;
+    Vector<StringName> get_key_list() const;
+    StringName get_key_at_index(int p_index) const;
     Variant get_value_at_index(int p_index) const;
 
-    Variant &operator[](const Variant &p_key);
-    const Variant &operator[](const Variant &p_key) const;
+    Variant& operator[](const StringName &p_key);
+    const Variant& operator[](const StringName& p_key) const;
 
-    const Variant *getptr(const Variant &p_key) const;
-    Variant *getptr(const Variant &p_key);
+    const Variant *getptr(const StringName&p_key) const;
+    Variant *getptr(const StringName&p_key);
 
-    Variant get_valid(const Variant &p_key) const;
-    Variant get(const Variant &p_key, const Variant &p_default) const;
+    Variant get_valid(const StringName&p_key) const;
+    Variant get(const StringName&p_key, const Variant &p_default) const;
 
     int size() const;
     bool empty() const;
     void clear();
 
-    bool has(const Variant &p_key) const;
+    bool has(const StringName &p_key) const;
     bool has_all(const Array &p_keys) const;
 
-    bool erase(const Variant &p_key);
+    bool erase(const StringName&p_key);
 
+    bool deep_equal(const Dictionary &p_dictionary, int p_recursion_count = 0) const;
     bool operator==(const Dictionary &p_dictionary) const;
     bool operator!=(const Dictionary &p_dictionary) const;
 
     uint32_t hash() const;
-    Dictionary &operator=(const Dictionary &p_dictionary);
+
+    Dictionary &operator=(const Dictionary &p_dictionary) {
+        if(this==&p_dictionary) {
+            return *this;
+        }
+        _ref(p_dictionary);
+        return *this;
+    }
 
     Dictionary &operator=(Dictionary &&p_from) noexcept {
-        if (this == &p_from)
-            return *this;
-        if (_p)
+        if (_p) {
             _unref();
+        }
+        // NOTE: no need to check if this == &from,
+        // since in that case _p is nullptr, the code below will just cost a 2 assignemnts, instead of conditional
         _p = p_from._p;
         p_from._p = nullptr;
         return *this;
     }
 
-    const Variant *next(const Variant *p_key = nullptr) const;
+    const StringName *next(const StringName*p_key = nullptr) const;
 
     Array keys() const;
+    Vector<StringName> raw_keys() const;
     Array values() const;
     void *id() const;
     Dictionary duplicate(bool p_deep = false) const;

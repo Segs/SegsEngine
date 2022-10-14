@@ -32,5 +32,6 @@
 
 #include "core/os/memory.h"
 #include "EASTL/vector_set.h"
+#include "EASTL/fixed_hash_set.h"
 template<class T>
 using VSet = eastl::vector_set<T,eastl::less<T>,wrap_allocator>;

@@ -79,24 +79,24 @@ struct DDSFormatInfo {
 };
 
 static const DDSFormatInfo dds_format_info[DDS_MAX] = {
-    { "DXT1/BC1", true, false, 4, 8, Image::FORMAT_DXT1 },
-    { "DXT3/BC2", true, false, 4, 16, Image::FORMAT_DXT3 },
-    { "DXT5/BC3", true, false, 4, 16, Image::FORMAT_DXT5 },
-    { "ATI1/BC4", true, false, 4, 8, Image::FORMAT_RGTC_R },
-    { "ATI2/3DC/BC5", true, false, 4, 16, Image::FORMAT_RGTC_RG },
-    { "A2XY/DXN/BC5", true, false, 4, 16, Image::FORMAT_RGTC_RG },
-    { "BGRA8", false, false, 1, 4, Image::FORMAT_RGBA8 },
-    { "BGR8", false, false, 1, 3, Image::FORMAT_RGB8 },
-    { "RGBA8", false, false, 1, 4, Image::FORMAT_RGBA8 },
-    { "RGB8", false, false, 1, 3, Image::FORMAT_RGB8 },
-    { "BGR5A1", false, false, 1, 2, Image::FORMAT_RGBA8 },
-    { "BGR565", false, false, 1, 2, Image::FORMAT_RGB8 },
-    { "BGR10A2", false, false, 1, 4, Image::FORMAT_RGBA8 },
-    { "GRAYSCALE", false, false, 1, 1, Image::FORMAT_L8 },
-    { "GRAYSCALE_ALPHA", false, false, 1, 2, Image::FORMAT_LA8 }
+    { "DXT1/BC1", true, false, 4, 8, ImageData::FORMAT_DXT1 },
+    { "DXT3/BC2", true, false, 4, 16, ImageData::FORMAT_DXT3 },
+    { "DXT5/BC3", true, false, 4, 16, ImageData::FORMAT_DXT5 },
+    { "ATI1/BC4", true, false, 4, 8, ImageData::FORMAT_RGTC_R },
+    { "ATI2/3DC/BC5", true, false, 4, 16, ImageData::FORMAT_RGTC_RG },
+    { "A2XY/DXN/BC5", true, false, 4, 16, ImageData::FORMAT_RGTC_RG },
+    { "BGRA8", false, false, 1, 4, ImageData::FORMAT_RGBA8 },
+    { "BGR8", false, false, 1, 3, ImageData::FORMAT_RGB8 },
+    { "RGBA8", false, false, 1, 4, ImageData::FORMAT_RGBA8 },
+    { "RGB8", false, false, 1, 3, ImageData::FORMAT_RGB8 },
+    { "BGR5A1", false, false, 1, 2, ImageData::FORMAT_RGBA8 },
+    { "BGR565", false, false, 1, 2, ImageData::FORMAT_RGB8 },
+    { "BGR10A2", false, false, 1, 4, ImageData::FORMAT_RGBA8 },
+    { "GRAYSCALE", false, false, 1, 1, ImageData::FORMAT_L8 },
+    { "GRAYSCALE_ALPHA", false, false, 1, 2, ImageData::FORMAT_LA8 }
 };
 
-RES ResourceFormatDDS::load(StringView p_path, StringView p_original_path, Error *r_error) {
+RES ResourceFormatDDS::load(StringView p_path, StringView p_original_path, Error *r_error, bool p_no_subresource_cache) {
 
     if (r_error)
         *r_error = ERR_CANT_OPEN;

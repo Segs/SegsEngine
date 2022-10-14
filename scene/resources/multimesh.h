@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  multimesh.h                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -62,7 +62,7 @@ public:
 
 private:
     Ref<Mesh> mesh;
-    RID multimesh;
+    RenderingEntity multimesh;
     TransformFormat transform_format;
     ColorFormat color_format;
     CustomDataFormat custom_data_format;
@@ -114,11 +114,11 @@ public:
     void set_instance_custom_data(int p_instance, const Color &p_custom_data);
     Color get_instance_custom_data(int p_instance) const;
 
-    void set_as_bulk_array(const PoolVector<float> &p_array);
+    void set_as_bulk_array(Span<const float> p_array);
 
     virtual AABB get_aabb() const;
 
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
 
     MultiMesh();
     ~MultiMesh() override;

@@ -110,7 +110,7 @@ void GDAPI godot_array_new_pool_string_array(godot_array *r_dest, const godot_po
     }
 }
 
-void GDAPI godot_array_new_pool_real_array(godot_array *r_dest, const godot_pool_real_array *p_pra) {
+void GDAPI godot_array_new_POOL_FLOAT32_ARRAY(godot_array *r_dest, const godot_POOL_FLOAT32_ARRAY *p_pra) {
     Array *dest = (Array *)r_dest;
     PoolVector<godot_real> *pca = (PoolVector<godot_real> *)p_pra;
     memnew_placement(dest, Array);
@@ -222,10 +222,10 @@ godot_int GDAPI godot_array_find(const godot_array *p_self, const godot_variant 
     return self->find(*val, p_from);
 }
 
-godot_int GDAPI godot_array_find_last(const godot_array *p_self, const godot_variant *p_what) {
+godot_int GDAPI godot_array_rfind(const godot_array *p_self, const godot_variant *p_what) {
     const Array *self = (const Array *)p_self;
     const Variant *val = (const Variant *)p_what;
-    return self->find_last(*val);
+    return self->rfind(*val);
 }
 
 godot_bool GDAPI godot_array_has(const godot_array *p_self, const godot_variant *p_value) {

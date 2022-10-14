@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  aabb.h                                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -42,12 +42,13 @@
  * This is implemented by a point (position) and the box size
  */
 
-class GODOT_EXPORT AABB {
+class GODOT_EXPORT [[nodiscard]] AABB {
 public:
     Vector3 position;
     Vector3 size;
 
-    real_t get_area() const; /// get area
+    /// get area of AABB
+    constexpr real_t get_area() const { return size.x * size.y * size.z; }
     constexpr _FORCE_INLINE_ bool has_no_area() const {
 
         return (size.x <= 0 || size.y <= 0 || size.z <= 0);
@@ -59,9 +60,10 @@ public:
     }
 
     Vector3 get_position() const { return position; }
-    void set_position(const Vector3 &p_pos) { position = p_pos; }
-    const Vector3 &get_size() const { return size; }
-    void set_size(const Vector3 &p_size) { size = p_size; }
+    void set_position(Vector3 p_pos) { position = p_pos; }
+    Vector3 get_size() const { return size; }
+    void set_size(Vector3 p_size) { size = p_size; }
+    Vector3 get_center() const { return position + (size * 0.5f); }
 
     bool operator==(const AABB &p_rval) const;
     bool operator!=(const AABB &p_rval) const;
@@ -84,8 +86,8 @@ public:
     _FORCE_INLINE_ bool inside_convex_shape(Span<const Plane> p_planes) const;
     bool intersects_plane(const Plane &p_plane) const;
 
-    _FORCE_INLINE_ bool has_point(const Vector3 &p_point) const;
-    _FORCE_INLINE_ Vector3 get_support(const Vector3 &p_normal) const;
+    _FORCE_INLINE_ bool has_point(Vector3 p_point) const;
+    _FORCE_INLINE_ Vector3 get_support(Vector3 p_normal) const;
 
     Vector3 get_longest_axis() const;
     int get_longest_axis_index() const;
@@ -103,7 +105,8 @@ public:
 
     AABB expand(const Vector3 &p_vector) const;
     _FORCE_INLINE_ void project_range_in_plane(const Plane &p_plane, real_t &r_min, real_t &r_max) const;
-    _FORCE_INLINE_ void expand_to(const Vector3 &p_vector); /** expand to contain a point if necessary */
+    _FORCE_INLINE_ void expand_to(Vector3 p_vector); /** expand to contain a point if necessary */
+    bool create_from_points(Span<const Vector3> p_points);
 
     _FORCE_INLINE_ AABB abs() const {
         return AABB(Vector3(position.x + MIN(size.x, 0), position.y + MIN(size.y, 0), position.z + MIN(size.z, 0)), size.abs());
@@ -183,7 +186,7 @@ inline bool AABB::encloses(const AABB &p_aabb) const {
             (src_max.z > dst_max.z));
 }
 
-Vector3 AABB::get_support(const Vector3 &p_normal) const {
+Vector3 AABB::get_support(Vector3 p_normal) const {
 
     Vector3 half_extents = size * 0.5;
     Vector3 ofs = position + half_extents;
@@ -228,8 +231,8 @@ bool AABB::intersects_convex_shape(Span<const Plane> p_planes,Span<const Vector3
     }
     // Make sure all points in the shape aren't fully separated from the AABB on
     // each axis.
-    int bad_point_counts_positive[3] = { 0 };
-    int bad_point_counts_negative[3] = { 0 };
+    uint32_t bad_point_counts_positive[3] = { 0 };
+    uint32_t bad_point_counts_negative[3] = { 0 };
 
     for (int k = 0; k < 3; k++) {
 
@@ -270,7 +273,7 @@ bool AABB::inside_convex_shape(Span<const Plane> p_planes) const {
     return true;
 }
 
-bool AABB::has_point(const Vector3 &p_point) const {
+bool AABB::has_point(Vector3 p_point) const {
 
     if (p_point.x < position.x)
         return false;
@@ -288,7 +291,7 @@ bool AABB::has_point(const Vector3 &p_point) const {
     return true;
 }
 
-inline void AABB::expand_to(const Vector3 &p_vector) {
+inline void AABB::expand_to(Vector3 p_vector) {
 
     Vector3 begin = position;
     Vector3 end = position + size;

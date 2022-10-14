@@ -2,6 +2,12 @@ file(GLOB source_files "*.cpp" )
 file(GLOB header_files "*.h" )
 
 set(thirdparty_sources
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/sharpyuv/sharpyuv.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/sharpyuv/sharpyuv_csp.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/sharpyuv/sharpyuv_dsp.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/sharpyuv/sharpyuv_gamma.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/sharpyuv/sharpyuv_neon.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/sharpyuv/sharpyuv_sse2.c
     ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dec/alpha_dec.c
     ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dec/buffer_dec.c
     ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dec/frame_dec.c
@@ -57,6 +63,7 @@ set(thirdparty_sources
     ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_msa.c
     ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_neon.c
     ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_sse2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_sse41.c
     ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/rescaler.c
     ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/rescaler_mips32.c
     ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/rescaler_mips_dsp_r2.c

@@ -35,12 +35,15 @@
 #include "core/translation_helpers.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
 #include "scene/3d/physics_body_3d.h"
+#include "scene/gui/tool_button.h"
+#include "scene/gui/separator.h"
+
 
 IMPL_GDCLASS(PhysicalBoneEditor)
 IMPL_GDCLASS(PhysicalBonePlugin)
 
 void PhysicalBoneEditor::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("_on_toggle_button_transform_joint", {"is_pressed"}), &PhysicalBoneEditor::_on_toggle_button_transform_joint);
+    BIND_METHOD(PhysicalBoneEditor,_on_toggle_button_transform_joint);
 }
 
 void PhysicalBoneEditor::_on_toggle_button_transform_joint(bool p_is_pressed) {

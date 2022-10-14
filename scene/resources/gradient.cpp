@@ -58,18 +58,18 @@ Gradient::~Gradient() {
 
 void Gradient::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("add_point", {"offset", "color"}), &Gradient::add_point);
-    MethodBinder::bind_method(D_METHOD("remove_point", {"point"}), &Gradient::remove_point);
+    BIND_METHOD(Gradient,add_point);
+    BIND_METHOD(Gradient,remove_point);
 
-    MethodBinder::bind_method(D_METHOD("set_offset", {"point", "offset"}), &Gradient::set_offset);
-    MethodBinder::bind_method(D_METHOD("get_offset", {"point"}), &Gradient::get_offset);
+    BIND_METHOD(Gradient,set_offset);
+    BIND_METHOD(Gradient,get_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_color", {"point", "color"}), &Gradient::set_color);
-    MethodBinder::bind_method(D_METHOD("get_color", {"point"}), &Gradient::get_color);
+    BIND_METHOD(Gradient,set_color);
+    BIND_METHOD(Gradient,get_color);
 
     MethodBinder::bind_method(D_METHOD("interpolate", {"offset"}), &Gradient::get_color_at_offset);
 
-    MethodBinder::bind_method(D_METHOD("get_point_count"), &Gradient::get_point_count);
+    BIND_METHOD(Gradient,get_point_count);
 
     MethodBinder::bind_method(D_METHOD(COLOR_RAMP_SET_OFFSETS, {"offsets"}), &Gradient::set_offsets);
     MethodBinder::bind_method(D_METHOD(COLOR_RAMP_GET_OFFSETS), &Gradient::get_offsets);
@@ -77,7 +77,7 @@ void Gradient::_bind_methods() {
     MethodBinder::bind_method(D_METHOD(COLOR_RAMP_SET_COLORS, {"colors"}), &Gradient::set_colors);
     MethodBinder::bind_method(D_METHOD(COLOR_RAMP_GET_COLORS), &Gradient::get_colors);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::POOL_REAL_ARRAY, "offsets"), COLOR_RAMP_SET_OFFSETS, COLOR_RAMP_GET_OFFSETS);
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_FLOAT32_ARRAY, "offsets"), COLOR_RAMP_SET_OFFSETS, COLOR_RAMP_GET_OFFSETS);
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_COLOR_ARRAY, "colors"), COLOR_RAMP_SET_COLORS, COLOR_RAMP_GET_COLORS);
 }
 
@@ -220,4 +220,10 @@ Color Gradient::get_color(int pos) const {
 
 int Gradient::get_point_count() const {
     return points.size();
+}
+void Gradient::_update_sorting() {
+    if (!is_sorted) {
+        eastl::sort(points.begin(),points.end());
+        is_sorted = true;
+    }
 }

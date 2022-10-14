@@ -76,24 +76,14 @@ public:
 private:
     struct Voice {
 
-        float delay;
-        float rate;
-        float depth;
-        float level;
-        float cutoff;
-        float pan;
-
-        Voice() {
-
-            delay = 12.0;
-            rate = 1;
-            depth = 0;
-            level = 0;
-            cutoff = MS_CUTOFF_MAX;
-            pan = 0;
-        }
-
-    } voice[MAX_VOICES];
+        float delay_ms = 12.0f;
+        float rate_hz = 1;
+        float depth_ms = 0;
+        float level = 0;
+        float cutoff = MS_CUTOFF_MAX;
+        float pan = 0;
+    };
+    Voice voice[MAX_VOICES];
 
     int voice_count;
 

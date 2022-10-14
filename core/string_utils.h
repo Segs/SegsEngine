@@ -112,10 +112,9 @@ enum Compare {
 [[nodiscard]] GODOT_EXPORT bool contains(const UIString &heystack,CharType c,Compare mode=CaseSensitive);
 [[nodiscard]] GODOT_EXPORT bool contains(const UIString &heystack,const UIString &needle,Compare mode=CaseSensitive);
 [[nodiscard]] GODOT_EXPORT bool contains(const UIString &heystack, StringView needle,Compare mode=CaseSensitive);
-[[nodiscard]] GODOT_EXPORT bool contains(const char *heystack, const char *needle);
 [[nodiscard]] GODOT_EXPORT bool contains(StringView heystack, char c);
-[[nodiscard]] GODOT_EXPORT bool contains(StringView heystack, StringView c);
-[[nodiscard]] GODOT_EXPORT bool is_numeric(const String &str);
+[[nodiscard]] GODOT_EXPORT bool contains(StringView heystack, StringView c,Compare mode=CaseSensitive);
+[[nodiscard]] GODOT_EXPORT bool is_numeric(StringView str);
 [[nodiscard]] GODOT_EXPORT bool is_quoted(const UIString &str);
 [[nodiscard]] GODOT_EXPORT bool is_quoted(StringView str);
 [[nodiscard]] GODOT_EXPORT bool is_valid_filename(const UIString &src);
@@ -204,12 +203,9 @@ static inline uint32_t hash(const char *p_cstr) {
 [[nodiscard]] GODOT_EXPORT int find(const UIString &str,const char *p_str, int p_from = 0); ///< return <0 if failed
 [[nodiscard]] GODOT_EXPORT size_t find(StringView str,StringView p_str, size_t p_from = 0); ///< return String::npos if failed
 [[nodiscard]] GODOT_EXPORT size_t find(StringView str,char p_str, size_t p_from = 0); ///< return String::npos if failed
-[[nodiscard]] GODOT_EXPORT size_t find_last(StringView str,StringView p_str); ///< return String::npos if failed
-[[nodiscard]] GODOT_EXPORT size_t find_last(StringView str,char p_ch); ///< return String::npos if failed
-[[nodiscard]] GODOT_EXPORT int find_last(const UIString &str,CharType p_ch); ///< return <0 if failed
-[[nodiscard]] GODOT_EXPORT int find_last(const UIString &str,const UIString &p_str); ///< return <0 if failed
 [[nodiscard]] GODOT_EXPORT int findn(const UIString &str,const UIString &p_str, int p_from = 0); ///< return <0 if failed, case insensitive
 [[nodiscard]] GODOT_EXPORT size_t findn(StringView str,StringView p_str, int p_from = 0); ///< return <0 if failed, case insensitive
+[[nodiscard]] GODOT_EXPORT int rfind(const UIString &str,CharType p_ch, int p_from = -1); ///< return <0 if failed
 [[nodiscard]] GODOT_EXPORT int rfind(const UIString &str,const UIString &p_str, int p_from = -1); ///< return <0 if failed
 [[nodiscard]] GODOT_EXPORT size_t rfind(StringView str,StringView p_str, int p_from = -1); ///< return <0 if failed
 [[nodiscard]] GODOT_EXPORT size_t rfind(StringView str,char p_str, int p_from = -1); ///< return <0 if failed
@@ -284,6 +280,7 @@ namespace PathUtils
     [[nodiscard]] GODOT_EXPORT UIString get_basename(const UIString &p);
     [[nodiscard]] GODOT_EXPORT String plus_file(StringView bp,StringView p_file);
     [[nodiscard]] GODOT_EXPORT String join_path(Span<StringView> parts);
+    [[nodiscard]] GODOT_EXPORT String join_path(std::initializer_list<StringView> parts);
     //! @note for now it just replaces \\ with /
     [[nodiscard]] GODOT_EXPORT String from_native_path(StringView p);
     [[nodiscard]] GODOT_EXPORT UIString from_native_path(const UIString &p);
@@ -307,6 +304,7 @@ namespace PathUtils
     [[nodiscard]] GODOT_EXPORT StringView get_file(StringView path);
     [[nodiscard]] GODOT_EXPORT String simplify_path(StringView str);
     //[[nodiscard]] GODOT_EXPORT String trim_trailing_slash(const String &path);
+    [[nodiscard]] GODOT_EXPORT bool is_network_share_path(StringView path);
 
 } // end o PathUtils namespace
 
@@ -332,6 +330,9 @@ struct NaturalNoCaseComparator {
     bool operator()(StringView p_a, StringView p_b) const {
 
         return StringUtils::compare(p_a, p_b, StringUtils::CaseNatural) < 0;
+    }
+    int compare(StringView p_a, StringView p_b) const {
+        return StringUtils::compare(p_a, p_b, StringUtils::CaseNatural);
     }
 };
 

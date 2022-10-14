@@ -37,6 +37,6 @@
 template<class T>
 using List = eastl::list<T,wrap_allocator>;
 
-extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::list<class StringName,wrap_allocator>;
-extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::list<StringView,wrap_allocator>;
+extern template class EXPORT_TEMPLATE_DECL eastl::list<class StringName,wrap_allocator>;
+extern template class EXPORT_TEMPLATE_DECL eastl::list<StringView,wrap_allocator>;
 

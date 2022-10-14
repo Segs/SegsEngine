@@ -33,10 +33,12 @@
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "scene/gui/tool_button.h"
+#include "scene/gui/box_container.h"
 
 class CanvasItemEditor;
 class ImmediateGeometry3D;
 class MeshInstance3D;
+class ArrayMesh;
 
 class CollisionPolygon3DEditor : public HBoxContainer {
 

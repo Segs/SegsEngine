@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_spin_slider.cpp                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,8 +31,8 @@
 #include "editor_spin_slider.h"
 #include "core/method_bind.h"
 #include "core/callable_method_pointer.h"
-//#include "core/math/expression.h"
 #include "core/os/input.h"
+#include "core/os/keyboard.h"
 #include "core/string_formatter.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/font.h"
@@ -43,12 +43,24 @@
 
 IMPL_GDCLASS(EditorSpinSlider)
 
-StringName EditorSpinSlider::get_tooltip(const Point2 &p_pos) const {
+const String &EditorSpinSlider::get_tooltip(const Point2 &p_pos) const {
+    static String tooltip_contents;
     if (grabber->is_visible()) {
-        return FormatSN("%f\n\n%s",get_value(),TTR("Hold Ctrl to round to integers. Hold Shift for more precise changes.").asCString());
+#ifdef OSX_ENABLED
+        const int key = KEY_META;
+#else
+        const int key = KEY_CONTROL;
+#endif
+        tooltip_contents = StringUtils::num(get_value()) + "\n\n" +
+                FormatVE(TTR("Hold %s to round to integers. Hold Shift for more precise changes.").asCString(),
+                        find_keycode_name(key));
     }
-
-    return StringName(StringUtils::num(get_value()));
+    else if (grabber->is_visible()) {
+        tooltip_contents = FormatVE("%f\n\n%s", get_value(), TTR("Hold Ctrl to round to integers. Hold Shift for more precise changes.").asCString());
+    } else {
+        tooltip_contents = StringUtils::num(get_value());
+    }
+    return tooltip_contents;
 }
 
 UIString EditorSpinSlider::get_text_value() const {
@@ -130,7 +142,7 @@ void EditorSpinSlider::_gui_input(const Ref<InputEvent> &p_event) {
                 if (pre_grab_value > get_max() && !is_greater_allowed()) {
                     pre_grab_value = get_max();
                 }
-                if (mm->get_control()) {
+                if (mm->get_command()) {
                     // If control was just pressed, don't make the value do a huge jump in magnitude.
                     if (grabbing_spinner_dist_cache != 0) {
                         pre_grab_value += grabbing_spinner_dist_cache * get_step();
@@ -192,40 +204,76 @@ void EditorSpinSlider::_grabber_gui_input(const Ref<InputEvent> &p_event) {
         if (mousewheel_over_grabber)
             return;
 
-        float grabbing_ofs = (grabber->get_transform().xform(mm->get_position()).x - grabbing_from) / float(grabber_range);
+        float scale_x = get_global_transform_with_canvas().get_scale().x;
+        ERR_FAIL_COND(Math::is_zero_approx(scale_x));
+        float grabbing_ofs = (grabber->get_transform().xform(mm->get_position()).x - grabbing_from) / float(grabber_range) / scale_x;
         set_as_ratio(grabbing_ratio + grabbing_ofs);
         update();
     }
 }
 
-void EditorSpinSlider::_notification(int p_what) {
+void EditorSpinSlider::_value_input_gui_input(const Ref<InputEvent> &p_event) {
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
+    if (k && k->is_pressed()) {
+        float step = get_step();
+        float real_step = step;
+        if (step < 1) {
+            float divisor = 1.0f / get_step();
 
-    if (p_what == MainLoop::NOTIFICATION_WM_FOCUS_OUT ||
-            p_what == MainLoop::NOTIFICATION_WM_FOCUS_IN ||
-            p_what == NOTIFICATION_EXIT_TREE) {
-        if (grabbing_spinner) {
-            grabber->hide();
-            Input::get_singleton()->set_mouse_mode(Input::MOUSE_MODE_VISIBLE);
-            grabbing_spinner = false;
-            grabbing_spinner_attempt = false;
+            if (trunc(divisor) == divisor) {
+                step = 1.0f;
         }
     }
 
-    if (p_what == NOTIFICATION_READY) {
-        // Add a left margin to the stylebox to make the number align with the Label
-        // when it's edited. The LineEdit "focus" stylebox uses the "normal" stylebox's
-        // default margins.
-        Ref<StyleBoxFlat> stylebox = { dynamic_ref_cast<StyleBoxFlat>(
-                EditorNode::get_singleton()->get_theme_base()->get_theme_stylebox("normal", "LineEdit")->duplicate()) };
-        // EditorSpinSliders with a label have more space on the left, so add an
-        // higher margin to match the location where the text begins.
-        // The margin values below were determined by empirical testing.
-        stylebox->set_default_margin(Margin::Left, (!get_label().empty() ? 23 : 16) * EDSCALE);
-        value_input->add_theme_style_override("normal", stylebox);
+#ifdef APPLE_STYLE_KEYS
+        if (k->get_command()) {
+#else
+        if (k->get_control()) {
+#endif
+            step *= 100.0;
+        } else if (k->get_shift()) {
+            step *= 10.0;
+#ifdef APPLE_STYLE_KEYS
+        } else if (k->get_metakey()) {
+#else
+        } else if (k->get_alt()) {
+#endif
+            step *= 0.1;
     }
 
-    if (p_what == NOTIFICATION_DRAW) {
+        uint32_t code = k->get_keycode();
+        switch (code) {
+            case KEY_UP: {
+                _evaluate_input_text();
 
+                float last_value = get_value();
+                set_value(last_value + step);
+                float new_value = get_value();
+
+                if (new_value < CLAMP<float>(last_value + step, get_min(), get_max())) {
+                    set_value(last_value + real_step);
+                }
+                value_input_dirty = true;
+                set_process_internal(true);
+            } break;
+            case KEY_DOWN: {
+                _evaluate_input_text();
+
+                double last_value = get_value();
+                set_value(last_value - step);
+                double new_value = get_value();
+
+                if (new_value > CLAMP<float>(last_value - step, get_min(), get_max())) {
+                    set_value(last_value - real_step);
+                }
+                value_input_dirty = true;
+                set_process_internal(true);
+            } break;
+        }
+    }
+}
+void EditorSpinSlider::_draw_spin_slider()
+{
         updown_offset = -1;
 
         Ref<StyleBox> sb = get_theme_stylebox("normal", "LineEdit");
@@ -259,7 +307,7 @@ void EditorSpinSlider::_notification(int p_what) {
 
         if (flat && !label.empty()) {
             Color label_bg_color = get_theme_color("dark_color_3", "Editor");
-            draw_rect(Rect2(Vector2(), Vector2(sb->get_offset().x * 2 + string_width, get_size().height)), label_bg_color);
+        draw_rect_filled(Rect2(Vector2(), Vector2(sb->get_offset().x * 2 + string_width, get_size().height)), label_bg_color);
         }
 
         if (has_focus()) {
@@ -284,18 +332,24 @@ void EditorSpinSlider::_notification(int p_what) {
                 grabber->hide();
             }
         } else if (!hide_slider) {
-            int grabber_w = 4 * EDSCALE;
-            int width = get_size().width - sb->get_minimum_size().width - grabber_w;
-            int ofs = sb->get_offset().x;
-            int svofs = (get_size().height + vofs) / 2 - 1;
+        const int grabber_w = 4 * EDSCALE;
+        const int width = get_size().width - sb->get_minimum_size().width - grabber_w;
+        const int ofs = sb->get_offset().x;
+        const int svofs = (get_size().height + vofs) / 2 - 1;
             Color c = fc;
-            c.a = 0.2;
+        // Draw the horizontal slider's background.
+        c.a = 0.2f;
 
-            draw_rect(Rect2(ofs, svofs + 1, width, 2 * EDSCALE), c);
-            int gofs = get_as_ratio() * width;
+        draw_rect_filled(Rect2(ofs, svofs + 1, width, 2 * EDSCALE), c);
+        // Draw the horizontal slider's filled part on the left.
+        const int gofs = get_as_ratio() * width;
+        c.a = 0.45;
+        draw_rect_filled(Rect2(ofs, svofs + 1, gofs, 2 * EDSCALE), c);
+
+        // Draw the horizontal slider's grabber.
             c.a = 0.9;
-            Rect2 grabber_rect = Rect2(ofs + gofs, svofs + 1, grabber_w, 2 * EDSCALE);
-            draw_rect(grabber_rect, c);
+        const Rect2 grabber_rect = Rect2(ofs + gofs, svofs, grabber_w, 4 * EDSCALE);
+        draw_rect_filled(grabber_rect, c);
 
             bool display_grabber = (mouse_over_spin || mouse_over_grabber) && !grabbing_spinner && !value_input->is_visible();
             if (grabber->is_visible() != display_grabber) {
@@ -318,8 +372,10 @@ void EditorSpinSlider::_notification(int p_what) {
                     grabber->set_texture(grabber_tex);
                 }
 
+            Vector2 scale = get_global_transform_with_canvas().get_scale();
+            grabber->set_scale(scale);
                 grabber->set_size(Size2(0, 0));
-                grabber->set_position(get_global_position() + grabber_rect.position + grabber_rect.size * 0.5 - grabber->get_size() * 0.5);
+            grabber->set_position(get_global_position() + (grabber_rect.position + grabber_rect.size * 0.5 - grabber->get_size() * 0.5) * scale);
                 if (mousewheel_over_grabber) {
                     Input::get_singleton()->warp_mouse_position(grabber->get_position() + grabber_rect.size);
                 }
@@ -328,17 +384,53 @@ void EditorSpinSlider::_notification(int p_what) {
         }
     }
 
-    if (p_what == NOTIFICATION_MOUSE_ENTER) {
+void EditorSpinSlider::_notification(int p_what) {
+    switch (p_what) {
+        case NOTIFICATION_ENTER_TREE:
+        case NOTIFICATION_THEME_CHANGED: {
+            // Add a left margin to the stylebox to make the number align with the Label
+            // when it's edited. The LineEdit "focus" stylebox uses the "normal" stylebox's
+            // default margins.
+            Ref<StyleBox> stylebox = dynamic_ref_cast<StyleBox>(get_theme_stylebox("normal", "LineEdit")->duplicate());
+            // EditorSpinSliders with a label have more space on the left, so add an
+            // higher margin to match the location where the text begins.
+            // The margin values below were determined by empirical testing.
+            stylebox->set_default_margin(Margin::Left, (get_label() != String() ? 23 : 16) * EDSCALE);
+            value_input->add_theme_style_override("normal", stylebox);
+        } break;
+        case NOTIFICATION_INTERNAL_PROCESS: {
+            if (value_input_dirty) {
+                value_input_dirty = false;
+                value_input->set_text_uistring(get_text_value());
+            }
+            set_process_internal(false);
+            break;
+        }
+        case NOTIFICATION_DRAW:
+            _draw_spin_slider();
+            break;
 
+        case MainLoop::NOTIFICATION_WM_FOCUS_IN:
+        case MainLoop::NOTIFICATION_WM_FOCUS_OUT:
+        case NOTIFICATION_EXIT_TREE:
+            if (grabbing_spinner) {
+                grabber->hide();
+                Input::get_singleton()->set_mouse_mode(Input::MOUSE_MODE_VISIBLE);
+                grabbing_spinner = false;
+                grabbing_spinner_attempt = false;
+            }
+            break;
+
+        case NOTIFICATION_MOUSE_ENTER:
         mouse_over_spin = true;
         update();
-    }
-    if (p_what == NOTIFICATION_MOUSE_EXIT) {
+            break;
+        case NOTIFICATION_MOUSE_EXIT:
 
         mouse_over_spin = false;
         update();
-    }
-    if (p_what == NOTIFICATION_FOCUS_ENTER) {
+            break;
+        case NOTIFICATION_FOCUS_ENTER:
         /* Sorry, I don't like this, it makes navigating the different fields with arrows more difficult.
          * Just press enter to edit.
          * if (Input::get_singleton()->is_mouse_button_pressed(BUTTON_LEFT) && !value_input_just_closed) {
@@ -348,6 +440,7 @@ void EditorSpinSlider::_notification(int p_what) {
             _focus_entered();
         }
         value_input_just_closed = false;
+            break;
     }
 }
 
@@ -468,10 +561,10 @@ void EditorSpinSlider::_focus_entered() {
     value_input->set_text_uistring(get_text_value());
     value_input->set_position(gr.position);
     value_input->set_size(gr.size);
+    value_input->show_modal();
+    value_input->select_all();
     call_deferred([vi=value_input] {
-        vi->show_modal();
-        vi->grab_focus();
-        vi->select_all();
+        vi->grab_focus();  // deferred to avoid losing focus
     });
 
     value_input->set_focus_next(find_next_valid_focus()->get_path());
@@ -479,16 +572,16 @@ void EditorSpinSlider::_focus_entered() {
 }
 
 void EditorSpinSlider::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_label", {"label"}), &EditorSpinSlider::set_label);
-    MethodBinder::bind_method(D_METHOD("get_label"), &EditorSpinSlider::get_label);
+    BIND_METHOD(EditorSpinSlider,set_label);
+    BIND_METHOD(EditorSpinSlider,get_label);
 
-    MethodBinder::bind_method(D_METHOD("set_read_only", {"read_only"}), &EditorSpinSlider::set_read_only);
-    MethodBinder::bind_method(D_METHOD("is_read_only"), &EditorSpinSlider::is_read_only);
+    BIND_METHOD(EditorSpinSlider,set_read_only);
+    BIND_METHOD(EditorSpinSlider,is_read_only);
 
-    MethodBinder::bind_method(D_METHOD("set_flat", {"flat"}), &EditorSpinSlider::set_flat);
-    MethodBinder::bind_method(D_METHOD("is_flat"), &EditorSpinSlider::is_flat);
+    BIND_METHOD(EditorSpinSlider,set_flat);
+    BIND_METHOD(EditorSpinSlider,is_flat);
 
-    MethodBinder::bind_method(D_METHOD("_gui_input"), &EditorSpinSlider::_gui_input);
+    BIND_METHOD(EditorSpinSlider,_gui_input);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "label"), "set_label", "get_label");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "read_only"), "set_read_only", "is_read_only");
@@ -525,6 +618,7 @@ EditorSpinSlider::EditorSpinSlider() {
     value_input->connect("modal_closed",callable_mp(this, &ClassName::_value_input_closed));
     value_input->connect("text_entered",callable_mp(this, &ClassName::_value_input_entered));
     value_input->connect("focus_exited",callable_mp(this, &ClassName::_value_focus_exited));
+    value_input->connect("gui_input", callable_mp(this, &ClassName::_value_input_gui_input));
     value_input_just_closed = false;
     hide_slider = false;
     read_only = false;

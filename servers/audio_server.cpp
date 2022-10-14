@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_server.cpp                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -29,14 +29,16 @@
 /*************************************************************************/
 
 #include "audio_server.h"
+
 #include "core/debugger/script_debugger.h"
+#include "core/external_profiler.h"
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
 #include "core/method_enum_caster.h"
+#include "core/object_tooling.h"
 #include "core/os/file_access.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
-#include "core/object_tooling.h"
 #include "core/project_settings.h"
 #include "core/resource/resource_manager.h"
 #include "core/script_language.h"
@@ -82,7 +84,7 @@ struct AudioServerBus {
             last_mix_with_audio = 0;
             used = false;
             active = false;
-            peak_volume = AudioFrame(0, 0);
+            peak_volume = AudioFrame(AUDIO_MIN_PEAK_DB, AUDIO_MIN_PEAK_DB);
         }
     };
 
@@ -116,18 +118,21 @@ void AudioDriver::set_singleton() {
 
 void AudioDriver::audio_server_process(int p_frames, int32_t *p_buffer, bool p_update_mix_time) {
 
-    if (p_update_mix_time)
+    if (p_update_mix_time) {
         update_mix_time(p_frames);
+    }
 
-    if (AudioServer::get_singleton())
+    if (AudioServer::get_singleton()) {
         AudioServer::get_singleton()->_driver_process(p_frames, p_buffer);
+    }
 }
 
 void AudioDriver::update_mix_time(int p_frames) {
 
     _last_mix_frames = p_frames;
-    if (OS::get_singleton())
+    if (OS::get_singleton()) {
         _last_mix_time = OS::get_singleton()->get_ticks_usec();
+    }
 }
 
 double AudioDriver::get_time_since_last_mix() {
@@ -172,9 +177,12 @@ void AudioDriver::input_buffer_write(int32_t sample) {
 
 AudioDriver::SpeakerMode AudioDriver::get_speaker_mode_by_total_channels(int p_channels) const {
     switch (p_channels) {
-        case 4: return SPEAKER_SURROUND_31;
-        case 6: return SPEAKER_SURROUND_51;
-        case 8: return SPEAKER_SURROUND_71;
+        case 4:
+            return SPEAKER_SURROUND_31;
+        case 6:
+            return SPEAKER_SURROUND_51;
+        case 8:
+            return SPEAKER_SURROUND_71;
     }
 
     // Default to STEREO
@@ -183,10 +191,14 @@ AudioDriver::SpeakerMode AudioDriver::get_speaker_mode_by_total_channels(int p_c
 
 int AudioDriver::get_total_channels_by_speaker_mode(AudioDriver::SpeakerMode p_mode) const {
     switch (p_mode) {
-        case SPEAKER_MODE_STEREO: return 2;
-        case SPEAKER_SURROUND_31: return 4;
-        case SPEAKER_SURROUND_51: return 6;
-        case SPEAKER_SURROUND_71: return 8;
+        case SPEAKER_MODE_STEREO:
+            return 2;
+        case SPEAKER_SURROUND_31:
+            return 4;
+        case SPEAKER_SURROUND_51:
+            return 6;
+        case SPEAKER_SURROUND_71:
+            return 8;
     }
 
     ERR_FAIL_V(2);
@@ -304,6 +316,7 @@ void AudioServer::_driver_process(int p_frames, int32_t *p_buffer) {
         init_channels_and_buffers();
     }
 
+    ERR_FAIL_COND_MSG(buses.empty() && todo, "AudioServer bus count is less than 1.");
     while (todo) {
 
         if (to_mix == 0) {
@@ -327,12 +340,12 @@ void AudioServer::_driver_process(int p_frames, int32_t *p_buffer) {
 
                 for (int j = 0; j < to_copy; j++) {
 
-                    float l = CLAMP(buf[from + j].l, -1.0, 1.0);
+                    float l = CLAMP(buf[from + j].l, -1.0f, 1.0f);
                     int32_t vl = l * ((1 << 20) - 1);
                     int32_t vl2 = (vl < 0 ? -1 : 1) * (ABS(vl) << 11);
                     p_buffer[(from_buf + j) * (cs * 2) + k * 2 + 0] = vl2;
 
-                    float r = CLAMP(buf[from + j].r, -1.0, 1.0);
+                    float r = CLAMP(buf[from + j].r, -1.0f, 1.0f);
                     int32_t vr = r * ((1 << 20) - 1);
                     int32_t vr2 = (vr < 0 ? -1 : 1) * (ABS(vr) << 11);
                     p_buffer[(from_buf + j) * (cs * 2) + k * 2 + 1] = vr2;
@@ -433,16 +446,18 @@ void AudioServer::_mix_step() {
 
                 for (int k = 0; k < bus->channels.size(); k++) {
 
-                    if (!(bus->channels[k].active || bus->channels[k].effect_instances[j]->process_silence()))
+                    if (!(bus->channels[k].active || bus->channels[k].effect_instances[j]->process_silence())) {
                         continue;
+                    }
                     bus->channels[k].effect_instances[j]->process(bus->channels[k].buffer.data(), temp_buffer[k].data(), buffer_size);
                 }
 
                 //swap buffers, so internal buffer always has the right data
                 for (int k = 0; k < bus->channels.size(); k++) {
 
-                    if (!(buses[i]->channels[k].active || bus->channels[k].effect_instances[j]->process_silence()))
+                    if (!(buses[i]->channels[k].active || bus->channels[k].effect_instances[j]->process_silence())) {
                         continue;
+                    }
                     SWAP(bus->channels[k].buffer, temp_buffer[k]);
                 }
 
@@ -470,8 +485,10 @@ void AudioServer::_mix_step() {
 
         for (int k = 0; k < bus->channels.size(); k++) {
 
-            if (!bus->channels[k].active)
+            if (!bus->channels[k].active) {
+                bus->channels[k].peak_volume = AudioFrame(AUDIO_MIN_PEAK_DB, AUDIO_MIN_PEAK_DB);
                 continue;
+            }
 
             AudioFrame *buf = bus->channels[k].buffer.data();
 
@@ -504,7 +521,7 @@ void AudioServer::_mix_step() {
                 }
             }
 
-            bus->channels[k].peak_volume = AudioFrame(Math::linear2db(peak.l + 0.0000000001), Math::linear2db(peak.r + 0.0000000001));
+            bus->channels[k].peak_volume = AudioFrame(Math::linear2db(peak.l + AUDIO_PEAK_OFFSET), Math::linear2db(peak.r + AUDIO_PEAK_OFFSET));
 
             if (!bus->channels[k].used) {
                 //see if any audio is contained, because channel was not used
@@ -566,8 +583,9 @@ int AudioServer::thread_get_mix_buffer_size() const {
 
 int AudioServer::thread_find_bus_index(const StringName &p_name) {
 
-    if (bus_map.contains(p_name)) {
-        return bus_map[p_name]->index_cache;
+    auto iter = bus_map.find(p_name);
+    if (iter!=bus_map.end()) {
+        return iter->second->index_cache;
     } else {
         return 0;
     }
@@ -741,8 +759,9 @@ int AudioServer::get_bus_count() const {
 void AudioServer::set_bus_name(int p_bus, const StringName &p_name) {
 
     ERR_FAIL_INDEX(p_bus, buses.size());
-    if (p_bus == 0 && p_name != StringView("Master"))
+    if (p_bus == 0 && p_name != StringView("Master")) {
         return; //bus 0 is always master
+    }
 
     Object_set_edited(this,true);
 
@@ -1033,6 +1052,7 @@ void AudioServer::init_channels_and_buffers() {
         for (int j = 0; j < channel_count; j++) {
             buses[i]->channels[j].buffer.resize(buffer_size);
         }
+        _update_bus_effects(i);
     }
 }
 
@@ -1206,7 +1226,7 @@ void *AudioServer::audio_data_alloc(uint32_t p_data_len, const uint8_t *p_from_d
         memcpy(ad, p_from_data, p_data_len);
     }
 
-    MutexLock scoped(*audio_data_lock);
+    MutexLock scoped(audio_data_lock);
     audio_data[ad] = p_data_len;
     audio_data_total_mem += p_data_len;
     audio_data_max_mem = M_MAX(audio_data_total_mem, audio_data_max_mem);
@@ -1215,7 +1235,7 @@ void *AudioServer::audio_data_alloc(uint32_t p_data_len, const uint8_t *p_from_d
 
 void AudioServer::audio_data_free(void *p_data) {
 
-    MutexLock scoped(*audio_data_lock);
+    MutexLock scoped(audio_data_lock);
     if (!audio_data.contains(p_data)) {
         ERR_FAIL();
     }
@@ -1235,39 +1255,39 @@ size_t AudioServer::audio_data_get_max_memory_usage() const {
 }
 
 void AudioServer::add_callback(AudioCallback p_callback, void *p_userdata) {
-    lock();
     CallbackItem ci;
     ci.callback = p_callback;
     ci.userdata = p_userdata;
+    lock();
     callbacks.insert(ci);
     unlock();
 }
 
 void AudioServer::remove_callback(AudioCallback p_callback, void *p_userdata) {
 
-    lock();
     CallbackItem ci;
     ci.callback = p_callback;
     ci.userdata = p_userdata;
+    lock();
     callbacks.erase(ci);
     unlock();
 }
 
 void AudioServer::add_update_callback(AudioCallback p_callback, void *p_userdata) {
-    lock();
     CallbackItem ci;
     ci.callback = p_callback;
     ci.userdata = p_userdata;
+    lock();
     update_callbacks.insert(ci);
     unlock();
 }
 
 void AudioServer::remove_update_callback(AudioCallback p_callback, void *p_userdata) {
 
-    lock();
     CallbackItem ci;
     ci.callback = p_callback;
     ci.userdata = p_userdata;
+    lock();
     update_callbacks.erase(ci);
     unlock();
 }
@@ -1339,73 +1359,77 @@ void AudioServer::capture_set_device(StringView p_name) {
 
 void AudioServer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_bus_count", {"amount"}), &AudioServer::set_bus_count);
-    MethodBinder::bind_method(D_METHOD("get_bus_count"), &AudioServer::get_bus_count);
+    BIND_METHOD(AudioServer,set_bus_count);
+    BIND_METHOD(AudioServer,get_bus_count);
 
-    MethodBinder::bind_method(D_METHOD("remove_bus", {"index"}), &AudioServer::remove_bus);
+    BIND_METHOD(AudioServer,remove_bus);
     MethodBinder::bind_method(D_METHOD("add_bus", {"at_position"}), &AudioServer::add_bus, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("move_bus", {"index", "to_index"}), &AudioServer::move_bus);
+    BIND_METHOD(AudioServer,move_bus);
 
-    MethodBinder::bind_method(D_METHOD("set_bus_name", {"bus_idx", "name"}), &AudioServer::set_bus_name);
-    MethodBinder::bind_method(D_METHOD("get_bus_name", {"bus_idx"}), &AudioServer::get_bus_name);
-    MethodBinder::bind_method(D_METHOD("get_bus_index", {"bus_name"}), &AudioServer::get_bus_index);
+    BIND_METHOD(AudioServer,set_bus_name);
+    BIND_METHOD(AudioServer,get_bus_name);
+    BIND_METHOD(AudioServer,get_bus_index);
 
-    MethodBinder::bind_method(D_METHOD("get_bus_channels", {"bus_idx"}), &AudioServer::get_bus_channels);
+    BIND_METHOD(AudioServer,get_bus_channels);
 
-    MethodBinder::bind_method(D_METHOD("set_bus_volume_db", {"bus_idx", "volume_db"}), &AudioServer::set_bus_volume_db);
-    MethodBinder::bind_method(D_METHOD("get_bus_volume_db", {"bus_idx"}), &AudioServer::get_bus_volume_db);
+    BIND_METHOD(AudioServer,set_bus_volume_db);
+    BIND_METHOD(AudioServer,get_bus_volume_db);
 
-    MethodBinder::bind_method(D_METHOD("set_bus_send", {"bus_idx", "send"}), &AudioServer::set_bus_send);
-    MethodBinder::bind_method(D_METHOD("get_bus_send", {"bus_idx"}), &AudioServer::get_bus_send);
+    BIND_METHOD(AudioServer,set_bus_send);
+    BIND_METHOD(AudioServer,get_bus_send);
 
-    MethodBinder::bind_method(D_METHOD("set_bus_solo", {"bus_idx", "enable"}), &AudioServer::set_bus_solo);
-    MethodBinder::bind_method(D_METHOD("is_bus_solo", {"bus_idx"}), &AudioServer::is_bus_solo);
+    BIND_METHOD(AudioServer,set_bus_solo);
+    BIND_METHOD(AudioServer,is_bus_solo);
 
-    MethodBinder::bind_method(D_METHOD("set_bus_mute", {"bus_idx", "enable"}), &AudioServer::set_bus_mute);
-    MethodBinder::bind_method(D_METHOD("is_bus_mute", {"bus_idx"}), &AudioServer::is_bus_mute);
+    BIND_METHOD(AudioServer,set_bus_mute);
+    BIND_METHOD(AudioServer,is_bus_mute);
 
-    MethodBinder::bind_method(D_METHOD("set_bus_bypass_effects", {"bus_idx", "enable"}), &AudioServer::set_bus_bypass_effects);
-    MethodBinder::bind_method(D_METHOD("is_bus_bypassing_effects", {"bus_idx"}), &AudioServer::is_bus_bypassing_effects);
+    BIND_METHOD(AudioServer,set_bus_bypass_effects);
+    BIND_METHOD(AudioServer,is_bus_bypassing_effects);
 
     MethodBinder::bind_method(D_METHOD("add_bus_effect", {"bus_idx", "effect", "at_position"}), &AudioServer::add_bus_effect, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("remove_bus_effect", {"bus_idx", "effect_idx"}), &AudioServer::remove_bus_effect);
+    BIND_METHOD(AudioServer,remove_bus_effect);
 
-    MethodBinder::bind_method(D_METHOD("get_bus_effect_count", {"bus_idx"}), &AudioServer::get_bus_effect_count);
-    MethodBinder::bind_method(D_METHOD("get_bus_effect", {"bus_idx", "effect_idx"}), &AudioServer::get_bus_effect);
+    BIND_METHOD(AudioServer,get_bus_effect_count);
+    BIND_METHOD(AudioServer,get_bus_effect);
     MethodBinder::bind_method(D_METHOD("get_bus_effect_instance", {"bus_idx", "effect_idx", "channel"}), &AudioServer::get_bus_effect_instance, {DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("swap_bus_effects", {"bus_idx", "effect_idx", "by_effect_idx"}), &AudioServer::swap_bus_effects);
+    BIND_METHOD(AudioServer,swap_bus_effects);
 
-    MethodBinder::bind_method(D_METHOD("set_bus_effect_enabled", {"bus_idx", "effect_idx", "enabled"}), &AudioServer::set_bus_effect_enabled);
-    MethodBinder::bind_method(D_METHOD("is_bus_effect_enabled", {"bus_idx", "effect_idx"}), &AudioServer::is_bus_effect_enabled);
+    BIND_METHOD(AudioServer,set_bus_effect_enabled);
+    BIND_METHOD(AudioServer,is_bus_effect_enabled);
 
-    MethodBinder::bind_method(D_METHOD("get_bus_peak_volume_left_db", {"bus_idx", "channel"}), &AudioServer::get_bus_peak_volume_left_db);
-    MethodBinder::bind_method(D_METHOD("get_bus_peak_volume_right_db", {"bus_idx", "channel"}), &AudioServer::get_bus_peak_volume_right_db);
+    BIND_METHOD(AudioServer,get_bus_peak_volume_left_db);
+    BIND_METHOD(AudioServer,get_bus_peak_volume_right_db);
 
-    MethodBinder::bind_method(D_METHOD("set_global_rate_scale", {"scale"}), &AudioServer::set_global_rate_scale);
-    MethodBinder::bind_method(D_METHOD("get_global_rate_scale"), &AudioServer::get_global_rate_scale);
+    BIND_METHOD(AudioServer,set_global_rate_scale);
+    BIND_METHOD(AudioServer,get_global_rate_scale);
 
-    MethodBinder::bind_method(D_METHOD("lock"), &AudioServer::lock);
-    MethodBinder::bind_method(D_METHOD("unlock"), &AudioServer::unlock);
+    BIND_METHOD(AudioServer,lock);
+    BIND_METHOD(AudioServer,unlock);
 
-    MethodBinder::bind_method(D_METHOD("get_speaker_mode"), &AudioServer::get_speaker_mode);
-    MethodBinder::bind_method(D_METHOD("get_mix_rate"), &AudioServer::get_mix_rate);
-    MethodBinder::bind_method(D_METHOD("get_device_list"), &AudioServer::get_device_list);
-    MethodBinder::bind_method(D_METHOD("get_device"), &AudioServer::get_device);
-    MethodBinder::bind_method(D_METHOD("set_device", {"device"}), &AudioServer::set_device);
+    BIND_METHOD(AudioServer,get_speaker_mode);
+    BIND_METHOD(AudioServer,get_mix_rate);
+    BIND_METHOD(AudioServer,get_device_list);
+    BIND_METHOD(AudioServer,get_device);
+    BIND_METHOD(AudioServer,set_device);
 
-    MethodBinder::bind_method(D_METHOD("get_time_to_next_mix"), &AudioServer::get_time_to_next_mix);
-    MethodBinder::bind_method(D_METHOD("get_time_since_last_mix"), &AudioServer::get_time_since_last_mix);
-    MethodBinder::bind_method(D_METHOD("get_output_latency"), &AudioServer::get_output_latency);
+    BIND_METHOD(AudioServer,get_time_to_next_mix);
+    BIND_METHOD(AudioServer,get_time_since_last_mix);
+    BIND_METHOD(AudioServer,get_output_latency);
 
-    MethodBinder::bind_method(D_METHOD("capture_get_device_list"), &AudioServer::capture_get_device_list);
-    MethodBinder::bind_method(D_METHOD("capture_get_device"), &AudioServer::capture_get_device);
-    MethodBinder::bind_method(D_METHOD("capture_set_device", {"name"}), &AudioServer::capture_set_device);
+    BIND_METHOD(AudioServer,capture_get_device_list);
+    BIND_METHOD(AudioServer,capture_get_device);
+    BIND_METHOD(AudioServer,capture_set_device);
 
-    MethodBinder::bind_method(D_METHOD("set_bus_layout", {"bus_layout"}), &AudioServer::set_bus_layout);
-    MethodBinder::bind_method(D_METHOD("generate_bus_layout"), &AudioServer::generate_bus_layout);
+    BIND_METHOD(AudioServer,set_bus_layout);
+    BIND_METHOD(AudioServer,generate_bus_layout);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "bus_count"), "set_bus_count", "get_bus_count");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "device"), "set_device", "get_device");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "capture_device"), "capture_set_device", "capture_get_device");
+    // The default value may be set to an empty string by the platform-specific audio driver.
+    // Override for class reference generation purposes.
+    ADD_PROPERTY_DEFAULT("capture_device", "Default");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "global_rate_scale"), "set_global_rate_scale", "get_global_rate_scale");
 
     ADD_SIGNAL(MethodInfo("bus_layout_changed"));
@@ -1421,7 +1445,6 @@ AudioServer::AudioServer() {
     singleton = this;
     audio_data_total_mem = 0;
     audio_data_max_mem = 0;
-    audio_data_lock = memnew(Mutex);
     mix_frames = 0;
     channel_count = 0;
     to_mix = 0;
@@ -1435,7 +1458,6 @@ AudioServer::AudioServer() {
 
 AudioServer::~AudioServer() {
 
-    memdelete(audio_data_lock);
     singleton = nullptr;
 }
 

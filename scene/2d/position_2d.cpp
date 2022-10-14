@@ -51,11 +51,43 @@ bool Position2D::_edit_use_rect() const {
 #endif
 
 void Position2D::_draw_cross() {
+    const float extents = get_gizmo_extents();
 
-    float extents = get_gizmo_extents();
-    // Colors taken from `axis_x_color` and `axis_y_color` (defined in `editor/editor_themes.cpp`)
-    draw_line(Point2(-extents, 0), Point2(+extents, 0), Color(0.96f, 0.20f, 0.32f));
-    draw_line(Point2(0, -extents), Point2(0, +extents), Color(0.53f, 0.84f, 0.01f));
+    // Add more points to create a "hard stop" in the color gradient.
+    Point2 points_x[] = {
+        Point2(+extents, 0),
+        Point2(),
+        Point2(),
+        Point2(-extents, 0),
+    };
+
+    Point2 points_y[] = {
+        Point2(0, +extents),
+        Point2(),
+        Point2(),
+        Point2(0, -extents),
+    };
+
+    // Use the axis color which is brighter for the positive axis.
+    // Use a darkened axis color for the negative axis.
+    // This makes it possible to see in which direction the Position3D node is rotated
+    // (which can be important depending on how it's used).
+    // Axis colors are taken from `axis_x_color` and `axis_y_color` (defined in `editor/editor_themes.cpp`).
+    Vector<Color> colors_x;
+    const Color color_x = Color(0.96f, 0.20f, 0.32f);
+    colors_x.push_back(color_x);
+    colors_x.push_back(color_x);
+    colors_x.push_back(color_x.linear_interpolate(Color(0, 0, 0), 0.5));
+    colors_x.push_back(color_x.linear_interpolate(Color(0, 0, 0), 0.5));
+    draw_multiline_colors(points_x, colors_x);
+
+    Vector<Color> colors_y;
+    const Color color_y = Color(0.53f, 0.84f, 0.01f);
+    colors_y.push_back(color_y);
+    colors_y.push_back(color_y);
+    colors_y.push_back(color_y.linear_interpolate(Color(0, 0, 0), 0.5));
+    colors_y.push_back(color_y.linear_interpolate(Color(0, 0, 0), 0.5));
+    draw_multiline_colors(points_y, colors_y);
 }
 void Position2D::_notification(int p_what) {
 

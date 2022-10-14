@@ -30,11 +30,13 @@
 
 #pragma once
 
-//#include "scene/2d/node_2d.h"
-#include "scene/3d/skeleton_3d.h"
-#include "scene/3d/node_3d.h"
+#include "scene/main/node.h"
 #include "scene/resources/animation.h"
 #include "core/map.h"
+#include "core/hash_set.h"
+#include "core/deque.h"
+#include "core/string.h"
+#include <EASTL/shared_ptr.h>
 
 #ifdef TOOLS_ENABLED
 // To save/restore animated values
@@ -51,10 +53,13 @@ class AnimatedValuesBackup {
 
 public:
     void update_skeletons();
+    void restore() const;
 };
 #endif
 
 class Node2D;
+class Node3D;
+class Skeleton;
 
 class GODOT_EXPORT AnimationPlayer : public Node {
     GDCLASS(AnimationPlayer,Node)
@@ -112,19 +117,13 @@ private:
 
         struct PropertyAnim {
 
-            TrackNodeCache *owner;
-            SpecialProperty special; //small optimization
+            TrackNodeCache *owner = nullptr;
+            SpecialProperty special = SP_NONE; // small optimization
             Vector<StringName> subpath;
-            Object *object;
+            Object *object = nullptr;
             Variant value_accum;
-            uint64_t accum_pass;
+            uint64_t accum_pass=0;
             Variant capture;
-
-            PropertyAnim() :
-                    owner(nullptr),
-                    special(SP_NONE),
-                    object(nullptr),
-                    accum_pass(0) {}
         };
 
         HashMap<StringName, PropertyAnim> property_anim;
@@ -132,16 +131,10 @@ private:
         struct BezierAnim {
 
             Vector<StringName> bezier_property;
-            TrackNodeCache *owner;
-            float bezier_accum;
-            Object *object;
-            uint64_t accum_pass;
-
-            BezierAnim() :
-                    owner(nullptr),
-                    bezier_accum(0.0),
-                    object(nullptr),
-                    accum_pass(0) {}
+            TrackNodeCache *owner = nullptr;
+            float bezier_accum = 0.0f;
+            Object *object = nullptr;
+            uint64_t accum_pass = 0;
         };
 
         Map<StringName, BezierAnim> bezier_anim;
@@ -162,30 +155,30 @@ private:
 
     struct TrackNodeCacheKey {
 
-        ObjectID id;
+        GameEntity id;
         int bone_idx;
 
-        inline bool operator<(const TrackNodeCacheKey &p_right) const {
+        bool operator<(const TrackNodeCacheKey &p_right) const {
             if(id==p_right.id)
                 return bone_idx<p_right.bone_idx;
 
-            return id < p_right.id;
+            return entt::to_integral(id) < entt::to_integral(p_right.id);
         }
     };
 
     Map<TrackNodeCacheKey, TrackNodeCache> node_cache_map;
 
     TrackNodeCache *cache_update[NODE_CACHE_UPDATE_MAX];
-    int cache_update_size;
+    int cache_update_size = 0;
     TrackNodeCache::PropertyAnim *cache_update_prop[NODE_CACHE_UPDATE_MAX];
-    int cache_update_prop_size;
+    int cache_update_prop_size = 0;
     TrackNodeCache::BezierAnim *cache_update_bezier[NODE_CACHE_UPDATE_MAX];
-    int cache_update_bezier_size;
+    int cache_update_bezier_size = 0;
     HashSet<TrackNodeCache *> playing_caches;
 
-    uint64_t accum_pass;
-    float speed_scale;
-    float default_blend_time;
+    uint64_t accum_pass = 1;
+    float speed_scale = 1;
+    float default_blend_time = 0;
 
     struct AnimationData {
         String name;
@@ -209,30 +202,17 @@ private:
 
     struct PlaybackData {
 
-        AnimationData *from;
-        float pos;
-        float speed_scale;
-
-        PlaybackData() {
-
-            pos = 0;
-            speed_scale = 1.0;
-            from = nullptr;
-        }
+        AnimationData *from=nullptr;
+        float pos=0.0f;
+        float speed_scale=1.0f;
     };
 
     struct Blend {
 
         PlaybackData data;
 
-        float blend_time;
-        float blend_left;
-
-        Blend() {
-
-            blend_left = 0;
-            blend_time = 0;
-        }
+        float blend_time = 0.0f;
+        float blend_left = 0.0f;
     };
 
     struct Playback {
@@ -244,22 +224,23 @@ private:
         bool started;
     } playback;
 
-    List<StringName> queued;
+    Dequeue<StringName> queued;
 
-    bool end_reached;
-    bool end_notify;
+    bool end_reached = false;
+    bool end_notify = false;
 
     StringName autoplay;
-    AnimationProcessMode animation_process_mode;
-    AnimationMethodCallMode method_call_mode;
-    bool processing;
-    bool active;
+    bool reset_on_save = true;
+    AnimationProcessMode animation_process_mode = ANIMATION_PROCESS_IDLE;
+    AnimationMethodCallMode method_call_mode = ANIMATION_METHOD_CALL_DEFERRED;
+    bool processing = false;
+    bool active = true;
 
     NodePath root;
 
     void _animation_process_animation(AnimationData *p_anim, float p_time, float p_delta, float p_interp, bool p_is_current = true, bool p_seeked = false, bool p_started = false);
 
-    void _ensure_node_caches(AnimationData *p_anim);
+    void _ensure_node_caches(AnimationData *p_anim, Node *p_root_override = nullptr);
     void _animation_process_data(PlaybackData &cd, float p_delta, float p_blend, bool p_seeked, bool p_started);
     void _animation_process2(float p_delta, bool p_started);
     void _animation_update_transforms();
@@ -275,7 +256,7 @@ private:
 
     void _set_process(bool p_process, bool p_force = false);
 
-    bool playing;
+    bool playing = false;
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
@@ -316,7 +297,6 @@ public:
     void set_current_animation(const StringName &p_anim);
     StringName get_assigned_animation() const;
     void set_assigned_animation(const StringName &p_anim);
-    void stop_all();
     void set_active(bool p_active);
     bool is_active() const;
     bool is_valid() const;
@@ -327,6 +307,8 @@ public:
 
     void set_autoplay(const StringName &p_name);
     StringName get_autoplay() const;
+    void set_reset_on_save_enabled(bool p_enabled);
+    bool is_reset_on_save_enabled() const;
 
     void set_animation_process_mode(AnimationProcessMode p_mode);
     AnimationProcessMode get_animation_process_mode() const;
@@ -346,12 +328,11 @@ public:
 
     void clear_caches(); ///< must be called by hand if an animation was modified after added
 
-    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
-
 #ifdef TOOLS_ENABLED
     // These may be interesting for games, but are too dangerous for general use
-    AnimatedValuesBackup backup_animated_values();
-    void restore_animated_values(const AnimatedValuesBackup &p_backup);
+    eastl::shared_ptr<AnimatedValuesBackup> backup_animated_values(Node *p_root_override = nullptr);
+    eastl::shared_ptr<AnimatedValuesBackup> apply_reset(bool p_user_initiated = false);
+    bool can_apply_reset() const;
 #endif
 
     AnimationPlayer();

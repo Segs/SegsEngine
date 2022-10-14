@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  editor_run.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -33,6 +33,8 @@
 #include "core/project_settings.h"
 #include "core/string_utils.inl"
 #include "editor_settings.h"
+#include "plugins/script_editor_plugin.h"
+#include "script_editor_debugger.h"
 
 #include <QDebug>
 #include <QStringRef>
@@ -52,8 +54,6 @@ Error EditorRun::run(StringView p_scene, StringView p_custom_args, const Vector<
     Vector<String> args;
 
     String resource_path(ProjectSettings::get_singleton()->get_resource_path());
-    String remote_host = EditorSettings::get_singleton()->getT<String>("network/debug/remote_host");
-    int remote_port = EditorSettings::get_singleton()->getT<int>("network/debug/remote_port");
 
     if (!resource_path.empty()) {
         args.push_back("--path");
@@ -61,7 +61,14 @@ Error EditorRun::run(StringView p_scene, StringView p_custom_args, const Vector<
     }
 
     args.push_back("--remote-debug");
-    args.push_back(remote_host + ":" + StringUtils::num(remote_port));
+    const String conn_string = ScriptEditor::get_singleton()->get_debugger()->get_connection_string();
+    if (!conn_string.empty()) {
+        args.push_back(ScriptEditor::get_singleton()->get_debugger()->get_connection_string());
+    } else { // Try anyway with default settings
+        const String remote_host = EditorSettings::get_singleton()->getT<String>("network/debug/remote_host");
+        const int remote_port = (int)EditorSettings::get_singleton()->getT<int>("network/debug/remote_port");
+        args.push_back(remote_host + ":" + itos(remote_port));
+    }
 
     args.push_back("--allow_focus_steal_pid");
     args.push_back(::to_string(OS::get_singleton()->get_process_id()));
@@ -71,7 +78,11 @@ Error EditorRun::run(StringView p_scene, StringView p_custom_args, const Vector<
     }
 
     if (debug_navigation) {
-        args.push_back("--debug-navigation");
+        args.push_back("--debug_navigation");
+    }
+
+    if (debug_shader_fallbacks) {
+        args.push_back("--debug-shader-fallbacks");
     }
 
     int screen = EditorSettings::get_singleton()->getT<int>("run/window_placement/screen");
@@ -184,12 +195,6 @@ Error EditorRun::run(StringView p_scene, StringView p_custom_args, const Vector<
         args.emplace_back(p_scene);
     }
 
-    if (!p_custom_args.empty()) {
-        auto cargs = StringUtils::split(p_custom_args," ");
-        for (int i = 0; i < cargs.size(); i++) {
-            args.push_back(StringUtils::replace(cargs[i]," ", "%20"));
-        }
-    }
 
 #ifdef RUN_DEBUGEE_THROUGH_VALGRIND
     String exec = "/usr/bin/valgrind";
@@ -198,7 +203,49 @@ Error EditorRun::run(StringView p_scene, StringView p_custom_args, const Vector<
 #else
     String exec = OS::get_singleton()->get_executable_path();
 #endif
+    if (!p_custom_args.empty()) {
+        // Allow the user to specify a command to run, similar to Steam's launch options.
+        // In this case, Godot will no longer be run directly; it's up to the underlying command
+        // to run it. For instance, this can be used on Linux to force a running project
+        // to use Optimus using `prime-run` or similar.
+        // Example: `prime-run %command% --time_scale 0.5`
+        const int placeholder_pos = p_custom_args.find("%command%");
 
+        Vector<String> custom_args;
+
+        if (placeholder_pos != -1) {
+            // Prepend executable-specific custom arguments.
+            // If nothing is placed before `%command%`, behave as if no placeholder was specified.
+            auto epart = p_custom_args.substr(0,placeholder_pos);
+            auto exec_args = StringUtils::split(epart," ", false);
+            if (exec_args.size() >= 1) {
+                exec = exec_args[0];
+                exec_args.pop_front();
+
+                // Append the Godot executable name before we append executable arguments
+                // (since the order is reversed when using `push_front()`).
+                args.push_front(OS::get_singleton()->get_executable_path());
+            }
+
+            for (int i = exec_args.size() - 1; i >= 0; i--) {
+                // Iterate backwards as we're pushing items in the reverse order.
+                args.push_front(String(exec_args[i]).replaced(" ", "%20"));
+            }
+
+            // Append Godot-specific custom arguments.
+            auto part = p_custom_args.substr(placeholder_pos + String("%command%").size());
+            auto cargs = StringUtils::split(part," ", false);
+            for (int i = 0; i < cargs.size(); i++) {
+                args.push_back(String(cargs[i]).replaced(" ", "%20"));
+            }
+        } else {
+            // Append Godot-specific custom arguments.
+            auto cargs = StringUtils::split(p_custom_args," ", false);
+            for (int i = 0; i < cargs.size(); i++) {
+                args.push_back(String(cargs[i]).replaced(" ", "%20"));
+            }
+        }
+    }
     {
         QDebug msg_log(qDebug());
         msg_log<<"Running: "<<exec.c_str();
@@ -250,9 +297,15 @@ bool EditorRun::get_debug_navigation() const {
     return debug_navigation;
 }
 
-EditorRun::EditorRun() {
+void EditorRun::set_debug_shader_fallbacks(bool p_debug) {
 
-    status = STATUS_STOP;
-    debug_collisions = false;
-    debug_navigation = false;
+    debug_shader_fallbacks = p_debug;
+}
+
+bool EditorRun::get_debug_shader_fallbacks() const {
+
+    return debug_shader_fallbacks;
+}
+
+EditorRun::EditorRun() {
 }

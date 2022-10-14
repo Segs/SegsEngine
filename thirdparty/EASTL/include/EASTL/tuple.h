@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+﻿///////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Electronic Arts Inc. All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -664,7 +664,7 @@ namespace Internal
         template <typename Tuple1, typename Tuple2>
         static inline ResultType DoCat2(Tuple1&& t1, Tuple2&& t2)
         {
-            return ResultType(get<I1s>(forward<Tuple1>(t1))..., get<I2s>(forward<Tuple2>(t2))...);
+            return ResultType(get<I1s>(eastl::forward<Tuple1>(t1))..., get<I2s>(eastl::forward<Tuple2>(t2))...);
         }
     };
 
@@ -683,7 +683,7 @@ namespace Internal
         template <typename Tuple1, typename Tuple2>
         static inline ResultType DoCat2(Tuple1&& t1, Tuple2&& t2)
         {
-            return TCI::DoCat2(forward<Tuple1>(t1), forward<Tuple2>(t2));
+            return TCI::DoCat2(eastl::forward<Tuple1>(t1), eastl::forward<Tuple2>(t2));
         }
     };
 
@@ -701,8 +701,8 @@ namespace Internal
         static inline ResultType DoCat(TupleArg1&& t1, TupleArg2&& t2, TupleArgsRest&&... ts)
         {
             return TupleCat<FirstResultType, TuplesRest...>::DoCat(
-                TupleCat2<TupleArg1, TupleArg2>::DoCat2(forward<TupleArg1>(t1), forward<TupleArg2>(t2)),
-                forward<TupleArgsRest>(ts)...);
+                TupleCat2<TupleArg1, TupleArg2>::DoCat2(eastl::forward<TupleArg1>(t1), eastl::forward<TupleArg2>(t2)),
+                eastl::forward<TupleArgsRest>(ts)...);
         }
     };
 
@@ -715,7 +715,7 @@ namespace Internal
         template <typename TupleArg1, typename TupleArg2>
         static inline ResultType DoCat(TupleArg1&& t1, TupleArg2&& t2)
         {
-            return TC2::DoCat2(forward<TupleArg1>(t1), forward<TupleArg2>(t2));
+            return TC2::DoCat2(eastl::forward<TupleArg1>(t1), eastl::forward<TupleArg2>(t2));
         }
     };
 }  // namespace Internal
@@ -756,7 +756,7 @@ public:
         Internal::TupleImplicitlyConvertible_t<tuple, U, Us...> = 0>
         EA_CONSTEXPR tuple(U&& u, Us&&... us)
         : mImpl(make_index_sequence<sizeof...(Us) + 1>{}, Internal::MakeTupleTypes_t<tuple>{}, eastl::forward<U>(u),
-            forward<Us>(us)...)
+                    eastl::forward<Us>(us)...)
     {
     }
 
@@ -764,7 +764,7 @@ public:
         Internal::TupleExplicitlyConvertible_t<tuple, U, Us...> = 0>
         explicit EA_CONSTEXPR tuple(U&& u, Us&&... us)
         : mImpl(make_index_sequence<sizeof...(Us) + 1>{}, Internal::MakeTupleTypes_t<tuple>{}, eastl::forward<U>(u),
-            forward<Us>(us)...)
+                    eastl::forward<Us>(us)...)
     {
     }
 
@@ -779,7 +779,7 @@ public:
               typename enable_if<Internal::TupleAssignable<tuple, OtherTuple>::value, bool>::type = false>
     tuple& operator=(OtherTuple&& t)
     {
-        mImpl.operator=(forward<OtherTuple>(t));
+        mImpl.operator=(eastl::forward<OtherTuple>(t));
         return *this;
     }
 
@@ -806,6 +806,8 @@ private:
 
     template <typename T_, typename... ts_>
     friend T_&& get(tuple<ts_...>&& t);
+    template <typename T_, typename... ts_>
+    friend const T_&& get(const tuple<ts_...>&& t);
 };
 
 // template specialization for an empty tuple
@@ -831,7 +833,7 @@ inline const_tuple_element_t<I, tuple<Ts...>>& get(const tuple<Ts...>& t)
 template <size_t I, typename... Ts>
 inline tuple_element_t<I, tuple<Ts...>>&& get(tuple<Ts...>&& t)
 {
-    return get<I>(move(t.mImpl));
+    return get<I>(eastl::move(t.mImpl));
 }
 
 template <typename T, typename... Ts>
@@ -849,7 +851,13 @@ inline const T& get(const tuple<Ts...>& t)
 template <typename T, typename... Ts>
 inline T&& get(tuple<Ts...>&& t)
 {
-    return get<T>(move(t.mImpl));
+    return get<T>(eastl::move(t.mImpl));
+}
+
+template <typename T, typename... Ts>
+inline const T&& get(const tuple<Ts...>&& t)
+{
+    return get<T>(eastl::move(t.mImpl));
 }
 
 template <typename... Ts>
@@ -886,7 +894,7 @@ template <typename... T1s, typename... T2s> inline bool operator>=(const tuple<T
 template <typename... Tuples>
 inline typename Internal::TupleCat<Tuples...>::ResultType tuple_cat(Tuples&&... ts)
 {
-    return Internal::TupleCat<Tuples...>::DoCat(forward<Tuples>(ts)...);
+    return Internal::TupleCat<Tuples...>::DoCat(eastl::forward<Tuples>(ts)...);
 }
 
 
@@ -906,7 +914,7 @@ inline EA_CONSTEXPR tuple<Internal::MakeTupleReturn_t<Ts>...> make_tuple(Ts&&...
 template <typename... Ts>
 inline EA_CONSTEXPR tuple<Ts&&...> forward_as_tuple(Ts&&... ts) EA_NOEXCEPT
 {
-    return tuple<Ts&&...>(forward<Ts&&>(ts)...);
+    return tuple<Ts&&...>(eastl::forward<Ts&&>(ts)...);
 }
 
 
@@ -957,14 +965,14 @@ namespace detail
     template <class F, class Tuple, size_t... I>
     EA_CONSTEXPR decltype(auto) apply_impl(F&& f, Tuple&& t, index_sequence<I...>)
     {
-        return invoke(forward<F>(f), get<I>(forward<Tuple>(t))...);
+        return invoke(eastl::forward<F>(f), get<I>(eastl::forward<Tuple>(t))...);
     }
 } // namespace detail
 
 template <class F, class Tuple>
 EA_CONSTEXPR decltype(auto) apply(F&& f, Tuple&& t)
 {
-    return detail::apply_impl(forward<F>(f), forward<Tuple>(t),
+    return detail::apply_impl(eastl::forward<F>(f), eastl::forward<Tuple>(t),
                               make_index_sequence<tuple_size_v<remove_reference_t<Tuple>>>{});
 }
 

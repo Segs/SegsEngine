@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  resource_importer.h                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -60,7 +60,7 @@ class GODOT_EXPORT ResourceFormatImporter : public ResourceFormatLoader {
     Vector<Ref<ResourceImporter>> owned_importers; // Importers provided by scripts, co-owned by this class
 public:
     static ResourceFormatImporter *get_singleton() { return singleton; }
-    RES load(StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr) override;
+    RES load(StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr, bool p_no_subresource_cache = false) override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
     void get_recognized_extensions_for_type(StringView p_type, Vector<String> &p_extensions) const override;
     bool recognize_path(StringView p_path, StringView p_for_type = StringView()) const override;
@@ -89,7 +89,7 @@ public:
     }
     void remove_importer(const Ref<ResourceImporter> &p_importer) { owned_importers.erase_first(p_importer); }
     void remove_importer(ResourceImporterInterface *p_importer) { importers.erase_first(p_importer); }
-    
+
 
     bool any_can_import(StringView filepath) const;
 
@@ -97,6 +97,7 @@ public:
     ResourceImporterInterface * get_importer_by_extension(StringView p_extension) const;
 
     void get_importers_for_extension(StringView p_extension, Vector<ResourceImporterInterface *> *r_importers) const;
+    void get_importers(Vector<ResourceImporterInterface * > *r_importers) const;
 
     bool are_import_settings_valid(StringView p_path) const;
     String get_import_settings_hash() const;
@@ -110,10 +111,17 @@ public:
 class GODOT_EXPORT ResourceImporter : public RefCounted,public ResourceImporterInterface {
 
     GDCLASS(ResourceImporter, RefCounted)
+protected:
+    static void _bind_methods();
 
 public:
+    enum ImportOrder {
+        IMPORT_ORDER_DEFAULT = 0,
+        IMPORT_ORDER_SCENE = 100,
+    };
+
     float get_priority() const override { return 1.0; }
-    int get_import_order() const override { return 0; }
+    int get_import_order() const override { return IMPORT_ORDER_DEFAULT; }
     int get_preset_count() const override { return 0; }
     StringName get_preset_name(int /*p_idx*/) const override { return {}; }
     StringName get_option_group_file() const override { return {}; }

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  object.h                                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -27,23 +27,31 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
-
 #pragma once
 
 #include "core/os/memory.h"
 #include "core/vector.h"
-#include "core/object_id.h"
 #include "core/variant.h"
 #include "core/string_name.h"
+#include "core/engine_entities.h"
 #include "core/forward_decls.h"
-#include "core/jlsignal/Signal.h"
+#include "core/reflection_macros.h"
+
+#include <entt/core/hashed_string.hpp>
 //#include <QObject>
 
 class IObjectTooling;
 
-#ifdef DEBUG_ENABLED
-#include <atomic> // For ObjectRC*
-#endif
+#include <atomic>
+
+namespace jl {
+    class SignalObserver;
+}
+// Component linking ecs entity id back to it's object
+struct ObjectLink {
+    Object *object;
+};
+
 class GODOT_EXPORT TypeInfo
 {
 public:
@@ -129,12 +137,13 @@ public:                                                                         
     static constexpr const char *get_class_static() { return #m_class; }                                               \
     static StringName get_class_static_name() { return StringName(#m_class); }                                         \
     static const char *get_parent_class_static() { return BaseClassName::get_class_static(); }                         \
-    virtual bool is_class(StringView p_class) const override {                                                         \
+    bool is_class(StringView p_class) const override {                                                         \
         return (p_class == #m_class) ? true : BaseClassName::is_class(p_class);                                        \
     }                                                                                                                  \
-    virtual bool is_class_ptr(void *p_ptr) const override {                                                            \
+    bool is_class_ptr(const void *p_ptr) const override {                                                            \
         return (p_ptr == get_class_ptr_static()) ? true : BaseClassName::is_class_ptr(p_ptr);                          \
     }                                                                                                                  \
+    static constexpr entt::hashed_string hashed_class_name() { return entt::hashed_string {#m_class}; }                \
                                                                                                                        \
 protected:                                                                                                             \
     static void (*_get_bind_methods())() { return &m_class::_bind_methods; }                                           \
@@ -192,12 +201,11 @@ private:
             BaseClassName::_get_property_listv(p_list, p_reversed);                                                    \
         }                                                                                                              \
         p_list->emplace_back(PropertyInfo(                                                                             \
-                VariantType::NIL, get_class_static_name(), PropertyHint::None, nullptr, PROPERTY_USAGE_CATEGORY));     \
-        if (!_is_gpl_reversed()) ClassDB::get_property_list(#m_class, p_list, true, this);                             \
+                VariantType::NIL, get_class_static_name(), PropertyHint::None, StringView(), PROPERTY_USAGE_CATEGORY));\
+        ClassDB::get_property_list(#m_class, p_list, true, this);                                                      \
         if (m_class::_get_get_property_list() != BaseClassName::_get_get_property_list()) {                            \
             _get_property_list(p_list);                                                                                \
         }                                                                                                              \
-        if (_is_gpl_reversed()) ClassDB::get_property_list(#m_class, p_list, true, this);                              \
         if (p_reversed) {                                                                                              \
             BaseClassName::_get_property_listv(p_list, p_reversed);                                                    \
         }                                                                                                              \
@@ -216,23 +224,26 @@ public:                                                                         
                                                                                                                        \
 private:
 
-#define INVOCABLE
 #define HAS_BINDS static void _bind_methods();
 
 
 class ScriptInstance;
 class ObjectRC;
 
+GODOT_EXPORT void predelete_handler(Object *p_object);
+GODOT_EXPORT void postinitialize_handler(Object *p_object);
 class GODOT_EXPORT Object {
     //Q_GADGET
 
     static constexpr TypeInfo typeInfoStatic = TypeInfo( "Object", nullptr);
+    SE_CLASS()
+    SE_PROPERTY(RefPtr script READ get_script WRITE set_script)
 public:
     struct Connection {
         ::Signal signal;
         Callable callable;
 
-        Vector<Variant> binds;
+        //Vector<Variant> binds;
         uint32_t flags = 0;
         bool operator<(const Connection &p_conn) const noexcept {
             if (signal == p_conn.signal) {
@@ -255,35 +266,31 @@ private:
 #ifdef DEBUG_ENABLED
     friend struct _ObjectDebugLock;
 #endif
-    friend void GODOT_EXPORT predelete_handler(Object *);
-    friend void GODOT_EXPORT postinitialize_handler(Object *);
+    friend void predelete_handler(Object *);
+    friend void postinitialize_handler(Object *);
 
     struct SignalData;
     struct ObjectPrivate;
-#ifdef DEBUG_ENABLED
     std::atomic<ObjectRC *> _rc;
-#endif
     class Dictionary *metadata = nullptr;
     ObjectPrivate *private_data;
     jl::SignalObserver *observer_endpoint = nullptr;
-    ScriptInstance *script_instance;
+    ScriptInstance *script_instance = nullptr;
     RefPtr script;
-    ObjectID _instance_id;
+    GameEntity entity_id;
     mutable StringName _class_name;
-    mutable const StringName *_class_ptr;
+    mutable const StringName *_class_ptr = nullptr;
     eastl::array<void *,MAX_SCRIPT_INSTANCE_BINDINGS> *_script_instance_bindings = nullptr;
-    uint32_t instance_binding_count;
+    SafeNumeric<uint32_t> instance_binding_count;
 
-    bool _block_signals;
-    bool _can_translate;
-    bool _emitting;
-    bool _is_queued_for_deletion; // set to true by SceneTree::queue_delete()
+    uint8_t _block_signals : 1;
+    uint8_t _can_translate : 1;
+    uint8_t _emitting : 1;
+    uint8_t _is_queued_for_deletion : 1; // set to true by SceneTree::queue_delete()
 
     void _predelete();
     void _postinitialize();
 public:
-    void _add_user_signal(const StringName &p_name, const Array &p_args = Array());
-    bool _has_user_signal(const StringName &p_name) const;
     Array _get_signal_list() const;
     Array _get_signal_connection_list(StringName p_signal) const;
     Array _get_incoming_connections() const;
@@ -326,11 +333,7 @@ protected:
 public: // made public since it's exposed to scripting language side.
     void property_list_changed_notify();
 public:
-    jl::SignalObserver &observer() {
-        if(!observer_endpoint)
-            observer_endpoint = memnew(jl::SignalObserver);
-        return *observer_endpoint;
-    }
+    jl::SignalObserver &observer();
 
     virtual void _changed_callback(Object *p_changed, StringName p_prop);
     Variant _call_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
@@ -350,7 +353,7 @@ public:
     void _clear_internal_resource_paths(const Variant &p_var);
 
     friend class ClassDB;
-    virtual void _validate_property(PropertyInfo &property) const;
+    virtual void _validate_property(PropertyInfo & /*property*/) const { }
 
     void _disconnect(const StringName& p_signal, const Callable& p_callable, bool p_force = false);
 
@@ -362,12 +365,9 @@ public:
     static const void *get_class_ptr_static() {
         return get_type_info_static();
     }
-#ifdef DEBUG_ENABLED
     ObjectRC *_use_rc();
-#endif
-    bool _is_gpl_reversed() const { return false; }
 
-    ObjectID get_instance_id() const { return _instance_id; }
+    SE_INVOCABLE GameEntity get_instance_id() const { return entity_id; }
 
     // this is used for editors
 
@@ -375,11 +375,14 @@ public:
         NOTIFICATION_POSTINITIALIZE = 0,
         NOTIFICATION_PREDELETE = 1
     };
+    SE_CONSTANT(NOTIFICATION_POSTINITIALIZE)
+    SE_CONSTANT(NOTIFICATION_PREDELETE)
 
     /* TYPE API */
     static constexpr const TypeInfo *get_type_info_static() { return &typeInfoStatic; }
     static constexpr const char * get_class_static() { return "Object"; }
     static StringName get_class_static_name() { return StringName("Object"); }
+    static constexpr entt::hashed_string hashed_class_name() { return entt::hashed_string("Object"); }
     static const char * get_parent_class_static() { return nullptr; }
 
     virtual const TypeInfo *get_type_info() const { return get_type_info_static(); }
@@ -389,7 +392,7 @@ public:
     virtual const char *get_save_class() const { return get_class(); } //class stored when saving
 
     virtual bool is_class(StringView p_class) const { return p_class == "Object"; }
-    virtual bool is_class_ptr(void *p_ptr) const { return get_type_info_static() == p_ptr; }
+    virtual bool is_class_ptr(const void *p_ptr) const { return get_type_info_static() == p_ptr; }
 
     _FORCE_INLINE_ const StringName &get_class_name() const {
         if (!_class_ptr) {
@@ -420,7 +423,9 @@ public:
     Variant call_va(const StringName &p_name, VARIANT_ARG_LIST); // C++ helper
 
     void notification(int p_notification, bool p_reversed = false);
+    virtual void notification_callback(int /*p_message_type*/) {}
     virtual String to_string();
+    virtual bool free();
 
     //used mainly by script, get and set all INCLUDING string
     virtual Variant getvar(const Variant &p_key, bool *r_valid = nullptr) const;
@@ -446,7 +451,6 @@ public:
 
     void set_script_and_instance(const RefPtr &p_script, ScriptInstance *p_instance);
 
-    void add_user_signal(MethodInfo &&p_signal);
     void do_emit_signal(const StringName &p_name, VARIANT_ARG_LIST);
     void do_emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount);
     template<typename ...Args>
@@ -460,10 +464,12 @@ public:
     int get_persistent_signal_connection_count() const;
     void get_signals_connected_to_this(Vector<Connection> *p_connections) const;
 
-    Error connect(const StringName &p_signal, const Callable &callable, const Vector<Variant> &p_binds = null_variant_pvec, uint32_t p_flags = 0);
-    Error connectF(const StringName& p_signal, eastl::function<void(void)> p_to_object, uint32_t p_flags = 0);
+    Error connect(const StringName &p_signal, const Callable &callable,  uint32_t p_flags = 0);
+    Error connectF(const StringName& p_signal, Object *tgt, eastl::function<void(void)> p_to_object, uint32_t p_flags = 0);
+    void disconnect_all(const StringName& p_signal, GameEntity tgt);
     void disconnect(const StringName& p_signal, const Callable& p_callable);
     bool is_connected(const StringName& p_signal, const Callable& p_callable) const;
+    bool is_connected_any(const StringName& p_signal, GameEntity tgt);
 
     void call_deferred(const StringName &p_method, VARIANT_ARG_LIST);
     void call_deferred(eastl::function<void()> func);
@@ -476,8 +482,8 @@ public:
     VariantType get_static_property_type(const StringName &p_property, bool *r_valid = nullptr) const;
     VariantType get_static_property_type_indexed(const Vector<StringName> &p_path, bool *r_valid = nullptr) const;
 
-    virtual void get_translatable_strings(List<StringName> *p_strings) const;
-    virtual void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const;
+    virtual void get_translatable_strings(List<String> *p_strings) const;
+
 #ifdef DEBUG_ENABLED
     /// Used in ObjectDB::cleanup() warning print
     virtual const char *get_dbg_name() const { return nullptr; }
@@ -500,6 +506,8 @@ public:
     void clear_internal_resource_paths();
 
     Object();
+    Object(const Object &)=delete;
+    Object &operator=(const Object &)=delete;
     virtual ~Object();
 
 #ifndef DEBUG_ENABLED
@@ -550,6 +558,5 @@ namespace ObjectNS
         return object_cast<T>(f);
     }
 } // end of ObjectNS namespace
+GODOT_EXPORT Object *object_for_entity(GameEntity ent);
 
-void GODOT_EXPORT predelete_handler(Object *p_object);
-void GODOT_EXPORT postinitialize_handler(Object *p_object);

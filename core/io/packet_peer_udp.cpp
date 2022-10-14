@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  packet_peer_udp.cpp                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,11 +30,11 @@
 
 #include "packet_peer_udp.h"
 
-#include <utility>
-
+#include "core/object_tooling.h"
 #include "core/io/ip.h"
-
 #include "core/method_bind.h"
+
+#include <utility>
 
 IMPL_GDCLASS(PacketPeerUDP)
 
@@ -211,13 +211,12 @@ Error PacketPeerUDP::_poll() {
         return FAILED;
     }
 
-    Error err;
     int read;
     IP_Address ip;
     uint16_t port;
 
     while (true) {
-        err = _sock->recvfrom(recv_buffer, sizeof(recv_buffer), read, ip, port);
+        const Error err = _sock->recvfrom(recv_buffer, sizeof(recv_buffer), read, ip, port);
 
         if (err != OK) {
             if (err == ERR_BUSY)
@@ -226,9 +225,7 @@ Error PacketPeerUDP::_poll() {
         }
 
         if (rb.space_left() < read + 24) {
-#ifdef TOOLS_ENABLED
-            WARN_PRINT("Buffer full, dropping packets!");
-#endif
+            WARN_PRINT_TOOLING("Buffer full, dropping packets!");
             continue;
         }
 
@@ -266,20 +263,20 @@ void PacketPeerUDP::set_dest_address(const IP_Address &p_address, int p_port) {
 void PacketPeerUDP::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("listen", {"port", "bind_address", "recv_buf_size"}), &PacketPeerUDP::_listen, {DEFVAL("*"), DEFVAL(65536)});
-    MethodBinder::bind_method(D_METHOD("close"), &PacketPeerUDP::close);
-    MethodBinder::bind_method(D_METHOD("wait"), &PacketPeerUDP::wait);
-    MethodBinder::bind_method(D_METHOD("is_listening"), &PacketPeerUDP::is_listening);
+    BIND_METHOD(PacketPeerUDP,close);
+    BIND_METHOD(PacketPeerUDP,wait);
+    BIND_METHOD(PacketPeerUDP,is_listening);
     MethodBinder::bind_method(D_METHOD("get_packet_ip"), &PacketPeerUDP::_get_packet_ip);
-    MethodBinder::bind_method(D_METHOD("get_packet_port"), &PacketPeerUDP::get_packet_port);
+    BIND_METHOD(PacketPeerUDP,get_packet_port);
     MethodBinder::bind_method(D_METHOD("set_dest_address", {"host", "port"}), &PacketPeerUDP::_set_dest_address);
-    MethodBinder::bind_method(D_METHOD("set_broadcast_enabled", {"enabled"}), &PacketPeerUDP::set_broadcast_enabled);
+    BIND_METHOD(PacketPeerUDP,set_broadcast_enabled);
     MethodBinder::bind_method(D_METHOD("join_multicast_group", {"multicast_address", "interface_name"}),
             (Error (PacketPeerUDP::*)(StringView,StringView))&PacketPeerUDP::join_multicast_group);
     MethodBinder::bind_method(D_METHOD("leave_multicast_group", {"multicast_address", "interface_name"}),
             (Error (PacketPeerUDP::*)(StringView,StringView))&PacketPeerUDP::leave_multicast_group);
 }
 
-PacketPeerUDP::PacketPeerUDP() : _sock(Ref<NetSocket>(NetSocket::create())) {
+PacketPeerUDP::PacketPeerUDP() : _sock(Ref<NetSocket>(NetSocket::create(),DoNotAddRef)) {
     rb.resize(16);
 }
 

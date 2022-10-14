@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  gradient_edit.cpp                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -57,9 +57,7 @@ GradientEdit::GradientEdit() {
 
     add_child(popup);
 
-    checker = make_ref_counted<ImageTexture>();
-    Ref<Image> img(make_ref_counted<Image>(checker_bg_png));
-    checker->create_from_image(img, ImageTexture::FLAG_REPEAT);
+    checker = dynamic_ref_cast<ImageTexture>(Control::get_theme_icon("bg", "GradientEdit"));
 }
 
 int GradientEdit::_get_point_from_pos(int x) {
@@ -142,7 +140,7 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
         if (grabbed != -1) {
             int total_w = get_size().width - get_size().height - SPACING;
             Gradient::Point newPoint = points[grabbed];
-            newPoint.offset = CLAMP(x / float(total_w), 0, 1);
+            newPoint.offset = CLAMP(x / float(total_w), 0.0f, 1.0f);
 
             points.push_back(newPoint);
             eastl::sort(points.begin(),points.end());
@@ -181,7 +179,7 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
         //insert
         Gradient::Point newPoint;
-        newPoint.offset = CLAMP(x / float(total_w), 0, 1);
+        newPoint.offset = CLAMP(x / float(total_w), 0.0f, 1.0f);
 
         Gradient::Point prev;
         Gradient::Point next;
@@ -245,7 +243,7 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
         int x = mm->get_position().x;
 
-        float newofs = CLAMP(x / float(total_w), 0, 1);
+        float newofs = CLAMP(x / float(total_w), 0.0f, 1.0f);
 
         // Snap to "round" coordinates if holding Ctrl.
         // Be more precise if holding Shift as well
@@ -274,7 +272,7 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
                     newofs = points[nearest_point].offset + 0.00001f;
                 else
                     newofs = points[nearest_point].offset - 0.00001f;
-                newofs = CLAMP(newofs, 0, 1);
+                newofs = CLAMP(newofs, 0.0f, 1.0f);
             }
         }
 
@@ -355,16 +353,18 @@ void GradientEdit::_notification(int p_what) {
                 continue;
             }
 
-            Vector<Vector2> points;
-            PoolVector<Color> colors;
-            points.emplace_back(prev.offset * total_w, h);
-            points.emplace_back(prev.offset * total_w, 0);
-            points.emplace_back(next.offset * total_w, 0);
-            points.emplace_back(next.offset * total_w, h);
-            colors.push_back(prev.color);
-            colors.push_back(prev.color);
-            colors.push_back(next.color);
-            colors.push_back(next.color);
+            const Vector2 points[4]= {
+                Vector2(prev.offset * total_w, h),
+                Vector2(prev.offset * total_w, 0),
+                Vector2(next.offset * total_w, 0),
+                Vector2(next.offset * total_w, h),
+            };
+            const Color colors[4] = {
+                prev.color,
+                prev.color,
+                next.color,
+                next.color
+            };
             draw_primitive(points, colors, PoolVector<Point2>());
             prev = next;
         }
@@ -377,18 +377,18 @@ void GradientEdit::_notification(int p_what) {
 
             draw_line(Vector2(points[i].offset * total_w, 0), Vector2(points[i].offset * total_w, h / 2), col);
             Rect2 rect = Rect2(points[i].offset * total_w - POINT_WIDTH / 2, h / 2, POINT_WIDTH, h / 2);
-            draw_rect(rect, points[i].color, true);
-            draw_rect(rect, col, false);
+            draw_rect_filled(rect, points[i].color);
+            draw_rect_stroke(rect, col);
             if (grabbed == i) {
-                rect = rect.grow(-1);
+                rect.grow_by(-1);
                 if (has_focus()) {
-                    draw_rect(rect, Color(1, 0, 0, 0.9f), false);
+                    draw_rect_stroke(rect, Color(1, 0, 0, 0.9f));
                 } else {
-                    draw_rect(rect, Color(0.6f, 0, 0, 0.9f), false);
+                    draw_rect_stroke(rect, Color(0.6f, 0, 0, 0.9f));
                 }
 
-                rect = rect.grow(-1);
-                draw_rect(rect, col, false);
+                rect.grow_by(-1);
+                draw_rect_stroke(rect, col);
             }
         }
 
@@ -396,10 +396,10 @@ void GradientEdit::_notification(int p_what) {
         _draw_checker(total_w + SPACING, 0, h, h);
         if (grabbed != -1) {
             //Draw with selection color
-            draw_rect(Rect2(total_w + SPACING, 0, h, h), points[grabbed].color);
+            draw_rect_filled(Rect2(total_w + SPACING, 0, h, h), points[grabbed].color);
         } else {
             //if no color selected draw grey color with 'X' on top.
-            draw_rect(Rect2(total_w + SPACING, 0, h, h), Color(0.5, 0.5, 0.5, 1));
+            draw_rect_filled(Rect2(total_w + SPACING, 0, h, h), Color(0.5, 0.5, 0.5, 1));
             draw_line(Vector2(total_w + SPACING, 0), Vector2(total_w + SPACING + h, h), Color(1, 1, 1, 0.6f));
             draw_line(Vector2(total_w + SPACING, h), Vector2(total_w + SPACING + h, 0), Color(1, 1, 1, 0.6f));
         }
@@ -424,23 +424,25 @@ void GradientEdit::_notification(int p_what) {
 
 void GradientEdit::_draw_checker(int x, int y, int w, int h) {
     //Draw it with polygon to insert UVs for scale
-    Vector2 backPoints[4] {
+    const Vector2 backPoints[4] {
         Vector2(x, y),
         Vector2(x, y + h),
         Vector2(x + w, y + h),
         Vector2(x + w, y)
     };
-    PoolVector<Color> colorPoints;
-    colorPoints.push_back(Color(1, 1, 1, 1));
-    colorPoints.push_back(Color(1, 1, 1, 1));
-    colorPoints.push_back(Color(1, 1, 1, 1));
-    colorPoints.push_back(Color(1, 1, 1, 1));
-    PoolVector<Vector2> uvPoints;
+    constexpr Color colorPoints[4]= {
+        Color(1, 1, 1, 1),
+        Color(1, 1, 1, 1),
+        Color(1, 1, 1, 1),
+        Color(1, 1, 1, 1)
+    };
     //Draw checker pattern pixel-perfect and scale it by 2.
-    uvPoints.push_back(Vector2(x, y));
-    uvPoints.push_back(Vector2(x, y + h * .5f / checker->get_height()));
-    uvPoints.push_back(Vector2(x + w * .5f / checker->get_width(), y + h * .5f / checker->get_height()));
-    uvPoints.push_back(Vector2(x + w * .5f / checker->get_width(), y));
+    const Vector2 uvPoints[4] = {
+        Vector2(x, y),
+        Vector2(x, y + h * .5f / checker->get_height()),
+        Vector2(x + w * .5f / checker->get_width(), y + h * .5f / checker->get_height()),
+        Vector2(x + w * .5f / checker->get_width(), y),
+    };
     draw_polygon(backPoints, colorPoints, uvPoints, checker);
 }
 
@@ -502,6 +504,6 @@ Vector<Gradient::Point> &GradientEdit::get_points() {
 }
 
 void GradientEdit::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("_gui_input"), &GradientEdit::_gui_input);
+    BIND_METHOD(GradientEdit,_gui_input);
     ADD_SIGNAL(MethodInfo("ramp_changed"));
 }

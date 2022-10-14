@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  animation_blend_tree.cpp                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -65,7 +65,7 @@ StringName AnimationNodeAnimation::get_animation() const {
 Vector<String> (*AnimationNodeAnimation::get_editable_animation_list)() = nullptr;
 
 void AnimationNodeAnimation::get_parameter_list(Vector<PropertyInfo> *r_list) const {
-    r_list->emplace_back(VariantType::FLOAT, time, PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::FLOAT, StringName(time), PropertyHint::None, "", 0);
 }
 void AnimationNodeAnimation::_validate_property(PropertyInfo &property) const {
 
@@ -92,7 +92,7 @@ float AnimationNodeAnimation::process(float p_time, bool p_seek) {
     AnimationPlayer *ap = state->player;
     ERR_FAIL_COND_V(!ap, 0);
 
-    float time = get_parameter(this->time).as<float>();
+    const float current_time = get_parameter(this->time).as<float>();
 
     if (!ap->has_animation(animation)) {
 
@@ -110,6 +110,7 @@ float AnimationNodeAnimation::process(float p_time, bool p_seek) {
 
     Ref<Animation> anim = ap->get_animation(animation);
 
+    float time = current_time;
     float step;
 
     if (p_seek) {
@@ -131,6 +132,7 @@ float AnimationNodeAnimation::process(float p_time, bool p_seek) {
     } else if (time > anim_size) {
 
         time = anim_size;
+        step = anim_size - current_time;
     }
 
     blend_animation(animation, time, step, p_seek, 1.0);
@@ -145,8 +147,8 @@ StringView AnimationNodeAnimation::get_caption() const {
 }
 
 void AnimationNodeAnimation::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_animation", {"name"}), &AnimationNodeAnimation::set_animation);
-    MethodBinder::bind_method(D_METHOD("get_animation"), &AnimationNodeAnimation::get_animation);
+    BIND_METHOD(AnimationNodeAnimation,set_animation);
+    BIND_METHOD(AnimationNodeAnimation,get_animation);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "animation"), "set_animation", "get_animation");
 }
@@ -160,11 +162,11 @@ AnimationNodeAnimation::AnimationNodeAnimation() {
 ////////////////////////////////////////////////////////
 
 void AnimationNodeOneShot::get_parameter_list(Vector<PropertyInfo> *r_list) const {
-    r_list->emplace_back(VariantType::BOOL, active);
-    r_list->emplace_back(VariantType::BOOL, prev_active, PropertyHint::None, "", 0);
-    r_list->emplace_back(VariantType::FLOAT, time, PropertyHint::None, "", 0);
-    r_list->emplace_back(VariantType::FLOAT, remaining, PropertyHint::None, "", 0);
-    r_list->emplace_back(VariantType::FLOAT, time_to_restart, PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::BOOL, StringName(active));
+    r_list->emplace_back(VariantType::BOOL, StringName(prev_active), PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::FLOAT, StringName(time), PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::FLOAT, StringName(remaining), PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::FLOAT, StringName(time_to_restart), PropertyHint::None, "", 0);
 }
 
 Variant AnimationNodeOneShot::get_parameter_default_value(const StringName &p_parameter) const {
@@ -340,26 +342,27 @@ bool AnimationNodeOneShot::is_using_sync() const {
 
 void AnimationNodeOneShot::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_fadein_time", {"time"}), &AnimationNodeOneShot::set_fadein_time);
-    MethodBinder::bind_method(D_METHOD("get_fadein_time"), &AnimationNodeOneShot::get_fadein_time);
+    BIND_METHOD(AnimationNodeOneShot,set_fadein_time);
+    BIND_METHOD(AnimationNodeOneShot,get_fadein_time);
 
-    MethodBinder::bind_method(D_METHOD("set_fadeout_time", {"time"}), &AnimationNodeOneShot::set_fadeout_time);
-    MethodBinder::bind_method(D_METHOD("get_fadeout_time"), &AnimationNodeOneShot::get_fadeout_time);
+    BIND_METHOD(AnimationNodeOneShot,set_fadeout_time);
+    BIND_METHOD(AnimationNodeOneShot,get_fadeout_time);
 
-    MethodBinder::bind_method(D_METHOD("set_autorestart", {"enable"}), &AnimationNodeOneShot::set_autorestart);
-    MethodBinder::bind_method(D_METHOD("has_autorestart"), &AnimationNodeOneShot::has_autorestart);
+    BIND_METHOD(AnimationNodeOneShot,set_autorestart);
+    BIND_METHOD(AnimationNodeOneShot,has_autorestart);
 
-    MethodBinder::bind_method(D_METHOD("set_autorestart_delay", {"enable"}), &AnimationNodeOneShot::set_autorestart_delay);
-    MethodBinder::bind_method(D_METHOD("get_autorestart_delay"), &AnimationNodeOneShot::get_autorestart_delay);
+    BIND_METHOD(AnimationNodeOneShot,set_autorestart_delay);
+    BIND_METHOD(AnimationNodeOneShot,get_autorestart_delay);
 
-    MethodBinder::bind_method(D_METHOD("set_autorestart_random_delay", {"enable"}), &AnimationNodeOneShot::set_autorestart_random_delay);
-    MethodBinder::bind_method(D_METHOD("get_autorestart_random_delay"), &AnimationNodeOneShot::get_autorestart_random_delay);
+    BIND_METHOD(AnimationNodeOneShot,set_autorestart_random_delay);
+    BIND_METHOD(AnimationNodeOneShot,get_autorestart_random_delay);
 
-    MethodBinder::bind_method(D_METHOD("set_mix_mode", {"mode"}), &AnimationNodeOneShot::set_mix_mode);
-    MethodBinder::bind_method(D_METHOD("get_mix_mode"), &AnimationNodeOneShot::get_mix_mode);
+    BIND_METHOD(AnimationNodeOneShot,set_mix_mode);
+    BIND_METHOD(AnimationNodeOneShot,get_mix_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_use_sync", {"enable"}), &AnimationNodeOneShot::set_use_sync);
-    MethodBinder::bind_method(D_METHOD("is_using_sync"), &AnimationNodeOneShot::is_using_sync);
+    BIND_METHOD(AnimationNodeOneShot,set_use_sync);
+    BIND_METHOD(AnimationNodeOneShot,is_using_sync);
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mix_mode", PropertyHint::Enum, "Blend,Add"), "set_mix_mode", "get_mix_mode");
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "fadein_time", PropertyHint::Range, "0,60,0.01,or_greater"), "set_fadein_time", "get_fadein_time");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "fadeout_time", PropertyHint::Range, "0,60,0.01,or_greater"), "set_fadeout_time", "get_fadeout_time");
@@ -401,7 +404,7 @@ AnimationNodeOneShot::AnimationNodeOneShot() {
 ////////////////////////////////////////////////
 
 void AnimationNodeAdd2::get_parameter_list(Vector<PropertyInfo> *r_list) const {
-    r_list->emplace_back(VariantType::FLOAT, add_amount, PropertyHint::Range, "0,1,0.01");
+    r_list->emplace_back(VariantType::FLOAT, StringName(add_amount), PropertyHint::Range, "0,1,0.01");
 }
 Variant AnimationNodeAdd2::get_parameter_default_value(const StringName &p_parameter) const {
     return 0;
@@ -436,8 +439,8 @@ float AnimationNodeAdd2::process(float p_time, bool p_seek) {
 
 void AnimationNodeAdd2::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_use_sync", {"enable"}), &AnimationNodeAdd2::set_use_sync);
-    MethodBinder::bind_method(D_METHOD("is_using_sync"), &AnimationNodeAdd2::is_using_sync);
+    BIND_METHOD(AnimationNodeAdd2,set_use_sync);
+    BIND_METHOD(AnimationNodeAdd2,is_using_sync);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "sync"), "set_use_sync", "is_using_sync");
 }
@@ -453,7 +456,7 @@ AnimationNodeAdd2::AnimationNodeAdd2() {
 ////////////////////////////////////////////////
 
 void AnimationNodeAdd3::get_parameter_list(Vector<PropertyInfo> *r_list) const {
-    r_list->emplace_back(VariantType::FLOAT, add_amount, PropertyHint::Range, "-1,1,0.01");
+    r_list->emplace_back(VariantType::FLOAT, StringName(add_amount), PropertyHint::Range, "-1,1,0.01");
 }
 Variant AnimationNodeAdd3::get_parameter_default_value(const StringName &p_parameter) const {
     return 0;
@@ -489,8 +492,8 @@ float AnimationNodeAdd3::process(float p_time, bool p_seek) {
 
 void AnimationNodeAdd3::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_use_sync", {"enable"}), &AnimationNodeAdd3::set_use_sync);
-    MethodBinder::bind_method(D_METHOD("is_using_sync"), &AnimationNodeAdd3::is_using_sync);
+    BIND_METHOD(AnimationNodeAdd3,set_use_sync);
+    BIND_METHOD(AnimationNodeAdd3,is_using_sync);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "sync"), "set_use_sync", "is_using_sync");
 }
@@ -506,7 +509,7 @@ AnimationNodeAdd3::AnimationNodeAdd3() {
 /////////////////////////////////////////////
 
 void AnimationNodeBlend2::get_parameter_list(Vector<PropertyInfo> *r_list) const {
-    r_list->emplace_back(VariantType::FLOAT, blend_amount, PropertyHint::Range, "0,1,0.01");
+    r_list->emplace_back(VariantType::FLOAT, StringName(blend_amount), PropertyHint::Range, "0,1,0.01");
 }
 Variant AnimationNodeBlend2::get_parameter_default_value(const StringName &p_parameter) const {
     return 0; //for blend amount
@@ -542,8 +545,8 @@ bool AnimationNodeBlend2::has_filter() const {
 }
 void AnimationNodeBlend2::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_use_sync", {"enable"}), &AnimationNodeBlend2::set_use_sync);
-    MethodBinder::bind_method(D_METHOD("is_using_sync"), &AnimationNodeBlend2::is_using_sync);
+    BIND_METHOD(AnimationNodeBlend2,set_use_sync);
+    BIND_METHOD(AnimationNodeBlend2,is_using_sync);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "sync"), "set_use_sync", "is_using_sync");
 }
@@ -557,7 +560,7 @@ AnimationNodeBlend2::AnimationNodeBlend2() {
 //////////////////////////////////////
 
 void AnimationNodeBlend3::get_parameter_list(Vector<PropertyInfo> *r_list) const {
-    r_list->emplace_back(VariantType::FLOAT, blend_amount, PropertyHint::Range, "-1,1,0.01");
+    r_list->emplace_back(VariantType::FLOAT, StringName(blend_amount), PropertyHint::Range, "-1,1,0.01");
 }
 Variant AnimationNodeBlend3::get_parameter_default_value(const StringName &p_parameter) const {
     return 0; //for blend amount
@@ -589,8 +592,8 @@ float AnimationNodeBlend3::process(float p_time, bool p_seek) {
 
 void AnimationNodeBlend3::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_use_sync", {"enable"}), &AnimationNodeBlend3::set_use_sync);
-    MethodBinder::bind_method(D_METHOD("is_using_sync"), &AnimationNodeBlend3::is_using_sync);
+    BIND_METHOD(AnimationNodeBlend3,set_use_sync);
+    BIND_METHOD(AnimationNodeBlend3,is_using_sync);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "sync"), "set_use_sync", "is_using_sync");
 }
@@ -605,7 +608,7 @@ AnimationNodeBlend3::AnimationNodeBlend3() {
 /////////////////////////////////
 
 void AnimationNodeTimeScale::get_parameter_list(Vector<PropertyInfo> *r_list) const {
-    r_list->emplace_back(VariantType::FLOAT, scale, PropertyHint::Range, "0,32,0.01,or_greater");
+    r_list->emplace_back(VariantType::FLOAT, StringName(scale), PropertyHint::Range, "0,32,0.01,or_greater");
 }
 Variant AnimationNodeTimeScale::get_parameter_default_value(const StringName &p_parameter) const {
     return 1.0; //initial timescale
@@ -635,7 +638,7 @@ AnimationNodeTimeScale::AnimationNodeTimeScale() {
 ////////////////////////////////////
 
 void AnimationNodeTimeSeek::get_parameter_list(Vector<PropertyInfo> *r_list) const {
-    r_list->emplace_back(VariantType::FLOAT, seek_pos, PropertyHint::Range, "-1,3600,0.01,or_greater");
+    r_list->emplace_back(VariantType::FLOAT, StringName(seek_pos), PropertyHint::Range, "-1,3600,0.01,or_greater");
 }
 Variant AnimationNodeTimeSeek::get_parameter_default_value(const StringName &p_parameter) const {
     return 1.0; //initial timescale
@@ -680,11 +683,11 @@ void AnimationNodeTransition::get_parameter_list(Vector<PropertyInfo> *r_list) c
         anims += inputs[i].name;
     }
 
-    r_list->emplace_back(VariantType::INT, current, PropertyHint::Enum, anims);
-    r_list->emplace_back(VariantType::INT, prev_current, PropertyHint::None, "", 0);
-    r_list->emplace_back(VariantType::INT, prev, PropertyHint::None, "", 0);
-    r_list->emplace_back(VariantType::FLOAT, time, PropertyHint::None, "", 0);
-    r_list->emplace_back(VariantType::FLOAT, prev_xfading, PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::INT, StringName(current), PropertyHint::Enum, anims);
+    r_list->emplace_back(VariantType::INT, StringName(prev_current), PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::INT, StringName(prev), PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::FLOAT, StringName(time), PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::FLOAT, StringName(prev_xfading), PropertyHint::None, "", 0);
 }
 Variant AnimationNodeTransition::get_parameter_default_value(const StringName &p_parameter) const {
     if (p_parameter == time || p_parameter == prev_xfading) {
@@ -767,7 +770,6 @@ float AnimationNodeTransition::process(float p_time, bool p_seek) {
         prev = prev_current;
         prev_xfading = xfade;
         time = 0;
-        switched = true;
     }
 
     if (current < 0 || current >= enabled_inputs || prev >= enabled_inputs) {
@@ -792,11 +794,11 @@ float AnimationNodeTransition::process(float p_time, bool p_seek) {
 
     } else { // cross-fading from prev to current
 
-        float blend = xfade ? (prev_xfading / xfade) : 1;
+        float blend = (xfade == 0) ? 0 : (prev_xfading / xfade);
 
         if (!p_seek && switched) { //just switched, seek to start of current
 
-            rem = blend_input(current, 0, true, 1.0 - blend, FILTER_IGNORE, false);
+            rem = blend_input(current, 0, true, 1.0f - blend, FILTER_IGNORE, false);
         } else {
 
             rem = blend_input(current, p_time, p_seek, 1.0 - blend, FILTER_IGNORE, false);
@@ -838,17 +840,17 @@ void AnimationNodeTransition::_validate_property(PropertyInfo &property) const {
 
 void AnimationNodeTransition::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_enabled_inputs", {"amount"}), &AnimationNodeTransition::set_enabled_inputs);
-    MethodBinder::bind_method(D_METHOD("get_enabled_inputs"), &AnimationNodeTransition::get_enabled_inputs);
+    BIND_METHOD(AnimationNodeTransition,set_enabled_inputs);
+    BIND_METHOD(AnimationNodeTransition,get_enabled_inputs);
 
-    MethodBinder::bind_method(D_METHOD("set_input_as_auto_advance", {"input", "enable"}), &AnimationNodeTransition::set_input_as_auto_advance);
-    MethodBinder::bind_method(D_METHOD("is_input_set_as_auto_advance", {"input"}), &AnimationNodeTransition::is_input_set_as_auto_advance);
+    BIND_METHOD(AnimationNodeTransition,set_input_as_auto_advance);
+    BIND_METHOD(AnimationNodeTransition,is_input_set_as_auto_advance);
 
-    MethodBinder::bind_method(D_METHOD("set_input_caption", {"input", "caption"}), &AnimationNodeTransition::set_input_caption);
-    MethodBinder::bind_method(D_METHOD("get_input_caption", {"input"}), &AnimationNodeTransition::get_input_caption);
+    BIND_METHOD(AnimationNodeTransition,set_input_caption);
+    BIND_METHOD(AnimationNodeTransition,get_input_caption);
 
-    MethodBinder::bind_method(D_METHOD("set_cross_fade_time", {"time"}), &AnimationNodeTransition::set_cross_fade_time);
-    MethodBinder::bind_method(D_METHOD("get_cross_fade_time"), &AnimationNodeTransition::get_cross_fade_time);
+    BIND_METHOD(AnimationNodeTransition,set_cross_fade_time);
+    BIND_METHOD(AnimationNodeTransition,get_cross_fade_time);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "input_count", PropertyHint::Range, "0,64,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_enabled_inputs", "get_enabled_inputs");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "xfade_time", PropertyHint::Range, "0,120,0.01"), "set_cross_fade_time", "get_cross_fade_time");
@@ -913,8 +915,8 @@ void AnimationNodeBlendTree::add_node(const StringName &p_name, Ref<AnimationNod
     emit_changed();
     emit_signal("tree_changed");
 
-    p_node->connect("tree_changed",callable_mp(this, &ClassName::_tree_changed), varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
-    p_node->connect("changed",callable_mp(this, &ClassName::_node_changed), varray(p_name), ObjectNS::CONNECT_REFERENCE_COUNTED);
+    p_node->connect("tree_changed",callable_mp(this, &ClassName::_tree_changed),  ObjectNS::CONNECT_REFERENCE_COUNTED);
+    p_node->connect("changed",callable_gen(this, [=]() { _node_changed(p_name);}), ObjectNS::CONNECT_REFERENCE_COUNTED);
 }
 
 Ref<AnimationNode> AnimationNodeBlendTree::get_node(const StringName &p_name) const {
@@ -1017,7 +1019,7 @@ void AnimationNodeBlendTree::rename_node(const StringName &p_name, const StringN
         }
     }
     //connection must be done with new name
-    nodes[p_new_name].node->connect("changed",callable_mp(this, &ClassName::_node_changed), varray(p_new_name), ObjectNS::CONNECT_REFERENCE_COUNTED);
+    nodes[p_new_name].node->connectF("changed",this, [=]() { _node_changed(p_new_name); }, ObjectNS::CONNECT_REFERENCE_COUNTED);
 
     emit_signal("tree_changed");
 }
@@ -1248,18 +1250,18 @@ void AnimationNodeBlendTree::_node_changed(const StringName &p_node) {
 void AnimationNodeBlendTree::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_node", {"name", "node", "position"}), &AnimationNodeBlendTree::add_node, {DEFVAL(Vector2())});
-    MethodBinder::bind_method(D_METHOD("get_node", {"name"}), &AnimationNodeBlendTree::get_node);
-    MethodBinder::bind_method(D_METHOD("remove_node", {"name"}), &AnimationNodeBlendTree::remove_node);
-    MethodBinder::bind_method(D_METHOD("rename_node", {"name", "new_name"}), &AnimationNodeBlendTree::rename_node);
-    MethodBinder::bind_method(D_METHOD("has_node", {"name"}), &AnimationNodeBlendTree::has_node);
-    MethodBinder::bind_method(D_METHOD("connect_node", {"input_node", "input_index", "output_node"}), &AnimationNodeBlendTree::connect_node);
-    MethodBinder::bind_method(D_METHOD("disconnect_node", {"input_node", "input_index"}), &AnimationNodeBlendTree::disconnect_node);
+    BIND_METHOD(AnimationNodeBlendTree,get_node);
+    BIND_METHOD(AnimationNodeBlendTree,remove_node);
+    BIND_METHOD(AnimationNodeBlendTree,rename_node);
+    BIND_METHOD(AnimationNodeBlendTree,has_node);
+    BIND_METHOD(AnimationNodeBlendTree,connect_node);
+    BIND_METHOD(AnimationNodeBlendTree,disconnect_node);
 
-    MethodBinder::bind_method(D_METHOD("set_node_position", {"name", "position"}), &AnimationNodeBlendTree::set_node_position);
-    MethodBinder::bind_method(D_METHOD("get_node_position", {"name"}), &AnimationNodeBlendTree::get_node_position);
+    BIND_METHOD(AnimationNodeBlendTree,set_node_position);
+    BIND_METHOD(AnimationNodeBlendTree,get_node_position);
 
-    MethodBinder::bind_method(D_METHOD("set_graph_offset", {"offset"}), &AnimationNodeBlendTree::set_graph_offset);
-    MethodBinder::bind_method(D_METHOD("get_graph_offset"), &AnimationNodeBlendTree::get_graph_offset);
+    BIND_METHOD(AnimationNodeBlendTree,set_graph_offset);
+    BIND_METHOD(AnimationNodeBlendTree,get_graph_offset);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "graph_offset", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_graph_offset", "get_graph_offset");
 
@@ -1273,13 +1275,11 @@ void AnimationNodeBlendTree::_bind_methods() {
 
 AnimationNodeBlendTree::AnimationNodeBlendTree() {
 
-    Ref<AnimationNodeOutput> output(make_ref_counted<AnimationNodeOutput>());
     Node n;
-    n.node = output;
+    n.node = make_ref_counted<AnimationNodeOutput>();
     n.position = Vector2(300, 150);
     n.connections.resize(1);
     nodes["output"] = n;
 }
 
-AnimationNodeBlendTree::~AnimationNodeBlendTree() {
-}
+AnimationNodeBlendTree::~AnimationNodeBlendTree() = default;

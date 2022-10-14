@@ -58,8 +58,8 @@ protected:
     bool _can_use_ip(const IP_Address &p_ip, const bool p_for_bind) const;
 
 public:
-    static GODOT_EXPORT void make_default();
-    static GODOT_EXPORT void cleanup();
+    GODOT_EXPORT static void make_default();
+    GODOT_EXPORT static void cleanup();
     static void _set_ip_port(struct sockaddr_storage *p_addr, IP_Address &r_ip, uint16_t &r_port);
     static size_t _set_addr_storage(struct sockaddr_storage *p_addr, const IP_Address &p_ip, uint16_t p_port, IP::Type p_ip_type);
 

@@ -1,0 +1,19 @@
+{
+"api_hash":"",
+"api_version":"",
+"dependencies":[],
+"module_name":"",
+"namespaces": [
+ {
+  "contents":{
+    "constants": [
+      { 
+	"type":{ "name": "int32_t" },
+        "name":"SPKEY",
+        "value" : "(1<<24)"
+      }
+    ]
+  },"name":"Godot"}
+],
+"version":""
+}

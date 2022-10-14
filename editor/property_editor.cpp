@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  property_editor.cpp                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,14 +31,16 @@
 #include "filesystem_dock.h"
 #include "property_editor.h"
 
+#include "editor_locale_dialog.h"
 #include "core/callable_method_pointer.h"
 #include "core/class_db.h"
 #include "core/io/image_loader.h"
 #include "core/io/marshalls.h"
 #include "core/io/resource_loader.h"
-//#include "core/math/expression.h"
+#include "core/math/quat.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/pair.h"
@@ -117,7 +119,7 @@ void CustomPropertyEditor::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
 
-        RID ci = get_canvas_item();
+        RenderingEntity ci = get_canvas_item();
         get_theme_stylebox("panel", "PopupMenu")->draw(ci, Rect2(Point2(), get_size()));
     }
     if (p_what == MainLoop::NOTIFICATION_WM_QUIT_REQUEST) {
@@ -132,17 +134,17 @@ void CustomPropertyEditor::_menu_option(int p_which) {
         case VariantType::INT: {
 
             if (hint == PropertyHint::Flags) {
-
-                int val = val_variant.as<int>();
-
-                if (val & 1 << p_which) {
-
-                    val &= ~(1 << p_which);
-                } else {
-                    val |= 1 << p_which;
+                int idx = menu->get_item_index(p_which);
+                uint32_t item_value = menu->get_item_metadata(idx).as<uint32_t>();
+                uint32_t value = val_variant.as<uint32_t>();
+                // If the item wasn't previously checked it means it was pressed,
+                // otherwise it was unpressed.
+                if (!menu->is_item_checked(idx)) {
+                    val_variant = value | item_value;
                 }
-
-                val_variant = val;
+                else {
+                    val_variant = value & ~item_value;
+                }
                 emit_signal("variant_changed");
             } else if (hint == PropertyHint::Enum) {
 
@@ -346,6 +348,14 @@ UIString CustomPropertyEditor::get_name() const {
     return name;
 }
 
+#define MAKE_PROPSELECT                                                          \
+    if (!property_select) {                                                      \
+        property_select = memnew(PropertySelector);                              \
+        property_select->connect("selected",callable_mp(this, &ClassName::_create_selected_property)); \
+        add_child(property_select);                                              \
+    }                                                                            \
+    hide();
+
 bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType p_type, const Variant &p_variant, PropertyHint p_hint, StringView p_hint_text) {
 
     using namespace eastl;
@@ -462,7 +472,8 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
                 updating = false;
                 return false;
 
-            } else if (hint == PropertyHint::Layers2DPhysics || hint == PropertyHint::Layers2DRenderer || hint == PropertyHint::Layers3DPhysics || hint == PropertyHint::Layers3DRenderer) {
+            } else if (hint == PropertyHint::Layers2DPhysics || hint == PropertyHint::Layers2DRenderer || hint == PropertyHint::Layers2DNavigation ||
+                        hint == PropertyHint::Layers3DPhysics || hint == PropertyHint::Layers3DRenderer || hint == PropertyHint::Layers3DNavigation) {
 
                 String basename;
                 switch (hint) {
@@ -472,11 +483,17 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
                     case PropertyHint::Layers2DPhysics:
                         basename = "layer_names/2d_physics";
                         break;
+                    case PropertyHint::Layers2DNavigation:
+                        basename = "layer_names/2d_navigation";
+                        break;
                     case PropertyHint::Layers3DRenderer:
                         basename = "layer_names/3d_render";
                         break;
                     case PropertyHint::Layers3DPhysics:
                         basename = "layer_names/3d_physics";
+                        break;
+                    case PropertyHint::Layers3DNavigation:
+                        basename = "layer_names/3d_navigation";
                         break;
                 }
 
@@ -528,16 +545,26 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
                 easing_draw->show();
                 set_size(Size2(200, 150) * EDSCALE);
             } else if (hint == PropertyHint::Flags) {
-                Vector<StringView> flags = StringUtils::split(hint_text,',');
+                uint32_t value = val_variant.as<uint32_t>();
+                FixedVector<StringView, 16, true> flags;
+                String::split_ref(flags, hint_text, ',');
                 for (int i = 0; i < flags.size(); i++) {
-                    StringView flag = flags[i];
-                    if (flag.empty())
-                        continue;
-                    menu->add_check_item_utf8(flag, i);
-                    int f = val_variant.as<int>();
-                    if (f & 1 << i)
-                        menu->set_item_checked(menu->get_item_index(i), true);
+                    uint32_t current_val;
+                    FixedVector<StringView, 3, true> text_split;
+                    String::split_ref(text_split, flags[i], ':');
+                    if (text_split.size() != 1) {
+                        current_val = StringUtils::to_int(text_split[1]);
+                    }
+                    else {
+                        current_val = 1 << i;
+                    }
+                    menu->add_check_item_utf8(text_split[0], current_val);
+                    menu->set_item_metadata(i, current_val);
+                    if ((value & current_val) == current_val) {
+                        menu->set_item_checked(menu->get_item_index(current_val), true);
+                    }
                 }
+
                 menu->set_position(get_position());
                 menu->popup();
                 hide();
@@ -553,8 +580,13 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
 
         } break;
         case VariantType::STRING: {
+            if (hint == PropertyHint::LocaleID) {
+                Vector<StringName> names;
+                names.push_back(TTR("Locale..."));
+                names.push_back(TTR("Clear"));
+                config_action_buttons(names);
 
-            if (hint == PropertyHint::File || hint == PropertyHint::GlobalFile) {
+            } else if (hint == PropertyHint::File || hint == PropertyHint::GlobalFile) {
 
                 const StringName names[2] {
                     TTR("File..."),
@@ -618,57 +650,6 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
                 updating = false;
                 return false;
 
-            } else if (hint == PropertyHint::MethodOfVariantType) {
-#define MAKE_PROPSELECT                                                          \
-    if (!property_select) {                                                      \
-        property_select = memnew(PropertySelector);                              \
-        property_select->connect("selected",callable_mp(this, &ClassName::_create_selected_property)); \
-        add_child(property_select);                                              \
-    }                                                                            \
-    hide();
-
-                MAKE_PROPSELECT;
-
-                VariantType type = VariantType::NIL;
-                for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
-                    if (hint_text == Variant::get_type_name(VariantType(i))) {
-                        type = VariantType(i);
-                    }
-                }
-                if (type != VariantType::NIL)
-                    property_select->select_method_from_basic_type(type, val_variant.as<UIString>());
-                updating = false;
-                return false;
-
-            } else if (hint == PropertyHint::MethodOfBaseType) {
-                MAKE_PROPSELECT
-
-                property_select->select_method_from_base_type(StringName(hint_text), val_variant.as<UIString>());
-
-                updating = false;
-                return false;
-
-            } else if (hint == PropertyHint::MethodOfInstance) {
-
-                MAKE_PROPSELECT
-
-                Object *instance = ObjectDB::get_instance(ObjectID(StringUtils::to_int64(hint_text)));
-                if (instance)
-                    property_select->select_method_from_instance(instance, val_variant.as<UIString>());
-                updating = false;
-                return false;
-
-            } else if (hint == PropertyHint::MethodOfScript) {
-                MAKE_PROPSELECT
-
-                Object *obj = ObjectDB::get_instance(ObjectID(StringUtils::to_int64(hint_text)));
-                if (object_cast<Script>(obj)) {
-                    property_select->select_method_from_script(Ref<Script>(object_cast<Script>(obj)), val_variant.as<UIString>());
-                }
-
-                updating = false;
-                return false;
-
             } else if (hint == PropertyHint::PropertyOfVariantType) {
 
                 MAKE_PROPSELECT
@@ -687,38 +668,6 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
 
                 updating = false;
                 return false;
-
-            } else if (hint == PropertyHint::PropertyOfBaseType) {
-
-                MAKE_PROPSELECT
-
-                property_select->select_property_from_base_type(StringName(hint_text), val_variant.as<UIString>());
-
-                updating = false;
-                return false;
-
-            } else if (hint == PropertyHint::PropertyOfInstance) {
-
-                MAKE_PROPSELECT
-
-                Object *instance = ObjectDB::get_instance(ObjectID(StringUtils::to_int64(hint_text)));
-                if (instance)
-                    property_select->select_property_from_instance(instance, val_variant.as<UIString>());
-
-                updating = false;
-                return false;
-
-            } else if (hint == PropertyHint::PropertyOfScript) {
-                MAKE_PROPSELECT
-
-                Object *obj = ObjectDB::get_instance(ObjectID(StringUtils::to_int64(hint_text)));
-                if (object_cast<Script>(obj)) {
-                    property_select->select_property_from_script(Ref<Script>(object_cast<Script>(obj)), val_variant.as<UIString>());
-                }
-
-                updating = false;
-                return false;
-
             } else {
                 Vector<StringName> names;
                 names.push_back(StringName("string:"));
@@ -1041,7 +990,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
                         icon = get_theme_icon(what, "Resource");
                     }
 
-                    menu->add_icon_item(icon, FormatSN(TTR("Convert To %s").asCString(), what.asCString()), CONVERT_BASE_ID + i);
+                    menu->add_icon_item(icon, FormatSN(TTR("Convert to %s").asCString(), what.asCString()), CONVERT_BASE_ID + i);
                 }
             }
 
@@ -1061,7 +1010,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
         case VariantType::POOL_INT_ARRAY: {
 
         } break;
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
 
         } break;
         case VariantType::POOL_STRING_ARRAY: {
@@ -1118,6 +1067,14 @@ void CustomPropertyEditor::_file_selected(StringView p_file) {
         } break;
         default: {
         }
+    }
+}
+
+void CustomPropertyEditor::_locale_selected(StringView p_locale) {
+    if (type == VariantType::STRING && hint == PropertyHint::LocaleID) {
+        val_variant = p_locale;
+        emit_signal("variant_changed");
+        hide();
     }
 }
 
@@ -1258,7 +1215,8 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
         } break;
         case VariantType::INT: {
 
-            if (hint == PropertyHint::Layers2DPhysics || hint == PropertyHint::Layers2DRenderer || hint == PropertyHint::Layers3DPhysics || hint == PropertyHint::Layers3DRenderer) {
+            if (hint == PropertyHint::Layers2DPhysics || hint == PropertyHint::Layers2DRenderer || hint == PropertyHint::Layers2DNavigation ||
+                hint == PropertyHint::Layers3DPhysics || hint == PropertyHint::Layers3DRenderer || hint == PropertyHint::Layers3DNavigation ) {
 
                 uint32_t f = val_variant.as<uint32_t>();
                 if (checks20[p_which]->is_pressed())
@@ -1274,9 +1232,10 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
         case VariantType::STRING: {
 
             if (hint == PropertyHint::MultilineText) {
-
                 hide();
-
+            }
+            else if (hint == PropertyHint::LocaleID) {
+                locale->popup_locale_dialog();
             } else if (hint == PropertyHint::File || hint == PropertyHint::GlobalFile) {
                 if (p_which == 0) {
 
@@ -1496,11 +1455,11 @@ void CustomPropertyEditor::_drag_easing(const Ref<InputEvent> &p_ev) {
 
 void CustomPropertyEditor::_draw_easing() {
 
-    RID ci = easing_draw->get_canvas_item();
+    RenderingEntity ci = easing_draw->get_canvas_item();
 
     Size2 s = easing_draw->get_size();
     Rect2 r(Point2(), s);
-    r = r.grow(3);
+    r.grow_by(3);
     get_theme_stylebox("normal", "LineEdit")->draw(ci, r);
 
     int points = 48;
@@ -1705,7 +1664,7 @@ void CustomPropertyEditor::_modified(StringView p_string) {
         case VariantType::POOL_INT_ARRAY: {
 
         } break;
-        case VariantType::POOL_REAL_ARRAY: {
+        case VariantType::POOL_FLOAT32_ARRAY: {
 
         } break;
         case VariantType::POOL_STRING_ARRAY: {
@@ -1946,7 +1905,7 @@ CustomPropertyEditor::CustomPropertyEditor() {
         checks20[i]->set_focus_mode(FOCUS_NONE);
         checks20gc->add_child(checks20[i]);
         checks20[i]->hide();
-        checks20[i]->connect("pressed",callable_mp(this, &ClassName::_action_pressed), make_binds(i));
+        checks20[i]->connectF("pressed",this,[=]() { _action_pressed(i); });
         checks20[i]->set_tooltip(FormatSN(TTR("Bit %d, val %d.").asCString(), i, 1 << i));
     }
 
@@ -1963,7 +1922,7 @@ CustomPropertyEditor::CustomPropertyEditor() {
         action_buttons[i] = memnew(Button);
         action_buttons[i]->hide();
         add_child(action_buttons[i]);
-        action_buttons[i]->connect("pressed",callable_mp(this, &ClassName::_action_pressed), {i});
+        action_buttons[i]->connectF("pressed",this,[=]() { _action_pressed(i); });
         action_buttons[i]->set_flat(true);
     }
 
@@ -1976,6 +1935,12 @@ CustomPropertyEditor::CustomPropertyEditor() {
 
     file->connect("file_selected",callable_mp(this, &ClassName::_file_selected));
     file->connect("dir_selected",callable_mp(this, &ClassName::_file_selected));
+
+    locale = memnew(EditorLocaleDialog);
+    add_child(locale);
+    locale->hide();
+
+    locale->connect("locale_selected", callable_mp(this, &ClassName::_locale_selected));
 
     error = memnew(ConfirmationDialog);
     error->set_title(TTR("Error!"));

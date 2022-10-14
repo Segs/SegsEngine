@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  cpu_particles_2d.cpp                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,8 +35,10 @@
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/os/mutex.h"
+#include "core/os/os.h"
 #include "core/translation_helpers.h"
 #include "scene/2d/canvas_item.h"
+#include "scene/2d/canvas_item_material.h"
 #include "scene/2d/gpu_particles_2d.h"
 #include "scene/resources/curve_texture.h"
 #include "scene/resources/particles_material.h"
@@ -74,7 +76,8 @@ void CPUParticles2D::set_amount(int p_amount) {
     }
 
     particle_data.resize((8 + 4 + 1) * p_amount);
-    RenderingServer::get_singleton()->multimesh_allocate(multimesh, p_amount, RS::MULTIMESH_TRANSFORM_2D, RS::MULTIMESH_COLOR_8BIT, RS::MULTIMESH_CUSTOM_DATA_FLOAT);
+    RenderingServer::get_singleton()->multimesh_allocate(
+            multimesh, p_amount, RS::MULTIMESH_TRANSFORM_2D, RS::MULTIMESH_COLOR_8BIT, RS::MULTIMESH_CUSTOM_DATA_FLOAT);
 
     particle_order.resize(p_amount);
 }
@@ -192,9 +195,12 @@ void CPUParticles2D::_update_mesh_texture() {
         Rect2 region_rect = atlas_texure->get_region();
         Size2 atlas_size = atlas_texure->get_atlas()->get_size();
         uvs.emplace_back(region_rect.position.x / atlas_size.x, region_rect.position.y / atlas_size.y);
-        uvs.emplace_back((region_rect.position.x + region_rect.size.x) / atlas_size.x, region_rect.position.y / atlas_size.y);
-        uvs.emplace_back((region_rect.position.x + region_rect.size.x) / atlas_size.x, (region_rect.position.y + region_rect.size.y) / atlas_size.y);
-        uvs.emplace_back(region_rect.position.x / atlas_size.x, (region_rect.position.y + region_rect.size.y) / atlas_size.y);
+        uvs.emplace_back(
+                (region_rect.position.x + region_rect.size.x) / atlas_size.x, region_rect.position.y / atlas_size.y);
+        uvs.emplace_back((region_rect.position.x + region_rect.size.x) / atlas_size.x,
+                (region_rect.position.y + region_rect.size.y) / atlas_size.y);
+        uvs.emplace_back(
+                region_rect.position.x / atlas_size.x, (region_rect.position.y + region_rect.size.y) / atlas_size.y);
     } else {
         uvs.emplace_back(0, 0);
         uvs.emplace_back(1, 0);
@@ -230,12 +236,14 @@ void CPUParticles2D::set_texture(const Ref<Texture> &p_texture) {
         return;
 
     if (texture)
-        texture->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &CPUParticles2D::_texture_changed));
+        texture->disconnect(
+                CoreStringNames::get_singleton()->changed, callable_mp(this, &CPUParticles2D::_texture_changed));
 
     texture = p_texture;
 
     if (texture)
-        texture->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &CPUParticles2D::_texture_changed));
+        texture->connect(
+                CoreStringNames::get_singleton()->changed, callable_mp(this, &CPUParticles2D::_texture_changed));
 
     update();
     _update_mesh_texture();
@@ -292,7 +300,8 @@ String CPUParticles2D::get_configuration_warning() const {
                 get_param_curve(PARAM_ANIM_SPEED) || get_param_curve(PARAM_ANIM_OFFSET)) {
             if (!warnings.empty())
                 warnings += "\n\n";
-            warnings += String("- ") + TTR("CPUParticles2D animation requires the usage of a CanvasItemMaterial with \"Particles Animation\" enabled.");
+            warnings += String("- ") + TTR("CPUParticles2D animation requires the usage of a CanvasItemMaterial with "
+                                           "\"Particles Animation\" enabled.");
         }
     }
 
@@ -401,6 +410,13 @@ Ref<Gradient> CPUParticles2D::get_color_ramp() const {
     return color_ramp;
 }
 
+void CPUParticles2D::set_color_initial_ramp(const Ref<Gradient> &p_ramp) {
+    color_initial_ramp = p_ramp;
+}
+
+Ref<Gradient> CPUParticles2D::get_color_initial_ramp() const {
+    return color_initial_ramp;
+}
 void CPUParticles2D::set_particle_flag(Flags p_flag, bool p_enable) {
     ERR_FAIL_INDEX(p_flag, FLAG_MAX);
     flags[p_flag] = p_enable;
@@ -480,9 +496,6 @@ Vector2 CPUParticles2D::get_gravity() const {
 
 void CPUParticles2D::_validate_property(PropertyInfo &property) const {
 
-    if (property.name == "color" && color_ramp) {
-        property.usage = 0;
-    }
 
     if (property.name == "emission_sphere_radius" && emission_shape != EMISSION_SHAPE_SPHERE) {
         property.usage = 0;
@@ -492,7 +505,8 @@ void CPUParticles2D::_validate_property(PropertyInfo &property) const {
         property.usage = 0;
     }
 
-    if ((property.name == "emission_point_texture" || property.name == "emission_color_texture") && (emission_shape < EMISSION_SHAPE_POINTS)) {
+    if ((property.name == "emission_point_texture" || property.name == "emission_color_texture") &&
+            (emission_shape < EMISSION_SHAPE_POINTS)) {
         property.usage = 0;
     }
 
@@ -500,11 +514,13 @@ void CPUParticles2D::_validate_property(PropertyInfo &property) const {
         property.usage = 0;
     }
 
-    if (property.name == "emission_points" && emission_shape != EMISSION_SHAPE_POINTS && emission_shape != EMISSION_SHAPE_DIRECTED_POINTS) {
+    if (property.name == "emission_points" && emission_shape != EMISSION_SHAPE_POINTS &&
+            emission_shape != EMISSION_SHAPE_DIRECTED_POINTS) {
         property.usage = 0;
     }
 
-    if (property.name == "emission_colors" && emission_shape != EMISSION_SHAPE_POINTS && emission_shape != EMISSION_SHAPE_DIRECTED_POINTS) {
+    if (property.name == "emission_colors" && emission_shape != EMISSION_SHAPE_POINTS &&
+            emission_shape != EMISSION_SHAPE_DIRECTED_POINTS) {
         property.usage = 0;
     }
 }
@@ -594,9 +610,10 @@ void CPUParticles2D::_particles_process(float p_delta) {
             }
         }
 
-        if (p.time * (1.0 - explosiveness_ratio) > p.lifetime) {
+        if (p.time * (1.0f - explosiveness_ratio) > p.lifetime) {
             restart = true;
         }
+        float tv = 0.0f;
 
         if (restart) {
 
@@ -606,19 +623,15 @@ void CPUParticles2D::_particles_process(float p_delta) {
             }
             p.active = true;
 
-            /*float tex_linear_velocity = 0;
-            if (curve_parameters[PARAM_INITIAL_LINEAR_VELOCITY]) {
-                tex_linear_velocity = curve_parameters[PARAM_INITIAL_LINEAR_VELOCITY]->interpolate(0);
-            }*/
 
             float tex_angle = 0.0;
             if (curve_parameters[PARAM_ANGLE]) {
-                tex_angle = curve_parameters[PARAM_ANGLE]->interpolate(0);
+                tex_angle = curve_parameters[PARAM_ANGLE]->interpolate(tv);
             }
 
             float tex_anim_offset = 0.0;
             if (curve_parameters[PARAM_ANGLE]) {
-                tex_anim_offset = curve_parameters[PARAM_ANGLE]->interpolate(0);
+                tex_anim_offset = curve_parameters[PARAM_ANGLE]->interpolate(tv);
             }
 
             p.seed = Math::rand();
@@ -628,16 +641,26 @@ void CPUParticles2D::_particles_process(float p_delta) {
             p.hue_rot_rand = Math::randf();
             p.anim_offset_rand = Math::randf();
 
-            float angle1_rad = Math::atan2(direction.y, direction.x) + (Math::randf() * 2.0 - 1.0) * Math_PI * spread / 180.0;
-            Vector2 rot = Vector2(Math::cos(angle1_rad), Math::sin(angle1_rad));
-            p.velocity = rot * parameters[PARAM_INITIAL_LINEAR_VELOCITY] * Math::lerp(1.0f, float(Math::randf()), randomness[PARAM_INITIAL_LINEAR_VELOCITY]);
+            if (color_initial_ramp) {
+                p.start_color_rand = color_initial_ramp->get_color_at_offset(Math::randf());
+            } else {
+                p.start_color_rand = Color(1, 1, 1, 1);
+            }
 
-            float base_angle = (parameters[PARAM_ANGLE] + tex_angle) * Math::lerp(1.0f, p.angle_rand, randomness[PARAM_ANGLE]);
+            float angle1_rad =
+                    Math::atan2(direction.y, direction.x) + (Math::randf() * 2.0 - 1.0) * Math_PI * spread / 180.0;
+            Vector2 rot = Vector2(Math::cos(angle1_rad), Math::sin(angle1_rad));
+            p.velocity = rot * parameters[PARAM_INITIAL_LINEAR_VELOCITY] *
+                         Math::lerp(1.0f, float(Math::randf()), randomness[PARAM_INITIAL_LINEAR_VELOCITY]);
+
+            float base_angle =
+                    (parameters[PARAM_ANGLE] + tex_angle) * Math::lerp(1.0f, p.angle_rand, randomness[PARAM_ANGLE]);
             p.rotation = Math::deg2rad(base_angle);
 
             p.custom[0] = 0.0; // unused
             p.custom[1] = 0.0; // phase [0..1]
-            p.custom[2] = (parameters[PARAM_ANIM_OFFSET] + tex_anim_offset) * Math::lerp(1.0f, p.anim_offset_rand, randomness[PARAM_ANIM_OFFSET]); //animation phase [0..1]
+            p.custom[2] = (parameters[PARAM_ANIM_OFFSET] + tex_anim_offset) *
+                          Math::lerp(1.0f, p.anim_offset_rand, randomness[PARAM_ANIM_OFFSET]); // animation phase [0..1]
             p.custom[3] = 0.0;
             p.transform = Transform2D();
             p.time = 0;
@@ -654,7 +677,8 @@ void CPUParticles2D::_particles_process(float p_delta) {
                     p.transform[2] = Vector2(Math::cos(t), Math::sin(t)) * radius;
                 } break;
                 case EMISSION_SHAPE_RECTANGLE: {
-                    p.transform[2] = Vector2(Math::randf() * 2.0 - 1.0, Math::randf() * 2.0 - 1.0) * emission_rect_extents;
+                    p.transform[2] =
+                            Vector2(Math::randf() * 2.0 - 1.0, Math::randf() * 2.0 - 1.0) * emission_rect_extents;
                 } break;
                 case EMISSION_SHAPE_POINTS:
                 case EMISSION_SHAPE_DIRECTED_POINTS: {
@@ -693,78 +717,91 @@ void CPUParticles2D::_particles_process(float p_delta) {
             continue;
         } else if (p.time > p.lifetime) {
             p.active = false;
+            tv = 1.0;
         } else {
 
             uint32_t alt_seed = p.seed;
 
             p.time += local_delta;
-            p.custom[1] = p.time / lifetime;
+            tv = p.time / p.lifetime;
+            p.custom[1] = tv;
 
             float tex_linear_velocity = 0.0;
             if (curve_parameters[PARAM_INITIAL_LINEAR_VELOCITY]) {
-                tex_linear_velocity = curve_parameters[PARAM_INITIAL_LINEAR_VELOCITY]->interpolate(p.custom[1]);
+                tex_linear_velocity = curve_parameters[PARAM_INITIAL_LINEAR_VELOCITY]->interpolate(tv);
             }
 
             float tex_orbit_velocity = 0.0;
             if (curve_parameters[PARAM_ORBIT_VELOCITY]) {
-                tex_orbit_velocity = curve_parameters[PARAM_ORBIT_VELOCITY]->interpolate(p.custom[1]);
+                tex_orbit_velocity = curve_parameters[PARAM_ORBIT_VELOCITY]->interpolate(tv);
             }
 
             float tex_angular_velocity = 0.0;
             if (curve_parameters[PARAM_ANGULAR_VELOCITY]) {
-                tex_angular_velocity = curve_parameters[PARAM_ANGULAR_VELOCITY]->interpolate(p.custom[1]);
+                tex_angular_velocity = curve_parameters[PARAM_ANGULAR_VELOCITY]->interpolate(tv);
             }
 
             float tex_linear_accel = 0.0;
             if (curve_parameters[PARAM_LINEAR_ACCEL]) {
-                tex_linear_accel = curve_parameters[PARAM_LINEAR_ACCEL]->interpolate(p.custom[1]);
+                tex_linear_accel = curve_parameters[PARAM_LINEAR_ACCEL]->interpolate(tv);
             }
 
             float tex_tangential_accel = 0.0;
             if (curve_parameters[PARAM_TANGENTIAL_ACCEL]) {
-                tex_tangential_accel = curve_parameters[PARAM_TANGENTIAL_ACCEL]->interpolate(p.custom[1]);
+                tex_tangential_accel = curve_parameters[PARAM_TANGENTIAL_ACCEL]->interpolate(tv);
             }
 
             float tex_radial_accel = 0.0;
             if (curve_parameters[PARAM_RADIAL_ACCEL]) {
-                tex_radial_accel = curve_parameters[PARAM_RADIAL_ACCEL]->interpolate(p.custom[1]);
+                tex_radial_accel = curve_parameters[PARAM_RADIAL_ACCEL]->interpolate(tv);
             }
 
             float tex_damping = 0.0;
             if (curve_parameters[PARAM_DAMPING]) {
-                tex_damping = curve_parameters[PARAM_DAMPING]->interpolate(p.custom[1]);
+                tex_damping = curve_parameters[PARAM_DAMPING]->interpolate(tv);
             }
 
             float tex_angle = 0.0;
             if (curve_parameters[PARAM_ANGLE]) {
-                tex_angle = curve_parameters[PARAM_ANGLE]->interpolate(p.custom[1]);
+                tex_angle = curve_parameters[PARAM_ANGLE]->interpolate(tv);
             }
             float tex_anim_speed = 0.0;
             if (curve_parameters[PARAM_ANIM_SPEED]) {
-                tex_anim_speed = curve_parameters[PARAM_ANIM_SPEED]->interpolate(p.custom[1]);
+                tex_anim_speed = curve_parameters[PARAM_ANIM_SPEED]->interpolate(tv);
             }
 
             float tex_anim_offset = 0.0;
             if (curve_parameters[PARAM_ANIM_OFFSET]) {
-                tex_anim_offset = curve_parameters[PARAM_ANIM_OFFSET]->interpolate(p.custom[1]);
+                tex_anim_offset = curve_parameters[PARAM_ANIM_OFFSET]->interpolate(tv);
             }
 
             Vector2 force = gravity;
             Vector2 pos = p.transform[2];
 
             //apply linear acceleration
-            force += p.velocity.length() > 0.0 ? p.velocity.normalized() * (parameters[PARAM_LINEAR_ACCEL] + tex_linear_accel) * Math::lerp(1.0f, rand_from_seed(alt_seed), randomness[PARAM_LINEAR_ACCEL]) : Vector2();
+            force += p.velocity.length() > 0.0 ?
+                             p.velocity.normalized() * (parameters[PARAM_LINEAR_ACCEL] + tex_linear_accel) *
+                                     Math::lerp(1.0f, rand_from_seed(alt_seed), randomness[PARAM_LINEAR_ACCEL]) :
+                             Vector2();
             //apply radial acceleration
             Vector2 org = emission_xform[2];
             Vector2 diff = pos - org;
-            force += diff.length() > 0.0 ? diff.normalized() * (parameters[PARAM_RADIAL_ACCEL] + tex_radial_accel) * Math::lerp(1.0f, rand_from_seed(alt_seed), randomness[PARAM_RADIAL_ACCEL]) : Vector2();
+            force += diff.length() > 0.0 ?
+                             diff.normalized() * (parameters[PARAM_RADIAL_ACCEL] + tex_radial_accel) *
+                                     Math::lerp(1.0f, rand_from_seed(alt_seed), randomness[PARAM_RADIAL_ACCEL]) :
+                             Vector2();
             //apply tangential acceleration;
             Vector2 yx = Vector2(diff.y, diff.x);
-            force += yx.length() > 0.0 ? (yx * Vector2(-1.0, 1.0)).normalized() * ((parameters[PARAM_TANGENTIAL_ACCEL] + tex_tangential_accel) * Math::lerp(1.0f, rand_from_seed(alt_seed), randomness[PARAM_TANGENTIAL_ACCEL])) : Vector2();
+            force += yx.length() > 0.0 ? (yx * Vector2(-1.0, 1.0)).normalized() *
+                                                 ((parameters[PARAM_TANGENTIAL_ACCEL] + tex_tangential_accel) *
+                                                         Math::lerp(1.0f, rand_from_seed(alt_seed),
+                                                                 randomness[PARAM_TANGENTIAL_ACCEL])) :
+                                         Vector2();
             //apply attractor forces
             p.velocity += force * local_delta;
             //orbit velocity
-            float orbit_amount = (parameters[PARAM_ORBIT_VELOCITY] + tex_orbit_velocity) * Math::lerp(1.0f, rand_from_seed(alt_seed), randomness[PARAM_ORBIT_VELOCITY]);
+            float orbit_amount = (parameters[PARAM_ORBIT_VELOCITY] + tex_orbit_velocity) *
+                                 Math::lerp(1.0f, rand_from_seed(alt_seed), randomness[PARAM_ORBIT_VELOCITY]);
             if (orbit_amount != 0.0) {
                 float ang = orbit_amount * local_delta * Math_PI * 2.0;
                 // Not sure why the ParticlesMaterial code uses a clockwise rotation matrix,
@@ -780,7 +817,8 @@ void CPUParticles2D::_particles_process(float p_delta) {
             if (parameters[PARAM_DAMPING] + tex_damping > 0.0) {
 
                 float v = p.velocity.length();
-                float damp = (parameters[PARAM_DAMPING] + tex_damping) * Math::lerp(1.0f, rand_from_seed(alt_seed), randomness[PARAM_DAMPING]);
+                float damp = (parameters[PARAM_DAMPING] + tex_damping) *
+                             Math::lerp(1.0f, rand_from_seed(alt_seed), randomness[PARAM_DAMPING]);
                 v -= damp * local_delta;
                 if (v < 0.0) {
                     p.velocity = Vector2();
@@ -788,10 +826,15 @@ void CPUParticles2D::_particles_process(float p_delta) {
                     p.velocity = p.velocity.normalized() * v;
                 }
             }
-            float base_angle = (parameters[PARAM_ANGLE] + tex_angle) * Math::lerp(1.0f, p.angle_rand, randomness[PARAM_ANGLE]);
-            base_angle += p.custom[1] * lifetime * (parameters[PARAM_ANGULAR_VELOCITY] + tex_angular_velocity) * Math::lerp(1.0f, rand_from_seed(alt_seed) * 2.0f - 1.0f, randomness[PARAM_ANGULAR_VELOCITY]);
+            float base_angle =
+                    (parameters[PARAM_ANGLE] + tex_angle) * Math::lerp(1.0f, p.angle_rand, randomness[PARAM_ANGLE]);
+            base_angle += p.custom[1] * lifetime * (parameters[PARAM_ANGULAR_VELOCITY] + tex_angular_velocity) *
+                          Math::lerp(1.0f, rand_from_seed(alt_seed) * 2.0f - 1.0f, randomness[PARAM_ANGULAR_VELOCITY]);
             p.rotation = Math::deg2rad(base_angle); //angle
-            float animation_phase = (parameters[PARAM_ANIM_OFFSET] + tex_anim_offset) * Math::lerp(1.0f, p.anim_offset_rand, randomness[PARAM_ANIM_OFFSET]) + p.custom[1] * (parameters[PARAM_ANIM_SPEED] + tex_anim_speed) * Math::lerp(1.0f, rand_from_seed(alt_seed), randomness[PARAM_ANIM_SPEED]);
+            float animation_phase = (parameters[PARAM_ANIM_OFFSET] + tex_anim_offset) *
+                                            Math::lerp(1.0f, p.anim_offset_rand, randomness[PARAM_ANIM_OFFSET]) +
+                                    tv * (parameters[PARAM_ANIM_SPEED] + tex_anim_speed) *
+                                            Math::lerp(1.0f, rand_from_seed(alt_seed), randomness[PARAM_ANIM_SPEED]);
             p.custom[2] = animation_phase;
         }
         //apply color
@@ -799,15 +842,16 @@ void CPUParticles2D::_particles_process(float p_delta) {
 
         float tex_scale = 1.0;
         if (curve_parameters[PARAM_SCALE]) {
-            tex_scale = curve_parameters[PARAM_SCALE]->interpolate(p.custom[1]);
+            tex_scale = curve_parameters[PARAM_SCALE]->interpolate(tv);
         }
 
         float tex_hue_variation = 0.0;
         if (curve_parameters[PARAM_HUE_VARIATION]) {
-            tex_hue_variation = curve_parameters[PARAM_HUE_VARIATION]->interpolate(p.custom[1]);
+            tex_hue_variation = curve_parameters[PARAM_HUE_VARIATION]->interpolate(tv);
         }
 
-        float hue_rot_angle = (parameters[PARAM_HUE_VARIATION] + tex_hue_variation) * Math_PI * 2.0 * Math::lerp(1.0f, p.hue_rot_rand * 2.0f - 1.0f, randomness[PARAM_HUE_VARIATION]);
+        float hue_rot_angle = (parameters[PARAM_HUE_VARIATION] + tex_hue_variation) * Math_PI * 2.0 *
+                              Math::lerp(1.0f, p.hue_rot_rand * 2.0f - 1.0f, randomness[PARAM_HUE_VARIATION]);
         float hue_rot_c = Math::cos(hue_rot_angle);
         float hue_rot_s = Math::sin(hue_rot_angle);
 
@@ -823,7 +867,7 @@ void CPUParticles2D::_particles_process(float p_delta) {
         }
 
         if (color_ramp) {
-            p.color = color_ramp->get_color_at_offset(p.custom[1]) * color;
+            p.color = color_ramp->get_color_at_offset(tv) * color;
         } else {
             p.color = color;
         }
@@ -833,7 +877,7 @@ void CPUParticles2D::_particles_process(float p_delta) {
         p.color.g = color_rgb.y;
         p.color.b = color_rgb.z;
 
-        p.color *= p.base_color;
+        p.color *= p.base_color * p.start_color_rand;
 
         if (flags[FLAG_ALIGN_Y_TO_VELOCITY]) {
             if (p.velocity.length() > 0.0) {
@@ -848,8 +892,10 @@ void CPUParticles2D::_particles_process(float p_delta) {
         }
 
         //scale by scale
-        float base_scale = tex_scale * Math::lerp(parameters[PARAM_SCALE], 1.0f, p.scale_rand * randomness[PARAM_SCALE]);
-        if (base_scale < 0.000001) base_scale = 0.000001;
+        float base_scale =
+                tex_scale * Math::lerp(parameters[PARAM_SCALE], 1.0f, p.scale_rand * randomness[PARAM_SCALE]);
+        if (base_scale < 0.000001)
+            base_scale = 0.000001;
 
         p.transform.elements[0] *= base_scale;
         p.transform.elements[1] *= base_scale;
@@ -860,19 +906,16 @@ void CPUParticles2D::_particles_process(float p_delta) {
 
 void CPUParticles2D::_update_particle_data_buffer() {
 
-    update_mutex->lock();
-
-
-    {
+    MutexGuard guard(update_mutex);
 
         int pc = particles.size();
 
         PoolVector<int>::Write ow;
         int *order = nullptr;
 
-        PoolVector<float>::Write w = particle_data.write();
+    auto &w = particle_data;
         PoolVector<Particle>::Read r = particles.read();
-        float *ptr = w.ptr();
+    float *ptr = w.data();
 
         if (draw_order != DRAW_ORDER_INDEX) {
             ow = particle_order.write();
@@ -926,8 +969,6 @@ void CPUParticles2D::_update_particle_data_buffer() {
             }
             ptr += 13;
         }
-    }
-    update_mutex->unlock();
 
 }
 
@@ -936,7 +977,8 @@ void CPUParticles2D::_set_redraw(bool p_redraw) {
         return;
     redraw = p_redraw;
 
-    update_mutex->lock();
+    {
+        MutexGuard guard(update_mutex);
 
     auto RS = RenderingServer::get_singleton();
     if (redraw) {
@@ -953,29 +995,28 @@ void CPUParticles2D::_set_redraw(bool p_redraw) {
         RS->multimesh_set_visible_instances(multimesh, 0);
     }
 
-    update_mutex->unlock();
+    }
 
     update(); // redraw to update render list
 }
 
 void CPUParticles2D::_update_render_thread() {
 
-    update_mutex->lock();
+    if (OS::get_singleton()->is_update_pending(true)) {
+        MutexGuard guard(update_mutex);
 
     RenderingServer::get_singleton()->multimesh_set_as_bulk_array(multimesh, particle_data);
 
-    update_mutex->unlock();
+    }
 }
 
 void CPUParticles2D::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
         set_process_internal(emitting);
-    }
-    else if (p_what == NOTIFICATION_EXIT_TREE) {
+    } else if (p_what == NOTIFICATION_EXIT_TREE) {
         _set_redraw(false);
-    }
-    else if (p_what == NOTIFICATION_DRAW) {
+    } else if (p_what == NOTIFICATION_DRAW) {
         // first update before rendering to avoid one frame delay after emitting starts
         if (emitting && (time == 0.0f))
             _update_internal();
@@ -983,19 +1024,12 @@ void CPUParticles2D::_notification(int p_what) {
         if (!redraw)
             return; // don't add to render list
 
-        RID texrid;
-        if (texture) {
-            texrid = texture->get_rid();
-        }
-
-        RID normrid;
-        if (normalmap) {
-            normrid = normalmap->get_rid();
-        }
+        RenderingEntity texrid = texture ? texture->get_rid() : entt::null;
+        RenderingEntity normrid = normalmap ? normalmap->get_rid() : entt::null;
 
         RenderingServer::get_singleton()->canvas_item_add_multimesh(get_canvas_item(), multimesh, texrid, normrid);
-    }
-    else if (p_what == NOTIFICATION_INTERNAL_PROCESS) {
+
+    } else if (p_what == NOTIFICATION_INTERNAL_PROCESS) {
         _update_internal();
     }
 
@@ -1008,9 +1042,9 @@ void CPUParticles2D::_notification(int p_what) {
 
         int pc = particles.size();
 
-        PoolVector<float>::Write w = particle_data.write();
+        auto &w = particle_data;
         PoolVector<Particle>::Read r = particles.read();
-        float *ptr = w.ptr();
+        float *ptr = w.data();
 
         for (int i = 0; i < pc; i++) {
 
@@ -1140,6 +1174,10 @@ void CPUParticles2D::convert_from_particles(Node *p_particles) {
         set_color_ramp(gt->get_gradient());
     }
 
+    Ref<GradientTexture> gti = dynamic_ref_cast<GradientTexture>(material->get_color_initial_ramp());
+    if (gti) {
+        set_color_initial_ramp(gti->get_gradient());
+    }
     set_particle_flag(FLAG_ALIGN_Y_TO_VELOCITY, material->get_flag(ParticlesMaterial::FLAG_ALIGN_Y_TO_VELOCITY));
 
     set_emission_shape(EmissionShape(material->get_emission_shape()));
@@ -1154,8 +1192,10 @@ void CPUParticles2D::convert_from_particles(Node *p_particles) {
 #define CONVERT_PARAM(m_param)                                                            \
     set_param(m_param, material->get_param(ParticlesMaterial::m_param));                  \
     {                                                                                     \
-        Ref<CurveTexture> ctex = dynamic_ref_cast<CurveTexture>(material->get_param_texture(ParticlesMaterial::m_param)); \
-        if (ctex) set_param_curve(m_param, ctex->get_curve());                 \
+        Ref<CurveTexture> ctex =                                                                                       \
+                dynamic_ref_cast<CurveTexture>(material->get_param_texture(ParticlesMaterial::m_param));               \
+        if (ctex)                                                                                                      \
+            set_param_curve(m_param, ctex->get_curve());                                                               \
     }                                                                                     \
     set_param_randomness(m_param, material->get_param_randomness(ParticlesMaterial::m_param));
 
@@ -1177,182 +1217,256 @@ void CPUParticles2D::convert_from_particles(Node *p_particles) {
 
 void CPUParticles2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_emitting", {"emitting"}), &CPUParticles2D::set_emitting);
-    MethodBinder::bind_method(D_METHOD("set_amount", {"amount"}), &CPUParticles2D::set_amount);
-    MethodBinder::bind_method(D_METHOD("set_lifetime", {"secs"}), &CPUParticles2D::set_lifetime);
-    MethodBinder::bind_method(D_METHOD("set_one_shot", {"enable"}), &CPUParticles2D::set_one_shot);
-    MethodBinder::bind_method(D_METHOD("set_pre_process_time", {"secs"}), &CPUParticles2D::set_pre_process_time);
-    MethodBinder::bind_method(D_METHOD("set_explosiveness_ratio", {"ratio"}), &CPUParticles2D::set_explosiveness_ratio);
-    MethodBinder::bind_method(D_METHOD("set_randomness_ratio", {"ratio"}), &CPUParticles2D::set_randomness_ratio);
-    MethodBinder::bind_method(D_METHOD("set_lifetime_randomness", {"random"}), &CPUParticles2D::set_lifetime_randomness);
-    MethodBinder::bind_method(D_METHOD("set_use_local_coordinates", {"enable"}), &CPUParticles2D::set_use_local_coordinates);
-    MethodBinder::bind_method(D_METHOD("set_fixed_fps", {"fps"}), &CPUParticles2D::set_fixed_fps);
-    MethodBinder::bind_method(D_METHOD("set_fractional_delta", {"enable"}), &CPUParticles2D::set_fractional_delta);
-    MethodBinder::bind_method(D_METHOD("set_speed_scale", {"scale"}), &CPUParticles2D::set_speed_scale);
+    BIND_METHOD(CPUParticles2D,set_emitting);
+    BIND_METHOD(CPUParticles2D,set_amount);
+    BIND_METHOD(CPUParticles2D,set_lifetime);
+    BIND_METHOD(CPUParticles2D,set_one_shot);
+    BIND_METHOD(CPUParticles2D,set_pre_process_time);
+    MethodBinder::bind_method(
+            D_METHOD("set_explosiveness_ratio", { "ratio" }), &CPUParticles2D::set_explosiveness_ratio);
+    BIND_METHOD(CPUParticles2D,set_randomness_ratio);
+    MethodBinder::bind_method(
+            D_METHOD("set_lifetime_randomness", { "random" }), &CPUParticles2D::set_lifetime_randomness);
+    MethodBinder::bind_method(
+            D_METHOD("set_use_local_coordinates", { "enable" }), &CPUParticles2D::set_use_local_coordinates);
+    BIND_METHOD(CPUParticles2D,set_fixed_fps);
+    BIND_METHOD(CPUParticles2D,set_fractional_delta);
+    BIND_METHOD(CPUParticles2D,set_speed_scale);
 
-    MethodBinder::bind_method(D_METHOD("is_emitting"), &CPUParticles2D::is_emitting);
-    MethodBinder::bind_method(D_METHOD("get_amount"), &CPUParticles2D::get_amount);
-    MethodBinder::bind_method(D_METHOD("get_lifetime"), &CPUParticles2D::get_lifetime);
-    MethodBinder::bind_method(D_METHOD("get_one_shot"), &CPUParticles2D::get_one_shot);
-    MethodBinder::bind_method(D_METHOD("get_pre_process_time"), &CPUParticles2D::get_pre_process_time);
-    MethodBinder::bind_method(D_METHOD("get_explosiveness_ratio"), &CPUParticles2D::get_explosiveness_ratio);
-    MethodBinder::bind_method(D_METHOD("get_randomness_ratio"), &CPUParticles2D::get_randomness_ratio);
-    MethodBinder::bind_method(D_METHOD("get_lifetime_randomness"), &CPUParticles2D::get_lifetime_randomness);
-    MethodBinder::bind_method(D_METHOD("get_use_local_coordinates"), &CPUParticles2D::get_use_local_coordinates);
-    MethodBinder::bind_method(D_METHOD("get_fixed_fps"), &CPUParticles2D::get_fixed_fps);
-    MethodBinder::bind_method(D_METHOD("get_fractional_delta"), &CPUParticles2D::get_fractional_delta);
-    MethodBinder::bind_method(D_METHOD("get_speed_scale"), &CPUParticles2D::get_speed_scale);
+    BIND_METHOD(CPUParticles2D,is_emitting);
+    BIND_METHOD(CPUParticles2D,get_amount);
+    BIND_METHOD(CPUParticles2D,get_lifetime);
+    BIND_METHOD(CPUParticles2D,get_one_shot);
+    BIND_METHOD(CPUParticles2D,get_pre_process_time);
+    BIND_METHOD(CPUParticles2D,get_explosiveness_ratio);
+    BIND_METHOD(CPUParticles2D,get_randomness_ratio);
+    BIND_METHOD(CPUParticles2D,get_lifetime_randomness);
+    BIND_METHOD(CPUParticles2D,get_use_local_coordinates);
+    BIND_METHOD(CPUParticles2D,get_fixed_fps);
+    BIND_METHOD(CPUParticles2D,get_fractional_delta);
+    BIND_METHOD(CPUParticles2D,get_speed_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_draw_order", {"order"}), &CPUParticles2D::set_draw_order);
+    BIND_METHOD(CPUParticles2D,set_draw_order);
 
-    MethodBinder::bind_method(D_METHOD("get_draw_order"), &CPUParticles2D::get_draw_order);
+    BIND_METHOD(CPUParticles2D,get_draw_order);
 
-    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &CPUParticles2D::set_texture);
-    MethodBinder::bind_method(D_METHOD("get_texture"), &CPUParticles2D::get_texture);
+    BIND_METHOD(CPUParticles2D,set_texture);
+    BIND_METHOD(CPUParticles2D,get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_normalmap", {"normalmap"}), &CPUParticles2D::set_normalmap);
-    MethodBinder::bind_method(D_METHOD("get_normalmap"), &CPUParticles2D::get_normalmap);
+    BIND_METHOD(CPUParticles2D,set_normalmap);
+    BIND_METHOD(CPUParticles2D,get_normalmap);
 
-    MethodBinder::bind_method(D_METHOD("restart"), &CPUParticles2D::restart);
+    BIND_METHOD(CPUParticles2D,restart);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emitting"), "set_emitting", "is_emitting");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PropertyHint::ExpRange, "1,1000000,1"), "set_amount", "get_amount");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PropertyHint::ExpRange, "1,1000000,1"), "set_amount",
+            "get_amount");
     ADD_GROUP("Time", "tm_");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_lifetime", PropertyHint::Range, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_lifetime", PropertyHint::Range, "0.01,600.0,0.01,or_greater"),
+            "set_lifetime", "get_lifetime");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "tm_one_shot"), "set_one_shot", "get_one_shot");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_preprocess", PropertyHint::Range, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_speed_scale", PropertyHint::Range, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_explosiveness", PropertyHint::Range, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_randomness", PropertyHint::Range, "0,1,0.01"), "set_randomness_ratio", "get_randomness_ratio");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_lifetime_randomness", PropertyHint::Range, "0,1,0.01"), "set_lifetime_randomness", "get_lifetime_randomness");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tm_fixed_fps", PropertyHint::Range, "0,1000,1"), "set_fixed_fps", "get_fixed_fps");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_preprocess", PropertyHint::Range, "0.00,600.0,0.01"),
+            "set_pre_process_time", "get_pre_process_time");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_speed_scale", PropertyHint::Range, "0,64,0.01"),
+            "set_speed_scale", "get_speed_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_explosiveness", PropertyHint::Range, "0,1,0.01"),
+            "set_explosiveness_ratio", "get_explosiveness_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_randomness", PropertyHint::Range, "0,1,0.01"),
+            "set_randomness_ratio", "get_randomness_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_lifetime_randomness", PropertyHint::Range, "0,1,0.01"),
+            "set_lifetime_randomness", "get_lifetime_randomness");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tm_fixed_fps", PropertyHint::Range, "0,1000,1"), "set_fixed_fps",
+            "get_fixed_fps");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "tm_fract_delta"), "set_fractional_delta", "get_fractional_delta");
     ADD_GROUP("Drawing", "drw_");
     // No visibility_rect property contrarily to GPUParticles2D, it's updated automatically.
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "drw_local_coords"), "set_use_local_coordinates", "get_use_local_coordinates");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "drw_draw_order", PropertyHint::Enum, "Index,Lifetime"), "set_draw_order", "get_draw_order");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "drw_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "drw_normalmap", PropertyHint::ResourceType, "Texture"), "set_normalmap", "get_normalmap");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "drw_local_coords"), "set_use_local_coordinates",
+            "get_use_local_coordinates");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "drw_draw_order", PropertyHint::Enum, "Index,Lifetime"),
+            "set_draw_order", "get_draw_order");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "drw_texture", PropertyHint::ResourceType, "Texture"), "set_texture",
+            "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "drw_normalmap", PropertyHint::ResourceType, "Texture"),
+            "set_normalmap", "get_normalmap");
 
     BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX);
     BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME);
 
     ////////////////////////////////
 
-    MethodBinder::bind_method(D_METHOD("set_direction", {"direction"}), &CPUParticles2D::set_direction);
-    MethodBinder::bind_method(D_METHOD("get_direction"), &CPUParticles2D::get_direction);
+    BIND_METHOD(CPUParticles2D,set_direction);
+    BIND_METHOD(CPUParticles2D,get_direction);
 
-    MethodBinder::bind_method(D_METHOD("set_spread", {"degrees"}), &CPUParticles2D::set_spread);
-    MethodBinder::bind_method(D_METHOD("get_spread"), &CPUParticles2D::get_spread);
+    BIND_METHOD(CPUParticles2D,set_spread);
+    BIND_METHOD(CPUParticles2D,get_spread);
 
-    MethodBinder::bind_method(D_METHOD("set_param", {"param", "value"}), &CPUParticles2D::set_param);
-    MethodBinder::bind_method(D_METHOD("get_param", {"param"}), &CPUParticles2D::get_param);
+    BIND_METHOD(CPUParticles2D,set_param);
+    BIND_METHOD(CPUParticles2D,get_param);
 
-    MethodBinder::bind_method(D_METHOD("set_param_randomness", {"param", "randomness"}), &CPUParticles2D::set_param_randomness);
-    MethodBinder::bind_method(D_METHOD("get_param_randomness", {"param"}), &CPUParticles2D::get_param_randomness);
+    MethodBinder::bind_method(
+            D_METHOD("set_param_randomness", { "param", "randomness" }), &CPUParticles2D::set_param_randomness);
+    BIND_METHOD(CPUParticles2D,get_param_randomness);
 
-    MethodBinder::bind_method(D_METHOD("set_param_curve", {"param", "curve"}), &CPUParticles2D::set_param_curve);
-    MethodBinder::bind_method(D_METHOD("get_param_curve", {"param"}), &CPUParticles2D::get_param_curve);
+    BIND_METHOD(CPUParticles2D,set_param_curve);
+    BIND_METHOD(CPUParticles2D,get_param_curve);
 
-    MethodBinder::bind_method(D_METHOD("set_color", {"color"}), &CPUParticles2D::set_color);
-    MethodBinder::bind_method(D_METHOD("get_color"), &CPUParticles2D::get_color);
+    BIND_METHOD(CPUParticles2D,set_color);
+    BIND_METHOD(CPUParticles2D,get_color);
 
-    MethodBinder::bind_method(D_METHOD("set_color_ramp", {"ramp"}), &CPUParticles2D::set_color_ramp);
-    MethodBinder::bind_method(D_METHOD("get_color_ramp"), &CPUParticles2D::get_color_ramp);
+    BIND_METHOD(CPUParticles2D,set_color_ramp);
+    BIND_METHOD(CPUParticles2D,get_color_ramp);
+    BIND_METHOD(CPUParticles2D,set_color_initial_ramp);
+    BIND_METHOD(CPUParticles2D,get_color_initial_ramp);
 
-    MethodBinder::bind_method(D_METHOD("set_particle_flag", {"flag", "enable"}), &CPUParticles2D::set_particle_flag);
-    MethodBinder::bind_method(D_METHOD("get_particle_flag", {"flag"}), &CPUParticles2D::get_particle_flag);
+    BIND_METHOD(CPUParticles2D,set_particle_flag);
+    BIND_METHOD(CPUParticles2D,get_particle_flag);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_shape", {"shape"}), &CPUParticles2D::set_emission_shape);
-    MethodBinder::bind_method(D_METHOD("get_emission_shape"), &CPUParticles2D::get_emission_shape);
+    BIND_METHOD(CPUParticles2D,set_emission_shape);
+    BIND_METHOD(CPUParticles2D,get_emission_shape);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_sphere_radius", {"radius"}), &CPUParticles2D::set_emission_sphere_radius);
-    MethodBinder::bind_method(D_METHOD("get_emission_sphere_radius"), &CPUParticles2D::get_emission_sphere_radius);
+    MethodBinder::bind_method(
+            D_METHOD("set_emission_sphere_radius", { "radius" }), &CPUParticles2D::set_emission_sphere_radius);
+    BIND_METHOD(CPUParticles2D,get_emission_sphere_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_rect_extents", {"extents"}), &CPUParticles2D::set_emission_rect_extents);
-    MethodBinder::bind_method(D_METHOD("get_emission_rect_extents"), &CPUParticles2D::get_emission_rect_extents);
+    MethodBinder::bind_method(
+            D_METHOD("set_emission_rect_extents", { "extents" }), &CPUParticles2D::set_emission_rect_extents);
+    BIND_METHOD(CPUParticles2D,get_emission_rect_extents);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_points", {"array"}), &CPUParticles2D::set_emission_points);
-    MethodBinder::bind_method(D_METHOD("get_emission_points"), &CPUParticles2D::get_emission_points);
+    BIND_METHOD(CPUParticles2D,set_emission_points);
+    BIND_METHOD(CPUParticles2D,get_emission_points);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_normals", {"array"}), &CPUParticles2D::set_emission_normals);
-    MethodBinder::bind_method(D_METHOD("get_emission_normals"), &CPUParticles2D::get_emission_normals);
+    BIND_METHOD(CPUParticles2D,set_emission_normals);
+    BIND_METHOD(CPUParticles2D,get_emission_normals);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_colors", {"array"}), &CPUParticles2D::set_emission_colors);
-    MethodBinder::bind_method(D_METHOD("get_emission_colors"), &CPUParticles2D::get_emission_colors);
+    BIND_METHOD(CPUParticles2D,set_emission_colors);
+    BIND_METHOD(CPUParticles2D,get_emission_colors);
 
-    MethodBinder::bind_method(D_METHOD("get_gravity"), &CPUParticles2D::get_gravity);
-    MethodBinder::bind_method(D_METHOD("set_gravity", {"accel_vec"}), &CPUParticles2D::set_gravity);
+    BIND_METHOD(CPUParticles2D,get_gravity);
+    BIND_METHOD(CPUParticles2D,set_gravity);
 
-    MethodBinder::bind_method(D_METHOD("convert_from_particles", {"particles"}), &CPUParticles2D::convert_from_particles);
+    MethodBinder::bind_method(
+            D_METHOD("convert_from_particles", { "particles" }), &CPUParticles2D::convert_from_particles);
 
-    //MethodBinder::bind_method(D_METHOD("_update_render_thread"), &CPUParticles2D::_update_render_thread);
-    //MethodBinder::bind_method(D_METHOD("_texture_changed"), &CPUParticles2D::_texture_changed);
+    //BIND_METHOD(CPUParticles2D,_update_render_thread);
+    //BIND_METHOD(CPUParticles2D,_texture_changed);
 
     ADD_GROUP("Emission Shape", "emission_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_shape", PropertyHint::Enum, "Point,Sphere,Box,Points,Directed Points", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_emission_shape", "get_emission_shape");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "emission_sphere_radius", PropertyHint::Range, "0.01,128,0.01"), "set_emission_sphere_radius", "get_emission_sphere_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "emission_rect_extents"), "set_emission_rect_extents", "get_emission_rect_extents");
-    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "emission_points"), "set_emission_points", "get_emission_points");
-    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "emission_normals"), "set_emission_normals", "get_emission_normals");
-    ADD_PROPERTY(PropertyInfo(VariantType::POOL_COLOR_ARRAY, "emission_colors"), "set_emission_colors", "get_emission_colors");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_shape", PropertyHint::Enum,
+                         "Point,Sphere,Box,Points,Directed Points",
+                         PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
+            "set_emission_shape", "get_emission_shape");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "emission_sphere_radius", PropertyHint::Range, "0.01,128,0.01,or_greater"),
+            "set_emission_sphere_radius", "get_emission_sphere_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "emission_rect_extents"), "set_emission_rect_extents",
+            "get_emission_rect_extents");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "emission_points"), "set_emission_points",
+            "get_emission_points");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "emission_normals"), "set_emission_normals",
+            "get_emission_normals");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_COLOR_ARRAY, "emission_colors"), "set_emission_colors",
+            "get_emission_colors");
     ADD_GROUP("Flags", "flag_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flag_align_y"), "set_particle_flag", "get_particle_flag", FLAG_ALIGN_Y_TO_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flag_align_y"), "set_particle_flag", "get_particle_flag",
+            FLAG_ALIGN_Y_TO_VELOCITY);
     ADD_GROUP("Direction", "dir_");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "dir_direction"), "set_direction", "get_direction");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "dir_spread", PropertyHint::Range, "0,180,0.01"), "set_spread", "get_spread");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "dir_spread", PropertyHint::Range, "0,180,0.01"), "set_spread",
+            "get_spread");
     ADD_GROUP("Gravity", "");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "gravity"), "set_gravity", "get_gravity");
     ADD_GROUP("Initial Velocity", "initial_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "initial_velocity", PropertyHint::Range, "0,1000,0.01,or_greater"), "set_param", "get_param", PARAM_INITIAL_LINEAR_VELOCITY);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "initial_velocity_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_INITIAL_LINEAR_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "initial_velocity", PropertyHint::Range, "0,1000,0.01,or_greater"),
+            "set_param", "get_param", PARAM_INITIAL_LINEAR_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "initial_velocity_random", PropertyHint::Range, "0,1,0.01"),
+            "set_param_randomness", "get_param_randomness", PARAM_INITIAL_LINEAR_VELOCITY);
     ADD_GROUP("Angular Velocity", "angular_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angular_velocity", PropertyHint::Range, "-720,720,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_ANGULAR_VELOCITY);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angular_velocity_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANGULAR_VELOCITY);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "angular_velocity_curve", PropertyHint::ResourceType, "Curve"), "set_param_curve", "get_param_curve", PARAM_ANGULAR_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angular_velocity", PropertyHint::Range,
+                          "-720,720,0.01,or_lesser,or_greater"),
+            "set_param", "get_param", PARAM_ANGULAR_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angular_velocity_random", PropertyHint::Range, "0,1,0.01"),
+            "set_param_randomness", "get_param_randomness", PARAM_ANGULAR_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "angular_velocity_curve", PropertyHint::ResourceType, "Curve"),
+            "set_param_curve", "get_param_curve", PARAM_ANGULAR_VELOCITY);
     ADD_GROUP("Orbit Velocity", "orbit_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "orbit_velocity", PropertyHint::Range, "-1000,1000,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_ORBIT_VELOCITY);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "orbit_velocity_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ORBIT_VELOCITY);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "orbit_velocity_curve", PropertyHint::ResourceType, "Curve"), "set_param_curve", "get_param_curve", PARAM_ORBIT_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "orbit_velocity", PropertyHint::Range,
+                          "-1000,1000,0.01,or_lesser,or_greater"),
+            "set_param", "get_param", PARAM_ORBIT_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "orbit_velocity_random", PropertyHint::Range, "0,1,0.01"),
+            "set_param_randomness", "get_param_randomness", PARAM_ORBIT_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "orbit_velocity_curve", PropertyHint::ResourceType, "Curve"),
+            "set_param_curve", "get_param_curve", PARAM_ORBIT_VELOCITY);
     ADD_GROUP("Linear Accel", "linear_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_accel", PropertyHint::Range, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_LINEAR_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_accel_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_LINEAR_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "linear_accel_curve", PropertyHint::ResourceType, "Curve"), "set_param_curve", "get_param_curve", PARAM_LINEAR_ACCEL);
+    ADD_PROPERTYI(
+            PropertyInfo(VariantType::FLOAT, "linear_accel", PropertyHint::Range, "-100,100,0.01,or_lesser,or_greater"),
+            "set_param", "get_param", PARAM_LINEAR_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_accel_random", PropertyHint::Range, "0,1,0.01"),
+            "set_param_randomness", "get_param_randomness", PARAM_LINEAR_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "linear_accel_curve", PropertyHint::ResourceType, "Curve"),
+            "set_param_curve", "get_param_curve", PARAM_LINEAR_ACCEL);
     ADD_GROUP("Radial Accel", "radial_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "radial_accel", PropertyHint::Range, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_RADIAL_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "radial_accel_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_RADIAL_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "radial_accel_curve", PropertyHint::ResourceType, "Curve"), "set_param_curve", "get_param_curve", PARAM_RADIAL_ACCEL);
+    ADD_PROPERTYI(
+            PropertyInfo(VariantType::FLOAT, "radial_accel", PropertyHint::Range, "-100,100,0.01,or_lesser,or_greater"),
+            "set_param", "get_param", PARAM_RADIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "radial_accel_random", PropertyHint::Range, "0,1,0.01"),
+            "set_param_randomness", "get_param_randomness", PARAM_RADIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "radial_accel_curve", PropertyHint::ResourceType, "Curve"),
+            "set_param_curve", "get_param_curve", PARAM_RADIAL_ACCEL);
     ADD_GROUP("Tangential Accel", "tangential_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "tangential_accel", PropertyHint::Range, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_TANGENTIAL_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "tangential_accel_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_TANGENTIAL_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "tangential_accel_curve", PropertyHint::ResourceType, "Curve"), "set_param_curve", "get_param_curve", PARAM_TANGENTIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "tangential_accel", PropertyHint::Range,
+                          "-100,100,0.01,or_lesser,or_greater"),
+            "set_param", "get_param", PARAM_TANGENTIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "tangential_accel_random", PropertyHint::Range, "0,1,0.01"),
+            "set_param_randomness", "get_param_randomness", PARAM_TANGENTIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "tangential_accel_curve", PropertyHint::ResourceType, "Curve"),
+            "set_param_curve", "get_param_curve", PARAM_TANGENTIAL_ACCEL);
     ADD_GROUP("Damping", "");
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "damping", PropertyHint::Range, "0,100,0.01"), "set_param", "get_param", PARAM_DAMPING);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "damping_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_DAMPING);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "damping_curve", PropertyHint::ResourceType, "Curve"), "set_param_curve", "get_param_curve", PARAM_DAMPING);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "damping", PropertyHint::Range, "0,100,0.01,or_greater"), "set_param",
+            "get_param", PARAM_DAMPING);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "damping_random", PropertyHint::Range, "0,1,0.01"),
+            "set_param_randomness", "get_param_randomness", PARAM_DAMPING);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "damping_curve", PropertyHint::ResourceType, "Curve"),
+            "set_param_curve", "get_param_curve", PARAM_DAMPING);
     ADD_GROUP("Angle", "");
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angle", PropertyHint::Range, "-720,720,0.1,or_lesser,or_greater"), "set_param", "get_param", PARAM_ANGLE);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angle_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANGLE);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "angle_curve", PropertyHint::ResourceType, "Curve"), "set_param_curve", "get_param_curve", PARAM_ANGLE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angle", PropertyHint::Range, "-720,720,0.1,or_lesser,or_greater"),
+            "set_param", "get_param", PARAM_ANGLE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angle_random", PropertyHint::Range, "0,1,0.01"),
+            "set_param_randomness", "get_param_randomness", PARAM_ANGLE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "angle_curve", PropertyHint::ResourceType, "Curve"),
+            "set_param_curve", "get_param_curve", PARAM_ANGLE);
     ADD_GROUP("Scale", "");
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "scale_amount", PropertyHint::Range, "0,1000,0.01,or_greater"), "set_param", "get_param", PARAM_SCALE);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "scale_amount_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_SCALE);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "scale_amount_curve", PropertyHint::ResourceType, "Curve"), "set_param_curve", "get_param_curve", PARAM_SCALE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "scale_amount", PropertyHint::Range, "0,1000,0.01,or_greater"),
+            "set_param", "get_param", PARAM_SCALE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "scale_amount_random", PropertyHint::Range, "0,1,0.01"),
+            "set_param_randomness", "get_param_randomness", PARAM_SCALE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "scale_amount_curve", PropertyHint::ResourceType, "Curve"),
+            "set_param_curve", "get_param_curve", PARAM_SCALE);
     ADD_GROUP("Color", "");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "color_ramp", PropertyHint::ResourceType, "Gradient"), "set_color_ramp", "get_color_ramp");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "color_ramp", PropertyHint::ResourceType, "Gradient"),
+            "set_color_ramp", "get_color_ramp");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "color_initial_ramp", PropertyHint::ResourceType, "Gradient"),
+            "set_color_initial_ramp", "get_color_initial_ramp");
 
     ADD_GROUP("Hue Variation", "hue_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "hue_variation", PropertyHint::Range, "-1,1,0.01"), "set_param", "get_param", PARAM_HUE_VARIATION);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "hue_variation_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_HUE_VARIATION);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "hue_variation_curve", PropertyHint::ResourceType, "Curve"), "set_param_curve", "get_param_curve", PARAM_HUE_VARIATION);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "hue_variation", PropertyHint::Range, "-1,1,0.01"), "set_param",
+            "get_param", PARAM_HUE_VARIATION);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "hue_variation_random", PropertyHint::Range, "0,1,0.01"),
+            "set_param_randomness", "get_param_randomness", PARAM_HUE_VARIATION);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "hue_variation_curve", PropertyHint::ResourceType, "Curve"),
+            "set_param_curve", "get_param_curve", PARAM_HUE_VARIATION);
     ADD_GROUP("Animation", "anim_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anim_speed", PropertyHint::Range, "0,128,0.01,or_greater"), "set_param", "get_param", PARAM_ANIM_SPEED);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anim_speed_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANIM_SPEED);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "anim_speed_curve", PropertyHint::ResourceType, "Curve"), "set_param_curve", "get_param_curve", PARAM_ANIM_SPEED);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anim_offset", PropertyHint::Range, "0,1,0.01"), "set_param", "get_param", PARAM_ANIM_OFFSET);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anim_offset_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANIM_OFFSET);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "anim_offset_curve", PropertyHint::ResourceType, "Curve"), "set_param_curve", "get_param_curve", PARAM_ANIM_OFFSET);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anim_speed", PropertyHint::Range, "0,128,0.01,or_greater"),
+            "set_param", "get_param", PARAM_ANIM_SPEED);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anim_speed_random", PropertyHint::Range, "0,1,0.01"),
+            "set_param_randomness", "get_param_randomness", PARAM_ANIM_SPEED);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "anim_speed_curve", PropertyHint::ResourceType, "Curve"),
+            "set_param_curve", "get_param_curve", PARAM_ANIM_SPEED);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anim_offset", PropertyHint::Range, "0,1,0.01"), "set_param",
+            "get_param", PARAM_ANIM_OFFSET);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anim_offset_random", PropertyHint::Range, "0,1,0.01"),
+            "set_param_randomness", "get_param_randomness", PARAM_ANIM_OFFSET);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "anim_offset_curve", PropertyHint::ResourceType, "Curve"),
+            "set_param_curve", "get_param_curve", PARAM_ANIM_OFFSET);
 
     BIND_ENUM_CONSTANT(PARAM_INITIAL_LINEAR_VELOCITY);
     BIND_ENUM_CONSTANT(PARAM_ANGULAR_VELOCITY);
@@ -1383,7 +1497,6 @@ void CPUParticles2D::_bind_methods() {
 
 CPUParticles2D::CPUParticles2D() {
 
-    time = 0;
     inactive_time = 0;
     frame_remainder = 0;
     cycle = 0;
@@ -1439,7 +1552,6 @@ CPUParticles2D::CPUParticles2D() {
 
     set_color(Color(1, 1, 1, 1));
 
-    update_mutex = memnew(Mutex);
 
     _update_mesh_texture();
 }
@@ -1448,6 +1560,5 @@ CPUParticles2D::~CPUParticles2D() {
     RenderingServer::get_singleton()->free_rid(multimesh);
     RenderingServer::get_singleton()->free_rid(mesh);
 
-    memdelete(update_mutex);
 }
 

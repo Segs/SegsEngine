@@ -56,7 +56,7 @@ public:
     String get_as_text() const override;
     CompareEqualFunc get_compare_equal_func() const override;
     CompareLessFunc get_compare_less_func() const override;
-    ObjectID get_object() const override;
+    GameEntity get_object() const override;
     void call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, Callable::CallError &r_call_error) const override;
 
     _FORCE_INLINE_ MonoDelegate *get_delegate() { return (MonoDelegate *)delegate_handle.get_target(); }

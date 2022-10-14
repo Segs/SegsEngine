@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  shape.h                                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -56,7 +56,7 @@ protected:
 public:
     virtual Vector<Vector3> get_debug_mesh_lines() = 0; // { return Vector<Vector3>(); }
 
-    RID get_rid() const override { return shape; }
+    RID get_phys_rid() const override { return shape; }
 
     Ref<ArrayMesh> get_debug_mesh();
 

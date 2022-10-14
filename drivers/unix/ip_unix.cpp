@@ -40,37 +40,17 @@
 
 #ifdef WINDOWS_ENABLED
 #include <stdio.h>
-#include <winsock2.h>
-// Needs to be included after winsocks2.h
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <winsock2.h>
 #include <ws2tcpip.h>
-#ifndef UWP_ENABLED
-#if defined(__MINGW32__) && (!defined(__MINGW64_VERSION_MAJOR) || __MINGW64_VERSION_MAJOR < 4)
-// MinGW-w64 on Ubuntu 12.04 (our Travis build env) has bugs in this code where
-// some includes are missing in dependencies of iphlpapi.h for WINVER >= 0x0600 (Vista).
-// We don't use this Vista code for now, so working it around by disabling it.
-// MinGW-w64 >= 4.0 seems to be better judging by its headers.
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501 // Windows XP, disable Vista API
 #include <iphlpapi.h>
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0600 // Re-enable Vista API
-#else
-#include <iphlpapi.h>
-#endif // MINGW hack
-#endif
 #else // UNIX
 #include <netdb.h>
-#ifdef ANDROID_ENABLED
-// We could drop this file once we up our API level to 24,
-// where the NDK's ifaddrs.h supports to needed getifaddrs.
-#include "thirdparty/misc/ifaddrs-android.h"
-#else
 #ifdef __FreeBSD__
 #include <sys/types.h>
 #endif
 #include <ifaddrs.h>
-#endif
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #ifdef __FreeBSD__
@@ -95,7 +75,7 @@ static IP_Address _sockaddr2ip(struct sockaddr *p_addr) {
 
 IMPL_GDCLASS(IP_Unix)
 
-IP_Address IP_Unix::_resolve_hostname(StringView p_hostname, Type p_type) {
+void IP_Unix::_resolve_hostname(Vector<IP_Address> &r_addresses,StringView p_hostname, Type p_type) {
     struct addrinfo hints;
     struct addrinfo *result;
 
@@ -114,7 +94,7 @@ IP_Address IP_Unix::_resolve_hostname(StringView p_hostname, Type p_type) {
     int s = getaddrinfo(sd.data(), nullptr, &hints, &result);
     if (s != 0) {
         ERR_PRINT("getaddrinfo failed! Cannot resolve hostname.");
-        return IP_Address();
+        return;
     }
 
     if (result == nullptr || result->ai_addr == nullptr) {
@@ -122,52 +102,28 @@ IP_Address IP_Unix::_resolve_hostname(StringView p_hostname, Type p_type) {
         if (result) {
             freeaddrinfo(result);
         }
-        return IP_Address();
+        return;
     }
+    struct addrinfo *next = result;
 
-    IP_Address ip = _sockaddr2ip(result->ai_addr);
+    do {
+        if (next->ai_addr == nullptr) {
+            next = next->ai_next;
+            continue;
+        }
+        IP_Address ip = _sockaddr2ip(next->ai_addr);
+        if (ip.is_valid() && !r_addresses.contains(ip)) {
+            r_addresses.emplace_back(ip);
+        }
+        next = next->ai_next;
+    } while (next);
 
     freeaddrinfo(result);
 
-    return ip;
 }
 
 #if defined(WINDOWS_ENABLED)
 
-#if defined(UWP_ENABLED)
-
-void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const {
-    using namespace Windows::Networking;
-    using namespace Windows::Networking::Connectivity;
-
-    // Returns addresses, not interfaces.
-    auto hostnames = NetworkInformation::GetHostNames();
-
-    for (int i = 0; i < hostnames->Size; i++) {
-        auto hostname = hostnames->GetAt(i);
-
-        if (hostname->Type != HostNameType::Ipv4 && hostname->Type != HostNameType::Ipv6)
-            continue;
-
-        String name = hostname->RawName->Data();
-        Map<String, Interface_Info>::Element *E = r_interfaces->find(name);
-        if (!E) {
-            Interface_Info info;
-            info.name = name;
-            info.name_friendly = hostname->DisplayName->Data();
-            info.index = String::num_uint64(0);
-            E = r_interfaces->insert(name, info);
-            ERR_CONTINUE(!E);
-        }
-
-        Interface_Info &info = E->get();
-
-        IP_Address ip = IP_Address(hostname->CanonicalName->Data());
-        info.ip_addresses.push_front(ip);
-    }
-}
-
-#else
 
 void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const {
     ULONG buf_size = 1024;
@@ -215,7 +171,6 @@ void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) co
     memfree(addrs);
 };
 
-#endif
 
 #else // UNIX
 

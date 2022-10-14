@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  resource.h                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,6 +32,7 @@
 
 #include "core/reference.h"
 #include "core/os/rw_lock.h"
+#include "core/engine_entities.h"
 
 namespace eastl {
 template <typename Key, typename T, typename Compare, typename Allocator>
@@ -43,7 +44,6 @@ template <class K,class V>
 using DefMap = eastl::map<K,V,eastl::less<K>,wrap_allocator>;
 
 #define RES_BASE_EXTENSION_IMPL(m_class,m_ext)                                                                      \
-                                                                                                                    \
 void m_class::register_custom_data_to_otdb() {                                                                      \
     ClassDB::add_resource_base_extension(StringName(m_ext), get_class_static_name());                               \
 }
@@ -55,27 +55,14 @@ public:                                                                         
     static void register_custom_data_to_otdb();                                                                     \
 private:
 
-class GODOT_EXPORT IResourceTooling {
-public:
-    virtual uint32_t hash_edited_version() const = 0;
-
-    virtual void set_last_modified_time(uint64_t p_time) = 0;
-    virtual uint64_t get_last_modified_time() const = 0;
-
-    virtual void set_import_last_modified_time(uint64_t p_time) = 0;
-    virtual uint64_t get_import_last_modified_time() const = 0;
-
-    virtual void set_import_path(StringView p_path) = 0;
-    virtual UIString get_import_path() const = 0;
-    virtual ~IResourceTooling() = default;
-};
 
 class GODOT_EXPORT Resource : public RefCounted {
 
     GDCLASS(Resource,RefCounted)
+    SE_CLASS()
 //    Q_GADGET
 //    Q_CLASSINFO("Category","Resources")
-//    Q_PROPERTY(bool resource_local_to_scene READ is_local_to_scene WRITE set_local_to_scene )
+    SE_PROPERTY(bool resource_local_to_scene READ is_local_to_scene WRITE set_local_to_scene )
     OBJ_CATEGORY("Resources")
 private:
     friend class ResBase;
@@ -84,11 +71,6 @@ private:
     struct Data;
     Data *impl_data;
 
-#ifdef TOOLS_ENABLED
-    uint64_t last_modified_time;
-    uint64_t import_last_modified_time;
-#endif
-    virtual bool _use_builtin_script() const { return true; }
 
 protected:
     void emit_changed();
@@ -104,12 +86,17 @@ public:
     void changed();
 public:
     virtual StringName get_base_extension() const { return StringName("res"); }
+    virtual Ref<Resource> duplicate(bool p_subresources = false) const;
+    virtual bool editor_can_reload_from_file();
+    virtual void reload_from_file();
+    virtual void set_path(StringView p_path, bool p_take_over = false);
+    virtual void setup_local_to_scene();
+    virtual RenderingEntity get_rid() const; // some resources may offer conversion to RID
+    virtual RID get_phys_rid() const; // some resources may offer conversion to RID
     static void register_custom_data_to_otdb();
 
     static Node *(*_get_local_scene_func)(); //used by editor
 
-    virtual bool editor_can_reload_from_file();
-    virtual void reload_from_file();
 
     void register_owner(Object *p_owner);
     void unregister_owner(Object *p_owner);
@@ -117,49 +104,23 @@ public:
     void set_name(StringView p_name);
     const String &get_name() const;
 
-    virtual void set_path(StringView p_path, bool p_take_over = false);
     const String &get_path() const;
 
     void set_subindex(int p_sub_index);
     int get_subindex() const;
 
-    virtual Ref<Resource> duplicate(bool p_subresources = false) const;
     Ref<Resource> duplicate_for_local_scene(Node *p_for_scene, DefMap<Ref<Resource>, Ref<Resource> > &remap_cache);
     void configure_for_local_scene(Node *p_for_scene, DefMap<Ref<Resource>, Ref<Resource> > &remap_cache);
 
-    /*Q_INVOKABLE*/ void set_local_to_scene(bool p_enable);
-    /*Q_INVOKABLE*/ bool is_local_to_scene() const;
-
-    virtual void setup_local_to_scene();
+    SE_INVOCABLE void set_local_to_scene(bool p_enable);
+    SE_INVOCABLE bool is_local_to_scene() const;
 
     Node *get_local_scene() const;
 
-    //IResourceTooling * get_resource_tooling() const;
-#ifdef TOOLS_ENABLED
-
-    uint32_t hash_edited_version() const;
-
-    virtual void set_last_modified_time(uint64_t p_time) { last_modified_time = p_time; }
-    uint64_t get_last_modified_time() const { return last_modified_time; }
-
-    virtual void set_import_last_modified_time(uint64_t p_time) { import_last_modified_time = p_time; }
-    uint64_t get_import_last_modified_time() const { return import_last_modified_time; }
-
-    void set_import_path(StringView p_path);
-    const String &get_import_path() const;
-
-#endif
 
     void set_as_translation_remapped(bool p_remapped);
     bool is_translation_remapped() const;
 
-    virtual RID get_rid() const; // some resources may offer conversion to RID
-
-#ifdef TOOLS_ENABLED
-    //helps keep IDs same number when loading/saving scenes. -1 clears ID and it Returns -1 when no id stored
-    void set_id_for_path(StringView p_path, int p_id);
-    int get_id_for_path(StringView p_path) const;
-#endif
 #ifdef DEBUG_ENABLED
     /// Used in ObjectDB::cleanup() warning print
     const char *get_dbg_name() const override;

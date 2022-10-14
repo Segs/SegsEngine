@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  gd_mono_internals.cpp                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -92,7 +92,11 @@ void tie_managed_to_unmanaged(MonoObject *managed, Object *unmanaged) {
         // The object was just created, no script instance binding should have been attached
         CRASH_COND(unmanaged->has_script_instance_binding(CSharpLanguage::get_singleton()->get_language_index()));
 
-        void *data = (void *)CSharpLanguage::get_singleton()->insert_script_binding(unmanaged, script_binding).mpNode;
+        void *data;
+        {
+            MutexLock lock(CSharpLanguage::get_singleton()->get_language_bind_mutex());
+            data = (void *)CSharpLanguage::get_singleton()->insert_script_binding(unmanaged, script_binding).mpNode;
+        }
 
         // Should be thread safe because the object was just created and nothing else should be referencing it
         unmanaged->set_script_instance_binding(CSharpLanguage::get_singleton()->get_language_index(), data);
@@ -109,15 +113,15 @@ void tie_managed_to_unmanaged(MonoObject *managed, Object *unmanaged) {
     CSharpInstance *csharp_instance = CSharpInstance::create_for_managed_type(unmanaged, script.get(), gchandle);
 
     unmanaged->set_script_and_instance(script.get_ref_ptr(), csharp_instance);
-
-    csharp_instance->connect_event_signals();
 }
 
 void unhandled_exception(MonoException *p_exc) {
     mono_print_unhandled_exception((MonoObject *)p_exc);
+    gd_unhandled_exception_event(p_exc);
 
     if (GDMono::get_singleton()->get_unhandled_exception_policy() == GDMono::POLICY_TERMINATE_APP) {
         // Too bad 'mono_invoke_unhandled_exception_hook' is not exposed to embedders
+        mono_unhandled_exception((MonoObject *)p_exc);
         GDMono::unhandled_exception_hook((MonoObject *)p_exc, nullptr);
         GD_UNREACHABLE();
     } else {
@@ -128,5 +132,13 @@ void unhandled_exception(MonoException *p_exc) {
 #endif
     }
 }
+void gd_unhandled_exception_event(MonoException *p_exc) {
+    MonoImage *mono_image = GDMono::get_singleton()->get_core_api_assembly()->get_image();
 
+    MonoClass *gd_klass = mono_class_from_name(mono_image, "Godot", "GD");
+    MonoMethod *unhandled_exception_method = mono_class_get_method_from_name(gd_klass, "OnUnhandledException", -1);
+    void *args[1];
+    args[0] = p_exc;
+    mono_runtime_invoke(unhandled_exception_method, nullptr, (void **)args, nullptr);
+}
 } // namespace GDMonoInternals

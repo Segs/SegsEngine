@@ -33,15 +33,26 @@
 #include "core/translation.h"
 #include "core/pool_vector.h"
 
+inline uint32_t phash_calculate(uint32_t d, const char *p_str) {
+    if (d == 0)
+        d = 0x1000193;
+    while (*p_str) {
+        d = (d * 0x1000193) ^ uint32_t(*p_str);
+        p_str++;
+    }
+
+    return d;
+}
 class GODOT_EXPORT PHashTranslation : public Translation {
 
     GDCLASS(PHashTranslation, Translation)
 
     //this translation uses a sort of modified perfect hash algorithm
     //it requires hashing strings twice and then does a binary search,
-    //so it's slower, but at the same time it has an extreemly high chance
+    //so it's slower, but at the same time it has an extremely high chance
     //of catching untranslated strings
 
+public: // made public to allow tooling implementations to access those
     //load/store friendly types
     Vector<int> hash_table;
     Vector<int> bucket_table;
@@ -63,18 +74,6 @@ class GODOT_EXPORT PHashTranslation : public Translation {
         Elem elem[1];
     };
 
-    _FORCE_INLINE_ uint32_t hash(uint32_t d, const char *p_str) const {
-
-        if (d == 0)
-            d = 0x1000193;
-        while (*p_str) {
-
-            d = (d * 0x1000193) ^ uint32_t(*p_str);
-            p_str++;
-        }
-
-        return d;
-    }
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);

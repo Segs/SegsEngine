@@ -2,6 +2,8 @@
 add_subdirectory(formats)
 add_subdirectory(io)
 add_subdirectory(modules)
+# todo: consider only visiting exporters on editor global target?
+add_subdirectory(exporters)
 
 set(source_files
     plugin_registry.cpp

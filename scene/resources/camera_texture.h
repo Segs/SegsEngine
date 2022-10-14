@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "scene/resources/texture.h"
 #include "servers/camera_server.h"
 
@@ -14,7 +14,7 @@ protected:
 public:
     int get_width() const override;
     int get_height() const override;
-    RID get_rid() const override;
+    RenderingEntity get_rid() const override;
     bool has_alpha() const override;
 
     void set_flags(uint32_t p_flags) override;

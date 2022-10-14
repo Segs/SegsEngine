@@ -67,7 +67,6 @@ public:
 private:
     void *m_priv=nullptr;
 
-    int max_chars=0;
     bool readonly;
     bool syntax_coloring;
     bool indent_using_spaces;
@@ -86,8 +85,9 @@ private:
     bool override_selected_font_color=false;
     bool line_numbers;
     bool line_numbers_zero_padded;
-    bool line_length_guideline;
-    int line_length_guideline_col;
+    bool line_length_guidelines;
+    int line_length_guideline_soft_col;
+    int line_length_guideline_hard_col;
     bool draw_bookmark_gutter;
     bool draw_breakpoint_gutter;
     int breakpoint_gutter_width;
@@ -121,6 +121,7 @@ private:
     float v_scroll_speed;
 
 
+    Vector2 last_dblclk_pos;
     uint64_t last_dblclk;
 
     Timer *idle_detect;
@@ -128,7 +129,7 @@ private:
     VScrollBar *v_scroll;
     bool updating_scrolls;
 
-    Object *tooltip_obj;
+    GameEntity tooltip_obj_id;
     StringName tooltip_func;
     Variant tooltip_ud;
 
@@ -138,8 +139,14 @@ private:
     int search_result_line;
     int search_result_col;
 
+    bool selecting_enabled;
+    bool deselect_on_focus_loss_enabled;
+    bool popup_show = false;
     bool context_menu_enabled;
     bool shortcut_keys_enabled;
+    bool middle_mouse_paste_enabled=true;
+    bool drag_action = false;
+    bool drag_caret_force_displayed = false;
 
     int executing_line;
 public:
@@ -150,8 +157,8 @@ public:
     int _get_minimap_visible_rows() const;
     void update_cursor_wrap_offset();
     void _update_wrap_at();
-    bool line_wraps(int line) const;
-    int times_line_wraps(int line) const;
+    bool is_line_wrapped(int line) const;
+    int get_line_wrap_count(int line) const;
     Vector<UIString> get_wrap_rows_text(int p_line) const;
     int get_cursor_wrap_index() const;
     int get_line_wrap_index_at_col(int p_line, int p_column) const;
@@ -162,8 +169,8 @@ public:
     void set_line_as_center_visible(int p_line, int p_wrap_index = 0);
     void set_line_as_last_visible(int p_line, int p_wrap_index = 0);
     int get_first_visible_line() const;
-    int get_last_visible_line() const;
-    int get_last_visible_line_wrap_index() const;
+    int get_last_full_visible_line() const;
+    int get_last_full_visible_line_wrap_index() const;
     double get_visible_rows_offset() const;
     double get_v_scroll_offset() const;
 
@@ -173,12 +180,12 @@ public:
     int get_column_x_offset(int p_char, const UIString& p_str) const;
 
     void adjust_viewport_to_cursor();
-    double get_scroll_line_diff() const;
     void _scroll_moved(double);
     void _update_scrollbars();
     void _v_scroll_input();
     void _click_selection_held();
 
+    void _update_minimap_hover();
     void _update_minimap_click();
     void _update_minimap_drag();
     void _scroll_up(real_t p_delta);
@@ -214,7 +221,7 @@ public:
     int _calculate_spaces_till_next_right_indent(int column);
 
 protected:
-    StringName get_tooltip(const Point2 &p_pos) const override;
+    const String & get_tooltip(const Point2 &p_pos) const override;
 
     void _gui_input(const Ref<InputEvent> &p_gui_input);
     void _notification(int p_what);
@@ -256,6 +263,9 @@ public:
     };
 
     CursorShape get_cursor_shape(const Point2 &p_pos = Point2i()) const override;
+    Variant get_drag_data(const Point2 &p_point) override;
+    bool can_drop_data(const Point2 &p_point, const Variant &p_data) const override;
+    void drop_data(const Point2 &p_point, const Variant &p_data) override;
 
     void _get_mouse_pos(const Point2i &p_mouse, int &r_row, int &r_col) const;
     void _get_minimap_mouse_row(const Point2i &p_mouse, int &r_row) const;
@@ -274,6 +284,8 @@ public:
     void insert_text_at_cursor_ui(const UIString &p_text);
     void insert_at(const UIString &p_text, int at);
     int get_line_count() const;
+    int get_line_width(int p_line, int p_wrap_index = -1) const;
+    int get_line_height() const;
     void set_line_as_marked(int p_line, bool p_marked);
     void set_line_as_bookmark(int p_line, bool p_bookmark);
     bool is_line_set_as_bookmark(int p_line) const;
@@ -281,13 +293,13 @@ public:
     Array get_bookmarks_array() const;
     void set_line_as_breakpoint(int p_line, bool p_breakpoint);
     bool is_line_set_as_breakpoint(int p_line) const;
+    void get_breakpoints(Vector<int> *p_breakpoints) const;
+    Array get_breakpoints_array() const;
+    void remove_breakpoints();
     void set_executing_line(int p_line);
     void clear_executing_line();
     void set_line_as_safe(int p_line, bool p_safe);
     bool is_line_set_as_safe(int p_line) const;
-    void get_breakpoints(Vector<int> *p_breakpoints) const;
-    Array get_breakpoints_array() const;
-    void remove_breakpoints();
 
     void set_line_info_icon(int p_line, const Ref<Texture>& p_icon, StringName p_info = StringName());
     void clear_info_icons();
@@ -360,8 +372,6 @@ public:
     void set_readonly(bool p_readonly);
     bool is_readonly() const;
 
-    void set_max_chars(int p_max_chars);
-    int get_max_chars() const;
 
     void set_wrap_enabled(bool p_wrap_enabled);
     bool is_wrap_enabled() const;
@@ -391,12 +401,19 @@ public:
     int get_selection_to_line() const;
     int get_selection_to_column() const;
     String get_selection_text() const;
+    bool is_mouse_over_selection(bool p_edges = true) const;
 
     String get_word_under_cursor() const;
     String get_word_at_pos(const Vector2 &p_pos) const;
 
+    /* Line and character position. */
+    Point2 get_pos_at_line_column(int p_line, int p_column) const;
+    Rect2 get_rect_at_line_column(int p_line, int p_column) const;
+    Point2 get_line_column_at_pos(const Point2 &p_pos) const;
     bool search(const UIString &p_key, uint32_t p_search_flags, int p_from_line, int p_from_column, int &r_line, int &r_column) const;
 
+    bool has_undo() const;
+    bool has_redo() const;
     void undo();
     void redo();
     void clear_undo_history();
@@ -455,8 +472,9 @@ public:
 
     void set_line_numbers_zero_padded(bool p_zero_padded);
 
-    void set_show_line_length_guideline(bool p_show);
-    void set_line_length_guideline_column(int p_column);
+    void set_show_line_length_guidelines(bool p_show);
+    void set_line_length_guideline_soft_column(int p_column);
+    void set_line_length_guideline_hard_column(int p_column);
 
     void set_bookmark_gutter_enabled(bool p_draw);
     bool is_bookmark_gutter_enabled() const;
@@ -478,6 +496,7 @@ public:
 
     void set_info_gutter_width(int p_gutter_width);
     int get_info_gutter_width() const;
+    int get_total_gutter_width() const;
     void set_draw_minimap(bool p_draw);
     bool is_drawing_minimap() const;
 
@@ -502,9 +521,13 @@ public:
 
     void set_selecting_enabled(bool p_enabled);
     bool is_selecting_enabled() const;
+    void set_deselect_on_focus_loss_enabled(const bool p_enabled);
+    bool is_deselect_on_focus_loss_enabled() const;
 
     void set_shortcut_keys_enabled(bool p_enabled);
     bool is_shortcut_keys_enabled() const;
+    void set_middle_mouse_paste_enabled(bool p_enabled);
+    bool is_middle_mouse_paste_enabled() const;
 
     PopupMenu *get_menu() const;
 

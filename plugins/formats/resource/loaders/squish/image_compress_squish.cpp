@@ -36,7 +36,7 @@ Error image_decompress_squish(Image *p_image) {
     int w = p_image->get_width();
     int h = p_image->get_height();
 
-    Image::Format target_format = Image::FORMAT_RGBA8;
+    Image::Format target_format = ImageData::FORMAT_RGBA8;
     PoolVector<uint8_t> data;
     int target_size = Image::get_image_data_size(w, h, target_format, p_image->has_mipmaps());
     int mm_count = p_image->get_mipmap_count();
@@ -45,16 +45,16 @@ Error image_decompress_squish(Image *p_image) {
     PoolVector<uint8_t>::Read rb = p_image->get_data().read();
     PoolVector<uint8_t>::Write wb = data.write();
 
-    int squish_flags = Image::FORMAT_MAX;
-    if (p_image->get_format() == Image::FORMAT_DXT1) {
+    int squish_flags = ImageData::FORMAT_MAX;
+    if (p_image->get_format() == ImageData::FORMAT_DXT1) {
         squish_flags = squish::kDxt1;
-    } else if (p_image->get_format() == Image::FORMAT_DXT3) {
+    } else if (p_image->get_format() == ImageData::FORMAT_DXT3) {
         squish_flags = squish::kDxt3;
-    } else if (p_image->get_format() == Image::FORMAT_DXT5 || p_image->get_format() == Image::FORMAT_DXT5_RA_AS_RG) {
+    } else if (p_image->get_format() == ImageData::FORMAT_DXT5 || p_image->get_format() == ImageData::FORMAT_DXT5_RA_AS_RG) {
         squish_flags = squish::kDxt5;
-    } else if (p_image->get_format() == Image::FORMAT_RGTC_R) {
+    } else if (p_image->get_format() == ImageData::FORMAT_RGTC_R) {
         squish_flags = squish::kBc4;
-    } else if (p_image->get_format() == Image::FORMAT_RGTC_RG) {
+    } else if (p_image->get_format() == ImageData::FORMAT_RGTC_RG) {
         squish_flags = squish::kBc5;
     } else {
         ERR_FAIL_V_MSG(ERR_INVALID_DATA,"Squish: Can't decompress unknown format: " + itos(p_image->get_format()) + ".");
@@ -71,7 +71,7 @@ Error image_decompress_squish(Image *p_image) {
 
     p_image->create(p_image->get_width(), p_image->get_height(), p_image->has_mipmaps(), target_format, data);
 
-    if (p_image->get_format() == Image::FORMAT_DXT5_RA_AS_RG) {
+    if (p_image->get_format() == ImageData::FORMAT_DXT5_RA_AS_RG) {
         p_image->convert_ra_rgba8_to_rg();
     }
     return OK;
@@ -79,13 +79,13 @@ Error image_decompress_squish(Image *p_image) {
 
 void image_compress_squish(Image *p_image, float p_lossy_quality, ImageUsedChannels p_channels) {
 
-    if (p_image->get_format() >= Image::FORMAT_DXT1)
+    if (p_image->get_format() >= ImageData::FORMAT_DXT1)
         return; //do not compress, already compressed
 
     int w = p_image->get_width();
     int h = p_image->get_height();
 
-    if (p_image->get_format() <= Image::FORMAT_RGBA8) {
+    if (p_image->get_format() <= ImageData::FORMAT_RGBA8) {
 
         int squish_comp = squish::kColourRangeFit;
 
@@ -94,40 +94,40 @@ void image_compress_squish(Image *p_image, float p_lossy_quality, ImageUsedChann
         else if (p_lossy_quality > 0.75f)
             squish_comp = squish::kColourClusterFit;
 
-        Image::Format target_format = Image::FORMAT_RGBA8;
+        Image::Format target_format = ImageData::FORMAT_RGBA8;
 
-        p_image->convert(Image::FORMAT_RGBA8); //still uses RGBA to convert
+        p_image->convert(ImageData::FORMAT_RGBA8); //still uses RGBA to convert
 
         switch (p_channels) {
             case ImageUsedChannels::USED_CHANNELS_L: {
 
-                target_format = Image::FORMAT_DXT1;
+                target_format = ImageData::FORMAT_DXT1;
                 squish_comp |= squish::kDxt1;
             } break;
             case ImageUsedChannels::USED_CHANNELS_LA: {
 
-                target_format = Image::FORMAT_DXT5;
+                target_format = ImageData::FORMAT_DXT5;
                 squish_comp |= squish::kDxt5;
             } break;
             case ImageUsedChannels::USED_CHANNELS_R: {
 
-                target_format = Image::FORMAT_RGTC_R;
+                target_format = ImageData::FORMAT_RGTC_R;
                 squish_comp |= squish::kBc4;
             } break;
             case ImageUsedChannels::USED_CHANNELS_RG: {
 
-                target_format = Image::FORMAT_RGTC_RG;
+                target_format = ImageData::FORMAT_RGTC_RG;
                 squish_comp |= squish::kBc5;
             } break;
             case ImageUsedChannels::USED_CHANNELS_RGB: {
 
-                target_format = Image::FORMAT_DXT1;
+                target_format = ImageData::FORMAT_DXT1;
                 squish_comp |= squish::kDxt1;
             } break;
             case ImageUsedChannels::USED_CHANNELS_RGBA: {
 
                 //TODO, should convert both, then measure which one does a better job
-                target_format = Image::FORMAT_DXT5;
+                target_format = ImageData::FORMAT_DXT5;
                 squish_comp |= squish::kDxt5;
 
             } break;

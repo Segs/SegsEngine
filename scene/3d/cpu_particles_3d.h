@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  cpu_particles_3d.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,12 +31,26 @@
 #pragma once
 
 #include "core/rid.h"
+#include "core/safe_refcount.h"
 #include "core/pool_vector.h"
+#include "core/os/mutex.h"
 #include "scene/3d/visual_instance_3d.h"
 
 class Curve;
 class Mesh;
 class Gradient;
+// Previous minimal data for the particle,
+// for interpolation.
+struct CpuParticleBase {
+    void blank() {
+        for (int n = 0; n < 4; n++) {
+            custom[n] = 0.0f;
+        }
+    }
+    Transform transform;
+    Color color;
+    float custom[4];
+};
 
 class GODOT_EXPORT CPUParticles3D : public GeometryInstance {
 private:
@@ -47,6 +61,7 @@ public:
         DRAW_ORDER_INDEX=0,
         DRAW_ORDER_LIFETIME,
         DRAW_ORDER_VIEW_DEPTH,
+        DRAW_ORDER_MAX
     };
 
     enum Parameter : int8_t {
@@ -79,16 +94,19 @@ public:
         EMISSION_SHAPE_BOX,
         EMISSION_SHAPE_POINTS,
         EMISSION_SHAPE_DIRECTED_POINTS,
+        EMISSION_SHAPE_RING,
         EMISSION_SHAPE_MAX,
     };
 
 private:
     bool emitting;
 
-    struct Particle {
-        Transform transform;
-        Color color;
-        float custom[4];
+    struct Particle : public CpuParticleBase {
+        void copy_to(CpuParticleBase &r_o) {
+            r_o.transform = transform;
+            r_o.color = color;
+            memcpy(r_o.custom, custom, sizeof(custom));
+        }
         Vector3 velocity;
         bool active;
         float angle_rand;
@@ -98,6 +116,7 @@ private:
         float time;
         float lifetime;
         Color base_color;
+        Color start_color_rand;
 
         uint32_t seed;
     };
@@ -107,11 +126,14 @@ private:
     float frame_remainder;
     int cycle;
     bool redraw;
+    // Hard coded to true for now, if we decide after testing to always enable this
+    // when using interpolation we can remove the variable, else we can expose to the UI.
+    bool _streaky = true;
 
-    RID multimesh;
+    RenderingEntity multimesh;
 
     PoolVector<Particle> particles;
-    PoolVector<float> particle_data;
+    Vector<float> particle_data;
     PoolVector<int> particle_order;
 
     struct SortLifetime {
@@ -132,7 +154,6 @@ private:
     };
 
     //
-    Transform inv_emission_transform;
 
     float pre_process_time;
     float explosiveness_ratio;
@@ -144,7 +165,7 @@ private:
     bool one_shot=false;
     bool local_coords=false;
     bool fractional_delta=false;
-    volatile bool can_update;
+    SafeFlag can_update;
     DrawOrder draw_order = DrawOrder(0);
 
     Ref<Mesh> mesh;
@@ -161,6 +182,7 @@ private:
     Ref<Curve> curve_parameters[PARAM_MAX];
     Color color;
     Ref<Gradient> color_ramp;
+    Ref<Gradient> color_initial_ramp;
 
     bool flags[FLAG_MAX];
 
@@ -172,17 +194,23 @@ private:
     PoolVector<Color> emission_colors;
     int emission_point_count;
 
+    float emission_ring_height;
+    float emission_ring_inner_radius;
+    float emission_ring_radius;
+    Vector3 emission_ring_axis;
     Vector3 gravity;
 
-    void _update_internal();
+    void _update_internal(bool p_on_physics_tick);
+    void _particle_process(const Transform &emission_xform, Particle &p, float local_delta, float &tv) const;
     void _particles_process(float p_delta);
     void _update_particle_data_buffer();
 
-    Mutex *update_mutex=nullptr;
+    Mutex update_mutex;
 
     void _update_render_thread();
 
     void _set_redraw(bool p_redraw);
+    void _set_particles_processing(bool p_enable);
 
 protected:
     static void _bind_methods();
@@ -201,7 +229,6 @@ public:
     void set_explosiveness_ratio(float p_ratio);
     void set_randomness_ratio(float p_ratio);
     void set_lifetime_randomness(float p_random);
-    void set_visibility_aabb(const AABB &p_aabb);
     void set_use_local_coordinates(bool p_enable);
     void set_speed_scale(float p_scale);
 
@@ -213,7 +240,6 @@ public:
     float get_explosiveness_ratio() const;
     float get_randomness_ratio() const;
     float get_lifetime_randomness() const;
-    AABB get_visibility_aabb() const;
     bool get_use_local_coordinates() const;
     float get_speed_scale() const;
 
@@ -225,9 +251,6 @@ public:
 
     void set_draw_order(DrawOrder p_order);
     DrawOrder get_draw_order() const;
-
-    void set_draw_passes(int p_count);
-    int get_draw_passes() const;
 
     void set_mesh(const Ref<Mesh> &p_mesh);
     Ref<Mesh> get_mesh() const;
@@ -257,6 +280,8 @@ public:
 
     void set_color_ramp(const Ref<Gradient> &p_ramp);
     Ref<Gradient> get_color_ramp() const;
+    void set_color_initial_ramp(const Ref<Gradient> &p_ramp);
+    Ref<Gradient> get_color_initial_ramp() const;
 
     void set_particle_flag(Flags p_flag, bool p_enable);
     bool get_particle_flag(Flags p_flag) const;
@@ -267,7 +292,10 @@ public:
     void set_emission_points(const PoolVector<Vector3> &p_points);
     void set_emission_normals(const PoolVector<Vector3> &p_normals);
     void set_emission_colors(const PoolVector<Color> &p_colors);
-    void set_emission_point_count(int p_count);
+    void set_emission_ring_height(float p_height);
+    void set_emission_ring_inner_radius(float p_inner_radius);
+    void set_emission_ring_radius(float p_radius);
+    void set_emission_ring_axis(Vector3 p_axis);
 
     EmissionShape get_emission_shape() const;
     float get_emission_sphere_radius() const;
@@ -275,7 +303,10 @@ public:
     PoolVector<Vector3> get_emission_points() const;
     PoolVector<Vector3> get_emission_normals() const;
     PoolVector<Color> get_emission_colors() const;
-    int get_emission_point_count() const;
+    float get_emission_ring_height() const;
+    float get_emission_ring_inner_radius() const;
+    float get_emission_ring_radius() const;
+    Vector3 get_emission_ring_axis() const;
 
     void set_gravity(const Vector3 &p_gravity);
     Vector3 get_gravity() const;

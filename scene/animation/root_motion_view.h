@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  root_motion_view.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -37,14 +37,14 @@ class GODOT_EXPORT RootMotionView : public VisualInstance3D {
     GDCLASS(RootMotionView,VisualInstance3D)
 
 public:
-    RID immediate;
+    RenderingEntity immediate;
     NodePath path;
-    float cell_size;
-    float radius;
+    float cell_size = 1.0f;
+    float radius = 10.0f;
     bool use_in_game;
-    Color color;
+    Color color = {0.5f, 0.5f, 1.0f};
     bool first;
-    bool zero_y;
+    bool zero_y = true;
 
     Transform accumulated;
 

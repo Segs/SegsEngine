@@ -5,12 +5,13 @@
 #include "core/string.h"
 #include "core/forward_decls.h"
 #include "core/hash_map.h"
+//on windows we need Resource definition
+#include "core/resource.h"
 
 template <class T>
 struct Comparator;
 class wrap_allocator;
 
-class Resource;
 using RES = Ref<Resource>;
 
 class GODOT_EXPORT ResourceInteractiveLoader : public RefCounted {
@@ -21,6 +22,8 @@ class GODOT_EXPORT ResourceInteractiveLoader : public RefCounted {
     Thread::ID path_loading_thread;
 
 protected:
+    bool no_subresource_cache = false;
+
     static void _bind_methods();
 
 public:
@@ -31,6 +34,8 @@ public:
     virtual int get_stage_count() const = 0;
     virtual void set_translation_remapped(bool p_remapped) = 0;
     virtual Error wait();
+    virtual void set_no_subresource_cache(bool p_no_subresource_cache);
+    virtual bool get_no_subresource_cache();
 
     ResourceInteractiveLoader() = default;
     ~ResourceInteractiveLoader() override;
@@ -63,8 +68,8 @@ protected:
     static void _bind_methods();
 
 public:
-    virtual Ref<ResourceInteractiveLoader> load_interactive(StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr);
-    virtual Ref<Resource> load(StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr);
+    virtual Ref<ResourceInteractiveLoader> load_interactive(StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr, bool p_no_subresource_cache = false);
+    virtual Ref<Resource> load(StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr, bool p_no_subresource_cache = false);
     virtual bool exists(StringView p_path) const;
     virtual void get_recognized_extensions(Vector<String> &p_extensions) const;
     virtual void get_recognized_extensions_for_type(StringView p_type, Vector<String> &p_extensions) const;

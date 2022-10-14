@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  undo_redo.cpp                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,6 +35,7 @@
 #include "core/object_db.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
+#include "core/resource.h"
 #include "EASTL/deque.h"
 
 template<class T>
@@ -50,22 +51,41 @@ struct UndoRedo::PrivateData
         enum Type : int8_t {
             TYPE_METHOD,
             TYPE_LAMBDA,
+            TYPE_ACTION,
             TYPE_PROPERTY,
             TYPE_REFERENCE
         };
 
-        Ref<Resource> resref;
-        ObjectID object;
+        Ref<RefCounted> ref;
+        UndoableAction *action;
+        GameEntity object;
         StringName name;
         eastl::function<void()> m_func;
         Variant args[VARIANT_ARG_MAX];
         Type type;
+        void delete_reference() {
+            if (type != TYPE_REFERENCE) {
+                return;
+            }
+            if (ref) {
+                ref.unref();
+            } else {
+                Object *obj = object_for_entity(object);
+                if (obj) {
+                    memdelete(obj);
+                }
+            }
+        }
+    };
+    enum ActionDirection {
+        Performing,
+        Undoing
     };
 
     struct Action {
         String name;
-        Deque<Operation> do_ops;
-        Deque<Operation> undo_ops;
+        Dequeue<Operation> do_ops;
+        Dequeue<Operation> undo_ops;
         uint64_t last_tick;
     };
 
@@ -89,17 +109,14 @@ struct UndoRedo::PrivateData
     PrivateData() {
     }
     void _pop_history_tail() {
-
         _discard_redo();
 
-        if (actions.empty())
+        if (actions.empty()) {
             return;
+        }
 
         for (Operation &op : actions[0].undo_ops) {
-            if (op.type == Operation::TYPE_REFERENCE) {
-                Object *obj = ObjectDB::get_instance(op.object);
-                memdelete(obj);
-            }
+            op.delete_reference();
         }
 
         actions.pop_front();
@@ -109,31 +126,40 @@ struct UndoRedo::PrivateData
     }
     void _discard_redo() {
 
-        if (size_t(current_action + 1) == actions.size())
+        const size_t next_action(size_t(current_action) + 1); 
+        if (next_action == actions.size()) {
             return;
+        }
 
-        for (size_t i = size_t(current_action + 1); i < actions.size(); i++) {
+        for (size_t i = next_action; i < actions.size(); i++) {
             Action &act(actions[i]);
             for (Operation &E : act.do_ops) {
 
-                if (E.type == Operation::TYPE_REFERENCE) {
-
-                    Object *obj = ObjectDB::get_instance(E.object);
-                    memdelete(obj);
-                }
+                E.delete_reference();
             }
             //ERASE do data
         }
 
-        actions.resize(current_action + 1);
+        actions.resize(next_action);
     }
-    void _process_operation_list(Deque<Operation> &E) {
+    void _process_operation_list(Dequeue<Operation> &E,ActionDirection dir) {
 
         for (auto & op : E) {
 
-            Object *obj = ObjectDB::get_instance(op.object);
-            if (!obj) //may have been deleted and this is fine
+            Object *obj = nullptr;
+            // If this is not a self contained UndoableAction
+            if(op.type!=Operation::TYPE_ACTION) {
+                obj = object_for_entity(op.object);
+                //may have been deleted and this is fine
+                if (!obj) {
                 continue;
+            }
+            } else {
+                //might no longer be applicable.
+                if(!op.action->can_apply()) {
+                    continue;
+                }
+            }
 
             switch (op.type) {
 
@@ -184,13 +210,23 @@ struct UndoRedo::PrivateData
                     if(method_callback) {
                         ERR_PRINT("Cannot pass lambda functions to method observer callback.");
                     }
+                } break;
+                case Operation::TYPE_ACTION: {
+                    if(method_callback) {
+                        ERR_PRINT("Cannot pass action objects to method observer callback.");
                 }
+                    if(dir==Performing) {
+                        op.action->redo();
+                    } else {
+                        op.action->undo();
+                    }
+                } break;
             }
         }
     }
     void create_action(StringView p_name, MergeMode p_mode) {
 
-        uint32_t ticks = OS::get_singleton()->get_ticks_msec();
+        uint64_t ticks = OS::get_singleton()->get_ticks_msec();
 
         if (action_level == 0) {
 
@@ -204,15 +240,10 @@ struct UndoRedo::PrivateData
                 if (p_mode == MERGE_ENDS) {
 
                     // Clear all do ops from last action, and delete all object references
-                    while (!actions[current_action + 1].do_ops.empty()) {
-                        const Operation &op(actions[current_action + 1].do_ops.front());
-                        if(op.type==Operation::TYPE_REFERENCE)
-                        {
-                            Object *obj = ObjectDB::get_instance(op.object);
-                            memdelete(obj);
+                    for(auto & op : actions[current_action + 1].do_ops) {
+                        op.delete_reference();
                         }
-                        actions[current_action + 1].do_ops.pop_front();
-                    }
+                    actions[current_action + 1].do_ops.clear();
                 }
 
                 actions[actions.size() - 1].last_tick = ticks;
@@ -232,13 +263,23 @@ struct UndoRedo::PrivateData
 
         action_level++;
     }
+    void add_action(UndoableAction *p_action) {
+
+        Operation do_op;
+        do_op.object = entt::null;
+        do_op.type = Operation::TYPE_ACTION;
+        do_op.action = p_action;
+        actions[current_action + 1].do_ops.push_back(do_op);
+        actions[current_action + 1].undo_ops.push_back(do_op);
+    }
     void add_do_method(Object *p_object, const StringName &p_method, VARIANT_ARG_DECLARE) {
 
         VARIANT_ARGPTRS
         Operation do_op;
         do_op.object = p_object->get_instance_id();
-        if (object_cast<Resource>(p_object))
-            do_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
+        if (object_cast<RefCounted>(p_object)) {
+            do_op.ref = Ref<RefCounted>(object_cast<RefCounted>(p_object));
+        }
 
         do_op.type = Operation::TYPE_METHOD;
         do_op.name = StringName(p_method);
@@ -248,14 +289,14 @@ struct UndoRedo::PrivateData
         }
         actions[current_action + 1].do_ops.push_back(do_op);
     }
-    void add_do_method(eastl::function<void()> f,ObjectID owner) {
+    void add_do_method(eastl::function<void()> f,GameEntity owner) {
         Operation do_op;
         do_op.type = Operation::TYPE_LAMBDA;
         do_op.m_func = eastl::move(f);
         do_op.object = owner;
         actions[current_action + 1].do_ops.emplace_back(eastl::move(do_op));
     }
-    void add_undo_method(eastl::function<void()> f, ObjectID owner) {
+    void add_undo_method(eastl::function<void()> f, GameEntity owner) {
 
         // No undo if the merge mode is MERGE_ENDS
         if (merge_mode == MERGE_ENDS)
@@ -277,8 +318,9 @@ struct UndoRedo::PrivateData
 
         Operation undo_op;
         undo_op.object = p_object->get_instance_id();
-        if (object_cast<Resource>(p_object))
-            undo_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
+        if (object_cast<RefCounted>(p_object)) {
+            undo_op.ref = Ref<RefCounted>(object_cast<RefCounted>(p_object));
+        }
 
         undo_op.type = Operation::TYPE_METHOD;
         undo_op.name = p_method;
@@ -292,8 +334,8 @@ struct UndoRedo::PrivateData
 
         Operation do_op;
         do_op.object = p_object->get_instance_id();
-        if (object_cast<Resource>(p_object))
-            do_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
+        if (object_cast<RefCounted>(p_object))
+            do_op.ref = Ref<RefCounted>(object_cast<RefCounted>(p_object));
 
         do_op.type = Operation::TYPE_PROPERTY;
         do_op.name = StringName(p_property);
@@ -307,8 +349,8 @@ struct UndoRedo::PrivateData
 
         Operation undo_op;
         undo_op.object = p_object->get_instance_id();
-        if (object_cast<Resource>(p_object))
-            undo_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
+        if (object_cast<RefCounted>(p_object))
+            undo_op.ref = Ref<RefCounted>(object_cast<RefCounted>(p_object));
 
         undo_op.type = Operation::TYPE_PROPERTY;
         undo_op.name = StringName(p_property);
@@ -318,21 +360,23 @@ struct UndoRedo::PrivateData
     void add_do_reference(Object *p_object) {
         Operation do_op;
         do_op.object = p_object->get_instance_id();
-        if (object_cast<Resource>(p_object))
-            do_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
+        if (object_cast<RefCounted>(p_object))
+            do_op.ref = Ref<RefCounted>(object_cast<RefCounted>(p_object));
 
         do_op.type = Operation::TYPE_REFERENCE;
         actions[current_action + 1].do_ops.push_back(do_op);
     }
     void add_undo_reference(Object *p_object) {
         // No undo if the merge mode is MERGE_ENDS
-        if (merge_mode == MERGE_ENDS)
+        if (merge_mode == MERGE_ENDS) {
             return;
+        }
 
         Operation undo_op;
         undo_op.object = p_object->get_instance_id();
-        if (object_cast<Resource>(p_object))
-            undo_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
+        if (object_cast<RefCounted>(p_object)) {
+            undo_op.ref = Ref<RefCounted>(object_cast<RefCounted>(p_object));
+        }
 
         undo_op.type = Operation::TYPE_REFERENCE;
         actions[current_action + 1].undo_ops.push_back(undo_op);
@@ -340,8 +384,9 @@ struct UndoRedo::PrivateData
     void commit_action()
     {
         action_level--;
-        if (action_level > 0)
+        if (action_level > 0) {
             return; //still nested
+        }
 
         if (merging) {
             version--;
@@ -357,20 +402,22 @@ struct UndoRedo::PrivateData
     }
     bool redo()
     {
-        if ((current_action + 1) >= actions.size())
+        if ((current_action + 1) >= actions.size()) {
             return false; //nothing to redo
+        }
 
         current_action++;
 
-        _process_operation_list(actions[current_action].do_ops);
+        _process_operation_list(actions[current_action].do_ops,ActionDirection::Performing);
         version++;
         return true;
     }
     bool undo()
     {
-        if (current_action < 0)
+        if (current_action < 0) {
             return false; //nothing to redo
-        _process_operation_list(actions[current_action].undo_ops);
+        }
+        _process_operation_list(actions[current_action].undo_ops,ActionDirection::Undoing);
         current_action--;
         version--;
         return true;
@@ -381,7 +428,7 @@ void UndoRedo::create_action(StringView p_name, MergeMode p_mode) {
     pimpl->create_action(p_name,p_mode);
 }
 
-void UndoRedo::create_action_pair(StringView p_name, ObjectID owner, eastl::function<void()> do_actions, eastl::function<void()> undo_actions, MergeMode p_mode) {
+void UndoRedo::create_action_pair(StringView p_name, GameEntity owner, eastl::function<void()> do_actions, eastl::function<void()> undo_actions, MergeMode p_mode) {
     pimpl->create_action(p_name, p_mode);
     ERR_FAIL_COND(pimpl->action_level <= 0);
     ERR_FAIL_COND(size_t(pimpl->current_action) + 1 >= pimpl->actions.size());
@@ -391,6 +438,12 @@ void UndoRedo::create_action_pair(StringView p_name, ObjectID owner, eastl::func
 
 }
 
+void UndoRedo::add_action(UndoableAction *p_action)
+{
+    ERR_FAIL_COND(p_action == nullptr);
+    pimpl->create_action(p_action->name(),MERGE_DISABLE);
+    pimpl->add_action(p_action);
+}
 void UndoRedo::add_do_method(Object *p_object, const StringName &p_method, VARIANT_ARG_DECLARE) {
 
     ERR_FAIL_COND(p_object == nullptr);
@@ -399,7 +452,7 @@ void UndoRedo::add_do_method(Object *p_object, const StringName &p_method, VARIA
     pimpl->add_do_method(p_object,p_method,VARIANT_ARG_PASS);
 }
 
-void UndoRedo::add_do_method(eastl::function<void()> func,ObjectID owner) {
+void UndoRedo::add_do_method(eastl::function<void()> func,GameEntity owner) {
 
     ERR_FAIL_COND(pimpl->action_level <= 0);
     ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
@@ -414,7 +467,7 @@ void UndoRedo::add_undo_method(Object *p_object, const StringName &p_method, VAR
     pimpl->add_undo_method(p_object,p_method,VARIANT_ARG_PASS);
 }
 
-void UndoRedo::add_undo_method(eastl::function<void()> func, ObjectID owner) {
+void UndoRedo::add_undo_method(eastl::function<void()> func, GameEntity owner) {
 
     ERR_FAIL_COND(pimpl->action_level <= 0);
     ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
@@ -503,12 +556,12 @@ StringView UndoRedo::get_current_action_name() const {
     return pimpl->actions[pimpl->current_action].name;
 }
 
-bool UndoRedo::has_undo() {
+bool UndoRedo::has_undo() const {
 
     return pimpl->current_action >= 0;
 }
 
-bool UndoRedo::has_redo() {
+bool UndoRedo::has_redo() const {
 
     return size_t(pimpl->current_action + 1) < pimpl->actions.size();
 }
@@ -625,8 +678,8 @@ Variant UndoRedo::_add_undo_method(const Variant **p_args, int p_argcount, Calla
 void UndoRedo::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("create_action", {"name", "merge_mode"}), &UndoRedo::create_action, {DEFVAL(int(MERGE_DISABLE))});
-    MethodBinder::bind_method(D_METHOD("commit_action"), &UndoRedo::commit_action);
-    MethodBinder::bind_method(D_METHOD("is_committing_action"), &UndoRedo::is_committing_action);
+    BIND_METHOD(UndoRedo,commit_action);
+    BIND_METHOD(UndoRedo,is_committing_action);
 
     {
         MethodInfo mi("add_do_method",PropertyInfo(VariantType::OBJECT, "object"),PropertyInfo(VariantType::STRING_NAME, "method"));
@@ -637,17 +690,17 @@ void UndoRedo::_bind_methods() {
         MethodBinder::bind_vararg_method("add_undo_method", &UndoRedo::_add_undo_method, eastl::move(mi),null_variant_pvec,false);
     }
 
-    MethodBinder::bind_method(D_METHOD("add_do_property", {"object", "property", "value"}), &UndoRedo::add_do_property);
-    MethodBinder::bind_method(D_METHOD("add_undo_property", {"object", "property", "value"}), &UndoRedo::add_undo_property);
-    MethodBinder::bind_method(D_METHOD("add_do_reference", {"object"}), &UndoRedo::add_do_reference);
-    MethodBinder::bind_method(D_METHOD("add_undo_reference", {"object"}), &UndoRedo::add_undo_reference);
+    BIND_METHOD(UndoRedo,add_do_property);
+    BIND_METHOD(UndoRedo,add_undo_property);
+    BIND_METHOD(UndoRedo,add_do_reference);
+    BIND_METHOD(UndoRedo,add_undo_reference);
     MethodBinder::bind_method(D_METHOD("clear_history", {"increase_version"}), &UndoRedo::clear_history, {DEFVAL(true)});
-    MethodBinder::bind_method(D_METHOD("get_current_action_name"), &UndoRedo::get_current_action_name);
-    MethodBinder::bind_method(D_METHOD("has_undo"), &UndoRedo::has_undo);
-    MethodBinder::bind_method(D_METHOD("has_redo"), &UndoRedo::has_redo);
-    MethodBinder::bind_method(D_METHOD("get_version"), &UndoRedo::get_version);
-    MethodBinder::bind_method(D_METHOD("redo"), &UndoRedo::redo);
-    MethodBinder::bind_method(D_METHOD("undo"), &UndoRedo::undo);
+    BIND_METHOD(UndoRedo,get_current_action_name);
+    BIND_METHOD(UndoRedo,has_undo);
+    BIND_METHOD(UndoRedo,has_redo);
+    BIND_METHOD(UndoRedo,get_version);
+    BIND_METHOD(UndoRedo,redo);
+    BIND_METHOD(UndoRedo,undo);
 
     ADD_SIGNAL(MethodInfo("version_changed"));
 

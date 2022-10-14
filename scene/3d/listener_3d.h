@@ -43,8 +43,6 @@ private:
 
 	RID scenario_id;
 
-	virtual bool _can_gizmo_scale() const;
-	virtual RES _get_gizmo_geometry() const;
 
 	friend class Viewport;
 	void _update_audio_listener_state();
@@ -67,8 +65,6 @@ public:
 
 	virtual Transform get_listener_transform() const;
 
-	void set_visible_layers(uint32_t p_layers);
-	uint32_t get_visible_layers() const;
 
     Listener3D();
     ~Listener3D() override;

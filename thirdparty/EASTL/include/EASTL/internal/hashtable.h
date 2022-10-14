@@ -1180,9 +1180,9 @@ namespace eastl
             return find_as(u,uhash,predicate) != end();
 
         }
-        eastl::vector<key_type> keys() const
+		eastl::vector<key_type, Allocator> keys() const
         {
-            eastl::vector<key_type> result{};
+			eastl::vector<key_type, Allocator> result{};
             result.reserve(size());
             for (const auto& elem : *this)
                 result.emplace_back(mExtractKey(elem));
@@ -1194,6 +1194,12 @@ namespace eastl
             c.reserve(c.size()+size());
             for (const auto& elem : *this)
                 c.emplace_back(mExtractKey(elem));
+        }
+        template<typename CONTAINER>
+        void keys_into_set(CONTAINER &c) const
+        {
+            for (const auto& elem : *this)
+                c.emplace(mExtractKey(elem));
         }
 #endif
 

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  os_unix.cpp                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -220,7 +220,7 @@ OS::Time OS_Unix::get_time(bool utc) const {
 }
 
 OS::TimeZoneInfo OS_Unix::get_time_zone_info() const {
-    time_t t = time(NULL);
+    time_t t = time(nullptr);
     struct tm lt;
     localtime_r(&t, &lt);
     char name[16];
@@ -268,13 +268,8 @@ uint64_t OS_Unix::get_ticks_usec() const {
     return longtime;
 }
 
-Error OS_Unix::execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
+Error OS_Unix::execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex, bool p_open_console) {
 
-#ifdef __EMSCRIPTEN__
-    // Don't compile this code at all to avoid undefined references.
-    // Actual virtual call goes to OS_JavaScript.
-    ERR_FAIL_V(ERR_BUG);
-#else
     if (p_blocking && r_pipe) {
 
         String argss;
@@ -357,7 +352,6 @@ Error OS_Unix::execute(StringView p_path, const Vector<String> &p_arguments, boo
     }
 
     return OK;
-#endif
 }
 
 Error OS_Unix::kill(const ProcessID &p_pid) {
@@ -484,11 +478,11 @@ String OS_Unix::get_user_data_dir() const {
             }
             return PathUtils::plus_file(get_data_path(),custom_dir);
         } else {
-            return PathUtils::plus_file(PathUtils::plus_file(PathUtils::plus_file(get_data_path(),get_godot_dir_name()),"app_userdata"),appname);
+            return PathUtils::join_path({get_data_path(),get_godot_dir_name(),"app_userdata",appname});
         }
     }
 
-    return ProjectSettings::get_singleton()->get_resource_path();
+    return PathUtils::join_path({ get_data_path(),get_godot_dir_name(),"app_userdata","[unnamed project]"});
 }
 
 String OS_Unix::get_executable_path() const {
@@ -510,32 +504,37 @@ void UnixTerminalLogger::log_error(StringView p_function, StringView p_file, int
     // This prevents Godot from writing ANSI escape codes when redirecting
     // stdout and stderr to a file.
     const bool tty = isatty(fileno(stdout));
-    const char *red = tty ? "\E[0;31m" : "";
-    const char *yellow = tty ? "\E[0;33m" : "";
-    const char *magenta = tty ? "\E[0;35m" : "";
-    const char *cyan = tty ? "\E[0;36m" : "";
+    const char *gray = tty ? "\E[0;90m" : "";
+    const char *red = tty ? "\E[0;91m" : "";
+    const char *red_bold = tty ? "\E[1;31m" : "";
+    const char *yellow = tty ? "\E[0;93m" : "";
+    const char *yellow_bold = tty ? "\E[1;33m" : "";
+    const char *magenta = tty ? "\E[0;95m" : "";
+    const char *magenta_bold = tty ? "\E[1;35m" : "";
+    const char *cyan = tty ? "\E[0;96m" : "";
+    const char *cyan_bold = tty ? "\E[1;36m" : "";
     const char *reset = tty ? "\E[0m" : "";
-    const char *bold = tty ? "\E[1m" : "";
 
     switch (p_type) {
         case ERR_WARNING:
-            logf_error(FormatVE("%sWARNING: %.*s: %s%s%.*s\n",yellow, (int)p_function.size(),p_function.data(), reset,bold,(int)err_details.size(), err_details.data()));
-            logf_error(FormatVE("%s   At: %.*s:%i.%s\n",yellow, (int)p_file.size(),p_file.data(), p_line,reset));
+            logf_error(FormatVE("%sWARNING:%s %.*s\n", yellow_bold, yellow, err_details.size(),err_details.data()));
             break;
         case ERR_SCRIPT:
-            logf_error(FormatVE("%sSCRIPT ERROR: %.*s: %s%s%.*s\n", magenta,(int)p_function.size(),p_function.data(), reset,bold,(int)err_details.size(), err_details.data()));
-            logf_error(FormatVE("%s   At: %.*s:%i.%s\n", magenta,(int)p_file.size(),p_file.data(), p_line,reset));
+            logf_error(FormatVE("%sSCRIPT ERROR:%s %.*s\n", magenta_bold, magenta, err_details.size(),err_details.data()));
             break;
         case ERR_SHADER:
-            logf_error(FormatVE("%sSHADER ERROR: %.*s: %s%s%.*s\n",cyan, (int)p_function.size(),p_function.data(), reset,bold,(int)err_details.size(), err_details.data()));
-            logf_error(FormatVE("%s   At: %.*s:%i.%s\n",cyan, (int)p_file.size(),p_file.data(), p_line,reset));
+            logf_error(FormatVE("%sSHADER ERROR:%s %.*s\n", cyan_bold, cyan, err_details.size(),err_details.data()));
             break;
         case ERR_ERROR:
         default:
-            logf_error(FormatVE("%sERROR: %.*s: %s%s%.*s\n",red, (int)p_function.size(),p_function.data(), reset,bold,(int)err_details.size(), err_details.data()));
-            logf_error(FormatVE("%s   At: %.*s:%i.%s\n", red,(int)p_file.size(),p_file.data(), p_line,reset));
+            logf_error(FormatVE("%sERROR:%s %.*s\n", red_bold, red, err_details.size(),err_details.data()));
             break;
     }
+    logf_error(FormatVE("%s     at: %.*s (%.*s:%i)%s\n",
+                        gray,
+                        p_function.size(),p_function.data(),
+                        p_file.size(), p_file.data(),
+                        p_line, reset));
 }
 
 UnixTerminalLogger::~UnixTerminalLogger() {}

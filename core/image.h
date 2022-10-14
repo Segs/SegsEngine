@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  image.h                                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -60,16 +60,22 @@ enum class ImageUsedChannels : int8_t {
 enum class ImageCompressSource : int8_t {
     COMPRESS_SOURCE_GENERIC=0,
     COMPRESS_SOURCE_SRGB,
-    COMPRESS_SOURCE_NORMAL
+    COMPRESS_SOURCE_NORMAL,
+    COMPRESS_SOURCE_LAYERED,
+    COMPRESS_SOURCE_MAX,
 };
+SE_ENUM(ImageCompressSource)
+
 using SavePNGFunc = Error (*)(const UIString &, const Ref<Image> &);
 using ImageMemLoadFunc = ImageData (*)(const uint8_t *, int);
 
 using SaveEXRFunc = Error (*)(const UIString &, const Ref<Image> &, bool);
 
-class GODOT_EXPORT Image : public Resource, public ImageData {
+class GODOT_EXPORT Image : public Resource, private ImageData {
     GDCLASS(Image, Resource)
+    SE_CLASS()
 
+    SE_PROPERTY(Dictionary data READ _set_data WRITE _get_data USAGE STORAGE)
 public:
     static Error save_png_func(StringView p_path, const Ref<Image> &p_img);
     static Error save_exr_func(StringView p_path, const Ref<Image> &p_img, bool p_grayscale);
@@ -86,14 +92,15 @@ public:
         /* INTERPOLATE_TRICUBIC, */
         /* INTERPOLATE GAUSS */
     };
+    SE_ENUM(Interpolation)
     //some functions provided by something else
     static Error compress_image(Image *,CompressParams p);
     static Error decompress_image(Image *,CompressParams p);
 
     static Vector<uint8_t> lossy_packer(const Ref<Image> &p_image, float p_quality);
-    static Ref<Image> lossy_unpacker(const Vector<uint8_t> &p_buffer);
+    static Ref<Image> webp_unpacker(const Vector<uint8_t> &p_buffer);
     static Vector<uint8_t> lossless_packer(const Ref<Image> &p_image);
-    static Ref<Image> lossless_unpacker(const Vector<uint8_t> &p_buffer);
+    static Ref<Image> png_unpacker(const Vector<uint8_t> &p_buffer);
     static Vector<uint8_t> basis_universal_packer(const Ref<Image> &p_image, ImageUsedChannels p_channels);
     static Ref<Image> basis_universal_unpacker(const Vector<uint8_t> &p_buffer);
 
@@ -137,6 +144,7 @@ protected:
     Error _load_from_buffer(const uint8_t *p_array,int size, const char *ext);
 
 public:
+    ImageData &img_data() { return *this; }
     int get_width() const; ///< Get image width
     int get_height() const; ///< Get image height
     Vector2 get_size() const;
@@ -200,7 +208,6 @@ public:
     void create(int p_width, int p_height, bool p_use_mipmaps, Format p_format, const PoolVector<uint8_t> &p_data);
     void create(ImageData && src);
 
-    void create(const char **p_xpm);
     /**
      * returns true when the image is empty (0,0) in size
      */
@@ -260,7 +267,7 @@ public:
     void blit_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, const Rect2 &p_src_rect, const Point2 &p_dest);
     void blend_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const Point2 &p_dest);
     void blend_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, const Rect2 &p_src_rect, const Point2 &p_dest);
-    void fill(const Color &c);
+    void fill(const Color &p_color);
 
     Rect2 get_used_rect() const;
     Ref<Image> get_rect(const Rect2 &p_area) const;
@@ -299,7 +306,6 @@ public:
     void convert_ra_rgba8_to_rg();
 
     Image(const uint8_t *p_mem_png_jpg, int p_len = -1);
-    Image(const char **p_xpm);
     Image(ImageData &&from) {
         format = from.format;
         width = from.width;

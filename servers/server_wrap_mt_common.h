@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  server_wrap_mt_common.h                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,6 +36,34 @@
         return ret;                                                             \
     }
 
+#define FUNCENT(m_type)                                                                    \
+    Vector<RenderingEntity> m_type##_id_pool;                                              \
+    void m_type##_free_cached_ids() {                                                      \
+        assert(Thread::get_caller_id() != server_thread);                       \
+        command_queue.push_and_sync( [this]() {                                            \
+            for(auto v : m_type##_id_pool) {                                               \
+                submission_thread_singleton->free_rid(v);                                  \
+            }                                                                              \
+        });                                                                                \
+        m_type##_id_pool.clear();                                                          \
+    }                                                                                      \
+    RenderingEntity m_type##_create() override {                                           \
+        assert(Thread::get_caller_id() != server_thread);                                  \
+        RenderingEntity rid;                                                               \
+        MutexLock lock(alloc_mutex);                                                       \
+        if (m_type##_id_pool.empty()) {                                                    \
+            command_queue.push_and_sync([this]() {                                         \
+                for (int i = 0; i < pool_max_size; i++) {                                  \
+                    m_type##_id_pool.emplace_back(submission_thread_singleton->m_type##_create()); \
+                }                                                                          \
+            });                                                                            \
+            SYNC_DEBUG                                                                 \
+        }                                                                              \
+        rid = m_type##_id_pool.back();                                                 \
+        m_type##_id_pool.pop_back();                                                   \
+        return rid;                                                                    \
+    }
+
 #define FUNCRID(m_type)                                                                    \
     Vector<RID> m_type##_id_pool;                                                          \
     void m_type##_free_cached_ids() {                                                      \
@@ -48,16 +76,15 @@
         m_type##_id_pool.clear();                                                          \
     }                                                                                      \
     RID m_type##_create() override {                                                       \
-        assert(Thread::get_caller_id() != server_thread); \
-        RID rid;                                                                       \
-        MutexLock lock(alloc_mutex);                                                   \
-        if (m_type##_id_pool.empty()) {                                                \
-            int ret;                                                                   \
-            command_queue.push_and_sync([this,&ret]() {                                \
-                for (int i = 0; i < pool_max_size; i++) {                              \
+        assert(Thread::get_caller_id() != server_thread);                                  \
+        RID rid;                                                                           \
+        MutexLock lock(alloc_mutex);                                                       \
+        if (m_type##_id_pool.empty()) {                                                    \
+            command_queue.push_and_sync([this]() {                                         \
+                for (int i = 0; i < pool_max_size; i++) {                                  \
                     m_type##_id_pool.emplace_back(submission_thread_singleton->m_type##_create()); \
-                }\
-            }); \
+                }                                                                          \
+            });                                                                            \
             SYNC_DEBUG                                                                 \
         }                                                                              \
         rid = m_type##_id_pool.back();                                                 \
@@ -74,16 +101,16 @@
         return ret;                                                         \
     }
 
-#define FUNC0(m_type)                                             \
-    void m_type() override {                                       \
+#define FUNC0(m_type)                                               \
+    void m_type() override {                                        \
         assert(Thread::get_caller_id() != server_thread);           \
-        command_queue.push( [this]() { submission_thread_singleton->m_type();});\
+        command_queue.push( []() { submission_thread_singleton->m_type();});\
     }
 
 #define FUNC0C(m_type)                                            \
     void m_type() const override {                                 \
         assert(Thread::get_caller_id() != server_thread);           \
-        command_queue.push( [this]() { submission_thread_singleton->m_type();});\
+        command_queue.push( []() { submission_thread_singleton->m_type();});\
     }
 
 ///////////////////////////////////////////////
@@ -123,7 +150,7 @@
     m_r m_type(m_arg1 p1, m_arg2 p2) override {                                          \
         assert(Thread::get_caller_id() != server_thread);                                 \
         m_r ret;                                                                    \
-        command_queue.push_and_sync( [this,p1,p2,&ret]() { ret=submission_thread_singleton->m_type(p1, p2); }); \
+        command_queue.push_and_sync( [p1,p2,&ret]() { ret=submission_thread_singleton->m_type(p1, p2); }); \
         SYNC_DEBUG                                                                  \
         return ret;                                                                 \
     }
@@ -154,7 +181,7 @@
 #define FUNC2(m_type, m_arg1, m_arg2)                                     \
     void m_type(m_arg1 p1, m_arg2 p2) override {						  \
         assert(Thread::get_caller_id() != server_thread);                   \
-        command_queue.push([this,p1,p2]() {submission_thread_singleton->m_type(p1, p2);}); \
+        command_queue.push([p1,p2]() {submission_thread_singleton->m_type(p1, p2);}); \
     }
 
 #define FUNC3R(m_r, m_type, m_arg1, m_arg2, m_arg3)                                         \
@@ -229,6 +256,14 @@
         command_queue.push( [=]() { submission_thread_singleton->m_type(p1, p2, p3, p4, p5, p6, p7); });          \
     }
 
+#define FUNC7R(m_r, m_type, m_arg1, m_arg2, m_arg3, m_arg4, m_arg5, m_arg6, m_arg7)                      \
+    m_r m_type(m_arg1 p1, m_arg2 p2, m_arg3 p3, m_arg4 p4, m_arg5 p5, m_arg6 p6, m_arg7 p7) override { \
+        assert(Thread::get_caller_id() != server_thread);                                                          \
+        m_r ret;                                                                                             \
+        command_queue.push_and_sync( [&]() { ret=submission_thread_singleton->m_type(p1, p2, p3, p4, p5, p6, p7); });  \
+        SYNC_DEBUG                                                                                           \
+        return ret;                                                                                          \
+    }
 #define FUNC8R(m_r, m_type, m_arg1, m_arg2, m_arg3, m_arg4, m_arg5, m_arg6, m_arg7, m_arg8)                      \
     m_r m_type(m_arg1 p1, m_arg2 p2, m_arg3 p3, m_arg4 p4, m_arg5 p5, m_arg6 p6, m_arg7 p7, m_arg8 p8) override { \
         assert(Thread::get_caller_id() != server_thread);                                                          \

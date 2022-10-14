@@ -1,0 +1,18 @@
+{
+    "api_hash" : "",
+    "api_version" : "",
+    "dependencies" : [],
+    "module_name" : "",
+    "namespaces" : [ {
+            "contents" : {
+                "subtypes" : [ {
+                    "contents" : {},
+                    "name" : "Foo",
+                    "required_header" : "implicit_empty_class.h"
+                } ]
+            },
+            "name" : "GodotCore"
+            }
+    ],
+    "version" : ""
+}

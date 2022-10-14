@@ -99,12 +99,15 @@ bool JoypadWindows::have_device(const GUID &p_guid) {
 
 // adapted from SDL2, works a lot better than the MSDN version
 bool JoypadWindows::is_xinput_device(const GUID *p_guid) {
+    static GUID IID_ValveStreamingGamepad = { MAKELONG(0x28DE, 0x11FF), 0x28DE, 0x0000,
+        { 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 } };
 
-    static GUID IID_ValveStreamingGamepad = { MAKELONG(0x28DE, 0x11FF), 0x0000, 0x0000, { 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 } };
     static GUID IID_X360WiredGamepad = { MAKELONG(0x045E, 0x02A1), 0x0000, 0x0000, { 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 } };
     static GUID IID_X360WirelessGamepad = { MAKELONG(0x045E, 0x028E), 0x0000, 0x0000, { 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 } };
 
-    if (p_guid == &IID_ValveStreamingGamepad || p_guid == &IID_X360WiredGamepad || p_guid == &IID_X360WirelessGamepad)
+	if (memcmp(p_guid, &IID_ValveStreamingGamepad, sizeof(*p_guid)) == 0 ||
+            memcmp(p_guid, &IID_X360WiredGamepad, sizeof(*p_guid)) == 0 ||
+            memcmp(p_guid, &IID_X360WirelessGamepad, sizeof(*p_guid)) == 0)
         return true;
 
     PRAWINPUTDEVICELIST dev_list = nullptr;
@@ -113,11 +116,11 @@ bool JoypadWindows::is_xinput_device(const GUID *p_guid) {
     if (GetRawInputDeviceList(nullptr, &dev_list_count, sizeof(RAWINPUTDEVICELIST)) == (UINT)-1) {
         return false;
     }
-    dev_list = (PRAWINPUTDEVICELIST)malloc(sizeof(RAWINPUTDEVICELIST) * dev_list_count);
-    if (!dev_list) return false;
+    dev_list = (PRAWINPUTDEVICELIST)memalloc(sizeof(RAWINPUTDEVICELIST) * dev_list_count);
+    ERR_FAIL_NULL_V_MSG(dev_list, false, "Out of memory.");
 
     if (GetRawInputDeviceList(dev_list, &dev_list_count, sizeof(RAWINPUTDEVICELIST)) == (UINT)-1) {
-        free(dev_list);
+        memfree(dev_list);
         return false;
     }
     for (unsigned int i = 0; i < dev_list_count; i++) {
@@ -134,11 +137,11 @@ bool JoypadWindows::is_xinput_device(const GUID *p_guid) {
                 (GetRawInputDeviceInfoA(dev_list[i].hDevice, RIDI_DEVICENAME, &dev_name, &nameSize) != (UINT)-1) &&
                 (strstr(dev_name, "IG_") != nullptr)) {
 
-            free(dev_list);
+            memfree(dev_list);
             return true;
         }
     }
-    free(dev_list);
+    memfree(dev_list);
     return false;
 }
 
@@ -474,35 +477,27 @@ void JoypadWindows::post_hat(int p_device, DWORD p_dpad) {
     input->joy_hat(p_device, dpad_val);
 };
 
-InputDefault::JoyAxis JoypadWindows::axis_correct(int p_val, bool p_xinput, bool p_trigger, bool p_negate) const {
-
-    InputDefault::JoyAxis jx;
+float JoypadWindows::axis_correct(int p_val, bool p_xinput, bool p_trigger, bool p_negate) const {
     if (Math::abs(p_val) < MIN_JOY_AXIS) {
-        jx.min = p_trigger ? 0 : -1;
-        jx.value = 0.0f;
-        return jx;
+        return p_trigger ? -1.0f : 0.0f;
     }
-    if (p_xinput) {
-
-        if (p_trigger) {
-            jx.min = 0;
-            jx.value = (float)p_val / MAX_TRIGGER;
-            return jx;
-        }
-        jx.min = -1;
-        if (p_val < 0) {
-            jx.value = (float)p_val / MAX_JOY_AXIS;
-        } else {
-            jx.value = (float)p_val / (MAX_JOY_AXIS - 1);
-        }
-        if (p_negate) {
-            jx.value = -jx.value;
-        }
-        return jx;
+    if (!p_xinput) {
+        return (float)p_val / MAX_JOY_AXIS;
     }
-    jx.min = -1;
-    jx.value = (float)p_val / MAX_JOY_AXIS;
-    return jx;
+    if (p_trigger) {
+        // Convert to a value between -1.0f and 1.0f.
+        return 2.0f * p_val / MAX_TRIGGER - 1.0f;
+    }
+    float value;
+    if (p_val < 0) {
+        value = (float)p_val / MAX_JOY_AXIS;
+    } else {
+        value = (float)p_val / (MAX_JOY_AXIS - 1);
+    }
+    if (p_negate) {
+        value = -value;
+    }
+    return value;
 }
 
 void JoypadWindows::joypad_vibration_start_xinput(int p_device, float p_weak_magnitude, float p_strong_magnitude, float p_duration, uint64_t p_timestamp) {

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  root_motion_view.cpp                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -132,7 +132,7 @@ void RootMotionView::_notification(int p_what) {
 
         int cells_in_radius = int((radius / cell_size) + 1.0);
 
-        RenderingServer::get_singleton()->immediate_begin(immediate, RS::PRIMITIVE_LINES);
+        RenderingServer::get_singleton()->immediate_begin(immediate, RS::PRIMITIVE_LINES,entt::null);
         for (int i = -cells_in_radius; i < cells_in_radius; i++) {
             for (int j = -cells_in_radius; j < cells_in_radius; j++) {
 
@@ -176,20 +176,20 @@ Vector<Face3> RootMotionView::get_faces(uint32_t p_usage_flags) const {
 
 void RootMotionView::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_animation_path", {"path"}), &RootMotionView::set_animation_path);
-    MethodBinder::bind_method(D_METHOD("get_animation_path"), &RootMotionView::get_animation_path);
+    BIND_METHOD(RootMotionView,set_animation_path);
+    BIND_METHOD(RootMotionView,get_animation_path);
 
-    MethodBinder::bind_method(D_METHOD("set_color", {"color"}), &RootMotionView::set_color);
-    MethodBinder::bind_method(D_METHOD("get_color"), &RootMotionView::get_color);
+    BIND_METHOD(RootMotionView,set_color);
+    BIND_METHOD(RootMotionView,get_color);
 
-    MethodBinder::bind_method(D_METHOD("set_cell_size", {"size"}), &RootMotionView::set_cell_size);
-    MethodBinder::bind_method(D_METHOD("get_cell_size"), &RootMotionView::get_cell_size);
+    BIND_METHOD(RootMotionView,set_cell_size);
+    BIND_METHOD(RootMotionView,get_cell_size);
 
-    MethodBinder::bind_method(D_METHOD("set_radius", {"size"}), &RootMotionView::set_radius);
-    MethodBinder::bind_method(D_METHOD("get_radius"), &RootMotionView::get_radius);
+    BIND_METHOD(RootMotionView,set_radius);
+    BIND_METHOD(RootMotionView,get_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_zero_y", {"enable"}), &RootMotionView::set_zero_y);
-    MethodBinder::bind_method(D_METHOD("get_zero_y"), &RootMotionView::get_zero_y);
+    BIND_METHOD(RootMotionView,set_zero_y);
+    BIND_METHOD(RootMotionView,get_zero_y);
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "animation_path", PropertyHint::NodePathValidTypes, "AnimationTree"), "set_animation_path", "get_animation_path");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
@@ -199,16 +199,12 @@ void RootMotionView::_bind_methods() {
 }
 
 RootMotionView::RootMotionView() {
-    zero_y = true;
-    radius = 10;
-    cell_size = 1;
     set_process_internal(true);
     immediate = RenderingServer::get_singleton()->immediate_create();
     set_base(immediate);
-    color = Color(0.5f, 0.5f, 1.0f);
 }
 
 RootMotionView::~RootMotionView() {
-    set_base(RID());
+    set_base(entt::null);
     RenderingServer::get_singleton()->free_rid(immediate);
 }

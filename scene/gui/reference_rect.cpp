@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  reference_rect.cpp                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -42,7 +42,7 @@ void ReferenceRect::_notification(int p_what) {
         if (!is_inside_tree())
             return;
         if (Engine::get_singleton()->is_editor_hint() || !editor_only)
-            draw_rect(Rect2(Point2(), get_size()), border_color, false, border_width);
+            draw_rect_stroke(Rect2(Point2(), get_size()), border_color, border_width);
     }
 }
 
@@ -70,14 +70,14 @@ bool ReferenceRect::get_editor_only() const {
 }
 
 void ReferenceRect::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("get_border_color"), &ReferenceRect::get_border_color);
-    MethodBinder::bind_method(D_METHOD("set_border_color", {"color"}), &ReferenceRect::set_border_color);
+    BIND_METHOD(ReferenceRect,get_border_color);
+    BIND_METHOD(ReferenceRect,set_border_color);
 
-    MethodBinder::bind_method(D_METHOD("get_border_width"), &ReferenceRect::get_border_width);
-    MethodBinder::bind_method(D_METHOD("set_border_width", {"width"}), &ReferenceRect::set_border_width);
+    BIND_METHOD(ReferenceRect,get_border_width);
+    BIND_METHOD(ReferenceRect,set_border_width);
 
-    MethodBinder::bind_method(D_METHOD("get_editor_only"), &ReferenceRect::get_editor_only);
-    MethodBinder::bind_method(D_METHOD("set_editor_only", {"enabled"}), &ReferenceRect::set_editor_only);
+    BIND_METHOD(ReferenceRect,get_editor_only);
+    BIND_METHOD(ReferenceRect,set_editor_only);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "border_color"), "set_border_color", "get_border_color");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "border_width", PropertyHint::Range, "0.0,5.0,0.1,or_greater"), "set_border_width", "get_border_width");

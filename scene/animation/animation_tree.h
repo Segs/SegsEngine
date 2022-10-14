@@ -32,6 +32,7 @@
 
 #include "scene/animation/animation_player.h"
 #include "core/hash_map.h"
+#include "core/hash_set.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/3d/node_3d.h"
 #include "scene/resources/animation.h"
@@ -57,7 +58,6 @@ public:
 
     Vector<Input> inputs;
 
-    float process_input(int p_input, float p_time, bool p_seek, float p_blend);
 
     friend class AnimationTree;
 
@@ -87,14 +87,13 @@ public:
     State *state;
 
     float _pre_process(const StringName &p_base_path, AnimationNode *p_parent, State *p_state, float p_time, bool p_seek, const Vector<StringName> &p_connections);
-    void _pre_update_animations(HashMap<NodePath, int> *track_map);
 
     //all this is temporary
     StringName base_path;
     Vector<StringName> connections;
     AnimationNode *parent;
 
-    HashMap<NodePath, bool> filter;
+    HashSet<NodePath> filter;
     bool filter_enabled;
 
     Array _get_filters() const;
@@ -112,7 +111,6 @@ protected:
 
     void _validate_property(PropertyInfo &property) const override;
 
-    void _set_parent(Object *p_parent);
 
 public:
     virtual void get_parameter_list(Vector<PropertyInfo> *r_list) const;
@@ -173,20 +171,13 @@ public:
 private:
     struct TrackCache {
 
-        bool root_motion;
-        uint64_t setup_pass;
-        uint64_t process_pass;
+        uint64_t setup_pass=0;
+        uint64_t process_pass=0;
+        Object *object=nullptr;
+        GameEntity object_id {entt::null};
         Animation::TrackType type;
-        Object *object;
-        ObjectID object_id;
+        bool root_motion=false;
 
-        TrackCache() {
-            root_motion = false;
-            setup_pass = 0;
-            process_pass = 0;
-            object = nullptr;
-            object_id = ObjectID(0ULL);
-        }
         virtual ~TrackCache() {}
     };
 
@@ -194,8 +185,8 @@ private:
         Node3D *spatial;
         Skeleton *skeleton;
         int bone_idx;
-        Vector3 loc;
         Quat rot;
+        Vector3 loc;
         float rot_blend_accum;
         Vector3 scale;
 
@@ -252,52 +243,50 @@ private:
             playing = false;
         }
     };
+    struct Activity {
+        uint64_t last_pass;
+        float activity;
+    };
 
     HashMap<NodePath, TrackCache *> track_cache;
     HashSet<TrackCache *> playing_caches;
 
     Ref<AnimationNode> root;
 
-    AnimationProcessMode process_mode;
-    bool active;
+    AnimationProcessMode process_mode=ANIMATION_PROCESS_IDLE;
     NodePath animation_player;
 
     AnimationNode::State state;
-    bool cache_valid;
-    void _node_removed(Node *p_node);
-    void _caches_cleared();
-
-    void _clear_caches();
-    bool _update_caches(AnimationPlayer *player);
-    void _process_graph(float p_delta);
-
-    uint64_t setup_pass;
-    uint64_t process_pass;
-
-    bool started;
 
     NodePath root_motion_track;
     Transform root_motion_transform;
 
-    friend class AnimationNode;
-    bool properties_dirty;
-    void _tree_changed();
-    void _update_properties();
     Vector<PropertyInfo> properties;
     HashMap<StringName, HashMap<StringName, StringName> > property_parent_map;
     HashMap<StringName, Variant> property_map;
 
-    struct Activity {
-        uint64_t last_pass;
-        float activity;
-    };
 
     HashMap<StringName, Vector<Activity> > input_activity_map;
     HashMap<StringName, Vector<Activity> *> input_activity_map_get;
+    uint64_t setup_pass=1;
+    uint64_t process_pass=1;
+    GameEntity last_animation_player;
+    bool active = false;
+    bool cache_valid = false;
+    bool started = true;
+    bool properties_dirty=true;
 
+    friend class AnimationNode;
+
+    void _node_removed(Node *p_node);
+
+    void _clear_caches();
+    bool _update_caches(AnimationPlayer *player);
+    void _process_graph(float p_delta);
+    void _tree_changed();
+    void _update_properties();
     void _update_properties_for_node(const StringName &p_base_path, Ref<AnimationNode> node);
 
-    ObjectID last_animation_player;
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);

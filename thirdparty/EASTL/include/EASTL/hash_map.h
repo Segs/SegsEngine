@@ -288,7 +288,7 @@ namespace eastl
             return it->second;
         }
     	template<typename U>
-        const T& at_as(const U& k, const T& def) const
+        const T& at_as(const U& k, const T& def = T()) const
         {
             const_iterator it = base_type::find_as(k);
 

@@ -23,9 +23,9 @@ Error ResourceManifest::load_manifest(StringView p_path) {
         ERR_FAIL_COND_V(err, err);
     }
 
-    int len = f->get_len();
+    auto len = f->get_len();
     sourcef.resize(len + 1,0);
-    int r = f->get_buffer(sourcef.data(), len);
+    auto r = f->get_buffer(sourcef.data(), len);
     f->close();
     ERR_FAIL_COND_V(r != len, ERR_CANT_OPEN);
 

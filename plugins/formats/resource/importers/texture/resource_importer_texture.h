@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/image.h"
+#include "core/os/mutex.h"
 #include "core/plugin_interfaces/PluginDeclarations.h"
 
 class StringName;
@@ -48,7 +49,7 @@ protected:
         MAKE_NORMAL_FLAG = 4
     };
 
-    Mutex *mutex;
+    Mutex mutex;
     Map<StringName, int> make_flags;
 
     static void _texture_reimport_srgb(StringName p_tex);
@@ -108,5 +109,4 @@ public:
 
 public:
     ResourceImporterTexture();
-    ~ResourceImporterTexture() override;
 };

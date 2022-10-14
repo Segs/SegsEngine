@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  scroll_bar.h                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -79,9 +79,12 @@ class GODOT_EXPORT ScrollBar : public Range {
     bool drag_node_touching;
     bool drag_node_touching_deaccel;
     bool click_handled;
+    bool incr_active = false;
+    bool decr_active = false;
+	bool drag_node_enabled;
 
     bool scrolling;
-    double target_scroll;
+    float target_scroll;
     bool smooth_scroll_enabled;
 
     void _drag_node_exit();
@@ -100,6 +103,7 @@ public:
 
     void set_drag_node(const NodePath &p_path);
     NodePath get_drag_node() const;
+	void set_drag_node_enabled(bool p_enable);
 
     void set_smooth_scroll_enabled(bool p_enable);
     bool is_smooth_scroll_enabled() const;

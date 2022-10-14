@@ -53,7 +53,7 @@ public:
 
     real_t get_enclosing_radius() const override;
 
-    void draw(const RID &p_to_rid, const Color &p_color) override;
+    void draw(RenderingEntity p_to_rid, const Color &p_color) override;
     Rect2 get_rect() const override;
 
     ConvexPolygonShape2D();

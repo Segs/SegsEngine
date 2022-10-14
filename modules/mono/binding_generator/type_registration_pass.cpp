@@ -24,7 +24,7 @@ bool TypeRegistrationPass::covariantSetterGetterTypes(StringView getter, StringV
 
 int TypeRegistrationPass::_determine_enum_prefix(const TS_Enum &p_ienum) {
 
-    CRASH_COND(p_ienum.m_constants.empty());
+    assert(!p_ienum.m_constants.empty());
 
     const TS_Constant *front_iconstant = p_ienum.m_constants.front();
     auto front_parts = front_iconstant->m_rd_data->name.split('_', /* p_allow_empty: */ true);
@@ -120,7 +120,7 @@ void TypeRegistrationPass::visitEnum(const EnumInterface *ei) {
         // make sure the static_wrapper_class is visited beforehand!
         // an enum that belongs to a synthetic type
         auto enum_parent = TS_TypeResolver::get().resolveType(
-                    TypeReference{ String(static_wrapper_class), TypeRefKind::Simple, TypePassBy::Value });
+                    TypeReference{ String(static_wrapper_class),"", TypeRefKind::Simple, TypePassBy::Value });
 
         qDebug("Declaring global enum '%.*s' inside static class '%.*s'\n", int(enum_c_name.size()),
                enum_c_name.data(), int(static_wrapper_class.size()), static_wrapper_class.data());
@@ -148,7 +148,7 @@ void TypeRegistrationPass::visitEnum(const EnumInterface *ei) {
     int prefix_length=1;
     if(StringView("Error")!=en->c_name())
         prefix_length = _determine_enum_prefix(*en);
-    
+
     _apply_prefix_to_enum_constants(*en, prefix_length);
 }
 
@@ -189,6 +189,98 @@ void TypeRegistrationPass::visitSignalInterface(const SignalInterface *fi) {
     //  assert(false);
 }
 
+bool TypeRegistrationPass::processProperty(const PropertyInterface *pi, TS_Type *curr_type, TS_Property *prop, const PropertyInterface::TypedEntry &val) {
+    TS_Property::ResolvedPropertyEntry conv;
+    TypeReference set_get_type;
+    if (!val.setter.empty()) {
+        String mapped_setter_name = TS_Function::mapMethodName(val.setter, curr_type->cs_name());
+        conv.setter = curr_type->find_method_by_name(CS_INTERFACE, mapped_setter_name, true);
+        if (conv.setter)
+            set_get_type = conv.setter->source_type->arguments.back().type;
+    }
+    if (!val.getter.empty()) {
+        String mapped_getter_name = TS_Function::mapMethodName(val.getter, curr_type->cs_name());
+        conv.getter = curr_type->find_method_by_name(CS_INTERFACE, mapped_getter_name, true);
+        assert(conv.getter);
+        if (conv.getter && set_get_type.cname.empty())
+            set_get_type = conv.getter->source_type->return_type;
+    }
+    if (!conv.setter && !conv.getter) {
+        qCritical() << "Failed to get setter or getter for property" << prop->cs_name.c_str() << " in class "
+                << curr_type->cs_name().c_str();
+        return true;
+    }
+    if (conv.setter) {
+        size_t setter_argc = (pi->max_property_index > 0 || val.index == -2 || val.index >= 0) ? 2 : 1;
+        if (conv.setter->source_type->arguments.size() != setter_argc) {
+            qCritical() << "Setter function " << conv.setter->cs_name.c_str()
+                    << "has incorrect number of arguments in class " << curr_type->cs_name().c_str();
+            return true;
+        }
+    }
+    if (conv.getter) {
+        size_t getter_argc = (pi->max_property_index > 0 || val.index == -2 || val.index >= 0) ? 1 : 0;
+        if (conv.getter->source_type->arguments.size() != getter_argc) {
+            qCritical() << "Getter function " << conv.getter->cs_name.c_str()
+                    << "has incorrect number of arguments in class " << curr_type->cs_name().c_str();
+            return true;
+        }
+    }
+    if (conv.getter && conv.setter) {
+        if (unlikely(!covariantSetterGetterTypes(conv.getter->source_type->return_type.cname,
+            conv.setter->source_type->arguments.back().type.cname))) {
+            qCritical() << "Getter and setter types are not covariant for property" << prop->cs_name.c_str()
+                    << " in class " << curr_type->cs_name().c_str();
+            return true;
+        }
+    }
+
+    conv.index = val.index;
+    conv.subfield_name = val.subfield_name;
+    Vector<StringView> allowed_types;
+    StringView hint_string(val.entry_type.cname);
+    if (val.entry_type.cname.starts_with("PH:")) {
+        hint_string = hint_string.substr(3);
+        auto base_entry = val.entry_type;
+        // TODO: this is only used in one single property in the engine ( RichTextLabel custom_effects ),
+        // eliminate it?
+        if (hint_string.contains('/')) // Number/Number:Type  for semi-generic Arrays
+        {
+            // the encoded hint string is "PropertyHint/VariantType:subtype_hint_string"
+            hint_string = "Array";
+        }
+        // can contain
+        String::split_ref(allowed_types, hint_string, ",");
+        for (StringView sub : allowed_types) {
+            auto copy_entry = base_entry;
+            copy_entry.cname = sub;
+            ResolvedTypeReference entry_type = TS_TypeResolver::get().resolveType(copy_entry);
+            conv.entry_type.push_back(entry_type);
+        }
+    } else {
+        String::split_ref(allowed_types, hint_string, ",");
+        if(allowed_types.size()==1) {
+            ResolvedTypeReference entry_type = TS_TypeResolver::get().resolveType(set_get_type);
+            if(!entry_type.type) {
+                auto copy_entry = val.entry_type;
+                copy_entry.cname = allowed_types.front();
+                entry_type = TS_TypeResolver::get().resolveType(copy_entry);
+            }
+            conv.entry_type.push_back(entry_type);
+        }
+        else {
+            for (StringView sub : allowed_types) {
+                auto copy_entry = val.entry_type;
+                copy_entry.cname = sub;
+                ResolvedTypeReference entry_type = TS_TypeResolver::get().resolveType(copy_entry);
+                conv.entry_type.push_back(entry_type);
+            }
+        }
+    }
+    prop->indexed_entries.emplace_back(eastl::move(conv));
+    return false;
+}
+
 void TypeRegistrationPass::visitTypeProperty(const PropertyInterface *pi) {
     // TODO: mark both setter and getter as do-not-generate
 
@@ -201,94 +293,8 @@ void TypeRegistrationPass::visitTypeProperty(const PropertyInterface *pi) {
     curr_type->m_properties.emplace_back(prop);
 
     for (const auto &val : pi->indexed_entries) {
-        TS_Property::ResolvedPropertyEntry conv;
-        TypeReference set_get_type;
-        if (!val.setter.empty()) {
-            String mapped_setter_name = TS_Function::mapMethodName(val.setter, curr_type->cs_name());
-            conv.setter = curr_type->find_method_by_name(CS_INTERFACE, mapped_setter_name, true);
-            if (conv.setter)
-                set_get_type = conv.setter->source_type->arguments.back().type;
-        }
-        if (!val.getter.empty()) {
-            String mapped_getter_name = TS_Function::mapMethodName(val.getter, curr_type->cs_name());
-            conv.getter = curr_type->find_method_by_name(CS_INTERFACE, mapped_getter_name, true);
-            assert(conv.getter);
-            if (conv.getter && set_get_type.cname.empty())
-                set_get_type = conv.getter->source_type->return_type;
-        }
-        if (!conv.setter && !conv.getter) {
-            qCritical() << "Failed to get setter or getter for property" << prop->cs_name.c_str() << " in class "
-                        << curr_type->cs_name().c_str();
+        if (processProperty(pi, curr_type, prop, val))
             return;
-        }
-        if (conv.setter) {
-            size_t setter_argc = (pi->max_property_index > 0 || val.index == -2 || val.index >= 0) ? 2 : 1;
-            if (conv.setter->source_type->arguments.size() != setter_argc) {
-                qCritical() << "Setter function " << conv.setter->cs_name.c_str()
-                            << "has incorrect number of arguments in class " << curr_type->cs_name().c_str();
-                return;
-            }
-        }
-        if (conv.getter) {
-            size_t getter_argc = (pi->max_property_index > 0 || val.index == -2 || val.index >= 0) ? 1 : 0;
-            if (conv.getter->source_type->arguments.size() != getter_argc) {
-                qCritical() << "Getter function " << conv.getter->cs_name.c_str()
-                            << "has incorrect number of arguments in class " << curr_type->cs_name().c_str();
-                return;
-            }
-        }
-        if (conv.getter && conv.setter) {
-            if (unlikely(!covariantSetterGetterTypes(conv.getter->source_type->return_type.cname,
-                                                     conv.setter->source_type->arguments.back().type.cname))) {
-                qCritical() << "Getter and setter types are not covariant for property" << prop->cs_name.c_str()
-                            << " in class " << curr_type->cs_name().c_str();
-                return;
-            }
-        }
-
-        conv.index = val.index;
-        conv.subfield_name = val.subfield_name;
-        Vector<StringView> allowed_types;
-        StringView hint_string(val.entry_type.cname);
-        if (val.entry_type.cname.starts_with("PH:")) {
-            hint_string = hint_string.substr(3);
-            auto base_entry = val.entry_type;
-            // TODO: this is only used in one single property in the engine ( RichTextLabel custom_effects ),
-            // eliminate it?
-            if (hint_string.contains('/')) // Number/Number:Type  for semi-generic Arrays
-            {
-                // the encoded hint string is "PropertyHint/VariantType:subtype_hint_string"
-                hint_string = "Array";
-            }
-            // can contain
-            String::split_ref(allowed_types, hint_string, ",");
-            for (StringView sub : allowed_types) {
-                auto copy_entry = base_entry;
-                copy_entry.cname = sub;
-                ResolvedTypeReference entry_type = TS_TypeResolver::get().resolveType(copy_entry);
-                conv.entry_type.push_back(entry_type);
-            }
-        } else {
-            String::split_ref(allowed_types, hint_string, ",");
-            if(allowed_types.size()==1) {
-                ResolvedTypeReference entry_type = TS_TypeResolver::get().resolveType(set_get_type);
-                if(!entry_type.type) {
-                    auto copy_entry = val.entry_type;
-                    copy_entry.cname = allowed_types.front();
-                    entry_type = TS_TypeResolver::get().resolveType(copy_entry);
-                }
-                conv.entry_type.push_back(entry_type);
-            }
-            else {
-                for (StringView sub : allowed_types) {
-                    auto copy_entry = val.entry_type;
-                    copy_entry.cname = sub;
-                    ResolvedTypeReference entry_type = TS_TypeResolver::get().resolveType(copy_entry);
-                    conv.entry_type.push_back(entry_type);
-                }
-            }
-        }
-        prop->indexed_entries.emplace_back(eastl::move(conv));
     }
 }
 
@@ -364,7 +370,7 @@ void TypeRegistrationPass::visitModule(const ReflectionData *rd, bool imported) 
     auto mod_ns = m_current_module->find_ns(rd->module_name+"MetaData");
     if(!mod_ns) {
         auto metadata_ns = new NamespaceInterface;
-        metadata_ns->namespace_name = rd->module_name+"MetaData";
+        metadata_ns->name = rd->module_name+"MetaData";
         metadata_ns->global_constants.emplace_back("api_hash",rd->api_hash);
         metadata_ns->global_constants.emplace_back("api_version",rd->api_version);
         metadata_ns->global_constants.emplace_back("version",rd->version);
@@ -375,7 +381,7 @@ void TypeRegistrationPass::visitModule(const ReflectionData *rd, bool imported) 
 }
 
 void TypeRegistrationPass::visitNamespace(const NamespaceInterface &iface) {
-    auto ns = m_current_module->find_ns(current_access_path()+iface.namespace_name);
+    auto ns = m_current_module->find_ns(current_access_path()+iface.name);
     if(!ns) { // namespace is not available yet, so it must be a new one.
         ns = m_current_module->create_ns(current_access_path(), iface);
     }

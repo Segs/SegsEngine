@@ -40,19 +40,21 @@ struct _GlobalConstant {
 
 #ifdef DEBUG_METHODS_ENABLED
     StringName enum_name;
-    bool ignore_value_in_docs;
 #endif
     const char *name;
     int value;
 
+#ifdef DEBUG_METHODS_ENABLED
+    bool ignore_value_in_docs;
+#endif
     _GlobalConstant() = default;
 
 #ifdef DEBUG_METHODS_ENABLED
     _GlobalConstant(StringName p_enum_name, const char *p_name, int p_value, bool p_ignore_value_in_docs = false) :
             enum_name(eastl::move(p_enum_name)),
-            ignore_value_in_docs(p_ignore_value_in_docs),
             name(p_name),
-            value(p_value) {
+            value(p_value),
+            ignore_value_in_docs(p_ignore_value_in_docs) {
     }
 #else
     _GlobalConstant(const char *p_name, int p_value) :
@@ -71,6 +73,8 @@ static Vector<_GlobalConstant> _global_constants;
 
 #define BIND_STATIC_GLOBAL_ENUM_CONSTANT(m_constant); \
     _global_constants.emplace_back(__constant_get_enum_name(m_constant, #m_constant), #m_constant, int(m_constant))
+#define BIND_STATIC_GLOBAL_ENUM_CONSTANT_NO_VAL(m_constant); \
+    _global_constants.emplace_back(__constant_get_enum_name(m_constant, #m_constant), #m_constant, m_constant, true);
 #define BIND_GLOBAL_CLASS_ENUM_CONSTANT(m_class,m_constant) \
     _global_constants.emplace_back(StringName(#m_class), #m_constant, int(m_class::m_constant));
 
@@ -80,8 +84,6 @@ static Vector<_GlobalConstant> _global_constants;
 #define BIND_GLOBAL_CONSTANT_NO_VAL(m_constant) \
     _global_constants.push_back(_GlobalConstant(StringName(), #m_constant, m_constant, true));
 
-#define BIND_GLOBAL_ENUM_CONSTANT_NO_VAL(m_constant) \
-    _global_constants.push_back(_GlobalConstant(__constant_get_enum_name(m_constant, #m_constant), #m_constant, m_constant, true));
 
 #define BIND_GLOBAL_ENUM_CONSTANT_CUSTOM_NO_VAL(m_custom_name, m_constant) \
     _global_constants.push_back(_GlobalConstant(__constant_get_enum_name(m_constant, #m_constant), m_custom_name, m_constant, true));
@@ -124,7 +126,7 @@ void register_global_constants() {
     // Create a dummy class where we can add global enums etc.
     ClassDB::add_namespace("@","");
 
-    //{ KEY_BACKSPACE, VK_BACK },// (0x08) // backspace
+    SE_NAMESPACE(Godot)
 
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(Margin,Left)
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(Margin, Top)
@@ -402,7 +404,7 @@ void register_global_constants() {
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(KEY_MASK_ALT);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(KEY_MASK_META);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(KEY_MASK_CTRL);
-    BIND_STATIC_GLOBAL_ENUM_CONSTANT(KEY_MASK_CMD);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT_NO_VAL(KEY_MASK_CMD);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(KEY_MASK_KPAD);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(KEY_MASK_GROUP_SWITCH);
 
@@ -440,6 +442,13 @@ void register_global_constants() {
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_BUTTON_13);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_BUTTON_14);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_BUTTON_15);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_BUTTON_16);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_BUTTON_17);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_BUTTON_18);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_BUTTON_19);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_BUTTON_20);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_BUTTON_21);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_BUTTON_22);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_BUTTON_MAX);
 
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_SONY_CIRCLE);
@@ -473,6 +482,13 @@ void register_global_constants() {
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_DPAD_DOWN);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_DPAD_LEFT);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_DPAD_RIGHT);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_GUIDE);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_MISC1);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_PADDLE1);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_PADDLE2);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_PADDLE3);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_PADDLE4);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_TOUCHPAD);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_L);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_L2);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(JOY_L3);
@@ -516,6 +532,17 @@ void register_global_constants() {
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(MIDI_MESSAGE_CHANNEL_PRESSURE);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(MIDI_MESSAGE_PITCH_BEND);
 
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(MIDI_MESSAGE_SYSTEM_EXCLUSIVE);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(MIDI_MESSAGE_QUARTER_FRAME);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(MIDI_MESSAGE_SONG_POSITION_POINTER);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(MIDI_MESSAGE_SONG_SELECT);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(MIDI_MESSAGE_TUNE_REQUEST);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(MIDI_MESSAGE_TIMING_CLOCK);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(MIDI_MESSAGE_START);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(MIDI_MESSAGE_CONTINUE);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(MIDI_MESSAGE_STOP);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(MIDI_MESSAGE_ACTIVE_SENSING);
+    BIND_STATIC_GLOBAL_ENUM_CONSTANT(MIDI_MESSAGE_SYSTEM_RESET);
     // error list
 
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(OK); // (0)
@@ -573,13 +600,16 @@ void register_global_constants() {
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,Range)
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,ExpRange)
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,Enum)
+    BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint, EnumSuggestion)
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,ExpEasing)
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,Flags)
 
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,Layers2DRenderer)
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,Layers2DPhysics)
+    BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,Layers2DNavigation)
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,Layers3DRenderer)
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,Layers3DPhysics)
+    BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,Layers3DNavigation)
 
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,File)
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,Dir)
@@ -591,6 +621,7 @@ void register_global_constants() {
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,ColorNoAlpha)
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,ImageCompressLossy)
     BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint,ImageCompressLossless)
+    BIND_GLOBAL_CLASS_ENUM_CONSTANT(PropertyHint, LocaleID)
 
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(PROPERTY_USAGE_STORAGE);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(PROPERTY_USAGE_EDITOR);
@@ -638,7 +669,7 @@ void register_global_constants() {
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_ARRAY", VariantType::ARRAY);
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_RAW_ARRAY", VariantType::POOL_BYTE_ARRAY);
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_INT_ARRAY", VariantType::POOL_INT_ARRAY);
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_REAL_ARRAY", VariantType::POOL_REAL_ARRAY);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_REAL_ARRAY", VariantType::POOL_FLOAT32_ARRAY);
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_STRING_ARRAY", VariantType::POOL_STRING_ARRAY);
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_VECTOR2_ARRAY", VariantType::POOL_VECTOR2_ARRAY); // 25
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_VECTOR3_ARRAY", VariantType::POOL_VECTOR3_ARRAY);
@@ -646,11 +677,9 @@ void register_global_constants() {
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_MAX", VariantType::VARIANT_MAX);
 
     //comparison
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_EQUAL", Variant::OP_EQUAL)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_NOT_EQUAL", Variant::OP_NOT_EQUAL)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_LESS", Variant::OP_LESS)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_GREATER", Variant::OP_GREATER)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_MAX", Variant::OP_MAX)
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_LESS", Variant::OP_LESS);
+
+    SE_END();
 }
 
 void unregister_global_constants() {
@@ -668,10 +697,18 @@ StringName GlobalConstants::get_global_constant_enum(int p_idx) {
 
     return _global_constants[p_idx].enum_name;
 }
+
+bool GlobalConstants::get_ignore_value_in_docs(int p_idx) {
+    return _global_constants[p_idx].ignore_value_in_docs;
+}
 #else
 StringName GlobalConstants::get_global_constant_enum(int p_idx) {
 
     return StringName();
+}
+
+bool GlobalConstants::get_ignore_value_in_docs(int p_idx) {
+    return false;
 }
 #endif
 

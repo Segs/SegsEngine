@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  basis.h                                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,7 +34,7 @@
 
 class Quat;
 
-class GODOT_EXPORT Basis {
+class GODOT_EXPORT [[nodiscard]] Basis {
 public:
     Vector3 elements[3] = {
         Vector3(1, 0, 0),
@@ -54,8 +54,8 @@ public:
     void invert();
     void transpose();
 
-    [[nodiscard]] Basis inverse() const;
-    [[nodiscard]] Basis transposed() const;
+    Basis inverse() const;
+    Basis transposed() const;
 
     _FORCE_INLINE_ real_t determinant() const;
 
@@ -65,7 +65,7 @@ public:
         // get actual basis axis (elements is transposed for performance)
         return Vector3(elements[0][p_axis], elements[1][p_axis], elements[2][p_axis]);
     }
-    void set_axis(int p_axis, const Vector3 &p_value) {
+    void set_axis(int p_axis, Vector3 p_value) {
         // get actual basis axis (elements is transposed for performance)
         elements[0][p_axis] = p_value.x;
         elements[1][p_axis] = p_value.y;
@@ -100,7 +100,7 @@ public:
     Vector3 get_euler_yzx() const;
     void set_euler_yzx(const Vector3 &p_euler);
     Vector3 get_euler_yxz() const;
-    void set_euler_yxz(const Vector3 &p_euler);
+    void set_euler_yxz(Vector3 p_euler);
     Vector3 get_euler_zxy() const;
     void set_euler_zxy(const Vector3 &p_euler);
 
@@ -111,7 +111,7 @@ public:
     void set_quat(const Quat &p_quat);
 
     Vector3 get_euler() const { return get_euler_yxz(); }
-    void set_euler(const Vector3 &p_euler) { set_euler_yxz(p_euler); }
+    void set_euler(Vector3 p_euler) { set_euler_yxz(p_euler); }
 
     void get_axis_angle(Vector3 &r_axis, real_t &r_angle) const;
     void set_axis_angle(const Vector3 &p_axis, real_t p_phi);
@@ -169,7 +169,8 @@ public:
     bool is_diagonal() const;
     bool is_rotation() const;
 
-    Basis slerp(const Basis &target, const real_t &t) const;
+    Basis slerp(const Basis &p_to, const real_t &p_weight) const;
+    _FORCE_INLINE_ Basis lerp(const Basis &p_to, const real_t &p_weight) const;
 
     operator String() const;
 
@@ -200,16 +201,14 @@ public:
         return Vector3(elements[0][0], elements[1][1], elements[2][2]);
     }
 
-    void set_row(int i, const Vector3 &p_row) {
-        elements[i][0] = p_row.x;
-        elements[i][1] = p_row.y;
-        elements[i][2] = p_row.z;
+    void set_row(int i, Vector3 p_row) {
+        elements[i] = p_row;
     }
 
     void set_zero() {
-        elements[0].zero();
-        elements[1].zero();
-        elements[2].zero();
+        elements[0] = {0,0,0};
+        elements[1] = {0,0,0};
+        elements[2] = {0,0,0};
     }
 
     _FORCE_INLINE_ Basis transpose_xform(const Basis &m) const {
@@ -237,13 +236,26 @@ public:
 #endif
     Basis diagonalize();
     void rotate_sh(real_t *p_values);
+    // The following normal xform functions are correct for non-uniform scales.
+    // Use these two functions in combination to xform a series of normals.
+    // First use get_normal_xform_basis() to precalculate the inverse transpose.
+    // Then apply xform_normal_fast() multiple times using the inverse transpose basis.
+    Basis get_normal_xform_basis() const { return inverse().transposed(); }
+
+    // N.B. This only does a normal transform if the basis used is the inverse transpose!
+    // Otherwise use xform_normal().
+    Vector3 xform_normal_fast(const Vector3 &p_vector) const { return xform(p_vector).normalized(); }
+
+    // This function does the above but for a single normal vector. It is considerably slower, so should usually
+    // only be used in cases of single normals, or when the basis changes each time.
+    Vector3 xform_normal(const Vector3 &p_vector) const { return get_normal_xform_basis().xform_normal_fast(p_vector); }
 
     operator Quat() const;
 
     Basis(const Quat &p_quat) { set_quat(p_quat); }
-    Basis(const Quat &p_quat, const Vector3 &p_scale) { set_quat_scale(p_quat, p_scale); }
+    Basis(const Quat &p_quat, Vector3 p_scale) { set_quat_scale(p_quat, p_scale); }
 
-    Basis(const Vector3 &p_euler) { set_euler(p_euler); }
+    Basis(Vector3 p_euler) { set_euler(p_euler); }
     Basis(const Vector3 &p_euler, const Vector3 &p_scale) { set_euler_scale(p_euler, p_scale); }
 
     Basis(const Vector3 &p_axis, real_t p_phi) { set_axis_angle(p_axis, p_phi); }
@@ -337,4 +349,12 @@ real_t Basis::determinant() const {
     return elements[0][0] * (elements[1][1] * elements[2][2] - elements[2][1] * elements[1][2]) -
            elements[1][0] * (elements[0][1] * elements[2][2] - elements[2][1] * elements[0][2]) +
            elements[2][0] * (elements[0][1] * elements[1][2] - elements[1][1] * elements[0][2]);
+}
+
+Basis Basis::lerp(const Basis &p_to, const real_t &p_weight) const {
+    Basis b;
+    b.elements[0] = elements[0].linear_interpolate(p_to.elements[0], p_weight);
+    b.elements[1] = elements[1].linear_interpolate(p_to.elements[1], p_weight);
+    b.elements[2] = elements[2].linear_interpolate(p_to.elements[2], p_weight);
+    return b;
 }

@@ -57,6 +57,9 @@ void Body2DSW::update_inertias() {
             real_t total_area = 0;
 
             for (int i = 0; i < get_shape_count(); i++) {
+                if (is_shape_disabled(i)) {
+                    continue;
+                }
                 total_area += get_shape_aabb(i).get_area();
             }
 
@@ -255,6 +258,7 @@ PhysicsServer2D::BodyMode Body2DSW::get_mode() const {
 
 void Body2DSW::_shapes_changed() {
     _update_inertia();
+    wakeup();
     wakeup_neighbours();
 }
 
@@ -318,9 +322,8 @@ void Body2DSW::set_state(PhysicsServer2D::BodyState p_state, const Variant &p_va
                 // biased_angular_velocity=Vector3();
                 set_active(false);
             } else {
-                if (mode != PhysicsServer2D::BODY_MODE_STATIC) {
+                assert(mode != PhysicsServer2D::BODY_MODE_STATIC);
                     set_active(true);
-                }
             }
         } break;
         case PhysicsServer2D::BODY_STATE_CAN_SLEEP: {
@@ -595,10 +598,7 @@ void Body2DSW::wakeup_neighbours() {
 
 void Body2DSW::call_queries() {
     if (fi_callback.is_valid()) {
-        Physics2DDirectBodyStateSW *dbs = Physics2DDirectBodyStateSW::singleton;
-        dbs->body = this;
-
-        Variant v(dbs);
+        Variant v(direct_access);
         const Variant *vp[1] = { &v };
 
         Object *obj = fi_callback.get_object();
@@ -649,18 +649,24 @@ Body2DSW::Body2DSW() : CollisionObject2DSW(TYPE_BODY), inertia_update_list(this)
     first_integration = false;
 
     can_sleep = true;
+    direct_access = memnew(Physics2DDirectBodyStateSW);
+    direct_access->body = this;
 }
 
 Body2DSW::~Body2DSW() {
+    memdelete(direct_access);
     if (get_space()) {
         get_space()->body_remove_from_active_list(this);
     }
 }
 
-Physics2DDirectBodyStateSW *Physics2DDirectBodyStateSW::singleton = nullptr;
 
 PhysicsDirectSpaceState2D *Physics2DDirectBodyStateSW::get_space_state() {
     return body->get_space()->get_direct_state();
+}
+
+real_t Physics2DDirectBodyStateSW::get_step() const {
+    return body->get_space()->get_step();
 }
 
 Variant Physics2DDirectBodyStateSW::get_contact_collider_shape_metadata(int p_contact_idx) const {

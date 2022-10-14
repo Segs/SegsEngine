@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  vector3.cpp                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,12 +34,12 @@
 #include "core/string.h"
 #include "core/string_utils.h"
 
-void Vector3::rotate(const Vector3 &p_axis, real_t p_phi) {
+void Vector3::rotate(Vector3 p_axis, real_t p_phi) {
 
     *this = Basis(p_axis, p_phi).xform(*this);
 }
 
-Vector3 Vector3::rotated(const Vector3 &p_axis, real_t p_phi) const {
+Vector3 Vector3::rotated(Vector3 p_axis, real_t p_phi) const {
 
     Vector3 r = *this;
     r.rotate(p_axis, p_phi);
@@ -54,15 +54,6 @@ real_t Vector3::get_axis(int p_axis) const {
 
     ERR_FAIL_INDEX_V(p_axis, 3, 0);
     return operator[](p_axis);
-}
-
-int Vector3::min_axis() const {
-
-    return x < y ? (x < z ? 0 : 2) : (y < z ? 1 : 2);
-}
-int Vector3::max_axis() const {
-
-    return x < y ? (y < z ? 2 : 1) : (x < z ? 2 : 0);
 }
 
 void Vector3::snap(Vector3 p_val) {
@@ -127,7 +118,7 @@ Vector3 Vector3::cubic_interpolate(const Vector3 &p_b, const Vector3 &p_pre_a, c
     return out;
 }
 
-Vector3 Vector3::move_toward(const Vector3 &p_to, const real_t p_delta) const {
+Vector3 Vector3::move_toward(Vector3 p_to, const real_t p_delta) const {
     Vector3 v = *this;
     Vector3 vd = p_to - v;
     real_t len = vd.length();
@@ -139,7 +130,7 @@ Vector3::operator String() const {
     return (rtos(x) + ", " + rtos(y) + ", " + rtos(z));
 }
 
-Basis Vector3::outer(const Vector3 &p_b) const {
+Basis Vector3::outer(Vector3 p_b) const {
 
     Vector3 row0(x * p_b.x, x * p_b.y, x * p_b.z);
     Vector3 row1(y * p_b.x, y * p_b.y, y * p_b.z);

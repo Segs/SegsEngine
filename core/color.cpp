@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  color.cpp                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -443,115 +443,45 @@ String Color::to_html(bool p_alpha) const {
 }
 
 Color Color::from_hsv(float p_h, float p_s, float p_v, float p_a) {
-    p_h = Math::fmod(p_h * 360.0f, 360.0f);
-    if (p_h < 0.0f) {
-        p_h += 360.0f;
-    }
-
-    const float h_ = p_h / 60.0f;
-    const float c = p_v * p_s;
-    const float x = c * (1.0f - Math::abs(Math::fmod(h_, 2.0f) - 1.0f));
-    float r, g, b;
-
-    switch ((int)h_) {
-        case 0: {
-            r = c;
-            g = x;
-            b = 0;
-        } break;
-        case 1: {
-            r = x;
-            g = c;
-            b = 0;
-        } break;
-        case 2: {
-            r = 0;
-            g = c;
-            b = x;
-        } break;
-        case 3: {
-            r = 0;
-            g = x;
-            b = c;
-        } break;
-        case 4: {
-            r = x;
-            g = 0;
-            b = c;
-        } break;
-        case 5: {
-            r = c;
-            g = 0;
-            b = x;
-        } break;
-        default: {
-            r = 0;
-            g = 0;
-            b = 0;
-        } break;
-    }
-
-    const float m = p_v - c;
-    return Color(m + r, m + g, m + b, p_a);
+    Color c;
+    c.set_hsv(p_h, p_s, p_v, p_a);
+    return c;
 }
 
 Color::operator String() const {
     return rtos(r) + ", " + rtos(g) + ", " + rtos(b) + ", " + rtos(a);
 }
 
-Color Color::operator+(const Color &p_color) const {
-    return Color(r + p_color.r, g + p_color.g, b + p_color.b, a + p_color.a);
-}
-
-Color Color::operator-(const Color &p_color) const {
-    return Color(r - p_color.r, g - p_color.g, b - p_color.b, a - p_color.a);
-}
-
-void Color::operator-=(const Color &p_color) {
-    r = r - p_color.r;
-    g = g - p_color.g;
-    b = b - p_color.b;
-    a = a - p_color.a;
-}
-
-Color Color::operator*(const Color &p_color) const {
-    return Color(r * p_color.r, g * p_color.g, b * p_color.b, a * p_color.a);
-}
-
-Color Color::operator*(const real_t &rvalue) const {
-    return Color(r * rvalue, g * rvalue, b * rvalue, a * rvalue);
-}
-
-void Color::operator*=(const Color &p_color) {
+void Color::operator*=(Color p_color) {
     r = r * p_color.r;
     g = g * p_color.g;
     b = b * p_color.b;
     a = a * p_color.a;
 }
 
-void Color::operator*=(const real_t &rvalue) {
+void Color::operator*=(real_t rvalue) {
     r = r * rvalue;
     g = g * rvalue;
     b = b * rvalue;
     a = a * rvalue;
 }
 
-Color Color::operator/(const Color &p_color) const {
+Color Color::operator/(Color p_color) const {
     return Color(r / p_color.r, g / p_color.g, b / p_color.b, a / p_color.a);
 }
 
-Color Color::operator/(const real_t &rvalue) const {
+Color Color::operator/(real_t rvalue) const {
     return Color(r / rvalue, g / rvalue, b / rvalue, a / rvalue);
 }
 
-void Color::operator/=(const Color &p_color) {
+void Color::operator/=(Color p_color) {
     r = r / p_color.r;
     g = g / p_color.g;
     b = b / p_color.b;
     a = a / p_color.a;
 }
 
-void Color::operator/=(const real_t &rvalue) {
+void Color::operator/=(real_t rvalue) {
     if (rvalue == 0.0f) {
         r = 1.0f;
         g = 1.0f;
@@ -565,6 +495,6 @@ void Color::operator/=(const real_t &rvalue) {
     }
 }
 
-Color Color::operator-() const {
-    return Color(1.0f - r, 1.0f - g, 1.0f - b, 1.0f - a);
+bool Color::is_equal_approx(Color p_color) const {
+    return Math::is_equal_approx(r, p_color.r) && Math::is_equal_approx(g, p_color.g) && Math::is_equal_approx(b, p_color.b) && Math::is_equal_approx(a, p_color.a);
 }

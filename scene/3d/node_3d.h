@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  node_3d.h                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,9 +32,7 @@
 
 #include "scene/main/node.h"
 #include "scene/main/scene_tree_notifications.h"
-#include "core/self_list.h"
 #include "core/math/transform.h"
-#include "core/list.h"
 
 class World3D;
 /**
@@ -55,7 +53,7 @@ public:
     virtual void transform() = 0;
     virtual void clear() = 0;
     virtual void redraw() = 0;
-    virtual void free() = 0;
+    virtual void free_gizmo() = 0;
 
     Node3DGizmo();
     ~Node3DGizmo() override {}
@@ -67,6 +65,15 @@ class GODOT_EXPORT Node3D : public Node {
 
     OBJ_CATEGORY("3D")
 
+public:
+    enum SpatialFlags {
+        // this is cached, and only currently kept up to date in visual instances
+        // this is set if a visual instance is
+        // (a) in the tree AND (b) visible via is_visible_in_tree() call
+        SPATIAL_FLAG_VI_VISIBLE = 1 << 0,
+    };
+
+private:
     enum TransformDirty {
         DIRTY_NONE = 0,
         DIRTY_VECTORS = 1,
@@ -74,7 +81,7 @@ class GODOT_EXPORT Node3D : public Node {
         DIRTY_GLOBAL = 4
     };
 
-    mutable IntrusiveListNode<Node> xform_change;
+    //mutable IntrusiveListNode<Node> xform_change;
 
     struct Data {
 
@@ -82,30 +89,34 @@ class GODOT_EXPORT Node3D : public Node {
         mutable Transform local_transform;
         mutable Vector3 rotation;
         mutable Vector3 scale;
-        mutable int dirty;
+        Vector<Node3D *> children;
+        Node3D *parent;
 
         Viewport *viewport;
-
-        int children_lock;
-        Node3D *parent;
-        Vector<Node3D *> children;
-
-        bool toplevel_active;
-        bool toplevel;
-        bool inside_world;
-
-        bool ignore_notification;
-        bool notify_local_transform;
-        bool notify_transform;
-
-        bool visible;
-        bool disable_scale;
-
 #ifdef TOOLS_ENABLED
         Ref<Node3DGizmo> gizmo;
-        bool gizmo_disabled;
-        bool gizmo_dirty;
+        uint8_t gizmo_disabled  : 1;
+        uint8_t gizmo_dirty : 1;
 #endif
+
+        int children_lock;
+        mutable uint8_t dirty;
+
+		bool toplevel_active : 1;
+        bool toplevel : 1;
+        bool inside_world : 1;
+
+        // this is cached, and only currently kept up to date in visual instances
+        // this is set if a visual instance is
+        // (a) in the tree AND (b) visible via is_visible_in_tree() call
+        bool vi_visible : 1;
+
+        bool ignore_notification : 1;
+        bool notify_local_transform : 1;
+        bool notify_transform : 1;
+
+        bool visible : 1;
+        bool disable_scale : 1;
 
     } data;
 
@@ -120,6 +131,9 @@ protected:
 
     _FORCE_INLINE_ void _update_local_transform() const;
 
+	void _set_vi_visible(bool p_visible);
+    bool _is_vi_visible() const { return data.vi_visible; }
+
     void _notification(int p_what);
     static void _bind_methods();
 
@@ -131,11 +145,14 @@ public:
         NOTIFICATION_EXIT_WORLD = 42,
         NOTIFICATION_VISIBILITY_CHANGED = 43,
         NOTIFICATION_LOCAL_TRANSFORM_CHANGED = 44,
+        NOTIFICATION_ENTER_GAMEPLAY = 45,
+        NOTIFICATION_EXIT_GAMEPLAY = 46,
     };
+    void notification_callback(int p_message_type) override;
 
     Node3D *get_parent_spatial() const;
 
-    Ref<World3D> get_world() const;
+    Ref<World3D> get_world_3d() const;
 
     void set_translation(const Vector3 &p_translation);
     void set_rotation(const Vector3 &p_euler_rad);
@@ -156,6 +173,7 @@ public:
 #ifdef TOOLS_ENABLED
     virtual Transform get_global_gizmo_transform() const;
     virtual Transform get_local_gizmo_transform() const;
+    virtual AABB get_fallback_gizmo_aabb() const;
 #endif
 
     void set_as_top_level(bool p_enabled);

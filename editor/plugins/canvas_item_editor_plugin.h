@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  canvas_item_editor_plugin.h                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/dictionary.h"
 #include "editor/editor_plugin.h"
 #include "scene/2d/canvas_item.h"
 #include "scene/gui/box_container.h"
@@ -91,6 +92,10 @@ public:
         TOOL_MAX
     };
 
+    enum AddNodeOption {
+        ADD_NODE,
+        ADD_INSTANCE,
+    };
 private:
     EditorNode *editor;
 
@@ -119,7 +124,6 @@ private:
         SNAP_RELATIVE,
         SNAP_CONFIGURE,
         SNAP_USE_PIXEL,
-        SHOW_GRID,
         SHOW_HELPERS,
         SHOW_RULERS,
         SHOW_GUIDES,
@@ -215,6 +219,7 @@ private:
         DRAG_ANCHOR_BOTTOM_RIGHT,
         DRAG_ANCHOR_BOTTOM_LEFT,
         DRAG_ANCHOR_ALL,
+        DRAG_QUEUED,
         DRAG_MOVE,
         DRAG_SCALE_X,
         DRAG_SCALE_Y,
@@ -227,6 +232,11 @@ private:
         DRAG_KEY_MOVE
     };
 
+    enum GridVisibility {
+        GRID_VISIBILITY_SHOW,
+        GRID_VISIBILITY_SHOW_WHEN_SNAPPING,
+        GRID_VISIBILITY_HIDE,
+    };
     EditorSelection *editor_selection;
     bool selection_menu_additive_selection;
 
@@ -237,6 +247,10 @@ private:
     HScrollBar *h_scroll;
     VScrollBar *v_scroll;
     HBoxContainer *hb;
+    // Used for secondary menu items which are displayed depending on the currently selected node
+    // (such as MeshInstance's "Mesh" menu).
+    PanelContainer *context_menu_container;
+    HBoxContainer *hbc_context_menu;
 
     ToolButton *zoom_minus;
     ToolButton *zoom_reset;
@@ -248,7 +262,7 @@ private:
     VBoxContainer *info_overlay;
 
     Transform2D transform;
-    bool show_grid;
+    GridVisibility grid_visibility;
     bool show_rulers;
     bool show_guides;
     bool show_origin;
@@ -292,6 +306,7 @@ private:
 
     bool ruler_tool_active;
     Point2 ruler_tool_origin;
+    Point2 node_create_position;
 
     MenuOption last_option;
 
@@ -328,23 +343,21 @@ private:
     uint64_t bone_last_frame;
 
     struct BoneKey {
-        ObjectID from;
-        ObjectID to;
-        _FORCE_INLINE_ bool operator<(const BoneKey &p_key) const {
-            if (from == p_key.from)
-                return to < p_key.to;
-            else
-                return from < p_key.from;
+        GameEntity from;
+        GameEntity to;
+        operator size_t() const {
+            eastl::hash<GameEntity> hs;
+            return hs(from) ^ hs(to)<<3;
         }
     };
 
-    Map<BoneKey, BoneList> bone_list;
+    HashMap<BoneKey, BoneList> bone_list;
 
     struct PoseClipboard {
         Vector2 pos;
         Vector2 scale;
         float rot;
-        ObjectID id;
+        GameEntity id;
     };
     Vector<PoseClipboard> pose_clipboard;
 
@@ -374,6 +387,7 @@ private:
     MenuButton *skeleton_menu;
     ToolButton *override_camera_button;
     MenuButton *view_menu;
+    PopupMenu *grid_menu;
     HBoxContainer *animation_hb;
     MenuButton *animation_menu;
 
@@ -390,10 +404,12 @@ private:
     Button *key_auto_insert_button;
 
     PopupMenu *selection_menu;
+    PopupMenu *add_node_menu;
 
     Control *top_ruler;
     Control *left_ruler;
 
+    Point2 drag_start_origin;
     DragType drag_type;
     Point2 drag_from;
     Point2 drag_to;
@@ -417,21 +433,30 @@ private:
     Ref<ShortCut> multiply_grid_step_shortcut;
     Ref<ShortCut> divide_grid_step_shortcut;
     Ref<ShortCut> pan_view_shortcut;
+    UndoRedo *undo_redo;
+    bool updating_scroll;
+    ConfirmationDialog *snap_dialog;
+
+    CanvasItem *ref_item;
+    SnapTarget snap_target[2];
+    Transform2D snap_transform;
+    VBoxContainer *controls_vb;
+    HBoxContainer *zoom_hb;
+    HSplitContainer *left_panel_split;
+    HSplitContainer *right_panel_split;
+    VSplitContainer *bottom_split;
+
+    bool bone_list_dirty;
 
     bool _is_node_locked(const Node *p_node);
     bool _is_node_movable(const Node *p_node, bool p_popup_warning = false);
     void _find_canvas_items_at_pos(const Point2 &p_pos, Node *p_node, Vector<_SelectResult> &r_items, const Transform2D &p_parent_xform = Transform2D(), const Transform2D &p_canvas_xform = Transform2D());
-    void _get_canvas_items_at_pos(const Point2 &p_pos, Vector<_SelectResult> &r_items);
+    void _get_canvas_items_at_pos(const Point2 &p_pos, Vector<_SelectResult> &r_items, bool p_allow_locked = false);
     void _get_bones_at_pos(const Point2 &p_pos, Vector<_SelectResult> &r_items);
 
     void _find_canvas_items_in_rect(const Rect2 &p_rect, Node *p_node, Vector<CanvasItem *> *r_items, const Transform2D &p_parent_xform = Transform2D(), const Transform2D &p_canvas_xform = Transform2D());
     bool _select_click_on_item(CanvasItem *item, Point2 p_click_pos, bool p_append);
 
-    ConfirmationDialog *snap_dialog;
-
-    CanvasItem *ref_item;
-
-    void _add_canvas_item(CanvasItem *p_canvas_item);
 
     void _save_canvas_item_ik_chain(const CanvasItem *p_canvas_item, Vector<float> *p_bones_length, Vector<Dictionary> *p_bones_state);
     void _save_canvas_item_state(Vector<CanvasItem *> p_canvas_items, bool save_bones = false);
@@ -443,15 +468,18 @@ private:
     Vector2 _position_to_anchor(const Control *p_control, Vector2 position);
 
     void _popup_callback(int p_op);
-    bool updating_scroll;
     void _update_scroll(float);
     void _update_scrollbars();
-    void _append_canvas_item(CanvasItem *p_item);
     void _snap_changed();
     void _selection_result_pressed(int);
     void _selection_menu_hide();
+    void _add_node_pressed(int p_result);
+    void _node_created(Node *p_node);
+    void _reset_create_position();
+    bool _is_grid_visible() const;
+    void _prepare_grid_menu();
+    void _on_grid_menu_id_pressed(int p_id);
 
-    UndoRedo *undo_redo;
     bool _build_bones_list(Node *p_node);
     bool _get_bone_shape(Vector<Vector2> *shape, Vector<Vector2> *outline_shape, eastl::pair<const BoneKey, BoneList> &bone);
 
@@ -512,8 +540,6 @@ private:
 
     void _solve_IK(Node2D *leaf_node, Point2 target_position);
 
-    SnapTarget snap_target[2];
-    Transform2D snap_transform;
     void _snap_if_closer_float(
             float p_value,
             float &r_current_snap, SnapTarget &r_current_snap_target,
@@ -533,19 +559,17 @@ private:
             const Node *p_current);
 
     void _set_anchors_preset(Control::LayoutPreset p_preset);
-    void _set_margins_preset(Control::LayoutPreset p_preset);
     void _set_anchors_and_margins_preset(Control::LayoutPreset p_preset);
     void _set_anchors_and_margins_to_keep_ratio();
 
     void _button_toggle_anchor_mode(bool p_status);
 
-    VBoxContainer *controls_vb;
-    HBoxContainer *zoom_hb;
     void _zoom_on_position(float p_zoom, Point2 p_position = Point2());
     void _update_zoom_label();
     void _button_zoom_minus();
     void _button_zoom_reset();
     void _button_zoom_plus();
+    void _shortcut_zoom_set(float p_zoom);
     void _button_toggle_smart_snap(bool p_status);
     void _button_toggle_grid_snap(bool p_status);
     void _button_override_camera(bool p_pressed);
@@ -553,14 +577,11 @@ private:
 
     void _update_override_camera_button(bool p_game_running);
 
-    HSplitContainer *palette_split;
-    VSplitContainer *bottom_split;
-
-    bool bone_list_dirty;
     void _queue_update_bone_list();
     void _update_bone_list();
     void _tree_changed(Node *);
 
+    void _update_context_menu_stylebox();
     void _popup_warning_temporarily(Control *p_control, const float p_duration);
     void _popup_warning_depop(Control *p_control);
 
@@ -571,9 +592,6 @@ protected:
     void _notification(int p_what);
 
     static void _bind_methods();
-    void end_drag();
-    void box_selection_start(Point2 &click);
-    bool box_selection_end();
 
     HBoxContainer *get_panel_hb() { return hb; }
 
@@ -599,8 +617,6 @@ protected:
         void set(Vector2 &v, float f) { v.y = f; }
     };
 
-    template <class P, class C>
-    void space_selected_items();
 
     static CanvasItemEditor *singleton;
 
@@ -635,7 +651,14 @@ public:
     void add_control_to_info_overlay(Control *p_control);
     void remove_control_from_info_overlay(Control *p_control);
 
-    HSplitContainer *get_palette_split();
+    void add_control_to_left_panel(Control *p_control);
+    void remove_control_from_left_panel(Control *p_control);
+
+    void add_control_to_right_panel(Control *p_control);
+    void remove_control_from_right_panel(Control *p_control);
+
+    void move_control_to_left_panel(Control *p_control);
+    void move_control_to_right_panel(Control *p_control);
     VSplitContainer *get_bottom_split();
 
     Control *get_viewport_control() { return viewport; }
@@ -682,7 +705,7 @@ public:
 class CanvasItemEditorViewport : public Control {
     GDCLASS(CanvasItemEditorViewport,Control)
 
-    StringName default_type;
+    String default_type;
     Vector<StringName> types;
 
     Vector<String> selected_files;

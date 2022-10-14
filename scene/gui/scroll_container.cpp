@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  scroll_container.cpp                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -242,29 +242,24 @@ void ScrollContainer::_update_scrollbar_position() {
     v_scroll->raise();
 }
 
-void ScrollContainer::_ensure_focused_visible(Control *p_control) {
-
-    if (!follow_focus) {
-        return;
+void ScrollContainer::_gui_focus_changed(Control *p_control) {
+    if (follow_focus && is_a_parent_of(p_control)) {
+        ensure_control_visible(p_control);
+    }
     }
 
-    if (is_a_parent_of(p_control)) {
+void ScrollContainer::ensure_control_visible(Control *p_control) {
+    ERR_FAIL_COND_MSG(!is_a_parent_of(p_control), "Must be a parent of the control.");
         Rect2 global_rect = get_global_rect();
         Rect2 other_rect = p_control->get_global_rect();
-        float right_margin = 0;
-        if (v_scroll->is_visible()) {
-            right_margin += v_scroll->get_size().x;
-        }
-        float bottom_margin = 0;
-        if (h_scroll->is_visible()) {
-            bottom_margin += h_scroll->get_size().y;
-        }
+    float right_margin = v_scroll->is_visible() ? v_scroll->get_size().x : 0.0f;
+    float bottom_margin = h_scroll->is_visible() ? h_scroll->get_size().y : 0.0f;
 
-        float diff = M_MAX(MIN(other_rect.position.y, global_rect.position.y), other_rect.position.y + other_rect.size.y - global_rect.size.y + bottom_margin);
-        set_v_scroll(get_v_scroll() + (diff - global_rect.position.y));
-        diff = M_MAX(MIN(other_rect.position.x, global_rect.position.x), other_rect.position.x + other_rect.size.x - global_rect.size.x + right_margin);
-        set_h_scroll(get_h_scroll() + (diff - global_rect.position.x));
-    }
+    Vector2 diff = Vector2(M_MAX(MIN(other_rect.position.x, global_rect.position.x), other_rect.position.x + other_rect.size.x - global_rect.size.x + right_margin),
+            M_MAX(MIN(other_rect.position.y, global_rect.position.y), other_rect.position.y + other_rect.size.y - global_rect.size.y + bottom_margin));
+
+    set_h_scroll(get_h_scroll() + (diff.x - global_rect.position.x));
+    set_v_scroll(get_v_scroll() + (diff.y - global_rect.position.y));
 }
 
 
@@ -275,7 +270,9 @@ void ScrollContainer::_notification(int p_what) {
     }
 
     if (p_what == NOTIFICATION_READY) {
-        get_viewport()->connect("gui_focus_changed",callable_mp(this, &ClassName::_ensure_focused_visible));
+        Viewport *viewport = get_viewport();
+        ERR_FAIL_COND(!viewport);
+        viewport->connect("gui_focus_changed", callable_mp(this, &ClassName::_gui_focus_changed));
     }
 
     if (p_what == NOTIFICATION_SORT_CHILDREN) {
@@ -580,24 +577,25 @@ VScrollBar *ScrollContainer::get_v_scrollbar() {
 
 void ScrollContainer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_gui_input"), &ScrollContainer::_gui_input);
-    MethodBinder::bind_method(D_METHOD("set_enable_h_scroll", {"enable"}), &ScrollContainer::set_enable_h_scroll);
-    MethodBinder::bind_method(D_METHOD("is_h_scroll_enabled"), &ScrollContainer::is_h_scroll_enabled);
-    MethodBinder::bind_method(D_METHOD("set_enable_v_scroll", {"enable"}), &ScrollContainer::set_enable_v_scroll);
-    MethodBinder::bind_method(D_METHOD("is_v_scroll_enabled"), &ScrollContainer::is_v_scroll_enabled);
+    BIND_METHOD(ScrollContainer,_gui_input);
+    BIND_METHOD(ScrollContainer,set_enable_h_scroll);
+    BIND_METHOD(ScrollContainer,is_h_scroll_enabled);
+    BIND_METHOD(ScrollContainer,set_enable_v_scroll);
+    BIND_METHOD(ScrollContainer,is_v_scroll_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_h_scroll", {"value"}), &ScrollContainer::set_h_scroll);
-    MethodBinder::bind_method(D_METHOD("get_h_scroll"), &ScrollContainer::get_h_scroll);
-    MethodBinder::bind_method(D_METHOD("set_v_scroll", {"value"}), &ScrollContainer::set_v_scroll);
-    MethodBinder::bind_method(D_METHOD("get_v_scroll"), &ScrollContainer::get_v_scroll);
-    MethodBinder::bind_method(D_METHOD("set_deadzone", {"deadzone"}), &ScrollContainer::set_deadzone);
-    MethodBinder::bind_method(D_METHOD("get_deadzone"), &ScrollContainer::get_deadzone);
-    MethodBinder::bind_method(D_METHOD("set_follow_focus", {"enabled"}), &ScrollContainer::set_follow_focus);
-    MethodBinder::bind_method(D_METHOD("is_following_focus"), &ScrollContainer::is_following_focus);
+    BIND_METHOD(ScrollContainer,set_h_scroll);
+    BIND_METHOD(ScrollContainer,get_h_scroll);
+    BIND_METHOD(ScrollContainer,set_v_scroll);
+    BIND_METHOD(ScrollContainer,get_v_scroll);
+    BIND_METHOD(ScrollContainer,set_deadzone);
+    BIND_METHOD(ScrollContainer,get_deadzone);
+    BIND_METHOD(ScrollContainer,set_follow_focus);
+    BIND_METHOD(ScrollContainer,is_following_focus);
 
 
-    MethodBinder::bind_method(D_METHOD("get_h_scrollbar"), &ScrollContainer::get_h_scrollbar);
-    MethodBinder::bind_method(D_METHOD("get_v_scrollbar"), &ScrollContainer::get_v_scrollbar);
+    BIND_METHOD(ScrollContainer,get_h_scrollbar);
+    BIND_METHOD(ScrollContainer,get_v_scrollbar);
+    BIND_METHOD(ScrollContainer,ensure_control_visible);
 
     ADD_SIGNAL(MethodInfo("scroll_started"));
     ADD_SIGNAL(MethodInfo("scroll_ended"));

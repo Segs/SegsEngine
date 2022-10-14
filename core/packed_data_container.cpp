@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  packed_data_container.cpp                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -109,6 +109,7 @@ Variant PackedDataContainer::_iter_get_ofs(const Variant &p_iter, uint32_t p_off
 
 Variant PackedDataContainer::_get_at_ofs(uint32_t p_ofs, const uint8_t *p_buf, bool &err) const {
 
+    ERR_FAIL_COND_V(p_ofs + 4 > (uint32_t)data.size(), Variant());
     uint32_t type = decode_uint32(p_buf + p_ofs);
 
     if (type == TYPE_ARRAY || type == TYPE_DICT) {
@@ -135,7 +136,9 @@ Variant PackedDataContainer::_get_at_ofs(uint32_t p_ofs, const uint8_t *p_buf, b
 
 uint32_t PackedDataContainer::_type_at_ofs(uint32_t p_ofs) const {
 
+    ERR_FAIL_COND_V(p_ofs + 4 > (uint32_t)data.size(), 0);
     PoolVector<uint8_t>::Read rd = data.read();
+    ERR_FAIL_COND_V(!rd.ptr(), 0);
     const uint8_t *r = &rd[p_ofs];
     uint32_t type = decode_uint32(r);
 
@@ -144,6 +147,7 @@ uint32_t PackedDataContainer::_type_at_ofs(uint32_t p_ofs) const {
 
 int PackedDataContainer::_size(uint32_t p_ofs) const {
 
+    ERR_FAIL_COND_V(p_ofs + 4 > (uint32_t)data.size(), 0);
     PoolVector<uint8_t>::Read rd = data.read();
     ERR_FAIL_COND_V(data.empty(), 0);
     const uint8_t *r = &rd[p_ofs];
@@ -164,8 +168,13 @@ int PackedDataContainer::_size(uint32_t p_ofs) const {
 }
 
 Variant PackedDataContainer::_key_at_ofs(uint32_t p_ofs, const Variant &p_key, bool &err) const {
-
+    ERR_FAIL_COND_V(p_ofs + 4 > (uint32_t)data.size(), Variant());
     PoolVector<uint8_t>::Read rd = data.read();
+    if (!rd.ptr()) {
+        err = true;
+        ERR_FAIL_COND_V(!rd.ptr(), Variant());
+    }
+
     const uint8_t *r = &rd[p_ofs];
     uint32_t type = decode_uint32(r);
 
@@ -248,7 +257,7 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
         case VariantType::TRANSFORM:
         case VariantType::POOL_BYTE_ARRAY:
         case VariantType::POOL_INT_ARRAY:
-        case VariantType::POOL_REAL_ARRAY:
+        case VariantType::POOL_FLOAT32_ARRAY:
         case VariantType::POOL_STRING_ARRAY:
         case VariantType::POOL_VECTOR2_ARRAY:
         case VariantType::POOL_VECTOR3_ARRAY:
@@ -278,10 +287,10 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
             encode_uint32(TYPE_DICT, &tmpdata[pos + 0]);
             encode_uint32(len, &tmpdata[pos + 4]);
 
-            Vector<Variant> keys(d.get_key_list());
+            auto keys(d.get_key_list());
             Vector<DictKey> sortk;
             sortk.reserve(keys.size());
-            for(Variant &E : keys ) {
+            for(auto &E : keys ) {
 
                 DictKey dk;
                 dk.hash = E.hash();
@@ -369,13 +378,13 @@ Variant PackedDataContainer::_iter_get(const Variant &p_iter) {
 
 void PackedDataContainer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_set_data"), &PackedDataContainer::_set_data);
-    MethodBinder::bind_method(D_METHOD("_get_data"), &PackedDataContainer::_get_data);
-    MethodBinder::bind_method(D_METHOD("_iter_init"), &PackedDataContainer::_iter_init);
-    MethodBinder::bind_method(D_METHOD("_iter_get"), &PackedDataContainer::_iter_get);
-    MethodBinder::bind_method(D_METHOD("_iter_next"), &PackedDataContainer::_iter_next);
-    MethodBinder::bind_method(D_METHOD("pack", {"value"}), &PackedDataContainer::pack);
-    MethodBinder::bind_method(D_METHOD("size"), &PackedDataContainer::size);
+    BIND_METHOD(PackedDataContainer,_set_data);
+    BIND_METHOD(PackedDataContainer,_get_data);
+    BIND_METHOD(PackedDataContainer,_iter_init);
+    BIND_METHOD(PackedDataContainer,_iter_get);
+    BIND_METHOD(PackedDataContainer,_iter_next);
+    BIND_METHOD(PackedDataContainer,pack);
+    BIND_METHOD(PackedDataContainer,size);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "__data__"), "_set_data", "_get_data");
 }
@@ -408,11 +417,11 @@ bool PackedDataContainerRef::_is_dictionary() const {
 
 void PackedDataContainerRef::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("size"), &PackedDataContainerRef::size);
-    MethodBinder::bind_method(D_METHOD("_iter_init"), &PackedDataContainerRef::_iter_init);
-    MethodBinder::bind_method(D_METHOD("_iter_get"), &PackedDataContainerRef::_iter_get);
-    MethodBinder::bind_method(D_METHOD("_iter_next"), &PackedDataContainerRef::_iter_next);
-    MethodBinder::bind_method(D_METHOD("_is_dictionary"), &PackedDataContainerRef::_is_dictionary);
+    BIND_METHOD(PackedDataContainerRef,size);
+    BIND_METHOD(PackedDataContainerRef,_iter_init);
+    BIND_METHOD(PackedDataContainerRef,_iter_get);
+    BIND_METHOD(PackedDataContainerRef,_iter_next);
+    BIND_METHOD(PackedDataContainerRef,_is_dictionary);
 }
 
 Variant PackedDataContainerRef::getvar(const Variant &p_key, bool *r_valid) const {
@@ -423,6 +432,8 @@ Variant PackedDataContainerRef::getvar(const Variant &p_key, bool *r_valid) cons
         *r_valid = !err;
     return ret;
 }
+
+PackedDataContainerRef::PackedDataContainerRef() = default;
 
 int PackedDataContainerRef::size() const {
 

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  visual_instance_3d.h                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -33,6 +33,7 @@
 #include "core/math/face3.h"
 #include "core/rid.h"
 #include "scene/3d/node_3d.h"
+#include "scene/3d/cull_instance_component.h"
 #include "scene/resources/material.h"
 
 class GODOT_EXPORT VisualInstance3D : public Node3D {
@@ -41,12 +42,13 @@ class GODOT_EXPORT VisualInstance3D : public Node3D {
 
     OBJ_CATEGORY("3D Visual Nodes")
 
-    RID base;
-    RID instance;
+    RenderingEntity base=entt::null;
+    RenderingEntity instance;
     uint32_t layers;
 
 protected:
     void _update_visibility();
+    void set_instance_use_identity_transform(bool p_enable);
 
     void _notification(int p_what);
     static void _bind_methods();
@@ -58,14 +60,14 @@ public:
         FACES_DYNAMIC = 4 // dynamic object geometry
     };
 
-    RID get_instance() const { return instance; }
+    RenderingEntity get_instance() const { return instance; }
     virtual AABB get_aabb() const = 0;
     virtual Vector<Face3> get_faces(uint32_t p_usage_flags) const = 0;
 
     virtual AABB get_transformed_aabb() const; // helper
 
-    void set_base(const RID &p_base);
-    RID get_base() const { return base; }
+    void set_base(RenderingEntity p_base);
+    RenderingEntity get_base() const { return base; }
 
     void set_layer_mask(uint32_t p_mask);
     uint32_t get_layer_mask() const { return layers; }
@@ -103,8 +105,11 @@ public:
 
 private:
     bool flags[FLAG_MAX];
+    bool generate_lightmap;
+    LightmapScale lightmap_scale;
     ShadowCastingSetting shadow_casting_setting;
     Ref<Material> material_override;
+    Ref<Material> material_overlay;
     float lod_min_distance;
     float lod_max_distance;
     float lod_min_hysteresis;
@@ -123,6 +128,11 @@ public:
     void set_cast_shadows_setting(ShadowCastingSetting p_shadow_casting_setting);
     ShadowCastingSetting get_cast_shadows_setting() const;
 
+    void set_generate_lightmap(bool p_enabled);
+    bool get_generate_lightmap();
+
+    void set_lightmap_scale(LightmapScale p_scale);
+    LightmapScale get_lightmap_scale() const;
     void set_lod_min_distance(float p_dist);
     float get_lod_min_distance() const { return lod_min_distance; }
 
@@ -137,6 +147,9 @@ public:
 
     virtual void set_material_override(const Ref<Material> &p_material);
     Ref<Material> get_material_override() const;
+
+    virtual void set_material_overlay(const Ref<Material> &p_material);
+    const Ref<Material> &get_material_overlay() const { return material_overlay; }
 
     void set_extra_cull_margin(float p_margin);
     float get_extra_cull_margin() const;

@@ -166,10 +166,18 @@ void TextureButton::_notification(int p_what) {
                         texdraw = disabled;
                 } break;
             }
+            Point2 ofs;
+            Size2 size;
+            bool draw_focus = (has_focus() && focused);
+
+            // If no other texture is valid, try using focused texture.
+            bool draw_focus_only = draw_focus && !texdraw;
+            if (draw_focus_only) {
+                texdraw = focused;
+            }
 
             if (texdraw) {
-                Point2 ofs;
-                Size2 size = texdraw->get_size();
+                size = texdraw->get_size();
                 _texture_region = Rect2(Point2(), texdraw->get_size());
                 _tile = false;
                 if (expand) {
@@ -218,40 +226,49 @@ void TextureButton::_notification(int p_what) {
                     }
                 }
                 _position_rect = Rect2(ofs, size);
-                if (_tile) {
-                    draw_texture_rect(texdraw, _position_rect, _tile);
+                size.width *= hflip ? -1.0f : 1.0f;
+                size.height *= vflip ? -1.0f : 1.0f;
+
+				if (draw_focus_only) {
+                    // Do nothing, we only needed to calculate the rectangle.
+                } else if (_tile) {
+                    draw_texture_rect(texdraw, Rect2(ofs, size), _tile);
                 } else {
-                    draw_texture_rect_region(texdraw, _position_rect, _texture_region);
+                    draw_texture_rect_region(texdraw, Rect2(ofs, size), _texture_region);
                 }
             } else {
                 _position_rect = Rect2();
             }
-            if (has_focus() && focused) {
-                draw_texture_rect(focused, _position_rect, false);
-            };
+            if (draw_focus) {
+                draw_texture_rect(focused, Rect2(ofs, size), false);
+            }
         } break;
     }
 }
 
 void TextureButton::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_normal_texture", {"texture"}), &TextureButton::set_normal_texture);
-    MethodBinder::bind_method(D_METHOD("set_pressed_texture", {"texture"}), &TextureButton::set_pressed_texture);
-    MethodBinder::bind_method(D_METHOD("set_hover_texture", {"texture"}), &TextureButton::set_hover_texture);
-    MethodBinder::bind_method(D_METHOD("set_disabled_texture", {"texture"}), &TextureButton::set_disabled_texture);
-    MethodBinder::bind_method(D_METHOD("set_focused_texture", {"texture"}), &TextureButton::set_focused_texture);
-    MethodBinder::bind_method(D_METHOD("set_click_mask", {"mask"}), &TextureButton::set_click_mask);
-    MethodBinder::bind_method(D_METHOD("set_expand", {"p_expand"}), &TextureButton::set_expand);
-    MethodBinder::bind_method(D_METHOD("set_stretch_mode", {"p_mode"}), &TextureButton::set_stretch_mode);
+    BIND_METHOD(TextureButton,set_normal_texture);
+    BIND_METHOD(TextureButton,set_pressed_texture);
+    BIND_METHOD(TextureButton,set_hover_texture);
+    BIND_METHOD(TextureButton,set_disabled_texture);
+    BIND_METHOD(TextureButton,set_focused_texture);
+    BIND_METHOD(TextureButton,set_click_mask);
+    BIND_METHOD(TextureButton,set_expand);
+    BIND_METHOD(TextureButton,set_stretch_mode);
+    BIND_METHOD(TextureButton,set_flip_h);
+    BIND_METHOD(TextureButton,is_flipped_h);
+    BIND_METHOD(TextureButton,set_flip_v);
+    BIND_METHOD(TextureButton,is_flipped_v);
 
-    MethodBinder::bind_method(D_METHOD("get_normal_texture"), &TextureButton::get_normal_texture);
-    MethodBinder::bind_method(D_METHOD("get_pressed_texture"), &TextureButton::get_pressed_texture);
-    MethodBinder::bind_method(D_METHOD("get_hover_texture"), &TextureButton::get_hover_texture);
-    MethodBinder::bind_method(D_METHOD("get_disabled_texture"), &TextureButton::get_disabled_texture);
-    MethodBinder::bind_method(D_METHOD("get_focused_texture"), &TextureButton::get_focused_texture);
-    MethodBinder::bind_method(D_METHOD("get_click_mask"), &TextureButton::get_click_mask);
-    MethodBinder::bind_method(D_METHOD("get_expand"), &TextureButton::get_expand);
-    MethodBinder::bind_method(D_METHOD("get_stretch_mode"), &TextureButton::get_stretch_mode);
+    BIND_METHOD(TextureButton,get_normal_texture);
+    BIND_METHOD(TextureButton,get_pressed_texture);
+    BIND_METHOD(TextureButton,get_hover_texture);
+    BIND_METHOD(TextureButton,get_disabled_texture);
+    BIND_METHOD(TextureButton,get_focused_texture);
+    BIND_METHOD(TextureButton,get_click_mask);
+    BIND_METHOD(TextureButton,get_expand);
+    BIND_METHOD(TextureButton,get_stretch_mode);
 
     ADD_GROUP("Textures", "texture_");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_normal", PropertyHint::ResourceType, "Texture"), "set_normal_texture", "get_normal_texture");
@@ -262,6 +279,8 @@ void TextureButton::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_click_mask", PropertyHint::ResourceType, "BitMap"), "set_click_mask", "get_click_mask");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "expand", PropertyHint::ResourceType, "bool"), "set_expand", "get_expand");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "stretch_mode", PropertyHint::Enum, "Scale,Tile,Keep,Keep Centered,Keep Aspect,Keep Aspect Centered,Keep Aspect Covered"), "set_stretch_mode", "get_stretch_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_h", PropertyHint::ResourceType, "bool"), "set_flip_h", "is_flipped_h");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_v", PropertyHint::ResourceType, "bool"), "set_flip_v", "is_flipped_v");
 
     BIND_ENUM_CONSTANT(STRETCH_SCALE);
     BIND_ENUM_CONSTANT(STRETCH_TILE);
@@ -283,21 +302,25 @@ void TextureButton::set_pressed_texture(const Ref<Texture> &p_pressed) {
 
     pressed = p_pressed;
     update();
+    minimum_size_changed();
 }
 void TextureButton::set_hover_texture(const Ref<Texture> &p_hover) {
 
     hover = p_hover;
     update();
+    minimum_size_changed();
 }
 void TextureButton::set_disabled_texture(const Ref<Texture> &p_disabled) {
 
     disabled = p_disabled;
     update();
+    minimum_size_changed();
 }
 void TextureButton::set_click_mask(const Ref<BitMap> &p_click_mask) {
 
     click_mask = p_click_mask;
     update();
+    minimum_size_changed();
 }
 
 Ref<Texture> TextureButton::get_normal_texture() const {
@@ -348,6 +371,24 @@ void TextureButton::set_stretch_mode(StretchMode p_stretch_mode) {
 
 TextureButton::StretchMode TextureButton::get_stretch_mode() const {
     return stretch_mode;
+}
+
+void TextureButton::set_flip_h(bool p_flip) {
+    hflip = p_flip;
+    update();
+}
+
+bool TextureButton::is_flipped_h() const {
+    return hflip;
+}
+
+void TextureButton::set_flip_v(bool p_flip) {
+    vflip = p_flip;
+    update();
+}
+
+bool TextureButton::is_flipped_v() const {
+    return vflip;
 }
 
 TextureButton::TextureButton() {

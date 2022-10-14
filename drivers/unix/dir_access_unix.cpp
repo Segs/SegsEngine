@@ -133,6 +133,16 @@ bool DirAccessUnix::is_hidden(StringView p_name) {
     return p_name != StringView(".") && p_name != StringView("..") && StringUtils::begins_with(p_name,".");
 }
 
+bool DirAccessUnix::has_next() const {
+    if (!dir_stream) {
+		return false;
+	}
+	auto offset=telldir(dir_stream);
+    bool has_entry = readdir(dir_stream)!=nullptr;
+	seekdir(dir_stream,offset); //reset scan position
+	return has_entry;
+}
+
 String DirAccessUnix::get_next() {
 
     if (!dir_stream)
@@ -210,6 +220,7 @@ static bool _filter_drive(struct mntent *mnt) {
 
 static void _get_drives(Vector<String> *vec) {
 
+    vec->push_back("/");
 #if defined(HAVE_MNTENT) && defined(X11_ENABLED)
     // Check /etc/mtab for the list of mounted partitions
     FILE *mtab = setmntent("/etc/mtab", "r");
@@ -285,6 +296,19 @@ bool DirAccessUnix::drives_are_shortcuts() {
     return true;
 }
 
+int DirAccessUnix::get_current_drive() {
+    int drive = 0;
+    int max_length = -1;
+    const String path = StringUtils::to_lower(get_current_dir());
+    for (int i = 0; i < get_drive_count(); i++) {
+        const String d = StringUtils::to_lower(get_drive(i));
+        if (max_length < d.length() && StringUtils::begins_with(path,d)) {
+            max_length = d.length();
+            drive = i;
+        }
+    }
+    return drive;
+}
 Error DirAccessUnix::make_dir(StringView _dir) {
     String p_dir(_dir);
     GLOBAL_LOCK_FUNCTION
@@ -401,7 +425,57 @@ Error DirAccessUnix::remove(StringView _path) {
         return ::unlink(p_path.data()) == 0 ? OK : FAILED;
 }
 
-size_t DirAccessUnix::get_space_left() {
+
+bool DirAccessUnix::is_link(StringView p_file_view) {
+    using namespace PathUtils;
+    eastl::fixed_string<char,1024,true> p_file(p_file_view);
+    if (is_rel_path(p_file))
+        p_file.assign(plus_file(get_current_dir(),p_file).c_str());
+
+    p_file = fix_path(p_file).c_str();
+
+    struct stat flags;
+    if ((lstat(p_file.data(), &flags) != 0))
+        return FAILED;
+
+    return S_ISLNK(flags.st_mode);
+}
+
+String DirAccessUnix::read_link(StringView p_file_view) {
+    using namespace PathUtils;
+    String p_file(p_file_view);
+
+    if (is_rel_path(p_file))
+        p_file = plus_file(get_current_dir(),p_file);
+
+    p_file = fix_path(p_file);
+
+    char buf[256];
+    memset(buf, 0, 256);
+    ssize_t len = readlink(p_file.data(), buf, sizeof(buf));
+    if (len > 0) {
+        return String(buf,len);
+    }
+    return {};
+}
+
+Error DirAccessUnix::create_link(StringView p_source, StringView p_target_view) {
+    using namespace PathUtils;
+    String p_target(p_target_view);
+    if (is_rel_path(p_target))
+        p_target = plus_file(get_current_dir(),p_target);
+
+    p_source = fix_path(p_source);
+    p_target = fix_path(p_target);
+
+    if (symlink(String(p_source).c_str(), p_target.data()) == 0) {
+        return OK;
+    } else {
+        return FAILED;
+    }
+}
+
+uint64_t DirAccessUnix::get_space_left() {
 
 #ifndef NO_STATVFS
     struct statvfs vfs;
@@ -410,7 +484,7 @@ size_t DirAccessUnix::get_space_left() {
         return 0;
     }
 
-    return vfs.f_bfree * vfs.f_bsize;
+    return (uint64_t)vfs.f_bavail * (uint64_t)vfs.f_frsize;
 #else
     // FIXME: Implement this.
     return 0;
@@ -439,7 +513,7 @@ DirAccessUnix::DirAccessUnix() {
 
 DirAccessUnix::~DirAccessUnix() {
 
-    list_dir_end();
+    DirAccessUnix::list_dir_end();
 }
 
 #endif //posix_enabled

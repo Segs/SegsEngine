@@ -30,42 +30,46 @@
 
 #include "message_queue.h"
 
-
-#include "core_string_names.h"
-#include "core/project_settings.h"
-#include "core/print_string.h"
-#include "core/os/mutex.h"
-#include "core/object_db.h"
-#include "core/string_utils.h"
-#include "core/script_language.h"
 #include "core/callable_method_pointer.h"
+#include "core/core_string_names.h"
+#include "core/external_profiler.h"
+#include "core/object_db.h"
+#include "core/object.h"
+#include "core/os/mutex.h"
+#include "core/print_string.h"
+#include "core/project_settings.h"
+#include "core/script_language.h"
+#include "core/string_utils.h"
 
 #define STACK_DEPTH 3
+
+namespace {
+SafeNumeric<int> null_object_calls {0};
+}
+
 MessageQueue *MessageQueue::singleton = nullptr;
-
-
 
 MessageQueue *MessageQueue::get_singleton() {
 
     return singleton;
 }
 
-Error MessageQueue::push_call(ObjectID p_id, eastl::function<void()> p_method) {
+Error MessageQueue::push_call(GameEntity p_id, eastl::function<void()> p_method) {
 
-    _THREAD_SAFE_METHOD_
-
-    int room_needed = sizeof(Message);
+    _THREAD_SAFE_METHOD_;
+    constexpr size_t room_needed = sizeof(Message);
 
     if ((buffer_end + room_needed) >= buffer_size) {
         String type;
-        if (ObjectDB::get_instance(p_id)) {
-            type = ObjectDB::get_instance(p_id)->get_class();
+        auto obj = object_for_entity(p_id);
+        if (obj) {
+            type = obj->get_class();
         }
-        print_line(String("Failed ::function call: ") + type + ": target ID: " + ::to_string(static_cast<uint64_t>(p_id)));
+        print_line(String("Failed ::function call: ") + type + ": target ID: " + ::to_string(entt::to_integral(p_id)));
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }
-    TracyAllocNS(&buffer[buffer_end],room_needed,STACK_DEPTH,"MessageQueueAlloc");
+    TRACE_ALLOC_NS(&buffer[buffer_end],room_needed,STACK_DEPTH,"MessageQueueAlloc");
     Message *msg = memnew_placement(&buffer[buffer_end], Message);
     msg->args = 0;
     msg->callable = Callable(memnew_args(FunctorCallable,p_id,p_method));
@@ -74,12 +78,12 @@ Error MessageQueue::push_call(ObjectID p_id, eastl::function<void()> p_method) {
     buffer_end += sizeof(Message);
     return OK;
 }
-Error MessageQueue::push_call(ObjectID p_id, const StringName &p_method, const Variant **p_args, int p_argcount, bool p_show_error) {
+Error MessageQueue::push_call(GameEntity p_id, const StringName &p_method, const Variant **p_args, int p_argcount, bool p_show_error) {
 
     return push_callable(Callable(p_id, p_method), p_args, p_argcount, p_show_error);
 }
 
-Error MessageQueue::push_call(ObjectID p_id, const StringName &p_method, VARIANT_ARG_DECLARE) {
+Error MessageQueue::push_call(GameEntity p_id, const StringName &p_method, VARIANT_ARG_DECLARE) {
 
     VARIANT_ARGPTRS
 
@@ -95,22 +99,22 @@ Error MessageQueue::push_call(ObjectID p_id, const StringName &p_method, VARIANT
     return push_call(p_id, p_method, argptr, argc, false);
 }
 
-Error MessageQueue::push_set(ObjectID p_id, const StringName &p_prop, const Variant &p_value) {
+Error MessageQueue::push_set(GameEntity p_id, const StringName &p_prop, const Variant &p_value) {
 
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
-    uint8_t room_needed = sizeof(Message) + sizeof(Variant);
+    constexpr uint8_t room_needed = sizeof(Message) + sizeof(Variant);
 
     if ((buffer_end + room_needed) >= buffer_size) {
         String type;
-        if (ObjectDB::get_instance(p_id)) {
-            type = ObjectDB::get_instance(p_id)->get_class();
+        if (object_for_entity(p_id)) {
+            type = object_for_entity(p_id)->get_class();
         }
-        print_line("Failed set: " + type + ":" + p_prop + " target ID: " + ::to_string(static_cast<uint64_t>(p_id)));
+        print_line("Failed set: " + type + ":" + p_prop + " target ID: " + ::to_string(entt::to_integral(p_id)));
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }
-    TracyAllocNS(&buffer[buffer_end],room_needed,STACK_DEPTH,"MessageQueueAlloc");
+    TRACE_ALLOC_NS(&buffer[buffer_end],room_needed,STACK_DEPTH,"MessageQueueAlloc");
 
     Message *msg = memnew_placement(&buffer[buffer_end], Message);
     msg->args = 1;
@@ -126,20 +130,20 @@ Error MessageQueue::push_set(ObjectID p_id, const StringName &p_prop, const Vari
     return OK;
 }
 
-Error MessageQueue::push_notification(ObjectID p_id, int p_notification) {
+Error MessageQueue::push_notification(GameEntity p_id, int p_notification) {
 
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     ERR_FAIL_COND_V(p_notification < 0, ERR_INVALID_PARAMETER);
 
-    uint8_t room_needed = sizeof(Message);
+    constexpr uint8_t room_needed = sizeof(Message);
 
     if ((buffer_end + room_needed) >= buffer_size) {
-        print_line("Failed notification: " + itos(p_notification) + " target ID: " + itos(p_id));
+        print_line("Failed notification: " + itos(p_notification) + " target ID: " + itos(entt::to_integral(p_id)));
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }
-    TracyAllocNS(&buffer[buffer_end],room_needed,STACK_DEPTH,"MessageQueueAlloc");
+    TRACE_ALLOC_NS(&buffer[buffer_end],room_needed,STACK_DEPTH,"MessageQueueAlloc");
 
     Message *msg = memnew_placement(&buffer[buffer_end], Message);
 
@@ -166,7 +170,7 @@ Error MessageQueue::push_set(Object *p_object, const StringName &p_prop, const V
     return push_set(p_object->get_instance_id(), p_prop, p_value);
 }
 Error MessageQueue::push_callable(const Callable& p_callable, const Variant** p_args, int p_argcount, bool p_show_error) {
-    _THREAD_SAFE_METHOD_
+    _THREAD_SAFE_METHOD_;
 
     int room_needed = sizeof(Message) + sizeof(Variant) * p_argcount;
 
@@ -176,7 +180,7 @@ Error MessageQueue::push_callable(const Callable& p_callable, const Variant** p_
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }
 
-    TracyAllocNS(&buffer[buffer_end],room_needed,STACK_DEPTH,"MessageQueueAlloc");
+    TRACE_ALLOC_NS(&buffer[buffer_end],room_needed,STACK_DEPTH,"MessageQueueAlloc");
 
     Message* msg = memnew_placement(&buffer[buffer_end], Message);
     msg->args = p_argcount;
@@ -201,8 +205,8 @@ Error MessageQueue::push_callable(const Callable& p_callable, VARIANT_ARG_DECLAR
 
     int argc = 0;
 
-    for (int i = 0; i < VARIANT_ARG_MAX; i++) {
-        if (argptr[i]->get_type() == VariantType::NIL) {
+    for (const Variant * variant : argptr) {
+        if (variant->get_type() == VariantType::NIL) {
             break;
         }
         argc++;
@@ -223,7 +227,7 @@ void MessageQueue::statistics() const {
     while (read_pos < buffer_end) {
         Message *message = (Message *)&buffer[read_pos];
 
-        Object *target = ObjectDB::get_instance(message->callable.get_object_id());
+        Object *target = object_for_entity(message->callable.get_object_id());
 
         if (target != nullptr) {
 
@@ -254,7 +258,7 @@ void MessageQueue::statistics() const {
     }
 
     print_line("TOTAL BYTES: " + itos(buffer_end));
-    print_line("NULL count: " + itos(null_count));
+    print_line("NULL count: " + itos(null_count+null_object_calls.get()));
     print_line("FUNC count: " + itos(func_count));
 
     for (const eastl::pair<const StringName,int> &E : set_count) {
@@ -360,6 +364,9 @@ void MessageQueue::flush()
             }
         }
 
+        else {
+            null_object_calls.increment();
+        }
         if ((message->type & FLAG_MASK) != TYPE_NOTIFICATION)
         {
             Variant *args = (Variant*)(message + 1);
@@ -385,7 +392,6 @@ bool MessageQueue::is_flushing() const {
 }
 
 MessageQueue::MessageQueue() {
-    __thread__safe__.reset(new Mutex);
     ERR_FAIL_COND_MSG(singleton != nullptr, "A MessageQueue singleton already exists.");
     singleton = this;
     StringName prop_name("memory/limits/message_queue/max_size_kb");

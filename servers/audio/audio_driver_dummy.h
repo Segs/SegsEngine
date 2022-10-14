@@ -33,6 +33,8 @@
 #include "servers/audio_server.h"
 
 #include "core/os/thread.h"
+#include "core/os/mutex.h"
+#include "core/safe_refcount.h"
 
 class AudioDriverDummy : public AudioDriver {
 
@@ -49,9 +51,8 @@ class AudioDriverDummy : public AudioDriver {
 
     int channels;
 
-    bool active;
-    bool thread_exited;
-    mutable bool exit_thread;
+	SafeFlag active;
+    SafeFlag exit_thread;
 
 public:
     const char *get_name() const override {

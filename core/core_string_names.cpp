@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  core_string_names.cpp                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -43,6 +43,7 @@ CoreStringNames::CoreStringNames() :
         _iter_init("_iter_init"),
         _iter_next("_iter_next"),
         _iter_get("_iter_get"),
+        get_phys_rid("get_phys_rid"),
         get_rid("get_rid"),
         _to_string("_to_string"),
         _sections_unfolded("_sections_unfolded"),

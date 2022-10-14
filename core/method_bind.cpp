@@ -34,14 +34,11 @@
 
 #include "method_bind.h"
 
-#ifdef DEBUG_METHODS_ENABLED
 PropertyInfo MethodBind::get_argument_info(int p_argument) const {
 
     ERR_FAIL_INDEX_V(p_argument, get_argument_count(), PropertyInfo());
 
-    PropertyInfo info = _gen_argument_type_info(p_argument);
-    info.name = StringName("arg" + itos(p_argument));
-    return info;
+    return _gen_argument_type_info(p_argument);
 }
 
 PropertyInfo MethodBind::get_return_info() const {
@@ -49,7 +46,6 @@ PropertyInfo MethodBind::get_return_info() const {
     return _gen_argument_type_info(-1);
 }
 
-#endif
 
 StringName MethodBind::get_name() const {
     return name;
@@ -103,10 +99,8 @@ MethodBind::MethodBind() {
 }
 
 MethodBind::~MethodBind() {
-#ifdef DEBUG_METHODS_ENABLED
     if (argument_types) {
         memdelete_arr(argument_types);
     }
     argument_types = nullptr;
-#endif
 }

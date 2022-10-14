@@ -109,7 +109,7 @@ struct TS_Constant {
     static HashMap<String,TS_Constant *> constants;
     const ConstantInterface *m_rd_data;
     const DocContents::ConstantDoc *m_resolved_doc;
-    TypeReference const_type {"int32_t",TypeRefKind::Simple};
+    TypeReference const_type {"int32_t","",TypeRefKind::Simple};
     String xml_doc;
     String cs_name;
     String value;
@@ -136,7 +136,7 @@ public:
     };
 
     // Support for tree of nesting structures - namespace in another namespace, type in namespace,nested types etc.
-    const TS_TypeLike *parent=nullptr;
+    const TS_TypeLike *nested_in=nullptr;
     // support for inheritance : class/struct but also used for enum base types
     const TS_TypeLike *base_type=nullptr;
 
@@ -211,7 +211,7 @@ public:
 
 
     TypeKind kind() const override { return NAMESPACE; }
-    StringView c_name() const override { return m_source->namespace_name; }
+    StringView c_name() const override { return m_source->name; }
 
     TS_Type* find_or_create_by_cpp_name(const String& name);
     Vector<StringView> cs_path_components() const;
@@ -228,7 +228,7 @@ struct TS_Type : public TS_TypeLike {
     bool m_value_type = false; // right now used to mark struct types
 
     static TS_Type* create_type(const TS_TypeLike *owning_type, const TypeInterface * type_interface);
-    static String convert_name(StringView name,StringView path) {
+    static String convert_name(StringView name) {
         return String(name.starts_with('_') ? name.substr(1) : name);
     }
     static TS_Type* by_rd(const TypeInterface* type_interface) {

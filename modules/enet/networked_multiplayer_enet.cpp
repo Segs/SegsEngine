@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  networked_multiplayer_enet.cpp                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -65,6 +65,7 @@ struct NetworkedMultiplayerENet_Priv {
     Ref<X509Certificate> dtls_cert;
     bool dtls_enabled;
     bool dtls_verify;
+    String dtls_hostname;
 
     Packet current_packet;
     ENetCompressor enet_compressor;
@@ -268,20 +269,23 @@ void NetworkedMultiplayerENet::poll() {
 
     _pop_current_packet();
 
-    ENetEvent event;
-    /* Keep servicing until there are no available events left in queue. */
-    while (true) {
-
-        if (!D()->host || !active) // Might have been disconnected while emitting a notification
+    if (!D()->host || !active) { // Might be disconnected
             return;
+    }
 
+    ENetEvent event;
         int ret = enet_host_service(D()->host, &event, 0);
 
         if (ret < 0) {
-            // Error, do something?
-            break;
+        ERR_FAIL_MSG("Enet host service error");
         } else if (ret == 0) {
-            break;
+        return; // No events
+    }
+
+    /* Keep servicing until there are no available events left in the queue. */
+    do {
+        if (!D()->host || !active) { // Check again after every event
+            return;
         }
 
         switch (event.type) {
@@ -490,7 +494,7 @@ void NetworkedMultiplayerENet::poll() {
                 // Do nothing
             } break;
         }
-    }
+    } while (enet_host_check_events(D()->host, &event) > 0);
 }
 
 bool NetworkedMultiplayerENet::is_server() const {
@@ -500,6 +504,9 @@ bool NetworkedMultiplayerENet::is_server() const {
 }
 
 void NetworkedMultiplayerENet::close_connection(uint32_t wait_usec) {
+    if (!active) {
+        return;
+    }
 
     ERR_FAIL_COND_MSG(!active, "The multiplayer instance isn't currently active.");
 
@@ -530,7 +537,7 @@ void NetworkedMultiplayerENet::disconnect_peer(int p_peer, bool now) {
                     continue;
                 }
 
-                ENetPacket *packet = enet_packet_create(NULL, 8, ENET_PACKET_FLAG_RELIABLE);
+                ENetPacket *packet = enet_packet_create(nullptr, 8, ENET_PACKET_FLAG_RELIABLE);
                 encode_uint32(SYSMSG_REMOVE_PEER, &packet->data[0]);
                 encode_uint32(p_peer, &packet->data[4]);
                 enet_peer_send(peer_pair.second, SYSCH_CONFIG, packet);
@@ -580,9 +587,10 @@ Error NetworkedMultiplayerENet::put_packet(const uint8_t *p_buffer, int p_buffer
             else
                 packet_flags = ENET_PACKET_FLAG_UNSEQUENCED;
             channel = SYSCH_UNRELIABLE;
+            packet_flags |= ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT;
         } break;
         case TRANSFER_MODE_UNRELIABLE_ORDERED: {
-            packet_flags = 0;
+            packet_flags = ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT;
             channel = SYSCH_UNRELIABLE;
         } break;
         case TRANSFER_MODE_RELIABLE: {
@@ -591,9 +599,17 @@ Error NetworkedMultiplayerENet::put_packet(const uint8_t *p_buffer, int p_buffer
         } break;
     }
 
-    if (transfer_channel > SYSCH_CONFIG)
+    if (transfer_channel > SYSCH_CONFIG) {
         channel = transfer_channel;
 
+    }
+#ifdef DEBUG_ENABLED
+    if ((packet_flags & ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT) && p_buffer_size + 8 > ENET_HOST_DEFAULT_MTU) {
+        WARN_PRINT_ONCE(FormatVE(
+                "Sending %d bytes unrealiably which is above the MTU (%d), this will result in higher packet loss",
+                p_buffer_size + 8, D()->host->mtu));
+    }
+#endif
     Map<int, ENetPeer *>::iterator E=D()->peer_map.end();
 
     if (target_peer != 0) {
@@ -831,6 +847,15 @@ int NetworkedMultiplayerENet::get_peer_port(int p_peer_id) const {
     return D()->peer_map.at(p_peer_id)->address.port;
 }
 
+void NetworkedMultiplayerENet::set_peer_timeout(int p_peer_id, int p_timeout_limit, int p_timeout_min, int p_timeout_max)
+{
+    ERR_FAIL_COND_MSG(!D()->peer_map.contains(p_peer_id), FormatVE("Peer ID %d not found in the list of peers.", p_peer_id));
+    ERR_FAIL_COND_MSG(!is_server() && p_peer_id != 1, "Can't change the timeout of peers other then the server when acting as a client.");
+    ERR_FAIL_COND_MSG(D()->peer_map[p_peer_id] == nullptr, FormatVE("Peer ID %d found in the list of peers, but is null.", p_peer_id));
+    ERR_FAIL_COND_MSG(p_timeout_limit > p_timeout_min || p_timeout_min > p_timeout_max, "Timeout limit must be less than minimum timeout, which itself must be less then maximum timeout");
+    enet_peer_timeout(D()->peer_map[p_peer_id], p_timeout_limit, p_timeout_min, p_timeout_max);
+}
+
 void NetworkedMultiplayerENet::set_transfer_channel(int p_channel) {
 
     ERR_FAIL_COND_MSG(p_channel < -1 || p_channel >= channel_count, FormatVE("The transfer channel must be set between 0 and %d, inclusive (got %d).", channel_count - 1, p_channel));
@@ -875,22 +900,23 @@ void NetworkedMultiplayerENet::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("create_client", {"address", "port", "in_bandwidth", "out_bandwidth", "client_port"}), &NetworkedMultiplayerENet::create_client, {DEFVAL(0), DEFVAL(0), DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("close_connection", {"wait_usec"}), &NetworkedMultiplayerENet::close_connection, {DEFVAL(100)});
     MethodBinder::bind_method(D_METHOD("disconnect_peer", {"id", "now"}), &NetworkedMultiplayerENet::disconnect_peer, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("set_compression_mode", {"mode"}), &NetworkedMultiplayerENet::set_compression_mode);
-    MethodBinder::bind_method(D_METHOD("get_compression_mode"), &NetworkedMultiplayerENet::get_compression_mode);
+    BIND_METHOD(NetworkedMultiplayerENet,set_compression_mode);
+    BIND_METHOD(NetworkedMultiplayerENet,get_compression_mode);
     MethodBinder::bind_method(D_METHOD("set_bind_ip", {"ip"}), (void (NetworkedMultiplayerENet::*)(StringView))&NetworkedMultiplayerENet::set_bind_ip);
-    MethodBinder::bind_method(D_METHOD("get_peer_address", {"id"}), &NetworkedMultiplayerENet::get_peer_address);
-    MethodBinder::bind_method(D_METHOD("get_peer_port", {"id"}), &NetworkedMultiplayerENet::get_peer_port);
+    BIND_METHOD(NetworkedMultiplayerENet,get_peer_address);
+    BIND_METHOD(NetworkedMultiplayerENet,get_peer_port);
+    BIND_METHOD(NetworkedMultiplayerENet,set_peer_timeout);
 
-    MethodBinder::bind_method(D_METHOD("get_packet_channel"), &NetworkedMultiplayerENet::get_packet_channel);
-    MethodBinder::bind_method(D_METHOD("get_last_packet_channel"), &NetworkedMultiplayerENet::get_last_packet_channel);
-    MethodBinder::bind_method(D_METHOD("set_transfer_channel", {"channel"}), &NetworkedMultiplayerENet::set_transfer_channel);
-    MethodBinder::bind_method(D_METHOD("get_transfer_channel"), &NetworkedMultiplayerENet::get_transfer_channel);
-    MethodBinder::bind_method(D_METHOD("set_channel_count", {"channels"}), &NetworkedMultiplayerENet::set_channel_count);
-    MethodBinder::bind_method(D_METHOD("get_channel_count"), &NetworkedMultiplayerENet::get_channel_count);
-    MethodBinder::bind_method(D_METHOD("set_always_ordered", {"ordered"}), &NetworkedMultiplayerENet::set_always_ordered);
-    MethodBinder::bind_method(D_METHOD("is_always_ordered"), &NetworkedMultiplayerENet::is_always_ordered);
-    MethodBinder::bind_method(D_METHOD("set_server_relay_enabled", {"enabled"}), &NetworkedMultiplayerENet::set_server_relay_enabled);
-    MethodBinder::bind_method(D_METHOD("is_server_relay_enabled"), &NetworkedMultiplayerENet::is_server_relay_enabled);
+    BIND_METHOD(NetworkedMultiplayerENet,get_packet_channel);
+    BIND_METHOD(NetworkedMultiplayerENet,get_last_packet_channel);
+    BIND_METHOD(NetworkedMultiplayerENet,set_transfer_channel);
+    BIND_METHOD(NetworkedMultiplayerENet,get_transfer_channel);
+    BIND_METHOD(NetworkedMultiplayerENet,set_channel_count);
+    BIND_METHOD(NetworkedMultiplayerENet,get_channel_count);
+    BIND_METHOD(NetworkedMultiplayerENet,set_always_ordered);
+    BIND_METHOD(NetworkedMultiplayerENet,is_always_ordered);
+    BIND_METHOD(NetworkedMultiplayerENet,set_server_relay_enabled);
+    BIND_METHOD(NetworkedMultiplayerENet,is_server_relay_enabled);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "compression_mode", PropertyHint::Enum, "None,Range Coder,FastLZ,ZLib,ZStd"), "set_compression_mode", "get_compression_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "transfer_channel"), "set_transfer_channel", "get_transfer_channel");

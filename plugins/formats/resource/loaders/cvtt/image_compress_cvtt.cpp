@@ -32,6 +32,7 @@
 
 #include "core/os/os.h"
 #include "core/print_string.h"
+#include "core/safe_refcount.h"
 
 #include <ConvectionKernels.h>
 #include <thread>
@@ -56,7 +57,7 @@ struct CVTTCompressionJobQueue {
     CVTTCompressionJobParams job_params;
     const CVTTCompressionRowTask *job_tasks;
     uint32_t num_tasks;
-    uint32_t current_task;
+    SafeNumeric<uint32_t> current_task;
 };
 
 static void _digest_row_task(const CVTTCompressionJobParams &p_job_params, const CVTTCompressionRowTask &p_row_task) {
@@ -131,21 +132,21 @@ static void _digest_row_task(const CVTTCompressionJobParams &p_job_params, const
 static void _digest_job_queue(void *p_job_queue) {
     CVTTCompressionJobQueue *job_queue = static_cast<CVTTCompressionJobQueue *>(p_job_queue);
 
-    for (uint32_t next_task = atomic_increment(&job_queue->current_task); next_task <= job_queue->num_tasks; next_task = atomic_increment(&job_queue->current_task)) {
+    for (uint32_t next_task = job_queue->current_task.increment(); next_task <= job_queue->num_tasks; next_task = job_queue->current_task.increment()) {
         _digest_row_task(job_queue->job_params, job_queue->job_tasks[next_task - 1]);
     }
 }
 
 void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageUsedChannels p_source) {
 
-    if (p_image->get_format() >= Image::FORMAT_BPTC_RGBA)
+    if (p_image->get_format() >= ImageData::FORMAT_BPTC_RGBA)
         return; //do not compress, already compressed
 
     int w = p_image->get_width();
     int h = p_image->get_height();
 
-    bool is_ldr = (p_image->get_format() <= Image::FORMAT_RGBA8);
-    bool is_hdr = (p_image->get_format() >= Image::FORMAT_RH) && (p_image->get_format() <= Image::FORMAT_RGBE9995);
+    bool is_ldr = (p_image->get_format() <= ImageData::FORMAT_RGBA8);
+    bool is_hdr = (p_image->get_format() >= ImageData::FORMAT_RH) && (p_image->get_format() <= ImageData::FORMAT_RGBE9995);
 
     if (!is_ldr && !is_hdr) {
         return; // Not a usable source format
@@ -172,12 +173,12 @@ void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageUsedChannel
     }
     options.flags = flags;
 
-    Image::Format target_format = Image::FORMAT_BPTC_RGBA;
+    Image::Format target_format = ImageData::FORMAT_BPTC_RGBA;
 
     bool is_signed = false;
     if (is_hdr) {
-        if (p_image->get_format() != Image::FORMAT_RGBH) {
-            p_image->convert(Image::FORMAT_RGBH);
+        if (p_image->get_format() != ImageData::FORMAT_RGBH) {
+            p_image->convert(ImageData::FORMAT_RGBH);
         }
 
         PoolVector<uint8_t>::Read rb = p_image->get_data().read();
@@ -191,9 +192,9 @@ void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageUsedChannel
             }
         }
 
-        target_format = is_signed ? Image::FORMAT_BPTC_RGBF : Image::FORMAT_BPTC_RGBFU;
+        target_format = is_signed ? ImageData::FORMAT_BPTC_RGBF : ImageData::FORMAT_BPTC_RGBFU;
     } else {
-        p_image->convert(Image::FORMAT_RGBA8); //still uses RGBA to convert
+        p_image->convert(ImageData::FORMAT_RGBA8); //still uses RGBA to convert
     }
 
     PoolVector<uint8_t>::Read rb = p_image->get_data().read();
@@ -257,7 +258,7 @@ void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageUsedChannel
         PoolVector<CVTTCompressionRowTask>::Read tasks_rb = tasks.read();
 
         job_queue.job_tasks = &tasks_rb[0];
-        job_queue.current_task = 0;
+        job_queue.current_task.set(0);
         job_queue.num_tasks = static_cast<uint32_t>(tasks.size());
 
         for (int i = 0; i < num_job_threads; i++) {
@@ -283,13 +284,13 @@ void image_decompress_cvtt(Image *p_image) {
     Image::Format input_format = p_image->get_format();
 
     switch (input_format) {
-        case Image::FORMAT_BPTC_RGBA:
-            target_format = Image::FORMAT_RGBA8;
+        case ImageData::FORMAT_BPTC_RGBA:
+            target_format = ImageData::FORMAT_RGBA8;
             break;
-        case Image::FORMAT_BPTC_RGBF:
-        case Image::FORMAT_BPTC_RGBFU:
-            target_format = Image::FORMAT_RGBH;
-            is_signed = (input_format == Image::FORMAT_BPTC_RGBF);
+        case ImageData::FORMAT_BPTC_RGBF:
+        case ImageData::FORMAT_BPTC_RGBFU:
+            target_format = ImageData::FORMAT_RGBH;
+            is_signed = (input_format == ImageData::FORMAT_BPTC_RGBF);
             is_hdr = true;
             break;
         default:

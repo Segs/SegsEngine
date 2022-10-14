@@ -30,8 +30,10 @@
 
 #include "engine.h"
 
+#include "engine_tooling.h"
 #include "core/reference.h"
 #include "core/dictionary.h"
+#include "core/print_string.h"
 #include "core/variant.h"
 #include "core/ustring.h"
 #include "core/string.h"
@@ -39,7 +41,7 @@
 #include "donors.gen.h"
 #include "license.gen.h"
 #include "core/version.h"
-#include "version_hash.gen.h"
+#include "core/version_generated.gen.h"
 
 void Engine::set_iterations_per_second(int p_ips) {
 
@@ -85,6 +87,15 @@ uint32_t Engine::get_frame_delay() const {
     return _frame_delay;
 }
 
+void Engine::set_print_error_messages(bool p_enabled)
+{
+    _print_error_enabled = p_enabled;
+}
+
+bool Engine::is_printing_error_messages() const
+{
+    return _print_error_enabled;
+}
 void Engine::set_time_scale(float p_scale) {
 
     _time_scale = p_scale;
@@ -93,6 +104,18 @@ void Engine::set_time_scale(float p_scale) {
 float Engine::get_time_scale() const {
 
     return _time_scale;
+}
+
+void Engine::set_portals_active(bool p_active) {
+    _portals_active = p_active;
+}
+
+void Engine::set_editor_hint(bool p_enabled) {
+    EngineTooling::set_editor_hint(p_enabled);
+}
+
+bool Engine::is_editor_hint() const {
+    return EngineTooling::is_editor_hint();
 }
 
 Dictionary Engine::get_version_info() const {
@@ -182,7 +205,7 @@ Dictionary Engine::get_donor_info() const {
 Dictionary Engine::get_license_info() const {
     Dictionary licenses;
     for (int i = 0; i < LICENSE_COUNT; i++) {
-        licenses[LICENSE_NAMES[i]] = LICENSE_BODIES[i];
+        licenses[StaticCString(LICENSE_NAMES[i],true)] = LICENSE_BODIES[i];
     }
     return licenses;
 }
@@ -193,7 +216,7 @@ String Engine::get_license_text() const {
 
 void Engine::add_singleton(const Singleton &p_singleton) {
 
-    singletons.push_back(p_singleton);
+    singletons.emplace_back(p_singleton);
     singleton_ptrs[p_singleton.name] = p_singleton.ptr;
 }
 
@@ -263,8 +286,8 @@ extern CoreInterface *getCoreInterface() {
     return &impl;
 }
 
-Engine::Singleton::Singleton(const StringName &p_name, Object *p_ptr) :
-    name(p_name),
+Engine::Singleton::Singleton(StringName p_name, Object *p_ptr) :
+    name(eastl::move(p_name)),
     ptr(p_ptr) {
 #ifdef DEBUG_ENABLED
     RefCounted *ref = object_cast<RefCounted>(p_ptr);

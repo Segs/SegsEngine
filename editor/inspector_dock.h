@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef INSPECTOR_DOCK_H
-#define INSPECTOR_DOCK_H
+#pragma once
 
 #include "scene/gui/box_container.h"
 
@@ -41,6 +40,7 @@ class LineEdit;
 class EditorPath;
 class Button;
 class AcceptDialog;
+enum class EditorPropertyNameStyle : uint8_t;
 
 class InspectorDock : public VBoxContainer {
 
@@ -61,6 +61,10 @@ class InspectorDock : public VBoxContainer {
         COLLAPSE_ALL,
         EXPAND_ALL,
 
+        // Matches `EditorPropertyNameStyle`.
+        PROPERTY_NAME_STYLE_RAW,
+        PROPERTY_NAME_STYLE_CAPITALIZED,
+        PROPERTY_NAME_STYLE_LOCALIZED,
         OBJECT_METHOD_BASE = 500
     };
 
@@ -79,15 +83,20 @@ class InspectorDock : public VBoxContainer {
     ToolButton *resource_new_button;
     ToolButton *resource_load_button;
     MenuButton *resource_save_button;
+    MenuButton *resource_extra_button;
     MenuButton *history_menu;
     LineEdit *search;
 
+    Button *open_docs_button;
     MenuButton *object_menu;
     EditorPath *editor_path;
 
     Button *warning;
     AcceptDialog *warning_dialog;
 
+    EditorPropertyNameStyle property_name_style;
+
+    void _prepare_menu();
     void _menu_option(int p_option);
 
     void _new_resource();
@@ -98,6 +107,7 @@ class InspectorDock : public VBoxContainer {
     void _unref_resource() const;
     void _copy_resource() const;
     void _paste_resource() const;
+    void _prepare_resource_extra_popup();
 
     void _warning_pressed();
     void _resource_created();
@@ -129,9 +139,9 @@ public:
     void update(Object *p_object);
     Container *get_addon_area();
     EditorInspector *get_inspector() { return inspector; }
+    EditorPropertyNameStyle get_property_name_style() const;
 
     InspectorDock(EditorNode *p_editor, EditorData &p_editor_data);
     ~InspectorDock() override;
 };
 
-#endif

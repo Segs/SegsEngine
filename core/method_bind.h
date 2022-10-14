@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  method_bind.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -84,14 +84,6 @@ VARIANT_ENUM_CAST(VariantType);
 
 VARIANT_ENUM_CAST(Variant::Operator);
 
-//template <>
-//struct VariantCaster<char16_t> {
-//    static char16_t cast(const Variant &p_variant) {
-//        return (char16_t)p_variant.operator int();
-//    }
-//};
-
-
 template <class T>
 MethodBind *create_vararg_method_bind(Variant (T::*p_method)(const Variant **, int, Callable::CallError &), MethodInfo &&p_info, bool p_return_nil_is_variant) {
 
@@ -118,10 +110,12 @@ struct visit_impl
     template <typename TS, typename F>
     static constexpr typename F::Result visit(int idx,const F &functor)
     {
-        if (idx == I - 1) // if idx == count-1
+        if (idx == I - 1) { // if idx == count-1
             return functor.template doit<typename std::tuple_element<I - 1,TS>::type,I-1>();
-        if constexpr(I!=1)
+        }
+        if constexpr(I!=1) {
             return visit_impl<I - 1>::template visit<TS,F>(idx,functor);
+        }
 
         return typename F::Result{};
     }
@@ -243,8 +237,9 @@ public:
 #ifdef DEBUG_METHODS_ENABLED
 
         ERR_FAIL_COND_V(!instance,Variant());
-        if(!checkArgs(p_args,p_arg_count,verifiers,sizeof...(Args),r_error))
+        if(!checkArgs(p_args,p_arg_count,verifiers,sizeof...(Args),r_error)) {
             return Variant::null_variant;
+        }
 
 #endif
         constexpr auto seq = eastl::index_sequence_for<Args...>();
@@ -259,9 +254,9 @@ public:
     }
 
     MethodBindVA (TFunction f) :
-        MethodBindVABase(T::get_class_static(),sizeof...(Args),!eastl::is_same_v<void,RESULT>,
+        MethodBindVABase(T::get_class_static(),sizeof...(Args),!eastl::is_same_v<void,RESULT>
 #ifdef DEBUG_METHODS_ENABLED
-                         eastl::is_const_v<T>
+                         ,eastl::is_const_v<T>
 #endif
                          ) {
         method = f; // casting method to a basic Object::method()

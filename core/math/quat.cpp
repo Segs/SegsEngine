@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  quat.cpp                                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -35,6 +35,11 @@
 #include "core/string.h"
 #include "core/string_formatter.h"
 #include "core/string_utils.h"
+
+real_t Quat::angle_to(const Quat &p_to) const {
+    real_t d = dot(p_to);
+    return Math::acos(CLAMP<float>(d * d * 2 - 1, -1, 1));
+}
 
 // set_euler_xyz expects a vector containing the Euler angles in the format
 // (ax,ay,az), where ax is the angle of rotation around x axis,
@@ -129,7 +134,7 @@ Quat Quat::normalized() const {
 }
 
 bool Quat::is_normalized() const {
-    return Math::is_equal_approx(length_squared(), 1.0, UNIT_EPSILON); // use less epsilon
+    return Math::is_equal_approx(length_squared(), 1.0f, UNIT_EPSILON); // use less epsilon
 }
 
 Quat Quat::inverse() const {
@@ -175,7 +180,7 @@ Quat Quat::slerp(const Quat &q, const real_t &t) const {
     } else {
         // "from" and "to" quaternions are very close
         //  ... so we can do a linear interpolation
-        scale0 = 1.0f - t;
+        scale0 = 1 - t;
         scale1 = t;
     }
     // calculate final values

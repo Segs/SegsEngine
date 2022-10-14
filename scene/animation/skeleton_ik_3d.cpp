@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  skeleton_ik.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -67,7 +67,6 @@ bool FabrikInverseKinematic::build_chain(Task *p_task, bool p_force_simple_chain
     chain.chain_root.bone = p_task->root_bone;
     chain.chain_root.initial_transform = p_task->skeleton->get_bone_global_pose(chain.chain_root.bone);
     chain.chain_root.current_pos = chain.chain_root.initial_transform.origin;
-    chain.chain_root.pb = p_task->skeleton->get_physical_bone(chain.chain_root.bone);
     chain.middle_chain_item = nullptr;
 
     // Holds all IDs that are composing a single chain in reverse order
@@ -104,7 +103,6 @@ bool FabrikInverseKinematic::build_chain(Task *p_task, bool p_force_simple_chain
 
                 child_ci = sub_chain->add_child(chain_ids[i]);
 
-                child_ci->pb = p_task->skeleton->get_physical_bone(child_ci->bone);
 
                 child_ci->initial_transform = p_task->skeleton->get_bone_global_pose(child_ci->bone);
                 child_ci->current_pos = child_ci->initial_transform.origin;
@@ -139,21 +137,8 @@ bool FabrikInverseKinematic::build_chain(Task *p_task, bool p_force_simple_chain
     return true;
 }
 
-void FabrikInverseKinematic::update_chain(const Skeleton *p_sk, ChainItem *p_chain_item) {
 
-    if (!p_chain_item)
-        return;
-
-    p_chain_item->initial_transform = p_sk->get_bone_global_pose(p_chain_item->bone);
-    p_chain_item->current_pos = p_chain_item->initial_transform.origin;
-
-    ChainItem *items = p_chain_item->children.data();
-    for (int i = 0; i < p_chain_item->children.size(); i += 1) {
-        update_chain(p_sk, items + i);
-    }
-}
-
-void FabrikInverseKinematic::solve_simple(Task *p_task, bool p_solve_magnet) {
+void FabrikInverseKinematic::solve_simple(Task *p_task, bool p_solve_magnet, Vector3 p_origin_pos) {
 
     real_t distance_to_goal(1e4);
     real_t previous_distance_to_goal(0);
@@ -163,7 +148,7 @@ void FabrikInverseKinematic::solve_simple(Task *p_task, bool p_solve_magnet) {
         --can_solve;
 
         solve_simple_backwards(p_task->chain, p_solve_magnet);
-        solve_simple_forwards(p_task->chain, p_solve_magnet);
+        solve_simple_forwards(p_task->chain, p_solve_magnet, p_origin_pos);
 
         distance_to_goal = (p_task->chain.tips[0].chain_item->current_pos - p_task->chain.tips[0].end_effector->goal_transform.origin).length();
     }
@@ -202,14 +187,14 @@ void FabrikInverseKinematic::solve_simple_backwards(Chain &r_chain, bool p_solve
     }
 }
 
-void FabrikInverseKinematic::solve_simple_forwards(Chain &r_chain, bool p_solve_magnet) {
+void FabrikInverseKinematic::solve_simple_forwards(Chain &r_chain, bool p_solve_magnet, Vector3 p_origin_pos) {
 
     if (p_solve_magnet && !r_chain.middle_chain_item) {
         return;
     }
 
     ChainItem *sub_chain_root(&r_chain.chain_root);
-    Vector3 origin(r_chain.chain_root.initial_transform.origin);
+    Vector3 origin = p_origin_pos;
 
     while (sub_chain_root) { // Reach the tip
         sub_chain_root->current_pos = origin;
@@ -276,7 +261,7 @@ void FabrikInverseKinematic::make_goal(Task *p_task, const Transform &p_inverse_
     } else {
 
         // End effector in local transform
-        const Transform end_effector_pose(p_task->skeleton->get_bone_global_pose(p_task->end_effectors[0].tip_bone));
+        const Transform end_effector_pose(p_task->skeleton->get_bone_global_pose_no_override(p_task->end_effectors[0].tip_bone));
 
         // Update the end_effector (local transform) by blending with current pose
         p_task->end_effectors[0].goal_transform = end_effector_pose.interpolate_with(p_inverse_transf * p_task->goal_global_transform, blending_delta);
@@ -286,28 +271,34 @@ void FabrikInverseKinematic::make_goal(Task *p_task, const Transform &p_inverse_
 void FabrikInverseKinematic::solve(Task *p_task, real_t blending_delta, bool override_tip_basis, bool p_use_magnet, const Vector3 &p_magnet_position) {
 
     if (blending_delta <= 0.01f) {
+        // Before skipping, make sure we undo the global pose overrides
+        ChainItem *ci(&p_task->chain.chain_root);
+        while (ci) {
+            p_task->skeleton->set_bone_global_pose_override(ci->bone, ci->initial_transform, 0.0, false);
+
+            if (!ci->children.empty()) {
+                ci = &ci->children.front();
+            } else {
+                ci = nullptr;
+    }
+
+        }
         return; // Skip solving
     }
 
-    p_task->skeleton->set_bone_global_pose_override(p_task->chain.chain_root.bone, Transform(), 0.0, true);
+    // Update the initial root transform so its synced with any animation changes
+    _update_chain(p_task->skeleton, &p_task->chain.chain_root);
 
-    if (p_task->chain.middle_chain_item) {
-        p_task->skeleton->set_bone_global_pose_override(p_task->chain.middle_chain_item->bone, Transform(), 0.0, true);
-    }
+    // Update the initial root transform so its synced with any animation changes
 
-    for (int i = 0; i < p_task->chain.tips.size(); i += 1) {
-        p_task->skeleton->set_bone_global_pose_override(p_task->chain.tips[i].chain_item->bone, Transform(), 0.0, true);
-    }
-
-    make_goal(p_task, p_task->skeleton->get_global_transform().affine_inverse().scaled(p_task->skeleton->get_global_transform().get_basis().get_scale()), blending_delta);
-
-    update_chain(p_task->skeleton, &p_task->chain.chain_root);
+    p_task->skeleton->set_bone_global_pose_override(p_task->chain.chain_root.bone, Transform(), 0.0, false);
+    Vector3 origin_pos = p_task->skeleton->get_bone_global_pose(p_task->chain.chain_root.bone).origin;
 
     if (p_use_magnet && p_task->chain.middle_chain_item) {
         p_task->chain.magnet_position = p_task->chain.middle_chain_item->initial_transform.origin.linear_interpolate(p_magnet_position, blending_delta);
-        solve_simple(p_task, true);
+        solve_simple(p_task, true, origin_pos);
     }
-    solve_simple(p_task, false);
+    solve_simple(p_task, false, origin_pos);
 
     // Assign new bone position.
     ChainItem *ci(&p_task->chain.chain_root);
@@ -322,15 +313,16 @@ void FabrikInverseKinematic::solve(Task *p_task, real_t blending_delta, bool ove
             const Vector3 rot_axis(initial_ori.cross(ci->current_ori).normalized());
 
             if (rot_axis[0] != 0 && rot_axis[1] != 0 && rot_axis[2] != 0) {
-                const real_t rot_angle(Math::acos(CLAMP(initial_ori.dot(ci->current_ori), -1, 1)));
+                const real_t rot_angle(Math::acos(CLAMP<float>(initial_ori.dot(ci->current_ori), -1, 1)));
                 new_bone_pose.basis.rotate(rot_axis, rot_angle);
             }
         } else {
             // Set target orientation to tip
-            if (override_tip_basis)
+            if (override_tip_basis) {
                 new_bone_pose.basis = p_task->chain.tips[0].end_effector->goal_transform.basis;
-            else
+            } else {
                 new_bone_pose.basis = new_bone_pose.basis * p_task->chain.tips[0].end_effector->goal_transform.basis;
+            }
         }
         // IK should not affect scale, so undo any scaling
         new_bone_pose.basis.orthonormalize();
@@ -345,6 +337,19 @@ void FabrikInverseKinematic::solve(Task *p_task, real_t blending_delta, bool ove
     }
 }
 
+void FabrikInverseKinematic::_update_chain(const Skeleton *p_sk, ChainItem *p_chain_item) {
+    if (!p_chain_item) {
+        return;
+    }
+
+    p_chain_item->initial_transform = p_sk->get_bone_global_pose_no_override(p_chain_item->bone);
+    p_chain_item->current_pos = p_chain_item->initial_transform.origin;
+
+    ChainItem *items = p_chain_item->children.data();
+    for (int i = 0; i < p_chain_item->children.size(); i += 1) {
+        _update_chain(p_sk, items + i);
+    }
+}
 void SkeletonIK3D::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "root_bone" || property.name == "tip_bone") {
@@ -370,41 +375,41 @@ void SkeletonIK3D::_validate_property(PropertyInfo &property) const {
 
 void SkeletonIK3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_root_bone", {"root_bone"}), &SkeletonIK3D::set_root_bone);
-    MethodBinder::bind_method(D_METHOD("get_root_bone"), &SkeletonIK3D::get_root_bone);
+    BIND_METHOD(SkeletonIK3D,set_root_bone);
+    BIND_METHOD(SkeletonIK3D,get_root_bone);
 
-    MethodBinder::bind_method(D_METHOD("set_tip_bone", {"tip_bone"}), &SkeletonIK3D::set_tip_bone);
-    MethodBinder::bind_method(D_METHOD("get_tip_bone"), &SkeletonIK3D::get_tip_bone);
+    BIND_METHOD(SkeletonIK3D,set_tip_bone);
+    BIND_METHOD(SkeletonIK3D,get_tip_bone);
 
-    MethodBinder::bind_method(D_METHOD("set_interpolation", {"interpolation"}), &SkeletonIK3D::set_interpolation);
-    MethodBinder::bind_method(D_METHOD("get_interpolation"), &SkeletonIK3D::get_interpolation);
+    BIND_METHOD(SkeletonIK3D,set_interpolation);
+    BIND_METHOD(SkeletonIK3D,get_interpolation);
 
-    MethodBinder::bind_method(D_METHOD("set_target_transform", {"target"}), &SkeletonIK3D::set_target_transform);
-    MethodBinder::bind_method(D_METHOD("get_target_transform"), &SkeletonIK3D::get_target_transform);
+    BIND_METHOD(SkeletonIK3D,set_target_transform);
+    BIND_METHOD(SkeletonIK3D,get_target_transform);
 
-    MethodBinder::bind_method(D_METHOD("set_target_node", {"node"}), &SkeletonIK3D::set_target_node);
-    MethodBinder::bind_method(D_METHOD("get_target_node"), &SkeletonIK3D::get_target_node);
+    BIND_METHOD(SkeletonIK3D,set_target_node);
+    BIND_METHOD(SkeletonIK3D,get_target_node);
 
-    MethodBinder::bind_method(D_METHOD("set_override_tip_basis", {"override"}), &SkeletonIK3D::set_override_tip_basis);
-    MethodBinder::bind_method(D_METHOD("is_override_tip_basis"), &SkeletonIK3D::is_override_tip_basis);
+    BIND_METHOD(SkeletonIK3D,set_override_tip_basis);
+    BIND_METHOD(SkeletonIK3D,is_override_tip_basis);
 
-    MethodBinder::bind_method(D_METHOD("set_use_magnet", {"use"}), &SkeletonIK3D::set_use_magnet);
-    MethodBinder::bind_method(D_METHOD("is_using_magnet"), &SkeletonIK3D::is_using_magnet);
+    BIND_METHOD(SkeletonIK3D,set_use_magnet);
+    BIND_METHOD(SkeletonIK3D,is_using_magnet);
 
-    MethodBinder::bind_method(D_METHOD("set_magnet_position", {"local_position"}), &SkeletonIK3D::set_magnet_position);
-    MethodBinder::bind_method(D_METHOD("get_magnet_position"), &SkeletonIK3D::get_magnet_position);
+    BIND_METHOD(SkeletonIK3D,set_magnet_position);
+    BIND_METHOD(SkeletonIK3D,get_magnet_position);
 
-    MethodBinder::bind_method(D_METHOD("get_parent_skeleton"), &SkeletonIK3D::get_parent_skeleton);
-    MethodBinder::bind_method(D_METHOD("is_running"), &SkeletonIK3D::is_running);
+    BIND_METHOD(SkeletonIK3D,get_parent_skeleton);
+    BIND_METHOD(SkeletonIK3D,is_running);
 
-    MethodBinder::bind_method(D_METHOD("set_min_distance", {"min_distance"}), &SkeletonIK3D::set_min_distance);
-    MethodBinder::bind_method(D_METHOD("get_min_distance"), &SkeletonIK3D::get_min_distance);
+    BIND_METHOD(SkeletonIK3D,set_min_distance);
+    BIND_METHOD(SkeletonIK3D,get_min_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_max_iterations", {"iterations"}), &SkeletonIK3D::set_max_iterations);
-    MethodBinder::bind_method(D_METHOD("get_max_iterations"), &SkeletonIK3D::get_max_iterations);
+    BIND_METHOD(SkeletonIK3D,set_max_iterations);
+    BIND_METHOD(SkeletonIK3D,get_max_iterations);
 
     MethodBinder::bind_method(D_METHOD("start", {"one_time"}), &SkeletonIK3D::start, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("stop"), &SkeletonIK3D::stop);
+    BIND_METHOD(SkeletonIK3D,stop);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "tip_bone"), "set_tip_bone", "get_tip_bone");
@@ -551,6 +556,9 @@ void SkeletonIK3D::start(bool p_one_time) {
 
 void SkeletonIK3D::stop() {
     set_process_internal(false);
+    if (skeleton) {
+        skeleton->clear_bones_global_pose_override();
+    }
 }
 
 Transform SkeletonIK3D::_get_target_transform() {
@@ -558,8 +566,13 @@ Transform SkeletonIK3D::_get_target_transform() {
     if (!target_node_override && !target_node_path_override.is_empty())
         target_node_override = object_cast<Node3D>(get_node(target_node_path_override));
 
-    if (target_node_override)
+    if (target_node_override && target_node_override->is_inside_tree()) {
+        // Make sure to use the interpolated transform as target.
+        // This will pass through to get_global_transform() when physics interpolation is off, and when using
+        // interpolation, ensure that the target matches the interpolated visual position of the target when updating
+        // the IK each frame.
         return target_node_override->get_global_transform();
+    }
     else
         return target;
 }

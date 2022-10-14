@@ -42,8 +42,8 @@ void ProximityGroup3D::_clear_groups() {
 
     HashMap<StringName, uint32_t>::iterator E;
 
-    {
-        const int size = 16;
+    const int size = 16;
+    do {
         StringName remove_list[size];
         E = groups.begin();
         int num = 0;
@@ -59,11 +59,7 @@ void ProximityGroup3D::_clear_groups() {
 
             groups.erase(remove_list[i]);
         }
-    }
-
-    if (E!=groups.end()) {
-        _clear_groups(); // call until we go through the whole list
-    }
+    } while (E != groups.end());
 }
 
 void ProximityGroup3D::_update_groups() {
@@ -146,7 +142,7 @@ void ProximityGroup3D::broadcast(StringView p_method, const Variant& p_parameter
 void ProximityGroup3D::_proximity_group_broadcast(const StringName& p_method, const Variant& p_parameters) {
 
     if (dispatch_mode == MODE_PROXY) {
-
+        ERR_FAIL_COND(!is_inside_tree());
         get_parent()->call_va(p_method, p_parameters);
     } else {
 
@@ -186,14 +182,14 @@ Vector3 ProximityGroup3D::get_grid_radius() const {
 
 void ProximityGroup3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_group_name", {"name"}), &ProximityGroup3D::set_group_name);
-    MethodBinder::bind_method(D_METHOD("get_group_name"), &ProximityGroup3D::get_group_name);
-    MethodBinder::bind_method(D_METHOD("set_dispatch_mode", {"mode"}), &ProximityGroup3D::set_dispatch_mode);
-    MethodBinder::bind_method(D_METHOD("get_dispatch_mode"), &ProximityGroup3D::get_dispatch_mode);
-    MethodBinder::bind_method(D_METHOD("set_grid_radius", {"radius"}), &ProximityGroup3D::set_grid_radius);
-    MethodBinder::bind_method(D_METHOD("get_grid_radius"), &ProximityGroup3D::get_grid_radius);
-    MethodBinder::bind_method(D_METHOD("broadcast", {"method", "parameters"}), &ProximityGroup3D::broadcast);
-    MethodBinder::bind_method(D_METHOD("_proximity_group_broadcast", {"method", "parameters"}), &ProximityGroup3D::_proximity_group_broadcast);
+    BIND_METHOD(ProximityGroup3D,set_group_name);
+    BIND_METHOD(ProximityGroup3D,get_group_name);
+    BIND_METHOD(ProximityGroup3D,set_dispatch_mode);
+    BIND_METHOD(ProximityGroup3D,get_dispatch_mode);
+    BIND_METHOD(ProximityGroup3D,set_grid_radius);
+    BIND_METHOD(ProximityGroup3D,get_grid_radius);
+    BIND_METHOD(ProximityGroup3D,broadcast);
+    BIND_METHOD(ProximityGroup3D,_proximity_group_broadcast);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "group_name"), "set_group_name", "get_group_name");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "dispatch_mode", PropertyHint::Enum, "Proxy,Signal"), "set_dispatch_mode", "get_dispatch_mode");

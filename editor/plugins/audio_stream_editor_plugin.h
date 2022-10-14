@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_stream_editor_plugin.h                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -42,21 +42,22 @@ class GODOT_EXPORT AudioStreamEditor : public ColorRect {
     GDCLASS(AudioStreamEditor,ColorRect)
 
     Ref<AudioStream> stream;
-    AudioStreamPlayer *_player;
-    ColorRect *_preview;
-    Control *_indicator;
-    Label *_current_label;
-    Label *_duration_label;
+    AudioStreamPlayer *_player = nullptr;
+    ColorRect *_preview= nullptr;
+    Control *_indicator= nullptr;
+    Label *_current_label= nullptr;
+    Label *_duration_label= nullptr;
 
-    ToolButton *_play_button;
-    ToolButton *_stop_button;
+    ToolButton *_play_button= nullptr;
+    ToolButton *_stop_button= nullptr;
 
-    float _current;
-    bool _dragging;
+    float _current = 0;
+    bool _dragging = false;
+    bool _pausing = false;
 
 protected:
     void _notification(int p_what);
-    void _preview_changed(ObjectID p_which);
+    void _preview_changed(GameEntity p_which);
     void _play();
     void _stop();
     void _on_finished();

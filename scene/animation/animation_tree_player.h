@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  animation_tree_player.h                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ANIMATION_TREE_PLAYER_H
-#define ANIMATION_TREE_PLAYER_H
+#pragma once
 
 #include "animation_player.h"
 #include "core/hash_map.h"
@@ -87,7 +86,7 @@ private:
     struct TrackKey {
 
         StringName subpath_concatenated;
-        ObjectID id;
+        GameEntity id;
         int bone_idx;
 
         inline bool operator<(const TrackKey &p_right) const {
@@ -98,33 +97,27 @@ private:
                 } else
                     return bone_idx < p_right.bone_idx;
             } else
-                return id < p_right.id;
+                return entt::to_integral(id) < entt::to_integral(p_right.id);
         }
     };
 protected:
     struct Track {
-        ObjectID id;
-        Object *object;
-        Node3D *spatial;
-        Skeleton *skeleton;
-        int bone_idx;
         Vector<StringName> subpath;
 
-        Vector3 loc;
-        Quat rot;
-        Vector3 scale;
-
         Variant value;
+        Quat rot;
+        Vector3 loc;
+        Vector3 scale;
+        Object *object=nullptr;
+        Node3D *node_3d=nullptr;
+        Skeleton *skeleton=nullptr;
 
-        bool skip;
+        GameEntity id { entt::null };
 
-        Track() :
-                id(0),
-                object(nullptr),
-                spatial(nullptr),
-                skeleton(nullptr),
-                bone_idx(-1),
-                skip(false) {}
+        int bone_idx=-1;
+        bool skip=false;
+
+        Track() {}
     };
 
     using TrackMap = Map<TrackKey, Track>;
@@ -309,6 +302,3 @@ public:
     AnimationTreePlayer();
     ~AnimationTreePlayer() override;
 };
-
-
-#endif // ANIMATION_TREE_PLAYER_H

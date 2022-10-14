@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  scene_tree_editor.h                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -52,13 +52,14 @@ public:
         BUTTON_SIGNALS = 6,
         BUTTON_GROUPS = 7,
         BUTTON_PIN = 8,
+        BUTTON_UNIQUE = 9,
     };
 private:
 
     EditorSelection* editor_selection;
     Tree *tree;
     Node *selected;
-    ObjectID instance_node;
+    GameEntity instance_node;
 
     UIString filter;
 
@@ -91,11 +92,13 @@ private:
 
     void _renamed();
 
-    bool _add_nodes(Node *p_node, TreeItem *p_parent);
+    bool _add_nodes(Node *p_node, TreeItem *p_parent, bool p_scroll_to_selected = false);
     void _test_update_tree();
 public:
     //used as a signal target.
-    void _update_tree();
+    void _update_tree(bool p_scroll_to_selected = false);
+    //used by undo/redo
+    void _rename_node(GameEntity p_node, StringView p_name);
 protected:
     void _tree_changed();
     void _node_removed(Node *p_node);
@@ -105,7 +108,6 @@ protected:
     void _notification(int p_what);
     void _selected_changed();
     void _deselect_items();
-    void _rename_node(ObjectID p_node, StringView p_name);
 
     void _cell_collapsed(Object *p_obj);
 
@@ -117,7 +119,6 @@ protected:
     void _node_script_changed(Node *p_node);
     void _node_visibility_changed(Node *p_node);
 
-    void _node_replace_owner(Node *p_base, Node *p_node, Node *p_root);
 
     void _selection_changed();
 
@@ -171,9 +172,9 @@ class SceneTreeDialog : public ConfirmationDialog {
     //Button *cancel;
     LineEdit *filter;
 
-    void update_tree();
     void _select();
     void _cancel();
+    void _selected_changed();
     void _filter_changed(StringView p_filter);
 
 protected:
@@ -182,6 +183,7 @@ protected:
 
 public:
     SceneTreeEditor *get_scene_tree() { return tree; }
+    LineEdit *get_filter_line_edit() { return filter; }
     SceneTreeDialog();
     ~SceneTreeDialog() override;
 };

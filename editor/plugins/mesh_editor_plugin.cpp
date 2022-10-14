@@ -31,6 +31,8 @@
 #include "mesh_editor_plugin.h"
 
 #include "editor/editor_scale.h"
+#include "scene/gui/box_container.h"
+#include "scene/gui/texture_button.h"
 #include "scene/resources/world_3d.h"
 #include "core/method_bind.h"
 #include "core/callable_method_pointer.h"
@@ -117,14 +119,14 @@ void MeshEditor::_button_pressed(Node *p_button) {
 
 void MeshEditor::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_gui_input"), &MeshEditor::_gui_input);
+    BIND_METHOD(MeshEditor,_gui_input);
 }
 
 MeshEditor::MeshEditor() {
 
     viewport = memnew(Viewport);
     Ref<World3D> world(make_ref_counted<World3D>());
-    viewport->set_world(world); //use own world
+    viewport->set_world_3d(world); //use own world
     add_child(viewport);
     viewport->set_disable_input(true);
     viewport->set_msaa(Viewport::MSAA_2X);
@@ -162,12 +164,12 @@ MeshEditor::MeshEditor() {
     light_1_switch = memnew(TextureButton);
     light_1_switch->set_toggle_mode(true);
     vb_light->add_child(light_1_switch);
-    light_1_switch->connect("pressed",callable_mp(this, &ClassName::_button_pressed), varray(Variant(light_1_switch)));
+    light_1_switch->connectF("pressed",this,[this]() { _button_pressed(light_1_switch); });
 
     light_2_switch = memnew(TextureButton);
     light_2_switch->set_toggle_mode(true);
     vb_light->add_child(light_2_switch);
-    light_2_switch->connect("pressed",callable_mp(this, &ClassName::_button_pressed), varray(Variant(light_2_switch)));
+    light_2_switch->connectF("pressed",this,[this]() { _button_pressed(light_2_switch); });
 
     first_enter = true;
 

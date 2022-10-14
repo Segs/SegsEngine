@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "broad_phase_2d_basic.h"
-BroadPhase2DBasic::ID BroadPhase2DBasic::create(CollisionObject2DSW *p_object_, int p_subindex) {
+BroadPhase2DBasic::ID BroadPhase2DBasic::create(CollisionObject2DSW *p_object_, int p_subindex, const Rect2 &p_aabb, bool p_static) {
     current++;
 
     Element e;
@@ -39,6 +39,10 @@ BroadPhase2DBasic::ID BroadPhase2DBasic::create(CollisionObject2DSW *p_object_, 
 
     element_map[current] = e;
     return current;
+}
+
+void BroadPhase2DBasic::recheck_pairs(ID p_id) {
+    // Not supported.
 }
 
 void BroadPhase2DBasic::move(ID p_id, const Rect2 &p_aabb) {
@@ -150,7 +154,7 @@ void BroadPhase2DBasic::update() {
                 void *data = nullptr;
                 if (pair_callback) {
                     data = pair_callback(
-                            elem_A->owner, elem_A->subindex, elem_B->owner, elem_B->subindex, unpair_userdata);
+                            elem_A->owner, elem_A->subindex, elem_B->owner, elem_B->subindex, nullptr, unpair_userdata);
                 }
                 pair_map.emplace(key, data);
             }

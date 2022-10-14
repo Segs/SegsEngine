@@ -31,7 +31,11 @@
 #pragma once
 #include "core/godot_export.h"
 
+#ifdef TOOLS_ENABLED
 GODOT_EXPORT void editor_set_scale(float p_scale);
 GODOT_EXPORT float editor_get_scale();
 
 #define EDSCALE (editor_get_scale())
+#else
+constexpr float EDSCALE = 1.0f;
+#endif

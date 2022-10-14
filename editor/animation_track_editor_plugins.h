@@ -60,9 +60,9 @@ public:
 class GODOT_EXPORT AnimationTrackEditAudio : public AnimationTrackEdit {
     GDCLASS(AnimationTrackEditAudio,AnimationTrackEdit)
 
-    ObjectID id;
+    GameEntity id;
 
-    void _preview_changed(ObjectID p_which);
+    void _preview_changed(GameEntity p_which);
 
 protected:
     static void _bind_methods();
@@ -81,7 +81,7 @@ public:
 class AnimationTrackEditSpriteFrame : public AnimationTrackEdit {
     GDCLASS(AnimationTrackEditSpriteFrame,AnimationTrackEdit)
 
-    ObjectID id;
+    GameEntity id;
     bool is_coords;
 
 public:
@@ -99,7 +99,7 @@ public:
 class AnimationTrackEditSubAnim : public AnimationTrackEdit {
     GDCLASS(AnimationTrackEditSubAnim,AnimationTrackEdit)
 
-    ObjectID id;
+    GameEntity id;
 
 public:
     int get_key_height() const override;
@@ -113,13 +113,14 @@ public:
 class GODOT_EXPORT AnimationTrackEditTypeAudio : public AnimationTrackEdit {
     GDCLASS(AnimationTrackEditTypeAudio,AnimationTrackEdit)
 
-    void _preview_changed(ObjectID p_which);
+    void _preview_changed(GameEntity p_which);
 
     bool len_resizing;
     bool len_resizing_start;
     int len_resizing_index;
     float len_resizing_from_px;
     float len_resizing_rel;
+    bool over_drag_position = false;
 
 protected:
     static void _bind_methods();
@@ -134,6 +135,7 @@ public:
     Rect2 get_key_rect(int p_index, float p_pixels_sec) override;
     bool is_key_selectable_by_distance() const override;
     void draw_key(int p_index, float p_pixels_sec, int p_x, bool p_selected, int p_clip_left, int p_clip_right) override;
+    CursorShape get_cursor_shape(const Point2 &p_pos) const override;
 
     AnimationTrackEditTypeAudio();
 };
@@ -141,7 +143,7 @@ public:
 class AnimationTrackEditTypeAnimation : public AnimationTrackEdit {
     GDCLASS(AnimationTrackEditTypeAnimation,AnimationTrackEdit)
 
-    ObjectID id;
+    GameEntity id;
 
 public:
     int get_key_height() const override;

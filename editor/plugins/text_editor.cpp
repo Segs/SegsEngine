@@ -50,7 +50,7 @@ void TextEditor::set_syntax_highlighter(SyntaxHighlighter *p_highlighter) {
     if (p_highlighter != nullptr) {
         highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text_utf8(p_highlighter->get_name()), true);
     } else {
-        highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text("Standard"), true);
+        highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text(TTR("Standard")), true);
     }
 
     // little work around. GDScript highlighter goes through text_edit for colours,
@@ -71,7 +71,7 @@ void TextEditor::_change_syntax_highlighter(int p_idx) {
     for (;el != highlighters.end(); ++el) {
         highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text_utf8(el->first), false);
     }
-    set_syntax_highlighter(highlighters[highlighter_menu->get_item_text_utf8(p_idx)]);
+    set_syntax_highlighter(highlighters[highlighter_menu->get_item_text(p_idx)]);
 }
 
 void TextEditor::_load_theme_settings() {
@@ -107,6 +107,7 @@ void TextEditor::_load_theme_settings() {
     Color search_result_border_color = EDITOR_GET_T<Color>("text_editor/highlighting/search_result_border_color");
     Color symbol_color = EDITOR_GET_T<Color>("text_editor/highlighting/symbol_color");
     Color keyword_color = EDITOR_GET_T<Color>("text_editor/highlighting/keyword_color");
+    Color control_flow_keyword_color = EDITOR_GET_T<Color>("text_editor/highlighting/control_flow_keyword_color");
     Color basetype_color = EDITOR_GET_T<Color>("text_editor/highlighting/base_type_color");
     Color type_color = EDITOR_GET_T<Color>("text_editor/highlighting/engine_type_color");
     Color comment_color = EDITOR_GET_T<Color>("text_editor/highlighting/comment_color");
@@ -145,6 +146,7 @@ void TextEditor::_load_theme_settings() {
     colors_cache.font_color = text_color;
     colors_cache.symbol_color = symbol_color;
     colors_cache.keyword_color = keyword_color;
+    colors_cache.control_flow_keyword_color = control_flow_keyword_color;
     colors_cache.basetype_color = basetype_color;
     colors_cache.type_color = type_color;
     colors_cache.comment_color = comment_color;
@@ -154,15 +156,21 @@ void TextEditor::_load_theme_settings() {
 String TextEditor::get_name() {
     String name;
 
-    if (not PathUtils::is_internal_path(text_file->get_path()) ) {
         name = PathUtils::get_file(text_file->get_path());
+    if (name.empty()) {
+        // This appears for newly created built-in text_files before saving the scene.
+        name = TTR("[unsaved]");
+    } else if (!text_file->get_path().contains("local://") || !text_file->get_path().contains("::")) {
+        const String &text_file_name = text_file->get_name();
+        if (!text_file_name.empty()) {
+            // If the built-in text_file has a custom resource name defined,
+            // display the built-in text_file name as follows: `ResourceName (scene_file.tscn)`
+            StringView name_res_file=StringUtils::get_slice(name,"::", 0);
+            name = FormatVE("%s (%.*s)", text_file_name.c_str(), name_res_file.size(),name_res_file.data());
+        }
+    }
         if (is_unsaved()) {
             name += "(*)";
-        }
-    } else if (!text_file->get_name().empty()) {
-        name = text_file->get_name();
-    } else {
-        name = FormatVE("%s(%zd)",text_file->get_class(),(uint64_t)text_file->get_instance_id());
     }
 
     return name;
@@ -432,9 +440,9 @@ void TextEditor::_edit_option(int p_op) {
 
             code_editor->delete_lines();
         } break;
-        case EDIT_CLONE_DOWN: {
+        case EDIT_DUPLICATE_SELECTION: {
 
-            code_editor->clone_lines_down();
+            code_editor->duplicate_selection();
         } break;
         case EDIT_TOGGLE_FOLD_LINE: {
 
@@ -498,6 +506,11 @@ void TextEditor::_edit_option(int p_op) {
             // Yep, because it doesn't make sense to instance this dialog for every single script open...
             // So this will be delegated to the ScriptEditor.
             emit_signal("search_in_files_requested", selected_text);
+        } break;
+        case REPLACE_IN_FILES: {
+            String selected_text = code_editor->get_text_edit()->get_selection_text();
+
+            emit_signal("replace_in_files_requested", selected_text);
         } break;
         case SEARCH_GOTO_LINE: {
 
@@ -588,6 +601,12 @@ void TextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
     }
 }
 
+void TextEditor::_prepare_edit_menu() {
+    const TextEdit *tx = code_editor->get_text_edit();
+    PopupMenu *popup = edit_menu->get_popup();
+    popup->set_item_disabled(popup->get_item_index(EDIT_UNDO), !tx->has_undo());
+    popup->set_item_disabled(popup->get_item_index(EDIT_REDO), !tx->has_redo());
+}
 void TextEditor::_make_context_menu(bool p_selection, bool p_can_fold, bool p_is_folded, Vector2 p_position) {
 
     context_menu->clear();
@@ -613,6 +632,9 @@ void TextEditor::_make_context_menu(bool p_selection, bool p_can_fold, bool p_is
     }
     if (p_can_fold || p_is_folded)
         context_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/toggle_fold_line"), EDIT_TOGGLE_FOLD_LINE);
+    const TextEdit *tx = code_editor->get_text_edit();
+    context_menu->set_item_disabled(context_menu->get_item_index(EDIT_UNDO), !tx->has_undo());
+    context_menu->set_item_disabled(context_menu->get_item_index(EDIT_REDO), !tx->has_redo());
 
     context_menu->set_position(get_global_transform().xform(p_position));
     context_menu->set_size(Vector2(1, 1));
@@ -653,11 +675,13 @@ TextEditor::TextEditor() {
     search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/replace"), SEARCH_REPLACE);
     search_menu->get_popup()->add_separator();
     search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/find_in_files"), SEARCH_IN_FILES);
+    search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/replace_in_files"), REPLACE_IN_FILES);
 
     edit_menu = memnew(MenuButton);
     edit_hb->add_child(edit_menu);
     edit_menu->set_text(TTR("Edit"));
     edit_menu->set_switch_on_hover(true);
+    edit_menu->connect("about_to_show", callable_mp(this, &ClassName::_prepare_edit_menu));
     edit_menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_edit_option));
 
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/undo"), EDIT_UNDO);
@@ -678,7 +702,7 @@ TextEditor::TextEditor() {
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/fold_all_lines"), EDIT_FOLD_ALL_LINES);
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/unfold_all_lines"), EDIT_UNFOLD_ALL_LINES);
     edit_menu->get_popup()->add_separator();
-    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/clone_down"), EDIT_CLONE_DOWN);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/duplicate_selection"), EDIT_DUPLICATE_SELECTION);
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/trim_trailing_whitespace"), EDIT_TRIM_TRAILING_WHITESAPCE);
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/convert_indent_to_spaces"), EDIT_CONVERT_INDENT_TO_SPACES);
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/convert_indent_to_tabs"), EDIT_CONVERT_INDENT_TO_TABS);
@@ -693,7 +717,7 @@ TextEditor::TextEditor() {
     convert_case->add_shortcut(ED_SHORTCUT("script_text_editor/capitalize", TTR("Capitalize")), EDIT_CAPITALIZE);
     convert_case->connect("id_pressed",callable_mp(this, &ClassName::_edit_option));
 
-    highlighters["Standard"] = nullptr;
+    highlighters.emplace(TTR("Standard").asCString(),nullptr);
     highlighter_menu = memnew(PopupMenu);
     highlighter_menu->set_name("highlighter_menu");
     edit_menu->get_popup()->add_child(highlighter_menu);

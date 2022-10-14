@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  canvas_modulate.cpp                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,28 +32,35 @@
 #include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(CanvasModulate)
 
 void CanvasModulate::_notification(int p_what) {
+    uint32_t name_idx = 0;
+    const bool visible_in_tree = is_visible_in_tree();
+    if(p_what == NOTIFICATION_VISIBILITY_CHANGED || visible_in_tree) {
+        name_idx = entt::to_integral(get_canvas());
+    }
 
-    StringName name("_canvas_modulate_" + itos(get_canvas().get_id()));
+    StringName name("_canvas_modulate_" + itos(name_idx));
+
     if (p_what == NOTIFICATION_ENTER_CANVAS) {
 
-        if (is_visible_in_tree()) {
+        if (visible_in_tree) {
             RenderingServer::get_singleton()->canvas_set_modulate(get_canvas(), color);
             add_to_group(name);
         }
 
     } else if (p_what == NOTIFICATION_EXIT_CANVAS) {
 
-        if (is_visible_in_tree()) {
+        if (visible_in_tree) {
             RenderingServer::get_singleton()->canvas_set_modulate(get_canvas(), Color(1, 1, 1, 1));
             remove_from_group(name);
         }
     } else if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
 
-        if (is_visible_in_tree()) {
+        if (visible_in_tree) {
             RenderingServer::get_singleton()->canvas_set_modulate(get_canvas(), color);
             add_to_group(name);
         } else {
@@ -67,8 +74,8 @@ void CanvasModulate::_notification(int p_what) {
 
 void CanvasModulate::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_color", {"color"}), &CanvasModulate::set_color);
-    MethodBinder::bind_method(D_METHOD("get_color"), &CanvasModulate::get_color);
+    BIND_METHOD(CanvasModulate,set_color);
+    BIND_METHOD(CanvasModulate,get_color);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
 }
@@ -92,8 +99,8 @@ String CanvasModulate::get_configuration_warning() const {
     if (!is_visible_in_tree() || !is_inside_tree())
         return warning;
 
-    StringName name("_canvas_modulate_" + itos(get_canvas().get_id()));
-    Deque<Node *> nodes;
+    StringName name("_canvas_modulate_" + itos(entt::to_integral(get_canvas())));
+    Dequeue<Node *> nodes;
     get_tree()->get_nodes_in_group(name, &nodes);
 
     if (nodes.size() > 1) {

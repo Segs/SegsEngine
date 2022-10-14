@@ -223,7 +223,7 @@ GDMonoLog::GDMonoLog() {
 
 GDMonoLog::~GDMonoLog() {
 
-    singleton = NULL;
+    singleton = nullptr;
 }
 
 #endif // !defined(GD_MONO_LOG)

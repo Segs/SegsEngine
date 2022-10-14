@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  engine.h                                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/reflection_macros.h"
 #include "core/hash_map.h"
 #include "core/vector.h"
 #include "core/string_name.h"
@@ -37,11 +38,12 @@
 
 class GODOT_EXPORT Engine {
 
+    SE_CLASS(singleton)
 public:
     struct Singleton {
         StringName name;
         Object *ptr;
-        Singleton(const StringName &p_name = StringName(), Object *p_ptr = nullptr);
+        Singleton(StringName p_name = StringName(), Object *p_ptr = nullptr);
     };
 
 private:
@@ -63,12 +65,11 @@ private:
     float _physics_interpolation_fraction = 0.0f;
 
     uint64_t _idle_frames=0;
-    bool _pixel_snap=false;
-    bool _snap_2d_transforms=false;
-    bool _snap_2d_viewports;
+    bool _gpu_pixel_snap = false;
     bool _in_physics=false;
-    bool editor_hint=false;
     bool abort_on_gpu_errors=false;
+    bool _portals_active = false;
+    bool _occlusion_culling_active = false;
 
     static Engine *singleton;
 
@@ -101,22 +102,20 @@ public:
     void set_frame_delay(uint32_t p_msec);
     uint32_t get_frame_delay() const;
 
+    void set_print_error_messages(bool p_enabled);
+    bool is_printing_error_messages() const;
     void add_singleton(const Singleton &p_singleton);
     const Vector<Singleton> &get_singletons() { return singletons; }
     bool has_singleton(const StringName &p_name) const;
     Object *get_named_singleton(const StringName &p_name) const;
 
-    bool get_use_pixel_snap() const { return _pixel_snap; }
-    bool get_snap_2d_transforms() const { return _snap_2d_transforms; }
-    bool get_snap_2d_viewports() const { return _snap_2d_viewports; }
+    bool get_use_gpu_pixel_snap() const { return _gpu_pixel_snap; }
 
-#ifdef TOOLS_ENABLED
-    void set_editor_hint(bool p_enabled) { editor_hint = p_enabled; }
-    bool is_editor_hint() const { return editor_hint; }
-#else
-    void set_editor_hint(bool p_enabled) {}
-    bool is_editor_hint() const { return false; }
-#endif
+    bool are_portals_active() const { return _portals_active; }
+    void set_portals_active(bool p_active);
+
+    void set_editor_hint(bool p_enabled);
+    bool is_editor_hint() const;
 
     Dictionary get_version_info() const;
     Dictionary get_author_info() const;
@@ -126,6 +125,9 @@ public:
     String get_license_text() const;
 
     bool is_abort_on_gpu_errors_enabled() const { return abort_on_gpu_errors; }
+    // NON-COPYABLE
+    Engine(const Engine &) = delete;
+    Engine operator=(const Engine &) = delete;
 
     Engine();
     virtual ~Engine() = default;

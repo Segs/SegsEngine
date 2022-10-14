@@ -32,6 +32,9 @@
 
 #include "rendering_server_globals.h"
 #include "rendering_server_raster.h"
+#include "servers/rendering/renderer_instance_component.h"
+#include "servers/rendering/portals/portal_resources.h"
+#include "servers/rendering/render_entity_getter.h"
 
 #include "core/ecs_registry.h"
 #include "core/external_profiler.h"
@@ -41,18 +44,27 @@
 #include <new>
 
 namespace {
-struct InstanceGeometryData {
-    List<VisualServerScene::Instance *> lighting;
-    List<VisualServerScene::Instance *> reflection_probes;
-    List<VisualServerScene::Instance *> gi_probes;
-    List<VisualServerScene::Instance *> lightmap_captures;
-};
 
-struct InstanceComponent {
-    VisualServerScene::Instance * instance;
-    InstanceComponent(VisualServerScene::Instance *c) : instance(c) {}
-    InstanceComponent() = default;
-};
+template<typename T>
+bool has_component(RenderingEntity id) {
+    return VSG::ecs->registry.valid(id) && VSG::ecs->registry.any_of<T>(id);
+}
+template<typename T>
+T & get_component(RenderingEntity id) {
+
+    CRASH_COND(!VSG::ecs->registry.valid(id) );
+    CRASH_COND(!VSG::ecs->registry.any_of<T>(id) );
+
+    return VSG::ecs->registry.get<T>(id);
+}
+template<typename T>
+void clear_component(RenderingEntity id) {
+    if (VSG::ecs->registry.valid(id) && VSG::ecs->registry.any_of<T>(id))
+    {
+        VSG::ecs->registry.remove<T>(id);
+    }
+}
+
 struct Dirty {
     //aabb stuff
     bool update_aabb : 1;
@@ -65,79 +77,104 @@ struct Dirty {
     }
 
 };
-struct GeometryComponent {
-    InstanceGeometryData *Data;
-    bool lighting_dirty : 1;
-    bool can_cast_shadows : 1;
-    bool material_is_animated : 1;
-    bool reflection_dirty : 1;
-    bool gi_probes_dirty: 1;
 
-    GeometryComponent() {
-        Data = nullptr;
-        lighting_dirty = false;
-        reflection_dirty = true;
-        can_cast_shadows = true;
-        material_is_animated = true;
-        gi_probes_dirty = true;
-    }
-    GeometryComponent(InstanceGeometryData * _Data) {
-        Data = _Data;
-        lighting_dirty = false;
-        reflection_dirty = true;
-        can_cast_shadows = true;
-        material_is_animated = true;
-        gi_probes_dirty = true;
-    }
-};
 struct InstanceBoundsComponent {
 
     AABB aabb;
     AABB transformed_aabb;
     AABB custom_aabb; // <Zylann> would using aabb directly with a bool be better?
     float extra_margin = 0.0f;
+    float sorting_offset=0.0f; 
+    bool use_aabb_center = false;
     bool use_custom_aabb = false;
-
 };
-template<typename T>
-bool has_component(entt::entity id) {
-    return VSG::ecs->registry.valid(id) && VSG::ecs->registry.has<T>(id);
-}
-template<typename T>
-T & get_component(RID id) {
-
-    CRASH_COND(!VSG::ecs->registry.valid(id.eid) );
-    CRASH_COND(!VSG::ecs->registry.has<T>(id.eid) );
-
-    return VSG::ecs->registry.get<T>(id.eid);
-}
-template<typename T>
-void clear_component(RID id) {
-    if (VSG::ecs->registry.valid(id.eid) && VSG::ecs->registry.has<T>(id.eid))
-    {
-        VSG::ecs->registry.remove<T>(id.eid);
+struct PortalComponent {
+    // all interactions with actual portals are indirect, as the portal is part of the scenario
+    uint32_t scenario_portal_id = 0;
+    RenderingEntity scenario = entt::null;
+    ~PortalComponent() {
+        if (scenario!=entt::null) {
+            get_component<RenderingScenarioComponent>(scenario)._portal_renderer.portal_destroy(scenario_portal_id);
+            scenario = entt::null;
+            scenario_portal_id = 0;
+        }
     }
-}
-InstanceGeometryData *get_instance_geometry(RID id) {
+};
+struct RoomComponent {
+    // all interactions with actual rooms are indirect, as the room is part of the scenario
+    uint32_t scenario_room_id = 0;
+    RenderingEntity scenario = entt::null;
+    ~RoomComponent() {
+        if (scenario!=entt::null) {
+            get_component<RenderingScenarioComponent>(scenario)._portal_renderer.room_destroy(scenario_room_id);
+            scenario = entt::null;
+            scenario_room_id = 0;
+        }
+    }
+};
+struct RoomGroupComponent {
+    // all interactions with actual roomgroups are indirect, as the roomgroup is part of the scenario
+    uint32_t scenario_roomgroup_id = 0;
+    RenderingEntity scenario = entt::null;
+    virtual ~RoomGroupComponent() {
+        if (scenario!=entt::null) {
+            get_component<RenderingScenarioComponent>(scenario)._portal_renderer.roomgroup_destroy(scenario_roomgroup_id);
+            scenario = entt::null;
+            scenario_roomgroup_id = 0;
+        }
+    }
+};
 
-    if (has_component<GeometryComponent>(id.eid)) {
-        return VSG::ecs->registry.get<GeometryComponent>(id.eid).Data;
+struct OcclusionGhostComponent {
+    // all interactions with actual ghosts are indirect, as the ghost is part of the scenario
+    RenderingEntity scenario = entt::null;
+    GameEntity object_id = entt::null;
+    RGhostHandle rghost_handle = 0; // handle in occlusion system (or 0)
+    AABB aabb;
+    virtual ~OcclusionGhostComponent() {
+        if (scenario!=entt::null) {
+            if (rghost_handle) {
+                get_component<RenderingScenarioComponent>(scenario)._portal_renderer.rghost_destroy(rghost_handle);
+                rghost_handle = 0;
+            }
+            scenario = entt::null;
+        }
+    }
+};
+
+// Occluders
+struct OccluderInstanceComponent {
+    uint32_t scenario_occluder_id = 0;
+    RenderingEntity scenario = entt::null;
+    virtual ~OccluderInstanceComponent() {
+        if (scenario!=entt::null) {
+            get_component<RenderingScenarioComponent>(scenario)._portal_renderer.occluder_instance_destroy(
+                    scenario_occluder_id);
+            scenario = entt::null;
+            scenario_occluder_id = 0;
+        }
+    }
+};
+
+struct OccluderResourceComponent {
+    uint32_t occluder_resource_id = 0;
+    void destroy(PortalResources &r_portal_resources) {
+        r_portal_resources.occluder_resource_destroy(occluder_resource_id);
+        occluder_resource_id = 0;
+    }
+    ~OccluderResourceComponent() {
+        DEV_ASSERT(occluder_resource_id == 0);
+    }
+};
+
+InstanceGeometryData *get_instance_geometry(RenderingEntity id) {
+
+    if (has_component<GeometryComponent>(id)) {
+        return getUnchecked<GeometryComponent>(id)->Data;
     }
     return nullptr;
 }
 
-void set_dirty(RID id, bool p_update_aabb, bool p_update_materials) {
-
-    auto &reg = VSG::ecs->registry;
-    if (!has_component<Dirty>(id.eid)) {
-        reg.emplace_or_replace<Dirty>(id.eid, p_update_aabb,p_update_materials);
-    }
-    else if(p_update_aabb|| p_update_materials) {
-        auto &c_data(get_component<Dirty>(id));
-        c_data.update_aabb |= p_update_aabb;
-        c_data.update_materials |= p_update_materials;
-    }
-}
 _FORCE_INLINE_ static uint32_t _gi_bake_find_cell(
         const VisualServerScene::GIProbeDataCell *cells, int x, int y, int z, int p_cell_subdiv) {
 
@@ -298,38 +335,42 @@ void _gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z
     prev_cell[p_level].emplace_back(p_idx);
 }
 
-static bool _check_gi_probe(VisualServerScene::Instance *p_gi_probe) {
+static bool _check_gi_probe(RenderingInstanceComponent *p_gi_probe) {
+    auto view_i(VSG::ecs->registry.view<RenderingInstanceComponent>());
 
-    VisualServerScene::InstanceGIProbeData *probe_data = static_cast<VisualServerScene::InstanceGIProbeData *>(p_gi_probe->base_data);
+    VisualServerScene::InstanceGIProbeData *probe_data = getUnchecked<VisualServerScene::InstanceGIProbeData>(p_gi_probe->self);
 
     probe_data->dynamic.light_cache_changes.clear();
 
     bool all_equal = true;
+    const auto &scenario(VSG::ecs->registry.get<RenderingScenarioComponent>(p_gi_probe->scenario));
 
-    for (VisualServerScene::Instance *E : p_gi_probe->scenario->directional_lights) {
+    for (RenderingEntity lght : scenario.directional_lights) {
+        RenderingInstanceComponent &E(view_i.get<RenderingInstanceComponent>(lght));
 
-        if (VSG::storage->light_get_bake_mode(E->base) == RS::LightBakeMode::LIGHT_BAKE_DISABLED)
+        if (VSG::storage->light_get_bake_mode(E.base) == RS::LightBakeMode::LIGHT_BAKE_DISABLED)
             continue;
 
+        assert(E.self==lght);
         VisualServerScene::InstanceGIProbeData::LightCache lc;
-        lc.type = VSG::storage->light_get_type(E->base);
-        lc.color = VSG::storage->light_get_color(E->base);
-        lc.energy = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_ENERGY) * VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_INDIRECT_ENERGY);
-        lc.radius = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_RANGE);
-        lc.attenuation = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_ATTENUATION);
-        lc.spot_angle = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_SPOT_ANGLE);
-        lc.spot_attenuation = VSG::storage->light_get_param(E->base, RS::LIGHT_PARAM_SPOT_ATTENUATION);
-        lc.transform = probe_data->dynamic.light_to_cell_xform * E->transform;
-        lc.visible = E->visible;
+        lc.type = VSG::storage->light_get_type(E.base);
+        lc.color = VSG::storage->light_get_color(E.base);
+        lc.energy = VSG::storage->light_get_param(E.base, RS::LIGHT_PARAM_ENERGY) * VSG::storage->light_get_param(E.base, RS::LIGHT_PARAM_INDIRECT_ENERGY);
+        lc.radius = VSG::storage->light_get_param(E.base, RS::LIGHT_PARAM_RANGE);
+        lc.attenuation = VSG::storage->light_get_param(E.base, RS::LIGHT_PARAM_ATTENUATION);
+        lc.spot_angle = VSG::storage->light_get_param(E.base, RS::LIGHT_PARAM_SPOT_ANGLE);
+        lc.spot_attenuation = VSG::storage->light_get_param(E.base, RS::LIGHT_PARAM_SPOT_ATTENUATION);
+        lc.transform = probe_data->dynamic.light_to_cell_xform * E.transform;
+        lc.visible = E.visible;
 
-        if (!probe_data->dynamic.light_cache.contains(E->self) || probe_data->dynamic.light_cache[E->self] != lc) {
+        if (!probe_data->dynamic.light_cache.contains(lght) || probe_data->dynamic.light_cache[lght] != lc) {
             all_equal = false;
         }
 
-        probe_data->dynamic.light_cache_changes[E->self] = lc;
+        probe_data->dynamic.light_cache_changes[lght] = lc;
     }
 
-    for (VisualServerScene::Instance * E : probe_data->lights) {
+    for (RenderingInstanceComponent * E : probe_data->lights) {
 
         if (VSG::storage->light_get_bake_mode(E->base) == RS::LightBakeMode::LIGHT_BAKE_DISABLED)
             continue;
@@ -355,288 +396,466 @@ static bool _check_gi_probe(VisualServerScene::Instance *p_gi_probe) {
     //lighting changed from after to before, must do some updating
     return !all_equal || probe_data->dynamic.light_cache_changes.size() != probe_data->dynamic.light_cache.size();
 }
+// thin wrapper to allow rooms / portals to take over culling if active
+int _cull_convex_from_point(RenderingScenarioComponent *p_scenario, const Transform &p_cam_transform, const CameraMatrix &p_cam_projection, Span<const Plane> p_convex, Span<RenderingEntity> p_result_array, int32_t &r_previous_room_id_hint, uint32_t p_mask = 0xFFFFFFFF) {
+    int res = -1;
+
+    if (p_scenario->_portal_renderer.is_active()) {
+        // Note that the portal renderer ASSUMES that the planes exactly match the convention in
+        // CameraMatrix of enum Planes (6 planes, in order, near, far etc)
+        // If this is not the case, it should not be used.
+        res = p_scenario->_portal_renderer.cull_convex(
+                p_cam_transform, p_cam_projection, p_convex, p_result_array, p_mask, r_previous_room_id_hint);
+    }
+    // fallback to BVH  / octree if portals not active
+    if (res == -1) {
+        res = p_scenario->sps.cull_convex(p_convex, p_result_array, p_mask);
+
+        // Opportunity for occlusion culling on the main scene. This will be a noop if no occluders.
+        if (p_scenario->_portal_renderer.occlusion_is_active()) {
+            res = p_scenario->_portal_renderer.occlusion_cull(
+                    p_cam_transform, p_cam_projection, p_convex, p_result_array, res);
+    }
+    }
+    return res;
+}
+
+static void _ghost_create_occlusion_rep(OcclusionGhostComponent *p_ghost) {
+    ERR_FAIL_COND(!p_ghost);
+    RenderingScenarioComponent *pscenario = get<RenderingScenarioComponent>(p_ghost->scenario);
+    ERR_FAIL_COND(!pscenario);
+
+    if (!p_ghost->rghost_handle) {
+        p_ghost->rghost_handle =pscenario->_portal_renderer.rghost_create(p_ghost->object_id, p_ghost->aabb);
+    }
+}
+
+static void _ghost_destroy_occlusion_rep(OcclusionGhostComponent *p_ghost) {
+    ERR_FAIL_COND(!p_ghost);
+
+    // not an error, can occur
+    if (!p_ghost->rghost_handle) {
+        return;
+    }
+
+    RenderingScenarioComponent *pscenario = get<RenderingScenarioComponent>(p_ghost->scenario);
+    ERR_FAIL_COND(!pscenario);
+    pscenario->_portal_renderer.rghost_destroy(p_ghost->rghost_handle);
+    p_ghost->rghost_handle = 0;
+}
+static void _rooms_instance_update(RenderingInstanceComponent *p_instance, const AABB &p_aabb) {
+    // magic number for instances in the room / portal system, but not requiring an update
+    // (due to being a STATIC or DYNAMIC object within a room)
+    // Must match the value in PortalRenderer in VisualServer
+    const uint32_t OCCLUSION_HANDLE_ROOM_BIT = 1 << 31;
+
+    // if the instance is a moving object in the room / portal system, update it
+    // Note that if rooms and portals is not in use, occlusion_handle should be zero in all cases unless the portal_mode
+    // has been set to global or roaming. (which is unlikely as the default is static).
+    // The exception is editor user interface elements.
+    // These are always set to global and will always keep their aabb up to date in the portal renderer unnecessarily.
+    // There is no easy way around this, but it should be very cheap, and have no impact outside the editor.
+    if (p_instance->occlusion_handle && (p_instance->occlusion_handle != OCCLUSION_HANDLE_ROOM_BIT)) {
+        RenderingScenarioComponent *pscenario = get<RenderingScenarioComponent>(p_instance->scenario);
+
+        pscenario->_portal_renderer.instance_moving_update(p_instance->occlusion_handle, p_aabb);
+    }
+}
 } // end of anonymous namespace
+
+//! when an instace's source instantiable changes, we mark them for an update
+void set_instance_dirty(RenderingEntity id, bool p_update_aabb, bool p_update_materials) {
+
+    // must have an instance!
+    assert(VSG::ecs->registry.any_of<RenderingInstanceComponent>(id));
+    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(id) ||
+           get<RenderingInstanceComponent>(id)->self==id
+           );
+    auto &reg = VSG::ecs->registry;
+    if (!has_component<Dirty>(id)) {
+        reg.emplace<Dirty>(id, p_update_aabb,p_update_materials);
+    }
+    else if(p_update_aabb|| p_update_materials) {
+        auto &c_data(get_component<Dirty>(id));
+        c_data.update_aabb |= p_update_aabb;
+        c_data.update_materials |= p_update_materials;
+    }
+}
 
 /* CAMERA API */
 
-RID VisualServerScene::camera_create() {
-    auto eid = VSG::ecs->registry.create();
-    VSG::ecs->registry.emplace<Camera3D>(eid);
-    RID newid;
-    newid.eid = eid;
-
-    return newid;
+RenderingEntity VisualServerScene::camera_create() {
+    auto eid = VSG::ecs->create();
+    VSG::ecs->registry.emplace<Camera3DComponent>(eid);
+    return eid;
 }
 
-void VisualServerScene::camera_set_perspective(RID p_camera, float p_fovy_degrees, float p_z_near, float p_z_far) {
+void VisualServerScene::camera_set_perspective(RenderingEntity p_camera, float p_fovy_degrees, float p_z_near, float p_z_far) {
 
-    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera.eid) || !VSG::ecs->registry.has<Camera3D>(p_camera.eid));
+    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera) || !VSG::ecs->registry.any_of<Camera3DComponent>(p_camera));
 
-    Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+    Camera3DComponent &camera = VSG::ecs->registry.get<Camera3DComponent>(p_camera);
 
-    camera.type = Camera3D::PERSPECTIVE;
+    camera.type = Camera3DComponent::PERSPECTIVE;
     camera.fov = p_fovy_degrees;
     camera.znear = p_z_near;
     camera.zfar = p_z_far;
 }
 
-void VisualServerScene::camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far) {
-    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera.eid) || !VSG::ecs->registry.has<Camera3D>(p_camera.eid));
-    Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+void VisualServerScene::camera_set_orthogonal(RenderingEntity p_camera, float p_size, float p_z_near, float p_z_far) {
+    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera) || !VSG::ecs->registry.any_of<Camera3DComponent>(p_camera));
+    Camera3DComponent &camera = VSG::ecs->registry.get<Camera3DComponent>(p_camera);
 
-    camera.type = Camera3D::ORTHOGONAL;
+    camera.type = Camera3DComponent::ORTHOGONAL;
     camera.size = p_size;
     camera.znear = p_z_near;
     camera.zfar = p_z_far;
 }
 
-void VisualServerScene::camera_set_frustum(RID p_camera, float p_size, Vector2 p_offset, float p_z_near, float p_z_far) {
-    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera.eid) || !VSG::ecs->registry.has<Camera3D>(p_camera.eid));
+void VisualServerScene::camera_set_frustum(RenderingEntity p_camera, float p_size, Vector2 p_offset, float p_z_near, float p_z_far) {
+    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera) || !VSG::ecs->registry.any_of<Camera3DComponent>(p_camera));
 
-    Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+    Camera3DComponent &camera = VSG::ecs->registry.get<Camera3DComponent>(p_camera);
 
-    camera.type = Camera3D::FRUSTUM;
+    camera.type = Camera3DComponent::FRUSTUM;
     camera.size = p_size;
     camera.offset = p_offset;
     camera.znear = p_z_near;
     camera.zfar = p_z_far;
 }
 
-void VisualServerScene::camera_set_transform(RID p_camera, const Transform &p_transform) {
-    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera.eid) || !VSG::ecs->registry.has<Camera3D>(p_camera.eid));
+void VisualServerScene::camera_set_transform(RenderingEntity p_camera, const Transform &p_transform) {
+    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera) || !VSG::ecs->registry.any_of<Camera3DComponent>(p_camera));
 
-    Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+    Camera3DComponent &camera = VSG::ecs->registry.get<Camera3DComponent>(p_camera);
 
     camera.transform = p_transform.orthonormalized();
 }
 
-void VisualServerScene::camera_set_cull_mask(RID p_camera, uint32_t p_layers) {
-    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera.eid) || !VSG::ecs->registry.has<Camera3D>(p_camera.eid));
+void VisualServerScene::camera_set_cull_mask(RenderingEntity p_camera, uint32_t p_layers) {
+    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera) || !VSG::ecs->registry.any_of<Camera3DComponent>(p_camera));
 
-    Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+    Camera3DComponent &camera = VSG::ecs->registry.get<Camera3DComponent>(p_camera);
 
     camera.visible_layers = p_layers;
 }
 
-void VisualServerScene::camera_set_environment(RID p_camera, RID p_env) {
-    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera.eid) || !VSG::ecs->registry.has<Camera3D>(p_camera.eid));
-    Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+void VisualServerScene::camera_set_environment(RenderingEntity p_camera, RenderingEntity p_env) {
+    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera) || !VSG::ecs->registry.any_of<Camera3DComponent>(p_camera));
+    Camera3DComponent &camera = VSG::ecs->registry.get<Camera3DComponent>(p_camera);
 
     camera.env = p_env;
 }
 
 /* SPATIAL PARTITIONING */
-VisualServerScene::SpatialPartitionID VisualServerScene::SpatialPartitioningScene_BVH::create(Instance *p_userdata, const AABB &p_aabb, int p_subindex, bool p_pairable, uint32_t p_pairable_type, uint32_t p_pairable_mask) {
-    return _bvh.create(p_userdata, p_aabb, p_subindex, p_pairable, p_pairable_type, p_pairable_mask) + 1;
+SpatialPartitionID SpatialPartitioningScene_BVH::create(RenderingEntity p_userdata, const AABB &p_aabb, int p_subindex, bool p_pairable, uint32_t p_pairable_type, uint32_t p_pairable_mask) {
+    // we are relying on this instance to be valid in order to pass
+    // the visible flag to the bvh.
+    assert(VSG::ecs->registry.valid(p_userdata));
+    auto *inst= get<RenderingInstanceComponent>(p_userdata);
+    assert(inst!=nullptr);
+
+    // cache the pairable mask and pairable type on the instance as it is needed for user callbacks from the BVH, and this is
+    // too complex to calculate each callback...
+    inst->bvh_pairable_mask = p_pairable_mask;
+    inst->bvh_pairable_type = p_pairable_type;
+
+    uint32_t tree_id = p_pairable ? 1 : 0;
+    uint32_t tree_collision_mask = 3;
+
+    auto res = _bvh.create(p_userdata, inst->visible, tree_id, tree_collision_mask, p_aabb, p_subindex) + 1;
+    check_bvh_userdata();
+    return res;
 }
 
-void VisualServerScene::camera_set_use_vertical_aspect(RID p_camera, bool p_enable) {
-    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera.eid) || !VSG::ecs->registry.has<Camera3D>(p_camera.eid));
+void SpatialPartitioningScene_BVH::activate(SpatialPartitionID p_handle, const AABB &p_aabb) {
+    // be very careful here, we are deferring the collision check, expecting a set_pairable to be called
+    // immediately after.
+    // see the notes in the BVH function.
+    _bvh.activate(p_handle - 1, p_aabb, true);
+}
 
-    Camera3D &camera = VSG::ecs->registry.get<Camera3D>(p_camera.eid);
+void SpatialPartitioningScene_BVH::deactivate(SpatialPartitionID p_handle) {
+    _bvh.deactivate(p_handle - 1);
+}
+
+void SpatialPartitioningScene_BVH::force_collision_check(SpatialPartitionID p_handle) {
+    _bvh.force_collision_check(p_handle - 1);
+}
+
+void SpatialPartitioningScene_BVH::set_pairable(RenderingInstanceComponent *p_instance, bool p_pairable,
+        uint32_t p_pairable_type, uint32_t p_pairable_mask) {
+    SpatialPartitionID handle = p_instance->spatial_partition_id;
+
+    p_instance->bvh_pairable_mask = p_pairable_mask;
+    p_instance->bvh_pairable_type = p_pairable_type;
+
+    uint32_t tree_id = p_pairable ? 1 : 0;
+    uint32_t tree_collision_mask = 3;
+
+    _bvh.set_tree(handle - 1, tree_id, tree_collision_mask);
+}
+
+int SpatialPartitioningScene_BVH::cull_convex(Span<const Plane> p_convex, Span<RenderingEntity> p_result_array, uint32_t p_mask) {
+    check_bvh_userdata();
+    auto &ric = VSG::ecs->registry.get<RenderingInstanceComponent>(_dummy_cull_object);
+    ric.bvh_pairable_mask = p_mask;
+    ric.bvh_pairable_type = 0;
+    return _bvh.cull_convex(p_convex, p_result_array, _dummy_cull_object);
+}
+
+int SpatialPartitioningScene_BVH::cull_aabb(const AABB &p_aabb, Span<RenderingEntity> p_result_array, int *p_subindex_array, uint32_t p_mask) {
+    check_bvh_userdata();
+    auto &ric = VSG::ecs->registry.get<RenderingInstanceComponent>(_dummy_cull_object);
+    ric.bvh_pairable_mask = p_mask;
+    ric.bvh_pairable_type = 0;
+    return _bvh.cull_aabb(p_aabb, p_result_array, _dummy_cull_object, 0xFFFFFFFF, p_subindex_array);
+}
+
+int SpatialPartitioningScene_BVH::cull_segment(const Vector3 &p_from, const Vector3 &p_to, Span<RenderingEntity> p_result_array, int *p_subindex_array, uint32_t p_mask) {
+    check_bvh_userdata();
+    auto &ric = VSG::ecs->registry.get<RenderingInstanceComponent>(_dummy_cull_object);
+    ric.bvh_pairable_mask = p_mask;
+    ric.bvh_pairable_type = 0;
+    return _bvh.cull_segment(p_from, p_to, p_result_array, _dummy_cull_object, 0xFFFFFFFF, p_subindex_array);
+}
+
+void SpatialPartitioningScene_BVH::check_bvh_userdata()
+{
+    _bvh.visit_all_user_data([](RenderingEntity r) {
+        assert(VSG::ecs->registry.valid(r));
+    });
+}
+
+SpatialPartitioningScene_BVH::SpatialPartitioningScene_BVH()
+{
+    _bvh.params_set_pairing_expansion(T_GLOBAL_GET<float>("rendering/quality/spatial_partitioning/bvh_collision_margin"));
+    _dummy_cull_object = VSG::ecs->create();//
+    VSG::ecs->registry.emplace<RenderingInstanceComponent>(_dummy_cull_object,_dummy_cull_object);
+}
+
+SpatialPartitioningScene_BVH::~SpatialPartitioningScene_BVH() {
+    VSG::ecs->registry.destroy(_dummy_cull_object);
+}
+
+void VisualServerScene::camera_set_use_vertical_aspect(RenderingEntity p_camera, bool p_enable) {
+    ERR_FAIL_COND(!VSG::ecs->registry.valid(p_camera) || !VSG::ecs->registry.any_of<Camera3DComponent>(p_camera));
+
+    Camera3DComponent &camera = VSG::ecs->registry.get<Camera3DComponent>(p_camera);
 
     camera.vaspect = p_enable;
 }
-bool VisualServerScene::owns_camera(RID p_camera) {
-    return VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera3D>(p_camera.eid);
+bool VisualServerScene::owns_camera(RenderingEntity p_camera) {
+    return VSG::ecs->registry.valid(p_camera) && VSG::ecs->registry.any_of<Camera3DComponent>(p_camera);
 }
 /* SCENARIO API */
 
-void *VisualServerScene::_instance_pair(void *p_self, SpatialPartitionID, Instance *p_A, int, SpatialPartitionID, Instance *p_B, int) {
+void *VisualServerScene::_instance_pair(void *p_self, SpatialPartitionID, RenderingEntity p_A, int, SpatialPartitionID, RenderingEntity p_B, int) {
 
     //VisualServerScene *self = (VisualServerScene*)p_self;
-    Instance *A = p_A;
-    Instance *B = p_B;
+    RenderingInstanceComponent *A = getUnchecked< RenderingInstanceComponent>(p_A);
+    RenderingInstanceComponent *B = getUnchecked< RenderingInstanceComponent>(p_B);
 
     //instance indices are designed so greater always contains lesser
     if (A->base_type > B->base_type) {
         SWAP(A, B); //lesser always first
+        SWAP(p_A, p_B); //lesser always first
+    }
+    ComponentPairInfo pair_info { p_B, p_A };
+
+    if(A->base_type == RS::INSTANCE_MESH) {
+        assert(has_component<GeometryComponent>(p_A));
     }
 
-    if (B->base_type == RS::INSTANCE_LIGHT && has_component<GeometryComponent>(A->self.eid)) {
+    if (B->base_type == RS::INSTANCE_LIGHT && has_component<GeometryComponent>(p_A)) {
 
-        InstanceLightData *light = static_cast<InstanceLightData *>(B->base_data);
-        InstanceGeometryData *geom = get_instance_geometry(A->self);
+        InstanceLightData *light = getUnchecked<InstanceLightData>(p_B);
+        InstanceGeometryData *geom = get_instance_geometry(p_A);
 
-        InstanceLightData::PairInfo pinfo;
-        pinfo.geometry = A;
-        pinfo.L = geom->lighting.insert(geom->lighting.end(),B);
+        geom->lighting.emplace_back(p_B);
 
-        List<InstanceLightData::PairInfo>::iterator E = light->geometries.insert(light->geometries.end(),pinfo);
-        GeometryComponent &cm_geom(get_component<GeometryComponent>(A->self));
+        auto E = light->geometries.insert(light->geometries.end(),pair_info);
+        GeometryComponent &cm_geom(get_component<GeometryComponent>(p_A));
         if (cm_geom.can_cast_shadows) {
-
             light->shadow_dirty = true;
         }
         cm_geom.lighting_dirty = true;
 
         return E.mpNode; //this element should make freeing faster
-    } else if (B->base_type == RS::INSTANCE_REFLECTION_PROBE && has_component<GeometryComponent>(A->self.eid)) {
+    } else if (B->base_type == RS::INSTANCE_REFLECTION_PROBE && has_component<GeometryComponent>(p_A)) {
 
-        InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(B->base_data);
-        InstanceGeometryData *geom = get_instance_geometry(A->self);
+        InstanceReflectionProbeData *reflection_probe = getUnchecked<InstanceReflectionProbeData>(p_B);
+        InstanceGeometryData *geom = get_instance_geometry(p_A);
 
-        InstanceReflectionProbeData::PairInfo pinfo;
-        pinfo.geometry = A;
-        pinfo.L = geom->reflection_probes.insert(geom->reflection_probes.end(),B);
+        geom->reflection_probes.emplace_back(p_B);
 
-        List<InstanceReflectionProbeData::PairInfo>::iterator E = reflection_probe->geometries.insert(reflection_probe->geometries.end(),pinfo);
+        auto E = reflection_probe->geometries.insert(reflection_probe->geometries.end(),pair_info);
 
-        get_component<GeometryComponent>(A->self).reflection_dirty = true;
+        get_component<GeometryComponent>(p_A).reflection_dirty = true;
 
         return E.mpNode; //this element should make freeing faster
-    } else if (B->base_type == RS::INSTANCE_LIGHTMAP_CAPTURE && has_component<GeometryComponent>(A->self.eid)) {
+    } else if (B->base_type == RS::INSTANCE_LIGHTMAP_CAPTURE && has_component<GeometryComponent>(p_A)) {
 
-        InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(B->base_data);
-        InstanceGeometryData *geom = get_instance_geometry(A->self);
+        RenderingInstanceLightmapCaptureDataComponent *lightmap_capture = getUnchecked<RenderingInstanceLightmapCaptureDataComponent>(p_B);
+        InstanceGeometryData *geom = get_instance_geometry(p_A);
 
-        InstanceLightmapCaptureData::PairInfo pinfo;
-        pinfo.geometry = A;
-        pinfo.L = geom->lightmap_captures.insert(geom->lightmap_captures.end(),B);
+        geom->lightmap_captures.emplace_back(p_B);
 
-        List<InstanceLightmapCaptureData::PairInfo>::iterator E = lightmap_capture->geometries.insert(lightmap_capture->geometries.end(),pinfo);
+        auto E = lightmap_capture->geometries.insert(lightmap_capture->geometries.end(),pair_info);
         ((VisualServerScene *)p_self)->_instance_queue_update(A, false, false); //need to update capture
 
         return E.mpNode; //this element should make freeing faster
-    } else if (B->base_type == RS::INSTANCE_GI_PROBE && has_component<GeometryComponent>(A->self.eid)) {
+    } else if (B->base_type == RS::INSTANCE_GI_PROBE && has_component<GeometryComponent>(p_A)) {
 
-        InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(B->base_data);
-        InstanceGeometryData *geom = get_instance_geometry(A->self);
+        InstanceGIProbeData *gi_probe = getUnchecked<InstanceGIProbeData>(p_B);
+        InstanceGeometryData *geom = get_instance_geometry(p_A);
 
-        InstanceGIProbeData::PairInfo pinfo;
-        pinfo.geometry = A;
-        pinfo.L = geom->gi_probes.insert(geom->gi_probes.end(),B);
+        geom->gi_probes.emplace_back(p_B);
 
-        List<InstanceGIProbeData::PairInfo>::iterator E = gi_probe->geometries.insert(gi_probe->geometries.end(),pinfo);
+        auto E = gi_probe->geometries.insert(gi_probe->geometries.end(),pair_info);
 
-        get_component<GeometryComponent>(A->self).gi_probes_dirty = true;
+        get_component<GeometryComponent>(p_A).gi_probes_dirty = true;
 
         return E.mpNode; //this element should make freeing faster
 
     } else if (B->base_type == RS::INSTANCE_GI_PROBE && A->base_type == RS::INSTANCE_LIGHT) {
 
-        InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(B->base_data);
+        InstanceGIProbeData *gi_probe = getUnchecked<InstanceGIProbeData>(p_B);
         gi_probe->lights.insert(A);
         return A;
     }
 
     return nullptr;
 }
-void VisualServerScene::_instance_unpair(void *p_self, SpatialPartitionID, Instance *p_A, int, SpatialPartitionID, Instance *p_B, int, void *udata) {
-    static_assert(sizeof(List<InstanceLightData::PairInfo>::iterator)==sizeof(void*));
+void VisualServerScene::_instance_unpair(void *p_self, SpatialPartitionID, RenderingEntity p_A, int, SpatialPartitionID, RenderingEntity p_B, int, void *udata) {
+    static_assert(sizeof(List<ComponentPairInfo>::iterator)==sizeof(void*));
     //VisualServerScene *self = (VisualServerScene*)p_self;
-    Instance *A = p_A;
-    Instance *B = p_B;
+    auto *A = get<RenderingInstanceComponent>(p_A);
+    auto *B = get<RenderingInstanceComponent>(p_B);
 
     //instance indices are designed so greater always contains lesser
     if (A->base_type > B->base_type) {
         SWAP(A, B); //lesser always first
+        SWAP(p_A,p_B);
     }
 
-    if (B->base_type == RS::INSTANCE_LIGHT && (has_component<GeometryComponent>(A->self.eid))) {
+    if (B->base_type == RS::INSTANCE_LIGHT && (has_component<GeometryComponent>(p_A))) {
 
-        InstanceLightData *light = static_cast<InstanceLightData *>(B->base_data);
-        InstanceGeometryData *geom = get_instance_geometry(A->self);
+        InstanceLightData *light = getUnchecked<InstanceLightData>(p_B);
+        InstanceGeometryData *geom = get_instance_geometry(p_A);
 
-        List<InstanceLightData::PairInfo>::iterator E(reinterpret_cast<eastl::ListNode<InstanceLightData::PairInfo> *>(udata));
+        List<ComponentPairInfo>::iterator E(reinterpret_cast<eastl::ListNode<ComponentPairInfo> *>(udata));
 
-        geom->lighting.erase(E->L);
+        geom->lighting.erase_first_unsorted(E->L);
         light->geometries.erase(E);
-        GeometryComponent &cm_geom(get_component<GeometryComponent>(A->self));
+        GeometryComponent &cm_geom(get_component<GeometryComponent>(p_A));
         if (cm_geom.can_cast_shadows) {
             light->shadow_dirty = true;
         }
         cm_geom.lighting_dirty = true;
 
-    } else if (B->base_type == RS::INSTANCE_REFLECTION_PROBE && (has_component<GeometryComponent>(A->self.eid))) {
+    } else if (B->base_type == RS::INSTANCE_REFLECTION_PROBE && (has_component<GeometryComponent>(p_A))) {
 
-        InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(B->base_data);
-        InstanceGeometryData *geom = get_instance_geometry(A->self);
+        InstanceReflectionProbeData *reflection_probe = getUnchecked<InstanceReflectionProbeData>(p_B);
+        InstanceGeometryData *geom = get_instance_geometry(p_A);
 
-        List<InstanceReflectionProbeData::PairInfo>::iterator E(reinterpret_cast<eastl::ListNode<InstanceReflectionProbeData::PairInfo> *>(udata));
+        List<ComponentPairInfo>::iterator E(reinterpret_cast<eastl::ListNode<ComponentPairInfo> *>(udata));
 
-        geom->reflection_probes.erase(E->L);
+        geom->reflection_probes.erase_first_unsorted(E->L);
         reflection_probe->geometries.erase(E);
 
-        get_component<GeometryComponent>(A->self).reflection_dirty = true;
+        get_component<GeometryComponent>(p_A).reflection_dirty = true;
 
-    } else if (B->base_type == RS::INSTANCE_LIGHTMAP_CAPTURE && (has_component<GeometryComponent>(A->self.eid))) {
+    } else if (B->base_type == RS::INSTANCE_LIGHTMAP_CAPTURE && (has_component<GeometryComponent>(p_A))) {
 
-        InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(B->base_data);
-        InstanceGeometryData *geom = get_instance_geometry(A->self);
+        RenderingInstanceLightmapCaptureDataComponent *lightmap_capture = getUnchecked<RenderingInstanceLightmapCaptureDataComponent>(p_B);
+        InstanceGeometryData *geom = get_instance_geometry(p_A);
 
-        List<InstanceLightmapCaptureData::PairInfo>::iterator E(reinterpret_cast<eastl::ListNode<InstanceLightmapCaptureData::PairInfo> *>(udata));
+        List<ComponentPairInfo>::iterator E(reinterpret_cast<eastl::ListNode<ComponentPairInfo> *>(udata));
 
-        geom->lightmap_captures.erase(E->L);
+        geom->lightmap_captures.erase_first_unsorted(E->L);
         lightmap_capture->geometries.erase(E);
-        ((VisualServerScene *)p_self)->_instance_queue_update(A, false, false); //need to update capture
+        //need to update capture
+        ::set_instance_dirty(p_A,false,false);
+        //((VisualServerScene *)p_self)->_instance_queue_update(A, false, false);
 
-    } else if (B->base_type == RS::INSTANCE_GI_PROBE && (has_component<GeometryComponent>(A->self.eid))) {
+    } else if (B->base_type == RS::INSTANCE_GI_PROBE && (has_component<GeometryComponent>(p_A))) {
 
-        InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(B->base_data);
-        InstanceGeometryData *geom = get_instance_geometry(A->self);
+        InstanceGIProbeData *gi_probe = getUnchecked<InstanceGIProbeData>(p_B);
+        InstanceGeometryData *geom = get_instance_geometry(p_A);
 
-        List<InstanceGIProbeData::PairInfo>::iterator E(reinterpret_cast<eastl::ListNode<InstanceGIProbeData::PairInfo> *>(udata));
+        List<ComponentPairInfo>::iterator E(reinterpret_cast<eastl::ListNode<ComponentPairInfo> *>(udata));
 
-        geom->gi_probes.erase(E->L);
+        geom->gi_probes.erase_first_unsorted(E->L);
         gi_probe->geometries.erase(E);
 
-        get_component<GeometryComponent>(A->self).gi_probes_dirty = true;
+        get_component<GeometryComponent>(p_A).gi_probes_dirty = true;
 
     } else if (B->base_type == RS::INSTANCE_GI_PROBE && A->base_type == RS::INSTANCE_LIGHT) {
 
-        InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(B->base_data);
-        Instance *E = reinterpret_cast<Instance *>(udata);
+        InstanceGIProbeData *gi_probe = getUnchecked<InstanceGIProbeData>(p_B);
+        RenderingInstanceComponent *E = reinterpret_cast<RenderingInstanceComponent *>(udata);
 
         gi_probe->lights.erase(E);
     }
 }
 
-RID VisualServerScene::scenario_create() {
+RenderingEntity VisualServerScene::scenario_create() {
+    auto res = VSG::ecs->create();
+    auto &scenario(VSG::ecs->registry.emplace<RenderingScenarioComponent>(res));
 
-    Scenario *scenario = memnew(Scenario);
-    ERR_FAIL_COND_V(!scenario, RID());
-    RID scenario_rid = scenario_owner.make_rid(scenario);
+    scenario.self = res;
+    scenario.sps.set_pair_callback(_instance_pair, this);
+    scenario.sps.set_unpair_callback(_instance_unpair, this);
+    scenario.reflection_probe_shadow_atlas = VSG::scene_render->shadow_atlas_create();
+    VSG::scene_render->shadow_atlas_set_size(scenario.reflection_probe_shadow_atlas, 1024); //make enough shadows for close distance, don't bother with rest
+    VSG::scene_render->shadow_atlas_set_quadrant_subdivision(scenario.reflection_probe_shadow_atlas, 0, 4);
+    VSG::scene_render->shadow_atlas_set_quadrant_subdivision(scenario.reflection_probe_shadow_atlas, 1, 4);
+    VSG::scene_render->shadow_atlas_set_quadrant_subdivision(scenario.reflection_probe_shadow_atlas, 2, 4);
+    VSG::scene_render->shadow_atlas_set_quadrant_subdivision(scenario.reflection_probe_shadow_atlas, 3, 8);
+    scenario.reflection_atlas = VSG::scene_render->reflection_atlas_create();
 
-    scenario->self = scenario_rid;
-    //scenario->octree.set_balance(T_GLOBAL_GET<float>("rendering/quality/spatial_partitioning/render_tree_balance"));
-    scenario->sps.set_pair_callback(_instance_pair, this);
-    scenario->sps.set_unpair_callback(_instance_unpair, this);
-    scenario->reflection_probe_shadow_atlas = VSG::scene_render->shadow_atlas_create();
-    VSG::scene_render->shadow_atlas_set_size(scenario->reflection_probe_shadow_atlas, 1024); //make enough shadows for close distance, don't bother with rest
-    VSG::scene_render->shadow_atlas_set_quadrant_subdivision(scenario->reflection_probe_shadow_atlas, 0, 4);
-    VSG::scene_render->shadow_atlas_set_quadrant_subdivision(scenario->reflection_probe_shadow_atlas, 1, 4);
-    VSG::scene_render->shadow_atlas_set_quadrant_subdivision(scenario->reflection_probe_shadow_atlas, 2, 4);
-    VSG::scene_render->shadow_atlas_set_quadrant_subdivision(scenario->reflection_probe_shadow_atlas, 3, 8);
-    scenario->reflection_atlas = VSG::scene_render->reflection_atlas_create();
-
-    return scenario_rid;
+    return res;
+}
+void VisualServerScene::tick() {
+    //if (_interpolation_data.interpolation_enabled) {
+    //    update_interpolation_tick(true);
+    //}
 }
 
-void VisualServerScene::scenario_set_debug(RID p_scenario, RS::ScenarioDebugMode p_debug_mode) {
+void VisualServerScene::pre_draw(bool p_will_draw) {
+    // even when running and not drawing scenes, we still need to clear intermediate per frame
+    // interpolation data .. hence the p_will_draw flag (so we can reduce the processing if the frame
+    // will not be drawn)
+    //if (_interpolation_data.interpolation_enabled) {
+        //update_interpolation_frame(p_will_draw);
+   // }
+}
 
-    Scenario *scenario = scenario_owner.get(p_scenario);
+void VisualServerScene::scenario_set_debug(RenderingEntity p_scenario, RS::ScenarioDebugMode p_debug_mode) {
+
+    RenderingScenarioComponent *scenario = getUnchecked<RenderingScenarioComponent>(p_scenario);
     ERR_FAIL_COND(!scenario);
     scenario->debug = p_debug_mode;
 }
 
-void VisualServerScene::scenario_set_environment(RID p_scenario, RID p_environment) {
+void VisualServerScene::scenario_set_environment(RenderingEntity p_scenario, RenderingEntity p_environment) {
 
-    Scenario *scenario = scenario_owner.get(p_scenario);
+    RenderingScenarioComponent *scenario = getUnchecked<RenderingScenarioComponent>(p_scenario);
     ERR_FAIL_COND(!scenario);
     scenario->environment = p_environment;
 }
 
-void VisualServerScene::scenario_set_fallback_environment(RID p_scenario, RID p_environment) {
+void VisualServerScene::scenario_set_fallback_environment(RenderingEntity p_scenario, RenderingEntity p_environment) {
 
-    Scenario *scenario = scenario_owner.get(p_scenario);
+    RenderingScenarioComponent *scenario = getUnchecked<RenderingScenarioComponent>(p_scenario);
     ERR_FAIL_COND(!scenario);
     scenario->fallback_environment = p_environment;
 }
 
-void VisualServerScene::scenario_set_reflection_atlas_size(RID p_scenario, int p_size, int p_subdiv) {
+void VisualServerScene::scenario_set_reflection_atlas_size(RenderingEntity p_scenario, int p_size, int p_subdiv) {
 
-    Scenario *scenario = scenario_owner.get(p_scenario);
+    RenderingScenarioComponent *scenario = getUnchecked<RenderingScenarioComponent>(p_scenario);
     ERR_FAIL_COND(!scenario);
     VSG::scene_render->reflection_atlas_set_size(scenario->reflection_atlas, p_size);
     VSG::scene_render->reflection_atlas_set_subdivision(scenario->reflection_atlas, p_subdiv);
@@ -644,292 +863,59 @@ void VisualServerScene::scenario_set_reflection_atlas_size(RID p_scenario, int p
 
 /* INSTANCING API */
 
-void VisualServerScene::_instance_queue_update(Instance *p_instance, bool p_update_aabb, bool p_update_materials) {
+void VisualServerScene::_instance_queue_update(RenderingInstanceComponent *p_instance, bool p_update_aabb, bool p_update_materials) {
 
-    set_dirty(p_instance->self, p_update_aabb, p_update_materials);
+    ::set_instance_dirty(p_instance->self, p_update_aabb, p_update_materials);
 
 }
 
-RID VisualServerScene::instance_create() {
-
-    Instance *instance = memnew(Instance);
-    ERR_FAIL_COND_V(!instance, RID());
-
-    RID instance_rid = instance_owner.make_rid(instance);
-    instance_rid.eid = VSG::ecs->registry.create();
-
-    instance->self = instance_rid;
-    VSG::ecs->registry.emplace_or_replace<InstanceComponent>(instance_rid.eid, instance);
-    VSG::ecs->registry.emplace_or_replace<InstanceBoundsComponent>(instance_rid.eid);
+RenderingEntity VisualServerScene::instance_create() {
+    auto instance_rid = VSG::ecs->create();
+    VSG::ecs->registry.emplace<RenderingInstanceComponent>(instance_rid, instance_rid);
+    VSG::ecs->registry.emplace<InstanceBoundsComponent>(instance_rid);
     return instance_rid;
 }
 
-void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
+void VisualServerScene::instance_set_base(RenderingEntity p_instance, RenderingEntity p_base) {
+    ::instance_set_base(p_instance,p_base);
+}
 
-    Instance *instance = instance_owner.get(p_instance);
+void VisualServerScene::instance_set_scenario(RenderingEntity p_instance, RenderingEntity p_scenario) {
+
+    ::instance_set_scenario(p_instance,p_scenario);
+}
+
+void VisualServerScene::instance_set_layer_mask(RenderingEntity p_instance, uint32_t p_mask) {
+
+    RenderingInstanceComponent *instance = get<RenderingInstanceComponent>(p_instance);
     ERR_FAIL_COND(!instance);
-
-    Scenario *scenario = instance->scenario;
-
-    if (instance->base_type != RS::INSTANCE_NONE) {
-        //free anything related to that base
-
-        VSG::storage->instance_remove_dependency(instance->base, instance);
-
-        if (instance->base_type == RS::INSTANCE_GI_PROBE) {
-            //if gi probe is baking, wait until done baking, else race condition may happen when removing it
-            //from octree
-            InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(instance->base_data);
-
-            //make sure probes are done baking
-            while (!probe_bake_list.empty()) {
-                OS::get_singleton()->delay_usec(1);
-            }
-            //make sure this one is done baking
-
-            while (gi_probe->dynamic.updating_stage == GIUpdateStage::LIGHTING) {
-                //wait until bake is done if it's baking
-                OS::get_singleton()->delay_usec(1);
-            }
-        }
-
-        if (scenario && instance->spatial_partition_id) {
-            scenario->sps.erase(instance->spatial_partition_id);
-            instance->spatial_partition_id = 0;
-        }
-
-        switch (instance->base_type) {
-            case RS::INSTANCE_LIGHT: {
-
-                InstanceLightData *light = static_cast<InstanceLightData *>(instance->base_data);
-
-                if (instance->scenario && light->D) {
-                    instance->scenario->directional_lights.erase_first(instance);
-                    light->D = false;
-                }
-                VSG::scene_render->free(light->instance);
-            } break;
-            case RS::INSTANCE_REFLECTION_PROBE: {
-
-                InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(instance->base_data);
-                VSG::scene_render->free(reflection_probe->instance);
-                if (reflection_probe->update_list.in_list()) {
-                    reflection_probe_render_list.remove(&reflection_probe->update_list);
-                }
-            } break;
-            case RS::INSTANCE_LIGHTMAP_CAPTURE: {
-
-                InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(instance->base_data);
-                //erase dependencies, since no longer a lightmap
-                while (!lightmap_capture->users.empty()) {
-                    instance_set_use_lightmap((*lightmap_capture->users.begin())->self, RID(), RID());
-                }
-            } break;
-            case RS::INSTANCE_GI_PROBE: {
-
-                InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(instance->base_data);
-
-                if (gi_probe->update_element.in_list()) {
-                    gi_probe_update_list.remove(&gi_probe->update_element);
-                }
-                if (gi_probe->dynamic.probe_data.is_valid()) {
-                    VSG::storage->free(gi_probe->dynamic.probe_data);
-                }
-
-                if (instance->lightmap_capture) {
-                    Instance *capture = (Instance *)instance->lightmap_capture;
-                    InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(capture->base_data);
-                    lightmap_capture->users.erase(instance);
-                    instance->lightmap_capture = nullptr;
-                    instance->lightmap = RID();
-                }
-
-                VSG::scene_render->free(gi_probe->probe_instance);
-
-            } break;
-            default: {
-            }
-        }
-
-        if (instance->base_data) {
-            memdelete(instance->base_data);
-            instance->base_data = nullptr;
-        }
-
-        instance->blend_values.clear();
-
-        for (int i = 0; i < instance->materials.size(); i++) {
-            if (instance->materials[i].is_valid()) {
-                VSG::storage->material_remove_instance_owner(instance->materials[i], instance);
-            }
-        }
-        instance->materials.clear();
-    }
-
-    instance->base_type = RS::INSTANCE_NONE;
-    instance->base = RID();
-
-    if (!p_base.is_valid()) {
+    if (instance->layer_mask == p_mask) {
         return;
     }
-
-    instance->base_type = VSG::storage->get_base_type(p_base);
-    ERR_FAIL_COND(instance->base_type == RS::INSTANCE_NONE);
-
-    switch (instance->base_type) {
-        case RS::INSTANCE_LIGHT: {
-
-            InstanceLightData *light = memnew(InstanceLightData);
-
-            if (scenario && VSG::storage->light_get_type(p_base) == RS::LIGHT_DIRECTIONAL) {
-                scenario->directional_lights.push_back(instance);
-                light->D = true;
-            }
-
-            light->instance = VSG::scene_render->light_instance_create(p_base);
-
-            instance->base_data = light;
-        } break;
-        case RS::INSTANCE_MESH:
-        case RS::INSTANCE_MULTIMESH:
-        case RS::INSTANCE_IMMEDIATE:
-        case RS::INSTANCE_PARTICLES: {
-
-            InstanceGeometryData *geom = memnew(InstanceGeometryData);
-            VSG::ecs->registry.emplace_or_replace<GeometryComponent>(instance->self.eid,geom);
-
-            if (instance->base_type == RS::INSTANCE_MESH) {
-                instance->blend_values.resize(VSG::storage->mesh_get_blend_shape_count(p_base));
-            }
-        } break;
-        case RS::INSTANCE_REFLECTION_PROBE: {
-
-            InstanceReflectionProbeData *reflection_probe = memnew(InstanceReflectionProbeData);
-            reflection_probe->owner = instance;
-            instance->base_data = reflection_probe;
-
-            reflection_probe->instance = VSG::scene_render->reflection_probe_instance_create(p_base);
-        } break;
-        case RS::INSTANCE_LIGHTMAP_CAPTURE: {
-
-            InstanceLightmapCaptureData *lightmap_capture = memnew(InstanceLightmapCaptureData);
-            instance->base_data = lightmap_capture;
-            //lightmap_capture->instance = VSG::scene_render->lightmap_capture_instance_create(p_base);
-        } break;
-        case RS::INSTANCE_GI_PROBE: {
-
-            InstanceGIProbeData *gi_probe = memnew(InstanceGIProbeData);
-            instance->base_data = gi_probe;
-            gi_probe->owner = instance;
-
-            if (scenario && !gi_probe->update_element.in_list()) {
-                gi_probe_update_list.add(&gi_probe->update_element);
-            }
-
-            gi_probe->probe_instance = VSG::scene_render->gi_probe_instance_create();
-
-        } break;
-        default: {
-        }
-    }
-
-    VSG::storage->instance_add_dependency(p_base, instance);
-
-    instance->base = p_base;
-
-    if (scenario)
-        _instance_queue_update(instance, true, true);
-}
-void VisualServerScene::instance_set_scenario(RID p_instance, RID p_scenario) {
-
-    Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
-
-    Scenario *old_scene = instance->scenario;
-
-    if (old_scene) {
-
-        old_scene->instances.remove(&instance->scenario_item);
-
-        if (instance->spatial_partition_id) {
-            old_scene->sps.erase(instance->spatial_partition_id);
-            instance->spatial_partition_id = 0;
-        }
-
-        switch (instance->base_type) {
-
-            case RS::INSTANCE_LIGHT: {
-
-                InstanceLightData *light = static_cast<InstanceLightData *>(instance->base_data);
-                if (light->D) {
-                    old_scene->directional_lights.erase_first(instance);
-                    light->D = false;
-                }
-            } break;
-            case RS::INSTANCE_REFLECTION_PROBE: {
-
-                InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(instance->base_data);
-                VSG::scene_render->reflection_probe_release_atlas_index(reflection_probe->instance);
-            } break;
-            case RS::INSTANCE_GI_PROBE: {
-
-                InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(instance->base_data);
-                if (gi_probe->update_element.in_list()) {
-                    gi_probe_update_list.remove(&gi_probe->update_element);
-                }
-            } break;
-            default: {
-            }
-        }
-
-        instance->scenario = nullptr;
-    }
-    if(!p_scenario.is_valid())
-        return;
-
-    Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND(!scenario);
-
-    instance->scenario = scenario;
-
-    scenario->instances.add(&instance->scenario_item);
-
-    switch (instance->base_type) {
-
-        case RS::INSTANCE_LIGHT: {
-
-            InstanceLightData *light = static_cast<InstanceLightData *>(instance->base_data);
-
-            if (VSG::storage->light_get_type(instance->base) == RS::LIGHT_DIRECTIONAL) {
-                scenario->directional_lights.push_back(instance);
-                light->D = true;
-            }
-        } break;
-        case RS::INSTANCE_GI_PROBE: {
-
-            InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(instance->base_data);
-            if (!gi_probe->update_element.in_list()) {
-                gi_probe_update_list.add(&gi_probe->update_element);
-            }
-        } break;
-        default: {
-        }
-    }
-
-    _instance_queue_update(instance, true, true);
-
-}
-void VisualServerScene::instance_set_layer_mask(RID p_instance, uint32_t p_mask) {
-
-    Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(p_instance) ||
+           get<RenderingInstanceComponent>(p_instance)->self==p_instance
+           );
 
     instance->layer_mask = p_mask;
-}
-void VisualServerScene::instance_set_transform(RID p_instance, const Transform &p_transform) {
+    // update lights to show / hide shadows according to the new mask
+    if ((1 << instance->base_type) & RS::INSTANCE_GEOMETRY_MASK) {
+        GeometryComponent *geom = get<GeometryComponent>(p_instance);
 
-    Instance *instance = instance_owner.get(p_instance);
+        if (geom->can_cast_shadows) {
+            for (auto E : geom->Data->lighting) {
+                InstanceLightData *light = get<InstanceLightData>(E);
+                light->shadow_dirty = true;
+            }
+        }
+    }
+}
+void VisualServerScene::instance_set_transform(RenderingEntity p_instance, const Transform &p_transform) {
+
+    RenderingInstanceComponent *instance = get<RenderingInstanceComponent>(p_instance);
     ERR_FAIL_COND(!instance);
+    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(p_instance) ||
+           get<RenderingInstanceComponent>(p_instance)->self==p_instance
+           );
 
     if (instance->transform == p_transform)
         return; //must be checked to avoid worst evil
@@ -950,57 +936,86 @@ void VisualServerScene::instance_set_transform(RID p_instance, const Transform &
     instance->transform = p_transform;
     _instance_queue_update(instance, true);
 }
-void VisualServerScene::instance_attach_object_instance_id(RID p_instance, ObjectID p_id) {
+void VisualServerScene::instance_attach_object_instance_id(RenderingEntity p_instance, GameEntity p_id) {
 
-    Instance *instance = instance_owner.get(p_instance);
+    RenderingInstanceComponent *instance = get<RenderingInstanceComponent>(p_instance);
     ERR_FAIL_COND(!instance);
-
+    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(p_instance) ||
+           get<RenderingInstanceComponent>(p_instance)->self==p_instance
+           );
     instance->object_id = p_id;
 }
-void VisualServerScene::instance_set_blend_shape_weight(RID p_instance, int p_shape, float p_weight) {
+void VisualServerScene::instance_set_blend_shape_weight(RenderingEntity p_instance, int p_shape, float p_weight) {
 
-    Instance *instance = instance_owner.get(p_instance);
+    RenderingInstanceComponent *instance = get<RenderingInstanceComponent>(p_instance);
     ERR_FAIL_COND(!instance);
+    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(p_instance) ||
+           get<RenderingInstanceComponent>(p_instance)->self==p_instance
+           );
 
-    if (!has_component<Dirty>(p_instance.eid)) { // not marked for update, do it now?
+    if (!has_component<Dirty>(p_instance)) { // not marked for update, do it now?
         _update_dirty_instance(instance);
     }
 
     ERR_FAIL_INDEX(p_shape, instance->blend_values.size());
     instance->blend_values[p_shape] = p_weight;
+    VSG::storage->mesh_set_blend_shape_values(instance->base, instance->blend_values);
 }
 
-void VisualServerScene::instance_set_surface_material(RID p_instance, int p_surface, RID p_material) {
-
-    Instance *instance = instance_owner.get(p_instance);
+void VisualServerScene::instance_set_surface_material(RenderingEntity p_instance, int p_surface, RenderingEntity p_material) {
+    RenderingInstanceComponent *instance = get<RenderingInstanceComponent>(p_instance);
     ERR_FAIL_COND(!instance);
+    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(p_instance) ||
+           get<RenderingInstanceComponent>(p_instance)->self==p_instance
+           );
 
     if (instance->base_type == RS::INSTANCE_MESH) {
         //may not have been updated yet
-        instance->materials.resize(VSG::storage->mesh_get_surface_count(instance->base));
+        instance->materials.resize(VSG::storage->mesh_get_surface_count(instance->base),entt::null);
     }
 
     ERR_FAIL_INDEX(p_surface, instance->materials.size());
 
-    if (instance->materials[p_surface].is_valid()) {
-        VSG::storage->material_remove_instance_owner(instance->materials[p_surface], instance);
+    if (instance->materials[p_surface]!=entt::null) {
+        VSG::storage->material_remove_instance_owner(instance->materials[p_surface], p_instance);
     }
     instance->materials[p_surface] = p_material;
     instance->base_changed(false, true);
 
-    if (instance->materials[p_surface].is_valid()) {
-        VSG::storage->material_add_instance_owner(instance->materials[p_surface], instance);
+    if (instance->materials[p_surface]!=entt::null) {
+        VSG::storage->material_add_instance_owner(instance->materials[p_surface], p_instance);
     }
 }
 
-void VisualServerScene::instance_set_visible(RID p_instance, bool p_visible) {
-    Instance *instance = instance_owner.get(p_instance);
+void VisualServerScene::instance_set_visible(RenderingEntity p_instance, bool p_visible) {
+    RenderingInstanceComponent *instance = get<RenderingInstanceComponent>(p_instance);
     ERR_FAIL_COND(!instance);
+    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(p_instance) ||
+           get<RenderingInstanceComponent>(p_instance)->self==p_instance
+           );
 
     if (instance->visible == p_visible)
         return;
 
     instance->visible = p_visible;
+    auto *scenario = instance->scenario!=entt::null ? get<RenderingScenarioComponent>(instance->scenario) : nullptr;
+    // give the opportunity for the spatial partitioning scene to use a special implementation of visibility
+    // for efficiency (supported in BVH but not octree)
+
+    // slightly bug prone optimization here - we want to avoid doing a collision check twice
+    // once when activating, and once when calling set_pairable. We do this by deferring the collision check.
+    // However, in some cases (notably meshes), set_pairable never gets called. So we want to catch this case
+    // and force a collision check (see later in this function).
+    // This is only done in two stages to maintain compatibility with the octree.
+    if (instance->spatial_partition_id && scenario) {
+
+        if (p_visible) {
+            InstanceBoundsComponent& bounds = get_component<InstanceBoundsComponent>(p_instance);
+            scenario->sps.activate(instance->spatial_partition_id, bounds.transformed_aabb);
+        } else {
+            scenario->sps.deactivate(instance->spatial_partition_id);
+        }
+    }
     // when showing or hiding geometry, lights must be kept up to date to show / hide shadows
     if ((1 << instance->base_type) & RS::INSTANCE_GEOMETRY_MASK) {
         InstanceGeometryData *geom = get_instance_geometry(instance->self);
@@ -1008,38 +1023,36 @@ void VisualServerScene::instance_set_visible(RID p_instance, bool p_visible) {
 
         if (cm_geom.can_cast_shadows) {
             for (auto E : geom->lighting) {
-                InstanceLightData *light = static_cast<InstanceLightData *>(E->base_data);
+                InstanceLightData *light = getUnchecked<InstanceLightData>(E);
                 light->shadow_dirty = true;
             }
         }
     }
-
+    if(!scenario || !instance->spatial_partition_id) {
+        return;
+    }
     switch (instance->base_type) {
         case RS::INSTANCE_LIGHT: {
-            if (VSG::storage->light_get_type(instance->base) != RS::LIGHT_DIRECTIONAL && instance->spatial_partition_id && instance->scenario) {
-                instance->scenario->sps.set_pairable(instance->spatial_partition_id, p_visible, 1 << RS::INSTANCE_LIGHT, p_visible ? RS::INSTANCE_GEOMETRY_MASK : 0);
+            if (VSG::storage->light_get_type(instance->base) != RS::LIGHT_DIRECTIONAL) {
+                scenario->sps.set_pairable(instance, p_visible, 1 << RS::INSTANCE_LIGHT, p_visible ? RS::INSTANCE_GEOMETRY_MASK : 0);
             }
 
         } break;
         case RS::INSTANCE_REFLECTION_PROBE: {
-            if (instance->spatial_partition_id && instance->scenario) {
-                instance->scenario->sps.set_pairable(instance->spatial_partition_id, p_visible, 1 << RS::INSTANCE_REFLECTION_PROBE, p_visible ? RS::INSTANCE_GEOMETRY_MASK : 0);
-            }
-
+                scenario->sps.set_pairable(instance, p_visible, 1 << RS::INSTANCE_REFLECTION_PROBE, p_visible ? RS::INSTANCE_GEOMETRY_MASK : 0);
         } break;
         case RS::INSTANCE_LIGHTMAP_CAPTURE: {
-            if (instance->spatial_partition_id && instance->scenario) {
-                instance->scenario->sps.set_pairable(instance->spatial_partition_id, p_visible, 1 << RS::INSTANCE_LIGHTMAP_CAPTURE, p_visible ? RS::INSTANCE_GEOMETRY_MASK : 0);
-            }
-
+            scenario->sps.set_pairable(instance, p_visible, 1 << RS::INSTANCE_LIGHTMAP_CAPTURE, p_visible ? RS::INSTANCE_GEOMETRY_MASK : 0);
         } break;
         case RS::INSTANCE_GI_PROBE: {
-            if (instance->spatial_partition_id && instance->scenario) {
-                instance->scenario->sps.set_pairable(instance->spatial_partition_id, p_visible, 1 << RS::INSTANCE_GI_PROBE, p_visible ? (RS::INSTANCE_GEOMETRY_MASK | (1 << RS::INSTANCE_LIGHT)) : 0);
-            }
-
+            scenario->sps.set_pairable(instance, p_visible, 1 << RS::INSTANCE_GI_PROBE, p_visible ? (RS::INSTANCE_GEOMETRY_MASK | (1 << RS::INSTANCE_LIGHT)) : 0);
         } break;
         default: {
+            // if we haven't called set_pairable, we STILL need to do a collision check
+            // for activated items because we deferred it earlier in the call to activate.
+            if (instance->spatial_partition_id && scenario && p_visible) {
+                scenario->sps.force_collision_check(instance->spatial_partition_id);
+            }
         }
     }
 }
@@ -1048,35 +1061,21 @@ inline bool is_geometry_instance(RS::InstanceType p_type) {
     return p_type == RS::INSTANCE_MESH || p_type == RS::INSTANCE_MULTIMESH || p_type == RS::INSTANCE_PARTICLES || p_type == RS::INSTANCE_IMMEDIATE;
 }
 
-void VisualServerScene::instance_set_use_lightmap(RID p_instance, RID p_lightmap_instance, RID p_lightmap) {
-
-    Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
-
-    if (instance->lightmap_capture) {
-        InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(((Instance *)instance->lightmap_capture)->base_data);
-        lightmap_capture->users.erase(instance);
-        instance->lightmap = RID();
-        instance->lightmap_capture = nullptr;
-    }
-
-    if (p_lightmap_instance.is_valid()) {
-        Instance *lightmap_instance = instance_owner.get(p_lightmap_instance);
-        ERR_FAIL_COND(!lightmap_instance);
-        ERR_FAIL_COND(lightmap_instance->base_type != RS::INSTANCE_LIGHTMAP_CAPTURE);
-        instance->lightmap_capture = lightmap_instance;
-
-        InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(((Instance *)instance->lightmap_capture)->base_data);
-        lightmap_capture->users.insert(instance);
-        instance->lightmap = p_lightmap;
-    }
+void VisualServerScene::instance_set_use_lightmap(RenderingEntity p_instance, RenderingEntity p_lightmap_instance, RenderingEntity p_lightmap, int p_lightmap_slice, const Rect2 &p_lightmap_uv_rect) {
+    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(p_instance) ||
+           get<RenderingInstanceComponent>(p_instance)->self==p_instance
+           );
+    ::instance_set_use_lightmap(p_instance, p_lightmap_instance, p_lightmap, p_lightmap_slice, p_lightmap_uv_rect);
 }
 
-void VisualServerScene::instance_set_custom_aabb(RID p_instance, AABB p_aabb) {
+void VisualServerScene::instance_set_custom_aabb(RenderingEntity p_instance, AABB p_aabb) {
 
-    Instance *instance = instance_owner.get(p_instance);
+    RenderingInstanceComponent *instance = get<RenderingInstanceComponent>(p_instance);
     ERR_FAIL_COND(!instance);
     ERR_FAIL_COND(!is_geometry_instance(instance->base_type));
+    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(p_instance) ||
+           get<RenderingInstanceComponent>(p_instance)->self==p_instance
+           );
 
     InstanceBoundsComponent& bounds = get_component<InstanceBoundsComponent>(p_instance);
 
@@ -1090,116 +1089,631 @@ void VisualServerScene::instance_set_custom_aabb(RID p_instance, AABB p_aabb) {
         bounds.use_custom_aabb = false;
     }
 
-    if (instance->scenario)
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(instance->scenario);
+    if (scenario)
         _instance_queue_update(instance, true, false);
 }
 
-void VisualServerScene::instance_attach_skeleton(RID p_instance, RID p_skeleton) {
-
-    Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
-
-    if (instance->skeleton == p_skeleton)
-        return;
-
-    if (instance->skeleton.is_valid()) {
-        VSG::storage->instance_remove_skeleton(instance->skeleton, instance);
-    }
-
-    instance->skeleton = p_skeleton;
-
-    if (instance->skeleton.is_valid()) {
-        VSG::storage->instance_add_skeleton(instance->skeleton, instance);
-    }
-
-    _instance_queue_update(instance, true);
+void VisualServerScene::instance_attach_skeleton(RenderingEntity p_instance, RenderingEntity p_skeleton) {
+    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(p_instance) ||
+           get<RenderingInstanceComponent>(p_instance)->self==p_instance
+           );
+    ::instance_attach_skeleton(p_instance, p_skeleton);
 }
 
-void VisualServerScene::instance_set_extra_visibility_margin(RID p_instance, real_t p_margin) {
-    Instance *instance = instance_owner.get(p_instance);
+void VisualServerScene::instance_set_extra_visibility_margin(RenderingEntity p_instance, real_t p_margin) {
+    RenderingInstanceComponent *instance = get<RenderingInstanceComponent>(p_instance);
     ERR_FAIL_COND(!instance);
+    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(p_instance) ||
+           get<RenderingInstanceComponent>(p_instance)->self==p_instance
+           );
 
     InstanceBoundsComponent& bounds = get_component<InstanceBoundsComponent>(p_instance);
     bounds.extra_margin = p_margin;
     _instance_queue_update(instance, true, false);
 }
 
-Vector<ObjectID> VisualServerScene::instances_cull_aabb(const AABB &p_aabb, RID p_scenario) const {
-
-    Vector<ObjectID> instances;
-    Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND_V(!scenario, instances);
-
-    const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
-
-    Instance *cull[1024];
-    int culled = scenario->sps.cull_aabb(p_aabb, cull, 1024);
-
-    instances.reserve(culled/2);
-
-    for (int i = 0; i < culled; i++) {
-
-        Instance *instance = cull[i];
-        ERR_CONTINUE(!instance);
-        if (instance->object_id.is_null())
+static void collect_culled(Span<RenderingEntity> src,Vector<GameEntity> &dst) {
+    dst.reserve(src.size()/2);
+    auto view(VSG::ecs->registry.view<RenderingInstanceComponent>());
+    for (RenderingEntity ic : src) {
+        assert(ic!=entt::null);
+        auto &instance = view.get<RenderingInstanceComponent>(ic);
+        if (instance.object_id==entt::null)
             continue;
 
-        instances.push_back(instance->object_id);
+        dst.emplace_back(instance.object_id);
+    }
+}
+// Portals
+
+
+void _instance_create_occlusion_rep(RenderingInstanceComponent *p_instance) {
+    ERR_FAIL_COND(!p_instance);
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_instance->scenario);
+    ERR_FAIL_COND(!scenario);
+    InstanceBoundsComponent *bounds = get<InstanceBoundsComponent>(p_instance->self);
+    ERR_FAIL_COND(!bounds);
+
+
+    switch (p_instance->portal_mode) {
+        default: {
+            p_instance->occlusion_handle = 0;
+        } break;
+        case RS::InstancePortalMode::INSTANCE_PORTAL_MODE_ROAMING: {
+            p_instance->occlusion_handle = scenario->_portal_renderer.instance_moving_create(p_instance, p_instance->self, false, bounds->transformed_aabb);
+        } break;
+        case RS::InstancePortalMode::INSTANCE_PORTAL_MODE_GLOBAL: {
+            p_instance->occlusion_handle = scenario->_portal_renderer.instance_moving_create(p_instance, p_instance->self, true, bounds->transformed_aabb);
+        } break;
+    }
+}
+void _instance_destroy_occlusion_rep(RenderingInstanceComponent *p_instance) {
+    ERR_FAIL_COND(!p_instance);
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_instance->scenario);
+    ERR_FAIL_COND(!scenario);
+
+    // not an error, can occur
+    if (!p_instance->occlusion_handle) {
+        return;
     }
 
-    return instances;
-}
-Vector<ObjectID> VisualServerScene::instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario) const {
+    scenario->_portal_renderer.instance_moving_destroy(p_instance->occlusion_handle);
 
-    Vector<ObjectID> instances;
-    Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND_V(!scenario, instances);
-    const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
-
-    Instance *cull[1024];
-    int culled = scenario->sps.cull_segment(p_from, p_from + p_to * 10000, cull, 1024);
-
-    instances.reserve(culled/2);
-    for (int i = 0; i < culled; i++) {
-        Instance *instance = cull[i];
-        ERR_CONTINUE(!instance);
-        if (instance->object_id.is_null())
-            continue;
-
-        instances.push_back(instance->object_id);
-    }
-
-    return instances;
-}
-Vector<ObjectID> VisualServerScene::instances_cull_convex(Span<const Plane> p_convex, RID p_scenario) const {
-
-    Vector<ObjectID> instances;
-    Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND_V(!scenario, instances);
-    const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
-
-    int culled = 0;
-    Instance *cull[1024];
-
-    culled = scenario->sps.cull_convex(p_convex, cull, 1024);
-
-    for (int i = 0; i < culled; i++) {
-
-        Instance *instance = cull[i];
-        ERR_CONTINUE(!instance);
-        if (instance->object_id.is_null())
-            continue;
-
-        instances.push_back(instance->object_id);
-    }
-
-    return instances;
+    // unset
+    p_instance->occlusion_handle = 0;
 }
 
-void VisualServerScene::instance_geometry_set_flag(RID p_instance, RS::InstanceFlags p_flags, bool p_enabled) {
-
-    Instance *instance = instance_owner.get(p_instance);
+void VisualServerScene::instance_set_portal_mode(RenderingEntity p_instance, RS::InstancePortalMode p_mode) {
+    RenderingInstanceComponent *instance = get<RenderingInstanceComponent>(p_instance);
     ERR_FAIL_COND(!instance);
+
+    // no change?
+    if (instance->portal_mode == p_mode) {
+        return;
+    }
+
+    // should this happen?
+    if (instance->scenario==entt::null) {
+        instance->portal_mode = p_mode;
+        return;
+    }
+
+    // destroy previous occlusion instance?
+    _instance_destroy_occlusion_rep(instance);
+    instance->portal_mode = p_mode;
+    _instance_create_occlusion_rep(instance);
+}
+
+bool _instance_get_transformed_aabb(RenderingEntity p_instance, AABB &r_aabb) {
+    InstanceBoundsComponent *bounds = get<InstanceBoundsComponent>(p_instance);
+    ERR_FAIL_COND_V(!bounds,false);
+    r_aabb = bounds->transformed_aabb;
+    return true;
+}
+
+GameEntity _instance_get_object_ID(VSInstance *p_instance) {
+    if (p_instance) {
+        return ((RenderingInstanceComponent *)p_instance)->object_id;
+    }
+    return entt::null;
+}
+
+VSInstance *_instance_get_from_rid(RenderingEntity p_instance) {
+    RenderingInstanceComponent *instance = get<RenderingInstanceComponent>(p_instance);
+    return instance;
+}
+
+bool _instance_get_transformed_aabb_for_occlusion(RenderingEntity p_instance, AABB &r_aabb) {
+    RenderingInstanceComponent *instance = get<RenderingInstanceComponent>(p_instance);
+    InstanceBoundsComponent *bounds = get<InstanceBoundsComponent>(p_instance);
+    ERR_FAIL_COND_V(!bounds, false);
+
+    r_aabb = bounds->transformed_aabb;
+    return instance->portal_mode != RS::INSTANCE_PORTAL_MODE_GLOBAL;
+}
+
+bool _instance_cull_check(const VSInstance *p_instance, uint32_t p_cull_mask) {
+    uint32_t pairable_type = 1 << ((const RenderingInstanceComponent *)p_instance)->base_type;
+    return pairable_type & p_cull_mask;
+}
+
+// the portal has to be associated with a scenario, this is assumed to be
+// the same scenario as the portal node
+RenderingEntity VisualServerScene::portal_create() {
+    RenderingEntity instance_rid = VSG::ecs->create();
+
+    VSG::ecs->registry.emplace<PortalComponent>(instance_rid);
+    return instance_rid;
+}
+// should not be called multiple times, different scenarios etc, but just in case, we will support this
+void VisualServerScene::portal_set_scenario(RenderingEntity p_portal, RenderingEntity p_scenario) {
+    PortalComponent *portal = get<PortalComponent>(p_portal);
+    ERR_FAIL_COND(!portal);
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
+    ERR_FAIL_COND(!scenario);
+
+    // noop?
+    if (portal->scenario == p_scenario) {
+        return;
+    }
+
+    // if the portal is in a scenario already, remove it
+    if (portal->scenario!=entt::null) {
+        RenderingScenarioComponent *pscenario = get<RenderingScenarioComponent>(portal->scenario);
+        ERR_FAIL_COND(!scenario);
+
+        pscenario->_portal_renderer.portal_destroy(portal->scenario_portal_id);
+        portal->scenario = entt::null;
+        portal->scenario_portal_id = 0;
+    }
+
+    // create when entering the world
+    if (scenario) {
+        portal->scenario = p_scenario;
+
+        // defer the actual creation to here
+        portal->scenario_portal_id = scenario->_portal_renderer.portal_create();
+    }
+}
+
+void VisualServerScene::portal_set_geometry(RenderingEntity p_portal, const Vector<Vector3> &p_points, real_t p_margin) {
+    PortalComponent *portal = get<PortalComponent>(p_portal);
+    ERR_FAIL_COND(!portal);
+    RenderingScenarioComponent *pscenario = get<RenderingScenarioComponent>(portal->scenario);
+    ERR_FAIL_COND(!pscenario);
+    pscenario->_portal_renderer.portal_set_geometry(portal->scenario_portal_id, p_points, p_margin);
+}
+
+void VisualServerScene::portal_link(RenderingEntity p_portal, RenderingEntity p_room_from, RenderingEntity p_room_to, bool p_two_way) {
+    PortalComponent *portal = get<PortalComponent>(p_portal);
+    ERR_FAIL_COND(!portal);
+    RenderingScenarioComponent *pscenario = get<RenderingScenarioComponent>(portal->scenario);
+    ERR_FAIL_COND(!pscenario);
+
+    RoomComponent *room_from = get<RoomComponent>(p_room_from);
+    ERR_FAIL_COND(!room_from);
+    RoomComponent *room_to = get<RoomComponent>(p_room_to);
+    ERR_FAIL_COND(!room_to);
+
+    pscenario->_portal_renderer.portal_link(portal->scenario_portal_id, room_from->scenario_room_id, room_to->scenario_room_id, p_two_way);
+}
+
+void VisualServerScene::portal_set_active(RenderingEntity p_portal, bool p_active) {
+    PortalComponent *portal = get<PortalComponent>(p_portal);
+    ERR_FAIL_COND(!portal);
+    RenderingScenarioComponent *pscenario = get<RenderingScenarioComponent>(portal->scenario);
+    ERR_FAIL_COND(!pscenario);
+    pscenario->_portal_renderer.portal_set_active(portal->scenario_portal_id, p_active);
+}
+
+RenderingEntity RoomAPI::ghost_create() {
+    RenderingEntity instance_rid = VSG::ecs->create();
+
+    VSG::ecs->registry.emplace<OcclusionGhostComponent>(instance_rid);
+    return instance_rid;
+}
+
+void RoomAPI::ghost_set_scenario(RenderingEntity p_ghost, RenderingEntity p_scenario, GameEntity p_id, const AABB &p_aabb) {
+    OcclusionGhostComponent *ci = get<OcclusionGhostComponent>(p_ghost);
+    ERR_FAIL_COND(!ci);
+
+    ci->aabb = p_aabb;
+    ci->object_id = p_id;
+
+
+    // noop?
+    if (ci->scenario == p_scenario) {
+        return;
+    }
+
+    RenderingScenarioComponent *ghost_scenario = get<RenderingScenarioComponent>(ci->scenario);
+
+    RenderingScenarioComponent *pscenario = get<RenderingScenarioComponent>(p_scenario);
+    ERR_FAIL_COND(!pscenario);
+    // if the portal is in a scenario already, remove it
+    if (ghost_scenario) {
+        _ghost_destroy_occlusion_rep(ci);
+        ci->scenario = entt::null;
+    }
+
+    // create when entering the world
+    if (pscenario) {
+        ci->scenario = p_scenario;
+
+        // defer the actual creation to here
+        _ghost_create_occlusion_rep(ci);
+    }
+}
+
+void RoomAPI::ghost_update(RenderingEntity p_ghost, const AABB &p_aabb) {
+    OcclusionGhostComponent *ci = get<OcclusionGhostComponent>(p_ghost);
+    ERR_FAIL_COND(!ci);
+    RenderingScenarioComponent *pscenario = get<RenderingScenarioComponent>(ci->scenario);
+    ERR_FAIL_COND(!pscenario);
+
+    ci->aabb = p_aabb;
+
+    if (ci->rghost_handle) {
+        pscenario->_portal_renderer.rghost_update(ci->rghost_handle, p_aabb);
+    }
+}
+
+RenderingEntity RoomAPI::roomgroup_create() {
+    RenderingEntity instance_rid = VSG::ecs->create();
+
+    VSG::ecs->registry.emplace<RoomGroupComponent>(instance_rid);
+    return instance_rid;
+}
+
+void RoomAPI::roomgroup_prepare(RenderingEntity p_roomgroup, GameEntity p_roomgroup_object_id) {
+    RoomGroupComponent *roomgroup = get<RoomGroupComponent>(p_roomgroup);
+    ERR_FAIL_COND(!roomgroup);
+    RenderingScenarioComponent *pscenario = get<RenderingScenarioComponent>(roomgroup->scenario);
+    ERR_FAIL_COND(!pscenario);
+    pscenario->_portal_renderer.roomgroup_prepare(roomgroup->scenario_roomgroup_id, p_roomgroup_object_id);
+}
+
+void RoomAPI::roomgroup_set_scenario(RenderingEntity p_roomgroup, RenderingEntity p_scenario) {
+    RoomGroupComponent *rg = get<RoomGroupComponent>(p_roomgroup);
+    ERR_FAIL_COND(!rg);
+    RenderingScenarioComponent *rg_scenario = get<RenderingScenarioComponent>(rg->scenario);
+    ERR_FAIL_COND(!rg_scenario);
+
+    // noop?
+    if (rg->scenario == p_scenario) {
+        return;
+    }
+
+    // if the portal is in a scenario already, remove it
+    if (rg_scenario) {
+        rg_scenario->_portal_renderer.roomgroup_destroy(rg->scenario_roomgroup_id);
+        rg->scenario = entt::null;
+        rg->scenario_roomgroup_id = 0;
+    }
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
+
+    // create when entering the world
+    if (scenario) {
+        rg->scenario = p_scenario;
+
+        // defer the actual creation to here
+        rg->scenario_roomgroup_id = scenario->_portal_renderer.roomgroup_create();
+    }
+}
+void RoomAPI::roomgroup_add_room(RenderingEntity p_roomgroup, RenderingEntity p_room) {
+    RoomGroupComponent *rg = get<RoomGroupComponent>(p_roomgroup);
+    ERR_FAIL_COND(!rg);
+    RenderingScenarioComponent *rg_scenario = get<RenderingScenarioComponent>(rg->scenario);
+    ERR_FAIL_COND(!rg_scenario);
+
+    RoomComponent *room = get<RoomComponent>(p_room);
+    ERR_FAIL_COND(!room);
+    ERR_FAIL_COND(room->scenario==entt::null);
+
+    ERR_FAIL_COND(rg->scenario != room->scenario);
+    rg_scenario->_portal_renderer.roomgroup_add_room(rg->scenario_roomgroup_id, room->scenario_room_id);
+}
+// Occluders
+RenderingEntity VisualServerScene::occluder_instance_create() {
+    RenderingEntity instance_rid = VSG::ecs->create();
+
+    VSG::ecs->registry.emplace<OccluderInstanceComponent>(instance_rid);
+    return instance_rid;
+}
+
+RenderingEntity VisualServerScene::occluder_resource_create()
+{
+    RenderingEntity occluder_resource_rid = VSG::ecs->create();
+    OccluderResourceComponent & e = VSG::ecs->registry.emplace<OccluderResourceComponent>(occluder_resource_rid);
+
+    e.occluder_resource_id = _portal_resources.occluder_resource_create();
+
+    return occluder_resource_rid;
+}
+void VisualServerScene::occluder_resource_prepare(RenderingEntity p_occluder_resource, RS::OccluderType p_type) {
+    OccluderResourceComponent *ro = get<OccluderResourceComponent>(p_occluder_resource);
+    ERR_FAIL_COND(!ro);
+    _portal_resources.occluder_resource_prepare(ro->occluder_resource_id, (VSOccluderType)p_type);
+}
+
+void VisualServerScene::occluder_instance_link_resource(RenderingEntity p_occluder_instance, RenderingEntity p_occluder_resource) {
+    OccluderInstanceComponent *oi = get<OccluderInstanceComponent>(p_occluder_instance);
+    ERR_FAIL_COND(!oi);
+    ERR_FAIL_COND(oi->scenario==entt::null);
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(oi->scenario);
+
+    OccluderResourceComponent *res = get<OccluderResourceComponent>(p_occluder_instance);
+    ERR_FAIL_COND(!res);
+
+    scenario->_portal_renderer.occluder_instance_link(oi->scenario_occluder_id, res->occluder_resource_id);
+}
+
+void VisualServerScene::occluder_instance_set_scenario(RenderingEntity p_occluder_instance, RenderingEntity p_scenario) {
+    OccluderInstanceComponent *ro = get<OccluderInstanceComponent>(p_occluder_instance);
+    ERR_FAIL_COND(!ro);
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
+
+    // noop?
+    if (ro->scenario == p_scenario) {
+        return;
+    }
+
+    // if the portal is in a scenario already, remove it
+    if (ro->scenario!=entt::null) {
+        RenderingScenarioComponent *ro_scenario = get<RenderingScenarioComponent>(ro->scenario);
+        ERR_FAIL_COND(!ro_scenario);
+        ro_scenario->_portal_renderer.occluder_instance_destroy(ro->scenario_occluder_id);
+        ro->scenario = entt::null;
+        ro->scenario_occluder_id = 0;
+    }
+
+    // create when entering the world
+    if (scenario) {
+        ro->scenario = p_scenario;
+        ro->scenario_occluder_id = scenario->_portal_renderer.occluder_instance_create();
+    }
+}
+void VisualServerScene::occluder_instance_set_active(RenderingEntity p_occluder, bool p_active) {
+    OccluderInstanceComponent *ro = get<OccluderInstanceComponent>(p_occluder);
+    ERR_FAIL_COND(!ro);
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(ro->scenario);
+    ERR_FAIL_COND(!scenario);
+    scenario->_portal_renderer.occluder_instance_set_active(ro->scenario_occluder_id, p_active);
+}
+
+
+
+void VisualServerScene::occluder_instance_set_transform(RenderingEntity p_occluder, const Transform &p_xform) {
+    OccluderInstanceComponent *ro = get<OccluderInstanceComponent>(p_occluder);
+    ERR_FAIL_COND(!ro);
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(ro->scenario);
+    ERR_FAIL_COND(!scenario);
+    scenario->_portal_renderer.occluder_instance_set_transform(ro->scenario_occluder_id, p_xform);
+}
+void VisualServerScene::occluder_resource_spheres_update(RenderingEntity p_occluder, const Vector<Plane> &p_spheres) {
+    OccluderResourceComponent *ro = get<OccluderResourceComponent>(p_occluder);
+    ERR_FAIL_COND(!ro);
+    _portal_resources.occluder_resource_update_spheres(ro->occluder_resource_id, p_spheres);
+}
+
+void VisualServerScene::occluder_resource_mesh_update(RenderingEntity p_occluder, const OccluderMeshData &p_mesh_data) {
+    OccluderResourceComponent *ro = get<OccluderResourceComponent>(p_occluder);
+    ERR_FAIL_COND(!ro);
+    _portal_resources.occluder_resource_update_mesh(ro->occluder_resource_id, p_mesh_data);
+}
+void VisualServerScene::set_use_occlusion_culling(bool p_enable) {
+    // this is not scenario specific, and is global
+    // (mainly for debugging)
+    PortalRenderer::use_occlusion_culling = p_enable;
+}
+
+Geometry::MeshData VisualServerScene::occlusion_debug_get_current_polys(RenderingEntity p_scenario) const {
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
+    if (!scenario) {
+        return {};
+    }
+
+    return scenario->_portal_renderer.occlusion_debug_get_current_polys();
+}
+
+void VisualServerScene::callbacks_register(RenderingServerCallbacks *p_callbacks) {
+    _visual_server_callbacks = p_callbacks;
+}
+// Rooms
+
+// the room has to be associated with a scenario, this is assumed to be
+// the same scenario as the room node
+RenderingEntity RoomAPI::room_create() {
+    RenderingEntity instance_rid = VSG::ecs->create();
+
+    VSG::ecs->registry.emplace<RoomComponent>(instance_rid);
+    return instance_rid;
+}
+
+
+// should not be called multiple times, different scenarios etc, but just in case, we will support this
+void RoomAPI::room_set_scenario(RenderingEntity p_room, RenderingEntity p_scenario) {
+    RoomComponent *room = get<RoomComponent>(p_room);
+    ERR_FAIL_COND(!room);
+
+    // no change?
+    if (room->scenario == p_scenario) {
+        return;
+    }
+    // if the room has an existing scenario, remove from it
+    if (room->scenario!=entt::null) {
+        RenderingScenarioComponent *rscenario = get<RenderingScenarioComponent>(room->scenario);
+        ERR_FAIL_COND(!rscenario);
+        rscenario->_portal_renderer.room_destroy(room->scenario_room_id);
+        room->scenario = entt::null;
+        room->scenario_room_id = 0;
+    }
+
+    // create when entering the world
+    if (p_scenario!=entt::null) {
+        room->scenario = p_scenario;
+        RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
+        ERR_FAIL_COND(!scenario);
+
+        // defer the actual creation to here
+        room->scenario_room_id = scenario->_portal_renderer.room_create();
+    }
+}
+
+void RoomAPI::room_add_ghost(RenderingEntity p_room, GameEntity p_object_id, const AABB &p_aabb) {
+    RoomComponent *room = get<RoomComponent>(p_room);
+    ERR_FAIL_COND(!room);
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(room->scenario);
+    ERR_FAIL_COND(!scenario);
+
+    scenario->_portal_renderer.room_add_ghost(room->scenario_room_id, p_object_id, p_aabb);
+}
+void RoomAPI::room_add_instance(RenderingEntity p_room, RenderingEntity p_instance, const AABB &p_aabb, const Vector<Vector3> &p_object_pts) {
+    RoomComponent *room = get<RoomComponent>(p_room);
+    ERR_FAIL_COND(!room);
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(room->scenario);
+    ERR_FAIL_COND(!scenario);
+    RenderingInstanceComponent *instance = get<RenderingInstanceComponent>(p_instance);
+    ERR_FAIL_COND(!instance);
+    InstanceBoundsComponent *bounds = get<InstanceBoundsComponent>(p_instance);
+    ERR_FAIL_COND(!bounds);
+    AABB bb = p_aabb;
+
+    // the aabb passed from the client takes no account of the extra cull margin,
+    // so we need to add this manually.
+    // It is assumed it is in world space.
+    if (bounds->extra_margin != 0.0) {
+        bb.grow_by(bounds->extra_margin);
+    }
+
+    bool dynamic = false;
+
+    // don't add if portal mode is not static or dynamic
+    switch (instance->portal_mode) {
+        default: {
+            return; // this should be taken care of by the calling function, but just in case
+        } break;
+        case RS::InstancePortalMode::INSTANCE_PORTAL_MODE_DYNAMIC: {
+            dynamic = true;
+        } break;
+        case RS::InstancePortalMode::INSTANCE_PORTAL_MODE_STATIC: {
+            dynamic = false;
+        } break;
+    }
+
+    instance->occlusion_handle = scenario->_portal_renderer.room_add_instance(room->scenario_room_id, p_instance, bb, dynamic, p_object_pts);
+}
+
+void RoomAPI::room_prepare(RenderingEntity p_room, int32_t p_priority) {
+    RoomComponent *room = get<RoomComponent>(p_room);
+    ERR_FAIL_COND(!room);
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(room->scenario);
+    ERR_FAIL_COND(!scenario);
+    scenario->_portal_renderer.room_prepare(room->scenario_room_id, p_priority);
+}
+
+void RoomAPI::room_set_bound(RenderingEntity p_room, GameEntity p_room_object_id, const Vector<Plane> &p_convex, const AABB &p_aabb, const Vector<Vector3> &p_verts) {
+    RoomComponent *room = get<RoomComponent>(p_room);
+    ERR_FAIL_COND(!room);
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(room->scenario);
+    ERR_FAIL_COND(!scenario);
+    scenario->_portal_renderer.room_set_bound(room->scenario_room_id, p_room_object_id, p_convex, p_aabb, p_verts);
+}
+
+void RoomAPI::rooms_unload(RenderingEntity p_scenario, String p_reason) {
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
+    ERR_FAIL_COND(!scenario);
+    scenario->_portal_renderer.rooms_unload(p_reason);
+}
+
+void RoomAPI::rooms_and_portals_clear(RenderingEntity p_scenario) {
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
+    ERR_FAIL_COND(!scenario);
+    scenario->_portal_renderer.rooms_and_portals_clear();
+}
+void RoomAPI::rooms_finalize(RenderingEntity p_scenario, bool p_generate_pvs, bool p_cull_using_pvs, bool p_use_secondary_pvs, bool p_use_signals, String p_pvs_filename, bool p_use_simple_pvs, bool p_log_pvs_generation) {
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
+    ERR_FAIL_COND(!scenario);
+    scenario->_portal_renderer.rooms_finalize(p_generate_pvs, p_cull_using_pvs, p_use_secondary_pvs, p_use_signals, p_pvs_filename, p_use_simple_pvs, p_log_pvs_generation);
+}
+
+void RoomAPI::rooms_override_camera(RenderingEntity p_scenario, bool p_override, const Vector3 &p_point, const Span<const Plane> *p_convex) {
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
+    ERR_FAIL_COND(!scenario);
+    scenario->_portal_renderer.rooms_override_camera(p_override, p_point, p_convex);
+}
+
+void RoomAPI::rooms_set_active(RenderingEntity p_scenario, bool p_active) {
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
+    ERR_FAIL_COND(!scenario);
+    scenario->_portal_renderer.rooms_set_active(p_active);
+}
+
+void RoomAPI::rooms_set_params(RenderingEntity p_scenario, int p_portal_depth_limit, real_t p_roaming_expansion_margin) {
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
+    ERR_FAIL_COND(!scenario);
+    scenario->_portal_renderer.rooms_set_params(p_portal_depth_limit, p_roaming_expansion_margin);
+}
+
+void RoomAPI::rooms_set_debug_feature(RenderingEntity p_scenario, RS::RoomsDebugFeature p_feature, bool p_active) {
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
+    ERR_FAIL_COND(!scenario);
+    switch (p_feature) {
+        default: {
+        } break;
+        case RS::ROOMS_DEBUG_SPRAWL: {
+            scenario->_portal_renderer.set_debug_sprawl(p_active);
+        } break;
+    }
+}
+void RoomAPI::rooms_update_gameplay_monitor(RenderingEntity p_scenario, const Vector<Vector3> &p_camera_positions) {
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
+    ERR_FAIL_COND(!scenario);
+    scenario->_portal_renderer.rooms_update_gameplay_monitor(p_camera_positions);
+}
+
+bool RoomAPI::rooms_is_loaded(RenderingEntity p_scenario) {
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
+    ERR_FAIL_COND_V(!scenario, false);
+    return scenario->_portal_renderer.rooms_is_loaded();
+}
+Vector<GameEntity> VisualServerScene::instances_cull_aabb(const AABB &p_aabb, RenderingEntity p_scenario) const {
+
+    Vector<GameEntity> instances;
+    RenderingScenarioComponent *scenario = getUnchecked<RenderingScenarioComponent>(p_scenario);
+    ERR_FAIL_COND_V(!scenario, instances);
+
+    const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
+
+    RenderingEntity cull[1024];
+    Span<RenderingEntity,1024> cull_buffer=cull;
+    int culled = scenario->sps.cull_aabb(p_aabb, cull_buffer);
+
+    collect_culled(cull_buffer.subspan(0,culled),instances);
+
+    return instances;
+}
+
+Vector<GameEntity> VisualServerScene::instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RenderingEntity p_scenario) const {
+
+    Vector<GameEntity> instances;
+    RenderingScenarioComponent *scenario = getUnchecked<RenderingScenarioComponent>(p_scenario);
+    ERR_FAIL_COND_V(!scenario, instances);
+    const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
+
+    RenderingEntity cull[1024]; //RenderingInstanceComponent
+
+    Span<RenderingEntity,1024> cull_buffer=cull;
+    int culled = scenario->sps.cull_segment(p_from, p_from + p_to * 10000, cull);
+
+    collect_culled(cull_buffer.subspan(0,culled),instances);
+
+    return instances;
+}
+Vector<GameEntity> VisualServerScene::instances_cull_convex(Span<const Plane> p_convex, RenderingEntity p_scenario) const {
+
+    Vector<GameEntity> instances;
+    RenderingScenarioComponent *scenario = getUnchecked<RenderingScenarioComponent>(p_scenario);
+    ERR_FAIL_COND_V(!scenario, instances);
+    const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
+
+    RenderingEntity cull[1024];
+
+    Span<RenderingEntity,1024> cull_buffer=cull;
+    int culled = scenario->sps.cull_convex(p_convex, cull_buffer);
+    collect_culled(cull_buffer.subspan(0,culled),instances);
+
+    return instances;
+}
+
+void VisualServerScene::instance_geometry_set_flag(RenderingEntity p_instance, RS::InstanceFlags p_flags, bool p_enabled) {
+
+    RenderingInstanceComponent *instance = get<RenderingInstanceComponent>(p_instance);
+    ERR_FAIL_COND(!instance);
+    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(p_instance) ||
+           get<RenderingInstanceComponent>(p_instance)->self==p_instance
+           );
 
     switch (p_flags) {
 
@@ -1217,60 +1731,69 @@ void VisualServerScene::instance_geometry_set_flag(RID p_instance, RS::InstanceF
         }
     }
 }
-void VisualServerScene::instance_geometry_set_cast_shadows_setting(RID p_instance, RS::ShadowCastingSetting p_shadow_casting_setting) {
+void VisualServerScene::instance_geometry_set_cast_shadows_setting(RenderingEntity p_instance, RS::ShadowCastingSetting p_shadow_casting_setting) {
 
-    Instance *instance = instance_owner.get(p_instance);
+    RenderingInstanceComponent *instance = get<RenderingInstanceComponent>(p_instance);
     ERR_FAIL_COND(!instance);
+    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(p_instance) ||
+           get<RenderingInstanceComponent>(p_instance)->self==p_instance
+           );
 
     instance->cast_shadows = p_shadow_casting_setting;
     instance->base_changed(false, true); // to actually compute if shadows are visible or not
 }
-void VisualServerScene::instance_geometry_set_material_override(RID p_instance, RID p_material) {
 
-    Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
-
-    if (instance->material_override.is_valid()) {
-        VSG::storage->material_remove_instance_owner(instance->material_override, instance);
-    }
-    instance->material_override = p_material;
-    instance->base_changed(false, true);
-
-    if (instance->material_override.is_valid()) {
-        VSG::storage->material_add_instance_owner(instance->material_override, instance);
-    }
+void VisualServerScene::instance_geometry_set_material_override(RenderingEntity p_instance, RenderingEntity p_material) {
+    ::instance_geometry_set_material_override(p_instance, p_material);
+    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(p_instance) ||
+           get<RenderingInstanceComponent>(p_instance)->self==p_instance
+           );
 }
 
-void VisualServerScene::instance_geometry_set_draw_range(RID p_instance, float p_min, float p_max, float p_min_margin, float p_max_margin) {
-}
-void VisualServerScene::instance_geometry_set_as_instance_lod(RID p_instance, RID p_as_lod_of_instance) {
+void VisualServerScene::instance_geometry_set_material_overlay(RenderingEntity p_instance, RenderingEntity p_material) {
+    ::instance_geometry_set_material_overlay(p_instance, p_material);
 }
 
-void VisualServerScene::_update_instance(Instance *p_instance) {
+void VisualServerScene::instance_geometry_set_draw_range(RenderingEntity p_instance, float p_min, float p_max, float p_min_margin, float p_max_margin) {
+}
+void VisualServerScene::instance_geometry_set_as_instance_lod(RenderingEntity p_instance, RenderingEntity p_as_lod_of_instance) {
+}
+
+void VisualServerScene::_update_instance(RenderingInstanceComponent *p_instance) {
 
     p_instance->version++;
 
+    // when not using interpolation the transform is used straight
+    const Transform &instance_xform = p_instance->transform;
+
+    // Can possibly use the most up to date current transform here when using physics interpolation ..
+    // uncomment the next line for this..
+    // if (p_instance->is_currently_interpolated()) {
+    // instance_xform = &p_instance->transform_curr;
+    // }
+    // However it does seem that using the interpolated transform (transform) works for keeping AABBs
+    // up to date to avoid culling errors.
     InstanceBoundsComponent& bounds = get_component<InstanceBoundsComponent>(p_instance->self);
 
     if (p_instance->base_type == RS::INSTANCE_LIGHT) {
 
-        InstanceLightData *light = static_cast<InstanceLightData *>(p_instance->base_data);
+        InstanceLightData *light = getUnchecked<InstanceLightData>(p_instance->self);
 
-        VSG::scene_render->light_instance_set_transform(light->instance, p_instance->transform);
+        VSG::scene_render->light_instance_set_transform(light->instance, instance_xform);
         light->shadow_dirty = true;
     }
 
     if (p_instance->base_type == RS::INSTANCE_REFLECTION_PROBE) {
 
-        InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(p_instance->base_data);
+        InstanceReflectionProbeData *reflection_probe = getUnchecked<InstanceReflectionProbeData>(p_instance->self);
 
-        VSG::scene_render->reflection_probe_instance_set_transform(reflection_probe->instance, p_instance->transform);
+        VSG::scene_render->reflection_probe_instance_set_transform(reflection_probe->instance, instance_xform);
         reflection_probe->reflection_dirty = true;
     }
 
     if (p_instance->base_type == RS::INSTANCE_PARTICLES) {
 
-        VSG::storage->particles_set_emission_transform(p_instance->base, p_instance->transform);
+        VSG::storage->particles_set_emission_transform(p_instance->base, instance_xform);
     }
 
     if (bounds.aabb.has_no_surface()) {
@@ -1282,30 +1805,30 @@ void VisualServerScene::_update_instance(Instance *p_instance) {
         //make sure lights are updated if it casts shadow
         auto &cm_geom(get_component<GeometryComponent>(p_instance->self));
         if (cm_geom.can_cast_shadows) {
-            for (Instance * E : geom->lighting) {
-                InstanceLightData *light = static_cast<InstanceLightData *>(E->base_data);
+            for (auto E : geom->lighting) {
+                InstanceLightData *light = getUnchecked<InstanceLightData>(E);
                 light->shadow_dirty = true;
             }
         }
 
-        if (!p_instance->lightmap_capture && !geom->lightmap_captures.empty()) {
+        if (p_instance->lightmap_capture == entt::null && !geom->lightmap_captures.empty()) {
             //affected by lightmap captures, must update capture info!
             _update_instance_lightmap_captures(p_instance);
         } else {
             if (!p_instance->lightmap_capture_data.empty()) {
-                p_instance->lightmap_capture_data.resize(0); //not in use, clear capture data
+                p_instance->lightmap_capture_data.clear(); //not in use, clear capture data
             }
         }
     }
 
-    p_instance->mirror = p_instance->transform.basis.determinant() < 0.0;
+    p_instance->mirror = instance_xform.basis.determinant() < 0.0;
 
-    AABB new_aabb = p_instance->transform.xform(bounds.aabb);
+    AABB new_aabb = instance_xform.xform(bounds.aabb);
 
     bounds.transformed_aabb = new_aabb;
 
-    if (!p_instance->scenario) {
-
+    auto *scenario = get<RenderingScenarioComponent>(p_instance->scenario);
+    if (!scenario) {
         return;
     }
 
@@ -1328,7 +1851,10 @@ void VisualServerScene::_update_instance(Instance *p_instance) {
         }
 
         // not inside octree
-        p_instance->spatial_partition_id = p_instance->scenario->sps.create(p_instance, new_aabb, 0, pairable, base_type, pairable_mask);
+#ifdef TRACY_ENABLE
+        VSG::bvh_nodes_created++;
+#endif
+        p_instance->spatial_partition_id = scenario->sps.create(p_instance->self, new_aabb, 0, pairable, base_type, pairable_mask);
 
     } else {
 
@@ -1337,15 +1863,17 @@ void VisualServerScene::_update_instance(Instance *p_instance) {
             return;
         */
 
-        p_instance->scenario->sps.move(p_instance->spatial_partition_id, new_aabb);
+        scenario->sps.move(p_instance->spatial_partition_id, new_aabb);
     }
+    // keep rooms and portals instance up to date if present
+    _rooms_instance_update(p_instance, new_aabb);
 }
 
-void VisualServerScene::_update_instance_aabb(Instance *p_instance) {
+void VisualServerScene::_update_instance_aabb(RenderingInstanceComponent *p_instance) {
 
     AABB new_aabb;
 
-    ERR_FAIL_COND(p_instance->base_type != RS::INSTANCE_NONE && !p_instance->base.is_valid());
+    ERR_FAIL_COND(p_instance->base_type != RS::INSTANCE_NONE && p_instance->base==entt::null);
 
     InstanceBoundsComponent& bounds = get_component<InstanceBoundsComponent>(p_instance->self);
 
@@ -1434,9 +1962,9 @@ _FORCE_INLINE_ static void _light_capture_sample_octree(const RasterizerStorage:
     int clamp_v = size - 1;
     //first of all, clamp
     Vector3 pos;
-    pos.x = CLAMP(p_pos.x, 0, clamp_v);
-    pos.y = CLAMP(p_pos.y, 0, clamp_v);
-    pos.z = CLAMP(p_pos.z, 0, clamp_v);
+    pos.x = CLAMP<float>(p_pos.x, 0, clamp_v);
+    pos.y = CLAMP<float>(p_pos.y, 0, clamp_v);
+    pos.z = CLAMP<float>(p_pos.z, 0, clamp_v);
 
     float level = (p_cell_subdiv - 1) - p_level;
 
@@ -1598,7 +2126,7 @@ _FORCE_INLINE_ static Color _light_capture_voxel_cone_trace(const RasterizerStor
     return Color(color.x, color.y, color.z, alpha);
 }
 
-void VisualServerScene::_update_instance_lightmap_captures(Instance *p_instance) {
+void VisualServerScene::_update_instance_lightmap_captures(RenderingInstanceComponent *p_instance) {
 
     InstanceGeometryData *geom = get_instance_geometry(p_instance->self);
 
@@ -1629,20 +2157,21 @@ void VisualServerScene::_update_instance_lightmap_captures(Instance *p_instance)
         new (&p_instance->lightmap_capture_data.data()[i]) Color;
 
     //this could use some sort of blending..
-    for (Instance * E : geom->lightmap_captures) {
-        const PoolVector<RasterizerStorage::LightmapCaptureOctree> *octree = VSG::storage->lightmap_capture_get_octree_ptr(E->base);
+    for (RenderingEntity E : geom->lightmap_captures) {
+        auto *inst = getUnchecked<RenderingInstanceComponent>(E);
+        const PoolVector<RasterizerStorage::LightmapCaptureOctree> *octree = VSG::storage->lightmap_capture_get_octree_ptr(inst->base);
         //print_line("octree size: " + itos(octree->size()));
         if (octree->size() == 0)
             continue;
-        Transform to_cell_xform = VSG::storage->lightmap_capture_get_octree_cell_transform(E->base);
-        int cell_subdiv = VSG::storage->lightmap_capture_get_octree_cell_subdiv(E->base);
-        to_cell_xform = to_cell_xform * E->transform.affine_inverse();
+        Transform to_cell_xform = VSG::storage->lightmap_capture_get_octree_cell_transform(inst->base);
+        int cell_subdiv = VSG::storage->lightmap_capture_get_octree_cell_subdiv(inst->base);
+        to_cell_xform = to_cell_xform * inst->transform.affine_inverse();
 
         PoolVector<RasterizerStorage::LightmapCaptureOctree>::Read octree_r = octree->read();
 
         Vector3 pos = to_cell_xform.xform(p_instance->transform.origin);
 
-        const float capture_energy = VSG::storage->lightmap_capture_get_energy(E->base);
+        const float capture_energy = VSG::storage->lightmap_capture_get_energy(inst->base);
 
         for (int i = 0; i < 12; i++) {
 
@@ -1656,15 +2185,16 @@ void VisualServerScene::_update_instance_lightmap_captures(Instance *p_instance)
     }
 }
 
-bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, const Transform &p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_shadow_atlas, Scenario *p_scenario) {
+bool VisualServerScene::_light_instance_update_shadow(RenderingInstanceComponent *p_instance, const Transform &p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RenderingEntity p_shadow_atlas, RenderingScenarioComponent *p_scenario) {
 
-    InstanceLightData *light = static_cast<InstanceLightData *>(p_instance->base_data);
+    InstanceLightData *light = getUnchecked<InstanceLightData>(p_instance->self);
 
     Transform light_transform = p_instance->transform;
     light_transform.orthonormalize(); //scale does not count on lights
 
     bool animated_material_found = false;
 
+    auto instance_view(VSG::ecs->registry.view<RenderingInstanceComponent>());
     switch (VSG::storage->light_get_type(p_instance->base)) {
 
         case RS::LIGHT_DIRECTIONAL: {
@@ -1682,7 +2212,8 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
             if (depth_range_mode == RS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED) {
                 //optimize min/max
                 Frustum planes = p_cam_projection.get_projection_planes(p_cam_transform);
-                int cull_count = p_scenario->sps.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
+                int cull_count = p_scenario->sps.cull_convex(planes, instance_shadow_cull_result, RS::INSTANCE_GEOMETRY_MASK);
+                int room_hint=0;//light->previous_room_id_hint
                 Plane base(p_cam_transform.origin, -p_cam_transform.basis.get_axis(2));
                 //check distance max and min
 
@@ -1691,13 +2222,15 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                 float z_min = 1e20f;
 
                 for (int i = 0; i < cull_count; i++) {
-
-                    Instance *instance = instance_shadow_cull_result[i];
-                    if (!instance->visible || !(has_component<GeometryComponent>(instance->self.eid)) ) {
+                    auto &instance = instance_view.get<RenderingInstanceComponent>(instance_shadow_cull_result[i]);
+                    assert(!VSG::ecs->registry.any_of<RenderingInstanceComponent>(instance_shadow_cull_result[i]) ||
+                           get<RenderingInstanceComponent>(instance_shadow_cull_result[i])->self==instance_shadow_cull_result[i]
+                           );
+                    if (!instance.visible || !(has_component<GeometryComponent>(instance.self)) ) {
                         continue;
                     }
 
-                    auto &cm_geom(get_component<GeometryComponent>(instance->self));
+                    auto &cm_geom(get_component<GeometryComponent>(instance.self));
                     if(!cm_geom.can_cast_shadows)
                         continue;
 
@@ -1706,7 +2239,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                     }
 
                     float max, min;
-                    get_component<InstanceBoundsComponent>(instance->self).transformed_aabb.project_range_in_plane(base, min, max);
+                    get_component<InstanceBoundsComponent>(instance.self).transformed_aabb.project_range_in_plane(base, min, max);
 
                     if (max > z_max) {
                         z_max = max;
@@ -1883,7 +2416,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                 light_frustum_planes[4] = Plane(z_vec, z_max + 1e6f);
                 light_frustum_planes[5] = Plane(-z_vec, -z_min); // z_min is ok, since casters further than far-light plane are not needed
 
-                int cull_count = p_scenario->sps.cull_convex(light_frustum_planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
+                int cull_count = p_scenario->sps.cull_convex(light_frustum_planes, instance_shadow_cull_result, RS::INSTANCE_GEOMETRY_MASK);
 
                 // a pre pass will need to be needed to determine the actual z-near to be used
 
@@ -1892,18 +2425,19 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                 for (int j = 0; j < cull_count; j++) {
 
                     float min, max;
-                    Instance *instance = instance_shadow_cull_result[j];
-                    if (!instance->visible || !has_component<GeometryComponent>(instance->self.eid) ||
-                            !get_component<GeometryComponent>(instance->self).can_cast_shadows) {
+                    auto &instance = instance_view.get<RenderingInstanceComponent>(instance_shadow_cull_result[j]);
+
+                    if (!instance.visible || !has_component<GeometryComponent>(instance.self) ||
+                            !get_component<GeometryComponent>(instance.self).can_cast_shadows) {
                         cull_count--;
                         SWAP(instance_shadow_cull_result[j], instance_shadow_cull_result[cull_count]);
                         j--;
                         continue;
                     }
 
-                    get_component<InstanceBoundsComponent>(instance->self).transformed_aabb.project_range_in_plane(Plane(z_vec, 0), min, max);
-                    instance->depth = near_plane.distance_to(instance->transform.origin);
-                    instance->depth_layer = 0;
+                    get_component<InstanceBoundsComponent>(instance.self).transformed_aabb.project_range_in_plane(Plane(z_vec, 0), min, max);
+                    instance.depth = near_plane.distance_to(instance.transform.origin);
+                    instance.depth_layer = 0;
                     if (max > z_max)
                         z_max = max;
                 }
@@ -1923,7 +2457,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                     VSG::scene_render->light_instance_set_shadow_transform(light->instance, ortho_camera, ortho_transform, 0, distances[i + 1], i, bias_scale);
                 }
 
-                VSG::scene_render->render_shadow(light->instance, p_shadow_atlas, i, (RasterizerScene::InstanceBase **)instance_shadow_cull_result, cull_count);
+                VSG::scene_render->render_shadow(light->instance, p_shadow_atlas, i, Span<RenderingEntity>(instance_shadow_cull_result, cull_count));
             }
 
         } break;
@@ -1949,13 +2483,13 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                         light_transform.xform(Plane(Vector3(0, 0, -z).normalized(), radius)),
                     };
 
-                    int cull_count = p_scenario->sps.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
+                    int cull_count = p_scenario->sps.cull_convex(planes, instance_shadow_cull_result, RS::INSTANCE_GEOMETRY_MASK);
                     Plane near_plane(light_transform.origin, light_transform.basis.get_axis(2) * z);
 
                     for (int j = 0; j < cull_count; j++) {
 
-                        Instance *instance = instance_shadow_cull_result[j];
-                        if (!instance->visible || !has_component<GeometryComponent>(instance->self.eid) ||
+                        auto *instance = getUnchecked<RenderingInstanceComponent>(instance_shadow_cull_result[j]);
+                        if (!instance->visible || !has_component<GeometryComponent>(instance->self) ||
                                 !get_component<GeometryComponent>(instance->self).can_cast_shadows) {
                             cull_count--;
                             SWAP(instance_shadow_cull_result[j], instance_shadow_cull_result[cull_count]);
@@ -1971,7 +2505,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                     }
 
                     VSG::scene_render->light_instance_set_shadow_transform(light->instance, CameraMatrix(), light_transform, radius, 0, i);
-                    VSG::scene_render->render_shadow(light->instance, p_shadow_atlas, i, (RasterizerScene::InstanceBase **)instance_shadow_cull_result, cull_count);
+                    VSG::scene_render->render_shadow(light->instance, p_shadow_atlas, i, Span<RenderingEntity>(instance_shadow_cull_result, cull_count));
                 }
             } else { //shadow cube
 
@@ -2004,28 +2538,30 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
 
                     Frustum planes = cm.get_projection_planes(xform);
 
-                    int cull_count = p_scenario->sps.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
+                    int cull_count = _cull_convex_from_point(p_scenario, light_transform, cm, planes,
+                            instance_shadow_cull_result, light->previous_room_id_hint,
+                            RS::INSTANCE_GEOMETRY_MASK);
 
                     Plane near_plane(xform.origin, -xform.basis.get_axis(2));
                     for (int j = 0; j < cull_count; j++) {
 
-                        Instance *instance = instance_shadow_cull_result[j];
-                        if (!instance->visible || !has_component<GeometryComponent>(instance->self.eid) ||
-                                !get_component<GeometryComponent>(instance->self).can_cast_shadows) {
+                        auto &instance = instance_view.get<RenderingInstanceComponent>(instance_shadow_cull_result[j]);
+                        if (!instance.visible || !has_component<GeometryComponent>(instance.self) ||
+                                !get_component<GeometryComponent>(instance.self).can_cast_shadows) {
                             cull_count--;
                             SWAP(instance_shadow_cull_result[j], instance_shadow_cull_result[cull_count]);
                             j--;
                         } else {
-                            if (get_component<GeometryComponent>(instance->self).material_is_animated) {
+                            if (get_component<GeometryComponent>(instance.self).material_is_animated) {
                                 animated_material_found = true;
                             }
-                            instance->depth = near_plane.distance_to(instance->transform.origin);
-                            instance->depth_layer = 0;
+                            instance.depth = near_plane.distance_to(instance.transform.origin);
+                            instance.depth_layer = 0;
                         }
                     }
 
                     VSG::scene_render->light_instance_set_shadow_transform(light->instance, cm, xform, radius, 0, i);
-                    VSG::scene_render->render_shadow(light->instance, p_shadow_atlas, i, (RasterizerScene::InstanceBase **)instance_shadow_cull_result, cull_count);
+                    VSG::scene_render->render_shadow(light->instance, p_shadow_atlas, i, Span<RenderingEntity>(instance_shadow_cull_result, cull_count));
                 }
 
                 //restore the regular DP matrix
@@ -2042,13 +2578,14 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
             cm.set_perspective(angle * 2.0f, 1.0, 0.01f, radius);
 
             Frustum planes = cm.get_projection_planes(light_transform);
-            int cull_count = p_scenario->sps.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);
-
+            int room_hint = 0; // light->previous_room_id_hint;
+            int cull_count = _cull_convex_from_point(p_scenario, light_transform, cm, planes,
+                    instance_shadow_cull_result, room_hint, RS::INSTANCE_GEOMETRY_MASK);
             Plane near_plane(light_transform.origin, -light_transform.basis.get_axis(2));
             for (int j = 0; j < cull_count; j++) {
 
-                Instance *instance = instance_shadow_cull_result[j];
-                if (!instance->visible || !has_component<GeometryComponent>(instance->self.eid) ||
+                RenderingInstanceComponent *instance = getUnchecked<RenderingInstanceComponent>(instance_shadow_cull_result[j]);
+                if (!instance->visible || !has_component<GeometryComponent>(instance->self) ||
                         !get_component<GeometryComponent>(instance->self).can_cast_shadows) {
                     cull_count--;
                     SWAP(instance_shadow_cull_result[j], instance_shadow_cull_result[cull_count]);
@@ -2063,7 +2600,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
             }
 
             VSG::scene_render->light_instance_set_shadow_transform(light->instance, cm, light_transform, radius, 0, 0);
-            VSG::scene_render->render_shadow(light->instance, p_shadow_atlas, 0, (RasterizerScene::InstanceBase **)instance_shadow_cull_result, cull_count);
+            VSG::scene_render->render_shadow(light->instance, p_shadow_atlas, 0, Span<RenderingEntity>(instance_shadow_cull_result, cull_count));
 
         } break;
     }
@@ -2071,10 +2608,10 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
     return animated_material_found;
 }
 
-void VisualServerScene::render_camera(RID p_camera, RID p_scenario, Size2 p_viewport_size, RID p_shadow_atlas) {
+void VisualServerScene::render_camera(RenderingEntity p_camera, RenderingEntity p_scenario, Size2 p_viewport_size, RenderingEntity p_shadow_atlas) {
 // render to mono camera
 #ifndef _3D_DISABLED
-    Camera3D *camera = VSG::ecs->registry.try_get<Camera3D>(p_camera.eid);
+    Camera3DComponent *camera = get<Camera3DComponent>(p_camera);
 
     ERR_FAIL_COND(!camera);
 
@@ -2083,7 +2620,7 @@ void VisualServerScene::render_camera(RID p_camera, RID p_scenario, Size2 p_view
     bool ortho = false;
 
     switch (camera->type) {
-        case Camera3D::ORTHOGONAL: {
+        case Camera3DComponent::ORTHOGONAL: {
 
             camera_matrix.set_orthogonal(
                     camera->size,
@@ -2093,7 +2630,7 @@ void VisualServerScene::render_camera(RID p_camera, RID p_scenario, Size2 p_view
                     camera->vaspect);
             ortho = true;
         } break;
-        case Camera3D::PERSPECTIVE: {
+        case Camera3DComponent::PERSPECTIVE: {
 
             camera_matrix.set_perspective(
                     camera->fov,
@@ -2104,7 +2641,7 @@ void VisualServerScene::render_camera(RID p_camera, RID p_scenario, Size2 p_view
             ortho = false;
 
         } break;
-        case Camera3D::FRUSTUM: {
+        case Camera3DComponent::FRUSTUM: {
 
             camera_matrix.set_frustum(
                     camera->size,
@@ -2116,16 +2653,18 @@ void VisualServerScene::render_camera(RID p_camera, RID p_scenario, Size2 p_view
             ortho = false;
         } break;
     }
+    Transform camera_transform = camera->transform;
 
-    _prepare_scene(camera->transform, camera_matrix, ortho, camera->env, camera->visible_layers, p_scenario, p_shadow_atlas, RID());
-    _render_scene(camera->transform, camera_matrix, ortho, camera->env, p_scenario, p_shadow_atlas, RID(), -1);
+    _prepare_scene(camera_transform, camera_matrix, ortho, camera->env, camera->visible_layers, p_scenario,
+            p_shadow_atlas, entt::null, camera->previous_room_id_hint);
+    _render_scene(camera_transform, camera_matrix, 0, ortho, camera->env, p_scenario, p_shadow_atlas, entt::null, -1);
 #endif
 }
 
-void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVREyes p_eye, RID p_camera, RID p_scenario, Size2 p_viewport_size, RID p_shadow_atlas) {
+void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVREyes p_eye, RenderingEntity p_camera, RenderingEntity p_scenario, Size2 p_viewport_size, RenderingEntity p_shadow_atlas) {
     // render for AR/VR interface
 
-    Camera3D *camera = VSG::ecs->registry.try_get<Camera3D>(p_camera.eid); //camera_owner.getornull(p_camera);
+    Camera3DComponent *camera = get<Camera3DComponent>(p_camera); //camera_owner.getornull(p_camera);
     ERR_FAIL_COND(!camera);
 
     /* SETUP CAMERA, we are ignoring type and FOV here */
@@ -2196,24 +2735,26 @@ void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVREyes 
         mono_transform *= apply_z_shift;
 
         // now prepare our scene with our adjusted transform projection matrix
-        _prepare_scene(mono_transform, combined_matrix, false, camera->env, camera->visible_layers, p_scenario, p_shadow_atlas, RID());
+        _prepare_scene(mono_transform, combined_matrix, false, camera->env, camera->visible_layers, p_scenario, p_shadow_atlas, entt::null,camera->previous_room_id_hint);
     } else if (p_eye == ARVREyes::EYE_MONO) {
         // For mono render, prepare as per usual
-        _prepare_scene(cam_transform, camera_matrix, false, camera->env, camera->visible_layers, p_scenario, p_shadow_atlas, RID());
+        _prepare_scene(cam_transform, camera_matrix, false, camera->env, camera->visible_layers, p_scenario, p_shadow_atlas, entt::null,camera->previous_room_id_hint);
     }
 
     // And render our scene...
-    _render_scene(cam_transform, camera_matrix, false, camera->env, p_scenario, p_shadow_atlas, RID(), -1);
+    _render_scene(cam_transform, camera_matrix, p_eye, false, camera->env, p_scenario, p_shadow_atlas, entt::null, -1);
 }
 
-void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_force_environment, uint32_t p_visible_layers, RID p_scenario, RID p_shadow_atlas, RID p_reflection_probe) {
+void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const CameraMatrix &p_cam_projection,
+        bool p_cam_orthogonal, RenderingEntity p_force_environment, uint32_t p_visible_layers,
+        RenderingEntity p_scenario, RenderingEntity p_shadow_atlas, RenderingEntity p_reflection_probe, int32_t &r_previous_room_id_hint) {
     SCOPE_AUTONAMED
 
     // Note, in stereo rendering:
     // - p_cam_transform will be a transform in the middle of our two eyes
     // - p_cam_projection is a wider frustrum that encompasses both eyes
 
-    Scenario *scenario = scenario_owner.getornull(p_scenario);
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
 
     render_pass++;
     uint32_t camera_layer_mask = p_visible_layers;
@@ -2227,8 +2768,14 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
     Plane near_plane(p_cam_transform.origin, -p_cam_transform.basis.get_axis(2).normalized());
     float z_far = p_cam_projection.get_z_far();
 
+    update_dirty_instances();
     /* STEP 2 - CULL */
-    instance_cull_count = scenario->sps.cull_convex(planes, instance_cull_result, MAX_INSTANCE_CULL);
+    {
+        SCOPE_PROFILE("InstanceCull");
+        int room_hint = r_previous_room_id_hint;
+        instance_cull_count = _cull_convex_from_point(scenario, p_cam_transform, p_cam_projection, planes,
+                instance_cull_result, room_hint);
+    }
     light_cull_count = 0;
 
     reflection_probe_cull_count = 0;
@@ -2247,10 +2794,19 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
 
     /* STEP 4 - REMOVE FURTHER CULLED OBJECTS, ADD LIGHTS */
 
+    auto inst_view(VSG::ecs->registry.view<RenderingInstanceComponent>());
+    int invalid_entities_in_sps=0;
     for (int i = 0; i < instance_cull_count; i++) {
-
-        Instance *ins = instance_cull_result[i];
-
+        assert(VSG::ecs->registry.valid(instance_cull_result[i]));
+        if(!VSG::ecs->registry.valid(instance_cull_result[i])) {
+            // swap and pop, to remove the invalid entity
+            eastl::swap(instance_cull_result[i],instance_cull_result[instance_cull_count-1]);
+            instance_cull_count--;
+            i--;
+            invalid_entities_in_sps++;
+            continue;
+        }
+        RenderingInstanceComponent *ins = &inst_view.get<RenderingInstanceComponent>(instance_cull_result[i]);
         bool keep = false;
 
         if ((camera_layer_mask & ins->layer_mask) == 0) {
@@ -2260,24 +2816,30 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
 
             if (light_cull_count < MAX_LIGHTS_CULLED) {
 
-                InstanceLightData *light = static_cast<InstanceLightData *>(ins->base_data);
+                InstanceLightData *light = getUnchecked<InstanceLightData>(ins->self);
 
+                //do not add this light if no geometry is affected by it..
                 if (!light->geometries.empty()) {
-                    //do not add this light if no geometry is affected by it..
+                    assert(VSG::storage->light_get_type(ins->base)!=RS::LIGHT_DIRECTIONAL);
                     light_cull_result[light_cull_count] = ins;
                     light_instance_cull_result[light_cull_count] = light->instance;
-                    if (p_shadow_atlas.is_valid() && VSG::storage->light_has_shadow(ins->base)) {
+                    if (p_shadow_atlas!=entt::null && VSG::storage->light_has_shadow(ins->base)) {
                         VSG::scene_render->light_instance_mark_visible(light->instance); //mark it visible for shadow allocation later
                     }
 
                     light_cull_count++;
+                }
+                for (int i = 0; i < light_cull_count; i++) {
+
+                    ins = light_cull_result[i];
+                    assert(VSG::storage->light_get_type(ins->base)!=RS::LIGHT_DIRECTIONAL);
                 }
             }
         } else if (ins->base_type == RS::INSTANCE_REFLECTION_PROBE && ins->visible) {
 
             if (reflection_probe_cull_count < MAX_REFLECTION_PROBES_CULLED) {
 
-                InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(ins->base_data);
+                InstanceReflectionProbeData *reflection_probe = getUnchecked<InstanceReflectionProbeData>(ins->self);
 
                 if (p_reflection_probe != reflection_probe->instance) {
                     //avoid entering The Matrix
@@ -2286,9 +2848,9 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
                         //do not add this light if no geometry is affected by it..
 
                         if (reflection_probe->reflection_dirty || VSG::scene_render->reflection_probe_instance_needs_redraw(reflection_probe->instance)) {
-                            if (!reflection_probe->update_list.in_list()) {
+                            if (!VSG::ecs->registry.any_of<DirtyRefProbe>(ins->self)) {
                                 reflection_probe->render_step = 0;
-                                reflection_probe_render_list.add_last(&reflection_probe->update_list);
+                                VSG::ecs->registry.emplace<DirtyRefProbe>(ins->self);
                             }
 
                             reflection_probe->reflection_dirty = false;
@@ -2303,20 +2865,15 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
             }
 
         } else if (ins->base_type == RS::INSTANCE_GI_PROBE && ins->visible) {
-
-            InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(ins->base_data);
-            if (!gi_probe->update_element.in_list()) {
-                gi_probe_update_list.add(&gi_probe->update_element);
-            }
-
-        } else if (has_component<GeometryComponent>(ins->self.eid) && ins->visible && ins->cast_shadows != RS::SHADOW_CASTING_SETTING_SHADOWS_ONLY) {
+            VSG::ecs->registry.emplace_or_replace<DirtyGIProbe>(ins->self);
+        } else if (has_component<GeometryComponent>(ins->self) && ins->visible && ins->cast_shadows != RS::SHADOW_CASTING_SETTING_SHADOWS_ONLY) {
 
             keep = true;
 
             InstanceGeometryData *geom = get_instance_geometry(ins->self);
             GeometryComponent & gcomp = get_component<GeometryComponent>(ins->self);
             if (ins->redraw_if_visible) {
-                RenderingServerRaster::redraw_request();
+                RenderingServerRaster::redraw_request(false);
             }
 
             if (ins->base_type == RS::INSTANCE_PARTICLES) {
@@ -2325,62 +2882,62 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
                     //but if nothing is going on, don't do it.
                     keep = false;
                 } else {
+                    if (OS::get_singleton()->is_update_pending(true)) {
                     VSG::storage->particles_request_process(ins->base);
                     //particles visible? request redraw
-                    RenderingServerRaster::redraw_request();
+                        RenderingServerRaster::redraw_request(false);
+                    }
                 }
             }
 
-            if (gcomp.gi_probes_dirty) {
-                int l = 0;
+            if (gcomp.lighting_dirty) {
+
                 //only called when lights AABB enter/exit this geometry
-                ins->light_instances.resize(geom->lighting.size());
+                ins->light_instances.clear();
+                ins->light_instances.reserve(geom->lighting.size());
                 auto &l_wr(ins->light_instances);
-                for (Instance * E : geom->lighting) {
+                for (auto E : geom->lighting) {
 
-                    InstanceLightData *light = static_cast<InstanceLightData *>(E->base_data);
+                    InstanceLightData *light = getUnchecked<InstanceLightData>(E);
 
-                    l_wr[l++] = light->instance;
+                    l_wr.emplace_back(light->instance);
                 }
 
                 gcomp.lighting_dirty = false;
             }
 
             if (gcomp.reflection_dirty) {
-                int l = 0;
+
                 //only called when reflection probe AABB enter/exit this geometry
-                ins->reflection_probe_instances.resize(geom->reflection_probes.size());
+                ins->reflection_probe_instances.clear();
+                ins->reflection_probe_instances.reserve(geom->reflection_probes.size());
                 auto &wr(ins->reflection_probe_instances);
-                for (Instance * E : geom->reflection_probes) {
+                for (auto E : geom->reflection_probes) {
 
-                    InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(E->base_data);
+                    InstanceReflectionProbeData *reflection_probe = getUnchecked<InstanceReflectionProbeData>(E);
 
-                    wr[l++] = reflection_probe->instance;
+                    wr.emplace_back(reflection_probe->instance);
                 }
 
                 gcomp.reflection_dirty = false;
             }
 
             if (gcomp.gi_probes_dirty) {
-                int l = 0;
                 //only called when reflection probe AABB enter/exit this geometry
-                ins->gi_probe_instances.resize(geom->gi_probes.size());
+                ins->gi_probe_instances.clear();
+                ins->gi_probe_instances.reserve(geom->gi_probes.size());
                 auto &wr(ins->gi_probe_instances);
 
-                for (Instance * E : geom->gi_probes) {
+                for (auto E : geom->gi_probes) {
 
-                    InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(E->base_data);
+                    InstanceGIProbeData *gi_probe = getUnchecked<InstanceGIProbeData>(E);
 
-                    wr[l++] = gi_probe->probe_instance;
+                    wr.emplace_back(gi_probe->probe_instance);
                 }
 
                 gcomp.gi_probes_dirty = false;
             }
-
-            ins->depth = near_plane.distance_to(ins->transform.origin);
-            ins->depth_layer = CLAMP(int(ins->depth * 16 / z_far), 0, 15);
         }
-
         if (!keep) {
             // remove, no reason to keep
             instance_cull_count--;
@@ -2392,34 +2949,43 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
             ins->last_render_pass = render_pass;
         }
     }
-
+    if(invalid_entities_in_sps) {
+        printf("BVH had %d invalidated entities in it\n",invalid_entities_in_sps);
+        invalid_entities_in_sps=0;
+    }
     /* STEP 5 - PROCESS LIGHTS */
+    for (int i = 0; i < light_cull_count; i++) {
 
-    RID *directional_light_ptr = &light_instance_cull_result[light_cull_count];
+        RenderingInstanceComponent *ins = light_cull_result[i];
+        assert(VSG::storage->light_get_type(ins->base)!=RS::LIGHT_DIRECTIONAL);
+    }
+    RenderingEntity *directional_light_ptr = &light_instance_cull_result[light_cull_count];
     directional_light_count = 0;
 
     // directional lights
     {
 
-        Instance **lights_with_shadow = (Instance **)alloca(sizeof(Instance *) * scenario->directional_lights.size());
+        RenderingInstanceComponent **lights_with_shadow = (RenderingInstanceComponent **)alloca(sizeof(RenderingInstanceComponent *) * scenario->directional_lights.size());
         int directional_shadow_count = 0;
 
-        for (Instance *E : scenario->directional_lights) {
+        for (auto E : scenario->directional_lights) {
+
+            RenderingInstanceComponent *dir_light = get<RenderingInstanceComponent>(E);
 
             if (light_cull_count + directional_light_count >= MAX_LIGHTS_CULLED) {
                 break;
             }
 
-            if (!E->visible)
+            if (!dir_light->visible)
                 continue;
 
-            InstanceLightData *light = static_cast<InstanceLightData *>(E->base_data);
+            InstanceLightData *light = getUnchecked<InstanceLightData>(E);
 
             //check shadow..
 
             if (light) {
-                if (p_shadow_atlas.is_valid() && VSG::storage->light_has_shadow(E->base)) {
-                    lights_with_shadow[directional_shadow_count++] = E;
+                if (p_shadow_atlas!=entt::null && VSG::storage->light_has_shadow(dir_light->base)) {
+                    lights_with_shadow[directional_shadow_count++] = dir_light;
                 }
                 //add to list
                 directional_light_ptr[directional_light_count++] = light->instance;
@@ -2440,12 +3006,12 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
         //sorter.sort(light_cull_result,light_cull_count);
         for (int i = 0; i < light_cull_count; i++) {
 
-            Instance *ins = light_cull_result[i];
+            RenderingInstanceComponent *ins = light_cull_result[i];
 
-            if (!p_shadow_atlas.is_valid() || !VSG::storage->light_has_shadow(ins->base))
+            if (p_shadow_atlas==entt::null || !VSG::storage->light_has_shadow(ins->base))
                 continue;
 
-            InstanceLightData *light = static_cast<InstanceLightData *>(ins->base_data);
+            InstanceLightData *light = getUnchecked<InstanceLightData>(ins->self);
 
             float coverage = 0.f;
 
@@ -2533,50 +3099,71 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
             }
         }
     }
+
+    // Calculate instance->depth from the camera, after shadow calculation has stopped overwriting instance->depth
+    for (int i = 0; i < instance_cull_count; i++) {
+        RenderingInstanceComponent *ins = get<RenderingInstanceComponent>(instance_cull_result[i]);
+        if (((1 << ins->base_type) & RS::INSTANCE_GEOMETRY_MASK) && ins->visible && ins->cast_shadows != RS::SHADOW_CASTING_SETTING_SHADOWS_ONLY) {
+            InstanceBoundsComponent& bounds = get_component<InstanceBoundsComponent>(instance_cull_result[i]);
+            Vector3 center = ins->transform.origin;
+            if (bounds.use_aabb_center) {
+                center = bounds.transformed_aabb.position + (bounds.transformed_aabb.size * 0.5f);
+            }
+            if (p_cam_orthogonal) {
+                ins->depth = near_plane.distance_to(center) - bounds.sorting_offset;
+            } else {
+                ins->depth = p_cam_transform.origin.distance_to(center) - bounds.sorting_offset;
+            }
+            ins->depth_layer = CLAMP(int(ins->depth * 16 / z_far), 0, 15);
+        }
+    }
 }
 
-void VisualServerScene::_render_scene(const Transform &p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_force_environment, RID p_scenario, RID p_shadow_atlas, RID p_reflection_probe, int p_reflection_probe_pass) {
+void VisualServerScene::_render_scene(const Transform &p_cam_transform, const CameraMatrix &p_cam_projection, const int p_eye,
+        bool p_cam_orthogonal, RenderingEntity p_force_environment, RenderingEntity p_scenario,
+        RenderingEntity p_shadow_atlas, RenderingEntity p_reflection_probe, int p_reflection_probe_pass) {
     SCOPE_AUTONAMED
 
-    Scenario *scenario = scenario_owner.getornull(p_scenario);
+    RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
 
     /* ENVIRONMENT */
 
-    RID environment;
-    if (p_force_environment.is_valid()) //camera has more environment priority
+    RenderingEntity environment=entt::null;
+    if (p_force_environment!=entt::null) //camera has more environment priority
         environment = p_force_environment;
-    else if (scenario->environment.is_valid())
+    else if (scenario->environment!=entt::null)
         environment = scenario->environment;
     else
         environment = scenario->fallback_environment;
 
     /* PROCESS GEOMETRY AND DRAW SCENE */
 
-    VSG::scene_render->render_scene(p_cam_transform, p_cam_projection, p_cam_orthogonal, (RasterizerScene::InstanceBase **)instance_cull_result, instance_cull_count, light_instance_cull_result, light_cull_count + directional_light_count, reflection_probe_instance_cull_result, reflection_probe_cull_count, environment, p_shadow_atlas, scenario->reflection_atlas, p_reflection_probe, p_reflection_probe_pass);
+    VSG::scene_render->render_scene(p_cam_transform, p_cam_projection, p_cam_orthogonal,p_eye, Span<RenderingEntity>(instance_cull_result, instance_cull_count), light_instance_cull_result, light_cull_count + directional_light_count, reflection_probe_instance_cull_result, reflection_probe_cull_count, environment, p_shadow_atlas, scenario->reflection_atlas, p_reflection_probe, p_reflection_probe_pass);
 }
 
-void VisualServerScene::render_empty_scene(RID p_scenario, RID p_shadow_atlas) {
+void VisualServerScene::render_empty_scene(RenderingEntity p_scenario, RenderingEntity p_shadow_atlas) {
 
 #ifndef _3D_DISABLED
 
-    Scenario *scenario = scenario_owner.getornull(p_scenario);
+    auto *scenario = get<RenderingScenarioComponent>(p_scenario);
 
-    RID environment;
-    if (scenario->environment.is_valid())
+    RenderingEntity environment;
+    if (scenario->environment!=entt::null)
         environment = scenario->environment;
     else
         environment = scenario->fallback_environment;
-    VSG::scene_render->render_scene(Transform(), CameraMatrix(), true, nullptr, 0, nullptr, 0, nullptr, 0, environment, p_shadow_atlas, scenario->reflection_atlas, RID(), 0);
+    VSG::scene_render->render_scene(Transform(), CameraMatrix(), 0, true, Span<RenderingEntity>(), nullptr, 0, nullptr,
+            0, environment, p_shadow_atlas, scenario->reflection_atlas, entt::null, 0);
 #endif
 }
 
-bool VisualServerScene::_render_reflection_probe_step(Instance *p_instance, int p_step) {
+bool VisualServerScene::_render_reflection_probe_step(RenderingInstanceComponent *p_instance, int p_step) {
 
-    InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(p_instance->base_data);
-    Scenario *scenario = p_instance->scenario;
+    InstanceReflectionProbeData *reflection_probe = getUnchecked<InstanceReflectionProbeData>(p_instance->self);
+    auto *scenario = get<RenderingScenarioComponent>(p_instance->scenario);
     ERR_FAIL_COND_V(!scenario, true);
 
-    RenderingServerRaster::redraw_request(); //update, so it updates in editor
+    RenderingServerRaster::redraw_request(false); //update, so it updates in editor
 
     if (p_step == 0) {
 
@@ -2585,59 +3172,57 @@ bool VisualServerScene::_render_reflection_probe_step(Instance *p_instance, int 
         }
     }
 
-    if (p_step >= 0 && p_step < 6) {
-
-        static const Vector3 view_normals[6] = {
-            Vector3(-1, 0, 0),
-            Vector3(+1, 0, 0),
-            Vector3(0, -1, 0),
-            Vector3(0, +1, 0),
-            Vector3(0, 0, -1),
-            Vector3(0, 0, +1)
-        };
-
-        Vector3 extents = VSG::storage->reflection_probe_get_extents(p_instance->base);
-        Vector3 origin_offset = VSG::storage->reflection_probe_get_origin_offset(p_instance->base);
-        float max_distance = VSG::storage->reflection_probe_get_origin_max_distance(p_instance->base);
-
-        Vector3 edge = view_normals[p_step] * extents;
-        float distance = ABS(view_normals[p_step].dot(edge) - view_normals[p_step].dot(origin_offset)); //distance from origin offset to actual view distance limit
-
-        max_distance = M_MAX(max_distance, distance);
-
-        //render cubemap side
-        CameraMatrix cm;
-        cm.set_perspective(90, 1, 0.01f, max_distance);
-
-        static const Vector3 view_up[6] = {
-            Vector3(0, -1, 0),
-            Vector3(0, -1, 0),
-            Vector3(0, 0, -1),
-            Vector3(0, 0, +1),
-            Vector3(0, -1, 0),
-            Vector3(0, -1, 0)
-        };
-
-        Transform local_view;
-        local_view.set_look_at(origin_offset, origin_offset + view_normals[p_step], view_up[p_step]);
-
-        Transform xform = p_instance->transform * local_view;
-
-        RID shadow_atlas;
-
-        if (VSG::storage->reflection_probe_renders_shadows(p_instance->base)) {
-
-            shadow_atlas = scenario->reflection_probe_shadow_atlas;
-        }
-
-        _prepare_scene(xform, cm, false, RID(), VSG::storage->reflection_probe_get_cull_mask(p_instance->base), p_instance->scenario->self, shadow_atlas, reflection_probe->instance);
-        _render_scene(xform, cm, false, RID(), p_instance->scenario->self, shadow_atlas, reflection_probe->instance, p_step);
-
-    } else {
-        //do roughness postprocess step until it believes it's done
+    if (p_step < 0 || p_step >= 6) {
+        // do roughness postprocess step until it believes it's done
         return VSG::scene_render->reflection_probe_instance_postprocess_step(reflection_probe->instance);
     }
+    static const Vector3 view_normals[6] = {
+        Vector3(-1, 0, 0),
+        Vector3(+1, 0, 0),
+        Vector3(0, -1, 0),
+        Vector3(0, +1, 0),
+        Vector3(0, 0, -1),
+        Vector3(0, 0, +1)
+    };
 
+    Vector3 extents = VSG::storage->reflection_probe_get_extents(p_instance->base);
+    Vector3 origin_offset = VSG::storage->reflection_probe_get_origin_offset(p_instance->base);
+    float max_distance = VSG::storage->reflection_probe_get_origin_max_distance(p_instance->base);
+
+    Vector3 edge = view_normals[p_step] * extents;
+    float distance = ABS(view_normals[p_step].dot(edge) - view_normals[p_step].dot(origin_offset)); //distance from origin offset to actual view distance limit
+
+    max_distance = M_MAX(max_distance, distance);
+
+    // render cubemap side
+    CameraMatrix cm;
+    cm.set_perspective(90, 1, 0.01f, max_distance);
+
+    static const Vector3 view_up[6] = {
+        Vector3(0, -1, 0),
+        Vector3(0, -1, 0),
+        Vector3(0, 0, -1),
+        Vector3(0, 0, +1),
+        Vector3(0, -1, 0),
+        Vector3(0, -1, 0)
+    };
+
+    Transform local_view;
+    local_view.set_look_at(origin_offset, origin_offset + view_normals[p_step], view_up[p_step]);
+
+    Transform xform = p_instance->transform * local_view;
+
+    RenderingEntity shadow_atlas = entt::null;
+
+    if (VSG::storage->reflection_probe_renders_shadows(p_instance->base)) {
+        shadow_atlas = scenario->reflection_probe_shadow_atlas;
+    }
+
+    _prepare_scene(xform, cm, false, entt::null, VSG::storage->reflection_probe_get_cull_mask(p_instance->base), p_instance->scenario, shadow_atlas, reflection_probe->instance, reflection_probe->previous_room_id_hint);
+    bool async_forbidden_backup = VSG::storage->is_shader_async_hidden_forbidden();
+    VSG::storage->set_shader_async_hidden_forbidden(true);
+    _render_scene(xform, cm, 0, false, entt::null, p_instance->scenario, shadow_atlas, reflection_probe->instance, p_step);
+    VSG::storage->set_shader_async_hidden_forbidden(async_forbidden_backup);
     return false;
 }
 
@@ -2648,13 +3233,13 @@ void VisualServerScene::_gi_probe_bake_threads(void *self) {
     vss->_gi_probe_bake_thread();
 }
 
-void _setup_gi_probe(VisualServerScene::Instance *p_instance) {
+void _setup_gi_probe(RenderingInstanceComponent *p_instance) {
 
-    VisualServerScene::InstanceGIProbeData *probe = static_cast<VisualServerScene::InstanceGIProbeData *>(p_instance->base_data);
+    VisualServerScene::InstanceGIProbeData *probe = getUnchecked<VisualServerScene::InstanceGIProbeData>(p_instance->self);
 
-    if (probe->dynamic.probe_data.is_valid()) {
+    if (probe->dynamic.probe_data!=entt::null) {
         VSG::storage->free(probe->dynamic.probe_data);
-        probe->dynamic.probe_data = RID();
+        probe->dynamic.probe_data = entt::null;
     }
 
     probe->dynamic.light_data = VSG::storage->gi_probe_get_dynamic_data(p_instance->base);
@@ -2728,22 +3313,27 @@ void _setup_gi_probe(VisualServerScene::Instance *p_instance) {
 }
 
 void VisualServerScene::_gi_probe_bake_thread() {
+    auto bake_view = VSG::ecs->registry.view<GIProbeBakeCheck>();
+    auto instance_view = VSG::ecs->registry.view<RenderingInstanceComponent>();
+
 
     while (true) {
 
-        probe_bake_sem->wait();
-        if (probe_bake_thread_exit) {
+        probe_bake_sem.wait();
+        if (probe_bake_thread_exit.is_set()) {
             break;
         }
 
-        Instance *to_bake = nullptr;
+        RenderingInstanceComponent *to_bake = nullptr;
 
         {
             MutexLock guard(probe_bake_mutex);
 
-            if (!probe_bake_list.empty()) {
-                to_bake = probe_bake_list.front();
-                probe_bake_list.pop_front();
+            if (!bake_view.empty()) {
+                RenderingEntity baked_entity = bake_view.front();
+                VSG::ecs->registry.remove<GIProbeBakeCheck>(baked_entity);
+                assert(instance_view.contains(baked_entity));
+                to_bake = &instance_view.get<RenderingInstanceComponent>(baked_entity);
             }
         }
 
@@ -2793,9 +3383,6 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
 
             float distance_adv = _get_normal_advance(light_axis);
 
-            int success_count = 0;
-
-            // uint64_t us = OS::get_singleton()->get_ticks_usec();
 
             for (int i = 0; i < p_leaf_count; i++) {
 
@@ -2847,19 +3434,15 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
                     light->energy[0] += int32_t(light_r * att * ((cell->albedo >> 16) & 0xFF) / 255.0f);
                     light->energy[1] += int32_t(light_g * att * ((cell->albedo >> 8) & 0xFF) / 255.0f);
                     light->energy[2] += int32_t(light_b * att * ((cell->albedo) & 0xFF) / 255.0f);
-                    success_count++;
                 }
             }
 
-            // print_line("BAKE TIME: " + rtos((OS::get_singleton()->get_ticks_usec() - us) / 1000000.0));
-            // print_line("valid cells: " + itos(success_count));
 
         } break;
         case RS::LIGHT_OMNI:
         case RS::LIGHT_SPOT: {
             Plane clip[3];
 
-            // uint64_t us = OS::get_singleton()->get_ticks_usec();
 
             Vector3 light_pos = light_cache.transform.origin;
             Vector3 spot_axis = -light_cache.transform.basis.get_axis(2).normalized();
@@ -2895,7 +3478,7 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
                     if (d + distance_adv > local_radius)
                         continue; // too far away
 
-                    float dt = CLAMP((d + distance_adv) / local_radius, 0, 1);
+                    float dt = CLAMP<float>((d + distance_adv) / local_radius, 0, 1);
                     att *= powf(1.0f - dt, light_cache.attenuation);
                 }
 
@@ -2905,7 +3488,7 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
                     if (angle > light_cache.spot_angle)
                         continue;
 
-                    float d = CLAMP(angle / light_cache.spot_angle, 0, 1);
+                    float d = CLAMP<float>(angle / light_cache.spot_angle, 0, 1);
                     att *= powf(1.0f - d, light_cache.spot_attenuation);
                 }
 
@@ -2960,15 +3543,14 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
                     light->energy[2] += int32_t(light_b * att * ((cell->albedo) & 0xFF) / 255.0f);
                 }
             }
-            //print_line("BAKE TIME: " + rtos((OS::get_singleton()->get_ticks_usec() - us) / 1000000.0));
         } break;
     }
 }
 
 
-void VisualServerScene::_bake_gi_probe(Instance *p_gi_probe) {
+void VisualServerScene::_bake_gi_probe(RenderingInstanceComponent *p_gi_probe) {
 
-    InstanceGIProbeData *probe_data = static_cast<InstanceGIProbeData *>(p_gi_probe->base_data);
+    InstanceGIProbeData *probe_data = getUnchecked<InstanceGIProbeData>(p_gi_probe->self);
 
     PoolVector<int>::Read r = probe_data->dynamic.light_data.read();
 
@@ -2981,9 +3563,9 @@ void VisualServerScene::_bake_gi_probe(Instance *p_gi_probe) {
     InstanceGIProbeData::LocalData *local_data = probe_data->dynamic.local_data.data();
 
     //remove what must be removed
-    for (eastl::pair<const RID,InstanceGIProbeData::LightCache> &E : probe_data->dynamic.light_cache) {
+    for (eastl::pair<const RenderingEntity,InstanceGIProbeData::LightCache> &E : probe_data->dynamic.light_cache) {
 
-        RID rid = E.first;
+        RenderingEntity rid = E.first;
         const InstanceGIProbeData::LightCache &lc = E.second;
 
         if ((!probe_data->dynamic.light_cache_changes.contains(rid) || probe_data->dynamic.light_cache_changes[rid] != lc) && lc.visible) {
@@ -2994,9 +3576,9 @@ void VisualServerScene::_bake_gi_probe(Instance *p_gi_probe) {
     }
 
     //add what must be added
-    for (eastl::pair<const RID,InstanceGIProbeData::LightCache> &E : probe_data->dynamic.light_cache_changes) {
+    for (eastl::pair<const RenderingEntity,InstanceGIProbeData::LightCache> &E : probe_data->dynamic.light_cache_changes) {
 
-        RID rid = E.first;
+        RenderingEntity rid = E.first;
         const InstanceGIProbeData::LightCache &lc = E.second;
 
         if ((!probe_data->dynamic.light_cache.contains(rid) || probe_data->dynamic.light_cache[rid] != lc) && lc.visible) {
@@ -3055,67 +3637,21 @@ void VisualServerScene::_bake_gi_probe(Instance *p_gi_probe) {
     }
 }
 
-void VisualServerScene::render_probes() {
+void render_gi_probes()
+{
+    auto dirty_probe_view(VSG::ecs->registry.view<DirtyGIProbe,RenderingInstanceComponent>());
 
-    /* REFLECTION PROBES */
-
-    IntrusiveListNode<InstanceReflectionProbeData> *ref_probe = reflection_probe_render_list.first();
-
-    bool busy = false;
-
-    while (ref_probe) {
-
-        IntrusiveListNode<InstanceReflectionProbeData> *next = ref_probe->next();
-        RID base = ref_probe->self()->owner->base;
-
-        switch (VSG::storage->reflection_probe_get_update_mode(base)) {
-
-            case RS::REFLECTION_PROBE_UPDATE_ONCE: {
-                if (busy) //already rendering something
-                    break;
-
-                bool done = _render_reflection_probe_step(ref_probe->self()->owner, ref_probe->self()->render_step);
-                if (done) {
-                    reflection_probe_render_list.remove(ref_probe);
-                } else {
-                    ref_probe->self()->render_step++;
-                }
-
-                busy = true; //do not render another one of this kind
-            } break;
-            case RS::REFLECTION_PROBE_UPDATE_ALWAYS: {
-
-                int step = 0;
-                bool done = false;
-                while (!done) {
-                    done = _render_reflection_probe_step(ref_probe->self()->owner, step);
-                    step++;
-                }
-
-                reflection_probe_render_list.remove(ref_probe);
-            } break;
-        }
-
-        ref_probe = next;
-    }
-
-    /* GI PROBES */
-
-    IntrusiveListNode<InstanceGIProbeData> *gi_probe = gi_probe_update_list.first();
-
-    while (gi_probe) {
-
-        IntrusiveListNode<InstanceGIProbeData> *next = gi_probe->next();
-
-        InstanceGIProbeData *probe = gi_probe->self();
-        Instance *instance_probe = probe->owner;
+    dirty_probe_view.each([=](auto ent, RenderingInstanceComponent &comp) {
+        RenderingInstanceComponent *instance_probe = &comp;
+        auto *probe = getUnchecked<VisualServerScene::InstanceGIProbeData>(ent);
+        assert(probe);
 
         //check if probe must be setup, but don't do if on the lighting thread
 
         bool force_lighting = false;
 
         if (probe->invalid || (probe->dynamic.updating_stage == GIUpdateStage::CHECK &&
-              probe->base_version != VSG::storage->gi_probe_get_version(instance_probe->base))) {
+                                      probe->base_version != VSG::storage->gi_probe_get_version(instance_probe->base))) {
 
             _setup_gi_probe(instance_probe);
             force_lighting = true;
@@ -3135,11 +3671,11 @@ void VisualServerScene::render_probes() {
 
                     if (_check_gi_probe(instance_probe) || force_lighting) { //send to lighting thread
                         {
-                            MutexLock guard(probe_bake_mutex);
+                            MutexLock guard(VSG::scene->probe_bake_mutex);
                             probe->dynamic.updating_stage = GIUpdateStage::LIGHTING;
-                            probe_bake_list.emplace_back(instance_probe);
+                            VSG::ecs->registry.emplace<GIProbeBakeCheck>(ent);
                         }
-                        probe_bake_sem->post();
+                        VSG::scene->probe_bake_sem.post();
                     }
                 } break;
                 case GIUpdateStage::LIGHTING: {
@@ -3148,7 +3684,7 @@ void VisualServerScene::render_probes() {
                 } break;
                 case GIUpdateStage::UPLOADING: {
 
-                    //uint64_t us = OS::get_singleton()->get_ticks_usec();
+                         //uint64_t us = OS::get_singleton()->get_ticks_usec();
 
                     for (int i = 0; i < (int)probe->dynamic.mipmaps_3d.size(); i++) {
 
@@ -3158,16 +3694,61 @@ void VisualServerScene::render_probes() {
 
                     probe->dynamic.updating_stage = GIUpdateStage::CHECK;
 
-                    //print_line("UPLOAD TIME: " + rtos((OS::get_singleton()->get_ticks_usec() - us) / 1000000.0));
+                         //print_line("UPLOAD TIME: " + rtos((OS::get_singleton()->get_ticks_usec() - us) / 1000000.0));
                 } break;
             }
         }
-        //_update_gi_probe(gi_probe->self()->owner);
-
-        gi_probe = next;
-    }
+    });
 }
-_FORCE_INLINE_ void VisualServerScene::_update_dirty_instance(Instance *p_instance)
+
+void render_ref_probes()
+{
+    auto dirty_probe_view(VSG::ecs->registry.view<DirtyRefProbe,RenderingInstanceComponent,VisualServerScene::InstanceReflectionProbeData>());
+    bool busy = false;
+    dirty_probe_view.each([&](auto ent, RenderingInstanceComponent &comp, VisualServerScene::InstanceReflectionProbeData &refl) {
+        assert(refl.owner==ent);
+        assert(comp.self==ent);
+        switch (VSG::storage->reflection_probe_get_update_mode(ent)) {
+            case RS::REFLECTION_PROBE_UPDATE_ONCE: {
+                if (busy) //already rendering something
+                    break;
+
+                bool done = VSG::scene->_render_reflection_probe_step(&comp, refl.render_step);
+                if (!done) {
+                    refl.render_step++;
+                }
+
+                busy = true; //do not render another one of this kind
+            } break;
+            case RS::REFLECTION_PROBE_UPDATE_ALWAYS: {
+
+                int step = 0;
+                bool done = false;
+                while (!done) {
+                    done = VSG::scene->_render_reflection_probe_step(&comp, step);
+                    step++;
+                }
+            } break;
+        }
+        VSG::ecs->registry.remove<DirtyRefProbe>(ent);
+    });
+
+
+}
+
+void VisualServerScene::render_probes() {
+
+    /* REFLECTION PROBES */
+
+
+    render_ref_probes();
+
+    /* GI PROBES */
+
+    render_gi_probes();
+}
+
+_FORCE_INLINE_ void VisualServerScene::_update_dirty_instance(RenderingInstanceComponent *p_instance)
 {
     const Dirty & dt = get_component<Dirty>(p_instance->self);
 
@@ -3183,18 +3764,19 @@ _FORCE_INLINE_ void VisualServerScene::_update_dirty_instance(Instance *p_instan
     _update_instance(p_instance);
     clear_component<Dirty>(p_instance->self);
 }
-void VisualServerScene::_update_instance_material(Instance *p_instance) {
+
+void VisualServerScene::_update_instance_material(RenderingInstanceComponent *p_instance) {
 
     if (p_instance->base_type == RS::INSTANCE_MESH) {
         //remove materials no longer used and un-own them
 
         int new_mat_count = VSG::storage->mesh_get_surface_count(p_instance->base);
         for (int i = p_instance->materials.size() - 1; i >= new_mat_count; i--) {
-            if (p_instance->materials[i].is_valid()) {
-                VSG::storage->material_remove_instance_owner(p_instance->materials[i], p_instance);
+            if (p_instance->materials[i]!=entt::null) {
+                VSG::storage->material_remove_instance_owner(p_instance->materials[i], p_instance->self);
             }
         }
-        p_instance->materials.resize(new_mat_count);
+        p_instance->materials.resize(new_mat_count,entt::null);
 
         int new_blend_shape_count = VSG::storage->mesh_get_blend_shape_count(p_instance->base);
         if (new_blend_shape_count != p_instance->blend_values.size()) {
@@ -3204,7 +3786,7 @@ void VisualServerScene::_update_instance_material(Instance *p_instance) {
             }
         }
     }
-    if (has_component<GeometryComponent>(p_instance->self.eid)) {
+    if (has_component<GeometryComponent>(p_instance->self)) {
 
         InstanceGeometryData *geom = get_instance_geometry(p_instance->self);
         auto & gcomp = get_component<GeometryComponent>(p_instance->self);
@@ -3214,22 +3796,22 @@ void VisualServerScene::_update_instance_material(Instance *p_instance) {
 
         if (p_instance->cast_shadows == RS::SHADOW_CASTING_SETTING_OFF) {
             can_cast_shadows = false;
-        } else if (p_instance->material_override.is_valid()) {
+        } else if (p_instance->material_override!=entt::null) {
             can_cast_shadows = VSG::storage->material_casts_shadows(p_instance->material_override);
             is_animated = VSG::storage->material_is_animated(p_instance->material_override);
         } else {
 
             if (p_instance->base_type == RS::INSTANCE_MESH) {
-                RID mesh = p_instance->base;
+                RenderingEntity mesh = p_instance->base;
 
-                if (mesh.is_valid()) {
+                if (mesh!=entt::null) {
                     bool cast_shadows = false;
 
                     for (int i = 0; i < p_instance->materials.size(); i++) {
 
-                        RID mat = p_instance->materials[i].is_valid() ? p_instance->materials[i] : VSG::storage->mesh_surface_get_material(mesh, i);
+                        RenderingEntity mat = p_instance->materials[i]!=entt::null ? p_instance->materials[i] : VSG::storage->mesh_surface_get_material(mesh, i);
 
-                        if (!mat.is_valid()) {
+                        if (mat==entt::null) {
                             cast_shadows = true;
                         } else {
 
@@ -3249,17 +3831,17 @@ void VisualServerScene::_update_instance_material(Instance *p_instance) {
                 }
 
             } else if (p_instance->base_type == RS::INSTANCE_MULTIMESH) {
-                RID mesh = VSG::storage->multimesh_get_mesh(p_instance->base);
-                if (mesh.is_valid()) {
+                RenderingEntity mesh = VSG::storage->multimesh_get_mesh(p_instance->base);
+                if (mesh!=entt::null) {
 
                     bool cast_shadows = false;
 
                     int sc = VSG::storage->mesh_get_surface_count(mesh);
                     for (int i = 0; i < sc; i++) {
 
-                        RID mat = VSG::storage->mesh_surface_get_material(mesh, i);
+                        RenderingEntity mat = VSG::storage->mesh_surface_get_material(mesh, i);
 
-                        if (!mat.is_valid()) {
+                        if (mat==entt::null) {
                             cast_shadows = true;
 
                         } else {
@@ -3279,11 +3861,11 @@ void VisualServerScene::_update_instance_material(Instance *p_instance) {
                 }
             } else if (p_instance->base_type == RS::INSTANCE_IMMEDIATE) {
 
-                RID mat = VSG::storage->immediate_get_material(p_instance->base);
+                RenderingEntity mat = VSG::storage->immediate_get_material(p_instance->base);
 
-                can_cast_shadows = !mat.is_valid() || VSG::storage->material_casts_shadows(mat);
+                can_cast_shadows = mat==entt::null || VSG::storage->material_casts_shadows(mat);
 
-                if (mat.is_valid() && VSG::storage->material_is_animated(mat)) {
+                if (mat!=entt::null && VSG::storage->material_is_animated(mat)) {
                     is_animated = true;
                 }
             } else if (p_instance->base_type == RS::INSTANCE_PARTICLES) {
@@ -3294,17 +3876,17 @@ void VisualServerScene::_update_instance_material(Instance *p_instance) {
 
                 for (int i = 0; i < dp; i++) {
 
-                    RID mesh = VSG::storage->particles_get_draw_pass_mesh(p_instance->base, i);
-                    if (!mesh.is_valid()) {
+                    RenderingEntity mesh = VSG::storage->particles_get_draw_pass_mesh(p_instance->base, i);
+                    if (mesh==entt::null) {
                         continue;
                     }
 
                     int sc = VSG::storage->mesh_get_surface_count(mesh);
                     for (int j = 0; j < sc; j++) {
 
-                        RID mat = VSG::storage->mesh_surface_get_material(mesh, j);
+                        RenderingEntity mat = VSG::storage->mesh_surface_get_material(mesh, j);
 
-                        if (!mat.is_valid()) {
+                        if (mat==entt::null) {
                             cast_shadows = true;
                         } else {
 
@@ -3325,10 +3907,14 @@ void VisualServerScene::_update_instance_material(Instance *p_instance) {
             }
         }
 
+        if (p_instance->material_overlay!=entt::null) {
+            can_cast_shadows = can_cast_shadows || VSG::storage->material_casts_shadows(p_instance->material_overlay);
+            is_animated = is_animated || VSG::storage->material_is_animated(p_instance->material_overlay);
+        }
         if (can_cast_shadows != gcomp.can_cast_shadows) {
             //ability to cast shadows change, let lights now
-            for (Instance * E : geom->lighting) {
-                InstanceLightData *light = static_cast<InstanceLightData *>(E->base_data);
+            for (auto E : geom->lighting) {
+                InstanceLightData *light = getUnchecked<InstanceLightData>(E);
                 light->shadow_dirty = true;
             }
 
@@ -3353,11 +3939,10 @@ void VisualServerScene::update_dirty_instances() {
         VSG::storage->update_dirty_resources();
     }
 
-    //auto view = VSG::ecs->registry.view<InstanceComponent, Dirty>();
-    auto view = VSG::ecs->registry.group<>(entt::get<InstanceComponent, Dirty>);
-    FixedVector<Scenario *,16,true> scenarios_to_update;
+    auto view = VSG::ecs->registry.view<RenderingInstanceComponent, Dirty>();
+    FixedVector<RenderingScenarioComponent *,16,true> scenarios_to_update;
     for (auto entity : view) {
-        Instance *p_instance = view.get<InstanceComponent>(entity).instance;
+        RenderingInstanceComponent *p_instance = &view.get<RenderingInstanceComponent>(entity);
         const Dirty & dt = view.get<Dirty>(entity);
         if (dt.update_aabb) {
             _update_instance_aabb(p_instance);
@@ -3366,8 +3951,9 @@ void VisualServerScene::update_dirty_instances() {
             _update_instance_material(p_instance);
         }
         _update_instance(p_instance);
-        if(p_instance->scenario && !scenarios_to_update.contains(p_instance->scenario)) {
-            scenarios_to_update.emplace_back(p_instance->scenario);
+        auto *scenario = get<RenderingScenarioComponent>(p_instance->scenario);
+        if(scenario && !scenarios_to_update.contains(scenario)) {
+            scenarios_to_update.emplace_back(scenario);
         }
     }
     //remove dirty for everything
@@ -3377,63 +3963,55 @@ void VisualServerScene::update_dirty_instances() {
     }
 }
 
-bool VisualServerScene::free(RID p_rid) {
-
-
-    if (scenario_owner.owns(p_rid)) {
-
-        Scenario *scenario = scenario_owner.get(p_rid);
-
-        while (scenario->instances.first()) {
-            instance_set_scenario(scenario->instances.first()->self()->self, RID());
-        }
-        VSG::scene_render->free(scenario->reflection_probe_shadow_atlas);
-        VSG::scene_render->free(scenario->reflection_atlas);
-        scenario_owner.free(p_rid);
-        memdelete(scenario);
-
-    } else if (instance_owner.owns(p_rid)) {
-        // delete the instance
-
-        update_dirty_instances();
-
-        Instance *instance = instance_owner.get(p_rid);
-
-        instance_set_use_lightmap(p_rid, RID(), RID());
-        instance_set_scenario(p_rid, RID());
-        instance_set_base(p_rid, RID());
-        instance_geometry_set_material_override(p_rid, RID());
-        instance_attach_skeleton(p_rid, RID());
-
-        update_dirty_instances(); //in case something changed this
-
-        instance_owner.free(p_rid);
-        memdelete(instance);
-    } else {
-        return false;
-    }
-
-    if (VSG::ecs->registry.valid(p_rid.eid)) {
-        VSG::ecs->registry.destroy(p_rid.eid);
-    }
-    return true;
-}
 
 VisualServerScene *VisualServerScene::singleton = nullptr;
 
 VisualServerScene::VisualServerScene() {
 
-    probe_bake_sem = memnew(Semaphore);
     probe_bake_thread.start(_gi_probe_bake_threads, this);
-    probe_bake_thread_exit = false;
-
-    render_pass = 1;
     singleton = this;
+    GLOBAL_DEF("rendering/quality/spatial_partitioning/bvh_collision_margin", 0.1);
+    ProjectSettings::get_singleton()->set_custom_property_info(
+            "rendering/quality/spatial_partitioning/bvh_collision_margin",
+            PropertyInfo(VariantType::FLOAT, "rendering/quality/spatial_partitioning/bvh_collision_margin",
+                    PropertyHint::Range, "0.0,2.0,0.01"));
 }
 
 VisualServerScene::~VisualServerScene() {
-    probe_bake_thread_exit = true;
-    probe_bake_sem->post();
+    probe_bake_thread_exit.set();
+    probe_bake_sem.post();
     probe_bake_thread.wait_to_finish();
-    memdelete(probe_bake_sem);
 }
+
+void RenderingScenarioComponent::unregister_scenario() {
+    for(RenderingEntity inst : instances) {
+        ::instance_set_scenario(inst, entt::null);
+    }
+    instances.clear();
+    if(reflection_probe_shadow_atlas!=entt::null) {
+        VSG::storage->free(reflection_probe_shadow_atlas);
+        reflection_probe_shadow_atlas = entt::null;
+    }
+
+    if(reflection_atlas!=entt::null) {
+        VSG::storage->free(reflection_atlas);
+        reflection_atlas=entt::null;
+    }
+}
+bool SpatialPartitioningScene_BVH::UserCullTestFunction::user_cull_check(const RenderingEntity p_a, const RenderingEntity p_b) {
+    assert(p_a!=entt::null);
+    assert(p_b!=entt::null);
+    RenderingInstanceComponent *A =  get<RenderingInstanceComponent>(p_a);
+    RenderingInstanceComponent *B =  get<RenderingInstanceComponent>(p_b);
+    uint32_t a_mask = A->bvh_pairable_mask;
+    uint32_t a_type = A->bvh_pairable_type;
+    uint32_t b_mask = B->bvh_pairable_mask;
+    uint32_t b_type = B->bvh_pairable_type;
+
+    if (!_cull_pairing_mask_test_hit(a_mask, a_type, b_mask, b_type)) {
+        return false;
+    }
+
+    return true;
+}
+

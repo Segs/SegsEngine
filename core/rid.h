@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  rid.h                                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,10 +34,11 @@
 #include "core/safe_refcount.h"
 #include "core/hash_set.h"
 #include "core/error_macros.h"
-#include "entt/fwd.hpp"
+#include "core/engine_entities.h"
 #include "entt/entity/entity.hpp"
 
 class RID_OwnerBase;
+#define RID_PRIME(a) a
 
 class GODOT_EXPORT RID_Data {
 
@@ -51,7 +52,13 @@ class GODOT_EXPORT RID_Data {
 public:
     _FORCE_INLINE_ uint32_t get_id() const { return _id; }
 
+    RID_Data() {}
     virtual ~RID_Data() = default;
+    RID_Data(RID_Data &&) = default;
+    RID_Data & operator=(RID_Data &&) = default;
+    // non-copyable
+    RID_Data(const RID_Data &) = delete;
+    RID_Data &operator=(const RID_Data &) = delete;
 };
 
 class GODOT_EXPORT RID {
@@ -60,43 +67,30 @@ class GODOT_EXPORT RID {
     mutable RID_Data *_data = nullptr;
 
 public:
-    entt::entity eid { entt::null };
+    //RenderingEntity eid { entt::null };
 
     RID_Data *get_data() const { return _data; }
 
     constexpr bool operator==(RID p_rid) const {
-
         return _data == p_rid._data;
     }
-    bool operator<(RID p_rid) const {
-
-        return _data < p_rid._data;
-    }
-    bool operator<=(RID p_rid) const {
-
-        return _data <= p_rid._data;
-    }
-    bool operator>(RID p_rid) const {
-
-        return _data > p_rid._data;
-    }
-    _FORCE_INLINE_ bool operator!=(RID p_rid) const {
-
+    bool operator!=(RID p_rid) const {
         return _data != p_rid._data;
     }
-    _FORCE_INLINE_ bool is_valid() const { return _data != nullptr; }
-
-    _FORCE_INLINE_ uint32_t get_id() const { return _data ? _data->get_id() : 0; }
-
+    bool operator<(RID p_rid) const {
+        return _data < p_rid._data;
+    }
+    bool is_valid() const { return _data != nullptr; }
+    uint32_t get_id() const { return _data ? _data->get_id() : 0; }
 };
+
 
 namespace eastl {
 template<>
 struct hash<RID> {
     size_t operator()(const RID &np) const {
-        size_t val1 = eastl::hash<ENTT_ID_TYPE>()(to_integral(np.eid));
-        size_t val2 = intptr_t(np.get_data())/next_power_of_2(sizeof(RID_Data));
-        return val1 ^ (val2 <<16);
+        eastl::hash<size_t> hs;
+        return hs(intptr_t(np.get_data())/next_power_of_2(sizeof(RID_Data)));
     }
 
 };
@@ -132,7 +126,7 @@ protected:
 #endif
 
 public:
-    virtual void get_owned_list(List<RID> *p_owned);
+    void get_owned_list(Vector<RID> *p_owned);
     static void init_rid();
     virtual ~RID_OwnerBase() = default;
 

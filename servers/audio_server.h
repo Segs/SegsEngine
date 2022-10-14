@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  audio_server.h                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -34,14 +34,15 @@
 #include "core/math/audio_frame.h"
 #include "core/object.h"
 #include "core/os/os.h"
+#include "core/os/mutex.h"
 #include "core/pool_vector.h"
 #include "core/set.h"
-#include "core/variant.h"
 #include "servers/audio/audio_effect.h"
 
 class AudioDriverDummy;
 class AudioStream;
 class AudioStreamSample;
+class Variant;
 
 class AudioDriver {
 
@@ -197,7 +198,7 @@ private:
     size_t audio_data_total_mem;
     size_t audio_data_max_mem;
 
-    Mutex *audio_data_lock;
+    Mutex audio_data_lock;
 
     void init_channels_and_buffers();
 
@@ -337,7 +338,7 @@ public:
 };
 
 
-class AudioBusLayout : public Resource {
+class GODOT_EXPORT AudioBusLayout : public Resource {
 
     GDCLASS(AudioBusLayout,Resource)
 

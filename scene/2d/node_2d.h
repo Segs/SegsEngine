@@ -39,12 +39,12 @@ class GODOT_EXPORT Node2D : public CanvasItem {
     Transform2D _mat;
 
     Point2 pos;
-    Size2 _scale;
-    float angle;
-    float skew;
-    int z_index;
-    bool z_relative;
-    bool _xform_dirty;
+    Size2 _scale = {1,1};
+    float angle = 0;
+    float skew = 0;
+    int z_index=0;
+    bool z_relative=false;
+    bool _xform_dirty=false;
 
     void _update_transform();
 
@@ -120,6 +120,9 @@ public:
 
     Transform2D get_transform() const override;
 
+#ifdef TOOLS_ENABLED
+    StringName get_property_store_alias(const StringName &p_property) const override;
+#endif
     Node2D();
 };
 

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  dictionary.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -30,20 +30,20 @@
 
 #include "dictionary.h"
 
-#include "core/safe_refcount.h"
-#include "core/hashfuncs.h"
-#include "core/variant.h"
 #include "core/hash_map.h"
+#include "core/hashfuncs.h"
+#include "core/safe_refcount.h"
+#include "core/variant.h"
 #include <cassert>
 
 struct DictionaryPrivate {
 
     SafeRefCount refcount;
-    HashMap<Variant, Variant, Hasher<Variant>, VariantComparator> variant_map;
+    HashMap<StringName, Variant, Hasher<Variant>, VariantComparator> variant_map;
 };
 
-Vector<Variant> Dictionary::get_key_list() const {
-    Vector<Variant> res;
+Vector<StringName> Dictionary::get_key_list() const {
+    Vector<StringName> res;
     if (_p->variant_map.empty()) {
         return {};
     }
@@ -54,10 +54,10 @@ Vector<Variant> Dictionary::get_key_list() const {
     return res;
 }
 
-Variant Dictionary::get_key_at_index(int p_index) const {
+StringName Dictionary::get_key_at_index(int p_index) const {
 
     if(p_index<0 || p_index > _p->variant_map.size()){
-        return Variant();
+        return StringName();
     }
     auto iter = _p->variant_map.begin();
     eastl::advance(iter,p_index);
@@ -74,25 +74,25 @@ Variant Dictionary::get_value_at_index(int p_index) const {
     return iter->second;
 }
 
-Variant &Dictionary::operator[](const Variant &p_key) {
+Variant &Dictionary::operator[](const StringName &p_key) {
 
     return _p->variant_map[p_key];
 }
 
-const Variant &Dictionary::operator[](const Variant &p_key) const {
+const Variant &Dictionary::operator[](const StringName &p_key) const {
 
     return _p->variant_map[p_key];
 }
-const Variant *Dictionary::getptr(const Variant &p_key) const {
-
+const Variant *Dictionary::getptr(const StringName &p_key) const {
     auto iter = _p->variant_map.find(p_key);
 
-    if (_p->variant_map.end() == iter)
+    if (_p->variant_map.end() == iter) {
         return nullptr;
+    }
     return &iter->second;
 }
 
-Variant *Dictionary::getptr(const Variant &p_key) {
+Variant *Dictionary::getptr(const StringName &p_key) {
 
     auto E = _p->variant_map.find(p_key);
 
@@ -102,7 +102,7 @@ Variant *Dictionary::getptr(const Variant &p_key) {
     return &E->second;
 }
 
-Variant Dictionary::get_valid(const Variant &p_key) const {
+Variant Dictionary::get_valid(const StringName &p_key) const {
 
     auto E = _p->variant_map.find(p_key);
 
@@ -112,7 +112,7 @@ Variant Dictionary::get_valid(const Variant &p_key) const {
     return E->second;
 }
 
-Variant Dictionary::get(const Variant &p_key, const Variant &p_default) const {
+Variant Dictionary::get(const StringName &p_key, const Variant &p_default) const {
     const Variant *result = getptr(p_key);
     if (!result) {
         return p_default;
@@ -130,23 +130,48 @@ bool Dictionary::empty() const {
     return _p->variant_map.empty();
 }
 
-bool Dictionary::has(const Variant &p_key) const {
+bool Dictionary::has(const StringName &p_key) const {
 
     return _p->variant_map.contains(p_key);
 }
 
 bool Dictionary::has_all(const Array &p_keys) const {
     for (int i = 0; i < p_keys.size(); i++) {
-        if (!has(p_keys[i])) {
+        if (!has(p_keys[i].as<StringName>())) {
             return false;
         }
     }
     return true;
 }
 
-bool Dictionary::erase(const Variant &p_key) {
+bool Dictionary::erase(const StringName &p_key) {
 
     return _p->variant_map.erase(p_key);
+}
+
+bool Dictionary::deep_equal(const Dictionary &p_dictionary, int p_recursion_count) const {
+    // Cheap checks
+    ERR_FAIL_COND_V_MSG(p_recursion_count > MAX_RECURSION, 0, "Max recursion reached");
+    if (_p == p_dictionary._p) {
+        return true;
+    }
+    if (_p->variant_map.size() != p_dictionary._p->variant_map.size()) {
+        return false;
+    }
+
+    // Heavy O(n) check
+    auto this_E = _p->variant_map.begin();
+    auto other_E = p_dictionary._p->variant_map.begin();
+    p_recursion_count++;
+    while (this_E != _p->variant_map.end() && other_E != p_dictionary._p->variant_map.end()) {
+        if (this_E->first!=other_E->first || !this_E->second.deep_equal(other_E->second, p_recursion_count)) {
+            return false;
+        }
+
+        ++this_E;
+        ++other_E;
+    }
+    return true;
 }
 
 bool Dictionary::operator==(const Dictionary &p_dictionary) const {
@@ -162,16 +187,18 @@ bool Dictionary::operator!=(const Dictionary &p_dictionary) const {
 void Dictionary::_ref(const Dictionary &p_from) const {
 
     //make a copy first (thread safe)
-    if (!p_from._p->refcount.ref())
+    if (!p_from._p->refcount.ref()) {
         return; // couldn't copy
+    }
 
     //if this is the same, unreference the other one
     if (p_from._p == _p) {
         _p->refcount.unref();
         return;
     }
-    if (_p)
+    if (_p) {
         _unref();
+    }
     _p = p_from._p;
 }
 
@@ -203,8 +230,9 @@ uint32_t Dictionary::hash() const {
 Array Dictionary::keys() const {
 
     Array varr;
-    if (_p->variant_map.empty())
+    if (_p->variant_map.empty()) {
         return varr;
+    }
 
     varr.reserve(size());
     int i = 0;
@@ -219,8 +247,9 @@ Array Dictionary::keys() const {
 Array Dictionary::values() const {
 
     Array varr;
-    if (_p->variant_map.empty())
+    if (_p->variant_map.empty()) {
         return varr;
+    }
 
     varr.reserve(size());
     int i = 0;
@@ -232,20 +261,23 @@ Array Dictionary::values() const {
     return varr;
 }
 
-const Variant *Dictionary::next(const Variant *p_key) const {
+const StringName *Dictionary::next(const StringName *p_key) const {
 
     if (p_key == nullptr) {
         // caller wants to get the first element
-        if (!_p->variant_map.empty())
+        if (!_p->variant_map.empty()) {
             return &_p->variant_map.begin()->first;
+        }
         return nullptr;
     }
     auto E = _p->variant_map.find(*p_key);
-    if(E == _p->variant_map.end())
+    if (E == _p->variant_map.end()) {
         return nullptr;
+    }
     ++E;
-    if (E == _p->variant_map.end())
+    if (E == _p->variant_map.end()) {
         return nullptr;
+    }
     return &E->first;
 }
 void *Dictionary::id() const {
@@ -262,13 +294,6 @@ Dictionary Dictionary::duplicate(bool p_deep) const {
     return n;
 }
 
-Dictionary &Dictionary::operator=(const Dictionary &p_dictionary) {
-    if(this==&p_dictionary)
-        return *this;
-    _ref(p_dictionary);
-    return *this;
-}
-
 Dictionary::Dictionary(const Dictionary &p_from) {
     _p = nullptr;
     _ref(p_from);
@@ -280,6 +305,7 @@ Dictionary::Dictionary() {
     _p->refcount.init();
 }
 Dictionary::~Dictionary() {
-    if(_p)
+    if (_p) {
         _unref();
+    }
 }

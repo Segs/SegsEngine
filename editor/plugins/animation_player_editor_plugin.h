@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  animation_player_editor_plugin.h                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -28,19 +28,19 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ANIMATION_PLAYER_EDITOR_PLUGIN_H
-#define ANIMATION_PLAYER_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
-#include "scene/animation/animation_player.h"
 #include "scene/gui/dialogs.h"
 #include "scene/gui/slider.h"
 #include "scene/gui/spin_box.h"
 #include "scene/gui/texture_button.h"
 
+class AnimationPlayer;
 class AnimationTrackEditor;
 class AnimationPlayerEditorPlugin;
+class Animation;
 
 class GODOT_EXPORT AnimationPlayerEditor : public VBoxContainer {
 
@@ -61,6 +61,7 @@ class GODOT_EXPORT AnimationPlayerEditor : public VBoxContainer {
         TOOL_REMOVE_ANIM,
         TOOL_COPY_ANIM,
         TOOL_PASTE_ANIM,
+        TOOL_PASTE_ANIM_REF,
         TOOL_EDIT_RESOURCE
     };
 
@@ -106,6 +107,8 @@ class GODOT_EXPORT AnimationPlayerEditor : public VBoxContainer {
     Label *name_title;
     UndoRedo *undo_redo;
     Ref<Texture> autoplay_icon;
+    Ref<Texture> reset_icon;
+    Ref<Texture> autoplay_reset_icon;
     bool last_active;
     float timeline_position;
 
@@ -123,7 +126,7 @@ class GODOT_EXPORT AnimationPlayerEditor : public VBoxContainer {
 
     ConfirmationDialog *name_dialog;
     ConfirmationDialog *error_dialog;
-    bool renaming;
+    int name_dialog_op;
 
     bool updating;
     bool updating_blends;
@@ -150,11 +153,11 @@ class GODOT_EXPORT AnimationPlayerEditor : public VBoxContainer {
         int64_t last_frame;
         int can_overlay;
         Size2 capture_size;
-        Vector<RID> captures;
+        Vector<RenderingEntity> captures;
         Vector<bool> captures_valid;
         struct {
-            RID canvas;
-            RID canvas_item;
+            RenderingEntity canvas=entt::null;
+            RenderingEntity canvas_item=entt::null;
             Ref<ShaderMaterial> material;
             Ref<Shader> shader;
         } capture;
@@ -183,16 +186,17 @@ class GODOT_EXPORT AnimationPlayerEditor : public VBoxContainer {
     void _animation_blend();
     void _animation_edit();
     void _animation_duplicate();
+    Ref<Animation> _animation_clone(const Ref<Animation> p_anim);
     void _animation_resource_edit();
     void _scale_changed(const String &p_scale);
     void _dialog_action(StringView p_file);
-    void _seek_frame_changed(const UIString &p_frame);
     void _seek_value_changed(float p_value, bool p_set = false);
     void _blend_editor_next_changed(const int p_idx);
 
     void _list_changed();
     void _update_animation();
     void _update_player();
+    void _update_animation_list_icons();
     void _blend_edited();
 
 
@@ -216,7 +220,6 @@ class GODOT_EXPORT AnimationPlayerEditor : public VBoxContainer {
 
     void _pin_pressed();
 
-    AnimationPlayerEditor();
     ~AnimationPlayerEditor() override;
 
 protected:
@@ -227,12 +230,14 @@ protected:
     void _prepare_onion_layers_1_deferred();
 
 public:
-    AnimationPlayer *get_player() const;
+    AnimationPlayer *get_player() const { return player; }
     static AnimationPlayerEditor *singleton;
 
-    bool is_pinned() const { return pin->is_pressed(); }
-    void unpin() { pin->set_pressed(false); }
+    bool is_pinned() const;
+    void unpin();
+
     AnimationTrackEditor *get_track_editor() { return track_editor; }
+
     Dictionary get_state() const;
     void set_state(const Dictionary &p_state);
 
@@ -240,7 +245,7 @@ public:
 
     void set_undo_redo(UndoRedo *p_undo_redo) { undo_redo = p_undo_redo; }
     void edit(AnimationPlayer *p_player);
-    void forward_canvas_force_draw_over_viewport(Control *p_overlay);
+    void forward_force_draw_over_viewport(Control *p_overlay);
 
     AnimationPlayerEditor(EditorNode *p_editor, AnimationPlayerEditorPlugin *p_plugin);
 };
@@ -265,10 +270,9 @@ public:
     bool handles(Object *p_object) const override;
     void make_visible(bool p_visible) override;
 
-    void forward_canvas_force_draw_over_viewport(Control *p_overlay) override { anim_editor->forward_canvas_force_draw_over_viewport(p_overlay); }
+    void forward_canvas_force_draw_over_viewport(Control *p_overlay) override { anim_editor->forward_force_draw_over_viewport(p_overlay); }
+    void forward_spatial_force_draw_over_viewport(Control *p_overlay) override { anim_editor->forward_force_draw_over_viewport(p_overlay); }
 
     AnimationPlayerEditorPlugin(EditorNode *p_node);
     ~AnimationPlayerEditorPlugin() override;
 };
-
-#endif // ANIMATION_PLAYER_EDITOR_PLUGIN_H

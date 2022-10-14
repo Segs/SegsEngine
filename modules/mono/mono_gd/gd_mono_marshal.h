@@ -228,12 +228,16 @@ _FORCE_INLINE_ MonoString* mono_string_from_godot(IP_Address p_string) {
 
 // Variant
 
+GODOT_EXPORT size_t variant_get_managed_unboxed_size(const ManagedType& p_type);
+GODOT_EXPORT void *variant_to_managed_unboxed(const Variant &p_var, const ManagedType &p_type, void *r_buffer, unsigned int &r_offset);
 GODOT_EXPORT MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_type);
-GODOT_EXPORT MonoObject *variant_to_mono_object(const Variant *p_var);
 
-_FORCE_INLINE_ MonoObject *variant_to_mono_object(const Variant &p_var) {
-    return variant_to_mono_object(&p_var);
-}
+GODOT_EXPORT MonoArray *variant_to_mono_array(const Variant &p_var, GDMonoClass *p_type_class);
+GODOT_EXPORT MonoObject *variant_to_mono_object_of_class(const Variant &p_var, GDMonoClass *p_type_class);
+GODOT_EXPORT MonoObject *variant_to_mono_object_of_genericinst(const Variant &p_var, GDMonoClass *p_type_class);
+GODOT_EXPORT MonoString *variant_to_mono_string(const Variant &p_var);
+
+GODOT_EXPORT MonoObject *variant_to_mono_object(const Variant &p_var);
 
 _FORCE_INLINE_ MonoObject *variant_to_mono_object(const Variant &p_var, const ManagedType &p_type) {
     return variant_to_mono_object(&p_var, p_type);

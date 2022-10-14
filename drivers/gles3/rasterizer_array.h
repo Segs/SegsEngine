@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  rasterizer_array.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -55,6 +55,8 @@ public:
         _max_size = 0;
     }
     ~RasterizerArray() { free(); }
+    RasterizerArray(const RasterizerArray &) = delete;
+    RasterizerArray &operator=(const RasterizerArray &) = delete;
 
     T &operator[](unsigned int ui) { return _list[ui]; }
     const T &operator[](unsigned int ui) const { return _list[ui]; }
@@ -110,9 +112,9 @@ public:
         return 0;
     }
 
-    int size() const { return _size; }
-    int max_size() const { return _max_size; }
-    const T *get_data() const { return _list; }
+    [[nodiscard]] int size() const { return _size; }
+    [[nodiscard]] int max_size() const { return _max_size; }
+    [[nodiscard]] const T *get_data() const { return _list; }
 
     bool copy_from(const RasterizerArray<T> &o) {
         // no resizing done here, it should be done manually
@@ -166,18 +168,20 @@ public:
         free();
     }
     ~RasterizerUnitArray() { free(); }
+    RasterizerUnitArray(const RasterizerUnitArray &) = delete;
+    RasterizerUnitArray &operator=(const RasterizerUnitArray &) = delete;
 
     uint8_t *get_unit(unsigned int ui) { return &_list[ui * _unit_size_bytes]; }
-    const uint8_t *get_unit(unsigned int ui) const { return &_list[ui * _unit_size_bytes]; }
+    [[nodiscard]] const uint8_t *get_unit(unsigned int ui) const { return &_list[ui * _unit_size_bytes]; }
 
-    int size() const { return _size; }
-    int max_size() const { return _max_size; }
-    int get_unit_size_bytes() const { return _unit_size_bytes; }
+    [[nodiscard]] int size() const { return _size; }
+    [[nodiscard]] int max_size() const { return _max_size; }
+    [[nodiscard]] int get_unit_size_bytes() const { return _unit_size_bytes; }
 
     void free() {
         if (_list) {
             memdelete_arr(_list);
-            _list = 0;
+            _list = nullptr;
         }
         _size = 0;
         _max_size = 0;

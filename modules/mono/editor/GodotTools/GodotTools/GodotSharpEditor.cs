@@ -21,15 +21,15 @@ namespace GodotTools
 {
     public class GodotSharpEditor : EditorPlugin, ISerializationListener
     {
-        private EditorSettings editorSettings;
+        private EditorSettings _editorSettings;
 
-        private PopupMenu menuPopup;
+        private PopupMenu _menuPopup;
 
         private AcceptDialog errorDialog;
         private AcceptDialog aboutDialog;
         private CheckBox aboutDialogCheckBox;
 
-        private ToolButton bottomPanelBtn;
+        private ToolButton _bottomPanelBtn;
         private ToolButton toolBarBuildButton;
 
         public GodotIdeManager GodotIdeManager { get; private set; }
@@ -38,7 +38,7 @@ namespace GodotTools
 
         public MSBuildPanel MSBuildPanel { get; private set; }
 
-        public bool SkipBuildBeforePlaying { get; set; }
+        public bool SkipBuildBeforePlaying { get; set; } = false;
 
         public static string ProjectAssemblyName
         {
@@ -61,7 +61,7 @@ namespace GodotTools
                 string resourceDir = ProjectSettings.GlobalizePath("res://");
 
                 string path = resourceDir;
-                string name = ProjectAssemblyName;
+                string name = GodotSharpDirs.ProjectAssemblyName;
 
                 string guid = CsProjOperations.GenerateGameProject(path, name);
 
@@ -125,22 +125,22 @@ namespace GodotTools
 
         private void _RemoveCreateSlnMenuOption()
         {
-            menuPopup.RemoveItem(menuPopup.GetItemIndex((int)MenuOptions.CreateSln));
-            bottomPanelBtn.Show();
+            _menuPopup.RemoveItem(_menuPopup.GetItemIndex((int)MenuOptions.CreateSln));
+            _bottomPanelBtn.Show();
             toolBarBuildButton.Show();
         }
 
         private void _ShowAboutDialog()
         {
-            bool showOnStart = (bool)editorSettings.GetSetting("mono/editor/show_info_on_start");
+            bool showOnStart = (bool)_editorSettings.GetSetting("mono/editor/show_info_on_start");
             aboutDialogCheckBox.Pressed = showOnStart;
             aboutDialog.PopupCenteredMinsize();
         }
         private void _ToggleAboutDialogOnStart(bool enabled)
         {
-            bool showOnStart = (bool)editorSettings.GetSetting("mono/editor/show_info_on_start");
+            bool showOnStart = (bool)_editorSettings.GetSetting("mono/editor/show_info_on_start");
             if (showOnStart != enabled)
-                editorSettings.SetSetting("mono/editor/show_info_on_start", enabled);
+                _editorSettings.SetSetting("mono/editor/show_info_on_start", enabled);
         }
 
         private void _MenuOptionPressed(int id)
@@ -179,28 +179,36 @@ namespace GodotTools
 
         private void _FileSystemDockFileRemoved(string file)
         {
-            if (Path.GetExtension(file) == Internal.CSharpLanguageExtension)
+            if (Path.GetExtension(file) == Internal.CSharpLanguageExtension) 
+            {
                 ProjectUtils.RemoveItemFromProjectChecked(GodotSharpDirs.ProjectCsProjPath, "Compile",
                     ProjectSettings.GlobalizePath(file));
+            }
         }
 
         private void _FileSystemDockFolderMoved(string oldFolder, string newFolder)
         {
-            ProjectUtils.RenameItemsToNewFolderInProjectChecked(GodotSharpDirs.ProjectCsProjPath, "Compile",
-                ProjectSettings.GlobalizePath(oldFolder), ProjectSettings.GlobalizePath(newFolder));
+            if (File.Exists(GodotSharpDirs.ProjectCsProjPath))
+            {
+                ProjectUtils.RenameItemsToNewFolderInProjectChecked(GodotSharpDirs.ProjectCsProjPath, "Compile",
+                    ProjectSettings.GlobalizePath(oldFolder), ProjectSettings.GlobalizePath(newFolder));
+            }
         }
 
         private void _FileSystemDockFolderRemoved(string oldFolder)
         {
-            ProjectUtils.RemoveItemsInFolderFromProjectChecked(GodotSharpDirs.ProjectCsProjPath, "Compile",
-                ProjectSettings.GlobalizePath(oldFolder));
+            if (File.Exists(GodotSharpDirs.ProjectCsProjPath))
+            {
+                ProjectUtils.RemoveItemsInFolderFromProjectChecked(GodotSharpDirs.ProjectCsProjPath, "Compile",
+                    ProjectSettings.GlobalizePath(oldFolder));
+            }
         }
 
         public override void _Ready()
             {
             base._Ready();
             MSBuildPanel.BuildOutputView.BuildStateChanged +=BuildStateChanged;
-            bool showInfoDialog = (bool)editorSettings.GetSetting("mono/editor/show_info_on_start");
+            bool showInfoDialog = (bool)_editorSettings.GetSetting("mono/editor/show_info_on_start");
             if (showInfoDialog)
             {
                 aboutDialog.PopupMode.Exclusive = true;
@@ -238,7 +246,7 @@ namespace GodotTools
         [UsedImplicitly]
         public Error OpenInExternalEditor(Script script, int line, int col)
         {
-            var editorId = (ExternalEditorId)editorSettings.GetSetting("mono/editor/external_editor");
+            var editorId = (ExternalEditorId)_editorSettings.GetSetting("mono/editor/external_editor");
 
             switch (editorId)
             {
@@ -390,7 +398,7 @@ namespace GodotTools
         [UsedImplicitly]
         public bool OverridesExternalEditor()
         {
-            return (ExternalEditorId)editorSettings.GetSetting("mono/editor/external_editor") != ExternalEditorId.None;
+            return (ExternalEditorId)_editorSettings.GetSetting("mono/editor/external_editor") != ExternalEditorId.None;
         }
 
         public override bool Build()
@@ -398,41 +406,11 @@ namespace GodotTools
             return BuildManager.EditorBuildCallback();
         }
 
-        private void ApplyNecessaryChangesToSolution()
-        {
-            try
-            {
-                // Migrate solution from old configuration names to: Debug, ExportDebug and ExportRelease
-                DotNetSolution.MigrateFromOldConfigNames(GodotSharpDirs.ProjectSlnPath);
-
-                var msbuildProject = ProjectUtils.Open(GodotSharpDirs.ProjectCsProjPath)
-                                     ?? throw new Exception("Cannot open C# project");
-
-                // NOTE: The order in which changes are made to the project is important
-
-                // NOTE: SEGS: our projects are by-default new-style, no need for migration support
-                // ProjectUtils.MigrateToProjectSdksStyle(msbuildProject, ProjectAssemblyName);
-
-                ProjectUtils.EnsureGodotSdkIsUpToDate(msbuildProject);
-
-                if (msbuildProject.HasUnsavedChanges)
-                {
-                    // Save a copy of the project before replacing it
-                    FileUtils.SaveBackupCopy(GodotSharpDirs.ProjectCsProjPath);
-
-                    msbuildProject.Save();
-                }
-            }
-            catch (Exception e)
-            {
-                GD.PushError(e.ToString());
-            }
-        }
 
         private void BuildStateChanged()
         {
-            if (bottomPanelBtn != null)
-                bottomPanelBtn.Icon = MSBuildPanel.BuildOutputView.BuildStateIcon;
+            if (_bottomPanelBtn != null)
+                _bottomPanelBtn.Icon = MSBuildPanel.BuildOutputView.BuildStateIcon;
         }
 
         public override void EnablePlugin()
@@ -446,25 +424,25 @@ namespace GodotTools
             var editorInterface = GetEditorInterface();
             var editorBaseControl = editorInterface.GetBaseControl();
 
-            editorSettings = editorInterface.GetEditorSettings();
+            _editorSettings = editorInterface.GetEditorSettings();
 
             errorDialog = new AcceptDialog();
             editorBaseControl.AddChild(errorDialog);
 
             MSBuildPanel = new MSBuildPanel();
-            bottomPanelBtn = AddControlToBottomPanel(MSBuildPanel, "MSBuild".TTR());
+            _bottomPanelBtn = AddControlToBottomPanel(MSBuildPanel, "MSBuild".TTR());
 
             AddChild(new HotReloadAssemblyWatcher {Name = "HotReloadAssemblyWatcher"});
 
-            menuPopup = new PopupMenu();
-            menuPopup.Hide();
-            menuPopup.SetAsTopLevel(true);
+            _menuPopup = new PopupMenu();
+            _menuPopup.Hide();
+            _menuPopup.SetAsTopLevel(true);
 
-            AddToolSubmenuItem("C#", menuPopup);
+            AddToolSubmenuItem("C#", _menuPopup);
 
             // TODO: Remove or edit this info dialog once Mono support is no longer in alpha
             {
-                menuPopup.AddItem("About C# support".TTR(), (int)MenuOptions.AboutCSharp);
+                _menuPopup.AddItem("About C# support".TTR(), (int)MenuOptions.AboutCSharp);
                 aboutDialog = new AcceptDialog();
                 editorBaseControl.AddChild(aboutDialog);
                 aboutDialog.WindowTitle = "Important: C# support is not feature-complete";
@@ -515,18 +493,14 @@ namespace GodotTools
             };
             toolBarBuildButton.PressedSignal += _BuildSolutionPressed;
             AddControlToContainer(CustomControlContainer.Toolbar, toolBarBuildButton);
-            if (File.Exists(GodotSharpDirs.ProjectSlnPath) && File.Exists(GodotSharpDirs.ProjectCsProjPath))
+            if (!File.Exists(GodotSharpDirs.ProjectSlnPath) || !File.Exists(GodotSharpDirs.ProjectCsProjPath))
             {
-                ApplyNecessaryChangesToSolution();
-            }
-            else
-            {
-                bottomPanelBtn.Hide();
+                _bottomPanelBtn.Hide();
                 toolBarBuildButton.Hide();
-                menuPopup.AddItem("Create C# solution".TTR(), (int)MenuOptions.CreateSln);
+                _menuPopup.AddItem("Create C# solution".TTR(), (int)MenuOptions.CreateSln);
             }
 
-            menuPopup.IdPressed += _MenuOptionPressed;
+            _menuPopup.IdPressed += _MenuOptionPressed;
 
             // External editor settings
             EditorDef("mono/editor/external_editor", ExternalEditorId.None);
@@ -554,7 +528,7 @@ namespace GodotTools
                                    $",JetBrains Rider:{(int)ExternalEditorId.Rider}";
             }
 
-            editorSettings.AddPropertyInfo(new Godot.Collections.Dictionary
+            _editorSettings.AddPropertyInfo(new Godot.Collections.Dictionary
             {
                 ["type"] = VariantType.Int,
                 ["name"] = "mono/editor/external_editor",

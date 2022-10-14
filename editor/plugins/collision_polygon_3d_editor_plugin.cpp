@@ -43,8 +43,10 @@
 #include "scene/3d/collision_polygon_3d.h"
 #include "scene/3d/immediate_geometry_3d.h"
 #include "scene/3d/mesh_instance_3d.h"
+#include "scene/gui/separator.h"
 
 #include "node_3d_editor_plugin.h"
+
 
 IMPL_GDCLASS(CollisionPolygon3DEditor)
 IMPL_GDCLASS(CollisionPolygon3DEditorPlugin)
@@ -527,7 +529,7 @@ void CollisionPolygon3DEditor::edit(Node *p_collision_polygon) {
 
 void CollisionPolygon3DEditor::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_polygon_draw"), &CollisionPolygon3DEditor::_polygon_draw);
+    BIND_METHOD(CollisionPolygon3DEditor,_polygon_draw);
 }
 
 CollisionPolygon3DEditor::CollisionPolygon3DEditor(EditorNode *p_editor) {
@@ -539,12 +541,12 @@ CollisionPolygon3DEditor::CollisionPolygon3DEditor(EditorNode *p_editor) {
     add_child(memnew(VSeparator));
     button_create = memnew(ToolButton);
     add_child(button_create);
-    button_create->connect("pressed",callable_mp(this, &ClassName::_menu_option), varray(MODE_CREATE));
+    button_create->connectF("pressed",this,[=]() { _menu_option(MODE_CREATE); });
     button_create->set_toggle_mode(true);
 
     button_edit = memnew(ToolButton);
     add_child(button_edit);
-    button_edit->connect("pressed",callable_mp(this, &ClassName::_menu_option), varray(MODE_EDIT));
+    button_edit->connectF("pressed",this,[=]() { _menu_option(MODE_EDIT); });
     button_edit->set_toggle_mode(true);
 
     mode = MODE_EDIT;

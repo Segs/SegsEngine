@@ -35,6 +35,7 @@
 #include "core/project_settings.h"
 #include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_file_dialog.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "EASTL/sort.h"
@@ -47,16 +48,11 @@ void ResourcePreloaderEditor::_gui_input(const Ref<InputEvent>& p_event) {
 
 void ResourcePreloaderEditor::_notification(int p_what) {
 
-    if (p_what == NOTIFICATION_ENTER_TREE) {
+    switch (p_what) {
+        case NOTIFICATION_ENTER_TREE:
+        case NOTIFICATION_THEME_CHANGED: {
         load->set_button_icon(get_theme_icon("Folder", "EditorIcons"));
-    }
-
-    if (p_what == NOTIFICATION_READY) {
-
-        //NodePath("/root")->connect("node_removed", this,"_node_removed",null_variant_pvec,true);
-    }
-
-    if (p_what == NOTIFICATION_DRAW) {
+        } break;
     }
 }
 
@@ -350,12 +346,12 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
 
 void ResourcePreloaderEditor::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_gui_input"), &ResourcePreloaderEditor::_gui_input);
-    MethodBinder::bind_method(D_METHOD("_update_library"), &ResourcePreloaderEditor::_update_library);
+    BIND_METHOD(ResourcePreloaderEditor,_gui_input);
+    BIND_METHOD(ResourcePreloaderEditor,_update_library);
 
-    MethodBinder::bind_method(D_METHOD("get_drag_data_fw"), &ResourcePreloaderEditor::get_drag_data_fw);
-    MethodBinder::bind_method(D_METHOD("can_drop_data_fw"), &ResourcePreloaderEditor::can_drop_data_fw);
-    MethodBinder::bind_method(D_METHOD("drop_data_fw"), &ResourcePreloaderEditor::drop_data_fw);
+    BIND_METHOD(ResourcePreloaderEditor,get_drag_data_fw);
+    BIND_METHOD(ResourcePreloaderEditor,can_drop_data_fw);
+    BIND_METHOD(ResourcePreloaderEditor,drop_data_fw);
 }
 
 ResourcePreloaderEditor::ResourcePreloaderEditor() {

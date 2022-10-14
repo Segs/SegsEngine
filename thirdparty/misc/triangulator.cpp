@@ -1,4 +1,4 @@
-//Copyright (C) 2011 by Ivan Fratric
+﻿//Copyright (C) 2011 by Ivan Fratric
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files (the "Software"), to deal
@@ -1176,7 +1176,7 @@ int TriangulatorPartition::MonotonePartition(
                 newedge.p1 = v->p;
                 newedge.p2 = v->p;
                 edgeIter = edgeTree.lower_bound(newedge);
-                if(edgeIter == edgeTree.begin()) {
+                if(edgeIter == edgeTree.end() || edgeIter == edgeTree.begin()) {
                     error = true;
                     break;
                 }
@@ -1212,7 +1212,7 @@ int TriangulatorPartition::MonotonePartition(
                 newedge.p1 = v->p;
                 newedge.p2 = v->p;
                 edgeIter = edgeTree.lower_bound(newedge);
-                if(edgeIter == edgeTree.begin()) {
+                if(edgeIter == edgeTree.end() || edgeIter == edgeTree.begin()) {
                     error = true;
                     break;
                 }
@@ -1251,7 +1251,7 @@ int TriangulatorPartition::MonotonePartition(
                     newedge.p1 = v->p;
                     newedge.p2 = v->p;
                     edgeIter = edgeTree.lower_bound(newedge);
-                    if(edgeIter == edgeTree.begin()) {
+                    if(edgeIter == edgeTree.end() || edgeIter == edgeTree.begin()) {
                         error = true;
                         break;
                     }

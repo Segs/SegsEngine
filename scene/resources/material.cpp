@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  material.cpp                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,6 +31,7 @@
 #include "material.h"
 
 #include "core/callable_method_pointer.h"
+#include "core/project_settings.h"
 #include "servers/rendering/shader_language.h"
 #include "servers/rendering_server.h"
 #include "scene/resources/shader.h"
@@ -40,29 +41,29 @@
 #include "core/method_enum_caster.h"
 #include "core/object_tooling.h"
 #include "core/os/mutex.h"
+#include "core/version.h"
+#include "core/string_formatter.h"
 
 IMPL_GDCLASS(Material)
 IMPL_GDCLASS(ShaderMaterial)
 IMPL_GDCLASS(SpatialMaterial)
 RES_BASE_EXTENSION_IMPL(Material,"material")
 
+VARIANT_ENUM_CAST(SpatialMaterial::AsyncMode);
 VARIANT_ENUM_CAST(SpatialMaterial::TextureParam);
 VARIANT_ENUM_CAST(SpatialMaterial::DetailUV);
 VARIANT_ENUM_CAST(SpatialMaterial::Feature);
 VARIANT_ENUM_CAST(SpatialMaterial::BlendMode);
+VARIANT_ENUM_CAST(SpatialMaterial::BillboardMode);
 VARIANT_ENUM_CAST(SpatialMaterial::DepthDrawMode);
 VARIANT_ENUM_CAST(SpatialMaterial::CullMode);
 VARIANT_ENUM_CAST(SpatialMaterial::Flags);
 VARIANT_ENUM_CAST(SpatialMaterial::DiffuseMode);
 VARIANT_ENUM_CAST(SpatialMaterial::SpecularMode);
-VARIANT_ENUM_CAST(SpatialMaterial::BillboardMode);
 VARIANT_ENUM_CAST(SpatialMaterial::TextureChannel);
 VARIANT_ENUM_CAST(SpatialMaterial::EmissionOperator);
 VARIANT_ENUM_CAST(SpatialMaterial::DistanceFadeMode);
 
-#ifdef TOOLS_ENABLED
-#include "editor/editor_settings.h"
-#endif
 #include "core/method_bind.h"
 
 #include "scene/scene_string_names.h"
@@ -114,6 +115,72 @@ struct SpatialShaderNames {
     StringName alpha_scissor_threshold;
 
     StringName texture_names[SpatialMaterial::TEXTURE_MAX];
+    SpatialShaderNames() {
+        albedo = "albedo";
+        specular = "specular";
+        roughness = "roughness";
+        metallic = "metallic";
+        emission = "emission";
+        emission_energy = "emission_energy";
+        normal_scale = "normal_scale";
+        rim = "rim";
+        rim_tint = "rim_tint";
+        clearcoat = "clearcoat";
+        clearcoat_gloss = "clearcoat_gloss";
+        anisotropy = "anisotropy_ratio";
+        depth_scale = "depth_scale";
+        subsurface_scattering_strength = "subsurface_scattering_strength";
+        transmission = "transmission";
+        refraction = "refraction";
+        point_size = "point_size";
+        uv1_scale = "uv1_scale";
+        uv1_offset = "uv1_offset";
+        uv2_scale = "uv2_scale";
+        uv2_offset = "uv2_offset";
+        uv1_blend_sharpness = "uv1_blend_sharpness";
+        uv2_blend_sharpness = "uv2_blend_sharpness";
+
+        particles_anim_h_frames = "particles_anim_h_frames";
+        particles_anim_v_frames = "particles_anim_v_frames";
+        particles_anim_loop = "particles_anim_loop";
+        depth_min_layers = "depth_min_layers";
+        depth_max_layers = "depth_max_layers";
+        depth_flip = "depth_flip";
+
+        grow = "grow";
+
+        ao_light_affect = "ao_light_affect";
+
+        proximity_fade_distance = "proximity_fade_distance";
+        distance_fade_min = "distance_fade_min";
+        distance_fade_max = "distance_fade_max";
+
+        metallic_texture_channel = "metallic_texture_channel";
+        roughness_texture_channel = "roughness_texture_channel";
+        ao_texture_channel = "ao_texture_channel";
+        clearcoat_texture_channel = "clearcoat_texture_channel";
+        rim_texture_channel = "rim_texture_channel";
+        depth_texture_channel = "depth_texture_channel";
+        refraction_texture_channel = "refraction_texture_channel";
+        alpha_scissor_threshold = "alpha_scissor_threshold";
+
+        texture_names[SpatialMaterial::TEXTURE_ALBEDO] = "texture_albedo";
+        texture_names[SpatialMaterial::TEXTURE_METALLIC] = "texture_metallic";
+        texture_names[SpatialMaterial::TEXTURE_ROUGHNESS] = "texture_roughness";
+        texture_names[SpatialMaterial::TEXTURE_EMISSION] = "texture_emission";
+        texture_names[SpatialMaterial::TEXTURE_NORMAL] = "texture_normal";
+        texture_names[SpatialMaterial::TEXTURE_RIM] = "texture_rim";
+        texture_names[SpatialMaterial::TEXTURE_CLEARCOAT] = "texture_clearcoat";
+        texture_names[SpatialMaterial::TEXTURE_FLOWMAP] = "texture_flowmap";
+        texture_names[SpatialMaterial::TEXTURE_AMBIENT_OCCLUSION] = "texture_ambient_occlusion";
+        texture_names[SpatialMaterial::TEXTURE_DEPTH] = "texture_depth";
+        texture_names[SpatialMaterial::TEXTURE_SUBSURFACE_SCATTERING] = "texture_subsurface_scattering";
+        texture_names[SpatialMaterial::TEXTURE_TRANSMISSION] = "texture_transmission";
+        texture_names[SpatialMaterial::TEXTURE_REFRACTION] = "texture_refraction";
+        texture_names[SpatialMaterial::TEXTURE_DETAIL_MASK] = "texture_detail_mask";
+        texture_names[SpatialMaterial::TEXTURE_DETAIL_ALBEDO] = "texture_detail_albedo";
+        texture_names[SpatialMaterial::TEXTURE_DETAIL_NORMAL] = "texture_detail_normal";
+    }
 };
 static SpatialShaderNames *shader_names;
 static Vector<SpatialMaterial *> s_dirty_materials;
@@ -131,7 +198,7 @@ void Material::set_next_pass(const Ref<Material> &p_pass) {
         return;
 
     next_pass = p_pass;
-    RID next_pass_rid;
+    RenderingEntity next_pass_rid = entt::null;
     if (next_pass)
         next_pass_rid = next_pass->get_rid();
     RenderingServer::get_singleton()->material_set_next_pass(material, next_pass_rid);
@@ -152,7 +219,7 @@ int Material::get_render_priority() const {
     return render_priority;
 }
 
-RID Material::get_rid() const {
+RenderingEntity Material::get_rid() const {
 
     return material;
 }
@@ -165,11 +232,11 @@ void Material::_validate_property(PropertyInfo &property) const {
 
 void Material::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_next_pass", {"next_pass"}), &Material::set_next_pass);
-    MethodBinder::bind_method(D_METHOD("get_next_pass"), &Material::get_next_pass);
+    BIND_METHOD(Material,set_next_pass);
+    BIND_METHOD(Material,get_next_pass);
 
-    MethodBinder::bind_method(D_METHOD("set_render_priority", {"priority"}), &Material::set_render_priority);
-    MethodBinder::bind_method(D_METHOD("get_render_priority"), &Material::get_render_priority);
+    BIND_METHOD(Material,set_render_priority);
+    BIND_METHOD(Material,get_render_priority);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_priority", PropertyHint::Range, ::to_string(RENDER_PRIORITY_MIN) + "," + ::to_string(RENDER_PRIORITY_MAX) + ",1"), "set_render_priority", "get_render_priority");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "next_pass", PropertyHint::ResourceType, "Material"), "set_next_pass", "get_next_pass");
@@ -279,7 +346,7 @@ void ShaderMaterial::set_shader(const Ref<Shader> &p_shader) {
 
     shader = p_shader;
 
-    RID rid;
+    RenderingEntity rid=entt::null;
     if (shader) {
         rid = shader->get_rid();
         if (Engine::get_singleton()->is_editor_hint()) {
@@ -308,37 +375,16 @@ void ShaderMaterial::_shader_changed() {
 
 void ShaderMaterial::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_shader", {"shader"}), &ShaderMaterial::set_shader);
-    MethodBinder::bind_method(D_METHOD("get_shader"), &ShaderMaterial::get_shader);
-    MethodBinder::bind_method(D_METHOD("set_shader_param", {"param", "value"}), &ShaderMaterial::set_shader_param);
-    MethodBinder::bind_method(D_METHOD("get_shader_param", {"param"}), &ShaderMaterial::get_shader_param);
-    MethodBinder::bind_method(D_METHOD("property_can_revert", {"name"}), &ShaderMaterial::property_can_revert);
-    MethodBinder::bind_method(D_METHOD("property_get_revert", {"name"}), &ShaderMaterial::property_get_revert);
+    BIND_METHOD(ShaderMaterial,set_shader);
+    BIND_METHOD(ShaderMaterial,get_shader);
+    BIND_METHOD(ShaderMaterial,set_shader_param);
+    BIND_METHOD(ShaderMaterial,get_shader_param);
+    BIND_METHOD(ShaderMaterial,property_can_revert);
+    BIND_METHOD(ShaderMaterial,property_get_revert);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shader", PropertyHint::ResourceType, "Shader"), "set_shader", "get_shader");
 }
 
-void ShaderMaterial::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
-
-#ifdef TOOLS_ENABLED
-    const char * quote_style(EDITOR_DEF_T<bool>("text_editor/completion/use_single_quotes", false) ? "'" : "\"");
-#else
-    const char * quote_style = "\"";
-#endif
-
-    StringView f(p_function);
-    if ((f == StringView("get_shader_param") || f == StringView("set_shader_param")) && p_idx == 0) {
-
-        if (shader) {
-            Vector<PropertyInfo> pl;
-            shader->get_param_list(&pl);
-            for (const PropertyInfo &E : pl) {
-                r_options->push_back(quote_style + StringUtils::replace_first(E.name,"shader_param/", "") + quote_style);
-            }
-        }
-    }
-    Resource::get_argument_options(p_function, p_idx, r_options);
-}
 using namespace RenderingServerEnums;
 bool ShaderMaterial::_can_do_next_pass() const {
     return shader && shader->get_mode() == ShaderMode::SPATIAL;
@@ -356,90 +402,22 @@ ShaderMaterial::~ShaderMaterial() = default;
 
 /////////////////////////////////
 
-Mutex *SpatialMaterial::material_mutex = nullptr;
+static Mutex g_material_mutex;
 HashMap<SpatialMaterial::MaterialKey, SpatialMaterial::ShaderData> SpatialMaterial::shader_map;
 
 void SpatialMaterial::init_shaders() {
-
-    material_mutex = memnew(Mutex);
-
     shader_names = memnew(SpatialShaderNames);
-
-    shader_names->albedo = "albedo";
-    shader_names->specular = "specular";
-    shader_names->roughness = "roughness";
-    shader_names->metallic = "metallic";
-    shader_names->emission = "emission";
-    shader_names->emission_energy = "emission_energy";
-    shader_names->normal_scale = "normal_scale";
-    shader_names->rim = "rim";
-    shader_names->rim_tint = "rim_tint";
-    shader_names->clearcoat = "clearcoat";
-    shader_names->clearcoat_gloss = "clearcoat_gloss";
-    shader_names->anisotropy = "anisotropy_ratio";
-    shader_names->depth_scale = "depth_scale";
-    shader_names->subsurface_scattering_strength = "subsurface_scattering_strength";
-    shader_names->transmission = "transmission";
-    shader_names->refraction = "refraction";
-    shader_names->point_size = "point_size";
-    shader_names->uv1_scale = "uv1_scale";
-    shader_names->uv1_offset = "uv1_offset";
-    shader_names->uv2_scale = "uv2_scale";
-    shader_names->uv2_offset = "uv2_offset";
-    shader_names->uv1_blend_sharpness = "uv1_blend_sharpness";
-    shader_names->uv2_blend_sharpness = "uv2_blend_sharpness";
-
-    shader_names->particles_anim_h_frames = "particles_anim_h_frames";
-    shader_names->particles_anim_v_frames = "particles_anim_v_frames";
-    shader_names->particles_anim_loop = "particles_anim_loop";
-    shader_names->depth_min_layers = "depth_min_layers";
-    shader_names->depth_max_layers = "depth_max_layers";
-    shader_names->depth_flip = "depth_flip";
-
-    shader_names->grow = "grow";
-
-    shader_names->ao_light_affect = "ao_light_affect";
-
-    shader_names->proximity_fade_distance = "proximity_fade_distance";
-    shader_names->distance_fade_min = "distance_fade_min";
-    shader_names->distance_fade_max = "distance_fade_max";
-
-    shader_names->metallic_texture_channel = "metallic_texture_channel";
-    shader_names->roughness_texture_channel = "roughness_texture_channel";
-    shader_names->ao_texture_channel = "ao_texture_channel";
-    shader_names->clearcoat_texture_channel = "clearcoat_texture_channel";
-    shader_names->rim_texture_channel = "rim_texture_channel";
-    shader_names->depth_texture_channel = "depth_texture_channel";
-    shader_names->refraction_texture_channel = "refraction_texture_channel";
-    shader_names->alpha_scissor_threshold = "alpha_scissor_threshold";
-
-    shader_names->texture_names[TEXTURE_ALBEDO] = "texture_albedo";
-    shader_names->texture_names[TEXTURE_METALLIC] = "texture_metallic";
-    shader_names->texture_names[TEXTURE_ROUGHNESS] = "texture_roughness";
-    shader_names->texture_names[TEXTURE_EMISSION] = "texture_emission";
-    shader_names->texture_names[TEXTURE_NORMAL] = "texture_normal";
-    shader_names->texture_names[TEXTURE_RIM] = "texture_rim";
-    shader_names->texture_names[TEXTURE_CLEARCOAT] = "texture_clearcoat";
-    shader_names->texture_names[TEXTURE_FLOWMAP] = "texture_flowmap";
-    shader_names->texture_names[TEXTURE_AMBIENT_OCCLUSION] = "texture_ambient_occlusion";
-    shader_names->texture_names[TEXTURE_DEPTH] = "texture_depth";
-    shader_names->texture_names[TEXTURE_SUBSURFACE_SCATTERING] = "texture_subsurface_scattering";
-    shader_names->texture_names[TEXTURE_TRANSMISSION] = "texture_transmission";
-    shader_names->texture_names[TEXTURE_REFRACTION] = "texture_refraction";
-    shader_names->texture_names[TEXTURE_DETAIL_MASK] = "texture_detail_mask";
-    shader_names->texture_names[TEXTURE_DETAIL_ALBEDO] = "texture_detail_albedo";
-    shader_names->texture_names[TEXTURE_DETAIL_NORMAL] = "texture_detail_normal";
 }
 
-Ref<SpatialMaterial> SpatialMaterial::materials_for_2d[SpatialMaterial::MAX_MATERIALS_FOR_2D];
+static HashMap<uint64_t,Ref<SpatialMaterial>> material_cache_for_2d;
 
 void SpatialMaterial::finish_shaders() {
 
-    for (int i = 0; i < MAX_MATERIALS_FOR_2D; i++) {
-        materials_for_2d[i].unref();
+    for (auto & m : material_cache_for_2d) {
+        m.second.unref();
     }
 
-    memdelete(material_mutex);
+    //TODO: material_mutex.unlock() ?
 
     s_dirty_materials.clear();
 
@@ -473,12 +451,23 @@ void SpatialMaterial::_update_shader() {
 
     //must create a shader!
 
-    String code("shader_type spatial;\nrender_mode ");
+    // Add a comment to describe the shader origin (useful when converting to ShaderMaterial).
+    String code = "// NOTE: Shader automatically converted from " VERSION_NAME " " VERSION_FULL_CONFIG "'s SpatialMaterial.\n\n";
+
+    code += "shader_type spatial;\nrender_mode ";
     switch (blend_mode) {
-        case BLEND_MODE_MIX: code += "blend_mix"; break;
-        case BLEND_MODE_ADD: code += "blend_add"; break;
-        case BLEND_MODE_SUB: code += "blend_sub"; break;
-        case BLEND_MODE_MUL: code += "blend_mul"; break;
+        case BLEND_MODE_MIX:
+            code += "blend_mix";
+            break;
+        case BLEND_MODE_ADD:
+            code += "blend_add";
+            break;
+        case BLEND_MODE_SUB:
+            code += "blend_sub";
+            break;
+        case BLEND_MODE_MUL:
+            code += "blend_mul";
+            break;
     }
 
     DepthDrawMode ddm = depth_draw_mode;
@@ -487,30 +476,64 @@ void SpatialMaterial::_update_shader() {
     }
 
     switch (ddm) {
-        case DEPTH_DRAW_OPAQUE_ONLY: code += ",depth_draw_opaque"; break;
-        case DEPTH_DRAW_ALWAYS: code += ",depth_draw_always"; break;
-        case DEPTH_DRAW_DISABLED: code += ",depth_draw_never"; break;
-        case DEPTH_DRAW_ALPHA_OPAQUE_PREPASS: code += ",depth_draw_alpha_prepass"; break;
+        case DEPTH_DRAW_OPAQUE_ONLY:
+            code += ",depth_draw_opaque";
+            break;
+        case DEPTH_DRAW_ALWAYS:
+            code += ",depth_draw_always";
+            break;
+        case DEPTH_DRAW_DISABLED:
+            code += ",depth_draw_never";
+            break;
+        case DEPTH_DRAW_ALPHA_OPAQUE_PREPASS:
+            code += ",depth_draw_alpha_prepass";
+            break;
     }
 
     switch (cull_mode) {
-        case CULL_BACK: code += ",cull_back"; break;
-        case CULL_FRONT: code += ",cull_front"; break;
-        case CULL_DISABLED: code += ",cull_disabled"; break;
+        case CULL_BACK:
+            code += ",cull_back";
+            break;
+        case CULL_FRONT:
+            code += ",cull_front";
+            break;
+        case CULL_DISABLED:
+            code += ",cull_disabled";
+            break;
     }
     switch (diffuse_mode) {
-        case DIFFUSE_BURLEY: code += ",diffuse_burley"; break;
-        case DIFFUSE_LAMBERT: code += ",diffuse_lambert"; break;
-        case DIFFUSE_LAMBERT_WRAP: code += ",diffuse_lambert_wrap"; break;
-        case DIFFUSE_OREN_NAYAR: code += ",diffuse_oren_nayar"; break;
-        case DIFFUSE_TOON: code += ",diffuse_toon"; break;
+        case DIFFUSE_BURLEY:
+            code += ",diffuse_burley";
+            break;
+        case DIFFUSE_LAMBERT:
+            code += ",diffuse_lambert";
+            break;
+        case DIFFUSE_LAMBERT_WRAP:
+            code += ",diffuse_lambert_wrap";
+            break;
+        case DIFFUSE_OREN_NAYAR:
+            code += ",diffuse_oren_nayar";
+            break;
+        case DIFFUSE_TOON:
+            code += ",diffuse_toon";
+            break;
     }
     switch (specular_mode) {
-        case SPECULAR_SCHLICK_GGX: code += ",specular_schlick_ggx"; break;
-        case SPECULAR_BLINN: code += ",specular_blinn"; break;
-        case SPECULAR_PHONG: code += ",specular_phong"; break;
-        case SPECULAR_TOON: code += ",specular_toon"; break;
-        case SPECULAR_DISABLED: code += ",specular_disabled"; break;
+        case SPECULAR_SCHLICK_GGX:
+            code += ",specular_schlick_ggx";
+            break;
+        case SPECULAR_BLINN:
+            code += ",specular_blinn";
+            break;
+        case SPECULAR_PHONG:
+            code += ",specular_phong";
+            break;
+        case SPECULAR_TOON:
+            code += ",specular_toon";
+            break;
+        case SPECULAR_DISABLED:
+            code += ",specular_disabled";
+            break;
     }
 
     if (flags[FLAG_UNSHADED]) {
@@ -519,7 +542,7 @@ void SpatialMaterial::_update_shader() {
     if (flags[FLAG_DISABLE_DEPTH_TEST]) {
         code += ",depth_test_disable";
     }
-    if (flags[FLAG_USE_VERTEX_LIGHTING]) {
+    if (flags[FLAG_USE_VERTEX_LIGHTING] || force_vertex_shading) {
         code += ",vertex_lighting";
     }
     if (flags[FLAG_TRIPLANAR_USE_WORLD] && (flags[FLAG_UV1_USE_TRIPLANAR] || flags[FLAG_UV2_USE_TRIPLANAR])) {
@@ -674,7 +697,7 @@ void SpatialMaterial::_update_shader() {
         code += "\tPOINT_SIZE=point_size;\n";
     }
 
-    if (flags[FLAG_USE_VERTEX_LIGHTING]) {
+    if (flags[FLAG_USE_VERTEX_LIGHTING] || force_vertex_shading) {
 
         code += "\tROUGHNESS=roughness;\n";
     }
@@ -697,12 +720,10 @@ void SpatialMaterial::_update_shader() {
         } break;
         case BILLBOARD_FIXED_Y: {
 
-            code += "\tMODELVIEW_MATRIX = INV_CAMERA_MATRIX * mat4(CAMERA_MATRIX[0],WORLD_MATRIX[1],vec4(normalize(cross(CAMERA_MATRIX[0].xyz,WORLD_MATRIX[1].xyz)), 0.0),WORLD_MATRIX[3]);\n";
+            code += "\tMODELVIEW_MATRIX = INV_CAMERA_MATRIX * mat4(vec4(normalize(cross(vec3(0.0, 1.0, 0.0), CAMERA_MATRIX[2].xyz)),0.0),vec4(0.0, 1.0, 0.0, 0.0),vec4(normalize(cross(CAMERA_MATRIX[0].xyz, vec3(0.0, 1.0, 0.0))),0.0),WORLD_MATRIX[3]);\n";
 
             if (flags[FLAG_BILLBOARD_KEEP_SCALE]) {
-                code += "\tMODELVIEW_MATRIX = MODELVIEW_MATRIX * mat4(vec4(length(WORLD_MATRIX[0].xyz), 0.0, 0.0, 0.0),vec4(0.0, 1.0, 0.0, 0.0),vec4(0.0, 0.0, length(WORLD_MATRIX[2].xyz), 0.0), vec4(0.0, 0.0, 0.0, 1.0));\n";
-            } else {
-                code += "\tMODELVIEW_MATRIX = MODELVIEW_MATRIX * mat4(vec4(1.0, 0.0, 0.0, 0.0),vec4(0.0, 1.0/length(WORLD_MATRIX[1].xyz), 0.0, 0.0), vec4(0.0, 0.0, 1.0, 0.0),vec4(0.0, 0.0, 0.0 ,1.0));\n";
+                code += "\tMODELVIEW_MATRIX = MODELVIEW_MATRIX * mat4(vec4(length(WORLD_MATRIX[0].xyz), 0.0, 0.0, 0.0),vec4(0.0, length(WORLD_MATRIX[1].xyz), 0.0, 0.0),vec4(0.0, 0.0, length(WORLD_MATRIX[2].xyz), 0.0),vec4(0.0, 0.0, 0.0, 1.0));\n";
             }
         } break;
         case BILLBOARD_PARTICLES: {
@@ -725,7 +746,7 @@ void SpatialMaterial::_update_shader() {
             code += "\t\tparticle_frame = mod(particle_frame, particle_total_frames);\n";
             code += "\t}";
             code += "\tUV /= vec2(h_frames, v_frames);\n";
-            code += "\tUV += vec2(mod(particle_frame, h_frames) / h_frames, floor(particle_frame / h_frames) / v_frames);\n";
+            code += "\tUV += vec2(mod(particle_frame, h_frames) / h_frames, floor((particle_frame + 0.5) / h_frames) / v_frames);\n";
         } break;
     }
 
@@ -758,10 +779,11 @@ void SpatialMaterial::_update_shader() {
         code += "\tTANGENT+= vec3(1.0,0.0,0.0) * abs(NORMAL.z);\n";
         code += "\tTANGENT = normalize(TANGENT);\n";
 
-        code += "\tBINORMAL = vec3(0.0,-1.0,0.0) * abs(NORMAL.x);\n";
-        code += "\tBINORMAL+= vec3(0.0,0.0,1.0) * abs(NORMAL.y);\n";
-        code += "\tBINORMAL+= vec3(0.0,-1.0,0.0) * abs(NORMAL.z);\n";
-        code += "\tBINORMAL = normalize(BINORMAL);\n";
+        code +=
+                "\tBINORMAL = vec3(0.0,1.0,0.0) * abs(NORMAL.x);\n"\
+                "\tBINORMAL+= vec3(0.0,0.0,-1.0) * abs(NORMAL.y);\n"\
+                "\tBINORMAL+= vec3(0.0,1.0,0.0) * abs(NORMAL.z);\n"\
+                "\tBINORMAL = normalize(BINORMAL);\n";
     }
 
     if (flags[FLAG_UV1_USE_TRIPLANAR]) {
@@ -806,7 +828,21 @@ void SpatialMaterial::_update_shader() {
         code += "\tvec2 base_uv2 = UV2;\n";
     }
 
-    if (/*!RenderingServer::get_singleton()->is_low_end() &&*/ features[FEATURE_DEPTH_MAPPING] && !flags[FLAG_UV1_USE_TRIPLANAR]) { //depthmap not supported with triplanar
+    if (features[FEATURE_DEPTH_MAPPING] && flags[FLAG_UV1_USE_TRIPLANAR]) {
+        // Display both resource name and albedo texture name.
+        // Materials are often built-in to scenes, so displaying the resource name alone may not be meaningful.
+        // On the other hand, albedo textures are almost always external to the scene.
+        if (textures[TEXTURE_ALBEDO]) {
+            WARN_PRINT(FormatVE("%s (albedo %s): Depth mapping is not supported on triplanar materials. Ignoring depth mapping in favor of triplanar mapping.", get_path().c_str(), textures[TEXTURE_ALBEDO]->get_path().c_str()));
+        } else if (!get_path().empty()) {
+            WARN_PRINT(FormatVE("%s: Depth mapping is not supported on triplanar materials. Ignoring depth mapping in favor of triplanar mapping.", get_path().c_str()));
+        } else {
+            // Resource wasn't saved yet.
+            WARN_PRINT("Depth mapping is not supported on triplanar materials. Ignoring depth mapping in favor of triplanar mapping.");
+        }
+    }
+
+    if (features[FEATURE_DEPTH_MAPPING] && !flags[FLAG_UV1_USE_TRIPLANAR]) { //depthmap not supported with triplanar
         code += "\t{\n";
         code += "\t\tvec3 view_dir = normalize(normalize(-VERTEX)*mat3(TANGENT*depth_flip.x,-BINORMAL*depth_flip.y,NORMAL));\n"; // binormal is negative due to mikktspace, flip 'unflips' it ;-)
 
@@ -832,7 +868,9 @@ void SpatialMaterial::_update_shader() {
 
         } else {
             code += "\t\tfloat depth = texture(texture_depth, base_uv).r;\n";
-            code += "\t\tvec2 ofs = base_uv - view_dir.xy / view_dir.z * (depth * depth_scale);\n";
+            // Use offset limiting to improve the appearance of non-deep parallax.
+            // This reduces the impression of depth, but avoids visible warping in the distance.
+            code += "\t\tvec2 ofs = base_uv - view_dir.xy * depth * depth_scale;\n";
         }
 
         code += "\t\tbase_uv=ofs;\n";
@@ -853,7 +891,12 @@ void SpatialMaterial::_update_shader() {
         }
     }
 
-    if (flags[FLAG_ALBEDO_TEXTURE_FORCE_SRGB]) {
+    if (flags[FLAG_ALBEDO_TEXTURE_SDF]) {
+        code += "\tconst float smoothing = 0.125;\n";
+        code += "\tfloat dist = albedo_tex.a;\n";
+        code += "\talbedo_tex.a = smoothstep(0.5 - smoothing, 0.5 + smoothing, dist);\n";
+        code += "\talbedo_tex.rgb = vec3(1.0);\n";
+    } else if (flags[FLAG_ALBEDO_TEXTURE_FORCE_SRGB]) {
         code += "\talbedo_tex.rgb = mix(pow((albedo_tex.rgb + vec3(0.055)) * (1.0 / (1.0 + 0.055)),vec3(2.4)),albedo_tex.rgb.rgb * (1.0 / 12.92),lessThan(albedo_tex.rgb,vec3(0.04045)));\n";
     }
 
@@ -919,7 +962,10 @@ void SpatialMaterial::_update_shader() {
     if (features[FEATURE_REFRACTION]) {
 
         if (features[FEATURE_NORMAL_MAPPING]) {
-            code += "\tvec3 ref_normal = normalize( mix(NORMAL,TANGENT * NORMALMAP.x + BINORMAL * NORMALMAP.y + NORMAL * NORMALMAP.z,NORMALMAP_DEPTH) );\n";
+            code += "\tvec3 unpacked_normal = NORMALMAP;\n";
+            code += "\tunpacked_normal.xy = unpacked_normal.xy * 2.0 - 1.0;\n";
+            code += "\tunpacked_normal.z = sqrt(max(0.0, 1.0 - dot(unpacked_normal.xy, unpacked_normal.xy)));\n";
+            code += "\tvec3 ref_normal = normalize( mix(NORMAL,TANGENT * unpacked_normal.x + BINORMAL * unpacked_normal.y + NORMAL * unpacked_normal.z,NORMALMAP_DEPTH) );\n";
         } else {
             code += "\tvec3 ref_normal = NORMAL;\n";
         }
@@ -946,43 +992,23 @@ void SpatialMaterial::_update_shader() {
 
     if (distance_fade != DISTANCE_FADE_DISABLED) {
         if ((distance_fade == DISTANCE_FADE_OBJECT_DITHER || distance_fade == DISTANCE_FADE_PIXEL_DITHER)) {
+            code += "\t{\n";
 
-            /*if (!RenderingServer::get_singleton()->is_low_end())*/ {
-                code += "\t{\n";
-                if (distance_fade == DISTANCE_FADE_OBJECT_DITHER) {
-                    code += "\t\tfloat fade_distance = abs((INV_CAMERA_MATRIX * WORLD_MATRIX[3]).z);\n";
+            if (distance_fade == DISTANCE_FADE_OBJECT_DITHER) {
+                code += "\t\tfloat fade_distance = abs((INV_CAMERA_MATRIX * WORLD_MATRIX[3]).z);\n";
 
-                } else {
-                    code += "\t\tfloat fade_distance=-VERTEX.z;\n";
-                }
-
-                code += "\t\tfloat fade=clamp(smoothstep(distance_fade_min,distance_fade_max,fade_distance),0.0,1.0);\n";
-                code += "\t\tint x = int(FRAGCOORD.x) % 4;\n";
-                code += "\t\tint y = int(FRAGCOORD.y) % 4;\n";
-                code += "\t\tint index = x + y * 4;\n";
-                code += "\t\tfloat limit = 0.0;\n\n";
-                code += "\t\tif (x < 8) {\n";
-                code += "\t\t\tif (index == 0) limit = 0.0625;\n";
-                code += "\t\t\tif (index == 1) limit = 0.5625;\n";
-                code += "\t\t\tif (index == 2) limit = 0.1875;\n";
-                code += "\t\t\tif (index == 3) limit = 0.6875;\n";
-                code += "\t\t\tif (index == 4) limit = 0.8125;\n";
-                code += "\t\t\tif (index == 5) limit = 0.3125;\n";
-                code += "\t\t\tif (index == 6) limit = 0.9375;\n";
-                code += "\t\t\tif (index == 7) limit = 0.4375;\n";
-                code += "\t\t\tif (index == 8) limit = 0.25;\n";
-                code += "\t\t\tif (index == 9) limit = 0.75;\n";
-                code += "\t\t\tif (index == 10) limit = 0.125;\n";
-                code += "\t\t\tif (index == 11) limit = 0.625;\n";
-                code += "\t\t\tif (index == 12) limit = 1.0;\n";
-                code += "\t\t\tif (index == 13) limit = 0.5;\n";
-                code += "\t\t\tif (index == 14) limit = 0.875;\n";
-                code += "\t\t\tif (index == 15) limit = 0.375;\n";
-                code += "\t\t}\n\n";
-                code += "\tif (fade < limit)\n";
-                code += "\t\tdiscard;\n";
-                code += "\t}\n\n";
+            } else {
+                code += "\t\tfloat fade_distance=-VERTEX.z;\n";
             }
+            // Use interleaved gradient noise, which is fast but still looks good.
+            code += "\t\tconst vec3 magic = vec3(0.06711056f, 0.00583715f, 52.9829189f);";
+            code += "\t\tfloat fade = clamp(smoothstep(distance_fade_min, distance_fade_max, fade_distance), 0.0, 1.0);\n";
+            // Use a hard cap to prevent a few stray pixels from remaining when past the fade-out distance.
+            code += "\t\tif (fade < 0.001 || fade < fract(magic.z * fract(dot(FRAGCOORD.xy, magic.xy)))) {\n";
+            code += "\t\t\tdiscard;\n";
+            code += "\t\t}\n";
+
+            code += "\t}\n\n";
 
         } else {
             code += "\tALPHA*=clamp(smoothstep(distance_fade_min,distance_fade_max,-VERTEX.z),0.0,1.0);\n";
@@ -1103,6 +1129,21 @@ void SpatialMaterial::_update_shader() {
     }
 
     code += "}\n";
+    String fallback_mode_str;
+    switch (async_mode) {
+        case ASYNC_MODE_VISIBLE: {
+            fallback_mode_str = "async_visible";
+        } break;
+        case ASYNC_MODE_HIDDEN: {
+            fallback_mode_str = "async_hidden";
+        } break;
+    }
+    int loc = code.find("render_mode ");
+    if (loc!=String::npos) {
+        // replace the first occurence
+        code.replace(code.begin() + loc, code.begin() + loc + StringView("render_mode ").length(),
+                "render_mode " + fallback_mode_str + ",");
+    }
 
     ShaderData shader_data;
     shader_data.shader = RenderingServer::get_singleton()->shader_create();
@@ -1117,30 +1158,24 @@ void SpatialMaterial::_update_shader() {
 
 void SpatialMaterial::flush_changes() {
 
-    if (material_mutex)
-        material_mutex->lock();
+    MutexGuard guard(g_material_mutex);
 
     for(SpatialMaterial *mat : s_dirty_materials) {
         mat->_update_shader();
     }
     s_dirty_materials.clear();
 
-    if (material_mutex)
-        material_mutex->unlock();
 }
 
 void SpatialMaterial::_queue_shader_change() {
 
-    if (material_mutex)
-        material_mutex->lock();
+    MutexGuard guard(g_material_mutex);
 
-    if (!is_dirty_element) {
+    if (is_initialized && !is_dirty_element) {
         s_dirty_materials.emplace_back(this);
         is_dirty_element = true;
     }
 
-    if (material_mutex)
-        material_mutex->unlock();
 }
 
 //bool SpatialMaterial::_is_shader_dirty() const {
@@ -1148,12 +1183,12 @@ void SpatialMaterial::_queue_shader_change() {
 //    bool dirty = false;
 
 //    if (material_mutex)
-//        material_mutex->lock();
+//        material_mutex.lock();
 
 //    dirty = element.in_list();
 
 //    if (material_mutex)
-//        material_mutex->unlock();
+//        material_mutex.unlock();
 
 //    return dirty;
 //}
@@ -1340,8 +1375,9 @@ float SpatialMaterial::get_refraction() const {
 
 void SpatialMaterial::set_detail_uv(DetailUV p_detail_uv) {
 
-    if (detail_uv == p_detail_uv)
+    if (detail_uv == p_detail_uv) {
         return;
+    }
 
     detail_uv = p_detail_uv;
     _queue_shader_change();
@@ -1353,8 +1389,9 @@ SpatialMaterial::DetailUV SpatialMaterial::get_detail_uv() const {
 
 void SpatialMaterial::set_blend_mode(BlendMode p_mode) {
 
-    if (blend_mode == p_mode)
+    if (blend_mode == p_mode) {
         return;
+    }
 
     blend_mode = p_mode;
     _queue_shader_change();
@@ -1376,8 +1413,9 @@ SpatialMaterial::BlendMode SpatialMaterial::get_detail_blend_mode() const {
 
 void SpatialMaterial::set_depth_draw_mode(DepthDrawMode p_mode) {
 
-    if (depth_draw_mode == p_mode)
+    if (depth_draw_mode == p_mode) {
         return;
+    }
 
     depth_draw_mode = p_mode;
     _queue_shader_change();
@@ -1389,8 +1427,9 @@ SpatialMaterial::DepthDrawMode SpatialMaterial::get_depth_draw_mode() const {
 
 void SpatialMaterial::set_cull_mode(CullMode p_mode) {
 
-    if (cull_mode == p_mode)
+    if (cull_mode == p_mode) {
         return;
+    }
 
     cull_mode = p_mode;
     _queue_shader_change();
@@ -1402,8 +1441,9 @@ SpatialMaterial::CullMode SpatialMaterial::get_cull_mode() const {
 
 void SpatialMaterial::set_diffuse_mode(DiffuseMode p_mode) {
 
-    if (diffuse_mode == p_mode)
+    if (diffuse_mode == p_mode) {
         return;
+    }
 
     diffuse_mode = p_mode;
     _queue_shader_change();
@@ -1415,8 +1455,9 @@ SpatialMaterial::DiffuseMode SpatialMaterial::get_diffuse_mode() const {
 
 void SpatialMaterial::set_specular_mode(SpecularMode p_mode) {
 
-    if (specular_mode == p_mode)
+    if (specular_mode == p_mode) {
         return;
+    }
 
     specular_mode = p_mode;
     _queue_shader_change();
@@ -1430,11 +1471,17 @@ void SpatialMaterial::set_flag(Flags p_flag, bool p_enabled) {
 
     ERR_FAIL_INDEX(p_flag, FLAG_MAX);
 
-    if (flags[p_flag] == p_enabled)
+    if (flags[p_flag] == p_enabled) {
         return;
+    }
 
     flags.set(p_flag,p_enabled);
-    if ((p_flag == FLAG_USE_ALPHA_SCISSOR) || (p_flag == FLAG_UNSHADED) || (p_flag == FLAG_USE_SHADOW_TO_OPACITY)) {
+    if (
+            p_flag == FLAG_USE_ALPHA_SCISSOR ||
+            p_flag == FLAG_UNSHADED ||
+            p_flag == FLAG_USE_SHADOW_TO_OPACITY ||
+            p_flag == FLAG_UV1_USE_TRIPLANAR ||
+            p_flag == FLAG_UV2_USE_TRIPLANAR) {
         Object_change_notify(this);
     }
     _queue_shader_change();
@@ -1449,8 +1496,9 @@ bool SpatialMaterial::get_flag(Flags p_flag) const {
 void SpatialMaterial::set_feature(Feature p_feature, bool p_enabled) {
 
     ERR_FAIL_INDEX(p_feature, FEATURE_MAX);
-    if (features[p_feature] == p_enabled)
+    if (features[p_feature] == p_enabled) {
         return;
+    }
 
     features.set(p_feature,p_enabled);
     Object_change_notify(this);
@@ -1467,8 +1515,8 @@ void SpatialMaterial::set_texture(TextureParam p_param, const Ref<Texture> &p_te
 
     ERR_FAIL_INDEX(p_param, TEXTURE_MAX);
     textures[p_param] = p_texture;
-    RID rid = p_texture ? p_texture->get_rid() : RID();
-    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->texture_names[p_param], rid);
+    RenderingEntity rid = p_texture ? p_texture->get_rid() : entt::null;
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->texture_names[p_param], Variant::from(rid));
     Object_change_notify(this);
     _queue_shader_change();
 }
@@ -1482,8 +1530,9 @@ Ref<Texture> SpatialMaterial::get_texture(TextureParam p_param) const {
 Ref<Texture> SpatialMaterial::get_texture_by_name(const StringName& p_name) const {
     for (int i = 0; i < (int)SpatialMaterial::TEXTURE_MAX; i++) {
         TextureParam param = TextureParam(i);
-        if (p_name == shader_names->texture_names[param])
+        if (p_name == shader_names->texture_names[param]) {
             return textures[param];
+        }
     }
     return Ref<Texture>();
 }
@@ -1513,10 +1562,7 @@ void SpatialMaterial::_validate_property(PropertyInfo &property) const {
     _validate_feature("refraction", FEATURE_REFRACTION, property);
     _validate_feature("detail", FEATURE_DETAIL, property);
 
-    _validate_high_end("refraction", property);
     _validate_high_end("subsurf_scatter", property);
-    _validate_high_end("anisotropy", property);
-    _validate_high_end("clearcoat", property);
     _validate_high_end("depth", property);
 
     if (StringUtils::begins_with(property.name,"particles_anim_") && billboard_mode != BILLBOARD_PARTICLES) {
@@ -1532,6 +1578,14 @@ void SpatialMaterial::_validate_property(PropertyInfo &property) const {
     }
 
     if ((property.name == "distance_fade_max_distance" || property.name == "distance_fade_min_distance") && distance_fade == DISTANCE_FADE_DISABLED) {
+        property.usage = 0;
+    }
+
+    if (property.name == "uv1_triplanar_sharpness" && !flags[FLAG_UV1_USE_TRIPLANAR]) {
+        property.usage = 0;
+    }
+
+    if (property.name == "uv2_triplanar_sharpness" && !flags[FLAG_UV2_USE_TRIPLANAR]) {
         property.usage = 0;
     }
 
@@ -1631,8 +1685,9 @@ Vector3 SpatialMaterial::get_uv1_offset() const {
 
 void SpatialMaterial::set_uv1_triplanar_blend_sharpness(float p_sharpness) {
 
-    uv1_triplanar_sharpness = p_sharpness;
-    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->uv1_blend_sharpness, p_sharpness);
+    // Negative values or values higher than 150 can result in NaNs, leading to broken rendering.
+    uv1_triplanar_sharpness = CLAMP(p_sharpness, 0.0f, 150.0f);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->uv1_blend_sharpness, uv1_triplanar_sharpness);
 }
 
 float SpatialMaterial::get_uv1_triplanar_blend_sharpness() const {
@@ -1663,9 +1718,9 @@ Vector3 SpatialMaterial::get_uv2_offset() const {
 }
 
 void SpatialMaterial::set_uv2_triplanar_blend_sharpness(float p_sharpness) {
-
-    uv2_triplanar_sharpness = p_sharpness;
-    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->uv2_blend_sharpness, p_sharpness);
+    // Negative values or values higher than 150 can result in NaNs, leading to broken rendering.
+    uv2_triplanar_sharpness = CLAMP(p_sharpness, 0.0f, 150.0f);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->uv2_blend_sharpness, uv2_triplanar_sharpness);
 }
 
 float SpatialMaterial::get_uv2_triplanar_blend_sharpness() const {
@@ -1855,26 +1910,42 @@ SpatialMaterial::TextureChannel SpatialMaterial::get_refraction_texture_channel(
     return refraction_texture_channel;
 }
 
-RID SpatialMaterial::get_material_rid_for_2d(bool p_shaded, bool p_transparent, bool p_double_sided, bool p_cut_alpha, bool p_opaque_prepass, bool p_billboard, bool p_billboard_y) {
+RenderingEntity SpatialMaterial::get_material_rid_for_2d(bool p_shaded, bool p_transparent, bool p_double_sided, bool p_cut_alpha, bool p_opaque_prepass, bool p_billboard, bool p_billboard_y, bool p_no_depth_test, bool p_fixed_size, bool p_sdf) {
 
-    int version = 0;
-    if (p_shaded)
-        version = 1;
-    if (p_transparent)
-        version |= 2;
-    if (p_cut_alpha)
-        version |= 4;
-    if (p_opaque_prepass)
-        version |= 8;
-    if (p_double_sided)
-        version |= 16;
-    if (p_billboard)
-        version |= 32;
-    if (p_billboard_y)
-        version |= 64;
+    uint64_t hash = 0;
+    if (p_shaded) {
+        hash |= 1 << 0;
+    }
+    if (p_transparent) {
+        hash |= 1 << 1;
+    }
+    if (p_cut_alpha) {
+        hash |= 1 << 2;
+    }
+    if (p_opaque_prepass) {
+        hash |= 1 << 3;
+    }
+    if (p_double_sided) {
+        hash |= 1 << 4;
+    }
+    if (p_billboard) {
+        hash |= 1 << 5;
+    }
+    if (p_billboard_y) {
+        hash |= 1 << 6;
+    }
+    if (p_no_depth_test) {
+        hash |= 1 << 7;
+    }
+    if (p_fixed_size) {
+        hash |= 1 << 8;
+    }
+    if (p_sdf) {
+        hash |= 1 << 9;
+    }
 
-    if (materials_for_2d[version]) {
-        return materials_for_2d[version]->get_rid();
+    if (material_cache_for_2d.contains(hash)) {
+        return material_cache_for_2d[hash]->get_rid();
     }
 
     Ref<SpatialMaterial> material(make_ref_counted<SpatialMaterial>());
@@ -1886,16 +1957,20 @@ RID SpatialMaterial::get_material_rid_for_2d(bool p_shaded, bool p_transparent, 
     material->set_flag(FLAG_SRGB_VERTEX_COLOR, true);
     material->set_flag(FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
     material->set_flag(FLAG_USE_ALPHA_SCISSOR, p_cut_alpha);
+    material->set_flag(FLAG_DISABLE_DEPTH_TEST, p_no_depth_test);
+    material->set_flag(FLAG_FIXED_SIZE, p_fixed_size);
+    material->set_flag(FLAG_ALBEDO_TEXTURE_SDF, p_sdf);
+
     if (p_billboard || p_billboard_y) {
         material->set_flag(FLAG_BILLBOARD_KEEP_SCALE, true);
         material->set_billboard_mode(p_billboard_y ? BILLBOARD_FIXED_Y : BILLBOARD_ENABLED);
     }
 
-    materials_for_2d[version] = material;
+    material_cache_for_2d[hash] = material;
     // flush before using so we can access the shader right away
     flush_changes();
 
-    return materials_for_2d[version]->get_rid();
+    return material->get_rid();
 }
 
 void SpatialMaterial::set_on_top_of_alpha() {
@@ -1960,8 +2035,9 @@ float SpatialMaterial::get_distance_fade_min_distance() const {
 
 void SpatialMaterial::set_emission_operator(EmissionOperator p_op) {
 
-    if (emission_op == p_op)
+    if (emission_op == p_op) {
         return;
+    }
     emission_op = p_op;
     _queue_shader_change();
 }
@@ -1971,9 +2047,9 @@ SpatialMaterial::EmissionOperator SpatialMaterial::get_emission_operator() const
     return emission_op;
 }
 
-RID SpatialMaterial::get_shader_rid() const {
+RenderingEntity SpatialMaterial::get_shader_rid() const {
 
-    ERR_FAIL_COND_V(!shader_map.contains(current_key), RID());
+    ERR_FAIL_COND_V(!shader_map.contains(current_key), entt::null);
     return shader_map[current_key].shader;
 }
 
@@ -1982,179 +2058,191 @@ ShaderMode SpatialMaterial::get_shader_mode() const {
     return ShaderMode::SPATIAL;
 }
 
+void SpatialMaterial::set_async_mode(AsyncMode p_mode) {
+    async_mode = p_mode;
+    _queue_shader_change();
+    Object_change_notify(this);
+}
+
+SpatialMaterial::AsyncMode SpatialMaterial::get_async_mode() const {
+    return async_mode;
+}
+
 void SpatialMaterial::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_albedo", {"albedo"}), &SpatialMaterial::set_albedo);
-    MethodBinder::bind_method(D_METHOD("get_albedo"), &SpatialMaterial::get_albedo);
+    BIND_METHOD(SpatialMaterial,set_albedo);
+    BIND_METHOD(SpatialMaterial,get_albedo);
 
-    MethodBinder::bind_method(D_METHOD("set_specular", {"specular"}), &SpatialMaterial::set_specular);
-    MethodBinder::bind_method(D_METHOD("get_specular"), &SpatialMaterial::get_specular);
+    BIND_METHOD(SpatialMaterial,set_specular);
+    BIND_METHOD(SpatialMaterial,get_specular);
 
-    MethodBinder::bind_method(D_METHOD("set_metallic", {"metallic"}), &SpatialMaterial::set_metallic);
-    MethodBinder::bind_method(D_METHOD("get_metallic"), &SpatialMaterial::get_metallic);
+    BIND_METHOD(SpatialMaterial,set_metallic);
+    BIND_METHOD(SpatialMaterial,get_metallic);
 
-    MethodBinder::bind_method(D_METHOD("set_roughness", {"roughness"}), &SpatialMaterial::set_roughness);
-    MethodBinder::bind_method(D_METHOD("get_roughness"), &SpatialMaterial::get_roughness);
+    BIND_METHOD(SpatialMaterial,set_roughness);
+    BIND_METHOD(SpatialMaterial,get_roughness);
 
-    MethodBinder::bind_method(D_METHOD("set_emission", {"emission"}), &SpatialMaterial::set_emission);
-    MethodBinder::bind_method(D_METHOD("get_emission"), &SpatialMaterial::get_emission);
+    BIND_METHOD(SpatialMaterial,set_emission);
+    BIND_METHOD(SpatialMaterial,get_emission);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_energy", {"emission_energy"}), &SpatialMaterial::set_emission_energy);
-    MethodBinder::bind_method(D_METHOD("get_emission_energy"), &SpatialMaterial::get_emission_energy);
+    BIND_METHOD(SpatialMaterial,set_emission_energy);
+    BIND_METHOD(SpatialMaterial,get_emission_energy);
 
-    MethodBinder::bind_method(D_METHOD("set_normal_scale", {"normal_scale"}), &SpatialMaterial::set_normal_scale);
-    MethodBinder::bind_method(D_METHOD("get_normal_scale"), &SpatialMaterial::get_normal_scale);
+    BIND_METHOD(SpatialMaterial,set_normal_scale);
+    BIND_METHOD(SpatialMaterial,get_normal_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_rim", {"rim"}), &SpatialMaterial::set_rim);
-    MethodBinder::bind_method(D_METHOD("get_rim"), &SpatialMaterial::get_rim);
+    BIND_METHOD(SpatialMaterial,set_rim);
+    BIND_METHOD(SpatialMaterial,get_rim);
 
-    MethodBinder::bind_method(D_METHOD("set_rim_tint", {"rim_tint"}), &SpatialMaterial::set_rim_tint);
-    MethodBinder::bind_method(D_METHOD("get_rim_tint"), &SpatialMaterial::get_rim_tint);
+    BIND_METHOD(SpatialMaterial,set_rim_tint);
+    BIND_METHOD(SpatialMaterial,get_rim_tint);
 
-    MethodBinder::bind_method(D_METHOD("set_clearcoat", {"clearcoat"}), &SpatialMaterial::set_clearcoat);
-    MethodBinder::bind_method(D_METHOD("get_clearcoat"), &SpatialMaterial::get_clearcoat);
+    BIND_METHOD(SpatialMaterial,set_clearcoat);
+    BIND_METHOD(SpatialMaterial,get_clearcoat);
 
-    MethodBinder::bind_method(D_METHOD("set_clearcoat_gloss", {"clearcoat_gloss"}), &SpatialMaterial::set_clearcoat_gloss);
-    MethodBinder::bind_method(D_METHOD("get_clearcoat_gloss"), &SpatialMaterial::get_clearcoat_gloss);
+    BIND_METHOD(SpatialMaterial,set_clearcoat_gloss);
+    BIND_METHOD(SpatialMaterial,get_clearcoat_gloss);
 
-    MethodBinder::bind_method(D_METHOD("set_anisotropy", {"anisotropy"}), &SpatialMaterial::set_anisotropy);
-    MethodBinder::bind_method(D_METHOD("get_anisotropy"), &SpatialMaterial::get_anisotropy);
+    BIND_METHOD(SpatialMaterial,set_anisotropy);
+    BIND_METHOD(SpatialMaterial,get_anisotropy);
 
-    MethodBinder::bind_method(D_METHOD("set_depth_scale", {"depth_scale"}), &SpatialMaterial::set_depth_scale);
-    MethodBinder::bind_method(D_METHOD("get_depth_scale"), &SpatialMaterial::get_depth_scale);
+    BIND_METHOD(SpatialMaterial,set_depth_scale);
+    BIND_METHOD(SpatialMaterial,get_depth_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_subsurface_scattering_strength", {"strength"}), &SpatialMaterial::set_subsurface_scattering_strength);
-    MethodBinder::bind_method(D_METHOD("get_subsurface_scattering_strength"), &SpatialMaterial::get_subsurface_scattering_strength);
+    BIND_METHOD(SpatialMaterial,set_subsurface_scattering_strength);
+    BIND_METHOD(SpatialMaterial,get_subsurface_scattering_strength);
 
-    MethodBinder::bind_method(D_METHOD("set_transmission", {"transmission"}), &SpatialMaterial::set_transmission);
-    MethodBinder::bind_method(D_METHOD("get_transmission"), &SpatialMaterial::get_transmission);
+    BIND_METHOD(SpatialMaterial,set_transmission);
+    BIND_METHOD(SpatialMaterial,get_transmission);
 
-    MethodBinder::bind_method(D_METHOD("set_refraction", {"refraction"}), &SpatialMaterial::set_refraction);
-    MethodBinder::bind_method(D_METHOD("get_refraction"), &SpatialMaterial::get_refraction);
+    BIND_METHOD(SpatialMaterial,set_refraction);
+    BIND_METHOD(SpatialMaterial,get_refraction);
 
-    MethodBinder::bind_method(D_METHOD("set_line_width", {"line_width"}), &SpatialMaterial::set_line_width);
-    MethodBinder::bind_method(D_METHOD("get_line_width"), &SpatialMaterial::get_line_width);
+    BIND_METHOD(SpatialMaterial,set_line_width);
+    BIND_METHOD(SpatialMaterial,get_line_width);
 
-    MethodBinder::bind_method(D_METHOD("set_point_size", {"point_size"}), &SpatialMaterial::set_point_size);
-    MethodBinder::bind_method(D_METHOD("get_point_size"), &SpatialMaterial::get_point_size);
+    BIND_METHOD(SpatialMaterial,set_point_size);
+    BIND_METHOD(SpatialMaterial,get_point_size);
 
-    MethodBinder::bind_method(D_METHOD("set_detail_uv", {"detail_uv"}), &SpatialMaterial::set_detail_uv);
-    MethodBinder::bind_method(D_METHOD("get_detail_uv"), &SpatialMaterial::get_detail_uv);
+    BIND_METHOD(SpatialMaterial,set_detail_uv);
+    BIND_METHOD(SpatialMaterial,get_detail_uv);
 
-    MethodBinder::bind_method(D_METHOD("set_blend_mode", {"blend_mode"}), &SpatialMaterial::set_blend_mode);
-    MethodBinder::bind_method(D_METHOD("get_blend_mode"), &SpatialMaterial::get_blend_mode);
+    BIND_METHOD(SpatialMaterial,set_blend_mode);
+    BIND_METHOD(SpatialMaterial,get_blend_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_depth_draw_mode", {"depth_draw_mode"}), &SpatialMaterial::set_depth_draw_mode);
-    MethodBinder::bind_method(D_METHOD("get_depth_draw_mode"), &SpatialMaterial::get_depth_draw_mode);
+    BIND_METHOD(SpatialMaterial,set_depth_draw_mode);
+    BIND_METHOD(SpatialMaterial,get_depth_draw_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_cull_mode", {"cull_mode"}), &SpatialMaterial::set_cull_mode);
-    MethodBinder::bind_method(D_METHOD("get_cull_mode"), &SpatialMaterial::get_cull_mode);
+    BIND_METHOD(SpatialMaterial,set_cull_mode);
+    BIND_METHOD(SpatialMaterial,get_cull_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_diffuse_mode", {"diffuse_mode"}), &SpatialMaterial::set_diffuse_mode);
-    MethodBinder::bind_method(D_METHOD("get_diffuse_mode"), &SpatialMaterial::get_diffuse_mode);
+    BIND_METHOD(SpatialMaterial,set_diffuse_mode);
+    BIND_METHOD(SpatialMaterial,get_diffuse_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_specular_mode", {"specular_mode"}), &SpatialMaterial::set_specular_mode);
-    MethodBinder::bind_method(D_METHOD("get_specular_mode"), &SpatialMaterial::get_specular_mode);
+    BIND_METHOD(SpatialMaterial,set_specular_mode);
+    BIND_METHOD(SpatialMaterial,get_specular_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_flag", {"flag", "enable"}), &SpatialMaterial::set_flag);
-    MethodBinder::bind_method(D_METHOD("get_flag", {"flag"}), &SpatialMaterial::get_flag);
+    BIND_METHOD(SpatialMaterial,set_flag);
+    BIND_METHOD(SpatialMaterial,get_flag);
 
-    MethodBinder::bind_method(D_METHOD("set_feature", {"feature", "enable"}), &SpatialMaterial::set_feature);
-    MethodBinder::bind_method(D_METHOD("get_feature", {"feature"}), &SpatialMaterial::get_feature);
+    BIND_METHOD(SpatialMaterial,set_feature);
+    BIND_METHOD(SpatialMaterial,get_feature);
 
-    MethodBinder::bind_method(D_METHOD("set_texture", {"param", "texture"}), &SpatialMaterial::set_texture);
-    MethodBinder::bind_method(D_METHOD("get_texture", {"param"}), &SpatialMaterial::get_texture);
+    BIND_METHOD(SpatialMaterial,set_texture);
+    BIND_METHOD(SpatialMaterial,get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_detail_blend_mode", {"detail_blend_mode"}), &SpatialMaterial::set_detail_blend_mode);
-    MethodBinder::bind_method(D_METHOD("get_detail_blend_mode"), &SpatialMaterial::get_detail_blend_mode);
+    BIND_METHOD(SpatialMaterial,set_detail_blend_mode);
+    BIND_METHOD(SpatialMaterial,get_detail_blend_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_uv1_scale", {"scale"}), &SpatialMaterial::set_uv1_scale);
-    MethodBinder::bind_method(D_METHOD("get_uv1_scale"), &SpatialMaterial::get_uv1_scale);
+    BIND_METHOD(SpatialMaterial,set_uv1_scale);
+    BIND_METHOD(SpatialMaterial,get_uv1_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_uv1_offset", {"offset"}), &SpatialMaterial::set_uv1_offset);
-    MethodBinder::bind_method(D_METHOD("get_uv1_offset"), &SpatialMaterial::get_uv1_offset);
+    BIND_METHOD(SpatialMaterial,set_uv1_offset);
+    BIND_METHOD(SpatialMaterial,get_uv1_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_uv1_triplanar_blend_sharpness", {"sharpness"}), &SpatialMaterial::set_uv1_triplanar_blend_sharpness);
-    MethodBinder::bind_method(D_METHOD("get_uv1_triplanar_blend_sharpness"), &SpatialMaterial::get_uv1_triplanar_blend_sharpness);
+    BIND_METHOD(SpatialMaterial,set_uv1_triplanar_blend_sharpness);
+    BIND_METHOD(SpatialMaterial,get_uv1_triplanar_blend_sharpness);
 
-    MethodBinder::bind_method(D_METHOD("set_uv2_scale", {"scale"}), &SpatialMaterial::set_uv2_scale);
-    MethodBinder::bind_method(D_METHOD("get_uv2_scale"), &SpatialMaterial::get_uv2_scale);
+    BIND_METHOD(SpatialMaterial,set_uv2_scale);
+    BIND_METHOD(SpatialMaterial,get_uv2_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_uv2_offset", {"offset"}), &SpatialMaterial::set_uv2_offset);
-    MethodBinder::bind_method(D_METHOD("get_uv2_offset"), &SpatialMaterial::get_uv2_offset);
+    BIND_METHOD(SpatialMaterial,set_uv2_offset);
+    BIND_METHOD(SpatialMaterial,get_uv2_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_uv2_triplanar_blend_sharpness", {"sharpness"}), &SpatialMaterial::set_uv2_triplanar_blend_sharpness);
-    MethodBinder::bind_method(D_METHOD("get_uv2_triplanar_blend_sharpness"), &SpatialMaterial::get_uv2_triplanar_blend_sharpness);
+    BIND_METHOD(SpatialMaterial,set_uv2_triplanar_blend_sharpness);
+    BIND_METHOD(SpatialMaterial,get_uv2_triplanar_blend_sharpness);
 
-    MethodBinder::bind_method(D_METHOD("set_billboard_mode", {"mode"}), &SpatialMaterial::set_billboard_mode);
-    MethodBinder::bind_method(D_METHOD("get_billboard_mode"), &SpatialMaterial::get_billboard_mode);
+    BIND_METHOD(SpatialMaterial,set_billboard_mode);
+    BIND_METHOD(SpatialMaterial,get_billboard_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_particles_anim_h_frames", {"frames"}), &SpatialMaterial::set_particles_anim_h_frames);
-    MethodBinder::bind_method(D_METHOD("get_particles_anim_h_frames"), &SpatialMaterial::get_particles_anim_h_frames);
+    BIND_METHOD(SpatialMaterial,set_particles_anim_h_frames);
+    BIND_METHOD(SpatialMaterial,get_particles_anim_h_frames);
 
-    MethodBinder::bind_method(D_METHOD("set_particles_anim_v_frames", {"frames"}), &SpatialMaterial::set_particles_anim_v_frames);
-    MethodBinder::bind_method(D_METHOD("get_particles_anim_v_frames"), &SpatialMaterial::get_particles_anim_v_frames);
+    BIND_METHOD(SpatialMaterial,set_particles_anim_v_frames);
+    BIND_METHOD(SpatialMaterial,get_particles_anim_v_frames);
 
-    MethodBinder::bind_method(D_METHOD("set_particles_anim_loop", {"loop"}), &SpatialMaterial::set_particles_anim_loop);
-    MethodBinder::bind_method(D_METHOD("get_particles_anim_loop"), &SpatialMaterial::get_particles_anim_loop);
+    BIND_METHOD(SpatialMaterial,set_particles_anim_loop);
+    BIND_METHOD(SpatialMaterial,get_particles_anim_loop);
 
-    MethodBinder::bind_method(D_METHOD("set_depth_deep_parallax", {"enable"}), &SpatialMaterial::set_depth_deep_parallax);
-    MethodBinder::bind_method(D_METHOD("is_depth_deep_parallax_enabled"), &SpatialMaterial::is_depth_deep_parallax_enabled);
+    BIND_METHOD(SpatialMaterial,set_depth_deep_parallax);
+    BIND_METHOD(SpatialMaterial,is_depth_deep_parallax_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_depth_deep_parallax_min_layers", {"layer"}), &SpatialMaterial::set_depth_deep_parallax_min_layers);
-    MethodBinder::bind_method(D_METHOD("get_depth_deep_parallax_min_layers"), &SpatialMaterial::get_depth_deep_parallax_min_layers);
+    BIND_METHOD(SpatialMaterial,set_depth_deep_parallax_min_layers);
+    BIND_METHOD(SpatialMaterial,get_depth_deep_parallax_min_layers);
 
-    MethodBinder::bind_method(D_METHOD("set_depth_deep_parallax_max_layers", {"layer"}), &SpatialMaterial::set_depth_deep_parallax_max_layers);
-    MethodBinder::bind_method(D_METHOD("get_depth_deep_parallax_max_layers"), &SpatialMaterial::get_depth_deep_parallax_max_layers);
+    BIND_METHOD(SpatialMaterial,set_depth_deep_parallax_max_layers);
+    BIND_METHOD(SpatialMaterial,get_depth_deep_parallax_max_layers);
 
-    MethodBinder::bind_method(D_METHOD("set_depth_deep_parallax_flip_tangent", {"flip"}), &SpatialMaterial::set_depth_deep_parallax_flip_tangent);
-    MethodBinder::bind_method(D_METHOD("get_depth_deep_parallax_flip_tangent"), &SpatialMaterial::get_depth_deep_parallax_flip_tangent);
+    BIND_METHOD(SpatialMaterial,set_depth_deep_parallax_flip_tangent);
+    BIND_METHOD(SpatialMaterial,get_depth_deep_parallax_flip_tangent);
 
-    MethodBinder::bind_method(D_METHOD("set_depth_deep_parallax_flip_binormal", {"flip"}), &SpatialMaterial::set_depth_deep_parallax_flip_binormal);
-    MethodBinder::bind_method(D_METHOD("get_depth_deep_parallax_flip_binormal"), &SpatialMaterial::get_depth_deep_parallax_flip_binormal);
+    BIND_METHOD(SpatialMaterial,set_depth_deep_parallax_flip_binormal);
+    BIND_METHOD(SpatialMaterial,get_depth_deep_parallax_flip_binormal);
 
-    MethodBinder::bind_method(D_METHOD("set_grow", {"amount"}), &SpatialMaterial::set_grow);
-    MethodBinder::bind_method(D_METHOD("get_grow"), &SpatialMaterial::get_grow);
+    BIND_METHOD(SpatialMaterial,set_grow);
+    BIND_METHOD(SpatialMaterial,get_grow);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_operator", {"operator"}), &SpatialMaterial::set_emission_operator);
-    MethodBinder::bind_method(D_METHOD("get_emission_operator"), &SpatialMaterial::get_emission_operator);
+    BIND_METHOD(SpatialMaterial,set_emission_operator);
+    BIND_METHOD(SpatialMaterial,get_emission_operator);
 
-    MethodBinder::bind_method(D_METHOD("set_ao_light_affect", {"amount"}), &SpatialMaterial::set_ao_light_affect);
-    MethodBinder::bind_method(D_METHOD("get_ao_light_affect"), &SpatialMaterial::get_ao_light_affect);
+    BIND_METHOD(SpatialMaterial,set_ao_light_affect);
+    BIND_METHOD(SpatialMaterial,get_ao_light_affect);
 
-    MethodBinder::bind_method(D_METHOD("set_alpha_scissor_threshold", {"threshold"}), &SpatialMaterial::set_alpha_scissor_threshold);
-    MethodBinder::bind_method(D_METHOD("get_alpha_scissor_threshold"), &SpatialMaterial::get_alpha_scissor_threshold);
+    BIND_METHOD(SpatialMaterial,set_alpha_scissor_threshold);
+    BIND_METHOD(SpatialMaterial,get_alpha_scissor_threshold);
 
-    MethodBinder::bind_method(D_METHOD("set_grow_enabled", {"enable"}), &SpatialMaterial::set_grow_enabled);
-    MethodBinder::bind_method(D_METHOD("is_grow_enabled"), &SpatialMaterial::is_grow_enabled);
+    BIND_METHOD(SpatialMaterial,set_grow_enabled);
+    BIND_METHOD(SpatialMaterial,is_grow_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_metallic_texture_channel", {"channel"}), &SpatialMaterial::set_metallic_texture_channel);
-    MethodBinder::bind_method(D_METHOD("get_metallic_texture_channel"), &SpatialMaterial::get_metallic_texture_channel);
+    BIND_METHOD(SpatialMaterial,set_metallic_texture_channel);
+    BIND_METHOD(SpatialMaterial,get_metallic_texture_channel);
 
-    MethodBinder::bind_method(D_METHOD("set_roughness_texture_channel", {"channel"}), &SpatialMaterial::set_roughness_texture_channel);
-    MethodBinder::bind_method(D_METHOD("get_roughness_texture_channel"), &SpatialMaterial::get_roughness_texture_channel);
+    BIND_METHOD(SpatialMaterial,set_roughness_texture_channel);
+    BIND_METHOD(SpatialMaterial,get_roughness_texture_channel);
 
-    MethodBinder::bind_method(D_METHOD("set_ao_texture_channel", {"channel"}), &SpatialMaterial::set_ao_texture_channel);
-    MethodBinder::bind_method(D_METHOD("get_ao_texture_channel"), &SpatialMaterial::get_ao_texture_channel);
+    BIND_METHOD(SpatialMaterial,set_ao_texture_channel);
+    BIND_METHOD(SpatialMaterial,get_ao_texture_channel);
 
-    MethodBinder::bind_method(D_METHOD("set_refraction_texture_channel", {"channel"}), &SpatialMaterial::set_refraction_texture_channel);
-    MethodBinder::bind_method(D_METHOD("get_refraction_texture_channel"), &SpatialMaterial::get_refraction_texture_channel);
+    BIND_METHOD(SpatialMaterial,set_refraction_texture_channel);
+    BIND_METHOD(SpatialMaterial,get_refraction_texture_channel);
 
-    MethodBinder::bind_method(D_METHOD("set_proximity_fade", {"enabled"}), &SpatialMaterial::set_proximity_fade);
-    MethodBinder::bind_method(D_METHOD("is_proximity_fade_enabled"), &SpatialMaterial::is_proximity_fade_enabled);
+    BIND_METHOD(SpatialMaterial,set_proximity_fade);
+    BIND_METHOD(SpatialMaterial,is_proximity_fade_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_proximity_fade_distance", {"distance"}), &SpatialMaterial::set_proximity_fade_distance);
-    MethodBinder::bind_method(D_METHOD("get_proximity_fade_distance"), &SpatialMaterial::get_proximity_fade_distance);
+    BIND_METHOD(SpatialMaterial,set_proximity_fade_distance);
+    BIND_METHOD(SpatialMaterial,get_proximity_fade_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_distance_fade", {"mode"}), &SpatialMaterial::set_distance_fade);
-    MethodBinder::bind_method(D_METHOD("get_distance_fade"), &SpatialMaterial::get_distance_fade);
+    BIND_METHOD(SpatialMaterial,set_distance_fade);
+    BIND_METHOD(SpatialMaterial,get_distance_fade);
 
-    MethodBinder::bind_method(D_METHOD("set_distance_fade_max_distance", {"distance"}), &SpatialMaterial::set_distance_fade_max_distance);
-    MethodBinder::bind_method(D_METHOD("get_distance_fade_max_distance"), &SpatialMaterial::get_distance_fade_max_distance);
+    BIND_METHOD(SpatialMaterial,set_distance_fade_max_distance);
+    BIND_METHOD(SpatialMaterial,get_distance_fade_max_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_distance_fade_min_distance", {"distance"}), &SpatialMaterial::set_distance_fade_min_distance);
-    MethodBinder::bind_method(D_METHOD("get_distance_fade_min_distance"), &SpatialMaterial::get_distance_fade_min_distance);
+    BIND_METHOD(SpatialMaterial,set_distance_fade_min_distance);
+    BIND_METHOD(SpatialMaterial,get_distance_fade_min_distance);
 
+    BIND_METHOD(SpatialMaterial,set_async_mode);
+    BIND_METHOD(SpatialMaterial,get_async_mode);
     ADD_GROUP("Flags", "flags_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flags_transparent"), "set_feature", "get_feature", FEATURE_TRANSPARENT);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flags_use_shadow_to_opacity"), "set_flag", "get_flag", FLAG_USE_SHADOW_TO_OPACITY);
@@ -2168,6 +2256,8 @@ void SpatialMaterial::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flags_do_not_receive_shadows"), "set_flag", "get_flag", FLAG_DONT_RECEIVE_SHADOWS);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flags_disable_ambient_light"), "set_flag", "get_flag", FLAG_DISABLE_AMBIENT_LIGHT);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flags_ensure_correct_normals"), "set_flag", "get_flag", FLAG_ENSURE_CORRECT_NORMALS);
+    ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flags_albedo_tex_msdf"), "set_flag", "get_flag", FLAG_ALBEDO_TEXTURE_SDF);
+
     ADD_GROUP("Vertex Color", "vertex_color");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "vertex_color_use_as_albedo"), "set_flag", "get_flag", FLAG_ALBEDO_FROM_VERTEX_COLOR);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "vertex_color_is_srgb"), "set_flag", "get_flag", FLAG_SRGB_VERTEX_COLOR);
@@ -2296,6 +2386,7 @@ void SpatialMaterial::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "distance_fade_mode", PropertyHint::Enum, "Disabled,PixelAlpha,PixelDither,ObjectDither"), "set_distance_fade", "get_distance_fade");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "distance_fade_min_distance", PropertyHint::Range, "0,4096,0.01"), "set_distance_fade_min_distance", "get_distance_fade_min_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "distance_fade_max_distance", PropertyHint::Range, "0,4096,0.01"), "set_distance_fade_max_distance", "get_distance_fade_max_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "async_mode", PropertyHint::Enum, "Visible,Hidden"), "set_async_mode", "get_async_mode");
 
     BIND_ENUM_CONSTANT(TEXTURE_ALBEDO);
     BIND_ENUM_CONSTANT(TEXTURE_METALLIC);
@@ -2365,6 +2456,7 @@ void SpatialMaterial::_bind_methods() {
     BIND_ENUM_CONSTANT(FLAG_DISABLE_AMBIENT_LIGHT);
     BIND_ENUM_CONSTANT(FLAG_ENSURE_CORRECT_NORMALS);
     BIND_ENUM_CONSTANT(FLAG_USE_SHADOW_TO_OPACITY);
+    BIND_ENUM_CONSTANT(FLAG_ALBEDO_TEXTURE_SDF);
     BIND_ENUM_CONSTANT(FLAG_MAX);
 
     BIND_ENUM_CONSTANT(DIFFUSE_BURLEY);
@@ -2397,6 +2489,8 @@ void SpatialMaterial::_bind_methods() {
     BIND_ENUM_CONSTANT(DISTANCE_FADE_PIXEL_ALPHA);
     BIND_ENUM_CONSTANT(DISTANCE_FADE_PIXEL_DITHER);
     BIND_ENUM_CONSTANT(DISTANCE_FADE_OBJECT_DITHER);
+    BIND_ENUM_CONSTANT(ASYNC_MODE_VISIBLE);
+    BIND_ENUM_CONSTANT(ASYNC_MODE_HIDDEN);
 }
 
 SpatialMaterial::SpatialMaterial() {
@@ -2462,20 +2556,22 @@ SpatialMaterial::SpatialMaterial() {
     depth_draw_mode = DEPTH_DRAW_OPAQUE_ONLY;
     cull_mode = CULL_BACK;
     flags.reset();
+    force_vertex_shading = T_GLOBAL_GET<bool>("rendering/quality/shading/force_vertex_shading");
     diffuse_mode = DIFFUSE_BURLEY;
     specular_mode = SPECULAR_SCHLICK_GGX;
 
+    async_mode = ASYNC_MODE_VISIBLE;
     features.reset();
 
     current_key.key = 0;
     current_key.invalid_key = 1;
+    is_initialized = true;
     _queue_shader_change();
 }
 
 SpatialMaterial::~SpatialMaterial() {
 
-    if (material_mutex)
-        material_mutex->lock();
+    MutexGuard guard(g_material_mutex);
 
     if (shader_map.contains(current_key)) {
         shader_map[current_key].users--;
@@ -2484,12 +2580,9 @@ SpatialMaterial::~SpatialMaterial() {
             RenderingServer::get_singleton()->free_rid(shader_map[current_key].shader);
             shader_map.erase(current_key);
         }
-
-        RenderingServer::get_singleton()->material_set_shader(_get_material(), RID());
+        RenderingServer::get_singleton()->material_set_shader(_get_material(), entt::null);
     }
     if(is_dirty_element)
         s_dirty_materials.erase_first_unsorted(this);
 
-    if (material_mutex)
-        material_mutex->unlock();
 }

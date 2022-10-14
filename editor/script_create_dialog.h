@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  script_create_dialog.h                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -59,6 +59,7 @@ class GODOT_EXPORT ScriptCreateDialog : public ConfirmationDialog {
     Label *error_label;
     Label *path_error_label;
     Label *builtin_warning_label;
+    Label *script_name_warning_label;
     PanelContainer *status_panel;
     LineEdit *parent_name;
     Button *parent_browse_button;
@@ -66,12 +67,15 @@ class GODOT_EXPORT ScriptCreateDialog : public ConfirmationDialog {
     OptionButton *language_menu;
     OptionButton *template_menu;
     LineEdit *file_path;
+    LineEdit *internal_name;
     Button *path_button;
     EditorFileDialog *file_browse;
     CheckBox *internal;
     VBoxContainer *path_vb;
     AcceptDialog *alert;
     CreateDialog *select_class;
+    Control *path_controls[2];
+    Control *name_controls[2];
     String initial_bp;
     String script_template;
     Vector<ScriptTemplateInfo> template_list;
@@ -105,6 +109,7 @@ class GODOT_EXPORT ScriptCreateDialog : public ConfirmationDialog {
     bool _validate_parent(StringView p_string);
     bool _validate_class(const UIString &p_string);
     StringName _validate_path(StringView p_path, bool p_file_must_exist);
+    String _get_class_name() const;
     void _class_name_changed(StringView p_name);
     void _parent_name_changed(StringView p_parent);
     void _template_changed(int p_template = 0);

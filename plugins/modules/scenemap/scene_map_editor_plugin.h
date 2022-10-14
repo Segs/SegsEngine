@@ -8,6 +8,7 @@
 
 #include "editor/editor_plugin.h"
 #include "editor/pane_drag.h"
+#include "scene/gui/box_container.h"
 #include "scene_map.h"
 
 

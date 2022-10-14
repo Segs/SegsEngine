@@ -29,6 +29,9 @@
 /*************************************************************************/
 
 #include "collision_shape_3d.h"
+#include "core/math/quick_hull.h"
+#include "mesh_instance_3d.h"
+#include "physics_body_3d.h"
 
 #include "core/method_bind.h"
 #include "core/callable_method_pointer.h"
@@ -42,18 +45,15 @@
 #include "scene/resources/ray_shape_3d.h"
 #include "scene/resources/sphere_shape_3d.h"
 #include "servers/rendering_server.h"
-//TODO: Implement CylinderShape3D and HeightMapShape3D?
-#include "core/math/quick_hull.h"
-#include "mesh_instance_3d.h"
-#include "physics_body_3d.h"
 
 IMPL_GDCLASS(CollisionShape3D)
 
 void CollisionShape3D::make_convex_from_brothers() {
 
     Node *p = get_parent();
-    if (!p)
+    if (!p) {
         return;
+    }
 
     for (int i = 0; i < p->get_child_count(); i++) {
 
@@ -73,8 +73,9 @@ void CollisionShape3D::make_convex_from_brothers() {
 
 void CollisionShape3D::_update_in_shape_owner(bool p_xform_only) {
     parent->shape_owner_set_transform(owner_id, get_transform());
-    if (p_xform_only)
+    if (p_xform_only) {
         return;
+    }
     parent->shape_owner_set_disabled(owner_id, disabled);
 }
 
@@ -90,13 +91,11 @@ void CollisionShape3D::_notification(int p_what) {
                     parent->shape_owner_add_shape(owner_id, shape);
                 }
             }
+            _update_in_shape_owner();
         } break;
         case NOTIFICATION_ENTER_TREE: {
             if (parent) {
                 _update_in_shape_owner();
-            }
-            if (get_tree()->is_debugging_collisions_hint()) {
-                _update_debug_shape();
             }
         } break;
         case NOTIFICATION_LOCAL_TRANSFORM_CHANGED: {
@@ -159,14 +158,13 @@ String CollisionShape3D::get_configuration_warning() const {
 void CollisionShape3D::_bind_methods() {
 
     //not sure if this should do anything
-    MethodBinder::bind_method(D_METHOD("resource_changed", {"resource"}), &CollisionShape3D::resource_changed);
-    MethodBinder::bind_method(D_METHOD("set_shape", {"shape"}), &CollisionShape3D::set_shape);
-    MethodBinder::bind_method(D_METHOD("get_shape"), &CollisionShape3D::get_shape);
-    MethodBinder::bind_method(D_METHOD("set_disabled", {"enable"}), &CollisionShape3D::set_disabled);
-    MethodBinder::bind_method(D_METHOD("is_disabled"), &CollisionShape3D::is_disabled);
+    BIND_METHOD(CollisionShape3D,resource_changed);
+    BIND_METHOD(CollisionShape3D,set_shape);
+    BIND_METHOD(CollisionShape3D,get_shape);
+    BIND_METHOD(CollisionShape3D,set_disabled);
+    BIND_METHOD(CollisionShape3D,is_disabled);
     MethodBinder::bind_method(D_METHOD("make_convex_from_brothers"), &CollisionShape3D::make_convex_from_brothers,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
-    MethodBinder::bind_method(D_METHOD("_update_debug_shape"), &CollisionShape3D::_update_debug_shape);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PropertyHint::ResourceType, "Shape"), "set_shape", "get_shape");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");
@@ -178,12 +176,10 @@ void CollisionShape3D::set_shape(const Ref<Shape> &p_shape) {
     }
     if (shape) {
         shape->unregister_owner(this);
-        shape->disconnect("changed",callable_mp(this, &ClassName::_shape_changed));
     }
     shape = p_shape;
     if (shape) {
         shape->register_owner(this);
-        shape->connect("changed",callable_mp(this, &ClassName::_shape_changed));
     }
     update_gizmo();
     if (parent) {
@@ -193,8 +189,10 @@ void CollisionShape3D::set_shape(const Ref<Shape> &p_shape) {
         }
     }
 
-    if (is_inside_tree())
-        _shape_changed();
+    if (is_inside_tree() && parent) {
+        // If this is a heightfield shape our center may have changed
+        _update_in_shape_owner(true);
+    }
     update_configuration_warning();
 }
 
@@ -207,13 +205,10 @@ void CollisionShape3D::set_disabled(bool p_disabled) {
     }
 }
 
-
-
 CollisionShape3D::CollisionShape3D() {
 
     //indicator = RenderingServer::get_singleton()->mesh_create();
     disabled = false;
-    debug_shape = nullptr;
     parent = nullptr;
     owner_id = 0;
     set_notify_local_transform(true);
@@ -223,35 +218,4 @@ CollisionShape3D::~CollisionShape3D() {
     if (shape)
         shape->unregister_owner(this);
     //RenderingServer::get_singleton()->free(indicator);
-}
-
-void CollisionShape3D::_update_debug_shape() {
-    debug_shape_dirty = false;
-
-    if (debug_shape) {
-        debug_shape->queue_delete();
-        debug_shape = nullptr;
-    }
-
-    Ref<Shape> s = get_shape();
-    if (not s)
-        return;
-
-    Ref<Mesh> mesh = s->get_debug_mesh();
-    MeshInstance3D *mi = memnew(MeshInstance3D);
-    mi->set_mesh(mesh);
-    add_child(mi);
-    debug_shape = mi;
-}
-
-void CollisionShape3D::_shape_changed() {
-    // If this is a heightfield shape our center may have changed
-    if (parent) {
-        _update_in_shape_owner(true);
-    }
-
-    if (is_inside_tree() && get_tree()->is_debugging_collisions_hint() && !debug_shape_dirty) {
-        debug_shape_dirty = true;
-        call_deferred([this] { _update_debug_shape(); });
-    }
 }

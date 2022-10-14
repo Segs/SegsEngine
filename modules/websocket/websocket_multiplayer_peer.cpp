@@ -91,8 +91,8 @@ void WebSocketMultiplayerPeer::_clear() {
 
 void WebSocketMultiplayerPeer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_buffers", {"input_buffer_size_kb", "input_max_packets", "output_buffer_size_kb", "output_max_packets"}), &WebSocketMultiplayerPeer::set_buffers);
-    MethodBinder::bind_method(D_METHOD("get_peer", {"peer_id"}), &WebSocketMultiplayerPeer::get_peer);
+    BIND_METHOD(WebSocketMultiplayerPeer,set_buffers);
+    BIND_METHOD(WebSocketMultiplayerPeer,get_peer);
 
     ADD_SIGNAL(MethodInfo("peer_packet", PropertyInfo(VariantType::INT, "peer_source")));
 }

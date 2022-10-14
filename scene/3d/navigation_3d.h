@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef NAVIGATION_H
-#define NAVIGATION_H
+#pragma once
 
 #include "scene/3d/navigation_mesh_instance.h"
 #include "scene/3d/node_3d.h"
@@ -69,7 +68,5 @@ public:
     Vector<Vector3> get_simple_path(const Vector3 &p_start, const Vector3 &p_end, bool p_optimize = true);
 
     Navigation3D();
-    ~Navigation3D();
+    ~Navigation3D() override;
 };
-
-#endif // NAVIGATION_H

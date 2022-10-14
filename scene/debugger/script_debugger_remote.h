@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  script_debugger_remote.h                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,6 +36,7 @@
 #include "core/io/stream_peer_tcp.h"
 #include "core/list.h"
 #include "core/os/os.h"
+#include "core/os/mutex.h"
 #include "core/print_string.h"
 #include "core/rid.h"
 #include "core/script_language.h"
@@ -62,7 +63,7 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
     Vector<MultiplayerAPI::ProfilingInfo> network_profile_info;
 
     Map<StringName, int> profiler_function_signature_map;
-    float frame_time, idle_time, physics_time, physics_frame_time;
+    float frame_time, process_time, physics_time, physics_frame_time;
 
     bool profiling;
     bool profiling_network;
@@ -78,7 +79,7 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
     uint64_t last_net_bandwidth_time;
     Object *performance;
     bool requested_quit;
-    Mutex *mutex;
+    Mutex mutex;
 
     struct OutputError {
 
@@ -131,9 +132,9 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
 
     bool _parse_live_edit(const Array &p_command);
 
-    void _set_object_property(ObjectID p_id, const String &p_property, const Variant &p_value);
+    void _set_object_property(GameEntity p_id, const String &p_property, const Variant &p_value);
 
-    void _send_object_id(ObjectID p_id);
+    void _send_object_id(GameEntity p_id);
     void _send_video_memory();
 
     Ref<MultiplayerAPI> multiplayer;
@@ -155,7 +156,7 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
 
     void _put_variable(StringView p_name, const Variant &p_variable);
 
-    void _save_node(ObjectID id, StringView p_path);
+    void _save_node(GameEntity id, StringView p_path);
 
     bool skip_breakpoints;
 public:
@@ -169,9 +170,9 @@ public:
         String path;
         String format;
         String type;
-        RID id;
+        RenderingEntity id=entt::null;
         int vram;
-        bool operator<(const ResourceUsage &p_img) const { return vram == p_img.vram ? id < p_img.id : vram > p_img.vram; }
+        bool operator<(const ResourceUsage &p_img) const { return vram == p_img.vram ? entt::to_integral(id) < entt::to_integral(p_img.id) : vram > p_img.vram; }
     };
 
     using ResourceUsageFunc = void (*)(List<ResourceUsage> *);
@@ -196,7 +197,7 @@ public:
 
     void profiling_start() override;
     void profiling_end() override;
-    void profiling_set_frame_times(float p_frame_time, float p_idle_time, float p_physics_time, float p_physics_frame_time) override;
+    void profiling_set_frame_times(float p_frame_time, float p_process_time, float p_physics_time, float p_physics_frame_time) override;
 
     void set_skip_breakpoints(bool p_skip_breakpoints);
 

@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  rendering_server_wrap_mt.h                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -32,6 +32,7 @@
 
 #include "core/command_queue_mt.h"
 #include "core/os/thread.h"
+#include "core/safe_refcount.h"
 #include "servers/rendering_server.h"
 
 class  RenderingServerWrapMT : public RenderingServer {
@@ -40,10 +41,9 @@ class  RenderingServerWrapMT : public RenderingServer {
     mutable CommandQueueMT command_queue;
     Mutex alloc_mutex;
     Thread thread;
-    uint64_t draw_pending;
     int pool_max_size;
-    volatile bool exit;
-    volatile bool draw_thread_up;
+    SafeFlag exit;
+    SafeFlag draw_thread_up;
     bool create_thread;
 
     //#define DEBUG_SYNC
@@ -63,35 +63,39 @@ public:
 //#define ServerName RenderingServer
 #define ServerNameWrapMT RenderingServerWrapMT
 #include "servers/server_wrap_mt_common.h"
+    void set_ent_debug_name(RenderingEntity p1, StringView p2) const override {
+        assert(Thread::get_caller_id() != server_thread);
+        command_queue.push([p1,p2]() {submission_thread_singleton->set_ent_debug_name(p1, p2);});
+    }
 
     /* EVENT QUEUING */
-    FUNCRID(texture)
-    FUNC7(texture_allocate, RID, int, int, int, Image::Format, RS::TextureType, uint32_t)
-    FUNC3(texture_set_data, RID, const Ref<Image> &, int)
-    FUNC10(texture_set_data_partial, RID, const Ref<Image> &, int, int, int, int, int, int, int, int)
-    FUNC2RC(Ref<Image>, texture_get_data, RID, int)
-    FUNC2(texture_set_flags, RID, uint32_t)
-    FUNC1RC(uint32_t, texture_get_flags, RID)
-    FUNC1RC(Image::Format, texture_get_format, RID)
-    FUNC1RC(RS::TextureType, texture_get_type, RID)
-    FUNC1RC(uint32_t, texture_get_texid, RID)
-    FUNC1RC(uint32_t, texture_get_width, RID)
-    FUNC1RC(uint32_t, texture_get_height, RID)
-    FUNC1RC(uint32_t, texture_get_depth, RID)
-    FUNC4(texture_set_size_override, RID, int, int, int)
-    FUNC2(texture_bind, RID, uint32_t)
+    FUNCENT(texture)
+    FUNC7(texture_allocate, RenderingEntity, int, int, int, Image::Format, RS::TextureType, uint32_t)
+    FUNC3(texture_set_data, RenderingEntity, const Ref<Image> &, int)
+    FUNC10(texture_set_data_partial, RenderingEntity, const Ref<Image> &, int, int, int, int, int, int, int, int)
+    FUNC2RC(Ref<Image>, texture_get_data, RenderingEntity, int)
+    FUNC2(texture_set_flags, RenderingEntity, uint32_t)
+    FUNC1RC(uint32_t, texture_get_flags, RenderingEntity)
+    FUNC1RC(Image::Format, texture_get_format, RenderingEntity)
+    FUNC1RC(RS::TextureType, texture_get_type, RenderingEntity)
+    FUNC1RC(uint32_t, texture_get_texid, RenderingEntity)
+    FUNC1RC(uint32_t, texture_get_width, RenderingEntity)
+    FUNC1RC(uint32_t, texture_get_height, RenderingEntity)
+    FUNC1RC(uint32_t, texture_get_depth, RenderingEntity)
+    FUNC4(texture_set_size_override, RenderingEntity, int, int, int)
+    FUNC2(texture_bind, RenderingEntity, uint32_t)
 
-    FUNC3(texture_set_detect_3d_callback, RID, TextureDetectCallback, void *)
-    FUNC3(texture_set_detect_srgb_callback, RID, TextureDetectCallback, void *)
-    FUNC3(texture_set_detect_normal_callback, RID, TextureDetectCallback, void *)
+    FUNC3(texture_set_detect_3d_callback, RenderingEntity, TextureDetectCallback, void *)
+    FUNC3(texture_set_detect_srgb_callback, RenderingEntity, TextureDetectCallback, void *)
+    FUNC3(texture_set_detect_normal_callback, RenderingEntity, TextureDetectCallback, void *)
 
-    void texture_set_path(RID p1, StringView p2) override {
+    void texture_set_path(RenderingEntity p1, StringView p2) override {
         assert(Thread::get_caller_id() != server_thread);
         String by_val(p2);
         command_queue.push( [p1,by_val]() { submission_thread_singleton->texture_set_path(p1, by_val);});
     }
 
-    const String &texture_get_path(RID p1) const override {
+    const String &texture_get_path(RenderingEntity p1) const override {
         assert(Thread::get_caller_id() != server_thread);
         const String *ret;
         command_queue.push_and_sync( [p1,&ret]() { ret = &submission_thread_singleton->texture_get_path(p1);});
@@ -103,502 +107,526 @@ public:
 
     FUNC1(textures_keep_original, bool)
 
-    FUNC2(texture_set_proxy, RID, RID)
+    FUNC2(texture_set_proxy, RenderingEntity, RenderingEntity)
 
-    FUNC2(texture_set_force_redraw_if_visible, RID, bool)
+    FUNC2(texture_set_force_redraw_if_visible, RenderingEntity, bool)
 
     /* SKY API */
 
-    FUNCRID(sky)
-    FUNC3(sky_set_texture, RID, RID, int)
+    FUNCENT(sky)
+    FUNC3(sky_set_texture, RenderingEntity, RenderingEntity, int)
 
     /* SHADER API */
 
-    FUNCRID(shader)
+    FUNCENT(shader)
 
-    FUNC2(shader_set_code, RID, const String &)
-    FUNC1RC(String, shader_get_code, RID)
+    FUNC2(shader_set_code, RenderingEntity, const String &)
+    FUNC1RC(String, shader_get_code, RenderingEntity)
 
-    FUNC2SC(shader_get_param_list, RID, Vector<PropertyInfo> *)
+    FUNC2SC(shader_get_param_list, RenderingEntity, Vector<PropertyInfo> *)
 
-    FUNC3(shader_set_default_texture_param, RID, const StringName &, RID)
-    FUNC2RC(RID, shader_get_default_texture_param, RID, const StringName &)
+    FUNC3(shader_set_default_texture_param, RenderingEntity, const StringName &, RenderingEntity)
+    FUNC2RC(RenderingEntity, shader_get_default_texture_param, RenderingEntity, const StringName &)
 
-    FUNC2(shader_add_custom_define, RID, StringView)
-    FUNC2SC(shader_get_custom_defines, RID, Vector<StringView> *)
-    FUNC2(shader_remove_custom_define, RID, StringView)
+    FUNC2(shader_add_custom_define, RenderingEntity, StringView)
+    FUNC2SC(shader_get_custom_defines, RenderingEntity, Vector<StringView> *)
+    FUNC2(shader_remove_custom_define, RenderingEntity, StringView)
 
+    FUNC1(set_shader_async_hidden_forbidden, bool)
     /* COMMON MATERIAL API */
 
-    FUNCRID(material)
+    FUNCENT(material)
 
-    FUNC2(material_set_shader, RID, RID)
-    FUNC1RC(RID, material_get_shader, RID)
+    FUNC2(material_set_shader, RenderingEntity, RenderingEntity)
+    FUNC1RC(RenderingEntity, material_get_shader, RenderingEntity)
 
-    FUNC3(material_set_param, RID, const StringName &, const Variant &)
-    FUNC2RC(Variant, material_get_param, RID, const StringName &)
-    FUNC2RC(Variant, material_get_param_default, RID, const StringName &)
+    FUNC3(material_set_param, RenderingEntity, const StringName &, const Variant &)
+    FUNC2RC(Variant, material_get_param, RenderingEntity, const StringName &)
+    FUNC2RC(Variant, material_get_param_default, RenderingEntity, const StringName &)
 
-    FUNC2(material_set_render_priority, RID, int)
-    FUNC2(material_set_line_width, RID, float)
-    FUNC2(material_set_next_pass, RID, RID)
+    FUNC2(material_set_render_priority, RenderingEntity, int)
+    FUNC2(material_set_line_width, RenderingEntity, float)
+    FUNC2(material_set_next_pass, RenderingEntity, RenderingEntity)
 
     /* MESH API */
 
-    FUNCRID(mesh)
+    FUNCENT(mesh)
 
-    FUNC10(mesh_add_surface, RID, uint32_t, RS::PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const Vector<PoolVector<uint8_t> > &, const PoolVector<AABB> &)
+    FUNC10(mesh_add_surface, RenderingEntity, uint32_t, RS::PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const Vector<PoolVector<uint8_t> > &, const PoolVector<AABB> &)
 
-    FUNC2(mesh_set_blend_shape_count, RID, int)
-    FUNC1RC(int, mesh_get_blend_shape_count, RID)
+    FUNC2(mesh_set_blend_shape_count, RenderingEntity, int)
+    FUNC1RC(int, mesh_get_blend_shape_count, RenderingEntity)
 
-    FUNC2(mesh_set_blend_shape_mode, RID, RS::BlendShapeMode)
-    FUNC1RC(RS::BlendShapeMode, mesh_get_blend_shape_mode, RID)
+    FUNC2(mesh_set_blend_shape_mode, RenderingEntity, RS::BlendShapeMode)
+    FUNC1RC(RS::BlendShapeMode, mesh_get_blend_shape_mode, RenderingEntity)
 
-    FUNC4(mesh_surface_update_region, RID, int, int, const PoolVector<uint8_t> &)
+    FUNC4(mesh_surface_update_region, RenderingEntity, int, int, const PoolVector<uint8_t> &)
 
-    FUNC3(mesh_surface_set_material, RID, int, RID)
-    FUNC2RC(RID, mesh_surface_get_material, RID, int)
+    FUNC3(mesh_surface_set_material, RenderingEntity, int, RenderingEntity)
+    FUNC2RC(RenderingEntity, mesh_surface_get_material, RenderingEntity, int)
 
-    FUNC2RC(int, mesh_surface_get_array_len, RID, int)
-    FUNC2RC(int, mesh_surface_get_array_index_len, RID, int)
+    FUNC2RC(int, mesh_surface_get_array_len, RenderingEntity, int)
+    FUNC2RC(int, mesh_surface_get_array_index_len, RenderingEntity, int)
 
-    FUNC2RC(PoolVector<uint8_t>, mesh_surface_get_array, RID, int)
-    FUNC2RC(PoolVector<uint8_t>, mesh_surface_get_index_array, RID, int)
+    FUNC2RC(PoolVector<uint8_t>, mesh_surface_get_array, RenderingEntity, int)
+    FUNC2RC(PoolVector<uint8_t>, mesh_surface_get_index_array, RenderingEntity, int)
 
-    FUNC2RC(uint32_t, mesh_surface_get_format, RID, int)
-    FUNC2RC(RS::PrimitiveType, mesh_surface_get_primitive_type, RID, int)
+    FUNC2RC(uint32_t, mesh_surface_get_format, RenderingEntity, int)
+    FUNC2RC(RS::PrimitiveType, mesh_surface_get_primitive_type, RenderingEntity, int)
 
-    FUNC2RC(AABB, mesh_surface_get_aabb, RID, int)
-    FUNC2RC(Vector<Vector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
-    const Vector<AABB> & mesh_surface_get_skeleton_aabb(RID p1, int p2) const override {
+    FUNC2RC(AABB, mesh_surface_get_aabb, RenderingEntity, int)
+    FUNC2RC(Vector<Vector<uint8_t> >, mesh_surface_get_blend_shapes, RenderingEntity, int)
+    const Vector<AABB> & mesh_surface_get_skeleton_aabb(RenderingEntity p1, int p2) const override {
         assert(Thread::get_caller_id() != server_thread);
         using RetType = const Vector<AABB> *;
 
         RetType ret;
-        command_queue.push_and_sync( [this,p1,p2,&ret]() { ret = &(submission_thread_singleton->mesh_surface_get_skeleton_aabb(p1, p2));});
+        command_queue.push_and_sync( [p1,p2,&ret]() { ret = &(submission_thread_singleton->mesh_surface_get_skeleton_aabb(p1, p2));});
         SYNC_DEBUG
         return *ret;
     }
 
-    FUNC2(mesh_remove_surface, RID, int)
-    FUNC1RC(int, mesh_get_surface_count, RID)
+    FUNC2(mesh_remove_surface, RenderingEntity, int)
+    FUNC1RC(int, mesh_get_surface_count, RenderingEntity)
 
-    FUNC2(mesh_set_custom_aabb, RID, const AABB &)
-    FUNC1RC(AABB, mesh_get_custom_aabb, RID)
+    FUNC2(mesh_set_custom_aabb, RenderingEntity, const AABB &)
+    FUNC1RC(AABB, mesh_get_custom_aabb, RenderingEntity)
 
-    FUNC1(mesh_clear, RID)
+    FUNC1(mesh_clear, RenderingEntity)
 
     /* MULTIMESH API */
 
-    FUNCRID(multimesh)
+    FUNCENT(multimesh)
 
-    FUNC5(multimesh_allocate, RID, int, RS::MultimeshTransformFormat, RS::MultimeshColorFormat, RS::MultimeshCustomDataFormat)
-    FUNC1RC(int, multimesh_get_instance_count, RID)
+    FUNC5(multimesh_allocate, RenderingEntity, int, RS::MultimeshTransformFormat, RS::MultimeshColorFormat, RS::MultimeshCustomDataFormat)
+    FUNC1RC(int, multimesh_get_instance_count, RenderingEntity)
 
-    FUNC2(multimesh_set_mesh, RID, RID)
-    FUNC3(multimesh_instance_set_transform, RID, int, const Transform &)
-    FUNC3(multimesh_instance_set_transform_2d, RID, int, const Transform2D &)
-    FUNC3(multimesh_instance_set_color, RID, int, const Color &)
-    FUNC3(multimesh_instance_set_custom_data, RID, int, const Color &)
+    FUNC2(multimesh_set_mesh, RenderingEntity, RenderingEntity)
+    FUNC3(multimesh_instance_set_transform, RenderingEntity, int, const Transform &)
+    FUNC3(multimesh_instance_set_transform_2d, RenderingEntity, int, const Transform2D &)
+    FUNC3(multimesh_instance_set_color, RenderingEntity, int, const Color &)
+    FUNC3(multimesh_instance_set_custom_data, RenderingEntity, int, const Color &)
 
-    FUNC1RC(RID, multimesh_get_mesh, RID)
-    FUNC1RC(AABB, multimesh_get_aabb, RID)
+    FUNC1RC(RenderingEntity, multimesh_get_mesh, RenderingEntity)
+    FUNC1RC(AABB, multimesh_get_aabb, RenderingEntity)
 
-    FUNC2RC(Transform, multimesh_instance_get_transform, RID, int)
-    FUNC2RC(Transform2D, multimesh_instance_get_transform_2d, RID, int)
-    FUNC2RC(Color, multimesh_instance_get_color, RID, int)
-    FUNC2RC(Color, multimesh_instance_get_custom_data, RID, int)
+    FUNC2RC(Transform, multimesh_instance_get_transform, RenderingEntity, int)
+    FUNC2RC(Transform2D, multimesh_instance_get_transform_2d, RenderingEntity, int)
+    FUNC2RC(Color, multimesh_instance_get_color, RenderingEntity, int)
+    FUNC2RC(Color, multimesh_instance_get_custom_data, RenderingEntity, int)
 
-    FUNC2(multimesh_set_as_bulk_array, RID, const PoolVector<float> &)
+    FUNC2(multimesh_set_as_bulk_array, RenderingEntity, Span<const float>)
 
-    FUNC2(multimesh_set_visible_instances, RID, int)
-    FUNC1RC(int, multimesh_get_visible_instances, RID)
+    FUNC2(multimesh_set_visible_instances, RenderingEntity, int)
+    FUNC1RC(int, multimesh_get_visible_instances, RenderingEntity)
 
     /* IMMEDIATE API */
 
-    FUNCRID(immediate)
-    FUNC3(immediate_begin, RID, RS::PrimitiveType, RID)
-    FUNC2(immediate_vertex, RID, const Vector3 &)
-    FUNC2(immediate_normal, RID, const Vector3 &)
-    FUNC2(immediate_tangent, RID, const Plane &)
-    FUNC2(immediate_color, RID, const Color &)
-    FUNC2(immediate_uv, RID, const Vector2 &)
-    FUNC2(immediate_uv2, RID, const Vector2 &)
-    FUNC1(immediate_end, RID)
-    FUNC1(immediate_clear, RID)
-    FUNC2(immediate_set_material, RID, RID)
-    FUNC1RC(RID, immediate_get_material, RID)
+    FUNCENT(immediate)
+    FUNC3(immediate_begin, RenderingEntity, RS::PrimitiveType, RenderingEntity)
+    FUNC2(immediate_vertex, RenderingEntity, const Vector3 &)
+    FUNC2(immediate_normal, RenderingEntity, const Vector3 &)
+    FUNC2(immediate_tangent, RenderingEntity, const Plane &)
+    FUNC2(immediate_color, RenderingEntity, const Color &)
+    FUNC2(immediate_uv, RenderingEntity, const Vector2 &)
+    FUNC2(immediate_uv2, RenderingEntity, const Vector2 &)
+    FUNC1(immediate_end, RenderingEntity)
+    FUNC1(immediate_clear, RenderingEntity)
+    FUNC2(immediate_set_material, RenderingEntity, RenderingEntity)
+    FUNC1RC(RenderingEntity, immediate_get_material, RenderingEntity)
 
     /* SKELETON API */
 
-    FUNCRID(skeleton)
-    FUNC3(skeleton_allocate, RID, int, bool)
-    FUNC1RC(int, skeleton_get_bone_count, RID)
-    FUNC3(skeleton_bone_set_transform, RID, int, const Transform &)
-    FUNC2RC(Transform, skeleton_bone_get_transform, RID, int)
-    FUNC3(skeleton_bone_set_transform_2d, RID, int, const Transform2D &)
-    FUNC2RC(Transform2D, skeleton_bone_get_transform_2d, RID, int)
-    FUNC2(skeleton_set_base_transform_2d, RID, const Transform2D &)
+    FUNCENT(skeleton)
+    FUNC3(skeleton_allocate, RenderingEntity, int, bool)
+    FUNC1RC(int, skeleton_get_bone_count, RenderingEntity)
+    FUNC3(skeleton_bone_set_transform, RenderingEntity, int, const Transform &)
+    FUNC2RC(Transform, skeleton_bone_get_transform, RenderingEntity, int)
+    FUNC3(skeleton_bone_set_transform_2d, RenderingEntity, int, const Transform2D &)
+    FUNC2RC(Transform2D, skeleton_bone_get_transform_2d, RenderingEntity, int)
+    FUNC2(skeleton_set_base_transform_2d, RenderingEntity, const Transform2D &)
 
     /* Light API */
 
-    FUNCRID(directional_light)
-    FUNCRID(omni_light)
-    FUNCRID(spot_light)
+    FUNCENT(directional_light)
+    FUNCENT(omni_light)
+    FUNCENT(spot_light)
 
-    FUNC2(light_set_color, RID, const Color &)
-    FUNC3(light_set_param, RID, RS::LightParam, float)
-    FUNC2(light_set_shadow, RID, bool)
-    FUNC2(light_set_shadow_color, RID, const Color &)
-    FUNC2(light_set_projector, RID, RID)
-    FUNC2(light_set_negative, RID, bool)
-    FUNC2(light_set_cull_mask, RID, uint32_t)
-    FUNC2(light_set_reverse_cull_face_mode, RID, bool)
-    FUNC2(light_set_use_gi, RID, bool)
-    FUNC2(light_set_bake_mode, RID, RS::LightBakeMode)
+    FUNC2(light_set_color, RenderingEntity, const Color &)
+    FUNC3(light_set_param, RenderingEntity, RS::LightParam, float)
+    FUNC2(light_set_shadow, RenderingEntity, bool)
+    FUNC2(light_set_shadow_color, RenderingEntity, const Color &)
+    FUNC2(light_set_projector, RenderingEntity, RenderingEntity)
+    FUNC2(light_set_negative, RenderingEntity, bool)
+    FUNC2(light_set_cull_mask, RenderingEntity, uint32_t)
+    FUNC2(light_set_reverse_cull_face_mode, RenderingEntity, bool)
+    FUNC2(light_set_use_gi, RenderingEntity, bool)
+    FUNC2(light_set_bake_mode, RenderingEntity, RS::LightBakeMode)
 
-    FUNC2(light_omni_set_shadow_mode, RID, RS::LightOmniShadowMode)
-    FUNC2(light_omni_set_shadow_detail, RID, RS::LightOmniShadowDetail)
+    FUNC2(light_omni_set_shadow_mode, RenderingEntity, RS::LightOmniShadowMode)
+    FUNC2(light_omni_set_shadow_detail, RenderingEntity, RS::LightOmniShadowDetail)
 
-    FUNC2(light_directional_set_shadow_mode, RID, RS::LightDirectionalShadowMode)
-    FUNC2(light_directional_set_blend_splits, RID, bool)
-    FUNC2(light_directional_set_shadow_depth_range_mode, RID, RS::LightDirectionalShadowDepthRangeMode)
+    FUNC2(light_directional_set_shadow_mode, RenderingEntity, RS::LightDirectionalShadowMode)
+    FUNC2(light_directional_set_blend_splits, RenderingEntity, bool)
+    FUNC2(light_directional_set_shadow_depth_range_mode, RenderingEntity, RS::LightDirectionalShadowDepthRangeMode)
 
     /* PROBE API */
 
-    FUNCRID(reflection_probe)
+    FUNCENT(reflection_probe)
 
-    FUNC2(reflection_probe_set_update_mode, RID, RS::ReflectionProbeUpdateMode)
-    FUNC2(reflection_probe_set_intensity, RID, float)
-    FUNC2(reflection_probe_set_interior_ambient, RID, const Color &)
-    FUNC2(reflection_probe_set_interior_ambient_energy, RID, float)
-    FUNC2(reflection_probe_set_interior_ambient_probe_contribution, RID, float)
-    FUNC2(reflection_probe_set_max_distance, RID, float)
-    FUNC2(reflection_probe_set_extents, RID, const Vector3 &)
-    FUNC2(reflection_probe_set_origin_offset, RID, const Vector3 &)
-    FUNC2(reflection_probe_set_as_interior, RID, bool)
-    FUNC2(reflection_probe_set_enable_box_projection, RID, bool)
-    FUNC2(reflection_probe_set_enable_shadows, RID, bool)
-    FUNC2(reflection_probe_set_cull_mask, RID, uint32_t)
-    FUNC2(reflection_probe_set_resolution, RID, int)
+    FUNC2(reflection_probe_set_update_mode, RenderingEntity, RS::ReflectionProbeUpdateMode)
+    FUNC2(reflection_probe_set_intensity, RenderingEntity, float)
+    FUNC2(reflection_probe_set_interior_ambient, RenderingEntity, const Color &)
+    FUNC2(reflection_probe_set_interior_ambient_energy, RenderingEntity, float)
+    FUNC2(reflection_probe_set_interior_ambient_probe_contribution, RenderingEntity, float)
+    FUNC2(reflection_probe_set_max_distance, RenderingEntity, float)
+    FUNC2(reflection_probe_set_extents, RenderingEntity, const Vector3 &)
+    FUNC2(reflection_probe_set_origin_offset, RenderingEntity, const Vector3 &)
+    FUNC2(reflection_probe_set_as_interior, RenderingEntity, bool)
+    FUNC2(reflection_probe_set_enable_box_projection, RenderingEntity, bool)
+    FUNC2(reflection_probe_set_enable_shadows, RenderingEntity, bool)
+    FUNC2(reflection_probe_set_cull_mask, RenderingEntity, uint32_t)
+    FUNC2(reflection_probe_set_resolution, RenderingEntity, int)
 
     /* BAKED LIGHT API */
 
-    FUNCRID(gi_probe)
+    FUNCENT(gi_probe)
 
-    FUNC2(gi_probe_set_bounds, RID, const AABB &)
-    FUNC1RC(AABB, gi_probe_get_bounds, RID)
+    FUNC2(gi_probe_set_bounds, RenderingEntity, const AABB &)
+    FUNC1RC(AABB, gi_probe_get_bounds, RenderingEntity)
 
-    FUNC2(gi_probe_set_cell_size, RID, float)
-    FUNC1RC(float, gi_probe_get_cell_size, RID)
+    FUNC2(gi_probe_set_cell_size, RenderingEntity, float)
+    FUNC1RC(float, gi_probe_get_cell_size, RenderingEntity)
 
-    FUNC2(gi_probe_set_to_cell_xform, RID, const Transform &)
-    FUNC1RC(Transform, gi_probe_get_to_cell_xform, RID)
+    FUNC2(gi_probe_set_to_cell_xform, RenderingEntity, const Transform &)
+    FUNC1RC(Transform, gi_probe_get_to_cell_xform, RenderingEntity)
 
-    FUNC2(gi_probe_set_dynamic_range, RID, int)
-    FUNC1RC(int, gi_probe_get_dynamic_range, RID)
+    FUNC2(gi_probe_set_dynamic_range, RenderingEntity, int)
+    FUNC1RC(int, gi_probe_get_dynamic_range, RenderingEntity)
 
-    FUNC2(gi_probe_set_energy, RID, float)
-    FUNC1RC(float, gi_probe_get_energy, RID)
+    FUNC2(gi_probe_set_energy, RenderingEntity, float)
+    FUNC1RC(float, gi_probe_get_energy, RenderingEntity)
 
-    FUNC2(gi_probe_set_bias, RID, float)
-    FUNC1RC(float, gi_probe_get_bias, RID)
+    FUNC2(gi_probe_set_bias, RenderingEntity, float)
+    FUNC1RC(float, gi_probe_get_bias, RenderingEntity)
 
-    FUNC2(gi_probe_set_normal_bias, RID, float)
-    FUNC1RC(float, gi_probe_get_normal_bias, RID)
+    FUNC2(gi_probe_set_normal_bias, RenderingEntity, float)
+    FUNC1RC(float, gi_probe_get_normal_bias, RenderingEntity)
 
-    FUNC2(gi_probe_set_propagation, RID, float)
-    FUNC1RC(float, gi_probe_get_propagation, RID)
+    FUNC2(gi_probe_set_propagation, RenderingEntity, float)
+    FUNC1RC(float, gi_probe_get_propagation, RenderingEntity)
 
-    FUNC2(gi_probe_set_interior, RID, bool)
-    FUNC1RC(bool, gi_probe_is_interior, RID)
+    FUNC2(gi_probe_set_interior, RenderingEntity, bool)
+    FUNC1RC(bool, gi_probe_is_interior, RenderingEntity)
 
-    FUNC2(gi_probe_set_dynamic_data, RID, const PoolVector<int> &)
-    FUNC1RC(PoolVector<int>, gi_probe_get_dynamic_data, RID)
+    FUNC2(gi_probe_set_dynamic_data, RenderingEntity, const PoolVector<int> &)
+    FUNC1RC(PoolVector<int>, gi_probe_get_dynamic_data, RenderingEntity)
 
     /* LIGHTMAP CAPTURE */
 
-    FUNCRID(lightmap_capture)
+    FUNCENT(lightmap_capture)
 
-    FUNC2(lightmap_capture_set_bounds, RID, const AABB &)
-    FUNC1RC(AABB, lightmap_capture_get_bounds, RID)
+    FUNC2(lightmap_capture_set_bounds, RenderingEntity, const AABB &)
+    FUNC1RC(AABB, lightmap_capture_get_bounds, RenderingEntity)
 
-    FUNC2(lightmap_capture_set_octree, RID, const PoolVector<uint8_t> &)
-    FUNC1RC(PoolVector<uint8_t>, lightmap_capture_get_octree, RID)
-    FUNC2(lightmap_capture_set_octree_cell_transform, RID, const Transform &)
-    FUNC1RC(Transform, lightmap_capture_get_octree_cell_transform, RID)
-    FUNC2(lightmap_capture_set_octree_cell_subdiv, RID, int)
-    FUNC1RC(int, lightmap_capture_get_octree_cell_subdiv, RID)
-    FUNC2(lightmap_capture_set_energy, RID, float)
-    FUNC1RC(float, lightmap_capture_get_energy, RID)
+    FUNC2(lightmap_capture_set_octree, RenderingEntity, const PoolVector<uint8_t> &)
+    FUNC1RC(PoolVector<uint8_t>, lightmap_capture_get_octree, RenderingEntity)
+    FUNC2(lightmap_capture_set_octree_cell_transform, RenderingEntity, const Transform &)
+    FUNC1RC(Transform, lightmap_capture_get_octree_cell_transform, RenderingEntity)
+    FUNC2(lightmap_capture_set_octree_cell_subdiv, RenderingEntity, int)
+    FUNC1RC(int, lightmap_capture_get_octree_cell_subdiv, RenderingEntity)
+    FUNC2(lightmap_capture_set_energy, RenderingEntity, float)
+    FUNC1RC(float, lightmap_capture_get_energy, RenderingEntity)
+    FUNC2(lightmap_capture_set_interior, RenderingEntity, bool)
+    FUNC1RC(bool, lightmap_capture_is_interior, RenderingEntity)
 
     /* PARTICLES */
 
-    FUNCRID(particles)
+    FUNCENT(particles)
 
-    FUNC2(particles_set_emitting, RID, bool)
-    FUNC1R(bool, particles_get_emitting, RID)
-    FUNC2(particles_set_amount, RID, int)
-    FUNC2(particles_set_lifetime, RID, float)
-    FUNC2(particles_set_one_shot, RID, bool)
-    FUNC2(particles_set_pre_process_time, RID, float)
-    FUNC2(particles_set_explosiveness_ratio, RID, float)
-    FUNC2(particles_set_randomness_ratio, RID, float)
-    FUNC2(particles_set_custom_aabb, RID, const AABB &)
-    FUNC2(particles_set_speed_scale, RID, float)
-    FUNC2(particles_set_use_local_coordinates, RID, bool)
-    FUNC2(particles_set_process_material, RID, RID)
-    FUNC2(particles_set_fixed_fps, RID, int)
-    FUNC2(particles_set_fractional_delta, RID, bool)
-    FUNC1R(bool, particles_is_inactive, RID)
-    FUNC1(particles_request_process, RID)
-    FUNC1(particles_restart, RID)
+    FUNC2(particles_set_emitting, RenderingEntity, bool)
+    FUNC1R(bool, particles_get_emitting, RenderingEntity)
+    FUNC2(particles_set_amount, RenderingEntity, int)
+    FUNC2(particles_set_lifetime, RenderingEntity, float)
+    FUNC2(particles_set_one_shot, RenderingEntity, bool)
+    FUNC2(particles_set_pre_process_time, RenderingEntity, float)
+    FUNC2(particles_set_explosiveness_ratio, RenderingEntity, float)
+    FUNC2(particles_set_randomness_ratio, RenderingEntity, float)
+    FUNC2(particles_set_custom_aabb, RenderingEntity, const AABB &)
+    FUNC2(particles_set_speed_scale, RenderingEntity, float)
+    FUNC2(particles_set_use_local_coordinates, RenderingEntity, bool)
+    FUNC2(particles_set_process_material, RenderingEntity, RenderingEntity)
+    FUNC2(particles_set_fixed_fps, RenderingEntity, int)
+    FUNC2(particles_set_fractional_delta, RenderingEntity, bool)
+    FUNC1R(bool, particles_is_inactive, RenderingEntity)
+    FUNC1(particles_request_process, RenderingEntity)
+    FUNC1(particles_restart, RenderingEntity)
 
-    FUNC2(particles_set_draw_order, RID, RS::ParticlesDrawOrder)
+    FUNC2(particles_set_draw_order, RenderingEntity, RS::ParticlesDrawOrder)
 
-    FUNC2(particles_set_draw_passes, RID, int)
-    FUNC3(particles_set_draw_pass_mesh, RID, int, RID)
-    FUNC2(particles_set_emission_transform, RID, const Transform &)
+    FUNC2(particles_set_draw_passes, RenderingEntity, int)
+    FUNC3(particles_set_draw_pass_mesh, RenderingEntity, int, RenderingEntity)
+    FUNC2(particles_set_emission_transform, RenderingEntity, const Transform &)
 
-    FUNC1R(AABB, particles_get_current_aabb, RID)
+    FUNC1R(AABB, particles_get_current_aabb, RenderingEntity)
 
     /* CAMERA API */
 
-    FUNCRID(camera)
-    FUNC4(camera_set_perspective, RID, float, float, float)
-    FUNC4(camera_set_orthogonal, RID, float, float, float)
-    FUNC5(camera_set_frustum, RID, float, Vector2, float, float)
-    FUNC2(camera_set_transform, RID, const Transform &)
-    FUNC2(camera_set_cull_mask, RID, uint32_t)
-    FUNC2(camera_set_environment, RID, RID)
-    FUNC2(camera_set_use_vertical_aspect, RID, bool)
+    FUNCENT(camera)
+    FUNC4(camera_set_perspective, RenderingEntity, float, float, float)
+    FUNC4(camera_set_orthogonal, RenderingEntity, float, float, float)
+    FUNC5(camera_set_frustum, RenderingEntity, float, Vector2, float, float)
+    FUNC2(camera_set_transform, RenderingEntity, const Transform &)
+    FUNC2(camera_set_cull_mask, RenderingEntity, uint32_t)
+    FUNC2(camera_set_environment, RenderingEntity, RenderingEntity)
+    FUNC2(camera_set_use_vertical_aspect, RenderingEntity, bool)
 
     /* VIEWPORT TARGET API */
 
-    FUNCRID(viewport)
+    FUNCENT(viewport)
 
-    FUNC2(viewport_set_use_arvr, RID, bool)
+    FUNC2(viewport_set_use_arvr, RenderingEntity, bool)
 
-    FUNC3(viewport_set_size, RID, int, int)
+    FUNC3(viewport_set_size, RenderingEntity, int, int)
 
-    FUNC2(viewport_set_active, RID, bool)
-    FUNC2(viewport_set_parent_viewport, RID, RID)
+    FUNC2(viewport_set_active, RenderingEntity, bool)
+    FUNC2(viewport_set_parent_viewport, RenderingEntity, RenderingEntity)
 
-    FUNC2(viewport_set_clear_mode, RID, RS::ViewportClearMode)
+    FUNC2(viewport_set_clear_mode, RenderingEntity, RS::ViewportClearMode)
 
-    FUNC3(viewport_attach_to_screen, RID, const Rect2 &, int)
-    FUNC2(viewport_set_render_direct_to_screen, RID, bool)
-    FUNC1(viewport_detach, RID)
+    FUNC3(viewport_attach_to_screen, RenderingEntity, const Rect2 &, int)
+    FUNC1(viewport_detach, RenderingEntity)
 
-    FUNC2(viewport_set_update_mode, RID, RS::ViewportUpdateMode)
-    FUNC2(viewport_set_vflip, RID, bool)
+    FUNC2(viewport_set_update_mode, RenderingEntity, RS::ViewportUpdateMode)
+    FUNC2(viewport_set_vflip, RenderingEntity, bool)
 
-    FUNC1RC(RID, viewport_get_texture, RID)
+    FUNC1RC(RenderingEntity, viewport_get_texture, RenderingEntity)
 
-    FUNC2(viewport_set_hide_scenario, RID, bool)
-    FUNC2(viewport_set_hide_canvas, RID, bool)
-    FUNC2(viewport_set_disable_environment, RID, bool)
-    FUNC2(viewport_set_disable_3d, RID, bool)
-    FUNC2(viewport_set_keep_3d_linear, RID, bool)
+    FUNC2(viewport_set_hide_scenario, RenderingEntity, bool)
+    FUNC2(viewport_set_hide_canvas, RenderingEntity, bool)
+    FUNC2(viewport_set_disable_environment, RenderingEntity, bool)
+    FUNC2(viewport_set_disable_3d, RenderingEntity, bool)
+    FUNC2(viewport_set_keep_3d_linear, RenderingEntity, bool)
 
-    FUNC2(viewport_attach_camera, RID, RID)
-    FUNC2(viewport_set_scenario, RID, RID)
-    FUNC2(viewport_attach_canvas, RID, RID)
+    FUNC2(viewport_attach_camera, RenderingEntity, RenderingEntity)
+    FUNC2(viewport_set_scenario, RenderingEntity, RenderingEntity)
+    FUNC2(viewport_attach_canvas, RenderingEntity, RenderingEntity)
 
-    FUNC2(viewport_remove_canvas, RID, RID)
-    FUNC3(viewport_set_canvas_transform, RID, RID, const Transform2D &)
-    FUNC2(viewport_set_transparent_background, RID, bool)
+    FUNC2(viewport_remove_canvas, RenderingEntity, RenderingEntity)
+    FUNC3(viewport_set_canvas_transform, RenderingEntity, RenderingEntity, const Transform2D &)
+    FUNC2(viewport_set_transparent_background, RenderingEntity, bool)
 
-    FUNC2(viewport_set_global_canvas_transform, RID, const Transform2D &)
-    FUNC4(viewport_set_canvas_stacking, RID, RID, int, int)
-    FUNC2(viewport_set_shadow_atlas_size, RID, int)
-    FUNC3(viewport_set_shadow_atlas_quadrant_subdivision, RID, int, int)
-    FUNC2(viewport_set_msaa, RID, RS::ViewportMSAA)
-    FUNC2(viewport_set_use_fxaa, RID, bool)
-    FUNC2(viewport_set_use_debanding, RID, bool)
-    FUNC2(viewport_set_hdr, RID, bool)
-    FUNC2(viewport_set_usage, RID, RS::ViewportUsage)
+    FUNC2(viewport_set_global_canvas_transform, RenderingEntity, const Transform2D &)
+    FUNC4(viewport_set_canvas_stacking, RenderingEntity, RenderingEntity, int, int)
+    FUNC2(viewport_set_shadow_atlas_size, RenderingEntity, int)
+    FUNC3(viewport_set_shadow_atlas_quadrant_subdivision, RenderingEntity, int, int)
+    FUNC2(viewport_set_msaa, RenderingEntity, RS::ViewportMSAA)
+    FUNC2(viewport_set_use_fxaa, RenderingEntity, bool)
+    FUNC2(viewport_set_use_debanding, RenderingEntity, bool)
+    FUNC2(viewport_set_sharpen_intensity, RenderingEntity, float)
+    FUNC2(viewport_set_hdr, RenderingEntity, bool)
+    FUNC2(viewport_set_use_32_bpc_depth, RenderingEntity, bool)
+    FUNC2(viewport_set_usage, RenderingEntity, RS::ViewportUsage)
 
     //this passes directly to avoid stalling, but it's pretty dangerous, so don't call after freeing a viewport
-    int viewport_get_render_info(RID p_viewport, RS::ViewportRenderInfo p_info) override {
+    uint64_t viewport_get_render_info(RenderingEntity p_viewport, RS::ViewportRenderInfo p_info) override {
         return submission_thread_singleton->viewport_get_render_info(p_viewport, p_info);
     }
 
-    FUNC2(viewport_set_debug_draw, RID, RS::ViewportDebugDraw)
+    FUNC2(viewport_set_debug_draw, RenderingEntity, RS::ViewportDebugDraw)
 
     /* ENVIRONMENT API */
 
-    FUNCRID(environment)
+    FUNCENT(environment)
 
-    FUNC2(environment_set_background, RID, RS::EnvironmentBG)
-    FUNC2(environment_set_sky, RID, RID)
-    FUNC2(environment_set_sky_custom_fov, RID, float)
-    FUNC2(environment_set_sky_orientation, RID, const Basis &)
-    FUNC2(environment_set_bg_color, RID, const Color &)
-    FUNC2(environment_set_bg_energy, RID, float)
-    FUNC2(environment_set_canvas_max_layer, RID, int)
-    FUNC4(environment_set_ambient_light, RID, const Color &, float, float)
-    FUNC2(environment_set_camera_feed_id, RID, int)
-    FUNC7(environment_set_ssr, RID, bool, int, float, float, float, bool)
-    FUNC13(environment_set_ssao, RID, bool, float, float, float, float, float, float, float, const Color &, RS::EnvironmentSSAOQuality, RS::EnvironmentSSAOBlur, float)
+    FUNC2(environment_set_background, RenderingEntity, RS::EnvironmentBG)
+    FUNC2(environment_set_sky, RenderingEntity, RenderingEntity)
+    FUNC2(environment_set_sky_custom_fov, RenderingEntity, float)
+    FUNC2(environment_set_sky_orientation, RenderingEntity, const Basis &)
+    FUNC2(environment_set_bg_color, RenderingEntity, const Color &)
+    FUNC2(environment_set_bg_energy, RenderingEntity, float)
+    FUNC2(environment_set_canvas_max_layer, RenderingEntity, int)
+    FUNC4(environment_set_ambient_light, RenderingEntity, const Color &, float, float)
+    FUNC2(environment_set_camera_feed_id, RenderingEntity, int)
+    FUNC7(environment_set_ssr, RenderingEntity, bool, int, float, float, float, bool)
+    FUNC13(environment_set_ssao, RenderingEntity, bool, float, float, float, float, float, float, float, const Color &, RS::EnvironmentSSAOQuality, RS::EnvironmentSSAOBlur, float)
 
-    FUNC6(environment_set_dof_blur_near, RID, bool, float, float, float, RS::EnvironmentDOFBlurQuality)
-    FUNC6(environment_set_dof_blur_far, RID, bool, float, float, float, RS::EnvironmentDOFBlurQuality)
-    FUNC11(environment_set_glow, RID, bool, int, float, float, float, RS::EnvironmentGlowBlendMode, float, float, float, bool)
+    FUNC6(environment_set_dof_blur_near, RenderingEntity, bool, float, float, float, RS::EnvironmentDOFBlurQuality)
+    FUNC6(environment_set_dof_blur_far, RenderingEntity, bool, float, float, float, RS::EnvironmentDOFBlurQuality)
+    FUNC12(environment_set_glow, RenderingEntity, bool, int, float, float, float, RS::EnvironmentGlowBlendMode, float, float, float, bool, bool)
 
-    FUNC9(environment_set_tonemap, RID, RS::EnvironmentToneMapper, float, float, bool, float, float, float, float)
+    FUNC9(environment_set_tonemap, RenderingEntity, RS::EnvironmentToneMapper, float, float, bool, float, float, float, float)
 
-    FUNC6(environment_set_adjustment, RID, bool, float, float, float, RID)
+    FUNC6(environment_set_adjustment, RenderingEntity, bool, float, float, float, RenderingEntity)
 
-    FUNC5(environment_set_fog, RID, bool, const Color &, const Color &, float)
-    FUNC7(environment_set_fog_depth, RID, bool, float, float, float, bool, float)
-    FUNC5(environment_set_fog_height, RID, bool, float, float, float)
+    FUNC5(environment_set_fog, RenderingEntity, bool, const Color &, const Color &, float)
+    FUNC7(environment_set_fog_depth, RenderingEntity, bool, float, float, float, bool, float)
+    FUNC5(environment_set_fog_height, RenderingEntity, bool, float, float, float)
 
-    FUNCRID(scenario)
+    FUNCENT(scenario)
 
-    FUNC2(scenario_set_debug, RID, RS::ScenarioDebugMode)
-    FUNC2(scenario_set_environment, RID, RID)
-    FUNC3(scenario_set_reflection_atlas_size, RID, int, int)
-    FUNC2(scenario_set_fallback_environment, RID, RID)
+    FUNC2(scenario_set_debug, RenderingEntity, RS::ScenarioDebugMode)
+    FUNC2(scenario_set_environment, RenderingEntity, RenderingEntity)
+    FUNC3(scenario_set_reflection_atlas_size, RenderingEntity, int, int)
+    FUNC2(scenario_set_fallback_environment, RenderingEntity, RenderingEntity)
 
     /* INSTANCING API */
 
-    FUNCRID(instance)
+    FUNCENT(instance)
 
-    FUNC2(instance_set_base, RID, RID) // from can be mesh, light, poly, area and portal so far.
-    FUNC2(instance_set_scenario, RID, RID) // from can be mesh, light, poly, area and portal so far.
-    FUNC2(instance_set_layer_mask, RID, uint32_t)
-    FUNC2(instance_set_transform, RID, const Transform &)
-    FUNC2(instance_attach_object_instance_id, RID, ObjectID)
-    FUNC3(instance_set_blend_shape_weight, RID, int, float)
-    FUNC3(instance_set_surface_material, RID, int, RID)
-    FUNC2(instance_set_visible, RID, bool)
-    FUNC3(instance_set_use_lightmap, RID, RID, RID)
+    FUNC2(instance_set_base, RenderingEntity, RenderingEntity) // from can be mesh, light, poly, area and portal so far.
+    FUNC2(instance_set_scenario, RenderingEntity, RenderingEntity) // from can be mesh, light, poly, area and portal so far.
+    FUNC2(instance_set_layer_mask, RenderingEntity, uint32_t)
+    FUNC2(instance_set_transform, RenderingEntity, const Transform &)
+    FUNC2(instance_attach_object_instance_id, RenderingEntity, GameEntity)
+    FUNC3(instance_set_blend_shape_weight, RenderingEntity, int, float)
+    FUNC3(instance_set_surface_material, RenderingEntity, int, RenderingEntity)
+    FUNC2(instance_set_visible, RenderingEntity, bool)
+    FUNC5(instance_set_use_lightmap, RenderingEntity, RenderingEntity, RenderingEntity, int, const Rect2 &)
 
-    FUNC2(instance_set_custom_aabb, RID, AABB)
+    FUNC2(instance_set_custom_aabb, RenderingEntity, AABB)
 
-    FUNC2(instance_attach_skeleton, RID, RID)
+    FUNC2(instance_attach_skeleton, RenderingEntity, RenderingEntity)
 
-    FUNC2(instance_set_extra_visibility_margin, RID, real_t)
+    FUNC2(instance_set_extra_visibility_margin, RenderingEntity, real_t)
+    /* PORTALS API */
 
+    FUNC2(instance_set_portal_mode, RenderingEntity, RS::InstancePortalMode)
+    /* OCCLUDERS API */
+    FUNCENT(occluder_instance)
+    FUNC2(occluder_instance_set_scenario, RenderingEntity, RenderingEntity)
+    FUNC2(occluder_instance_link_resource, RenderingEntity, RenderingEntity)
+    FUNC2(occluder_instance_set_transform, RenderingEntity, const Transform &)
+    FUNC2(occluder_instance_set_active, RenderingEntity, bool)
+
+    FUNCENT(occluder_resource)
+    FUNC2(occluder_resource_prepare, RenderingEntity, RS::OccluderType)
+    FUNC2(occluder_resource_spheres_update, RenderingEntity, const Vector<Plane> &)
+    FUNC2(occluder_resource_mesh_update, RenderingEntity, const OccluderMeshData &)
+
+    FUNC1(set_use_occlusion_culling, bool)
+    FUNC1RC(Geometry::MeshData, occlusion_debug_get_current_polys, RenderingEntity)
+
+    // Callbacks
+    FUNC1(callbacks_register, RenderingServerCallbacks *)
     // don't use these in a game!
-    FUNC2RC(Vector<ObjectID>, instances_cull_aabb, const AABB &, RID)
-    FUNC3RC(Vector<ObjectID>, instances_cull_ray, const Vector3 &, const Vector3 &, RID)
-    FUNC2RC(Vector<ObjectID>, instances_cull_convex, Span<const Plane>, RID)
+    FUNC2RC(Vector<GameEntity>, instances_cull_aabb, const AABB &, RenderingEntity)
+    FUNC3RC(Vector<GameEntity>, instances_cull_ray, const Vector3 &, const Vector3 &, RenderingEntity)
+    FUNC2RC(Vector<GameEntity>, instances_cull_convex, Span<const Plane>, RenderingEntity)
 
-    FUNC3(instance_geometry_set_flag, RID, RS::InstanceFlags, bool)
-    FUNC2(instance_geometry_set_cast_shadows_setting, RID, RS::ShadowCastingSetting)
-    FUNC2(instance_geometry_set_material_override, RID, RID)
+    FUNC3(instance_geometry_set_flag, RenderingEntity, RS::InstanceFlags, bool)
+    FUNC2(instance_geometry_set_cast_shadows_setting, RenderingEntity, RS::ShadowCastingSetting)
+    FUNC2(instance_geometry_set_material_override, RenderingEntity, RenderingEntity)
+    FUNC2(instance_geometry_set_material_overlay, RenderingEntity, RenderingEntity)
 
-    FUNC5(instance_geometry_set_draw_range, RID, float, float, float, float)
-    FUNC2(instance_geometry_set_as_instance_lod, RID, RID)
+    FUNC5(instance_geometry_set_draw_range, RenderingEntity, float, float, float, float)
+    FUNC2(instance_geometry_set_as_instance_lod, RenderingEntity, RenderingEntity)
 
     /* CANVAS (2D) */
 
-    FUNCRID(canvas)
-    FUNC3(canvas_set_item_mirroring, RID, RID, const Point2 &)
-    FUNC2(canvas_set_modulate, RID, const Color &)
-    FUNC3(canvas_set_parent, RID, RID, float)
+    FUNCENT(canvas)
+    FUNC3(canvas_set_item_mirroring, RenderingEntity, RenderingEntity, const Point2 &)
+    FUNC2(canvas_set_modulate, RenderingEntity, const Color &)
+    FUNC3(canvas_set_parent, RenderingEntity, RenderingEntity, float)
     FUNC1(canvas_set_disable_scale, bool)
 
-    FUNCRID(canvas_item)
-    FUNC2(canvas_item_set_parent, RID, RID)
+    FUNCENT(canvas_item)
+    FUNC2(canvas_item_set_parent, RenderingEntity, RenderingEntity)
 
-    FUNC2(canvas_item_set_visible, RID, bool)
-    FUNC2(canvas_item_set_light_mask, RID, int)
+    FUNC2(canvas_item_set_visible, RenderingEntity, bool)
+    FUNC2(canvas_item_set_light_mask, RenderingEntity, int)
 
-    FUNC2(canvas_item_set_update_when_visible, RID, bool)
+    FUNC2(canvas_item_set_update_when_visible, RenderingEntity, bool)
 
-    FUNC2(canvas_item_set_transform, RID, const Transform2D &)
-    FUNC2(canvas_item_set_clip, RID, bool)
-    FUNC2(canvas_item_set_distance_field_mode, RID, bool)
-    FUNC3(canvas_item_set_custom_rect, RID, bool, const Rect2 &)
-    FUNC2(canvas_item_set_modulate, RID, const Color &)
-    FUNC2(canvas_item_set_self_modulate, RID, const Color &)
+    FUNC2(canvas_item_set_transform, RenderingEntity, const Transform2D &)
+    FUNC2(canvas_item_set_clip, RenderingEntity, bool)
+    FUNC2(canvas_item_set_distance_field_mode, RenderingEntity, bool)
+    FUNC3(canvas_item_set_custom_rect, RenderingEntity, bool, const Rect2 &)
+    FUNC2(canvas_item_set_modulate, RenderingEntity, const Color &)
+    FUNC2(canvas_item_set_self_modulate, RenderingEntity, const Color &)
 
-    FUNC2(canvas_item_set_draw_behind_parent, RID, bool)
+    FUNC2(canvas_item_set_draw_behind_parent, RenderingEntity, bool)
 
-    FUNC6(canvas_item_add_line, RID, const Point2 &, const Point2 &, const Color &, float, bool)
-    FUNC5(canvas_item_add_polyline, RID, const Vector<Point2> &, const Vector<Color> &, float, bool)
-    FUNC5(canvas_item_add_multiline, RID, const Vector<Point2> &, const Vector<Color> &, float, bool)
-    FUNC3(canvas_item_add_rect, RID, const Rect2 &, const Color &)
-    FUNC4(canvas_item_add_circle, RID, const Point2 &, float, const Color &)
-    FUNC7(canvas_item_add_texture_rect, RID, const Rect2 &, RID, bool, const Color &, bool, RID)
-    FUNC8(canvas_item_add_texture_rect_region, RID, const Rect2 &, RID, const Rect2 &, const Color &, bool, RID, bool)
-    FUNC11(canvas_item_add_nine_patch, RID, const Rect2 &, const Rect2 &, RID, const Vector2 &, const Vector2 &, RS::NinePatchAxisMode, RS::NinePatchAxisMode, bool, const Color &, RID)
-    FUNC7(canvas_item_add_primitive, RID, const Vector<Point2> &, const PoolVector<Color> &, const PoolVector<Point2> &, RID, float, RID)
-    FUNC7(canvas_item_add_polygon, RID, Span<const Point2>, const PoolVector<Color> &, const PoolVector<Point2> &, RID, RID, bool)
-    FUNC12(canvas_item_add_triangle_array, RID, Span<const int>, Span<const Point2>, const PoolVector<Color> &, const PoolVector<Point2> &, const PoolVector<int> &, const PoolVector<float> &, RID, int, RID, bool,bool)
-    FUNC6(canvas_item_add_mesh, RID, const RID &, const Transform2D &, const Color &, RID, RID)
-    FUNC4(canvas_item_add_multimesh, RID, RID, RID, RID)
-    FUNC4(canvas_item_add_particles, RID, RID, RID, RID)
-    FUNC2(canvas_item_add_set_transform, RID, const Transform2D &)
-    FUNC2(canvas_item_add_clip_ignore, RID, bool)
-    FUNC2(canvas_item_set_sort_children_by_y, RID, bool)
-    FUNC2(canvas_item_set_z_index, RID, int)
-    FUNC2(canvas_item_set_z_as_relative_to_parent, RID, bool)
-    FUNC3(canvas_item_set_copy_to_backbuffer, RID, bool, const Rect2 &)
-    FUNC2(canvas_item_attach_skeleton, RID, RID)
+    FUNC6(canvas_item_add_line, RenderingEntity, const Point2 &, const Point2 &, const Color &, float, bool)
+    FUNC5(canvas_item_add_polyline, RenderingEntity, Span<const Vector2>, Span<const Color>, float, bool)
+    FUNC5(canvas_item_add_multiline, RenderingEntity, Span<const Vector2>, Span<const Color> , float, bool)
+    FUNC3(canvas_item_add_rect, RenderingEntity, const Rect2 &, const Color &)
+    FUNC4(canvas_item_add_circle, RenderingEntity, const Point2 &, float, const Color &)
+    FUNC7(canvas_item_add_texture_rect, RenderingEntity, const Rect2 &, RenderingEntity, bool, const Color &, bool, RenderingEntity)
+    FUNC8(canvas_item_add_texture_rect_region, RenderingEntity, const Rect2 &, RenderingEntity, const Rect2 &, const Color &, bool, RenderingEntity, bool)
+    FUNC11(canvas_item_add_nine_patch, RenderingEntity, const Rect2 &, const Rect2 &, RenderingEntity, const Vector2 &, const Vector2 &, RS::NinePatchAxisMode, RS::NinePatchAxisMode, bool, const Color &, RenderingEntity)
+    FUNC7(canvas_item_add_primitive, RenderingEntity, Span<const Vector2>, Span<const Color>, const PoolVector<Point2> &, RenderingEntity, float, RenderingEntity)
+    FUNC7(canvas_item_add_polygon, RenderingEntity, Span<const Point2>, Span<const Color>, Span<const Point2>, RenderingEntity, RenderingEntity, bool)
+    FUNC12(canvas_item_add_triangle_array, RenderingEntity, Span<const int>, Span<const Point2>, Span<const Color>, Span<const Point2>, const PoolVector<int> &, const PoolVector<float> &, RenderingEntity, int, RenderingEntity, bool,bool)
+    FUNC6(canvas_item_add_mesh, RenderingEntity, RenderingEntity, const Transform2D &, const Color &, RenderingEntity, RenderingEntity)
+    FUNC4(canvas_item_add_multimesh, RenderingEntity, RenderingEntity, RenderingEntity, RenderingEntity)
+    FUNC4(canvas_item_add_particles, RenderingEntity, RenderingEntity, RenderingEntity, RenderingEntity)
+    FUNC2(canvas_item_add_set_transform, RenderingEntity, const Transform2D &)
+    FUNC2(canvas_item_add_clip_ignore, RenderingEntity, bool)
+    FUNC2(canvas_item_set_sort_children_by_y, RenderingEntity, bool)
+    FUNC2(canvas_item_set_z_index, RenderingEntity, int)
+    FUNC2(canvas_item_set_z_as_relative_to_parent, RenderingEntity, bool)
+    FUNC3(canvas_item_set_copy_to_backbuffer, RenderingEntity, bool, const Rect2 &)
+    FUNC2(canvas_item_attach_skeleton, RenderingEntity, RenderingEntity)
 
-    FUNC1(canvas_item_clear, RID)
-    FUNC2(canvas_item_set_draw_index, RID, int)
+    FUNC1(canvas_item_clear, RenderingEntity)
+    FUNC2(canvas_item_set_draw_index, RenderingEntity, int)
 
-    FUNC2(canvas_item_set_material, RID, RID)
+    FUNC2(canvas_item_set_material, RenderingEntity, RenderingEntity)
 
-    FUNC2(canvas_item_set_use_parent_material, RID, bool)
+    FUNC2(canvas_item_set_use_parent_material, RenderingEntity, bool)
 
-    FUNC0R(RID, canvas_light_create)
-    FUNC2(canvas_light_attach_to_canvas, RID, RID)
-    FUNC2(canvas_light_set_enabled, RID, bool)
-    FUNC2(canvas_light_set_scale, RID, float)
-    FUNC2(canvas_light_set_transform, RID, const Transform2D &)
-    FUNC2(canvas_light_set_texture, RID, RID)
-    FUNC2(canvas_light_set_texture_offset, RID, const Vector2 &)
-    FUNC2(canvas_light_set_color, RID, const Color &)
-    FUNC2(canvas_light_set_height, RID, float)
-    FUNC2(canvas_light_set_energy, RID, float)
-    FUNC3(canvas_light_set_z_range, RID, int, int)
-    FUNC3(canvas_light_set_layer_range, RID, int, int)
-    FUNC2(canvas_light_set_item_cull_mask, RID, int)
-    FUNC2(canvas_light_set_item_shadow_cull_mask, RID, int)
+    FUNC0R(RenderingEntity, canvas_light_create)
+    FUNC2(canvas_light_attach_to_canvas, RenderingEntity, RenderingEntity)
+    FUNC2(canvas_light_set_enabled, RenderingEntity, bool)
+    FUNC2(canvas_light_set_scale, RenderingEntity, float)
+    FUNC2(canvas_light_set_transform, RenderingEntity, const Transform2D &)
+    FUNC2(canvas_light_set_texture, RenderingEntity, RenderingEntity)
+    FUNC2(canvas_light_set_texture_offset, RenderingEntity, const Vector2 &)
+    FUNC2(canvas_light_set_color, RenderingEntity, const Color &)
+    FUNC2(canvas_light_set_height, RenderingEntity, float)
+    FUNC2(canvas_light_set_energy, RenderingEntity, float)
+    FUNC3(canvas_light_set_z_range, RenderingEntity, int, int)
+    FUNC3(canvas_light_set_layer_range, RenderingEntity, int, int)
+    FUNC2(canvas_light_set_item_cull_mask, RenderingEntity, int)
+    FUNC2(canvas_light_set_item_shadow_cull_mask, RenderingEntity, int)
 
-    FUNC2(canvas_light_set_mode, RID, RS::CanvasLightMode)
+    FUNC2(canvas_light_set_mode, RenderingEntity, RS::CanvasLightMode)
 
-    FUNC2(canvas_light_set_shadow_enabled, RID, bool)
-    FUNC2(canvas_light_set_shadow_buffer_size, RID, int)
-    FUNC2(canvas_light_set_shadow_gradient_length, RID, float)
-    FUNC2(canvas_light_set_shadow_filter, RID, RS::CanvasLightShadowFilter)
-    FUNC2(canvas_light_set_shadow_color, RID, const Color &)
-    FUNC2(canvas_light_set_shadow_smooth, RID, float)
+    FUNC2(canvas_light_set_shadow_enabled, RenderingEntity, bool)
+    FUNC2(canvas_light_set_shadow_buffer_size, RenderingEntity, int)
+    FUNC2(canvas_light_set_shadow_gradient_length, RenderingEntity, float)
+    FUNC2(canvas_light_set_shadow_filter, RenderingEntity, RS::CanvasLightShadowFilter)
+    FUNC2(canvas_light_set_shadow_color, RenderingEntity, const Color &)
+    FUNC2(canvas_light_set_shadow_smooth, RenderingEntity, float)
 
-    FUNCRID(canvas_light_occluder)
-    FUNC2(canvas_light_occluder_attach_to_canvas, RID, RID)
-    FUNC2(canvas_light_occluder_set_enabled, RID, bool)
-    FUNC2(canvas_light_occluder_set_polygon, RID, RID)
-    FUNC2(canvas_light_occluder_set_transform, RID, const Transform2D &)
-    FUNC2(canvas_light_occluder_set_light_mask, RID, int)
+    FUNCENT(canvas_light_occluder)
+    FUNC2(canvas_light_occluder_attach_to_canvas, RenderingEntity, RenderingEntity)
+    FUNC2(canvas_light_occluder_set_enabled, RenderingEntity, bool)
+    FUNC2(canvas_light_occluder_set_polygon, RenderingEntity, RenderingEntity)
+    FUNC2(canvas_light_occluder_set_transform, RenderingEntity, const Transform2D &)
+    FUNC2(canvas_light_occluder_set_light_mask, RenderingEntity, int)
 
-    FUNCRID(canvas_occluder_polygon)
-    FUNC3(canvas_occluder_polygon_set_shape, RID, Span<const Vector2>, bool)
-    FUNC2(canvas_occluder_polygon_set_shape_as_lines, RID, Span<const Vector2>)
+    FUNCENT(canvas_occluder_polygon)
+    FUNC3(canvas_occluder_polygon_set_shape, RenderingEntity, Span<const Vector2>, bool)
+    FUNC2(canvas_occluder_polygon_set_shape_as_lines, RenderingEntity, Span<const Vector2>)
 
-    FUNC2(canvas_occluder_polygon_set_cull_mode, RID, RS::CanvasOccluderPolygonCullMode)
+    FUNC2(canvas_occluder_polygon_set_cull_mode, RenderingEntity, RS::CanvasOccluderPolygonCullMode)
 
     /* BLACK BARS */
 
     FUNC4(black_bars_set_margins, int, int, int, int)
-    FUNC4(black_bars_set_images, RID, RID, RID, RID)
+    FUNC4(black_bars_set_images, RenderingEntity, RenderingEntity, RenderingEntity, RenderingEntity)
 
     /* FREE */
 
-    FUNC1(free_rid, RID)
+    FUNC1(free_rid, RenderingEntity)
 
     /* EVENT QUEUING */
 
     void request_frame_drawn_callback(Callable &&p1) override {
         assert (Thread::get_caller_id() != server_thread);
-        command_queue.push([this, p1 = eastl::move(p1)]() mutable {
+        command_queue.push([p1 = eastl::move(p1)]() mutable {
             submission_thread_singleton->request_frame_drawn_callback(eastl::move(p1));
         });
     }
@@ -607,12 +635,14 @@ public:
     void finish() override;
     void draw(bool p_swap_buffers, double frame_step) override;
     void sync();
-    FUNC0RC(bool, has_changed)
+    FUNC0(tick)
+    FUNC1(pre_draw, bool)
+    FUNC1RC(bool, has_changed, RS::ChangedPriority)
 
     /* RENDER INFO */
 
     //this passes directly to avoid stalling
-    int get_render_info(RS::RenderInfo p_info) override {
+    uint64_t get_render_info(RS::RenderInfo p_info) override {
         return submission_thread_singleton->get_render_info(p_info);
     }
     const char * get_video_adapter_name() const override{
@@ -625,6 +655,7 @@ public:
 
     FUNC4(set_boot_image, const Ref<Image> &, const Color &, bool, bool)
     FUNC1(set_default_clear_color, const Color &)
+	FUNC1(set_shader_time_scale, float)
 
     FUNC1(set_debug_generate_wireframes, bool)
 

@@ -67,7 +67,7 @@ void EditorNetworkProfiler::_update_frame() {
 
     TreeItem *root = counters_display->create_item();
 
-    for (eastl::pair<const ObjectID,MultiplayerAPI::ProfilingInfo> &E : nodes_data) {
+    for (eastl::pair<const GameEntity,MultiplayerAPI::ProfilingInfo> &E : nodes_data) {
 
         TreeItem *node = counters_display->create_item(root);
 
@@ -201,7 +201,7 @@ EditorNetworkProfiler::EditorNetworkProfiler() {
     add_child(counters_display);
 
     frame_delay = memnew(Timer);
-    frame_delay->set_wait_time(0.1);
+    frame_delay->set_wait_time(0.1f);
     frame_delay->set_one_shot(true);
     add_child(frame_delay);
     frame_delay->connect("timeout",callable_mp(this, &ClassName::_update_frame));

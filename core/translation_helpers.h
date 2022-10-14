@@ -1,21 +1,16 @@
 #pragma once
 
 #include "core/forward_decls.h"
-
+#include <EASTL/string_view.h>
 class StringName;
-using UIString = class QString;
-namespace StringUtils {
-    [[nodiscard]] String to_utf8(const UIString &s);
-}
 // Tool translate (TTR and variants) for the editor UI,
 // and doc translate for the class reference (DTR).
 #ifdef TOOLS_ENABLED
 
 // Gets parsed.
-GODOT_EXPORT StringName TTR(StringView);
-GODOT_EXPORT String TTRS(StringView);
+GODOT_EXPORT StringName TTR(StringView, StringView = "");
+GODOT_EXPORT String TTRS(StringView, StringView = "");
 GODOT_EXPORT StringName DTR(StringView);
-#define TTR_utf8(v) StringUtils::to_utf8(TTR(v))
 
 // Use for C strings.
 #define TTRC(m_value) (m_value)

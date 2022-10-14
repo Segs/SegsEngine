@@ -53,6 +53,7 @@ class ResourceInteractiveLoaderBinary : public ResourceInteractiveLoader {
     Vector<char> str_buf;
     Vector<StringName> string_map;
     Vector<IntResource> internal_resources;
+    HashMap<uint32_t, RES> internal_resources_cache;
     Vector<ExtResource> external_resources;
     List<RES> resource_cache;
     String local_path;
@@ -91,7 +92,8 @@ public:
 
 class ResourceFormatLoaderBinary : public ResourceFormatLoader {
 public:
-    Ref<ResourceInteractiveLoader> load_interactive(StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr) override;
+    Ref<ResourceInteractiveLoader> load_interactive(
+            StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr, bool p_no_subresource_cache = false) override;
     void get_recognized_extensions_for_type(StringView p_type, Vector<String> &p_extensions) const override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool handles_type(StringView /*p_type*/) const override;

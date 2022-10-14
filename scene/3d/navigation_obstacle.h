@@ -34,21 +34,26 @@
 #include "core/rid.h"
 
 class Navigation3D;
+class Node3D;
 
 class GODOT_EXPORT NavigationObstacle : public Node {
     GDCLASS(NavigationObstacle, Node)
 
+    Node3D *parent_spatial = nullptr;
     Navigation3D *navigation;
 
     RID agent;
+    bool estimate_radius = true;
+    real_t radius = 1.0f;
 
 protected:
     static void _bind_methods();
+    void _validate_property(PropertyInfo &property) const override;
     void _notification(int p_what);
 
 public:
     NavigationObstacle();
-    virtual ~NavigationObstacle();
+    ~NavigationObstacle() override;
 
     void set_navigation(Navigation3D *p_nav);
     const Navigation3D *get_navigation() const {
@@ -62,8 +67,18 @@ public:
         return agent;
     }
 
+    void set_estimate_radius(bool p_estimate_radius);
+    bool is_radius_estimated() const {
+        return estimate_radius;
+    }
+    void set_radius(real_t p_radius);
+    real_t get_radius() const {
+        return radius;
+    }
     String get_configuration_warning() const override;
 
 private:
-    void update_agent_shape();
+    void initialize_agent();
+    void reevaluate_agent_radius();
+    real_t estimate_agent_radius() const;
 };

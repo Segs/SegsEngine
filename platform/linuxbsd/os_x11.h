@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  os_x11.h                                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -96,7 +96,6 @@ class OS_X11 : public OS_Unix {
     //Rasterizer *rasterizer;
     RenderingServer *rendering_server;
     VideoMode current_videomode;
-    Vector<String> args;
     Window x11_window;
     Window xdnd_source_window;
     MainLoop *main_loop;
@@ -157,7 +156,7 @@ class OS_X11 : public OS_Unix {
     Point2i center;
 
     void _handle_key_event(XKeyEvent *p_event, EventStore &p_events, uint32_t &p_event_index, bool p_echo=false);
-    Atom _process_selection_request_target(Atom p_target, Window p_requestor, Atom p_property) const;
+    Atom _process_selection_request_target(Atom p_target, Window p_requestor, Atom p_property, Atom p_selection) const;
     void _handle_selection_request_event(XSelectionRequestEvent *p_event) const;
     void process_xevents();
     void delete_main_loop() override;
@@ -222,6 +221,8 @@ protected:
     void initialize_core() override;
     Error initialize(const VideoMode &p_desired, int p_video_driver, int p_audio_driver) override;
     void finalize() override;
+    bool is_offscreen_gl_available() const override;
+    void set_offscreen_gl_current(bool p_current) override;
 
     void set_main_loop(MainLoop *p_main_loop) override;
 
@@ -232,6 +233,7 @@ protected:
     static void _poll_events_thread(void *ud);
 
     bool _wait_for_events() const;
+    void _check_pending_events(EventStore &r_events);
     void _poll_events();
     String _get_clipboard_impl(Atom p_source, Window x11_window, Atom target) const;
     String _get_clipboard(Atom p_source, Window x11_window) const;
@@ -260,6 +262,8 @@ public:
 
     void set_clipboard(StringView p_text) override;
     String get_clipboard() const override;
+    void set_clipboard_primary(const String &p_text) override;
+    String get_clipboard_primary() const override;
 
     void release_rendering_thread() override;
     void make_rendering_thread() override;
@@ -277,6 +281,7 @@ public:
     Point2 get_screen_position(int p_screen = -1) const override;
     Size2 get_screen_size(int p_screen = -1) const override;
     int get_screen_dpi(int p_screen = -1) const override;
+    float get_screen_refresh_rate(int p_screen = -1) const override;
     Point2 get_window_position() const override;
     void set_window_position(const Point2 &p_position) override;
     Size2 get_window_size() const override;
@@ -328,7 +333,6 @@ public:
     void disable_crash_handler() override;
     bool is_disable_crash_handler() const override;
 
-    Error move_to_trash(StringView p_path) override;
 
     LatinKeyboardVariant get_latin_keyboard_variant() const override;
 

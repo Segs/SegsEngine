@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  callable.cpp                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -31,12 +31,16 @@
 #include "callable.h"
 
 #include "core/script_language.h"
+#include "core/ecs_registry.h"
 #include "string_utils.h"
 #include "message_queue.h"
 #include "object.h"
 #include "object_db.h"
 #include "reference.h"
 
+#include "entt/entity/entity.hpp"
+
+#include "entt/entity/registry.hpp"
 /*void Callable::call_deferred(const Variant **p_arguments, int p_argcount) const {
     MessageQueue::get_singleton()->push_callable(*this, p_arguments, p_argcount);
 }*/
@@ -50,7 +54,7 @@ void Callable::call(const Variant **p_arguments, int p_argcount, Variant &r_retu
     } else if (is_custom()) {
         custom->call(p_arguments, p_argcount, r_return_value, r_call_error);
     } else {
-        Object *obj = ObjectDB::get_instance(ObjectID(object));
+        Object *obj = object_for_entity(object);
         r_return_value = obj->call(method, p_arguments, p_argcount, r_call_error);
     }
 }
@@ -59,19 +63,20 @@ Object *Callable::get_object() const {
     if (is_null()) {
         return nullptr;
     } else if (is_custom()) {
-        return ObjectDB::get_instance(custom->get_object());
+        return object_for_entity(custom->get_object());
     } else {
-        return ObjectDB::get_instance(ObjectID(object));
+        return object_for_entity(GameEntity(object));
     }
 }
 
-ObjectID Callable::get_object_id() const {
+GameEntity Callable::get_object_id() const {
     if (is_null()) {
-        return ObjectID();
-    } else if (is_custom()) {
+        return entt::null;
+    }
+    if (is_custom()) {
         return custom->get_object();
     } else {
-        return ObjectID(object);
+        return GameEntity(object);
     }
 }
 
@@ -93,32 +98,29 @@ uint32_t Callable::hash() const {
         return custom->hash();
     }
     uint32_t hash = method.hash();
-    return hash_djb2_one_64(object, hash);
+    return hash_djb2_one_64(entt::to_integral(object), hash);
 }
 
 bool Callable::operator==(const Callable &p_callable) const {
     bool custom_a = is_custom();
     bool custom_b = p_callable.is_custom();
 
-    if (custom_a == custom_b) {
-        if (custom_a) {
-            if (custom == p_callable.custom) {
-                return true; //same pointer, dont even compare
-            }
-
-            CallableCustom::CompareEqualFunc eq_a = custom->get_compare_equal_func();
-            CallableCustom::CompareEqualFunc eq_b = p_callable.custom->get_compare_equal_func();
-            if (eq_a == eq_b) {
-                return eq_a(custom, p_callable.custom);
-            } else {
-                return false;
-            }
-        } else {
-            return object == p_callable.object && method == p_callable.method;
-        }
-    } else {
+    if (custom_a != custom_b) {
         return false;
     }
+    if (!custom_a) {
+        return object == p_callable.object && method == p_callable.method;
+    }
+    if (custom == p_callable.custom) {
+        return true; //same pointer, dont even compare
+    }
+
+    CallableCustom::CompareEqualFunc eq_a = custom->get_compare_equal_func();
+    CallableCustom::CompareEqualFunc eq_b = p_callable.custom->get_compare_equal_func();
+    if (eq_a != eq_b) {
+        return false;
+    }
+    return eq_a(custom, p_callable.custom);
 }
 
 bool Callable::operator!=(const Callable &p_callable) const {
@@ -147,7 +149,7 @@ bool Callable::operator<(const Callable &p_callable) const {
             if (object == p_callable.object) {
                 return method < p_callable.method;
             } else {
-                return object < p_callable.object;
+                return entt::to_integral(object) < entt::to_integral(p_callable.object);
             }
         }
     } else {
@@ -170,16 +172,18 @@ void Callable::operator=(const Callable &p_callable) {
 
     if (p_callable.is_custom()) {
         method = StringName();
-        if (!p_callable.custom->ref_count.ref()) {
-            object = 0;
-        } else {
-            object = 0;
+        if (p_callable.custom->ref_count.ref()) {
             custom = p_callable.custom;
+            custom_method = p_callable.custom_method;
+        } else {
+            object = entt::null;
         }
     } else {
         method = p_callable.method;
         object = p_callable.object;
+        custom_method =false;
     }
+
 }
 
 Callable::operator String() const {
@@ -205,45 +209,46 @@ Callable::operator String() const {
 
 Callable::Callable(const Object *p_object, const StringName &p_method) {
     if (p_method == StringName()) {
-        object = 0;
+        object = entt::null;
         ERR_FAIL_MSG("Method argument to Callable constructor must be a non-empty string");
     }
     if (p_object == nullptr) {
-        object = 0;
+        object = entt::null;
         ERR_FAIL_MSG("Object argument to Callable constructor must be non-null");
     }
 
     object = p_object->get_instance_id();
+    assert(game_object_registry.registry.valid(object));
     method = p_method;
 }
 
-Callable::Callable(ObjectID p_object, const StringName &p_method) {
-    if (p_method == StringName()) {
-        object = 0;
+Callable::Callable(GameEntity p_object, const StringName &p_method) {
+    if (p_method.empty()) {
+        object = entt::null;
         ERR_FAIL_MSG("Method argument to Callable constructor must be a non-empty string");
     }
 
     object = p_object;
+    assert(game_object_registry.valid(object));
     method = p_method;
 }
 
 Callable::Callable(CallableCustom *p_custom) {
     if (p_custom->referenced) {
-        object = 0;
+        object = entt::null;
         ERR_FAIL_MSG("Callable custom is already referenced");
     }
     p_custom->referenced = true;
-    object = 0; //ensure object is all zero, since pointer may be 32 bits
+    object = entt::null; //ensure object is all zero, since pointer may be 32 bits
     custom = p_custom;
+    custom_method = p_custom!=nullptr;
 }
 
 Callable::Callable(const Callable &p_callable) {
     if (p_callable.is_custom()) {
-        if (!p_callable.custom->ref_count.ref()) {
-            object = 0;
-        } else {
-            object = 0;
+        if (p_callable.custom->ref_count.ref()) {
             custom = p_callable.custom;
+            custom_method= p_callable.custom_method;
         }
     } else {
         method = p_callable.method;
@@ -265,10 +270,10 @@ CallableCustom::CallableCustom() {
 
 //////////////////////////////////
 Object *Signal::get_object() const {
-    return ObjectDB::get_instance(object);
+    return object_for_entity(object);
 }
 
-ObjectID Signal::get_object_id() const {
+GameEntity Signal::get_object_id() const {
     return object;
 }
 
@@ -284,7 +289,7 @@ bool Signal::operator<(const Signal &p_signal) const {
     if (object == p_signal.object) {
         return name < p_signal.name;
     } else {
-        return object < p_signal.object;
+        return entt::to_integral(object) < entt::to_integral(p_signal.object);
     }
 }
 
@@ -303,7 +308,7 @@ Signal::operator String() const {
 }
 
 //void Signal::emit_signal(const Variant **p_arguments, int p_argcount) const {
-//    Object *obj = ObjectDB::get_instance(object);
+//    Object *obj = object_for_entity(object);
 //    if (!obj) {
 //        return;// ERR_INVALID_DATA;
 //    }
@@ -311,11 +316,11 @@ Signal::operator String() const {
 //    obj->emit_signal(name, p_arguments, p_argcount);
 //}
 
-Error Signal::connect(const Callable &p_callable, const Vector<Variant> &p_binds, uint32_t p_flags) {
+Error Signal::connect(const Callable &p_callable, uint32_t p_flags) {
     Object *object = get_object();
     ERR_FAIL_COND_V(!object, ERR_UNCONFIGURED);
 
-    return object->connect(name, p_callable, p_binds, p_flags);
+    return object->connect(name, p_callable,/* p_binds,*/ p_flags);
 }
 
 void Signal::disconnect(const Callable &p_callable) {
@@ -348,10 +353,9 @@ Array Signal::get_connections() const {
     return arr;
 }
 
-Signal::Signal(const Object *p_object, const StringName &p_name) {
+Signal::Signal(const Object *p_object, const StringName &p_name) : name(p_name) {
     ERR_FAIL_COND_MSG(p_object == nullptr, "Object argument to Signal constructor must be non-null");
 
     object = p_object->get_instance_id();
-    name = p_name;
 }
 

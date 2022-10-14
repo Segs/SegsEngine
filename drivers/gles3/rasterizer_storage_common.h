@@ -28,8 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RASTERIZER_STORAGE_COMMON_H
-#define RASTERIZER_STORAGE_COMMON_H
+#pragma once
+#include <stdint.h>
 
 class RasterizerStorageCommon {
 public:
@@ -45,7 +45,7 @@ public:
 	// these flags are specifically for batching
 	// some of the logic is thus in rasterizer_storage.cpp
 	// we could alternatively set bitflags for each 'uses' and test on the fly
-	enum BatchFlags {
+    enum BatchFlags : uint8_t {
 		PREVENT_COLOR_BAKING = 1 << 0,
 		PREVENT_VERTEX_BAKING = 1 << 1,
 
@@ -56,7 +56,7 @@ public:
 		USE_LARGE_FVF = 1 << 4,
 	};
 
-	enum BatchType : uint16_t {
+    enum BatchType : uint8_t {
 		BT_DEFAULT = 0,
 		BT_RECT = 1,
 		BT_LINE = 2,
@@ -74,4 +74,3 @@ public:
 	};
 };
 
-#endif // RASTERIZER_STORAGE_COMMON_H

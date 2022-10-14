@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  core_bind.h                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -37,6 +37,7 @@
 #include "core/math/rect2.h"
 #include "core/math/vector3.h"
 #include "core/os/thread.h"
+#include "core/os/semaphore.h"
 
 class ResourceInteractiveLoader;
 class Resource;
@@ -54,7 +55,9 @@ using Mutex = std::recursive_mutex;
 
 class GODOT_EXPORT _ResourceManager : public Object {
     GDCLASS(_ResourceManager, Object)
-    HAS_BINDS
+    SE_CLASS()
+
+    static void _bind_methods();
 protected:
     static _ResourceManager*singleton;
 
@@ -72,16 +75,16 @@ public:
 
     static _ResourceManager*get_singleton() { return singleton; }
 
-    INVOCABLE Error save(StringView p_path, const RES &p_resource, SaverFlags p_flags);
-    INVOCABLE PoolVector<String> get_recognized_extensions(const RES &p_resource);
+    SE_INVOCABLE Error save(StringView p_path, const RES &p_resource, SaverFlags p_flags);
+    SE_INVOCABLE PoolVector<String> get_recognized_extensions(const RES &p_resource);
 
-    INVOCABLE Ref<ResourceInteractiveLoader> load_interactive(StringView p_path, StringView p_type_hint = StringView());
-    INVOCABLE RES load(StringView p_path, StringView p_type_hint = StringView(), bool p_no_cache = false);
-    INVOCABLE PoolStringArray get_recognized_extensions_for_type(StringView p_type);
-    INVOCABLE void set_abort_on_missing_resources(bool p_abort);
-    INVOCABLE Vector<String> get_dependencies(StringView p_path);
-    INVOCABLE bool has_cached(StringView p_path);
-    INVOCABLE bool exists(StringView p_path, StringView p_type_hint = StringView());
+    SE_INVOCABLE Ref<ResourceInteractiveLoader> load_interactive(StringView p_path, StringView p_type_hint = StringView(), bool p_no_cache = false);
+    SE_INVOCABLE RES load(StringView p_path, StringView p_type_hint = StringView(), bool p_no_cache = false);
+    SE_INVOCABLE PoolStringArray get_recognized_extensions_for_type(StringView p_type);
+    SE_INVOCABLE void set_abort_on_missing_resources(bool p_abort);
+    SE_INVOCABLE Vector<String> get_dependencies(StringView p_path);
+    SE_INVOCABLE bool has_cached(StringView p_path);
+    SE_INVOCABLE bool exists(StringView p_path, StringView p_type_hint = StringView());
     _ResourceManager();
 };
 
@@ -89,7 +92,9 @@ class MainLoop;
 
 class GODOT_EXPORT _OS : public Object {
     GDCLASS(_OS, Object)
-    HAS_BINDS
+    SE_CLASS()
+
+    static void _bind_methods();
 
 protected:
     static _OS *singleton;
@@ -147,8 +152,9 @@ public:
 
     void set_clipboard(StringView p_text);
     String get_clipboard() const;
+    bool has_clipboard() const;
 
-    void set_video_mode(const Size2 &p_size, bool p_fullscreen, bool p_resizeable, int p_screen = 0);
+    void set_video_mode(Size2 p_size, bool p_fullscreen, bool p_resizeable, int p_screen = 0);
     Size2 get_video_mode(int p_screen = 0) const;
     bool is_video_mode_fullscreen(int p_screen = 0) const;
     bool is_video_mode_resizable(int p_screen = 0) const;
@@ -173,6 +179,7 @@ public:
     virtual int get_screen_dpi(int p_screen = -1) const;
     virtual float get_screen_scale(int p_screen) const;
     virtual float get_screen_max_scale() const;
+    virtual float get_screen_refresh_rate(int p_screen = -1) const;
     virtual Point2 get_window_position() const;
     virtual void set_window_position(const Point2 &p_position);
     virtual Size2 get_max_window_size() const;
@@ -224,7 +231,7 @@ public:
     int get_low_processor_usage_mode_sleep_usec() const;
 
     String get_executable_path() const;
-    int execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking=true, Array p_output = Array(), bool p_read_stderr = false);
+    int execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking=true, Array p_output = Array(), bool p_read_stderr = false, bool p_open_console = false);
 
     Error kill(int p_pid);
     Error shell_open(const String& p_uri);
@@ -233,22 +240,19 @@ public:
 
     bool has_environment(const String &p_var) const;
     String get_environment(const String &p_var) const;
+    bool set_environment(const String &p_var, const String &p_value) const;
 
     String get_name() const;
     PoolVector<String> get_cmdline_args();
 
     String get_locale() const;
+    String get_locale_language() const;
     String get_latin_keyboard_variant() const;
 
     String get_model_name() const;
 
     void dump_memory_to_file(const String &p_file);
     void dump_resources_to_file(StringView p_file);
-
-    bool has_virtual_keyboard() const;
-    void show_virtual_keyboard(const String &p_existing_text = String());
-    void hide_virtual_keyboard();
-    int get_virtual_keyboard_height();
 
     void print_resources_in_use(bool p_short = false);
     void print_all_resources(StringView p_to_file);
@@ -287,7 +291,7 @@ public:
 
     void delay_usec(uint32_t p_usec) const;
     void delay_msec(uint32_t p_msec) const;
-    uint32_t get_ticks_msec() const;
+    uint64_t get_ticks_msec() const;
     uint64_t get_ticks_usec() const;
     uint32_t get_splash_tick_msec() const;
 
@@ -326,8 +330,12 @@ public:
     String get_system_dir(SystemDir p_dir) const;
 
     String get_user_data_dir() const;
+    String get_config_dir() const;
+    String get_data_dir() const;
+    String get_cache_dir() const;
 
     void alert(StringView p_alert, StringView p_title = StringView("ALERT!"));
+    void crash(const String &p_message);
 
     void set_screen_orientation(ScreenOrientation p_orientation);
     ScreenOrientation get_screen_orientation() const;
@@ -464,6 +472,7 @@ public:
     Error open_compressed(StringView p_path, ModeFlags p_mode_flags, CompressionMode p_compress_mode = COMPRESSION_FASTLZ);
 
     Error open(StringView p_path, ModeFlags p_mode_flags); // open a file.
+    void flush(); // Flush a file (write its buffer to disk).
     void close(); // Close a file.
     bool is_open() const; // True when file is open.
 
@@ -472,8 +481,8 @@ public:
 
     void seek(int64_t p_position); // Seek to a given position.
     void seek_end(int64_t p_position = 0); // Seek from the end of file.
-    int64_t get_position() const; // Get position in the file.
-    int64_t get_len() const; // Get size of the file.
+    uint64_t get_position() const; // Get position in the file.
+    uint64_t get_len() const; // Get size of the file.
 
     bool eof_reached() const; // Reading passed EOF.
 
@@ -488,7 +497,7 @@ public:
 
     Variant get_var(bool p_allow_objects = false) const;
 
-    PoolVector<uint8_t> get_buffer(int p_length) const; // Get an array of bytes.
+    PoolVector<uint8_t> get_buffer(int64_t p_length) const; // Get an array of bytes.
     String get_line() const;
     Vector<String> get_csv_line(int8_t p_delim = ',') const;
     String get_as_text() const;
@@ -564,7 +573,7 @@ public:
     bool file_exists(StringView p_file);
     bool dir_exists(StringView p_dir);
 
-    int get_space_left();
+    uint64_t get_space_left();
 
     Error copy(StringView p_from, StringView p_to);
     Error rename(StringView p_from, StringView p_to);
@@ -606,7 +615,7 @@ public:
 class GODOT_EXPORT _Mutex : public RefCounted {
 
     GDCLASS(_Mutex, RefCounted)
-    Mutex *mutex;
+    Mutex mutex;
 
     static void _bind_methods();
 
@@ -615,14 +624,12 @@ public:
     Error try_lock();
     void unlock();
 
-    _Mutex();
-    ~_Mutex() override;
 };
 
 class GODOT_EXPORT _Semaphore : public RefCounted {
 
     GDCLASS(_Semaphore, RefCounted)
-    Semaphore *semaphore;
+    Semaphore semaphore;
 
     static void _bind_methods();
 
@@ -630,8 +637,6 @@ public:
     void wait();
     void post();
 
-    _Semaphore();
-    ~_Semaphore() override;
 };
 
 class GODOT_EXPORT _Thread : public RefCounted {
@@ -641,8 +646,8 @@ class GODOT_EXPORT _Thread : public RefCounted {
 protected:
     Variant ret;
     Variant userdata;
-    volatile bool active;
-    Object *target_instance;
+    SafeFlag running;
+    GameEntity target_instance_id;
     StringName target_method;
     Thread thread;
     static void _bind_methods();
@@ -660,6 +665,7 @@ public:
     Error start(Object *p_instance, const StringName &p_method, const Variant &p_userdata = Variant::null_variant, Priority p_priority = PRIORITY_NORMAL);
     String get_id() const;
     bool is_active() const;
+    bool is_alive() const;
     Variant wait_to_finish();
 
     _Thread();
@@ -751,6 +757,8 @@ public:
 
     void set_editor_hint(bool p_enabled);
     bool is_editor_hint() const;
+    void set_print_error_messages(bool p_enabled);
+    bool is_printing_error_messages() const;
 
     _Engine();
 };

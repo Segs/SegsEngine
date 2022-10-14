@@ -37,7 +37,7 @@
 class GODOT_EXPORT CryptoCore {
 
 public:
-    class MD5Context {
+    class GODOT_EXPORT MD5Context {
 
     private:
         void *ctx; // To include, or not to include...
@@ -51,7 +51,7 @@ public:
         Error finish(unsigned char r_hash[16]);
     };
 
-    class SHA1Context {
+    class GODOT_EXPORT SHA1Context {
 
     private:
         void *ctx; // To include, or not to include...
@@ -65,7 +65,7 @@ public:
         Error finish(unsigned char r_hash[20]);
     };
 
-    class SHA256Context {
+    class GODOT_EXPORT SHA256Context {
 
     private:
         void *ctx; // To include, or not to include...
@@ -79,7 +79,7 @@ public:
         Error finish(unsigned char r_hash[32]);
     };
 
-    class AESContext {
+    class GODOT_EXPORT AESContext {
 
     private:
         void *ctx; // To include, or not to include...
@@ -92,6 +92,8 @@ public:
         Error set_decode_key(const uint8_t *p_key, size_t p_bits);
         Error encrypt_ecb(const uint8_t p_src[16], uint8_t r_dst[16]);
         Error decrypt_ecb(const uint8_t p_src[16], uint8_t r_dst[16]);
+        Error encrypt_cbc(size_t p_length, uint8_t r_iv[16], const uint8_t *p_src, uint8_t *r_dst);
+        Error decrypt_cbc(size_t p_length, uint8_t r_iv[16], const uint8_t *p_src, uint8_t *r_dst);
     };
 
     static String b64_encode_str(const uint8_t *p_src, size_t p_src_len);

@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #pragma once
+#include "core/reflection_macros.h"
 
 /** Error List. Please never compare an error against FAILED
  * Either do result != OK , or !result. This way, Error fail
@@ -88,3 +89,4 @@ enum Error : int {
     ERR_BUG, ///< a bug in the software certainly happened, due to a double check failing or unexpected behavior.
     ERR_PRINTER_ON_FIRE, /// the parallel port printer is engulfed in flames
 };
+SE_ENUM(Error)

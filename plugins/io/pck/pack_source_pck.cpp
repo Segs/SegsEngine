@@ -1,9 +1,11 @@
-#include "pack_source_pck.h"
+﻿#include "pack_source_pck.h"
 
+#include "core/print_string.h"
 #include "core/os/file_access.h"
 #include "core/string_formatter.h"
 #include "core/io/file_access_pack.h"
 #include "core/version.h"
+#include "core/os/os.h"
 
 #include <core/project_settings.h>
 
@@ -33,7 +35,7 @@ public:
 
     uint8_t get_8() const override;
 
-    int get_buffer(uint8_t *p_dst, int p_length) const override;
+    uint64_t get_buffer(uint8_t *p_dst, uint64_t p_length) const override;
 
     void set_endian_swap(bool p_swap) override;
 
@@ -42,7 +44,7 @@ public:
     void flush() override;
     void store_8(uint8_t p_dest) override;
 
-    void store_buffer(const uint8_t *p_src, int p_length) override;
+    void store_buffer(const uint8_t *p_src, uint64_t p_length) override;
 
     bool file_exists(StringView p_name) override;
 
@@ -106,12 +108,13 @@ uint8_t FileAccessPack::get_8() const {
     return f->get_8();
 }
 
-int FileAccessPack::get_buffer(uint8_t *p_dst, int p_length) const {
+uint64_t FileAccessPack::get_buffer(uint8_t *p_dst, uint64_t p_length) const {
+    ERR_FAIL_COND_V(!p_dst && p_length > 0, -1);
 
     if (eof)
         return 0;
 
-    uint64_t to_read = p_length;
+    int64_t to_read = p_length;
     if (to_read + pos > pf.size) {
         eof = true;
         to_read = int64_t(pf.size) - int64_t(pos);
@@ -148,7 +151,7 @@ void FileAccessPack::store_8(uint8_t p_dest) {
     ERR_FAIL();
 }
 
-void FileAccessPack::store_buffer(const uint8_t *p_src, int p_length) {
+void FileAccessPack::store_buffer(const uint8_t *p_src, uint64_t p_length) {
 
     ERR_FAIL();
 }
@@ -178,37 +181,80 @@ FileAccessPack::~FileAccessPack() {
 
 //////////////////////////////////////////////////////////////////
 
-bool PackedSourcePCK::try_open_pack(StringView p_path, bool p_replace_files, StringView p_destination) {
+bool PackedSourcePCK::try_open_pack(StringView p_path, bool p_replace_files, StringView p_destination, uint64_t p_offset) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     if (!f)
         return false;
+	bool pck_header_found = false;
+
+    // Search for the header at the start offset - standalone PCK file.
+    f->seek(p_offset);
 
     uint32_t magic = f->get_32();
+    if (magic == PACK_HEADER_MAGIC) {
+        pck_header_found = true;
+    }
 
-    if (magic != PACK_HEADER_MAGIC) {
-        //maybe at the end.... self contained exe
-        f->seek_end();
-        f->seek(f->get_position() - 4);
-        magic = f->get_32();
-        if (magic != PACK_HEADER_MAGIC) {
-
+    // Search for the header in the executable "pck" section - self contained executable.
+    if (!pck_header_found) {
+        // Loading with offset feature not supported for self contained exe files.
+        if (p_offset != 0) {
             f->close();
             memdelete(f);
-            return false;
+            ERR_FAIL_V_MSG(false, "Loading self-contained executable with offset not supported.");
         }
+
+        int64_t pck_off = OS::get_singleton()->get_embedded_pck_offset();
+        if (pck_off != 0) {
+            // Search for the header, in case PCK start and section have different alignment.
+            for (int i = 0; i < 8; i++) {
+                f->seek(pck_off);
+        magic = f->get_32();
+                if (magic == PACK_HEADER_MAGIC) {
+#ifdef DEBUG_ENABLED
+                    print_verbose(FormatVE("PCK header found in executable pck section, loading from offset 0x%x",pck_off - 4));
+#endif
+                    pck_header_found = true;
+                    break;
+                }
+                pck_off++;
+            }
+        }
+    }
+
+    // Search for the header at the end of file - self contained executable.
+    if (!pck_header_found) {
+        // Loading with offset feature not supported for self contained exe files.
+        if (p_offset != 0) {
+            f->close();
+            memdelete(f);
+            ERR_FAIL_V_MSG(false, "Loading self-contained executable with offset not supported.");
+        }
+        f->seek_end();
+        f->seek(f->get_position() - 4);
+
+        magic = f->get_32();
+        if (magic == PACK_HEADER_MAGIC) {
         f->seek(f->get_position() - 12);
 
         uint64_t ds = f->get_64();
         f->seek(f->get_position() - ds - 8);
 
         magic = f->get_32();
-        if (magic != PACK_HEADER_MAGIC) {
-
-            f->close();
-            memdelete(f);
-            return false;
+            if (magic == PACK_HEADER_MAGIC) {
+#ifdef DEBUG_ENABLED
+                print_verbose(FormatVE("PCK header found at the end of executable, loading from offset 0x%x",f->get_position() - 4));
+#endif
+                pck_header_found = true;
+            }
         }
+    }
+
+    if (!pck_header_found) {
+        f->close();
+        memdelete(f);
+        return false;
     }
 
     uint32_t version = f->get_32();

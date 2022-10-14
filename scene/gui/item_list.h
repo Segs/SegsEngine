@@ -58,13 +58,13 @@ private:
         Rect2i icon_region;
         Color icon_modulate;
         Ref<Texture> tag_icon;
-        StringName text;
+        String text;
         bool selectable;
         bool selected;
         bool disabled;
         bool tooltip_enabled;
         Variant metadata;
-        StringName tooltip;
+        String tooltip;
         Color custom_fg;
         Color custom_bg;
 
@@ -130,7 +130,7 @@ public:
     void add_icon_item(const Ref<Texture> &p_item, bool p_selectable = true);
 
     void set_item_text(int p_idx, const StringName &p_text);
-    StringName get_item_text(int p_idx) const;
+    const String &get_item_text(int p_idx) const;
 
     void set_item_icon(int p_idx, const Ref<Texture> &p_icon);
     Ref<Texture> get_item_icon(int p_idx) const;
@@ -159,9 +159,8 @@ public:
     void set_item_tooltip_enabled(int p_idx, const bool p_enabled);
     bool is_item_tooltip_enabled(int p_idx) const;
 
-    void set_item_tooltip_utf8(int p_idx, StringView p_tooltip);
-    void set_item_tooltip(int p_idx, StringName p_tooltip);
-    StringName get_item_tooltip(int p_idx) const;
+    void set_item_tooltip(int p_idx, StringView p_tooltip);
+    const String &get_item_tooltip(int p_idx) const;
 
     void set_item_custom_bg_color(int p_idx, const Color &p_custom_bg_color);
     Color get_item_custom_bg_color(int p_idx) const;
@@ -218,7 +217,7 @@ public:
     void sort_items_by_text();
     int find_metadata(const Variant &p_metadata) const;
 
-    StringName get_tooltip(const Point2 &p_pos) const override;
+    const String &get_tooltip(const Point2 &p_pos) const override;
     int get_item_at_position(const Point2 &p_pos, bool p_exact = false) const;
     bool is_pos_at_end_of_items(const Point2 &p_pos) const;
 

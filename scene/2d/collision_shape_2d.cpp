@@ -106,6 +106,7 @@ void CollisionShape2D::_notification(int p_what) {
 
         } break;
         case NOTIFICATION_DRAW: {
+            ERR_FAIL_COND(!is_inside_tree());
 
             if (!Engine::get_singleton()->is_editor_hint() && !get_tree()->is_debugging_collisions_hint()) {
                 break;
@@ -123,11 +124,12 @@ void CollisionShape2D::_notification(int p_what) {
                 draw_col.r = g;
                 draw_col.g = g;
                 draw_col.b = g;
+                draw_col.a *= 0.5f;
             }
             shape->draw(get_canvas_item(), draw_col);
 
             rect = shape->get_rect();
-            rect = rect.grow(3);
+            rect.grow_by(3);
 
             if (one_way_collision) {
                 // Draw an arrow indicating the one-way collision direction
@@ -137,14 +139,13 @@ void CollisionShape2D::_notification(int p_what) {
                 }
                 Vector2 line_to(0, 20);
                 draw_line(Vector2(), line_to, draw_col, 2, true);
-                Vector<Vector2> pts;
                 float tsize = 8;
-                pts.push_back(line_to + (Vector2(0, tsize)));
-                pts.push_back(line_to + (Vector2(0.707 * tsize, 0)));
-                pts.push_back(line_to + (Vector2(-0.707 * tsize, 0)));
-                PoolVector<Color> cols;
-                for (int i = 0; i < 3; i++)
-                    cols.push_back(draw_col);
+                const Vector2 pts[3] = {
+                    line_to + (Vector2(0, tsize)),
+                    line_to + (Vector2(0.707f * tsize, 0)),
+                    line_to + (Vector2(-0.707f * tsize, 0)),
+                };
+                const Color cols[3] = {draw_col,draw_col,draw_col};
 
                 draw_primitive(pts, cols, PoolVector<Vector2>());
             }
@@ -258,15 +259,15 @@ float CollisionShape2D::get_one_way_collision_margin() const {
 
 void CollisionShape2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_shape", {"shape"}), &CollisionShape2D::set_shape);
-    MethodBinder::bind_method(D_METHOD("get_shape"), &CollisionShape2D::get_shape);
-    MethodBinder::bind_method(D_METHOD("set_disabled", {"disabled"}), &CollisionShape2D::set_disabled);
-    MethodBinder::bind_method(D_METHOD("is_disabled"), &CollisionShape2D::is_disabled);
-    MethodBinder::bind_method(D_METHOD("set_one_way_collision", {"enabled"}), &CollisionShape2D::set_one_way_collision);
-    MethodBinder::bind_method(D_METHOD("is_one_way_collision_enabled"), &CollisionShape2D::is_one_way_collision_enabled);
-    MethodBinder::bind_method(D_METHOD("set_one_way_collision_margin", {"margin"}), &CollisionShape2D::set_one_way_collision_margin);
-    MethodBinder::bind_method(D_METHOD("get_one_way_collision_margin"), &CollisionShape2D::get_one_way_collision_margin);
-    MethodBinder::bind_method(D_METHOD("_shape_changed"), &CollisionShape2D::_shape_changed);
+    BIND_METHOD(CollisionShape2D,set_shape);
+    BIND_METHOD(CollisionShape2D,get_shape);
+    BIND_METHOD(CollisionShape2D,set_disabled);
+    BIND_METHOD(CollisionShape2D,is_disabled);
+    BIND_METHOD(CollisionShape2D,set_one_way_collision);
+    BIND_METHOD(CollisionShape2D,is_one_way_collision_enabled);
+    BIND_METHOD(CollisionShape2D,set_one_way_collision_margin);
+    BIND_METHOD(CollisionShape2D,get_one_way_collision_margin);
+    BIND_METHOD(CollisionShape2D,_shape_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PropertyHint::ResourceType, "Shape2D"), "set_shape", "get_shape");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");

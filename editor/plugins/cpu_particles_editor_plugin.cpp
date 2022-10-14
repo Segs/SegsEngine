@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  cpu_particles_editor_plugin.cpp                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,6 +36,7 @@
 #include "editor/editor_node.h"
 #include "editor/plugins/node_3d_editor_plugin.h"
 #include "editor/scene_tree_editor.h"
+#include "scene/gui/menu_button.h"
 #include "scene/resources/environment.h"
 
 IMPL_GDCLASS(CPUParticles3DEditor)
@@ -113,10 +114,11 @@ CPUParticles3DEditor::CPUParticles3DEditor() {
     particles_editor_hb->hide();
 
     options->set_text(TTR("CPUParticles3D"));
-    options->get_popup()->add_item(TTR("Create Emission Points From Node"), MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_NODE);
-    options->get_popup()->add_separator();
-    options->get_popup()->add_item(TTR("Restart"), MENU_OPTION_RESTART);
-    options->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
+    auto *popup(options->get_popup());
+    popup->add_item(TTR("Create Emission Points From Node"), MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_NODE);
+    popup->add_separator();
+    popup->add_item(TTR("Restart"), MENU_OPTION_RESTART);
+    popup->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
 }
 
 void CPUParticles3DEditorPlugin::edit(Object *p_object) {

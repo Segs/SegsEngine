@@ -70,15 +70,19 @@ protected:
     Size2 get_minimum_size() const override;
 
     void _gui_input(const Ref<InputEvent> &p_gui_input);
+    void _gui_focus_changed(Control *p_control);
     void _notification(int p_what);
 
     void _scroll_moved(float);
     static void _bind_methods();
 
     void _update_scrollbar_position();
-    void _ensure_focused_visible(Control *p_node);
 
 public:
+    //! allow parent controls to forward input into this container
+    void forward_gui_input(const Ref<InputEvent> &p_gui_input) {
+        _gui_input(p_gui_input);
+    }
     int get_v_scroll() const;
     void set_v_scroll(int p_pos);
 
@@ -99,6 +103,7 @@ public:
 
     HScrollBar *get_h_scrollbar();
     VScrollBar *get_v_scrollbar();
+    void ensure_control_visible(Control *p_node);
 
     bool clips_input() const override;
 

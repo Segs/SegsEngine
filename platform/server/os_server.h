@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  os_server.h                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -36,7 +36,6 @@
 #include "main/input_default.h"
 #ifdef __APPLE__
 #include "platform/osx/crash_handler_osx.h"
-#include "platform/osx/semaphore_osx.h"
 #else
 #include "platform/linuxbsd/crash_handler_x11.h"
 #endif

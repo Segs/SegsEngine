@@ -40,7 +40,6 @@ class GODOT_EXPORT MultiMeshInstance3D : public GeometryInstance {
 
 protected:
     static void _bind_methods();
-    // bind helpers
 
 public:
     Vector<Face3> get_faces(uint32_t p_usage_flags) const override;

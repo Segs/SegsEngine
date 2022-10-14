@@ -43,7 +43,7 @@ IMPL_GDCLASS(ArrayPropertyEdit)
 
 Variant ArrayPropertyEdit::get_array() const {
 
-    Object *o = ObjectDB::get_instance(obj);
+    Object *o = object_for_entity(obj);
     if (!o)
         return Array();
     Variant arr = o->get(property);
@@ -66,7 +66,7 @@ void ArrayPropertyEdit::_set_size(int p_size) {
     Variant arr = get_array();
     VariantOps::resize(arr,p_size);
 
-    Object *o = ObjectDB::get_instance(obj);
+    Object *o = object_for_entity(obj);
     if (!o)
         return;
 
@@ -76,8 +76,8 @@ void ArrayPropertyEdit::_set_size(int p_size) {
 void ArrayPropertyEdit::_set_value(int p_idx, const Variant &p_value) {
 
     Variant arr = get_array();
-    arr.set(p_idx, p_value);
-    Object *o = ObjectDB::get_instance(obj);
+    arr.set_indexed(p_idx, p_value);
+    Object *o = object_for_entity(obj);
     if (!o)
         return;
 
@@ -291,7 +291,7 @@ void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, StringView
 
 Node *ArrayPropertyEdit::get_node() {
 
-    return object_cast<Node>(ObjectDB::get_instance(obj));
+    return object_cast<Node>(object_for_entity(obj));
 }
 
 bool ArrayPropertyEdit::_dont_undo_redo() {
@@ -300,10 +300,10 @@ bool ArrayPropertyEdit::_dont_undo_redo() {
 
 void ArrayPropertyEdit::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_set_value"), &ArrayPropertyEdit::_set_value);
-    MethodBinder::bind_method(D_METHOD("_notif_change"), &ArrayPropertyEdit::_notif_change);
-    MethodBinder::bind_method(D_METHOD("_notif_changev"), &ArrayPropertyEdit::_notif_changev);
-    MethodBinder::bind_method(D_METHOD("_dont_undo_redo"), &ArrayPropertyEdit::_dont_undo_redo);
+    BIND_METHOD(ArrayPropertyEdit,_set_value);
+    BIND_METHOD(ArrayPropertyEdit,_notif_change);
+    BIND_METHOD(ArrayPropertyEdit,_notif_changev);
+    BIND_METHOD(ArrayPropertyEdit,_dont_undo_redo);
 }
 
 ArrayPropertyEdit::ArrayPropertyEdit() {

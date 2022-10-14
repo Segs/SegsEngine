@@ -1,4 +1,4 @@
-/*************************************************************************/
+﻿/*************************************************************************/
 /*  gpu_particles_2d.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -45,7 +45,7 @@ public:
     };
 
 private:
-    RID particles;
+    RenderingEntity particles;
 
     bool one_shot;
     int amount;
@@ -120,3 +120,8 @@ public:
     GPUParticles2D();
     ~GPUParticles2D() override;
 };
+#ifdef TOOLS_ENABLED
+namespace GpuParticle2D_Tools {
+GODOT_EXPORT void set_show_visibility_rect(GPUParticles2D *,bool show_hide);
+}
+#endif
