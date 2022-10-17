@@ -511,7 +511,7 @@ public:
     virtual ~Object();
 
 #ifndef DEBUG_ENABLED
-    Object(Object &&) noexcept = default;
+    Object(Object &&) noexcept = delete;
 #endif
 };
 

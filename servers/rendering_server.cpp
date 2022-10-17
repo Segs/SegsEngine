@@ -2458,11 +2458,11 @@ RenderingServer::RenderingServer() {
     GLOBAL_DEF("rendering/misc/occlusion_culling/max_active_polygons", 8);
     ps->set_custom_property_info("rendering/misc/occlusion_culling/max_active_polygons", PropertyInfo(VariantType::INT, "rendering/misc/occlusion_culling/max_active_polygons", PropertyHint::Range, "0,64"));
     // Async. compilation and caching
-//#ifdef DEBUG_ENABLED
+#ifdef DEBUG_ENABLED
 //    if (!Engine::get_singleton()->is_editor_hint()) {
         force_shader_fallbacks = T_GLOBAL_GET<bool>("rendering/gles3/shaders/debug_shader_fallbacks");
 //    }
-//#endif
+#endif
     GLOBAL_DEF("rendering/gles3/shaders/shader_compilation_mode", 0);
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/gles3/shaders/shader_compilation_mode", PropertyInfo(VariantType::INT, "rendering/gles3/shaders/shader_compilation_mode", PropertyHint::Enum, "Synchronous,Asynchronous,Asynchronous + Cache"));
     GLOBAL_DEF("rendering/gles3/shaders/max_simultaneous_compiles", 2);

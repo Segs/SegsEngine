@@ -756,7 +756,7 @@ void LightmapperCPU::_compute_direct_light(uint32_t p_idx, void *r_lightmap) {
                 if (angle > light.spot_angle) {
                     continue;
                 }
-                MATH_CHECKS
+
                 float normalized_dist = dist * (1.0f / M_MAX(0.001f, light.range));
                 float norm_light_attenuation;
                 if (parameters.use_physical_light_attenuation) {

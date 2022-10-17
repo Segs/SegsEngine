@@ -53,7 +53,6 @@
 #include "scene/resources/packed_scene.h"
 #include "scene/scene_string_names.h"
 #include "scene/2d/animated_sprite_2d.h"
-
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"
 #include "core/object_db.h"
@@ -61,12 +60,11 @@
 #ifdef DEBUG_ENABLED
 #include "core/os/mutex.h"
 #include "entt/entity/registry.hpp"
+extern ECS_Registry<GameEntity,true> game_object_registry;
+#endif
 
 #include "EASTL/vector_set.h"
 
-extern ECS_Registry<GameEntity,true> game_object_registry;
-
-#endif
 IMPL_GDCLASS(Node)
 
 //TODO: SEGS: duplicated VARIANT_ENUM_CAST

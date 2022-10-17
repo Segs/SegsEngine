@@ -87,6 +87,12 @@ static void search_for_parent_with_library(LibraryEntryInstance *n) {
     }
 }
 
+static void set_owner_deep(Node *owner, Node *start) {
+    start->set_owner(owner);
+    for (Node *n : start->children()) {
+        set_owner_deep(owner, n);
+    }
+}
 bool LibraryEntryInstance::instantiate() {
     if (!resolved_library || entry_name.empty()) {
         ERR_FAIL_COND_V_MSG(!resolved_library || entry_name.empty(), false, "Library does not contain selected entry:" + entry_name);
@@ -103,7 +109,7 @@ bool LibraryEntryInstance::instantiate() {
     set_filename(lib_name + "::" + StringUtils::num(h));
     ERR_FAIL_COND_V_MSG(h == LibraryItemHandle(-1), false, "Library does not contain selected entry:" + entry_name);
     Ref<PackedScene> resolved_scene = resolved_library->get_item_scene(h);
-    auto *scene = (Node3D *)resolved_scene->instance();
+    auto *scene = (Node3D *)resolved_scene->instance(GEN_EDIT_STATE_MAIN);
     // replace ourselves in our parent with the instance.
     call_deferred([=] {
         // create the target scene instance
@@ -116,7 +122,7 @@ bool LibraryEntryInstance::instantiate() {
         base->add_child(scene);
         base->move_child(scene, pos);
         scene->set_transform(t);
-        scene->set_owner(EditorNode::get_singleton()->get_edited_scene());
+        set_owner_deep(EditorNode::get_singleton()->get_edited_scene(),scene);
     });
     return true;
 }

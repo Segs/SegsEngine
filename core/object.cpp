@@ -1113,7 +1113,11 @@ Error Object::connectF(const StringName &p_signal,Object *tgt, eastl::function<v
 {
     return connect(p_signal,
             create_lambda_callable_function_pointer(
-                    tgt->get_instance_id(), make_function(p_to_object), __FUNCTION__, __LINE__),
+                    tgt->get_instance_id(), make_function(p_to_object)
+#ifdef DEBUG_METHODS_ENABLED
+                    ,__FUNCTION__, __LINE__
+#endif
+            ),
             p_flags);
 }
 

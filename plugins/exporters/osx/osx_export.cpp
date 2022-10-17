@@ -145,9 +145,6 @@ void EditorExportPlatformOSX::get_preset_features(const Ref<EditorExportPreset> 
     if (p_preset->get("texture_format/etc")) {
         r_features->push_back("etc");
     }
-    if (p_preset->get("texture_format/etc2")) {
-        r_features->push_back("etc2");
-    }
 
     r_features->push_back("64");
 }

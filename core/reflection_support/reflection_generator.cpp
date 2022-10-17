@@ -1,5 +1,7 @@
 ﻿#include "reflection_generator.h"
 
+#if defined(DEBUG_METHODS_ENABLED) && defined(TOOLS_ENABLED)
+
 #include "reflection_data.h"
 #include "core/variant.h"
 #include "core/engine.h"
@@ -1022,3 +1024,4 @@ void _initialize_reflection_data(ReflectionData &rd, ReflectionSource src) {
     }
 
 }
+#endif

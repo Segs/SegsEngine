@@ -31,8 +31,7 @@
 #include "variant.h"
 
 #include "core/color_names.inc"
-#include "core/container_tools.h"
-#include "core/crypto/crypto_core.h"
+#include "core/pool_vector.h"
 #include "core/dictionary.h"
 #include "core/math/aabb.h"
 #include "core/math/basis.h"
@@ -45,41 +44,7 @@
 #include "core/node_path.h"
 #include "core/object.h"
 #include "core/rid.h"
-#include "core/hash_map.h"
 #include "core/string.h"
-#include "core/string_utils.inl"
-#include "core/vector.h"
-
-namespace {
-using VariantConstructFunc = void (*)(Variant &, const Variant &);
-
-struct _VariantCall {
-    struct ConstantData {
-        HashMap<StringView, int> value;
-#ifdef DEBUG_ENABLED
-        Vector<StringView> value_ordered;
-#endif
-        HashMap<StringView, Variant> variant_value;
-    };
-    static_assert (sizeof(ConstantData)==(sizeof(HashMap<StringName,int>)+sizeof(HashMap<StringName,Variant>)+sizeof(Vector<StringName>)));
-    static ConstantData constant_data[(int)VariantType::VARIANT_MAX];
-
-    static void add_constant(VariantType p_type, const char *p_constant_name, int p_constant_value) {
-        constant_data[static_cast<int8_t>(p_type)].value[p_constant_name] = p_constant_value;
-#ifdef DEBUG_ENABLED
-        constant_data[static_cast<int8_t>(p_type)].value_ordered.emplace_back(p_constant_name);
-#endif
-    }
-
-    static void add_variant_constant(
-            VariantType p_type, const char *p_constant_name, const Variant &p_constant_value) {
-        constant_data[static_cast<int8_t>(p_type)].variant_value[p_constant_name] = p_constant_value;
-    }
-};
-
-_VariantCall::ConstantData _VariantCall::constant_data[(int)VariantType::VARIANT_MAX];
-
-} // namespace
 
 Variant Variant::construct_default(const VariantType p_type) {
     switch (p_type) {
@@ -252,109 +217,4 @@ Variant Variant::construct(const VariantType p_type, const Variant &p_arg, Calla
 
     r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD; // no such constructor
     return Variant();
-}
-
-void Variant::get_constants_for_type(VariantType p_type, Vector<StringName> *p_constants) {
-    ERR_FAIL_INDEX((int)p_type, (int)VariantType::VARIANT_MAX);
-
-    _VariantCall::ConstantData &cd = _VariantCall::constant_data[static_cast<int>(p_type)];
-
-#ifdef DEBUG_ENABLED
-    for (StringView E : cd.value_ordered) {
-        p_constants->emplace_back(StaticCString(E.data(),true));
-#else
-    for (const auto &E : cd.value) {
-        p_constants->emplace_back(E.first);
-#endif
-    }
-
-    for (eastl::pair<const StringView, Variant> &E : cd.variant_value) {
-        p_constants->push_back(StaticCString(E.first.data(),true));
-    }
-}
-
-bool Variant::has_constant(VariantType p_type, const StringName &p_value) {
-    ERR_FAIL_INDEX_V((int)p_type, (int)VariantType::VARIANT_MAX, false);
-    _VariantCall::ConstantData &cd = _VariantCall::constant_data[static_cast<int>(p_type)];
-    return cd.value.contains(p_value) || cd.variant_value.contains(p_value);
-}
-
-Variant Variant::get_constant_value(VariantType p_type, const StringName &p_value, bool *r_valid) {
-    if (r_valid) {
-        *r_valid = false;
-    }
-
-    ERR_FAIL_INDEX_V((int)p_type, (int)VariantType::VARIANT_MAX, 0);
-    _VariantCall::ConstantData &cd = _VariantCall::constant_data[static_cast<int>(p_type)];
-
-    auto E = cd.value.find(p_value);
-    if (E == cd.value.end()) {
-        auto F = cd.variant_value.find(p_value);
-        if (F == cd.variant_value.end()) {
-            return -1;
-        }
-            if (r_valid) {
-                *r_valid = true;
-            }
-            return F->second;
-    }
-    if (r_valid) {
-        *r_valid = true;
-    }
-
-    return E->second;
-}
-
-void register_variant_methods() {
-    /* REGISTER CONSTANTS */
-
-    for (const eastl::pair<const char *const, Color> &color : _named_colors) {
-        _VariantCall::add_variant_constant(VariantType::COLOR, color.first, color.second);
-    }
-    _VariantCall::add_constant(VariantType::VECTOR3, "AXIS_X", Vector3::AXIS_X);
-    _VariantCall::add_constant(VariantType::VECTOR3, "AXIS_Y", Vector3::AXIS_Y);
-    _VariantCall::add_constant(VariantType::VECTOR3, "AXIS_Z", Vector3::AXIS_Z);
-
-    _VariantCall::add_variant_constant(VariantType::VECTOR3, "ZERO", Vector3(0, 0, 0));
-    _VariantCall::add_variant_constant(VariantType::VECTOR3, "ONE", Vector3(1, 1, 1));
-    _VariantCall::add_variant_constant(VariantType::VECTOR3, "INF", Vector3(Math_INF, Math_INF, Math_INF));
-    _VariantCall::add_variant_constant(VariantType::VECTOR3, "LEFT", Vector3(-1, 0, 0));
-    _VariantCall::add_variant_constant(VariantType::VECTOR3, "RIGHT", Vector3(1, 0, 0));
-    _VariantCall::add_variant_constant(VariantType::VECTOR3, "UP", Vector3(0, 1, 0));
-    _VariantCall::add_variant_constant(VariantType::VECTOR3, "DOWN", Vector3(0, -1, 0));
-    _VariantCall::add_variant_constant(VariantType::VECTOR3, "FORWARD", Vector3(0, 0, -1));
-    _VariantCall::add_variant_constant(VariantType::VECTOR3, "BACK", Vector3(0, 0, 1));
-    _VariantCall::add_constant(VariantType::VECTOR2, "AXIS_X", Vector2::AXIS_X);
-    _VariantCall::add_constant(VariantType::VECTOR2, "AXIS_Y", Vector2::AXIS_Y);
-
-    _VariantCall::add_variant_constant(VariantType::VECTOR2, "ZERO", Vector2(0, 0));
-    _VariantCall::add_variant_constant(VariantType::VECTOR2, "ONE", Vector2(1, 1));
-    _VariantCall::add_variant_constant(VariantType::VECTOR2, "INF", Vector2(Math_INF, Math_INF));
-    _VariantCall::add_variant_constant(VariantType::VECTOR2, "LEFT", Vector2(-1, 0));
-    _VariantCall::add_variant_constant(VariantType::VECTOR2, "RIGHT", Vector2(1, 0));
-    _VariantCall::add_variant_constant(VariantType::VECTOR2, "UP", Vector2(0, -1));
-    _VariantCall::add_variant_constant(VariantType::VECTOR2, "DOWN", Vector2(0, 1));
-
-    _VariantCall::add_variant_constant(VariantType::TRANSFORM2D, "IDENTITY", Transform2D());
-    _VariantCall::add_variant_constant(VariantType::TRANSFORM2D, "FLIP_X", Transform2D(-1, 0, 0, 1, 0, 0));
-    _VariantCall::add_variant_constant(VariantType::TRANSFORM2D, "FLIP_Y", Transform2D(1, 0, 0, -1, 0, 0));
-
-    _VariantCall::add_variant_constant(VariantType::TRANSFORM, "IDENTITY", Transform());
-    _VariantCall::add_variant_constant(
-            VariantType::TRANSFORM, "FLIP_X", Transform(-1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0));
-    _VariantCall::add_variant_constant(
-            VariantType::TRANSFORM, "FLIP_Y", Transform(1, 0, 0, 0, -1, 0, 0, 0, 1, 0, 0, 0));
-    _VariantCall::add_variant_constant(
-            VariantType::TRANSFORM, "FLIP_Z", Transform(1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0));
-
-    _VariantCall::add_variant_constant(VariantType::BASIS, "IDENTITY", Basis());
-    _VariantCall::add_variant_constant(VariantType::BASIS, "FLIP_X", Basis(-1, 0, 0, 0, 1, 0, 0, 0, 1));
-    _VariantCall::add_variant_constant(VariantType::BASIS, "FLIP_Y", Basis(1, 0, 0, 0, -1, 0, 0, 0, 1));
-    _VariantCall::add_variant_constant(VariantType::BASIS, "FLIP_Z", Basis(1, 0, 0, 0, 1, 0, 0, 0, -1));
-
-    _VariantCall::add_variant_constant(VariantType::PLANE, "PLANE_YZ", Plane(Vector3(1, 0, 0), 0));
-    _VariantCall::add_variant_constant(VariantType::PLANE, "PLANE_XZ", Plane(Vector3(0, 1, 0), 0));
-    _VariantCall::add_variant_constant(VariantType::PLANE, "PLANE_XY", Plane(Vector3(0, 0, 1), 0));
-
-    _VariantCall::add_variant_constant(VariantType::QUAT, "IDENTITY", Quat(0, 0, 0, 1));
 }

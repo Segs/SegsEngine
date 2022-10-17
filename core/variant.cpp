@@ -1320,15 +1320,14 @@ Variant::operator GameEntity() const {
     if (type == VariantType::INT) {
         return GE(_data._int);
     } else if (type == VariantType::OBJECT) {
-#ifdef DEBUG_ENABLED
         return _get_obj().rc->instance_id;
-#else
-        return _get_obj().obj ? _get_obj().obj->get_instance_id() : entt::null;
-#endif
+    } else if (likely(!_get_obj().ref.is_null())) {
+        return _REF_OBJ_PTR(*this)->get_instance_id();
     } else {
         return entt::null;
     }
 }
+
 Variant::operator RenderingEntity() const {
     if (type == VariantType::REN_ENT) {
         return RE(_data._int);
@@ -1640,17 +1639,11 @@ Variant::operator RID() const {
     if (!_get_obj().ref.is_null()) {
         return _get_obj().ref.get_phys_rid();
     }
-#ifdef DEBUG_ENABLED
     Object *obj = likely(_get_obj().rc) ? _get_obj().rc->get_ptr() : nullptr;
-#else
-    Object *obj = _get_obj().obj;
-#endif
     if (unlikely(!obj)) {
-#ifdef DEBUG_ENABLED
-        if (ScriptDebugger::get_singleton() && _get_obj().rc && !object_for_entity(_get_obj().rc->instance_id)) {
-            WARN_PRINT("Attempted get RID on a deleted object.");
+        if (_get_obj().rc) {
+            ERR_PRINT("Attempted get RID on a deleted object.");
         }
-#endif
         return RID();
     }
 

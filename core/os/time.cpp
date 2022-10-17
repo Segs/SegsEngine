@@ -103,7 +103,7 @@ VARIANT_ENUM_CAST(Time::Weekday);
 
 #define VALIDATE_YMDHMS(ret)                                                                                                                                              \
     ERR_FAIL_COND_V_MSG(month == 0, ret, "Invalid month value of: " + itos(month) + ", months are 1-indexed and cannot be 0. See the Time.Month enum for valid values."); \
-	ERR_FAIL_COND_V_MSG(month < 0, ret, "Invalid month value of: " + itos(month) + ".");                                                             \
+    ERR_FAIL_COND_V_MSG(month < 0, ret, "Invalid month value of: " + itos(month) + ".");                                                             \
     ERR_FAIL_COND_V_MSG(month > 12, ret, "Invalid month value of: " + itos(month) + ". See the Time.Month enum for valid values.");                                       \
     ERR_FAIL_COND_V_MSG(hour > 23, ret, "Invalid hour value of: " + itos(hour) + ".");                                                                                    \
     ERR_FAIL_COND_V_MSG(minute > 59, ret, "Invalid minute value of: " + itos(minute) + ".");                                                                              \
@@ -405,7 +405,7 @@ void Time::_bind_methods() {
     BIND_METHOD(Time, get_datetime_dict_from_unix_time);
     BIND_METHOD(Time, get_date_dict_from_unix_time);
     BIND_METHOD(Time, get_time_dict_from_unix_time);
-    MethodBinder::bind_method(D_METHOD("get_datetime_string_from_unix_time", {"unix_time_val", "use_space"}), &Time::get_datetime_string_from_unix_time, {DEFVAL(false)});
+    SE_BIND_METHOD_WITH_DEFAULTS(Time, get_datetime_string_from_unix_time, DEFVAL(false));
     BIND_METHOD(Time, get_date_string_from_unix_time);
     BIND_METHOD(Time, get_time_string_from_unix_time);
     //BIND_METHOD(Time, get_datetime_dict_from_string);
@@ -414,12 +414,14 @@ void Time::_bind_methods() {
     //BIND_METHOD(Time, get_unix_time_from_datetime_string);
     BIND_METHOD(Time, get_offset_string_from_offset_minutes);
 
-    MethodBinder::bind_method(D_METHOD("get_datetime_dict_from_system", {"utc"}), &Time::get_datetime_dict_from_system, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("get_date_dict_from_system", {"utc"}), &Time::get_date_dict_from_system, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("get_time_dict_from_system", {"utc"}), &Time::get_time_dict_from_system, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("get_datetime_string_from_system", {"utc", "use_space"}), &Time::get_datetime_string_from_system, {DEFVAL(false), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("get_date_string_from_system", {"utc"}), &Time::get_date_string_from_system, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("get_time_string_from_system", {"utc"}), &Time::get_time_string_from_system, {DEFVAL(false)});
+    SE_BIND_METHOD_WITH_DEFAULTS(Time, get_datetime_dict_from_system,DEFVAL(false));
+    SE_BIND_METHOD_WITH_DEFAULTS(Time, get_date_dict_from_system,DEFVAL(false));
+    SE_BIND_METHOD_WITH_DEFAULTS(Time, get_time_dict_from_system,DEFVAL(false));
+    SE_BIND_METHOD_WITH_DEFAULTS(Time, get_datetime_string_from_system,DEFVAL(false),DEFVAL(false));
+    SE_BIND_METHOD_WITH_DEFAULTS(Time, get_datetime_dict_from_system,DEFVAL(false));
+    SE_BIND_METHOD_WITH_DEFAULTS(Time, get_date_string_from_system,DEFVAL(false));
+    SE_BIND_METHOD_WITH_DEFAULTS(Time, get_time_string_from_system,DEFVAL(false));
+
     BIND_METHOD(Time, get_time_zone_from_system);
     BIND_METHOD(Time, get_unix_time_from_system);
     BIND_METHOD(Time, get_ticks_msec);

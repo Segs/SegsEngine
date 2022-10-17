@@ -204,11 +204,6 @@ public:
     constexpr static bool (*verifiers[sizeof...(Args)+1])(const Variant &) = { // +1 is here because vs2017 requires constexpr array of non-zero size
         VariantObjectClassChecker<Args>::check ...
     };
-#ifdef DEBUG_METHODS_ENABLED
-    constexpr static const GodotTypeInfo::Metadata s_metadata[sizeof...(Args)+1] = {
-        GetTypeInfo<typename eastl::conditional<eastl::is_same_v<void,RESULT>, bool , RESULT>::type >::METADATA,
-        GetTypeInfo<typename eastl::decay<Args>::type>::METADATA ...
-    };
     constexpr static const TypePassBy s_pass_type[sizeof...(Args) + 1] = {
         GetTypeInfo<typename eastl::conditional<eastl::is_same_v<void,RESULT>, bool , RESULT>::type >::PASS_BY,
         GetTypeInfo<Args>::PASS_BY ...
@@ -217,17 +212,22 @@ public:
         GetTypeInfo<RESULT>::get_class_info(),
         GetTypeInfo<Args>::get_class_info() ...
     };
+#ifdef DEBUG_METHODS_ENABLED
+    constexpr static const GodotTypeInfo::Metadata s_metadata[sizeof...(Args)+1] = {
+        GetTypeInfo<typename eastl::conditional<eastl::is_same_v<void,RESULT>, bool , RESULT>::type >::METADATA,
+        GetTypeInfo<typename eastl::decay<Args>::type>::METADATA ...
+    };
 
     Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const override {
         return s_metadata;
     }
+#endif
     Span<const TypePassBy> do_get_argument_passby() const override {
         return s_pass_type;
     }
     PropertyInfo _gen_argument_type_info(int p_arg) const override {
         return arg_infos[p_arg+1];
     }
-#endif
 
 public:
     Variant do_call(Object* p_object,const Variant** p_args,int p_arg_count, Callable::CallError& r_error) override {

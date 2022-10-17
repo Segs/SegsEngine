@@ -323,7 +323,7 @@ Transform Node3D::get_local_gizmo_transform() const {
 }
 // If not a VisualInstance, use this AABB for the orange box in the editor
 AABB Node3D::get_fallback_gizmo_aabb() const {
-    return AABB(Vector3(-0.2, -0.2, -0.2), Vector3(0.4, 0.4, 0.4));
+    return AABB(Vector3(-0.2f, -0.2f, -0.2f), Vector3(0.4f, 0.4f, 0.4f));
 }
 #endif
 
