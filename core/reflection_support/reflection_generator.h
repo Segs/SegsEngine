@@ -1,4 +1,5 @@
 #pragma once
+#include "core/typedefs.h"
 
 struct ReflectionData;
 class DocData;
