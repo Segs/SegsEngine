@@ -97,6 +97,9 @@ static Vector<_GlobalConstant> _global_constants;
 #define BIND_GLOBAL_ENUM_CONSTANT(m_constant) \
     _global_constants.emplace_back(#m_constant, int(m_constant));
 
+#define BIND_STATIC_GLOBAL_ENUM_CONSTANT_NO_VAL(m_constant); \
+_global_constants.emplace_back(#m_constant, int(m_constant));
+
 #define BIND_GLOBAL_ENUM_CONSTANT_CUSTOM(m_custom_name, m_constant) \
     _global_constants.emplace_back(m_custom_name, int(m_constant));
 

@@ -428,18 +428,6 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
 
             c.properties.push_back(property);
         }
-
-        Vector<StringName> constants;
-        Variant::get_constants_for_type(VariantType(i), &constants);
-
-        for (const StringName &E : constants) {
-
-            DocContents::ConstantDoc constant;
-            constant.name = E.asCString();
-            Variant value = Variant::get_constant_value(VariantType(i), E);
-            constant.value = value.get_type() == VariantType::INT ? itos(value.as<int>()).c_str() : value.get_construct_string().c_str();
-            c.constants.push_back(constant);
-        }
     }
 
     //built in constants and functions

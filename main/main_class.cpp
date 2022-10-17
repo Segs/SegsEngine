@@ -58,7 +58,6 @@
 #include "main/main_timer_sync.h"
 #include "main/performance.h"
 #include "main/splash.gen.h"
-#include "main/tests/test_main.h"
 #include "modules/register_module_types.h"
 #include "plugins/plugin_registry_interface.h"
 
@@ -345,14 +344,6 @@ void print_help(const String &p_binary) {
 #ifdef DEBUG_METHODS_ENABLED
     OS::get_singleton()->print("  --gdnative-generate-json-api     Generate JSON dump of the Godot API for GDNative bindings.\n");
 #endif
-    OS::get_singleton()->print("  --test <test>                    Run a unit test (");
-    const char **test_names = tests_get_names();
-    const char *comma = "";
-    while (*test_names) {
-        OS::get_singleton()->print(FormatVE("%s'%s'", comma, *test_names));
-        test_names++;
-        comma = ", ";
-    }
     OS::get_singleton()->print(").\n");
 #endif
 }
@@ -1766,17 +1757,7 @@ bool Main::start() {
     }
     StringName main_loop_type = T_GLOBAL_DEF<StringName>("application/run/main_loop_type", "SceneTree");
 
-    if (!test.empty()) {
-#ifdef TOOLS_ENABLED
-        main_loop = test_main(test, args);
-
-        if (!main_loop) {
-            return false;
-        }
-
-#endif
-
-    } else if (!script.empty()) {
+    if (!script.empty()) {
 
         Ref<Script> script_res = dynamic_ref_cast<Script>(gResourceManager().load(script));
         ERR_FAIL_COND_V_MSG(not script_res, false, "Can't load script: " + script);

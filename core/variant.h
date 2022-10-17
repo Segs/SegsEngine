@@ -230,7 +230,6 @@ public:
     [[nodiscard]] bool is_array() const { return type >= VariantType::ARRAY; }
     [[nodiscard]] bool is_zero() const;
     //GameEntity get_object_instance_id() const;
-    //bool is_invalid_object() const;
 
     template <typename T>
     [[nodiscard]]
@@ -400,10 +399,6 @@ public:
     [[nodiscard]] bool hash_compare(const Variant &p_variant) const;
     bool booleanize() const;
     String stringify(Vector<const void *> &stack) const;
-
-    static void get_constants_for_type(VariantType p_type, Vector<StringName> *p_constants);
-    static bool has_constant(VariantType p_type, const StringName &p_value);
-    static Variant get_constant_value(VariantType p_type, const StringName &p_value, bool *r_valid = nullptr);
 
     using ObjectConstruct = void (*)(const UIString &, void *, Variant &);
 

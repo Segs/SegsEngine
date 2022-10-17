@@ -102,7 +102,6 @@ static _Geometry *_geometry = nullptr;
 
 extern void register_global_constants();
 extern void unregister_global_constants();
-extern void register_variant_methods();
 
 void register_core_types() {
 
@@ -113,7 +112,6 @@ void register_core_types() {
     gResourceManager().initialize();
 
     register_global_constants();
-    register_variant_methods();
 
     CoreStringNames::create();
 

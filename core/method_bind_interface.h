@@ -44,7 +44,9 @@ protected:
     void _set_const(bool p_const) noexcept { _const = p_const; }
     void _set_returns(bool p_returns) noexcept { _returns = p_returns; }
     virtual PropertyInfo _gen_argument_type_info(int p_arg) const = 0;
+#ifdef DEBUG_METHODS_ENABLED
     virtual Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const = 0;
+#endif
     virtual Span<const TypePassBy> do_get_argument_passby() const {
         return {};
     }
@@ -220,11 +222,6 @@ struct MethodBinder {
         return ClassDB::bind_methodfi(flags, bind, p_method_name, {}); //use static function, much smaller binary usage
     }
 
-    template <class M>
-    static MethodBind *bind_methodA(StaticCString p_method_name, M p_method, uint32_t flags = METHOD_FLAGS_DEFAULT) {
-        MethodBind *bind = create_method_bind_va(p_method);
-        return ClassDB::bind_methodfi(flags, bind, D_METHOD(p_method_name, arg_count(p_method)), {}); // use static function, much smaller binary usage
-    }
     template <class N, class M>
     static MethodBind *bind_method(N p_method_name, M p_method, std::initializer_list<Variant> args) {
 
@@ -232,11 +229,32 @@ struct MethodBinder {
         return ClassDB::bind_methodfi(METHOD_FLAGS_DEFAULT, bind, p_method_name, args);
     }
 
+#ifdef DEBUG_METHODS_ENABLED
+    template <class M>
+    static MethodBind *bind_methodA(StaticCString p_method_name, M p_method, uint32_t flags = METHOD_FLAGS_DEFAULT) {
+        MethodBind *bind = create_method_bind_va(p_method);
+        return ClassDB::bind_methodfi(flags, bind, D_METHOD(p_method_name, arg_count(p_method)), {}); // use static function, much smaller binary usage
+    }
+
     template <class M>
     static MethodBind *bind_methodA(StaticCString p_method_name, M p_method, std::initializer_list<Variant> args) {
         MethodBind *bind = create_method_bind_va(p_method);
-        return ClassDB::bind_methodfi(METHOD_FLAGS_DEFAULT, bind, D_METHOD(p_method_name, arg_count(p_method)), args); 
+        return ClassDB::bind_methodfi(METHOD_FLAGS_DEFAULT, bind, D_METHOD(p_method_name, arg_count(p_method)), args);
     }
+#else
+    template <class M>
+    static MethodBind *bind_methodA(const char *p_method_name, M p_method, uint32_t flags = METHOD_FLAGS_DEFAULT) {
+        MethodBind *bind = create_method_bind_va(p_method);
+        return ClassDB::bind_methodfi(flags, bind, D_METHOD(p_method_name, arg_count(p_method)), {}); // use static function, much smaller binary usage
+    }
+
+    template <class M>
+    static MethodBind *bind_methodA(const char *p_method_name, M p_method, std::initializer_list<Variant> args) {
+        MethodBind *bind = create_method_bind_va(p_method);
+        return ClassDB::bind_methodfi(METHOD_FLAGS_DEFAULT, bind, D_METHOD(p_method_name, arg_count(p_method)), args);
+    }
+#endif
+
     template <class M>
     static MethodBind *bind_vararg_method(const StringName &p_name, M p_method, MethodInfo &&p_info,
             const Vector<Variant> &p_default_args = null_variant_pvec, bool p_return_nil_is_variant = true) {
@@ -255,9 +273,12 @@ struct MethodBinder {
         return bind;
     }
 };
+#ifdef DEBUG_METHODS_ENABLED
+
 
 #define BIND_METHOD(class_name, method_name) \
     MethodBinder::bind_methodA(StaticCString(#method_name), &class_name::method_name)
+
 #define BIND_METHOD_WRAPPER(class_name, method_name, wrapper)                                                          \
     MethodBinder::bind_methodA(StaticCString(#method_name), &class_name::wrapper)
 
@@ -266,3 +287,18 @@ struct MethodBinder {
 
 #define BIND_METHOD_WRAPPER_DEFAULTS(class_name, method_name, wrapper,...) \
     MethodBinder::bind_methodA(StaticCString(#method_name), &class_name::wrapper, { __VA_ARGS__ })
+
+#else
+#define BIND_METHOD(class_name, method_name) \
+    MethodBinder::bind_methodA(#method_name, &class_name::method_name)
+
+#define BIND_METHOD_WRAPPER(class_name, method_name, wrapper)                                                          \
+    MethodBinder::bind_methodA(#method_name, &class_name::wrapper)
+
+#define SE_BIND_METHOD_WITH_DEFAULTS(class_name, method_name, ...) \
+    MethodBinder::bind_methodA(#method_name, &class_name::method_name, { __VA_ARGS__ })
+
+#define BIND_METHOD_WRAPPER_DEFAULTS(class_name, method_name, wrapper,...) \
+    MethodBinder::bind_methodA(#method_name, &class_name::wrapper, { __VA_ARGS__ })
+
+#endif
