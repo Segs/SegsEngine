@@ -774,65 +774,65 @@ void Node3D::force_update_transform() {
 
 void Node3D::_bind_methods() {
 
-    BIND_METHOD(Node3D,set_transform);
-    BIND_METHOD(Node3D,get_transform);
-    BIND_METHOD(Node3D,set_translation);
-    BIND_METHOD(Node3D,get_translation);
-    BIND_METHOD(Node3D,set_rotation);
-    BIND_METHOD(Node3D,get_rotation);
-    BIND_METHOD(Node3D,set_rotation_degrees);
-    BIND_METHOD(Node3D,get_rotation_degrees);
-    BIND_METHOD(Node3D,set_scale);
-    BIND_METHOD(Node3D,get_scale);
-    BIND_METHOD(Node3D,set_global_transform);
-    BIND_METHOD(Node3D,get_global_transform);
-    BIND_METHOD(Node3D,get_parent_spatial);
-    BIND_METHOD(Node3D,set_ignore_transform_notification);
-    BIND_METHOD(Node3D,set_as_top_level);
-    BIND_METHOD(Node3D,is_set_as_top_level);
-    BIND_METHOD(Node3D,set_disable_scale);
-    BIND_METHOD(Node3D,is_scale_disabled);
-    BIND_METHOD(Node3D,get_world_3d);
+    SE_BIND_METHOD(Node3D,set_transform);
+    SE_BIND_METHOD(Node3D,get_transform);
+    SE_BIND_METHOD(Node3D,set_translation);
+    SE_BIND_METHOD(Node3D,get_translation);
+    SE_BIND_METHOD(Node3D,set_rotation);
+    SE_BIND_METHOD(Node3D,get_rotation);
+    SE_BIND_METHOD(Node3D,set_rotation_degrees);
+    SE_BIND_METHOD(Node3D,get_rotation_degrees);
+    SE_BIND_METHOD(Node3D,set_scale);
+    SE_BIND_METHOD(Node3D,get_scale);
+    SE_BIND_METHOD(Node3D,set_global_transform);
+    SE_BIND_METHOD(Node3D,get_global_transform);
+    SE_BIND_METHOD(Node3D,get_parent_spatial);
+    SE_BIND_METHOD(Node3D,set_ignore_transform_notification);
+    SE_BIND_METHOD(Node3D,set_as_top_level);
+    SE_BIND_METHOD(Node3D,is_set_as_top_level);
+    SE_BIND_METHOD(Node3D,set_disable_scale);
+    SE_BIND_METHOD(Node3D,is_scale_disabled);
+    SE_BIND_METHOD(Node3D,get_world_3d);
 
-    BIND_METHOD(Node3D,force_update_transform);
+    SE_BIND_METHOD(Node3D,force_update_transform);
 
-    BIND_METHOD(Node3D,_update_gizmo);
+    SE_BIND_METHOD(Node3D,_update_gizmo);
 
-    BIND_METHOD(Node3D,update_gizmo);
-    BIND_METHOD(Node3D,set_gizmo);
-    BIND_METHOD(Node3D,get_gizmo);
+    SE_BIND_METHOD(Node3D,update_gizmo);
+    SE_BIND_METHOD(Node3D,set_gizmo);
+    SE_BIND_METHOD(Node3D,get_gizmo);
 
-    BIND_METHOD(Node3D,set_visible);
-    BIND_METHOD(Node3D,is_visible);
-    BIND_METHOD(Node3D,is_visible_in_tree);
-    BIND_METHOD(Node3D,show);
-    BIND_METHOD(Node3D,hide);
+    SE_BIND_METHOD(Node3D,set_visible);
+    SE_BIND_METHOD(Node3D,is_visible);
+    SE_BIND_METHOD(Node3D,is_visible_in_tree);
+    SE_BIND_METHOD(Node3D,show);
+    SE_BIND_METHOD(Node3D,hide);
 
-    BIND_METHOD(Node3D,set_notify_local_transform);
-    BIND_METHOD(Node3D,is_local_transform_notification_enabled);
+    SE_BIND_METHOD(Node3D,set_notify_local_transform);
+    SE_BIND_METHOD(Node3D,is_local_transform_notification_enabled);
 
-    BIND_METHOD(Node3D,set_notify_transform);
-    BIND_METHOD(Node3D,is_transform_notification_enabled);
+    SE_BIND_METHOD(Node3D,set_notify_transform);
+    SE_BIND_METHOD(Node3D,is_transform_notification_enabled);
 
-    BIND_METHOD(Node3D,rotate);
-    BIND_METHOD(Node3D,global_rotate);
-    BIND_METHOD(Node3D,global_scale);
-    BIND_METHOD(Node3D,global_translate);
-    BIND_METHOD(Node3D,rotate_object_local);
-    BIND_METHOD(Node3D,scale_object_local);
-    BIND_METHOD(Node3D,translate_object_local);
-    BIND_METHOD(Node3D,rotate_x);
-    BIND_METHOD(Node3D,rotate_y);
-    BIND_METHOD(Node3D,rotate_z);
-    BIND_METHOD(Node3D,translate);
-    BIND_METHOD(Node3D,orthonormalize);
-    BIND_METHOD(Node3D,set_identity);
+    SE_BIND_METHOD(Node3D,rotate);
+    SE_BIND_METHOD(Node3D,global_rotate);
+    SE_BIND_METHOD(Node3D,global_scale);
+    SE_BIND_METHOD(Node3D,global_translate);
+    SE_BIND_METHOD(Node3D,rotate_object_local);
+    SE_BIND_METHOD(Node3D,scale_object_local);
+    SE_BIND_METHOD(Node3D,translate_object_local);
+    SE_BIND_METHOD(Node3D,rotate_x);
+    SE_BIND_METHOD(Node3D,rotate_y);
+    SE_BIND_METHOD(Node3D,rotate_z);
+    SE_BIND_METHOD(Node3D,translate);
+    SE_BIND_METHOD(Node3D,orthonormalize);
+    SE_BIND_METHOD(Node3D,set_identity);
 
-    BIND_METHOD(Node3D,look_at);
-    BIND_METHOD(Node3D,look_at_from_position);
+    SE_BIND_METHOD(Node3D,look_at);
+    SE_BIND_METHOD(Node3D,look_at_from_position);
 
-    BIND_METHOD(Node3D,to_local);
-    BIND_METHOD(Node3D,to_global);
+    SE_BIND_METHOD(Node3D,to_local);
+    SE_BIND_METHOD(Node3D,to_global);
 
     BIND_CONSTANT(NOTIFICATION_TRANSFORM_CHANGED);
     BIND_CONSTANT(NOTIFICATION_ENTER_WORLD);

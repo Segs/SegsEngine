@@ -321,38 +321,38 @@ MultiMesh::TransformFormat MultiMesh::get_transform_format() const {
 
 void MultiMesh::_bind_methods() {
 
-    BIND_METHOD(MultiMesh,set_mesh);
-    BIND_METHOD(MultiMesh,get_mesh);
-    BIND_METHOD(MultiMesh,set_color_format);
-    BIND_METHOD(MultiMesh,get_color_format);
-    BIND_METHOD(MultiMesh,set_custom_data_format);
-    BIND_METHOD(MultiMesh,get_custom_data_format);
-    BIND_METHOD(MultiMesh,set_transform_format);
-    BIND_METHOD(MultiMesh,get_transform_format);
+    SE_BIND_METHOD(MultiMesh,set_mesh);
+    SE_BIND_METHOD(MultiMesh,get_mesh);
+    SE_BIND_METHOD(MultiMesh,set_color_format);
+    SE_BIND_METHOD(MultiMesh,get_color_format);
+    SE_BIND_METHOD(MultiMesh,set_custom_data_format);
+    SE_BIND_METHOD(MultiMesh,get_custom_data_format);
+    SE_BIND_METHOD(MultiMesh,set_transform_format);
+    SE_BIND_METHOD(MultiMesh,get_transform_format);
 
-    BIND_METHOD(MultiMesh,set_instance_count);
-    BIND_METHOD(MultiMesh,get_instance_count);
-    BIND_METHOD(MultiMesh,set_visible_instance_count);
-    BIND_METHOD(MultiMesh,get_visible_instance_count);
-    BIND_METHOD(MultiMesh,set_instance_transform);
-    BIND_METHOD(MultiMesh,set_instance_transform_2d);
-    BIND_METHOD(MultiMesh,get_instance_transform);
-    BIND_METHOD(MultiMesh,get_instance_transform_2d);
-    BIND_METHOD(MultiMesh,set_instance_color);
-    BIND_METHOD(MultiMesh,get_instance_color);
-    BIND_METHOD(MultiMesh,set_instance_custom_data);
-    BIND_METHOD(MultiMesh,get_instance_custom_data);
-    BIND_METHOD(MultiMesh,set_as_bulk_array);
-    BIND_METHOD(MultiMesh,get_aabb);
+    SE_BIND_METHOD(MultiMesh,set_instance_count);
+    SE_BIND_METHOD(MultiMesh,get_instance_count);
+    SE_BIND_METHOD(MultiMesh,set_visible_instance_count);
+    SE_BIND_METHOD(MultiMesh,get_visible_instance_count);
+    SE_BIND_METHOD(MultiMesh,set_instance_transform);
+    SE_BIND_METHOD(MultiMesh,set_instance_transform_2d);
+    SE_BIND_METHOD(MultiMesh,get_instance_transform);
+    SE_BIND_METHOD(MultiMesh,get_instance_transform_2d);
+    SE_BIND_METHOD(MultiMesh,set_instance_color);
+    SE_BIND_METHOD(MultiMesh,get_instance_color);
+    SE_BIND_METHOD(MultiMesh,set_instance_custom_data);
+    SE_BIND_METHOD(MultiMesh,get_instance_custom_data);
+    SE_BIND_METHOD(MultiMesh,set_as_bulk_array);
+    SE_BIND_METHOD(MultiMesh,get_aabb);
 
-    BIND_METHOD(MultiMesh,_set_transform_array);
-    BIND_METHOD(MultiMesh,_get_transform_array);
-    BIND_METHOD(MultiMesh,_set_transform_2d_array);
-    BIND_METHOD(MultiMesh,_get_transform_2d_array);
-    BIND_METHOD(MultiMesh,_set_color_array);
-    BIND_METHOD(MultiMesh,_get_color_array);
-    BIND_METHOD(MultiMesh,_set_custom_data_array);
-    BIND_METHOD(MultiMesh,_get_custom_data_array);
+    SE_BIND_METHOD(MultiMesh,_set_transform_array);
+    SE_BIND_METHOD(MultiMesh,_get_transform_array);
+    SE_BIND_METHOD(MultiMesh,_set_transform_2d_array);
+    SE_BIND_METHOD(MultiMesh,_get_transform_2d_array);
+    SE_BIND_METHOD(MultiMesh,_set_color_array);
+    SE_BIND_METHOD(MultiMesh,_get_color_array);
+    SE_BIND_METHOD(MultiMesh,_set_custom_data_array);
+    SE_BIND_METHOD(MultiMesh,_get_custom_data_array);
 
     // Properties and constants
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "color_format", PropertyHint::Enum, "None,Byte,Float"), "set_color_format", "get_color_format");

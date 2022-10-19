@@ -658,8 +658,8 @@ void NavigationMeshGenerator::clear(Ref<NavigationMesh> p_nav_mesh) {
 }
 
 void NavigationMeshGenerator::_bind_methods() {
-    BIND_METHOD(NavigationMeshGenerator,bake);
-    BIND_METHOD(NavigationMeshGenerator,clear);
+    SE_BIND_METHOD(NavigationMeshGenerator,bake);
+    SE_BIND_METHOD(NavigationMeshGenerator,clear);
 }
 
 #endif

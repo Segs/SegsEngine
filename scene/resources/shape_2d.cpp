@@ -104,12 +104,12 @@ Array Shape2D::collide_and_get_contacts(const Transform2D &p_local_xform, const 
 
 void Shape2D::_bind_methods() {
 
-    BIND_METHOD(Shape2D,set_custom_solver_bias);
-    BIND_METHOD(Shape2D,get_custom_solver_bias);
-    BIND_METHOD(Shape2D,collide);
-    BIND_METHOD(Shape2D,collide_with_motion);
-    BIND_METHOD(Shape2D,collide_and_get_contacts);
-    BIND_METHOD(Shape2D,collide_with_motion_and_get_contacts);
+    SE_BIND_METHOD(Shape2D,set_custom_solver_bias);
+    SE_BIND_METHOD(Shape2D,get_custom_solver_bias);
+    SE_BIND_METHOD(Shape2D,collide);
+    SE_BIND_METHOD(Shape2D,collide_with_motion);
+    SE_BIND_METHOD(Shape2D,collide_and_get_contacts);
+    SE_BIND_METHOD(Shape2D,collide_with_motion_and_get_contacts);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "custom_solver_bias", PropertyHint::Range, "0,1,0.001"), "set_custom_solver_bias", "get_custom_solver_bias");
 }

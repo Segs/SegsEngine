@@ -163,9 +163,9 @@ void Occluder::_notification(int p_what) {
 }
 
 void Occluder::_bind_methods() {
-    BIND_METHOD(Occluder,resource_changed);
-    BIND_METHOD(Occluder,set_shape);
-    BIND_METHOD(Occluder,get_shape);
+    SE_BIND_METHOD(Occluder,resource_changed);
+    SE_BIND_METHOD(Occluder,set_shape);
+    SE_BIND_METHOD(Occluder,get_shape);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PropertyHint::ResourceType, "OccluderShape"), "set_shape", "get_shape");
 }

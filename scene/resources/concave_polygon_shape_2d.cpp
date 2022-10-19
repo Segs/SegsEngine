@@ -113,8 +113,8 @@ Rect2 ConcavePolygonShape2D::get_rect() const {
 
 void ConcavePolygonShape2D::_bind_methods() {
 
-    BIND_METHOD(ConcavePolygonShape2D,set_segments);
-    BIND_METHOD(ConcavePolygonShape2D,get_segments);
+    SE_BIND_METHOD(ConcavePolygonShape2D,set_segments);
+    SE_BIND_METHOD(ConcavePolygonShape2D,get_segments);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "segments"), "set_segments", "get_segments");
 }

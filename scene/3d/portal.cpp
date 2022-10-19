@@ -685,25 +685,25 @@ Plane Portal::_plane_from_points_newell(const Vector<Vector3> &p_pts) {
 
 void Portal::_bind_methods() {
 
-    BIND_METHOD(Portal,set_portal_active);
-    BIND_METHOD(Portal,get_portal_active);
+    SE_BIND_METHOD(Portal,set_portal_active);
+    SE_BIND_METHOD(Portal,get_portal_active);
 
-    BIND_METHOD(Portal,set_two_way);
-    BIND_METHOD(Portal,is_two_way);
+    SE_BIND_METHOD(Portal,set_two_way);
+    SE_BIND_METHOD(Portal,is_two_way);
 
-    BIND_METHOD(Portal,set_use_default_margin);
-    BIND_METHOD(Portal,get_use_default_margin);
+    SE_BIND_METHOD(Portal,set_use_default_margin);
+    SE_BIND_METHOD(Portal,get_use_default_margin);
 
-    BIND_METHOD(Portal,set_portal_margin);
-    BIND_METHOD(Portal,get_portal_margin);
+    SE_BIND_METHOD(Portal,set_portal_margin);
+    SE_BIND_METHOD(Portal,get_portal_margin);
 
-    BIND_METHOD(Portal,set_linked_room);
-    BIND_METHOD(Portal,get_linked_room);
+    SE_BIND_METHOD(Portal,set_linked_room);
+    SE_BIND_METHOD(Portal,get_linked_room);
 
-    BIND_METHOD(Portal,set_points);
-    BIND_METHOD(Portal,get_points);
+    SE_BIND_METHOD(Portal,set_points);
+    SE_BIND_METHOD(Portal,get_points);
 
-    BIND_METHOD(Portal,set_point);
+    SE_BIND_METHOD(Portal,set_point);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "portal_active"), "set_portal_active", "get_portal_active");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "two_way"), "set_two_way", "is_two_way");

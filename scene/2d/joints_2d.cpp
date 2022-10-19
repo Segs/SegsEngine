@@ -244,17 +244,17 @@ String Joint2D::get_configuration_warning() const {
 
 void Joint2D::_bind_methods() {
 
-    BIND_METHOD(Joint2D,set_node_a);
-    BIND_METHOD(Joint2D,get_node_a);
+    SE_BIND_METHOD(Joint2D,set_node_a);
+    SE_BIND_METHOD(Joint2D,get_node_a);
 
-    BIND_METHOD(Joint2D,set_node_b);
-    BIND_METHOD(Joint2D,get_node_b);
+    SE_BIND_METHOD(Joint2D,set_node_b);
+    SE_BIND_METHOD(Joint2D,get_node_b);
 
-    BIND_METHOD(Joint2D,set_bias);
-    BIND_METHOD(Joint2D,get_bias);
+    SE_BIND_METHOD(Joint2D,set_bias);
+    SE_BIND_METHOD(Joint2D,get_bias);
 
-    BIND_METHOD(Joint2D,set_exclude_nodes_from_collision);
-    BIND_METHOD(Joint2D,get_exclude_nodes_from_collision);
+    SE_BIND_METHOD(Joint2D,set_exclude_nodes_from_collision);
+    SE_BIND_METHOD(Joint2D,get_exclude_nodes_from_collision);
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_a", PropertyHint::NodePathValidTypes, "PhysicsBody2D"), "set_node_a", "get_node_a");
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_b", PropertyHint::NodePathValidTypes, "PhysicsBody2D"), "set_node_b", "get_node_b");
@@ -312,8 +312,8 @@ real_t PinJoint2D::get_softness() const {
 
 void PinJoint2D::_bind_methods() {
 
-    BIND_METHOD(PinJoint2D,set_softness);
-    BIND_METHOD(PinJoint2D,get_softness);
+    SE_BIND_METHOD(PinJoint2D,set_softness);
+    SE_BIND_METHOD(PinJoint2D,get_softness);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "softness", PropertyHint::ExpRange, "0.00,16,0.01"), "set_softness", "get_softness");
 }
@@ -380,10 +380,10 @@ real_t GrooveJoint2D::get_initial_offset() const {
 
 void GrooveJoint2D::_bind_methods() {
 
-    BIND_METHOD(GrooveJoint2D,set_length);
-    BIND_METHOD(GrooveJoint2D,get_length);
-    BIND_METHOD(GrooveJoint2D,set_initial_offset);
-    BIND_METHOD(GrooveJoint2D,get_initial_offset);
+    SE_BIND_METHOD(GrooveJoint2D,set_length);
+    SE_BIND_METHOD(GrooveJoint2D,get_length);
+    SE_BIND_METHOD(GrooveJoint2D,set_initial_offset);
+    SE_BIND_METHOD(GrooveJoint2D,get_initial_offset);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "length", PropertyHint::ExpRange, "1,65535,1"), "set_length", "get_length");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "initial_offset", PropertyHint::ExpRange, "1,65535,1"), "set_initial_offset", "get_initial_offset");
@@ -485,14 +485,14 @@ real_t DampedSpringJoint2D::get_damping() const {
 
 void DampedSpringJoint2D::_bind_methods() {
 
-    BIND_METHOD(DampedSpringJoint2D,set_length);
-    BIND_METHOD(DampedSpringJoint2D,get_length);
-    BIND_METHOD(DampedSpringJoint2D,set_rest_length);
-    BIND_METHOD(DampedSpringJoint2D,get_rest_length);
-    BIND_METHOD(DampedSpringJoint2D,set_stiffness);
-    BIND_METHOD(DampedSpringJoint2D,get_stiffness);
-    BIND_METHOD(DampedSpringJoint2D,set_damping);
-    BIND_METHOD(DampedSpringJoint2D,get_damping);
+    SE_BIND_METHOD(DampedSpringJoint2D,set_length);
+    SE_BIND_METHOD(DampedSpringJoint2D,get_length);
+    SE_BIND_METHOD(DampedSpringJoint2D,set_rest_length);
+    SE_BIND_METHOD(DampedSpringJoint2D,get_rest_length);
+    SE_BIND_METHOD(DampedSpringJoint2D,set_stiffness);
+    SE_BIND_METHOD(DampedSpringJoint2D,get_stiffness);
+    SE_BIND_METHOD(DampedSpringJoint2D,set_damping);
+    SE_BIND_METHOD(DampedSpringJoint2D,get_damping);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "length", PropertyHint::ExpRange, "1,65535,1"), "set_length", "get_length");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rest_length", PropertyHint::ExpRange, "0,65535,1"), "set_rest_length", "get_rest_length");

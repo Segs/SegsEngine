@@ -1457,43 +1457,43 @@ void Theme::clear() {
 }
 
 void Theme::_bind_methods() {
-    BIND_METHOD(Theme,set_icon);
-    BIND_METHOD(Theme,get_icon);
-    BIND_METHOD(Theme,has_icon);
-    BIND_METHOD(Theme,rename_icon);
-    BIND_METHOD(Theme,clear_icon);
+    SE_BIND_METHOD(Theme,set_icon);
+    SE_BIND_METHOD(Theme,get_icon);
+    SE_BIND_METHOD(Theme,has_icon);
+    SE_BIND_METHOD(Theme,rename_icon);
+    SE_BIND_METHOD(Theme,clear_icon);
     MethodBinder::bind_method(D_METHOD("get_icon_list", { "node_type" }), &Theme::_get_icon_list);
     MethodBinder::bind_method(D_METHOD("get_icon_types"), &Theme::_get_icon_types);
 
-    BIND_METHOD(Theme,set_stylebox);
-    BIND_METHOD(Theme,get_stylebox);
-    BIND_METHOD(Theme,has_stylebox);
-    BIND_METHOD(Theme,rename_stylebox);
-    BIND_METHOD(Theme,clear_stylebox);
+    SE_BIND_METHOD(Theme,set_stylebox);
+    SE_BIND_METHOD(Theme,get_stylebox);
+    SE_BIND_METHOD(Theme,has_stylebox);
+    SE_BIND_METHOD(Theme,rename_stylebox);
+    SE_BIND_METHOD(Theme,clear_stylebox);
     MethodBinder::bind_method(D_METHOD("get_stylebox_list", { "node_type" }), &Theme::_get_stylebox_list);
-    BIND_METHOD(Theme,get_stylebox_types);
+    SE_BIND_METHOD(Theme,get_stylebox_types);
 
-    BIND_METHOD(Theme,set_font);
-    BIND_METHOD(Theme,get_font);
-    BIND_METHOD(Theme,has_font);
-    BIND_METHOD(Theme,rename_font);
-    BIND_METHOD(Theme,clear_font);
+    SE_BIND_METHOD(Theme,set_font);
+    SE_BIND_METHOD(Theme,get_font);
+    SE_BIND_METHOD(Theme,has_font);
+    SE_BIND_METHOD(Theme,rename_font);
+    SE_BIND_METHOD(Theme,clear_font);
     MethodBinder::bind_method(D_METHOD("get_font_list", { "node_type" }), &Theme::_get_font_list);
     MethodBinder::bind_method(D_METHOD("get_font_types"), &Theme::_get_font_types);
 
-    BIND_METHOD(Theme,set_color);
-    BIND_METHOD(Theme,get_color);
-    BIND_METHOD(Theme,has_color);
-    BIND_METHOD(Theme,rename_color);
-    BIND_METHOD(Theme,clear_color);
+    SE_BIND_METHOD(Theme,set_color);
+    SE_BIND_METHOD(Theme,get_color);
+    SE_BIND_METHOD(Theme,has_color);
+    SE_BIND_METHOD(Theme,rename_color);
+    SE_BIND_METHOD(Theme,clear_color);
     MethodBinder::bind_method(D_METHOD("get_color_list", { "node_type" }), &Theme::_get_color_list);
     MethodBinder::bind_method(D_METHOD("get_color_types"), &Theme::_get_color_types);
 
-    BIND_METHOD(Theme,set_constant);
-    BIND_METHOD(Theme,get_constant);
-    BIND_METHOD(Theme,has_constant);
-    BIND_METHOD(Theme,rename_constant);
-    BIND_METHOD(Theme,clear_constant);
+    SE_BIND_METHOD(Theme,set_constant);
+    SE_BIND_METHOD(Theme,get_constant);
+    SE_BIND_METHOD(Theme,has_constant);
+    SE_BIND_METHOD(Theme,rename_constant);
+    SE_BIND_METHOD(Theme,clear_constant);
     MethodBinder::bind_method(D_METHOD("get_constant_list", { "node_type" }), &Theme::_get_constant_list);
     MethodBinder::bind_method(D_METHOD("get_constant_types"), &Theme::_get_constant_types);
 
@@ -1501,28 +1501,28 @@ void Theme::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_default_font"), &Theme::get_default_theme_font);
     MethodBinder::bind_method(D_METHOD("has_default_font"), &Theme::has_default_theme_font);
 
-    BIND_METHOD(Theme,set_theme_item);
-    BIND_METHOD(Theme,get_theme_item);
-    BIND_METHOD(Theme,has_theme_item);
-    BIND_METHOD(Theme,rename_theme_item);
-    BIND_METHOD(Theme,clear_theme_item);
+    SE_BIND_METHOD(Theme,set_theme_item);
+    SE_BIND_METHOD(Theme,get_theme_item);
+    SE_BIND_METHOD(Theme,has_theme_item);
+    SE_BIND_METHOD(Theme,rename_theme_item);
+    SE_BIND_METHOD(Theme,clear_theme_item);
     MethodBinder::bind_method(D_METHOD("get_theme_item_list", {"data_type", "node_type"}), &Theme::_get_theme_item_list);
     MethodBinder::bind_method(D_METHOD("get_theme_item_types", {"data_type"}), &Theme::_get_theme_item_types);
 
-    BIND_METHOD(Theme,set_type_variation);
-    BIND_METHOD(Theme,is_type_variation);
-    BIND_METHOD(Theme,clear_type_variation);
-    BIND_METHOD(Theme,get_type_variation_base);
+    SE_BIND_METHOD(Theme,set_type_variation);
+    SE_BIND_METHOD(Theme,is_type_variation);
+    SE_BIND_METHOD(Theme,clear_type_variation);
+    SE_BIND_METHOD(Theme,get_type_variation_base);
     //MethodBinder::bind_method(D_METHOD("get_type_variation_list", {"base_type"}), &Theme::_get_type_variation_list);
 
-    BIND_METHOD(Theme,add_type);
-    BIND_METHOD(Theme,remove_type);
+    SE_BIND_METHOD(Theme,add_type);
+    SE_BIND_METHOD(Theme,remove_type);
     MethodBinder::bind_method(D_METHOD("get_type_list", { "node_type" }), &Theme::_get_type_list);
 
     MethodBinder::bind_method("copy_default_theme", &Theme::copy_default_theme);
-    BIND_METHOD(Theme,copy_theme);
-    BIND_METHOD(Theme,merge_with);
-    BIND_METHOD(Theme,clear);
+    SE_BIND_METHOD(Theme,copy_theme);
+    SE_BIND_METHOD(Theme,merge_with);
+    SE_BIND_METHOD(Theme,clear);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "default_font", PropertyHint::ResourceType, "Font"),
             "set_default_font", "get_default_font");

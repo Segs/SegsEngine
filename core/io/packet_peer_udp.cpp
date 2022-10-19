@@ -263,13 +263,13 @@ void PacketPeerUDP::set_dest_address(const IP_Address &p_address, int p_port) {
 void PacketPeerUDP::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("listen", {"port", "bind_address", "recv_buf_size"}), &PacketPeerUDP::_listen, {DEFVAL("*"), DEFVAL(65536)});
-    BIND_METHOD(PacketPeerUDP,close);
-    BIND_METHOD(PacketPeerUDP,wait);
-    BIND_METHOD(PacketPeerUDP,is_listening);
+    SE_BIND_METHOD(PacketPeerUDP,close);
+    SE_BIND_METHOD(PacketPeerUDP,wait);
+    SE_BIND_METHOD(PacketPeerUDP,is_listening);
     MethodBinder::bind_method(D_METHOD("get_packet_ip"), &PacketPeerUDP::_get_packet_ip);
-    BIND_METHOD(PacketPeerUDP,get_packet_port);
+    SE_BIND_METHOD(PacketPeerUDP,get_packet_port);
     MethodBinder::bind_method(D_METHOD("set_dest_address", {"host", "port"}), &PacketPeerUDP::_set_dest_address);
-    BIND_METHOD(PacketPeerUDP,set_broadcast_enabled);
+    SE_BIND_METHOD(PacketPeerUDP,set_broadcast_enabled);
     MethodBinder::bind_method(D_METHOD("join_multicast_group", {"multicast_address", "interface_name"}),
             (Error (PacketPeerUDP::*)(StringView,StringView))&PacketPeerUDP::join_multicast_group);
     MethodBinder::bind_method(D_METHOD("leave_multicast_group", {"multicast_address", "interface_name"}),

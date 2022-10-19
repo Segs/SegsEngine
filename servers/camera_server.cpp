@@ -47,12 +47,12 @@ IMPL_GDCLASS(CameraServer)
 CameraServer::CreateFunc CameraServer::create_func = nullptr;
 
 void CameraServer::_bind_methods() {
-    BIND_METHOD(CameraServer,get_feed);
-    BIND_METHOD(CameraServer,get_feed_count);
-    BIND_METHOD(CameraServer,get_feeds);
+    SE_BIND_METHOD(CameraServer,get_feed);
+    SE_BIND_METHOD(CameraServer,get_feed_count);
+    SE_BIND_METHOD(CameraServer,get_feeds);
 
-    BIND_METHOD(CameraServer,add_feed);
-    BIND_METHOD(CameraServer,remove_feed);
+    SE_BIND_METHOD(CameraServer,add_feed);
+    SE_BIND_METHOD(CameraServer,remove_feed);
 
     ADD_SIGNAL(MethodInfo("camera_feed_added", PropertyInfo(VariantType::INT, "id")));
     ADD_SIGNAL(MethodInfo("camera_feed_removed", PropertyInfo(VariantType::INT, "id")));

@@ -699,30 +699,30 @@ int Label::get_total_character_count() const {
 
 void Label::_bind_methods() {
 
-    BIND_METHOD(Label,set_align);
-    BIND_METHOD(Label,get_align);
-    BIND_METHOD(Label,set_valign);
-    BIND_METHOD(Label,get_valign);
-    BIND_METHOD(Label,set_text);
-    BIND_METHOD(Label,get_text);
-    BIND_METHOD(Label,set_autowrap);
-    BIND_METHOD(Label,has_autowrap);
-    BIND_METHOD(Label,set_clip_text);
-    BIND_METHOD(Label,is_clipping_text);
-    BIND_METHOD(Label,set_uppercase);
-    BIND_METHOD(Label,is_uppercase);
-    BIND_METHOD(Label,get_line_height);
-    BIND_METHOD(Label,get_line_count);
-    BIND_METHOD(Label,get_visible_line_count);
-    BIND_METHOD(Label,get_total_character_count);
-    BIND_METHOD(Label,set_visible_characters);
-    BIND_METHOD(Label,get_visible_characters);
-    BIND_METHOD(Label,set_percent_visible);
-    BIND_METHOD(Label,get_percent_visible);
-    BIND_METHOD(Label,set_lines_skipped);
-    BIND_METHOD(Label,get_lines_skipped);
-    BIND_METHOD(Label,set_max_lines_visible);
-    BIND_METHOD(Label,get_max_lines_visible);
+    SE_BIND_METHOD(Label,set_align);
+    SE_BIND_METHOD(Label,get_align);
+    SE_BIND_METHOD(Label,set_valign);
+    SE_BIND_METHOD(Label,get_valign);
+    SE_BIND_METHOD(Label,set_text);
+    SE_BIND_METHOD(Label,get_text);
+    SE_BIND_METHOD(Label,set_autowrap);
+    SE_BIND_METHOD(Label,has_autowrap);
+    SE_BIND_METHOD(Label,set_clip_text);
+    SE_BIND_METHOD(Label,is_clipping_text);
+    SE_BIND_METHOD(Label,set_uppercase);
+    SE_BIND_METHOD(Label,is_uppercase);
+    SE_BIND_METHOD(Label,get_line_height);
+    SE_BIND_METHOD(Label,get_line_count);
+    SE_BIND_METHOD(Label,get_visible_line_count);
+    SE_BIND_METHOD(Label,get_total_character_count);
+    SE_BIND_METHOD(Label,set_visible_characters);
+    SE_BIND_METHOD(Label,get_visible_characters);
+    SE_BIND_METHOD(Label,set_percent_visible);
+    SE_BIND_METHOD(Label,get_percent_visible);
+    SE_BIND_METHOD(Label,set_lines_skipped);
+    SE_BIND_METHOD(Label,get_lines_skipped);
+    SE_BIND_METHOD(Label,set_max_lines_visible);
+    SE_BIND_METHOD(Label,get_max_lines_visible);
 
     BIND_ENUM_CONSTANT(ALIGN_LEFT);
     BIND_ENUM_CONSTANT(ALIGN_CENTER);

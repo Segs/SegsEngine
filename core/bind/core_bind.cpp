@@ -157,14 +157,14 @@ PoolVector<String> _ResourceManager::get_recognized_extensions(const RES &p_reso
 
 void _ResourceManager::_bind_methods() {
     SE_BIND_METHOD_WITH_DEFAULTS(_ResourceManager, save, DEFVAL(0) );
-    BIND_METHOD(_ResourceManager,get_recognized_extensions);
+    SE_BIND_METHOD(_ResourceManager,get_recognized_extensions);
 
     SE_BIND_METHOD_WITH_DEFAULTS(_ResourceManager, load_interactive, DEFVAL(String()), DEFVAL(false) );
     SE_BIND_METHOD_WITH_DEFAULTS(_ResourceManager, load, DEFVAL(String()), DEFVAL(false) );
-    BIND_METHOD(_ResourceManager,get_recognized_extensions_for_type);
-    BIND_METHOD(_ResourceManager,set_abort_on_missing_resources);
-    BIND_METHOD(_ResourceManager,get_dependencies);
-    BIND_METHOD(_ResourceManager,has_cached);
+    SE_BIND_METHOD(_ResourceManager,get_recognized_extensions_for_type);
+    SE_BIND_METHOD(_ResourceManager,set_abort_on_missing_resources);
+    SE_BIND_METHOD(_ResourceManager,get_dependencies);
+    SE_BIND_METHOD(_ResourceManager,has_cached);
     SE_BIND_METHOD_WITH_DEFAULTS(_ResourceManager, exists, DEFVAL(String()) );
 
     BIND_ENUM_CONSTANT(FLAG_RELATIVE_PATHS);
@@ -1130,9 +1130,9 @@ void _OS::_bind_methods() {
     // BIND_METHOD(_OS,get_mouse_position);
     // BIND_METHOD(_OS,is_mouse_grab_enabled);
 
-    BIND_METHOD(_OS,set_clipboard);
-    BIND_METHOD(_OS,get_clipboard);
-    BIND_METHOD(_OS,has_clipboard);
+    SE_BIND_METHOD(_OS,set_clipboard);
+    SE_BIND_METHOD(_OS,get_clipboard);
+    SE_BIND_METHOD(_OS,has_clipboard);
 
     // will not delete for now, just unexpose
     // BIND_METHOD_DEFAULTS(_OS, set_video_mode,DEFVAL(0));
@@ -1142,192 +1142,192 @@ void _OS::_bind_methods() {
     // BIND_METHOD_DEFAULTS(_OS, get_fullscreen_mode_list,DEFVAL(0));
     MethodBinder::bind_method(
             D_METHOD("global_menu_add_item", { "menu", "label", "id", "meta" }), &_OS::global_menu_add_item);
-    BIND_METHOD(_OS,global_menu_add_separator);
-    BIND_METHOD(_OS,global_menu_remove_item);
-    BIND_METHOD(_OS,global_menu_clear);
+    SE_BIND_METHOD(_OS,global_menu_add_separator);
+    SE_BIND_METHOD(_OS,global_menu_remove_item);
+    SE_BIND_METHOD(_OS,global_menu_clear);
 
-    BIND_METHOD(_OS,get_video_driver_count);
-    BIND_METHOD(_OS,get_video_driver_name);
-    BIND_METHOD(_OS,get_current_video_driver);
+    SE_BIND_METHOD(_OS,get_video_driver_count);
+    SE_BIND_METHOD(_OS,get_video_driver_name);
+    SE_BIND_METHOD(_OS,get_current_video_driver);
 
-    BIND_METHOD(_OS,get_audio_driver_count);
-    BIND_METHOD(_OS,get_audio_driver_name);
-    BIND_METHOD(_OS,get_connected_midi_inputs);
-    BIND_METHOD(_OS,open_midi_inputs);
-    BIND_METHOD(_OS,close_midi_inputs);
+    SE_BIND_METHOD(_OS,get_audio_driver_count);
+    SE_BIND_METHOD(_OS,get_audio_driver_name);
+    SE_BIND_METHOD(_OS,get_connected_midi_inputs);
+    SE_BIND_METHOD(_OS,open_midi_inputs);
+    SE_BIND_METHOD(_OS,close_midi_inputs);
 
-    BIND_METHOD(_OS,get_screen_count);
-    BIND_METHOD(_OS,get_current_screen);
-    BIND_METHOD(_OS,set_current_screen);
+    SE_BIND_METHOD(_OS,get_screen_count);
+    SE_BIND_METHOD(_OS,get_current_screen);
+    SE_BIND_METHOD(_OS,set_current_screen);
     SE_BIND_METHOD_WITH_DEFAULTS(_OS, get_screen_position, DEFVAL(-1) );
     SE_BIND_METHOD_WITH_DEFAULTS(_OS, get_screen_size, DEFVAL(-1) );
     SE_BIND_METHOD_WITH_DEFAULTS(_OS, get_screen_dpi, DEFVAL(-1) );
     SE_BIND_METHOD_WITH_DEFAULTS(_OS, get_screen_scale, DEFVAL(-1) );
-    BIND_METHOD(_OS,get_screen_max_scale);
+    SE_BIND_METHOD(_OS,get_screen_max_scale);
 
     SE_BIND_METHOD_WITH_DEFAULTS(_OS, get_screen_refresh_rate,DEFVAL(-1));
-    BIND_METHOD(_OS,get_window_position);
-    BIND_METHOD(_OS,set_window_position);
-    BIND_METHOD(_OS,get_window_size);
-    BIND_METHOD(_OS,get_max_window_size);
-    BIND_METHOD(_OS,get_min_window_size);
-    BIND_METHOD(_OS,set_max_window_size);
-    BIND_METHOD(_OS,set_min_window_size);
-    BIND_METHOD(_OS,set_window_size);
-    BIND_METHOD(_OS,get_window_safe_area);
-    BIND_METHOD(_OS,set_window_fullscreen);
-    BIND_METHOD(_OS,is_window_fullscreen);
-    BIND_METHOD(_OS,set_window_resizable);
-    BIND_METHOD(_OS,is_window_resizable);
-    BIND_METHOD(_OS,set_window_minimized);
-    BIND_METHOD(_OS,is_window_minimized);
-    BIND_METHOD(_OS,set_window_maximized);
-    BIND_METHOD(_OS,is_window_maximized);
-    BIND_METHOD(_OS,set_window_always_on_top);
-    BIND_METHOD(_OS,is_window_always_on_top);
-    BIND_METHOD(_OS,is_window_focused);
-    BIND_METHOD(_OS,request_attention);
-    BIND_METHOD(_OS,get_real_window_size);
-    BIND_METHOD(_OS,center_window);
-    BIND_METHOD(_OS,move_window_to_foreground);
+    SE_BIND_METHOD(_OS,get_window_position);
+    SE_BIND_METHOD(_OS,set_window_position);
+    SE_BIND_METHOD(_OS,get_window_size);
+    SE_BIND_METHOD(_OS,get_max_window_size);
+    SE_BIND_METHOD(_OS,get_min_window_size);
+    SE_BIND_METHOD(_OS,set_max_window_size);
+    SE_BIND_METHOD(_OS,set_min_window_size);
+    SE_BIND_METHOD(_OS,set_window_size);
+    SE_BIND_METHOD(_OS,get_window_safe_area);
+    SE_BIND_METHOD(_OS,set_window_fullscreen);
+    SE_BIND_METHOD(_OS,is_window_fullscreen);
+    SE_BIND_METHOD(_OS,set_window_resizable);
+    SE_BIND_METHOD(_OS,is_window_resizable);
+    SE_BIND_METHOD(_OS,set_window_minimized);
+    SE_BIND_METHOD(_OS,is_window_minimized);
+    SE_BIND_METHOD(_OS,set_window_maximized);
+    SE_BIND_METHOD(_OS,is_window_maximized);
+    SE_BIND_METHOD(_OS,set_window_always_on_top);
+    SE_BIND_METHOD(_OS,is_window_always_on_top);
+    SE_BIND_METHOD(_OS,is_window_focused);
+    SE_BIND_METHOD(_OS,request_attention);
+    SE_BIND_METHOD(_OS,get_real_window_size);
+    SE_BIND_METHOD(_OS,center_window);
+    SE_BIND_METHOD(_OS,move_window_to_foreground);
 
-    BIND_METHOD(_OS,get_native_handle);
+    SE_BIND_METHOD(_OS,get_native_handle);
 
-    BIND_METHOD(_OS,set_borderless_window);
-    BIND_METHOD(_OS,get_borderless_window);
+    SE_BIND_METHOD(_OS,set_borderless_window);
+    SE_BIND_METHOD(_OS,get_borderless_window);
 
     MethodBinder::bind_method(
             D_METHOD("get_window_per_pixel_transparency_enabled"), &_OS::get_window_per_pixel_transparency_enabled);
     MethodBinder::bind_method(D_METHOD("set_window_per_pixel_transparency_enabled", { "enabled" }),
             &_OS::set_window_per_pixel_transparency_enabled);
 
-    BIND_METHOD(_OS,set_ime_active);
-    BIND_METHOD(_OS,set_ime_position);
-    BIND_METHOD(_OS,get_ime_selection);
-    BIND_METHOD(_OS,get_ime_text);
+    SE_BIND_METHOD(_OS,set_ime_active);
+    SE_BIND_METHOD(_OS,set_ime_position);
+    SE_BIND_METHOD(_OS,get_ime_selection);
+    SE_BIND_METHOD(_OS,get_ime_text);
 
-    BIND_METHOD(_OS,set_screen_orientation);
-    BIND_METHOD(_OS,get_screen_orientation);
+    SE_BIND_METHOD(_OS,set_screen_orientation);
+    SE_BIND_METHOD(_OS,get_screen_orientation);
 
-    BIND_METHOD(_OS,set_keep_screen_on);
-    BIND_METHOD(_OS,is_keep_screen_on);
+    SE_BIND_METHOD(_OS,set_keep_screen_on);
+    SE_BIND_METHOD(_OS,is_keep_screen_on);
 
-    BIND_METHOD(_OS,has_touchscreen_ui_hint);
+    SE_BIND_METHOD(_OS,has_touchscreen_ui_hint);
 
-    BIND_METHOD(_OS,set_window_title);
-    BIND_METHOD(_OS,set_window_mouse_passthrough);
+    SE_BIND_METHOD(_OS,set_window_title);
+    SE_BIND_METHOD(_OS,set_window_mouse_passthrough);
 
     MethodBinder::bind_method(
             D_METHOD("set_low_processor_usage_mode", { "enable" }), &_OS::set_low_processor_usage_mode);
-    BIND_METHOD(_OS,is_in_low_processor_usage_mode);
+    SE_BIND_METHOD(_OS,is_in_low_processor_usage_mode);
 
     MethodBinder::bind_method(D_METHOD("set_low_processor_usage_mode_sleep_usec", { "usec" }),
             &_OS::set_low_processor_usage_mode_sleep_usec);
     MethodBinder::bind_method(
             D_METHOD("get_low_processor_usage_mode_sleep_usec"), &_OS::get_low_processor_usage_mode_sleep_usec);
 
-    BIND_METHOD(_OS,get_processor_count);
+    SE_BIND_METHOD(_OS,get_processor_count);
 
-    BIND_METHOD(_OS,get_executable_path);
+    SE_BIND_METHOD(_OS,get_executable_path);
     SE_BIND_METHOD_WITH_DEFAULTS(_OS, execute, DEFVAL(true), DEFVAL(Array()), DEFVAL(false) , DEFVAL(false));
-    BIND_METHOD(_OS,kill);
-    BIND_METHOD(_OS,shell_open);
-    BIND_METHOD(_OS,get_process_id);
+    SE_BIND_METHOD(_OS,kill);
+    SE_BIND_METHOD(_OS,shell_open);
+    SE_BIND_METHOD(_OS,get_process_id);
 
-    BIND_METHOD(_OS,get_environment);
-    BIND_METHOD(_OS,set_environment);
-    BIND_METHOD(_OS,has_environment);
+    SE_BIND_METHOD(_OS,get_environment);
+    SE_BIND_METHOD(_OS,set_environment);
+    SE_BIND_METHOD(_OS,has_environment);
 
-    BIND_METHOD(_OS,get_name);
-    BIND_METHOD(_OS,get_cmdline_args);
+    SE_BIND_METHOD(_OS,get_name);
+    SE_BIND_METHOD(_OS,get_cmdline_args);
 
     SE_BIND_METHOD_WITH_DEFAULTS(_OS, get_datetime, DEFVAL(false) );
     SE_BIND_METHOD_WITH_DEFAULTS(_OS, get_date, DEFVAL(false) );
     SE_BIND_METHOD_WITH_DEFAULTS(_OS, get_time, DEFVAL(false) );
-    BIND_METHOD(_OS,get_time_zone_info);
-    BIND_METHOD(_OS,get_unix_time);
+    SE_BIND_METHOD(_OS,get_time_zone_info);
+    SE_BIND_METHOD(_OS,get_unix_time);
     MethodBinder::bind_method(
             D_METHOD("get_datetime_from_unix_time", { "unix_time_val" }), &_OS::get_datetime_from_unix_time);
     MethodBinder::bind_method(
             D_METHOD("get_unix_time_from_datetime", { "datetime" }), &_OS::get_unix_time_from_datetime);
-    BIND_METHOD(_OS,get_system_time_secs);
-    BIND_METHOD(_OS,get_system_time_msecs);
+    SE_BIND_METHOD(_OS,get_system_time_secs);
+    SE_BIND_METHOD(_OS,get_system_time_msecs);
 
-    BIND_METHOD(_OS,set_native_icon);
-    BIND_METHOD(_OS,set_icon);
+    SE_BIND_METHOD(_OS,set_native_icon);
+    SE_BIND_METHOD(_OS,set_icon);
 
-    BIND_METHOD(_OS,get_exit_code);
-    BIND_METHOD(_OS,set_exit_code);
+    SE_BIND_METHOD(_OS,get_exit_code);
+    SE_BIND_METHOD(_OS,set_exit_code);
 
-    BIND_METHOD(_OS,delay_usec);
-    BIND_METHOD(_OS,delay_msec);
-    BIND_METHOD(_OS,get_ticks_msec);
-    BIND_METHOD(_OS,get_ticks_usec);
-    BIND_METHOD(_OS,get_splash_tick_msec);
-    BIND_METHOD(_OS,get_locale);
-    BIND_METHOD(_OS,get_latin_keyboard_variant);
-    BIND_METHOD(_OS,get_model_name);
+    SE_BIND_METHOD(_OS,delay_usec);
+    SE_BIND_METHOD(_OS,delay_msec);
+    SE_BIND_METHOD(_OS,get_ticks_msec);
+    SE_BIND_METHOD(_OS,get_ticks_usec);
+    SE_BIND_METHOD(_OS,get_splash_tick_msec);
+    SE_BIND_METHOD(_OS,get_locale);
+    SE_BIND_METHOD(_OS,get_latin_keyboard_variant);
+    SE_BIND_METHOD(_OS,get_model_name);
 
-    BIND_METHOD(_OS,can_draw);
-    BIND_METHOD(_OS,is_userfs_persistent);
-    BIND_METHOD(_OS,is_stdout_verbose);
+    SE_BIND_METHOD(_OS,can_draw);
+    SE_BIND_METHOD(_OS,is_userfs_persistent);
+    SE_BIND_METHOD(_OS,is_stdout_verbose);
 
-    BIND_METHOD(_OS,can_use_threads);
+    SE_BIND_METHOD(_OS,can_use_threads);
 
-    BIND_METHOD(_OS,is_debug_build);
+    SE_BIND_METHOD(_OS,is_debug_build);
 
     // BIND_METHOD(_OS,get_mouse_button_state);
 
-    BIND_METHOD(_OS,dump_memory_to_file);
-    BIND_METHOD(_OS,dump_resources_to_file);
+    SE_BIND_METHOD(_OS,dump_memory_to_file);
+    SE_BIND_METHOD(_OS,dump_resources_to_file);
     SE_BIND_METHOD_WITH_DEFAULTS(_OS, print_resources_in_use, DEFVAL(false) );
     SE_BIND_METHOD_WITH_DEFAULTS(_OS, print_all_resources, DEFVAL(String()) );
 
-    BIND_METHOD(_OS,get_static_memory_usage);
-    BIND_METHOD(_OS,get_static_memory_peak_usage);
+    SE_BIND_METHOD(_OS,get_static_memory_usage);
+    SE_BIND_METHOD(_OS,get_static_memory_peak_usage);
 
-    BIND_METHOD(_OS,get_user_data_dir);
-    BIND_METHOD(_OS,get_system_dir);
-    BIND_METHOD(_OS,get_config_dir);
-    BIND_METHOD(_OS,get_data_dir);
-    BIND_METHOD(_OS,get_cache_dir);
-    BIND_METHOD(_OS,get_unique_id);
+    SE_BIND_METHOD(_OS,get_user_data_dir);
+    SE_BIND_METHOD(_OS,get_system_dir);
+    SE_BIND_METHOD(_OS,get_config_dir);
+    SE_BIND_METHOD(_OS,get_data_dir);
+    SE_BIND_METHOD(_OS,get_cache_dir);
+    SE_BIND_METHOD(_OS,get_unique_id);
 
-    BIND_METHOD(_OS,is_ok_left_and_cancel_right);
+    SE_BIND_METHOD(_OS,is_ok_left_and_cancel_right);
 
-    BIND_METHOD(_OS,print_all_textures_by_size);
-    BIND_METHOD(_OS,print_resources_by_type);
+    SE_BIND_METHOD(_OS,print_all_textures_by_size);
+    SE_BIND_METHOD(_OS,print_resources_by_type);
 
     MethodBinder::bind_method(D_METHOD("native_video_play", { "path", "volume", "audio_track", "subtitle_track" }),
             &_OS::native_video_play);
-    BIND_METHOD(_OS,native_video_is_playing);
-    BIND_METHOD(_OS,native_video_stop);
-    BIND_METHOD(_OS,native_video_pause);
-    BIND_METHOD(_OS,native_video_unpause);
+    SE_BIND_METHOD(_OS,native_video_is_playing);
+    SE_BIND_METHOD(_OS,native_video_stop);
+    SE_BIND_METHOD(_OS,native_video_pause);
+    SE_BIND_METHOD(_OS,native_video_unpause);
 
-    BIND_METHOD(_OS,get_keycode_string);
-    BIND_METHOD(_OS,is_keycode_unicode);
-    BIND_METHOD(_OS,find_keycode_from_string);
+    SE_BIND_METHOD(_OS,get_keycode_string);
+    SE_BIND_METHOD(_OS,is_keycode_unicode);
+    SE_BIND_METHOD(_OS,find_keycode_from_string);
 
     MethodBinder::bind_method(
             D_METHOD("set_use_file_access_save_and_swap", { "enabled" }), &_OS::set_use_file_access_save_and_swap);
 
     SE_BIND_METHOD_WITH_DEFAULTS(_OS, alert, DEFVAL("Alert!") );
-    BIND_METHOD(_OS,crash);
+    SE_BIND_METHOD(_OS,crash);
 
-    BIND_METHOD(_OS,set_thread_name);
+    SE_BIND_METHOD(_OS,set_thread_name);
 
-    BIND_METHOD(_OS,set_use_vsync);
-    BIND_METHOD(_OS,is_vsync_enabled);
+    SE_BIND_METHOD(_OS,set_use_vsync);
+    SE_BIND_METHOD(_OS,is_vsync_enabled);
 
-    BIND_METHOD(_OS,set_vsync_via_compositor);
-    BIND_METHOD(_OS,is_vsync_via_compositor_enabled);
+    SE_BIND_METHOD(_OS,set_vsync_via_compositor);
+    SE_BIND_METHOD(_OS,is_vsync_via_compositor_enabled);
 
-    BIND_METHOD(_OS,has_feature);
+    SE_BIND_METHOD(_OS,has_feature);
 
-    BIND_METHOD(_OS,request_permission);
-    BIND_METHOD(_OS,request_permissions);
-    BIND_METHOD(_OS,get_granted_permissions);
+    SE_BIND_METHOD(_OS,request_permission);
+    SE_BIND_METHOD(_OS,request_permissions);
+    SE_BIND_METHOD(_OS,get_granted_permissions);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "clipboard"), "set_clipboard", "get_clipboard");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_screen"), "set_current_screen", "get_current_screen");
@@ -1734,7 +1734,7 @@ int _Geometry::get_uv84_normal_bit(const Vector3 &p_vector) {
 IMPL_GDCLASS(_Geometry)
 
 void _Geometry::_bind_methods() {
-    BIND_METHOD(_Geometry,build_box_planes);
+    SE_BIND_METHOD(_Geometry,build_box_planes);
     SE_BIND_METHOD_WITH_DEFAULTS(_Geometry, build_cylinder_planes, DEFVAL(Vector3::AXIS_Z) );
     SE_BIND_METHOD_WITH_DEFAULTS(_Geometry, build_capsule_planes, DEFVAL(Vector3::AXIS_Z) );
     MethodBinder::bind_method(
@@ -1760,7 +1760,7 @@ void _Geometry::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_closest_point_to_segment_uncapped", { "point", "s1", "s2" }),
             &_Geometry::get_closest_point_to_segment_uncapped);
 
-    BIND_METHOD(_Geometry,get_uv84_normal_bit);
+    SE_BIND_METHOD(_Geometry,get_uv84_normal_bit);
 
     MethodBinder::bind_method(
             D_METHOD("ray_intersects_triangle", { "from", "dir", "a", "b", "c" }), &_Geometry::ray_intersects_triangle);
@@ -1776,16 +1776,16 @@ void _Geometry::_bind_methods() {
     MethodBinder::bind_method(
             D_METHOD("point_is_inside_triangle", { "point", "a", "b", "c" }), &_Geometry::point_is_inside_triangle);
 
-    BIND_METHOD(_Geometry,is_polygon_clockwise);
-    BIND_METHOD(_Geometry,is_point_in_polygon);
-    BIND_METHOD(_Geometry,triangulate_polygon);
-    BIND_METHOD(_Geometry,triangulate_delaunay_2d);
-    BIND_METHOD(_Geometry,convex_hull_2d);
-    BIND_METHOD(_Geometry,clip_polygon);
+    SE_BIND_METHOD(_Geometry,is_polygon_clockwise);
+    SE_BIND_METHOD(_Geometry,is_point_in_polygon);
+    SE_BIND_METHOD(_Geometry,triangulate_polygon);
+    SE_BIND_METHOD(_Geometry,triangulate_delaunay_2d);
+    SE_BIND_METHOD(_Geometry,convex_hull_2d);
+    SE_BIND_METHOD(_Geometry,clip_polygon);
 
     MethodBinder::bind_method(
             D_METHOD("merge_polygons_2d", { "polygon_a", "polygon_b" }), &_Geometry::merge_polygons_2d);
-    BIND_METHOD(_Geometry,clip_polygons_2d);
+    SE_BIND_METHOD(_Geometry,clip_polygons_2d);
     MethodBinder::bind_method(
             D_METHOD("intersect_polygons_2d", { "polygon_a", "polygon_b" }), &_Geometry::intersect_polygons_2d);
     MethodBinder::bind_method(
@@ -1799,7 +1799,7 @@ void _Geometry::_bind_methods() {
     SE_BIND_METHOD_WITH_DEFAULTS(_Geometry, offset_polygon_2d, DEFVAL(JOIN_SQUARE) );
     SE_BIND_METHOD_WITH_DEFAULTS(_Geometry, offset_polyline_2d, DEFVAL(JOIN_SQUARE), DEFVAL(END_SQUARE) );
 
-    BIND_METHOD(_Geometry,make_atlas);
+    SE_BIND_METHOD(_Geometry,make_atlas);
 
     BIND_ENUM_CONSTANT(OPERATION_UNION);
     BIND_ENUM_CONSTANT(OPERATION_DIFFERENCE);
@@ -2174,58 +2174,58 @@ uint64_t _File::get_modified_time(StringView p_file) const {
 IMPL_GDCLASS(_File)
 
 void _File::_bind_methods() {
-    BIND_METHOD(_File,open_encrypted);
+    SE_BIND_METHOD(_File,open_encrypted);
     MethodBinder::bind_method(
             D_METHOD("open_encrypted_with_pass", { "path", "mode_flags", "pass" }), &_File::open_encrypted_pass);
     SE_BIND_METHOD_WITH_DEFAULTS(_File, open_compressed, DEFVAL(0) );
 
-    BIND_METHOD(_File,open);
-    BIND_METHOD(_File,flush);
-    BIND_METHOD(_File,close);
-    BIND_METHOD(_File,get_path);
-    BIND_METHOD(_File,get_path_absolute);
-    BIND_METHOD(_File,is_open);
-    BIND_METHOD(_File,seek);
+    SE_BIND_METHOD(_File,open);
+    SE_BIND_METHOD(_File,flush);
+    SE_BIND_METHOD(_File,close);
+    SE_BIND_METHOD(_File,get_path);
+    SE_BIND_METHOD(_File,get_path_absolute);
+    SE_BIND_METHOD(_File,is_open);
+    SE_BIND_METHOD(_File,seek);
     SE_BIND_METHOD_WITH_DEFAULTS(_File, seek_end, DEFVAL(0) );
-    BIND_METHOD(_File,get_position);
-    BIND_METHOD(_File,get_len);
-    BIND_METHOD(_File,eof_reached);
-    BIND_METHOD(_File,get_8);
-    BIND_METHOD(_File,get_16);
-    BIND_METHOD(_File,get_32);
-    BIND_METHOD(_File,get_64);
-    BIND_METHOD(_File,get_float);
-    BIND_METHOD(_File,get_double);
-    BIND_METHOD(_File,get_real);
-    BIND_METHOD(_File,get_buffer);
-    BIND_METHOD(_File,get_line);
+    SE_BIND_METHOD(_File,get_position);
+    SE_BIND_METHOD(_File,get_len);
+    SE_BIND_METHOD(_File,eof_reached);
+    SE_BIND_METHOD(_File,get_8);
+    SE_BIND_METHOD(_File,get_16);
+    SE_BIND_METHOD(_File,get_32);
+    SE_BIND_METHOD(_File,get_64);
+    SE_BIND_METHOD(_File,get_float);
+    SE_BIND_METHOD(_File,get_double);
+    SE_BIND_METHOD(_File,get_real);
+    SE_BIND_METHOD(_File,get_buffer);
+    SE_BIND_METHOD(_File,get_line);
     SE_BIND_METHOD_WITH_DEFAULTS(_File, get_csv_line, DEFVAL(',') );
-    BIND_METHOD(_File,get_as_text);
-    BIND_METHOD(_File,get_md5);
-    BIND_METHOD(_File,get_sha256);
-    BIND_METHOD(_File,get_endian_swap);
-    BIND_METHOD(_File,set_endian_swap);
-    BIND_METHOD(_File,get_error);
+    SE_BIND_METHOD(_File,get_as_text);
+    SE_BIND_METHOD(_File,get_md5);
+    SE_BIND_METHOD(_File,get_sha256);
+    SE_BIND_METHOD(_File,get_endian_swap);
+    SE_BIND_METHOD(_File,set_endian_swap);
+    SE_BIND_METHOD(_File,get_error);
     SE_BIND_METHOD_WITH_DEFAULTS(_File, get_var, DEFVAL(false) );
 
-    BIND_METHOD(_File,store_8);
-    BIND_METHOD(_File,store_16);
-    BIND_METHOD(_File,store_32);
-    BIND_METHOD(_File,store_64);
-    BIND_METHOD(_File,store_float);
-    BIND_METHOD(_File,store_double);
-    BIND_METHOD(_File,store_real);
-    BIND_METHOD(_File,store_buffer);
-    BIND_METHOD(_File,store_line);
+    SE_BIND_METHOD(_File,store_8);
+    SE_BIND_METHOD(_File,store_16);
+    SE_BIND_METHOD(_File,store_32);
+    SE_BIND_METHOD(_File,store_64);
+    SE_BIND_METHOD(_File,store_float);
+    SE_BIND_METHOD(_File,store_double);
+    SE_BIND_METHOD(_File,store_real);
+    SE_BIND_METHOD(_File,store_buffer);
+    SE_BIND_METHOD(_File,store_line);
     SE_BIND_METHOD_WITH_DEFAULTS(_File, store_csv_line, DEFVAL(',') );
-    BIND_METHOD(_File,store_string);
+    SE_BIND_METHOD(_File,store_string);
     SE_BIND_METHOD_WITH_DEFAULTS(_File, store_var, DEFVAL(false) );
 
-    BIND_METHOD(_File,store_pascal_string);
-    BIND_METHOD(_File,get_pascal_string);
+    SE_BIND_METHOD(_File,store_pascal_string);
+    SE_BIND_METHOD(_File,get_pascal_string);
 
-    BIND_METHOD(_File,file_exists);
-    BIND_METHOD(_File,get_modified_time);
+    SE_BIND_METHOD(_File,file_exists);
+    SE_BIND_METHOD(_File,get_modified_time);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "endian_swap"), "set_endian_swap", "get_endian_swap");
 
@@ -2400,25 +2400,25 @@ Error _Directory::remove(StringView p_name) {
 IMPL_GDCLASS(_Directory)
 
 void _Directory::_bind_methods() {
-    BIND_METHOD(_Directory,open);
+    SE_BIND_METHOD(_Directory,open);
     SE_BIND_METHOD_WITH_DEFAULTS(_Directory, list_dir_begin, DEFVAL(false), DEFVAL(false) );
-    BIND_METHOD(_Directory,get_next);
-    BIND_METHOD(_Directory,current_is_dir);
-    BIND_METHOD(_Directory,list_dir_end);
-    BIND_METHOD(_Directory,get_drive_count);
-    BIND_METHOD(_Directory,get_drive);
-    BIND_METHOD(_Directory,get_current_drive);
-    BIND_METHOD(_Directory,change_dir);
-    BIND_METHOD(_Directory,get_current_dir);
-    BIND_METHOD(_Directory,make_dir);
-    BIND_METHOD(_Directory,make_dir_recursive);
-    BIND_METHOD(_Directory,file_exists);
-    BIND_METHOD(_Directory,dir_exists);
+    SE_BIND_METHOD(_Directory,get_next);
+    SE_BIND_METHOD(_Directory,current_is_dir);
+    SE_BIND_METHOD(_Directory,list_dir_end);
+    SE_BIND_METHOD(_Directory,get_drive_count);
+    SE_BIND_METHOD(_Directory,get_drive);
+    SE_BIND_METHOD(_Directory,get_current_drive);
+    SE_BIND_METHOD(_Directory,change_dir);
+    SE_BIND_METHOD(_Directory,get_current_dir);
+    SE_BIND_METHOD(_Directory,make_dir);
+    SE_BIND_METHOD(_Directory,make_dir_recursive);
+    SE_BIND_METHOD(_Directory,file_exists);
+    SE_BIND_METHOD(_Directory,dir_exists);
     // BIND_METHOD(_Directory,get_modified_time);
-    BIND_METHOD(_Directory,get_space_left);
-    BIND_METHOD(_Directory,copy);
-    BIND_METHOD(_Directory,rename);
-    BIND_METHOD(_Directory,remove);
+    SE_BIND_METHOD(_Directory,get_space_left);
+    SE_BIND_METHOD(_Directory,copy);
+    SE_BIND_METHOD(_Directory,rename);
+    SE_BIND_METHOD(_Directory,remove);
 }
 
 _Directory::_Directory() {
@@ -2522,11 +2522,11 @@ void _Marshalls::_bind_methods() {
     SE_BIND_METHOD_WITH_DEFAULTS(_Marshalls, variant_to_base64, DEFVAL(false) );
     SE_BIND_METHOD_WITH_DEFAULTS(_Marshalls, base64_to_variant, DEFVAL(false) );
 
-    BIND_METHOD(_Marshalls,raw_to_base64);
-    BIND_METHOD(_Marshalls,base64_to_raw);
+    SE_BIND_METHOD(_Marshalls,raw_to_base64);
+    SE_BIND_METHOD(_Marshalls,base64_to_raw);
 
-    BIND_METHOD(_Marshalls,utf8_to_base64);
-    BIND_METHOD(_Marshalls,base64_to_utf8);
+    SE_BIND_METHOD(_Marshalls,utf8_to_base64);
+    SE_BIND_METHOD(_Marshalls,base64_to_utf8);
 }
 
 ////////////////
@@ -2542,8 +2542,8 @@ void _Semaphore::post() {
 IMPL_GDCLASS(_Semaphore)
 
 void _Semaphore::_bind_methods() {
-    BIND_METHOD(_Semaphore,wait);
-    BIND_METHOD(_Semaphore,post);
+    SE_BIND_METHOD(_Semaphore,wait);
+    SE_BIND_METHOD(_Semaphore,post);
 }
 
 ///////////////
@@ -2563,9 +2563,9 @@ void _Mutex::unlock() {
 IMPL_GDCLASS(_Mutex)
 
 void _Mutex::_bind_methods() {
-    BIND_METHOD(_Mutex,lock);
-    BIND_METHOD(_Mutex,try_lock);
-    BIND_METHOD(_Mutex,unlock);
+    SE_BIND_METHOD(_Mutex,lock);
+    SE_BIND_METHOD(_Mutex,try_lock);
+    SE_BIND_METHOD(_Mutex,unlock);
 }
 
 
@@ -2660,10 +2660,10 @@ IMPL_GDCLASS(_Thread)
 
 void _Thread::_bind_methods() {
     SE_BIND_METHOD_WITH_DEFAULTS(_Thread, start, DEFVAL(Variant()), DEFVAL(PRIORITY_NORMAL) );
-    BIND_METHOD(_Thread,get_id);
-    BIND_METHOD(_Thread,is_active);
-    BIND_METHOD(_Thread,is_alive);
-    BIND_METHOD(_Thread,wait_to_finish);
+    SE_BIND_METHOD(_Thread,get_id);
+    SE_BIND_METHOD(_Thread,is_active);
+    SE_BIND_METHOD(_Thread,is_alive);
+    SE_BIND_METHOD(_Thread,wait_to_finish);
 
     BIND_ENUM_CONSTANT(PRIORITY_LOW);
     BIND_ENUM_CONSTANT(PRIORITY_NORMAL);
@@ -2840,13 +2840,13 @@ bool _ClassDB::is_class_enabled(StringName p_class) const {
 IMPL_GDCLASS(_ClassDB)
 
 void _ClassDB::_bind_methods() {
-    BIND_METHOD(_ClassDB,get_class_list);
-    BIND_METHOD(_ClassDB,get_inheriters_from_class);
-    BIND_METHOD(_ClassDB,get_parent_class);
-    BIND_METHOD(_ClassDB,class_exists);
-    BIND_METHOD(_ClassDB,is_parent_class);
-    BIND_METHOD(_ClassDB,can_instance);
-    BIND_METHOD(_ClassDB,instance);
+    SE_BIND_METHOD(_ClassDB,get_class_list);
+    SE_BIND_METHOD(_ClassDB,get_inheriters_from_class);
+    SE_BIND_METHOD(_ClassDB,get_parent_class);
+    SE_BIND_METHOD(_ClassDB,class_exists);
+    SE_BIND_METHOD(_ClassDB,is_parent_class);
+    SE_BIND_METHOD(_ClassDB,can_instance);
+    SE_BIND_METHOD(_ClassDB,instance);
 
     MethodBinder::bind_method(D_METHOD("class_has_signal", { "class", "signal" }), &_ClassDB::has_signal);
     MethodBinder::bind_method(D_METHOD("class_get_signal", { "class", "signal" }), &_ClassDB::get_signal);
@@ -2878,7 +2878,7 @@ void _ClassDB::_bind_methods() {
 //    MethodBinder::bind_method(D_METHOD("class_get_integer_constant_enum", {"class", "name", "no_inheritance"}), &_ClassDB::get_integer_constant_enum, {DEFVAL(false)});
 
     MethodBinder::bind_method(D_METHOD("class_get_category", { "class" }), &_ClassDB::get_category);
-    BIND_METHOD(_ClassDB,is_class_enabled);
+    SE_BIND_METHOD(_ClassDB,is_class_enabled);
 }
 
 _ClassDB::_ClassDB() = default;
@@ -2990,39 +2990,39 @@ IMPL_GDCLASS(_Engine)
 void _Engine::_bind_methods() {
     MethodBinder::bind_method(
             D_METHOD("set_iterations_per_second", { "iterations_per_second" }), &_Engine::set_iterations_per_second);
-    BIND_METHOD(_Engine,get_iterations_per_second);
+    SE_BIND_METHOD(_Engine,get_iterations_per_second);
     MethodBinder::bind_method(
             D_METHOD("set_physics_jitter_fix", { "physics_jitter_fix" }), &_Engine::set_physics_jitter_fix);
-    BIND_METHOD(_Engine,get_physics_jitter_fix);
+    SE_BIND_METHOD(_Engine,get_physics_jitter_fix);
     MethodBinder::bind_method(
             D_METHOD("get_physics_interpolation_fraction"), &_Engine::get_physics_interpolation_fraction);
-    BIND_METHOD(_Engine,set_target_fps);
-    BIND_METHOD(_Engine,get_target_fps);
+    SE_BIND_METHOD(_Engine,set_target_fps);
+    SE_BIND_METHOD(_Engine,get_target_fps);
 
-    BIND_METHOD(_Engine,set_time_scale);
-    BIND_METHOD(_Engine,get_time_scale);
+    SE_BIND_METHOD(_Engine,set_time_scale);
+    SE_BIND_METHOD(_Engine,get_time_scale);
 
-    BIND_METHOD(_Engine,get_frames_drawn);
-    BIND_METHOD(_Engine,get_frames_per_second);
-    BIND_METHOD(_Engine,get_physics_frames);
-    BIND_METHOD(_Engine,get_idle_frames);
+    SE_BIND_METHOD(_Engine,get_frames_drawn);
+    SE_BIND_METHOD(_Engine,get_frames_per_second);
+    SE_BIND_METHOD(_Engine,get_physics_frames);
+    SE_BIND_METHOD(_Engine,get_idle_frames);
 
-    BIND_METHOD(_Engine,get_main_loop);
+    SE_BIND_METHOD(_Engine,get_main_loop);
 
-    BIND_METHOD(_Engine,get_version_info);
-    BIND_METHOD(_Engine,get_author_info);
-    BIND_METHOD(_Engine,get_copyright_info);
-    BIND_METHOD(_Engine,get_donor_info);
-    BIND_METHOD(_Engine,get_license_info);
-    BIND_METHOD(_Engine,get_license_text);
+    SE_BIND_METHOD(_Engine,get_version_info);
+    SE_BIND_METHOD(_Engine,get_author_info);
+    SE_BIND_METHOD(_Engine,get_copyright_info);
+    SE_BIND_METHOD(_Engine,get_donor_info);
+    SE_BIND_METHOD(_Engine,get_license_info);
+    SE_BIND_METHOD(_Engine,get_license_text);
 
-    BIND_METHOD(_Engine,is_in_physics_frame);
+    SE_BIND_METHOD(_Engine,is_in_physics_frame);
 
-    BIND_METHOD(_Engine,has_singleton);
-    BIND_METHOD(_Engine,get_named_singleton);
+    SE_BIND_METHOD(_Engine,has_singleton);
+    SE_BIND_METHOD(_Engine,get_named_singleton);
 
-    BIND_METHOD(_Engine,set_editor_hint);
-    BIND_METHOD(_Engine,is_editor_hint);
+    SE_BIND_METHOD(_Engine,set_editor_hint);
+    SE_BIND_METHOD(_Engine,is_editor_hint);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor_hint"), "set_editor_hint", "is_editor_hint");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "iterations_per_second"), "set_iterations_per_second",
@@ -3042,15 +3042,15 @@ _Engine::_Engine() {
 IMPL_GDCLASS(JSONParseResult)
 
 void JSONParseResult::_bind_methods() {
-    BIND_METHOD(JSONParseResult,get_error);
-    BIND_METHOD(JSONParseResult,get_error_string);
-    BIND_METHOD(JSONParseResult,get_error_line);
-    BIND_METHOD(JSONParseResult,get_result);
+    SE_BIND_METHOD(JSONParseResult,get_error);
+    SE_BIND_METHOD(JSONParseResult,get_error_string);
+    SE_BIND_METHOD(JSONParseResult,get_error_line);
+    SE_BIND_METHOD(JSONParseResult,get_result);
 
-    BIND_METHOD(JSONParseResult,set_error);
-    BIND_METHOD(JSONParseResult,set_error_string);
-    BIND_METHOD(JSONParseResult,set_error_line);
-    BIND_METHOD(JSONParseResult,set_result);
+    SE_BIND_METHOD(JSONParseResult,set_error);
+    SE_BIND_METHOD(JSONParseResult,set_error_string);
+    SE_BIND_METHOD(JSONParseResult,set_error_line);
+    SE_BIND_METHOD(JSONParseResult,set_result);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "error", PropertyHint::None, "Error", PROPERTY_USAGE_CLASS_IS_ENUM),
             "set_error", "get_error");
@@ -3096,7 +3096,7 @@ IMPL_GDCLASS(_JSON)
 
 void _JSON::_bind_methods() {
     SE_BIND_METHOD_WITH_DEFAULTS(_JSON, print, DEFVAL(String()), DEFVAL(false) );
-    BIND_METHOD(_JSON,parse);
+    SE_BIND_METHOD(_JSON,parse);
 }
 
 String _JSON::print(const Variant &p_value, StringView p_indent, bool p_sort_keys) {

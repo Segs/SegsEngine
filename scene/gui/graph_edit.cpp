@@ -63,7 +63,7 @@ GraphEditFilter::GraphEditFilter(GraphEdit *p_edit) {
 }
 
 void GraphEditMinimap::_bind_methods() {
-    BIND_METHOD(GraphEditMinimap,_gui_input);
+    SE_BIND_METHOD(GraphEditMinimap,_gui_input);
 }
 
 GraphEditMinimap::GraphEditMinimap(GraphEdit *p_edit) {
@@ -1744,61 +1744,61 @@ HBoxContainer *GraphEdit::get_zoom_hbox() {
 
 void GraphEdit::_bind_methods() {
 
-    BIND_METHOD(GraphEdit,connect_node);
-    BIND_METHOD(GraphEdit,is_node_connected);
-    BIND_METHOD(GraphEdit,disconnect_node);
-    BIND_METHOD(GraphEdit,set_connection_activity);
+    SE_BIND_METHOD(GraphEdit,connect_node);
+    SE_BIND_METHOD(GraphEdit,is_node_connected);
+    SE_BIND_METHOD(GraphEdit,disconnect_node);
+    SE_BIND_METHOD(GraphEdit,set_connection_activity);
     MethodBinder::bind_method(D_METHOD("get_connection_list"), &GraphEdit::_get_connection_list);
-    BIND_METHOD(GraphEdit,clear_connections);
-    BIND_METHOD(GraphEdit,get_scroll_ofs);
-    BIND_METHOD(GraphEdit,set_scroll_ofs);
+    SE_BIND_METHOD(GraphEdit,clear_connections);
+    SE_BIND_METHOD(GraphEdit,get_scroll_ofs);
+    SE_BIND_METHOD(GraphEdit,set_scroll_ofs);
 
-    BIND_METHOD(GraphEdit,add_valid_right_disconnect_type);
-    BIND_METHOD(GraphEdit,remove_valid_right_disconnect_type);
-    BIND_METHOD(GraphEdit,add_valid_left_disconnect_type);
-    BIND_METHOD(GraphEdit,remove_valid_left_disconnect_type);
-    BIND_METHOD(GraphEdit,add_valid_connection_type);
-    BIND_METHOD(GraphEdit,remove_valid_connection_type);
-    BIND_METHOD(GraphEdit,is_valid_connection_type);
+    SE_BIND_METHOD(GraphEdit,add_valid_right_disconnect_type);
+    SE_BIND_METHOD(GraphEdit,remove_valid_right_disconnect_type);
+    SE_BIND_METHOD(GraphEdit,add_valid_left_disconnect_type);
+    SE_BIND_METHOD(GraphEdit,remove_valid_left_disconnect_type);
+    SE_BIND_METHOD(GraphEdit,add_valid_connection_type);
+    SE_BIND_METHOD(GraphEdit,remove_valid_connection_type);
+    SE_BIND_METHOD(GraphEdit,is_valid_connection_type);
 
-    BIND_METHOD(GraphEdit,set_zoom);
-    BIND_METHOD(GraphEdit,get_zoom);
+    SE_BIND_METHOD(GraphEdit,set_zoom);
+    SE_BIND_METHOD(GraphEdit,get_zoom);
 
-    BIND_METHOD(GraphEdit,set_zoom_min);
-    BIND_METHOD(GraphEdit,get_zoom_min);
+    SE_BIND_METHOD(GraphEdit,set_zoom_min);
+    SE_BIND_METHOD(GraphEdit,get_zoom_min);
 
-    BIND_METHOD(GraphEdit,set_zoom_max);
-    BIND_METHOD(GraphEdit,get_zoom_max);
+    SE_BIND_METHOD(GraphEdit,set_zoom_max);
+    SE_BIND_METHOD(GraphEdit,get_zoom_max);
 
-    BIND_METHOD(GraphEdit,set_zoom_step);
-    BIND_METHOD(GraphEdit,get_zoom_step);
+    SE_BIND_METHOD(GraphEdit,set_zoom_step);
+    SE_BIND_METHOD(GraphEdit,get_zoom_step);
 
-    BIND_METHOD(GraphEdit,set_show_zoom_label);
-    BIND_METHOD(GraphEdit,is_showing_zoom_label);
-    BIND_METHOD(GraphEdit,set_snap);
-    BIND_METHOD(GraphEdit,get_snap);
+    SE_BIND_METHOD(GraphEdit,set_show_zoom_label);
+    SE_BIND_METHOD(GraphEdit,is_showing_zoom_label);
+    SE_BIND_METHOD(GraphEdit,set_snap);
+    SE_BIND_METHOD(GraphEdit,get_snap);
 
-    BIND_METHOD(GraphEdit,set_use_snap);
-    BIND_METHOD(GraphEdit,is_using_snap);
+    SE_BIND_METHOD(GraphEdit,set_use_snap);
+    SE_BIND_METHOD(GraphEdit,is_using_snap);
 
-    BIND_METHOD(GraphEdit,set_minimap_size);
-    BIND_METHOD(GraphEdit,get_minimap_size);
-    BIND_METHOD(GraphEdit,set_minimap_opacity);
-    BIND_METHOD(GraphEdit,get_minimap_opacity);
+    SE_BIND_METHOD(GraphEdit,set_minimap_size);
+    SE_BIND_METHOD(GraphEdit,get_minimap_size);
+    SE_BIND_METHOD(GraphEdit,set_minimap_opacity);
+    SE_BIND_METHOD(GraphEdit,get_minimap_opacity);
 
-    BIND_METHOD(GraphEdit,set_minimap_enabled);
-    BIND_METHOD(GraphEdit,is_minimap_enabled);
-    BIND_METHOD(GraphEdit,_minimap_toggled);
-    BIND_METHOD(GraphEdit,_minimap_draw);
+    SE_BIND_METHOD(GraphEdit,set_minimap_enabled);
+    SE_BIND_METHOD(GraphEdit,is_minimap_enabled);
+    SE_BIND_METHOD(GraphEdit,_minimap_toggled);
+    SE_BIND_METHOD(GraphEdit,_minimap_draw);
 
-    BIND_METHOD(GraphEdit,set_right_disconnects);
-    BIND_METHOD(GraphEdit,is_right_disconnects_enabled);
+    SE_BIND_METHOD(GraphEdit,set_right_disconnects);
+    SE_BIND_METHOD(GraphEdit,is_right_disconnects_enabled);
 
-    BIND_METHOD(GraphEdit,_gui_input);
+    SE_BIND_METHOD(GraphEdit,_gui_input);
 
-    BIND_METHOD(GraphEdit,get_zoom_hbox);
+    SE_BIND_METHOD(GraphEdit,get_zoom_hbox);
 
-    BIND_METHOD(GraphEdit,set_selected);
+    SE_BIND_METHOD(GraphEdit,set_selected);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "right_disconnects"), "set_right_disconnects", "is_right_disconnects_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "scroll_offset"), "set_scroll_ofs", "get_scroll_ofs");

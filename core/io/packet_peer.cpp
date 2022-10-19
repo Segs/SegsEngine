@@ -158,12 +158,12 @@ void PacketPeer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_packet"), &PacketPeer::_get_packet);
     MethodBinder::bind_method(D_METHOD("put_packet", {"buffer"}), &PacketPeer::_put_packet);
     MethodBinder::bind_method(D_METHOD("get_packet_error"), &PacketPeer::_get_packet_error);
-    BIND_METHOD(PacketPeer,get_available_packet_count);
+    SE_BIND_METHOD(PacketPeer,get_available_packet_count);
 
-    BIND_METHOD(PacketPeer,set_allow_object_decoding);
-    BIND_METHOD(PacketPeer,is_object_decoding_allowed);
-    BIND_METHOD(PacketPeer,get_encode_buffer_max_size);
-    BIND_METHOD(PacketPeer,set_encode_buffer_max_size);
+    SE_BIND_METHOD(PacketPeer,set_allow_object_decoding);
+    SE_BIND_METHOD(PacketPeer,is_object_decoding_allowed);
+    SE_BIND_METHOD(PacketPeer,get_encode_buffer_max_size);
+    SE_BIND_METHOD(PacketPeer,set_encode_buffer_max_size);
 
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "encode_buffer_max_size"), "set_encode_buffer_max_size", "get_encode_buffer_max_size");
@@ -180,12 +180,12 @@ void PacketPeerStream::_set_stream_peer(const REF& p_peer) {
 
 void PacketPeerStream::_bind_methods() {
 
-    BIND_METHOD(PacketPeerStream,set_stream_peer);
-    BIND_METHOD(PacketPeerStream,get_stream_peer);
-    BIND_METHOD(PacketPeerStream,set_input_buffer_max_size);
-    BIND_METHOD(PacketPeerStream,set_output_buffer_max_size);
-    BIND_METHOD(PacketPeerStream,get_input_buffer_max_size);
-    BIND_METHOD(PacketPeerStream,get_output_buffer_max_size);
+    SE_BIND_METHOD(PacketPeerStream,set_stream_peer);
+    SE_BIND_METHOD(PacketPeerStream,get_stream_peer);
+    SE_BIND_METHOD(PacketPeerStream,set_input_buffer_max_size);
+    SE_BIND_METHOD(PacketPeerStream,set_output_buffer_max_size);
+    SE_BIND_METHOD(PacketPeerStream,get_input_buffer_max_size);
+    SE_BIND_METHOD(PacketPeerStream,get_output_buffer_max_size);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "input_buffer_max_size"), "set_input_buffer_max_size", "get_input_buffer_max_size");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "output_buffer_max_size"), "set_output_buffer_max_size", "get_output_buffer_max_size");

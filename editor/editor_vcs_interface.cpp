@@ -40,30 +40,30 @@ IMPL_GDCLASS(EditorVCSInterface)
 void EditorVCSInterface::_bind_methods() {
 
     // Proxy end points that act as fallbacks to unavailability of a function in the VCS addon
-    BIND_METHOD(EditorVCSInterface,_initialize);
-    BIND_METHOD(EditorVCSInterface,_is_vcs_initialized);
-    BIND_METHOD(EditorVCSInterface,_get_vcs_name);
-    BIND_METHOD(EditorVCSInterface,_shut_down);
-    BIND_METHOD(EditorVCSInterface,_get_project_name);
-    BIND_METHOD(EditorVCSInterface,_get_modified_files_data);
-    BIND_METHOD(EditorVCSInterface,_commit);
-    BIND_METHOD(EditorVCSInterface,_get_file_diff);
-    BIND_METHOD(EditorVCSInterface,_stage_file);
-    BIND_METHOD(EditorVCSInterface,_unstage_file);
+    SE_BIND_METHOD(EditorVCSInterface,_initialize);
+    SE_BIND_METHOD(EditorVCSInterface,_is_vcs_initialized);
+    SE_BIND_METHOD(EditorVCSInterface,_get_vcs_name);
+    SE_BIND_METHOD(EditorVCSInterface,_shut_down);
+    SE_BIND_METHOD(EditorVCSInterface,_get_project_name);
+    SE_BIND_METHOD(EditorVCSInterface,_get_modified_files_data);
+    SE_BIND_METHOD(EditorVCSInterface,_commit);
+    SE_BIND_METHOD(EditorVCSInterface,_get_file_diff);
+    SE_BIND_METHOD(EditorVCSInterface,_stage_file);
+    SE_BIND_METHOD(EditorVCSInterface,_unstage_file);
 
-    BIND_METHOD(EditorVCSInterface,is_addon_ready);
+    SE_BIND_METHOD(EditorVCSInterface,is_addon_ready);
 
     // API methods that redirect calls to the proxy end points
-    BIND_METHOD(EditorVCSInterface,initialize);
-    BIND_METHOD(EditorVCSInterface,is_vcs_initialized);
-    BIND_METHOD(EditorVCSInterface,get_modified_files_data);
-    BIND_METHOD(EditorVCSInterface,stage_file);
-    BIND_METHOD(EditorVCSInterface,unstage_file);
-    BIND_METHOD(EditorVCSInterface,commit);
-    BIND_METHOD(EditorVCSInterface,get_file_diff);
-    BIND_METHOD(EditorVCSInterface,shut_down);
-    BIND_METHOD(EditorVCSInterface,get_project_name);
-    BIND_METHOD(EditorVCSInterface,get_vcs_name);
+    SE_BIND_METHOD(EditorVCSInterface,initialize);
+    SE_BIND_METHOD(EditorVCSInterface,is_vcs_initialized);
+    SE_BIND_METHOD(EditorVCSInterface,get_modified_files_data);
+    SE_BIND_METHOD(EditorVCSInterface,stage_file);
+    SE_BIND_METHOD(EditorVCSInterface,unstage_file);
+    SE_BIND_METHOD(EditorVCSInterface,commit);
+    SE_BIND_METHOD(EditorVCSInterface,get_file_diff);
+    SE_BIND_METHOD(EditorVCSInterface,shut_down);
+    SE_BIND_METHOD(EditorVCSInterface,get_project_name);
+    SE_BIND_METHOD(EditorVCSInterface,get_vcs_name);
 }
 
 bool EditorVCSInterface::_initialize(StringView p_project_root_path) {

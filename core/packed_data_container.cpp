@@ -378,13 +378,13 @@ Variant PackedDataContainer::_iter_get(const Variant &p_iter) {
 
 void PackedDataContainer::_bind_methods() {
 
-    BIND_METHOD(PackedDataContainer,_set_data);
-    BIND_METHOD(PackedDataContainer,_get_data);
-    BIND_METHOD(PackedDataContainer,_iter_init);
-    BIND_METHOD(PackedDataContainer,_iter_get);
-    BIND_METHOD(PackedDataContainer,_iter_next);
-    BIND_METHOD(PackedDataContainer,pack);
-    BIND_METHOD(PackedDataContainer,size);
+    SE_BIND_METHOD(PackedDataContainer,_set_data);
+    SE_BIND_METHOD(PackedDataContainer,_get_data);
+    SE_BIND_METHOD(PackedDataContainer,_iter_init);
+    SE_BIND_METHOD(PackedDataContainer,_iter_get);
+    SE_BIND_METHOD(PackedDataContainer,_iter_next);
+    SE_BIND_METHOD(PackedDataContainer,pack);
+    SE_BIND_METHOD(PackedDataContainer,size);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "__data__"), "_set_data", "_get_data");
 }
@@ -417,11 +417,11 @@ bool PackedDataContainerRef::_is_dictionary() const {
 
 void PackedDataContainerRef::_bind_methods() {
 
-    BIND_METHOD(PackedDataContainerRef,size);
-    BIND_METHOD(PackedDataContainerRef,_iter_init);
-    BIND_METHOD(PackedDataContainerRef,_iter_get);
-    BIND_METHOD(PackedDataContainerRef,_iter_next);
-    BIND_METHOD(PackedDataContainerRef,_is_dictionary);
+    SE_BIND_METHOD(PackedDataContainerRef,size);
+    SE_BIND_METHOD(PackedDataContainerRef,_iter_init);
+    SE_BIND_METHOD(PackedDataContainerRef,_iter_get);
+    SE_BIND_METHOD(PackedDataContainerRef,_iter_next);
+    SE_BIND_METHOD(PackedDataContainerRef,_is_dictionary);
 }
 
 Variant PackedDataContainerRef::getvar(const Variant &p_key, bool *r_valid) const {

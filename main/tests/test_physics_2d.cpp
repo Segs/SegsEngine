@@ -413,8 +413,8 @@ protected:
 
     static void _bind_methods() {
 
-        BIND_METHOD(TestPhysics2DMainLoop,_body_moved);
-        BIND_METHOD(TestPhysics2DMainLoop,_ray_query_callback);
+        SE_BIND_METHOD(TestPhysics2DMainLoop,_body_moved);
+        SE_BIND_METHOD(TestPhysics2DMainLoop,_ray_query_callback);
     }
 
 public:

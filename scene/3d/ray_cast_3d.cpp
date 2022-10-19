@@ -303,48 +303,48 @@ bool RayCast3D::is_collide_with_bodies_enabled() const {
 
 void RayCast3D::_bind_methods() {
 
-    BIND_METHOD(RayCast3D,set_enabled);
-    BIND_METHOD(RayCast3D,is_enabled);
+    SE_BIND_METHOD(RayCast3D,set_enabled);
+    SE_BIND_METHOD(RayCast3D,is_enabled);
 
-    BIND_METHOD(RayCast3D,set_cast_to);
-    BIND_METHOD(RayCast3D,get_cast_to);
+    SE_BIND_METHOD(RayCast3D,set_cast_to);
+    SE_BIND_METHOD(RayCast3D,get_cast_to);
 
-    BIND_METHOD(RayCast3D,is_colliding);
-    BIND_METHOD(RayCast3D,force_raycast_update);
+    SE_BIND_METHOD(RayCast3D,is_colliding);
+    SE_BIND_METHOD(RayCast3D,force_raycast_update);
 
-    BIND_METHOD(RayCast3D,get_collider);
-    BIND_METHOD(RayCast3D,get_collider_shape);
-    BIND_METHOD(RayCast3D,get_collision_point);
-    BIND_METHOD(RayCast3D,get_collision_normal);
+    SE_BIND_METHOD(RayCast3D,get_collider);
+    SE_BIND_METHOD(RayCast3D,get_collider_shape);
+    SE_BIND_METHOD(RayCast3D,get_collision_point);
+    SE_BIND_METHOD(RayCast3D,get_collision_normal);
 
-    BIND_METHOD(RayCast3D,add_exception_rid);
-    BIND_METHOD(RayCast3D,add_exception);
+    SE_BIND_METHOD(RayCast3D,add_exception_rid);
+    SE_BIND_METHOD(RayCast3D,add_exception);
 
-    BIND_METHOD(RayCast3D,remove_exception_rid);
-    BIND_METHOD(RayCast3D,remove_exception);
+    SE_BIND_METHOD(RayCast3D,remove_exception_rid);
+    SE_BIND_METHOD(RayCast3D,remove_exception);
 
-    BIND_METHOD(RayCast3D,clear_exceptions);
+    SE_BIND_METHOD(RayCast3D,clear_exceptions);
 
-    BIND_METHOD(RayCast3D,set_collision_mask);
-    BIND_METHOD(RayCast3D,get_collision_mask);
+    SE_BIND_METHOD(RayCast3D,set_collision_mask);
+    SE_BIND_METHOD(RayCast3D,get_collision_mask);
 
     MethodBinder::bind_method(
             D_METHOD("set_collision_mask_bit", { "bit", "value" }), &RayCast3D::set_collision_mask_bit);
-    BIND_METHOD(RayCast3D,get_collision_mask_bit);
+    SE_BIND_METHOD(RayCast3D,get_collision_mask_bit);
 
-    BIND_METHOD(RayCast3D,set_exclude_parent_body);
-    BIND_METHOD(RayCast3D,get_exclude_parent_body);
+    SE_BIND_METHOD(RayCast3D,set_exclude_parent_body);
+    SE_BIND_METHOD(RayCast3D,get_exclude_parent_body);
 
-    BIND_METHOD(RayCast3D,set_collide_with_areas);
-    BIND_METHOD(RayCast3D,is_collide_with_areas_enabled);
+    SE_BIND_METHOD(RayCast3D,set_collide_with_areas);
+    SE_BIND_METHOD(RayCast3D,is_collide_with_areas_enabled);
 
-    BIND_METHOD(RayCast3D,set_collide_with_bodies);
-    BIND_METHOD(RayCast3D,is_collide_with_bodies_enabled);
-    BIND_METHOD(RayCast3D,set_debug_shape_custom_color);
-    BIND_METHOD(RayCast3D,get_debug_shape_custom_color);
+    SE_BIND_METHOD(RayCast3D,set_collide_with_bodies);
+    SE_BIND_METHOD(RayCast3D,is_collide_with_bodies_enabled);
+    SE_BIND_METHOD(RayCast3D,set_debug_shape_custom_color);
+    SE_BIND_METHOD(RayCast3D,get_debug_shape_custom_color);
 
-    BIND_METHOD(RayCast3D,set_debug_shape_thickness);
-    BIND_METHOD(RayCast3D,get_debug_shape_thickness);
+    SE_BIND_METHOD(RayCast3D,set_debug_shape_thickness);
+    SE_BIND_METHOD(RayCast3D,get_debug_shape_thickness);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enabled"), "set_enabled", "is_enabled");
     ADD_PROPERTY(

@@ -1468,102 +1468,102 @@ void ItemList::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("add_item", {"text", "icon", "selectable"}), &ItemList::add_item, {DEFVAL(Variant()), DEFVAL(true)});
     MethodBinder::bind_method(D_METHOD("add_icon_item", {"icon", "selectable"}), &ItemList::add_icon_item, {DEFVAL(true)});
 
-    BIND_METHOD(ItemList,set_item_text);
-    BIND_METHOD(ItemList,get_item_text);
+    SE_BIND_METHOD(ItemList,set_item_text);
+    SE_BIND_METHOD(ItemList,get_item_text);
 
-    BIND_METHOD(ItemList,set_item_icon);
-    BIND_METHOD(ItemList,get_item_icon);
+    SE_BIND_METHOD(ItemList,set_item_icon);
+    SE_BIND_METHOD(ItemList,get_item_icon);
 
-    BIND_METHOD(ItemList,set_item_icon_transposed);
-    BIND_METHOD(ItemList,is_item_icon_transposed);
+    SE_BIND_METHOD(ItemList,set_item_icon_transposed);
+    SE_BIND_METHOD(ItemList,is_item_icon_transposed);
 
-    BIND_METHOD(ItemList,set_item_icon_region);
-    BIND_METHOD(ItemList,get_item_icon_region);
+    SE_BIND_METHOD(ItemList,set_item_icon_region);
+    SE_BIND_METHOD(ItemList,get_item_icon_region);
 
-    BIND_METHOD(ItemList,set_item_icon_modulate);
-    BIND_METHOD(ItemList,get_item_icon_modulate);
+    SE_BIND_METHOD(ItemList,set_item_icon_modulate);
+    SE_BIND_METHOD(ItemList,get_item_icon_modulate);
 
-    BIND_METHOD(ItemList,set_item_selectable);
-    BIND_METHOD(ItemList,is_item_selectable);
+    SE_BIND_METHOD(ItemList,set_item_selectable);
+    SE_BIND_METHOD(ItemList,is_item_selectable);
 
-    BIND_METHOD(ItemList,set_item_disabled);
-    BIND_METHOD(ItemList,is_item_disabled);
+    SE_BIND_METHOD(ItemList,set_item_disabled);
+    SE_BIND_METHOD(ItemList,is_item_disabled);
 
-    BIND_METHOD(ItemList,set_item_metadata);
-    BIND_METHOD(ItemList,get_item_metadata);
+    SE_BIND_METHOD(ItemList,set_item_metadata);
+    SE_BIND_METHOD(ItemList,get_item_metadata);
 
-    BIND_METHOD(ItemList,set_item_custom_bg_color);
-    BIND_METHOD(ItemList,get_item_custom_bg_color);
+    SE_BIND_METHOD(ItemList,set_item_custom_bg_color);
+    SE_BIND_METHOD(ItemList,get_item_custom_bg_color);
 
-    BIND_METHOD(ItemList,set_item_custom_fg_color);
-    BIND_METHOD(ItemList,get_item_custom_fg_color);
+    SE_BIND_METHOD(ItemList,set_item_custom_fg_color);
+    SE_BIND_METHOD(ItemList,get_item_custom_fg_color);
 
-    BIND_METHOD(ItemList,set_item_tooltip_enabled);
-    BIND_METHOD(ItemList,is_item_tooltip_enabled);
+    SE_BIND_METHOD(ItemList,set_item_tooltip_enabled);
+    SE_BIND_METHOD(ItemList,is_item_tooltip_enabled);
 
-    BIND_METHOD(ItemList,set_item_tooltip);
-    BIND_METHOD(ItemList,get_item_tooltip);
+    SE_BIND_METHOD(ItemList,set_item_tooltip);
+    SE_BIND_METHOD(ItemList,get_item_tooltip);
 
     MethodBinder::bind_method(D_METHOD("select", {"idx", "single"}), &ItemList::select, {DEFVAL(true)});
-    BIND_METHOD(ItemList,unselect);
-    BIND_METHOD(ItemList,unselect_all);
+    SE_BIND_METHOD(ItemList,unselect);
+    SE_BIND_METHOD(ItemList,unselect_all);
 
-    BIND_METHOD(ItemList,is_selected);
-    BIND_METHOD(ItemList,get_selected_items);
+    SE_BIND_METHOD(ItemList,is_selected);
+    SE_BIND_METHOD(ItemList,get_selected_items);
 
-    BIND_METHOD(ItemList,move_item);
+    SE_BIND_METHOD(ItemList,move_item);
 
-    BIND_METHOD(ItemList,get_item_count);
-    BIND_METHOD(ItemList,remove_item);
+    SE_BIND_METHOD(ItemList,get_item_count);
+    SE_BIND_METHOD(ItemList,remove_item);
 
-    BIND_METHOD(ItemList,clear);
-    BIND_METHOD(ItemList,sort_items_by_text);
+    SE_BIND_METHOD(ItemList,clear);
+    SE_BIND_METHOD(ItemList,sort_items_by_text);
 
-    BIND_METHOD(ItemList,set_fixed_column_width);
-    BIND_METHOD(ItemList,get_fixed_column_width);
+    SE_BIND_METHOD(ItemList,set_fixed_column_width);
+    SE_BIND_METHOD(ItemList,get_fixed_column_width);
 
-    BIND_METHOD(ItemList,set_same_column_width);
-    BIND_METHOD(ItemList,is_same_column_width);
+    SE_BIND_METHOD(ItemList,set_same_column_width);
+    SE_BIND_METHOD(ItemList,is_same_column_width);
 
-    BIND_METHOD(ItemList,set_max_text_lines);
-    BIND_METHOD(ItemList,get_max_text_lines);
+    SE_BIND_METHOD(ItemList,set_max_text_lines);
+    SE_BIND_METHOD(ItemList,get_max_text_lines);
 
-    BIND_METHOD(ItemList,set_max_columns);
-    BIND_METHOD(ItemList,get_max_columns);
+    SE_BIND_METHOD(ItemList,set_max_columns);
+    SE_BIND_METHOD(ItemList,get_max_columns);
 
-    BIND_METHOD(ItemList,set_select_mode);
-    BIND_METHOD(ItemList,get_select_mode);
+    SE_BIND_METHOD(ItemList,set_select_mode);
+    SE_BIND_METHOD(ItemList,get_select_mode);
 
-    BIND_METHOD(ItemList,set_icon_mode);
-    BIND_METHOD(ItemList,get_icon_mode);
+    SE_BIND_METHOD(ItemList,set_icon_mode);
+    SE_BIND_METHOD(ItemList,get_icon_mode);
 
-    BIND_METHOD(ItemList,set_fixed_icon_size);
-    BIND_METHOD(ItemList,get_fixed_icon_size);
+    SE_BIND_METHOD(ItemList,set_fixed_icon_size);
+    SE_BIND_METHOD(ItemList,get_fixed_icon_size);
 
-    BIND_METHOD(ItemList,set_icon_scale);
-    BIND_METHOD(ItemList,get_icon_scale);
+    SE_BIND_METHOD(ItemList,set_icon_scale);
+    SE_BIND_METHOD(ItemList,get_icon_scale);
 
-    BIND_METHOD(ItemList,set_allow_rmb_select);
-    BIND_METHOD(ItemList,get_allow_rmb_select);
+    SE_BIND_METHOD(ItemList,set_allow_rmb_select);
+    SE_BIND_METHOD(ItemList,get_allow_rmb_select);
 
-    BIND_METHOD(ItemList,set_allow_reselect);
-    BIND_METHOD(ItemList,get_allow_reselect);
+    SE_BIND_METHOD(ItemList,set_allow_reselect);
+    SE_BIND_METHOD(ItemList,get_allow_reselect);
 
-    BIND_METHOD(ItemList,set_auto_height);
-    BIND_METHOD(ItemList,has_auto_height);
+    SE_BIND_METHOD(ItemList,set_auto_height);
+    SE_BIND_METHOD(ItemList,has_auto_height);
 
-    BIND_METHOD(ItemList,is_anything_selected);
+    SE_BIND_METHOD(ItemList,is_anything_selected);
 
     MethodBinder::bind_method(D_METHOD("get_item_at_position", {"position", "exact"}), &ItemList::get_item_at_position, {DEFVAL(false)});
 
-    BIND_METHOD(ItemList,ensure_current_is_visible);
+    SE_BIND_METHOD(ItemList,ensure_current_is_visible);
 
-    BIND_METHOD(ItemList,get_v_scroll);
+    SE_BIND_METHOD(ItemList,get_v_scroll);
 
-    BIND_METHOD(ItemList,_gui_input);
+    SE_BIND_METHOD(ItemList,_gui_input);
 
-    BIND_METHOD(ItemList,_set_items);
-    BIND_METHOD(ItemList,_get_items);
+    SE_BIND_METHOD(ItemList,_set_items);
+    SE_BIND_METHOD(ItemList,_get_items);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
 

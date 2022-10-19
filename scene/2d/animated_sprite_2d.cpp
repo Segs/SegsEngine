@@ -309,34 +309,34 @@ void SpriteFrames::_set_animations(const Array &p_animations) {
 
 void SpriteFrames::_bind_methods() {
 
-    BIND_METHOD(SpriteFrames,add_animation);
-    BIND_METHOD(SpriteFrames,has_animation);
-    BIND_METHOD(SpriteFrames,remove_animation);
-    BIND_METHOD(SpriteFrames,rename_animation);
+    SE_BIND_METHOD(SpriteFrames,add_animation);
+    SE_BIND_METHOD(SpriteFrames,has_animation);
+    SE_BIND_METHOD(SpriteFrames,remove_animation);
+    SE_BIND_METHOD(SpriteFrames,rename_animation);
 
-    BIND_METHOD(SpriteFrames,get_animation_names);
+    SE_BIND_METHOD(SpriteFrames,get_animation_names);
 
-    BIND_METHOD(SpriteFrames,set_animation_speed);
-    BIND_METHOD(SpriteFrames,get_animation_speed);
+    SE_BIND_METHOD(SpriteFrames,set_animation_speed);
+    SE_BIND_METHOD(SpriteFrames,get_animation_speed);
 
-    BIND_METHOD(SpriteFrames,set_animation_loop);
-    BIND_METHOD(SpriteFrames,get_animation_loop);
+    SE_BIND_METHOD(SpriteFrames,set_animation_loop);
+    SE_BIND_METHOD(SpriteFrames,get_animation_loop);
 
     MethodBinder::bind_method(D_METHOD("add_frame", {"anim", "frame", "at_position"}), &SpriteFrames::add_frame, {DEFVAL(-1)});
-    BIND_METHOD(SpriteFrames,get_frame_count);
-    BIND_METHOD(SpriteFrames,get_frame);
-    BIND_METHOD(SpriteFrames,set_frame);
-    BIND_METHOD(SpriteFrames,remove_frame);
-    BIND_METHOD(SpriteFrames,clear);
-    BIND_METHOD(SpriteFrames,clear_all);
+    SE_BIND_METHOD(SpriteFrames,get_frame_count);
+    SE_BIND_METHOD(SpriteFrames,get_frame);
+    SE_BIND_METHOD(SpriteFrames,set_frame);
+    SE_BIND_METHOD(SpriteFrames,remove_frame);
+    SE_BIND_METHOD(SpriteFrames,clear);
+    SE_BIND_METHOD(SpriteFrames,clear_all);
 
-    BIND_METHOD(SpriteFrames,_set_frames);
-    BIND_METHOD(SpriteFrames,_get_frames);
+    SE_BIND_METHOD(SpriteFrames,_set_frames);
+    SE_BIND_METHOD(SpriteFrames,_get_frames);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "frames", PropertyHint::None, "", 0), "_set_frames", "_get_frames"); //compatibility
 
-    BIND_METHOD(SpriteFrames,_set_animations);
-    BIND_METHOD(SpriteFrames,_get_animations);
+    SE_BIND_METHOD(SpriteFrames,_set_animations);
+    SE_BIND_METHOD(SpriteFrames,_get_animations);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "animations", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_animations", "_get_animations"); //compatibility
 }
@@ -696,37 +696,37 @@ String AnimatedSprite2D::get_configuration_warning() const {
 
 void AnimatedSprite2D::_bind_methods() {
 
-    BIND_METHOD(AnimatedSprite2D,set_sprite_frames);
-    BIND_METHOD(AnimatedSprite2D,get_sprite_frames);
+    SE_BIND_METHOD(AnimatedSprite2D,set_sprite_frames);
+    SE_BIND_METHOD(AnimatedSprite2D,get_sprite_frames);
 
-    BIND_METHOD(AnimatedSprite2D,set_animation);
-    BIND_METHOD(AnimatedSprite2D,get_animation);
+    SE_BIND_METHOD(AnimatedSprite2D,set_animation);
+    SE_BIND_METHOD(AnimatedSprite2D,get_animation);
 
-    BIND_METHOD(AnimatedSprite2D,set_playing);
+    SE_BIND_METHOD(AnimatedSprite2D,set_playing);
     MethodBinder::bind_method(D_METHOD("is_playing"), &AnimatedSprite2D::_is_playing);
 
     MethodBinder::bind_method(D_METHOD("play", {"anim", "backwards"}), &AnimatedSprite2D::play, {DEFVAL(StringName()), DEFVAL(false)});
-    BIND_METHOD(AnimatedSprite2D,stop);
+    SE_BIND_METHOD(AnimatedSprite2D,stop);
 
-    BIND_METHOD(AnimatedSprite2D,set_centered);
-    BIND_METHOD(AnimatedSprite2D,is_centered);
+    SE_BIND_METHOD(AnimatedSprite2D,set_centered);
+    SE_BIND_METHOD(AnimatedSprite2D,is_centered);
 
-    BIND_METHOD(AnimatedSprite2D,set_offset);
-    BIND_METHOD(AnimatedSprite2D,get_offset);
+    SE_BIND_METHOD(AnimatedSprite2D,set_offset);
+    SE_BIND_METHOD(AnimatedSprite2D,get_offset);
 
-    BIND_METHOD(AnimatedSprite2D,set_flip_h);
-    BIND_METHOD(AnimatedSprite2D,is_flipped_h);
+    SE_BIND_METHOD(AnimatedSprite2D,set_flip_h);
+    SE_BIND_METHOD(AnimatedSprite2D,is_flipped_h);
 
-    BIND_METHOD(AnimatedSprite2D,set_flip_v);
-    BIND_METHOD(AnimatedSprite2D,is_flipped_v);
+    SE_BIND_METHOD(AnimatedSprite2D,set_flip_v);
+    SE_BIND_METHOD(AnimatedSprite2D,is_flipped_v);
 
-    BIND_METHOD(AnimatedSprite2D,set_frame);
-    BIND_METHOD(AnimatedSprite2D,get_frame);
+    SE_BIND_METHOD(AnimatedSprite2D,set_frame);
+    SE_BIND_METHOD(AnimatedSprite2D,get_frame);
 
-    BIND_METHOD(AnimatedSprite2D,set_speed_scale);
-    BIND_METHOD(AnimatedSprite2D,get_speed_scale);
+    SE_BIND_METHOD(AnimatedSprite2D,set_speed_scale);
+    SE_BIND_METHOD(AnimatedSprite2D,get_speed_scale);
 
-    BIND_METHOD(AnimatedSprite2D,_res_changed);
+    SE_BIND_METHOD(AnimatedSprite2D,_res_changed);
 
     ADD_SIGNAL(MethodInfo("frame_changed"));
     ADD_SIGNAL(MethodInfo("animation_finished"));

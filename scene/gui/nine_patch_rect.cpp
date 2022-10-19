@@ -61,18 +61,18 @@ Size2 NinePatchRect::get_minimum_size() const {
 }
 void NinePatchRect::_bind_methods() {
 
-    BIND_METHOD(NinePatchRect,set_texture);
-    BIND_METHOD(NinePatchRect,get_texture);
-    BIND_METHOD(NinePatchRect,set_patch_margin);
-    BIND_METHOD(NinePatchRect,get_patch_margin);
-    BIND_METHOD(NinePatchRect,set_region_rect);
-    BIND_METHOD(NinePatchRect,get_region_rect);
-    BIND_METHOD(NinePatchRect,set_draw_center);
-    BIND_METHOD(NinePatchRect,is_draw_center_enabled);
-    BIND_METHOD(NinePatchRect,set_h_axis_stretch_mode);
-    BIND_METHOD(NinePatchRect,get_h_axis_stretch_mode);
-    BIND_METHOD(NinePatchRect,set_v_axis_stretch_mode);
-    BIND_METHOD(NinePatchRect,get_v_axis_stretch_mode);
+    SE_BIND_METHOD(NinePatchRect,set_texture);
+    SE_BIND_METHOD(NinePatchRect,get_texture);
+    SE_BIND_METHOD(NinePatchRect,set_patch_margin);
+    SE_BIND_METHOD(NinePatchRect,get_patch_margin);
+    SE_BIND_METHOD(NinePatchRect,set_region_rect);
+    SE_BIND_METHOD(NinePatchRect,get_region_rect);
+    SE_BIND_METHOD(NinePatchRect,set_draw_center);
+    SE_BIND_METHOD(NinePatchRect,is_draw_center_enabled);
+    SE_BIND_METHOD(NinePatchRect,set_h_axis_stretch_mode);
+    SE_BIND_METHOD(NinePatchRect,get_h_axis_stretch_mode);
+    SE_BIND_METHOD(NinePatchRect,set_v_axis_stretch_mode);
+    SE_BIND_METHOD(NinePatchRect,get_v_axis_stretch_mode);
 
     ADD_SIGNAL(MethodInfo("texture_changed"));
 

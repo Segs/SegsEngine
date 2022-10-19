@@ -1217,46 +1217,46 @@ void CPUParticles2D::convert_from_particles(Node *p_particles) {
 
 void CPUParticles2D::_bind_methods() {
 
-    BIND_METHOD(CPUParticles2D,set_emitting);
-    BIND_METHOD(CPUParticles2D,set_amount);
-    BIND_METHOD(CPUParticles2D,set_lifetime);
-    BIND_METHOD(CPUParticles2D,set_one_shot);
-    BIND_METHOD(CPUParticles2D,set_pre_process_time);
+    SE_BIND_METHOD(CPUParticles2D,set_emitting);
+    SE_BIND_METHOD(CPUParticles2D,set_amount);
+    SE_BIND_METHOD(CPUParticles2D,set_lifetime);
+    SE_BIND_METHOD(CPUParticles2D,set_one_shot);
+    SE_BIND_METHOD(CPUParticles2D,set_pre_process_time);
     MethodBinder::bind_method(
             D_METHOD("set_explosiveness_ratio", { "ratio" }), &CPUParticles2D::set_explosiveness_ratio);
-    BIND_METHOD(CPUParticles2D,set_randomness_ratio);
+    SE_BIND_METHOD(CPUParticles2D,set_randomness_ratio);
     MethodBinder::bind_method(
             D_METHOD("set_lifetime_randomness", { "random" }), &CPUParticles2D::set_lifetime_randomness);
     MethodBinder::bind_method(
             D_METHOD("set_use_local_coordinates", { "enable" }), &CPUParticles2D::set_use_local_coordinates);
-    BIND_METHOD(CPUParticles2D,set_fixed_fps);
-    BIND_METHOD(CPUParticles2D,set_fractional_delta);
-    BIND_METHOD(CPUParticles2D,set_speed_scale);
+    SE_BIND_METHOD(CPUParticles2D,set_fixed_fps);
+    SE_BIND_METHOD(CPUParticles2D,set_fractional_delta);
+    SE_BIND_METHOD(CPUParticles2D,set_speed_scale);
 
-    BIND_METHOD(CPUParticles2D,is_emitting);
-    BIND_METHOD(CPUParticles2D,get_amount);
-    BIND_METHOD(CPUParticles2D,get_lifetime);
-    BIND_METHOD(CPUParticles2D,get_one_shot);
-    BIND_METHOD(CPUParticles2D,get_pre_process_time);
-    BIND_METHOD(CPUParticles2D,get_explosiveness_ratio);
-    BIND_METHOD(CPUParticles2D,get_randomness_ratio);
-    BIND_METHOD(CPUParticles2D,get_lifetime_randomness);
-    BIND_METHOD(CPUParticles2D,get_use_local_coordinates);
-    BIND_METHOD(CPUParticles2D,get_fixed_fps);
-    BIND_METHOD(CPUParticles2D,get_fractional_delta);
-    BIND_METHOD(CPUParticles2D,get_speed_scale);
+    SE_BIND_METHOD(CPUParticles2D,is_emitting);
+    SE_BIND_METHOD(CPUParticles2D,get_amount);
+    SE_BIND_METHOD(CPUParticles2D,get_lifetime);
+    SE_BIND_METHOD(CPUParticles2D,get_one_shot);
+    SE_BIND_METHOD(CPUParticles2D,get_pre_process_time);
+    SE_BIND_METHOD(CPUParticles2D,get_explosiveness_ratio);
+    SE_BIND_METHOD(CPUParticles2D,get_randomness_ratio);
+    SE_BIND_METHOD(CPUParticles2D,get_lifetime_randomness);
+    SE_BIND_METHOD(CPUParticles2D,get_use_local_coordinates);
+    SE_BIND_METHOD(CPUParticles2D,get_fixed_fps);
+    SE_BIND_METHOD(CPUParticles2D,get_fractional_delta);
+    SE_BIND_METHOD(CPUParticles2D,get_speed_scale);
 
-    BIND_METHOD(CPUParticles2D,set_draw_order);
+    SE_BIND_METHOD(CPUParticles2D,set_draw_order);
 
-    BIND_METHOD(CPUParticles2D,get_draw_order);
+    SE_BIND_METHOD(CPUParticles2D,get_draw_order);
 
-    BIND_METHOD(CPUParticles2D,set_texture);
-    BIND_METHOD(CPUParticles2D,get_texture);
+    SE_BIND_METHOD(CPUParticles2D,set_texture);
+    SE_BIND_METHOD(CPUParticles2D,get_texture);
 
-    BIND_METHOD(CPUParticles2D,set_normalmap);
-    BIND_METHOD(CPUParticles2D,get_normalmap);
+    SE_BIND_METHOD(CPUParticles2D,set_normalmap);
+    SE_BIND_METHOD(CPUParticles2D,get_normalmap);
 
-    BIND_METHOD(CPUParticles2D,restart);
+    SE_BIND_METHOD(CPUParticles2D,restart);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emitting"), "set_emitting", "is_emitting");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PropertyHint::ExpRange, "1,1000000,1"), "set_amount",
@@ -1294,55 +1294,55 @@ void CPUParticles2D::_bind_methods() {
 
     ////////////////////////////////
 
-    BIND_METHOD(CPUParticles2D,set_direction);
-    BIND_METHOD(CPUParticles2D,get_direction);
+    SE_BIND_METHOD(CPUParticles2D,set_direction);
+    SE_BIND_METHOD(CPUParticles2D,get_direction);
 
-    BIND_METHOD(CPUParticles2D,set_spread);
-    BIND_METHOD(CPUParticles2D,get_spread);
+    SE_BIND_METHOD(CPUParticles2D,set_spread);
+    SE_BIND_METHOD(CPUParticles2D,get_spread);
 
-    BIND_METHOD(CPUParticles2D,set_param);
-    BIND_METHOD(CPUParticles2D,get_param);
+    SE_BIND_METHOD(CPUParticles2D,set_param);
+    SE_BIND_METHOD(CPUParticles2D,get_param);
 
     MethodBinder::bind_method(
             D_METHOD("set_param_randomness", { "param", "randomness" }), &CPUParticles2D::set_param_randomness);
-    BIND_METHOD(CPUParticles2D,get_param_randomness);
+    SE_BIND_METHOD(CPUParticles2D,get_param_randomness);
 
-    BIND_METHOD(CPUParticles2D,set_param_curve);
-    BIND_METHOD(CPUParticles2D,get_param_curve);
+    SE_BIND_METHOD(CPUParticles2D,set_param_curve);
+    SE_BIND_METHOD(CPUParticles2D,get_param_curve);
 
-    BIND_METHOD(CPUParticles2D,set_color);
-    BIND_METHOD(CPUParticles2D,get_color);
+    SE_BIND_METHOD(CPUParticles2D,set_color);
+    SE_BIND_METHOD(CPUParticles2D,get_color);
 
-    BIND_METHOD(CPUParticles2D,set_color_ramp);
-    BIND_METHOD(CPUParticles2D,get_color_ramp);
-    BIND_METHOD(CPUParticles2D,set_color_initial_ramp);
-    BIND_METHOD(CPUParticles2D,get_color_initial_ramp);
+    SE_BIND_METHOD(CPUParticles2D,set_color_ramp);
+    SE_BIND_METHOD(CPUParticles2D,get_color_ramp);
+    SE_BIND_METHOD(CPUParticles2D,set_color_initial_ramp);
+    SE_BIND_METHOD(CPUParticles2D,get_color_initial_ramp);
 
-    BIND_METHOD(CPUParticles2D,set_particle_flag);
-    BIND_METHOD(CPUParticles2D,get_particle_flag);
+    SE_BIND_METHOD(CPUParticles2D,set_particle_flag);
+    SE_BIND_METHOD(CPUParticles2D,get_particle_flag);
 
-    BIND_METHOD(CPUParticles2D,set_emission_shape);
-    BIND_METHOD(CPUParticles2D,get_emission_shape);
+    SE_BIND_METHOD(CPUParticles2D,set_emission_shape);
+    SE_BIND_METHOD(CPUParticles2D,get_emission_shape);
 
     MethodBinder::bind_method(
             D_METHOD("set_emission_sphere_radius", { "radius" }), &CPUParticles2D::set_emission_sphere_radius);
-    BIND_METHOD(CPUParticles2D,get_emission_sphere_radius);
+    SE_BIND_METHOD(CPUParticles2D,get_emission_sphere_radius);
 
     MethodBinder::bind_method(
             D_METHOD("set_emission_rect_extents", { "extents" }), &CPUParticles2D::set_emission_rect_extents);
-    BIND_METHOD(CPUParticles2D,get_emission_rect_extents);
+    SE_BIND_METHOD(CPUParticles2D,get_emission_rect_extents);
 
-    BIND_METHOD(CPUParticles2D,set_emission_points);
-    BIND_METHOD(CPUParticles2D,get_emission_points);
+    SE_BIND_METHOD(CPUParticles2D,set_emission_points);
+    SE_BIND_METHOD(CPUParticles2D,get_emission_points);
 
-    BIND_METHOD(CPUParticles2D,set_emission_normals);
-    BIND_METHOD(CPUParticles2D,get_emission_normals);
+    SE_BIND_METHOD(CPUParticles2D,set_emission_normals);
+    SE_BIND_METHOD(CPUParticles2D,get_emission_normals);
 
-    BIND_METHOD(CPUParticles2D,set_emission_colors);
-    BIND_METHOD(CPUParticles2D,get_emission_colors);
+    SE_BIND_METHOD(CPUParticles2D,set_emission_colors);
+    SE_BIND_METHOD(CPUParticles2D,get_emission_colors);
 
-    BIND_METHOD(CPUParticles2D,get_gravity);
-    BIND_METHOD(CPUParticles2D,set_gravity);
+    SE_BIND_METHOD(CPUParticles2D,get_gravity);
+    SE_BIND_METHOD(CPUParticles2D,set_gravity);
 
     MethodBinder::bind_method(
             D_METHOD("convert_from_particles", { "particles" }), &CPUParticles2D::convert_from_particles);

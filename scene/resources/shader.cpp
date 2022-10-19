@@ -162,18 +162,18 @@ void Shader::_update_shader() const {
 
 void Shader::_bind_methods() {
 
-    BIND_METHOD(Shader,get_mode);
+    SE_BIND_METHOD(Shader,get_mode);
 
-    BIND_METHOD(Shader,set_code);
-    BIND_METHOD(Shader,get_code);
+    SE_BIND_METHOD(Shader,set_code);
+    SE_BIND_METHOD(Shader,get_code);
 
-    BIND_METHOD(Shader,set_default_texture_param);
-    BIND_METHOD(Shader,get_default_texture_param);
+    SE_BIND_METHOD(Shader,set_default_texture_param);
+    SE_BIND_METHOD(Shader,get_default_texture_param);
 
-    BIND_METHOD(Shader,set_custom_defines);
-    BIND_METHOD(Shader,get_custom_defines);
+    SE_BIND_METHOD(Shader,set_custom_defines);
+    SE_BIND_METHOD(Shader,get_custom_defines);
 
-    BIND_METHOD(Shader,has_param);
+    SE_BIND_METHOD(Shader,has_param);
 
     //MethodBinder::bind_method(D_METHOD("get_param_list"),&Shader::get_fragment_code);
 

@@ -61,14 +61,14 @@ void MultiMeshInstance2D::_notification(int p_what) {
 
 void MultiMeshInstance2D::_bind_methods() {
 
-    BIND_METHOD(MultiMeshInstance2D,set_multimesh);
-    BIND_METHOD(MultiMeshInstance2D,get_multimesh);
+    SE_BIND_METHOD(MultiMeshInstance2D,set_multimesh);
+    SE_BIND_METHOD(MultiMeshInstance2D,get_multimesh);
 
-    BIND_METHOD(MultiMeshInstance2D,set_texture);
-    BIND_METHOD(MultiMeshInstance2D,get_texture);
+    SE_BIND_METHOD(MultiMeshInstance2D,set_texture);
+    SE_BIND_METHOD(MultiMeshInstance2D,get_texture);
 
-    BIND_METHOD(MultiMeshInstance2D,set_normal_map);
-    BIND_METHOD(MultiMeshInstance2D,get_normal_map);
+    SE_BIND_METHOD(MultiMeshInstance2D,set_normal_map);
+    SE_BIND_METHOD(MultiMeshInstance2D,get_normal_map);
 
     ADD_SIGNAL(MethodInfo("texture_changed"));
 

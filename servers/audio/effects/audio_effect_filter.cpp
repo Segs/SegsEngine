@@ -157,17 +157,17 @@ AudioEffectFilter::FilterDB AudioEffectFilter::get_db() const {
 
 void AudioEffectFilter::_bind_methods() {
 
-    BIND_METHOD(AudioEffectFilter,set_cutoff);
-    BIND_METHOD(AudioEffectFilter,get_cutoff);
+    SE_BIND_METHOD(AudioEffectFilter,set_cutoff);
+    SE_BIND_METHOD(AudioEffectFilter,get_cutoff);
 
-    BIND_METHOD(AudioEffectFilter,set_resonance);
-    BIND_METHOD(AudioEffectFilter,get_resonance);
+    SE_BIND_METHOD(AudioEffectFilter,set_resonance);
+    SE_BIND_METHOD(AudioEffectFilter,get_resonance);
 
-    BIND_METHOD(AudioEffectFilter,set_gain);
-    BIND_METHOD(AudioEffectFilter,get_gain);
+    SE_BIND_METHOD(AudioEffectFilter,set_gain);
+    SE_BIND_METHOD(AudioEffectFilter,get_gain);
 
-    BIND_METHOD(AudioEffectFilter,set_db);
-    BIND_METHOD(AudioEffectFilter,get_db);
+    SE_BIND_METHOD(AudioEffectFilter,set_db);
+    SE_BIND_METHOD(AudioEffectFilter,get_db);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "cutoff_hz", PropertyHint::Range, "1,20500,1"), "set_cutoff", "get_cutoff");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "resonance", PropertyHint::Range, "0,1,0.01"), "set_resonance", "get_resonance");

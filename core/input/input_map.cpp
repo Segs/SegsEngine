@@ -71,20 +71,20 @@ int InputMap::ALL_DEVICES = -1;
 
 void InputMap::_bind_methods() {
 
-    BIND_METHOD(InputMap,has_action);
+    SE_BIND_METHOD(InputMap,has_action);
     MethodBinder::bind_method(D_METHOD("get_actions"), &InputMap::_get_actions);
     MethodBinder::bind_method(D_METHOD("add_action", {"action", "deadzone"}), &InputMap::add_action, {DEFVAL(0.5f)});
-    BIND_METHOD(InputMap,erase_action);
+    SE_BIND_METHOD(InputMap,erase_action);
 
-    BIND_METHOD(InputMap,action_set_deadzone);
-    BIND_METHOD(InputMap,action_get_deadzone);
-    BIND_METHOD(InputMap,action_add_event);
-    BIND_METHOD(InputMap,action_has_event);
-    BIND_METHOD(InputMap,action_erase_event);
-    BIND_METHOD(InputMap,action_erase_events);
+    SE_BIND_METHOD(InputMap,action_set_deadzone);
+    SE_BIND_METHOD(InputMap,action_get_deadzone);
+    SE_BIND_METHOD(InputMap,action_add_event);
+    SE_BIND_METHOD(InputMap,action_has_event);
+    SE_BIND_METHOD(InputMap,action_erase_event);
+    SE_BIND_METHOD(InputMap,action_erase_events);
     MethodBinder::bind_method(D_METHOD("get_action_list", {"action"}), &InputMap::_get_action_list);
-    BIND_METHOD(InputMap,event_is_action);
-    BIND_METHOD(InputMap,load_from_globals);
+    SE_BIND_METHOD(InputMap,event_is_action);
+    SE_BIND_METHOD(InputMap,load_from_globals);
 }
 
 void InputMap::add_action(const StringName &p_action, float p_deadzone) {

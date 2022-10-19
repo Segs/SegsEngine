@@ -2814,75 +2814,75 @@ Control::GrowDirection Control::get_v_grow_direction() const {
 }
 
 void Control::_bind_methods() {
-    BIND_METHOD(Control,accept_event);
-    BIND_METHOD(Control,get_minimum_size);
-    BIND_METHOD(Control,get_combined_minimum_size);
+    SE_BIND_METHOD(Control,accept_event);
+    SE_BIND_METHOD(Control,get_minimum_size);
+    SE_BIND_METHOD(Control,get_combined_minimum_size);
     MethodBinder::bind_method(D_METHOD("set_anchors_preset", { "preset", "keep_margins" }),&Control::set_anchors_preset, { DEFVAL(false) });
     MethodBinder::bind_method(D_METHOD("set_margins_preset", { "preset", "resize_mode", "margin" }),&Control::set_margins_preset, { DEFVAL(PRESET_MODE_MINSIZE), DEFVAL(0) });
     MethodBinder::bind_method(D_METHOD("set_anchors_and_margins_preset", { "preset", "resize_mode", "margin" }),&Control::set_anchors_and_margins_preset, { DEFVAL(PRESET_MODE_MINSIZE), DEFVAL(0) });
-    BIND_METHOD(Control,_set_anchor);
+    SE_BIND_METHOD(Control,_set_anchor);
     MethodBinder::bind_method(D_METHOD("set_anchor", { "margin", "anchor", "keep_margin", "push_opposite_anchor" }),&Control::set_anchor, { DEFVAL(false), DEFVAL(true) });
-    BIND_METHOD(Control,get_anchor);
-    BIND_METHOD(Control,set_margin);
+    SE_BIND_METHOD(Control,get_anchor);
+    SE_BIND_METHOD(Control,set_margin);
     MethodBinder::bind_method(D_METHOD("set_anchor_and_margin", { "margin", "anchor", "offset", "push_opposite_anchor" }),&Control::set_anchor_and_margin, { DEFVAL(false) });
-    BIND_METHOD(Control,set_begin);
-    BIND_METHOD(Control,set_end);
+    SE_BIND_METHOD(Control,set_begin);
+    SE_BIND_METHOD(Control,set_end);
     MethodBinder::bind_method(D_METHOD("set_position", { "position", "keep_margins" }), &Control::set_position, { DEFVAL(false) });
-    BIND_METHOD(Control,_set_position);
+    SE_BIND_METHOD(Control,_set_position);
     MethodBinder::bind_method(D_METHOD("set_size", { "size", "keep_margins" }), &Control::set_size, { DEFVAL(false) });
-    BIND_METHOD(Control,_set_size);
-    BIND_METHOD(Control,set_custom_minimum_size);
+    SE_BIND_METHOD(Control,_set_size);
+    SE_BIND_METHOD(Control,set_custom_minimum_size);
     MethodBinder::bind_method(D_METHOD("set_global_position", { "position", "keep_margins" }),&Control::set_global_position, { DEFVAL(false) });
-    BIND_METHOD(Control,_set_global_position);
-    BIND_METHOD(Control,set_rotation);
-    BIND_METHOD(Control,set_rotation_degrees);
-    BIND_METHOD(Control,set_scale);
-    BIND_METHOD(Control,set_pivot_offset);
-    BIND_METHOD(Control,get_margin);
-    BIND_METHOD(Control,get_begin);
-    BIND_METHOD(Control,get_end);
-    BIND_METHOD(Control,get_position);
-    BIND_METHOD(Control,get_size);
-    BIND_METHOD(Control,get_rotation);
-    BIND_METHOD(Control,get_rotation_degrees);
-    BIND_METHOD(Control,get_scale);
-    BIND_METHOD(Control,get_pivot_offset);
-    BIND_METHOD(Control,get_custom_minimum_size);
-    BIND_METHOD(Control,get_parent_area_size);
-    BIND_METHOD(Control,get_global_position);
-    BIND_METHOD(Control,get_rect);
-    BIND_METHOD(Control,get_global_rect);
+    SE_BIND_METHOD(Control,_set_global_position);
+    SE_BIND_METHOD(Control,set_rotation);
+    SE_BIND_METHOD(Control,set_rotation_degrees);
+    SE_BIND_METHOD(Control,set_scale);
+    SE_BIND_METHOD(Control,set_pivot_offset);
+    SE_BIND_METHOD(Control,get_margin);
+    SE_BIND_METHOD(Control,get_begin);
+    SE_BIND_METHOD(Control,get_end);
+    SE_BIND_METHOD(Control,get_position);
+    SE_BIND_METHOD(Control,get_size);
+    SE_BIND_METHOD(Control,get_rotation);
+    SE_BIND_METHOD(Control,get_rotation_degrees);
+    SE_BIND_METHOD(Control,get_scale);
+    SE_BIND_METHOD(Control,get_pivot_offset);
+    SE_BIND_METHOD(Control,get_custom_minimum_size);
+    SE_BIND_METHOD(Control,get_parent_area_size);
+    SE_BIND_METHOD(Control,get_global_position);
+    SE_BIND_METHOD(Control,get_rect);
+    SE_BIND_METHOD(Control,get_global_rect);
     MethodBinder::bind_method(D_METHOD("show_modal", { "exclusive" }), &Control::show_modal, { DEFVAL(false) });
-    BIND_METHOD(Control,set_focus_mode);
-    BIND_METHOD(Control,get_focus_mode);
-    BIND_METHOD(Control,has_focus);
-    BIND_METHOD(Control,grab_focus);
-    BIND_METHOD(Control,release_focus);
-    BIND_METHOD(Control,get_focus_owner);
-    BIND_METHOD(Control,find_prev_valid_focus);
-    BIND_METHOD(Control,find_next_valid_focus);
+    SE_BIND_METHOD(Control,set_focus_mode);
+    SE_BIND_METHOD(Control,get_focus_mode);
+    SE_BIND_METHOD(Control,has_focus);
+    SE_BIND_METHOD(Control,grab_focus);
+    SE_BIND_METHOD(Control,release_focus);
+    SE_BIND_METHOD(Control,get_focus_owner);
+    SE_BIND_METHOD(Control,find_prev_valid_focus);
+    SE_BIND_METHOD(Control,find_next_valid_focus);
 
-    BIND_METHOD(Control,set_h_size_flags);
-    BIND_METHOD(Control,get_h_size_flags);
+    SE_BIND_METHOD(Control,set_h_size_flags);
+    SE_BIND_METHOD(Control,get_h_size_flags);
 
-    BIND_METHOD(Control,set_stretch_ratio);
-    BIND_METHOD(Control,get_stretch_ratio);
+    SE_BIND_METHOD(Control,set_stretch_ratio);
+    SE_BIND_METHOD(Control,get_stretch_ratio);
 
-    BIND_METHOD(Control,set_v_size_flags);
-    BIND_METHOD(Control,get_v_size_flags);
+    SE_BIND_METHOD(Control,set_v_size_flags);
+    SE_BIND_METHOD(Control,get_v_size_flags);
 
-    BIND_METHOD(Control,set_theme);
-    BIND_METHOD(Control,get_theme);
+    SE_BIND_METHOD(Control,set_theme);
+    SE_BIND_METHOD(Control,get_theme);
 
-    BIND_METHOD(Control,set_theme_type_variation);
-    BIND_METHOD(Control,get_theme_type_variation);
+    SE_BIND_METHOD(Control,set_theme_type_variation);
+    SE_BIND_METHOD(Control,get_theme_type_variation);
 
-    BIND_METHOD(Control,add_icon_override);
-    BIND_METHOD(Control,add_shader_override);
-    BIND_METHOD(Control,add_theme_style_override);
-    BIND_METHOD(Control,add_font_override);
-    BIND_METHOD(Control,add_theme_color_override);
-    BIND_METHOD(Control,add_constant_override);
+    SE_BIND_METHOD(Control,add_icon_override);
+    SE_BIND_METHOD(Control,add_shader_override);
+    SE_BIND_METHOD(Control,add_theme_style_override);
+    SE_BIND_METHOD(Control,add_font_override);
+    SE_BIND_METHOD(Control,add_theme_color_override);
+    SE_BIND_METHOD(Control,add_constant_override);
 
     MethodBinder::bind_method(D_METHOD("get_theme_icon", { "name", "theme_type" }), &Control::get_theme_icon, { DEFVAL("") });
     MethodBinder::bind_method(D_METHOD("get_theme_stylebox", { "name", "theme_type" }), &Control::get_theme_stylebox,{ DEFVAL(StringName()) });
@@ -2890,12 +2890,12 @@ void Control::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_theme_color", { "name", "theme_type" }), &Control::get_theme_color, { DEFVAL("") });
     MethodBinder::bind_method(D_METHOD("get_theme_constant", { "name", "theme_type" }), &Control::get_theme_constant, { DEFVAL("") });
 
-    BIND_METHOD(Control,has_icon_override);
-    BIND_METHOD(Control,has_shader_override);
-    BIND_METHOD(Control,has_stylebox_override);
-    BIND_METHOD(Control,has_font_override);
-    BIND_METHOD(Control,has_color_override);
-    BIND_METHOD(Control,has_constant_override);
+    SE_BIND_METHOD(Control,has_icon_override);
+    SE_BIND_METHOD(Control,has_shader_override);
+    SE_BIND_METHOD(Control,has_stylebox_override);
+    SE_BIND_METHOD(Control,has_font_override);
+    SE_BIND_METHOD(Control,has_color_override);
+    SE_BIND_METHOD(Control,has_constant_override);
 
     MethodBinder::bind_method(D_METHOD("has_icon", { "name", "theme_type" }), &Control::has_icon, { DEFVAL("") });
     MethodBinder::bind_method(D_METHOD("has_stylebox", { "name", "theme_type" }), &Control::has_stylebox, { DEFVAL("") });
@@ -2903,51 +2903,51 @@ void Control::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("has_color", { "name", "theme_type" }), &Control::has_color, { DEFVAL("") });
     MethodBinder::bind_method(D_METHOD("has_constant", { "name", "theme_type" }), &Control::has_constant, { DEFVAL("") });
 
-    BIND_METHOD(Control,get_theme_default_font);
-    BIND_METHOD(Control,get_parent_control);
+    SE_BIND_METHOD(Control,get_theme_default_font);
+    SE_BIND_METHOD(Control,get_parent_control);
 
-    BIND_METHOD(Control,set_h_grow_direction);
-    BIND_METHOD(Control,get_h_grow_direction);
+    SE_BIND_METHOD(Control,set_h_grow_direction);
+    SE_BIND_METHOD(Control,get_h_grow_direction);
 
-    BIND_METHOD(Control,set_v_grow_direction);
-    BIND_METHOD(Control,get_v_grow_direction);
+    SE_BIND_METHOD(Control,set_v_grow_direction);
+    SE_BIND_METHOD(Control,get_v_grow_direction);
 
-    BIND_METHOD(Control,set_tooltip);
+    SE_BIND_METHOD(Control,set_tooltip);
     MethodBinder::bind_method(D_METHOD("get_tooltip", { "at_position" }), &Control::get_tooltip, { DEFVAL(Point2()) });
-    BIND_METHOD(Control,_get_tooltip);
+    SE_BIND_METHOD(Control,_get_tooltip);
 
-    BIND_METHOD(Control,set_default_cursor_shape);
-    BIND_METHOD(Control,get_default_cursor_shape);
+    SE_BIND_METHOD(Control,set_default_cursor_shape);
+    SE_BIND_METHOD(Control,get_default_cursor_shape);
     MethodBinder::bind_method(D_METHOD("get_cursor_shape", { "position" }), &Control::get_cursor_shape, { DEFVAL(Point2()) });
 
-    BIND_METHOD(Control,set_focus_neighbour);
-    BIND_METHOD(Control,get_focus_neighbour);
+    SE_BIND_METHOD(Control,set_focus_neighbour);
+    SE_BIND_METHOD(Control,get_focus_neighbour);
 
-    BIND_METHOD(Control,set_focus_next);
-    BIND_METHOD(Control,get_focus_next);
+    SE_BIND_METHOD(Control,set_focus_next);
+    SE_BIND_METHOD(Control,get_focus_next);
 
-    BIND_METHOD(Control,set_focus_previous);
-    BIND_METHOD(Control,get_focus_previous);
+    SE_BIND_METHOD(Control,set_focus_previous);
+    SE_BIND_METHOD(Control,get_focus_previous);
 
-    BIND_METHOD(Control,force_drag);
+    SE_BIND_METHOD(Control,force_drag);
 
-    BIND_METHOD(Control,set_mouse_filter);
-    BIND_METHOD(Control,get_mouse_filter);
-    BIND_METHOD(Control,set_pass_on_modal_close_click);
-    BIND_METHOD(Control,get_pass_on_modal_close_click);
+    SE_BIND_METHOD(Control,set_mouse_filter);
+    SE_BIND_METHOD(Control,get_mouse_filter);
+    SE_BIND_METHOD(Control,set_pass_on_modal_close_click);
+    SE_BIND_METHOD(Control,get_pass_on_modal_close_click);
 
-    BIND_METHOD(Control,set_clip_contents);
-    BIND_METHOD(Control,is_clipping_contents);
+    SE_BIND_METHOD(Control,set_clip_contents);
+    SE_BIND_METHOD(Control,is_clipping_contents);
 
-    BIND_METHOD(Control,grab_click_focus);
+    SE_BIND_METHOD(Control,grab_click_focus);
 
-    BIND_METHOD(Control,set_drag_forwarding);
-    BIND_METHOD(Control,set_drag_preview);
-    BIND_METHOD(Control,is_drag_successful);
+    SE_BIND_METHOD(Control,set_drag_forwarding);
+    SE_BIND_METHOD(Control,set_drag_preview);
+    SE_BIND_METHOD(Control,is_drag_successful);
 
-    BIND_METHOD(Control,warp_mouse);
+    SE_BIND_METHOD(Control,warp_mouse);
 
-    BIND_METHOD(Control,minimum_size_changed);
+    SE_BIND_METHOD(Control,minimum_size_changed);
 
     BIND_VMETHOD(MethodInfo(
             "_gui_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));

@@ -346,13 +346,13 @@ TextureButton *WindowDialog::get_close_button() {
 
 void WindowDialog::_bind_methods() {
 
-    BIND_METHOD(WindowDialog,_gui_input);
-    BIND_METHOD(WindowDialog,set_title);
-    BIND_METHOD(WindowDialog,get_title);
-    BIND_METHOD(WindowDialog,set_resizable);
-    BIND_METHOD(WindowDialog,get_resizable);
-    BIND_METHOD(WindowDialog,_closed);
-    BIND_METHOD(WindowDialog,get_close_button);
+    SE_BIND_METHOD(WindowDialog,_gui_input);
+    SE_BIND_METHOD(WindowDialog,set_title);
+    SE_BIND_METHOD(WindowDialog,get_title);
+    SE_BIND_METHOD(WindowDialog,set_resizable);
+    SE_BIND_METHOD(WindowDialog,get_resizable);
+    SE_BIND_METHOD(WindowDialog,_closed);
+    SE_BIND_METHOD(WindowDialog,get_close_button);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "window_title", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT_INTL), "set_title", "get_title");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "resizable", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT_INTL), "set_resizable", "get_resizable");
@@ -616,18 +616,18 @@ void AcceptDialog::remove_button(Control *p_button)
 }
 void AcceptDialog::_bind_methods() {
 
-    BIND_METHOD(AcceptDialog,get_ok);
-    BIND_METHOD(AcceptDialog,get_label);
-    BIND_METHOD(AcceptDialog,set_hide_on_ok);
-    BIND_METHOD(AcceptDialog,get_hide_on_ok);
+    SE_BIND_METHOD(AcceptDialog,get_ok);
+    SE_BIND_METHOD(AcceptDialog,get_label);
+    SE_BIND_METHOD(AcceptDialog,set_hide_on_ok);
+    SE_BIND_METHOD(AcceptDialog,get_hide_on_ok);
     MethodBinder::bind_method(D_METHOD("add_button", {"text", "right", "action"}), &AcceptDialog::add_button, {DEFVAL(false), DEFVAL("")});
-    BIND_METHOD(AcceptDialog,add_cancel);
-    BIND_METHOD(AcceptDialog,remove_button);
-    BIND_METHOD(AcceptDialog,register_text_enter);
-    BIND_METHOD(AcceptDialog,set_text);
-    BIND_METHOD(AcceptDialog,get_text);
-    BIND_METHOD(AcceptDialog,set_autowrap);
-    BIND_METHOD(AcceptDialog,has_autowrap);
+    SE_BIND_METHOD(AcceptDialog,add_cancel);
+    SE_BIND_METHOD(AcceptDialog,remove_button);
+    SE_BIND_METHOD(AcceptDialog,register_text_enter);
+    SE_BIND_METHOD(AcceptDialog,set_text);
+    SE_BIND_METHOD(AcceptDialog,get_text);
+    SE_BIND_METHOD(AcceptDialog,set_autowrap);
+    SE_BIND_METHOD(AcceptDialog,has_autowrap);
 
     ADD_SIGNAL(MethodInfo("confirmed"));
     ADD_SIGNAL(MethodInfo("cancelled"));
@@ -680,7 +680,7 @@ AcceptDialog::~AcceptDialog() {
 
 void ConfirmationDialog::_bind_methods() {
 
-    BIND_METHOD(ConfirmationDialog,get_cancel);
+    SE_BIND_METHOD(ConfirmationDialog,get_cancel);
 }
 
 Button *ConfirmationDialog::get_cancel() {

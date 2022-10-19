@@ -213,26 +213,26 @@ void AudioEffectCompressor::_validate_property(PropertyInfo &property) const {
 
 void AudioEffectCompressor::_bind_methods() {
 
-    BIND_METHOD(AudioEffectCompressor,set_threshold);
-    BIND_METHOD(AudioEffectCompressor,get_threshold);
+    SE_BIND_METHOD(AudioEffectCompressor,set_threshold);
+    SE_BIND_METHOD(AudioEffectCompressor,get_threshold);
 
-    BIND_METHOD(AudioEffectCompressor,set_ratio);
-    BIND_METHOD(AudioEffectCompressor,get_ratio);
+    SE_BIND_METHOD(AudioEffectCompressor,set_ratio);
+    SE_BIND_METHOD(AudioEffectCompressor,get_ratio);
 
-    BIND_METHOD(AudioEffectCompressor,set_gain);
-    BIND_METHOD(AudioEffectCompressor,get_gain);
+    SE_BIND_METHOD(AudioEffectCompressor,set_gain);
+    SE_BIND_METHOD(AudioEffectCompressor,get_gain);
 
-    BIND_METHOD(AudioEffectCompressor,set_attack_us);
-    BIND_METHOD(AudioEffectCompressor,get_attack_us);
+    SE_BIND_METHOD(AudioEffectCompressor,set_attack_us);
+    SE_BIND_METHOD(AudioEffectCompressor,get_attack_us);
 
-    BIND_METHOD(AudioEffectCompressor,set_release_ms);
-    BIND_METHOD(AudioEffectCompressor,get_release_ms);
+    SE_BIND_METHOD(AudioEffectCompressor,set_release_ms);
+    SE_BIND_METHOD(AudioEffectCompressor,get_release_ms);
 
-    BIND_METHOD(AudioEffectCompressor,set_mix);
-    BIND_METHOD(AudioEffectCompressor,get_mix);
+    SE_BIND_METHOD(AudioEffectCompressor,set_mix);
+    SE_BIND_METHOD(AudioEffectCompressor,get_mix);
 
-    BIND_METHOD(AudioEffectCompressor,set_sidechain);
-    BIND_METHOD(AudioEffectCompressor,get_sidechain);
+    SE_BIND_METHOD(AudioEffectCompressor,set_sidechain);
+    SE_BIND_METHOD(AudioEffectCompressor,get_sidechain);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "threshold", PropertyHint::Range, "-60,0,0.1"), "set_threshold", "get_threshold");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "ratio", PropertyHint::Range, "1,48,0.1"), "set_ratio", "get_ratio");

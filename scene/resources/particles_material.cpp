@@ -1263,81 +1263,81 @@ RenderingServerEnums::ShaderMode ParticlesMaterial::get_shader_mode() const {
 
 void ParticlesMaterial::_bind_methods() {
 
-    BIND_METHOD(ParticlesMaterial,set_direction);
-    BIND_METHOD(ParticlesMaterial,get_direction);
+    SE_BIND_METHOD(ParticlesMaterial,set_direction);
+    SE_BIND_METHOD(ParticlesMaterial,get_direction);
 
-    BIND_METHOD(ParticlesMaterial,set_spread);
-    BIND_METHOD(ParticlesMaterial,get_spread);
+    SE_BIND_METHOD(ParticlesMaterial,set_spread);
+    SE_BIND_METHOD(ParticlesMaterial,get_spread);
 
-    BIND_METHOD(ParticlesMaterial,set_flatness);
-    BIND_METHOD(ParticlesMaterial,get_flatness);
+    SE_BIND_METHOD(ParticlesMaterial,set_flatness);
+    SE_BIND_METHOD(ParticlesMaterial,get_flatness);
 
-    BIND_METHOD(ParticlesMaterial,set_param);
-    BIND_METHOD(ParticlesMaterial,get_param);
+    SE_BIND_METHOD(ParticlesMaterial,set_param);
+    SE_BIND_METHOD(ParticlesMaterial,get_param);
 
-    BIND_METHOD(ParticlesMaterial,set_param_randomness);
-    BIND_METHOD(ParticlesMaterial,get_param_randomness);
+    SE_BIND_METHOD(ParticlesMaterial,set_param_randomness);
+    SE_BIND_METHOD(ParticlesMaterial,get_param_randomness);
 
-    BIND_METHOD(ParticlesMaterial,set_param_texture);
-    BIND_METHOD(ParticlesMaterial,get_param_texture);
+    SE_BIND_METHOD(ParticlesMaterial,set_param_texture);
+    SE_BIND_METHOD(ParticlesMaterial,get_param_texture);
 
-    BIND_METHOD(ParticlesMaterial,set_color);
-    BIND_METHOD(ParticlesMaterial,get_color);
+    SE_BIND_METHOD(ParticlesMaterial,set_color);
+    SE_BIND_METHOD(ParticlesMaterial,get_color);
 
-    BIND_METHOD(ParticlesMaterial,set_color_ramp);
-    BIND_METHOD(ParticlesMaterial,get_color_ramp);
+    SE_BIND_METHOD(ParticlesMaterial,set_color_ramp);
+    SE_BIND_METHOD(ParticlesMaterial,get_color_ramp);
 
-    BIND_METHOD(ParticlesMaterial,set_color_initial_ramp);
-    BIND_METHOD(ParticlesMaterial,get_color_initial_ramp);
-    BIND_METHOD(ParticlesMaterial,set_flag);
-    BIND_METHOD(ParticlesMaterial,get_flag);
+    SE_BIND_METHOD(ParticlesMaterial,set_color_initial_ramp);
+    SE_BIND_METHOD(ParticlesMaterial,get_color_initial_ramp);
+    SE_BIND_METHOD(ParticlesMaterial,set_flag);
+    SE_BIND_METHOD(ParticlesMaterial,get_flag);
 
-    BIND_METHOD(ParticlesMaterial,set_emission_shape);
-    BIND_METHOD(ParticlesMaterial,get_emission_shape);
+    SE_BIND_METHOD(ParticlesMaterial,set_emission_shape);
+    SE_BIND_METHOD(ParticlesMaterial,get_emission_shape);
 
-    BIND_METHOD(ParticlesMaterial,set_emission_sphere_radius);
-    BIND_METHOD(ParticlesMaterial,get_emission_sphere_radius);
+    SE_BIND_METHOD(ParticlesMaterial,set_emission_sphere_radius);
+    SE_BIND_METHOD(ParticlesMaterial,get_emission_sphere_radius);
 
-    BIND_METHOD(ParticlesMaterial,set_emission_box_extents);
-    BIND_METHOD(ParticlesMaterial,get_emission_box_extents);
+    SE_BIND_METHOD(ParticlesMaterial,set_emission_box_extents);
+    SE_BIND_METHOD(ParticlesMaterial,get_emission_box_extents);
 
-    BIND_METHOD(ParticlesMaterial,set_emission_point_texture);
-    BIND_METHOD(ParticlesMaterial,get_emission_point_texture);
+    SE_BIND_METHOD(ParticlesMaterial,set_emission_point_texture);
+    SE_BIND_METHOD(ParticlesMaterial,get_emission_point_texture);
 
-    BIND_METHOD(ParticlesMaterial,set_emission_normal_texture);
-    BIND_METHOD(ParticlesMaterial,get_emission_normal_texture);
+    SE_BIND_METHOD(ParticlesMaterial,set_emission_normal_texture);
+    SE_BIND_METHOD(ParticlesMaterial,get_emission_normal_texture);
 
-    BIND_METHOD(ParticlesMaterial,set_emission_color_texture);
-    BIND_METHOD(ParticlesMaterial,get_emission_color_texture);
+    SE_BIND_METHOD(ParticlesMaterial,set_emission_color_texture);
+    SE_BIND_METHOD(ParticlesMaterial,get_emission_color_texture);
 
-    BIND_METHOD(ParticlesMaterial,set_emission_point_count);
-    BIND_METHOD(ParticlesMaterial,get_emission_point_count);
-    BIND_METHOD(ParticlesMaterial,set_emission_ring_radius);
-    BIND_METHOD(ParticlesMaterial,get_emission_ring_radius);
+    SE_BIND_METHOD(ParticlesMaterial,set_emission_point_count);
+    SE_BIND_METHOD(ParticlesMaterial,get_emission_point_count);
+    SE_BIND_METHOD(ParticlesMaterial,set_emission_ring_radius);
+    SE_BIND_METHOD(ParticlesMaterial,get_emission_ring_radius);
 
-    BIND_METHOD(ParticlesMaterial,set_emission_ring_inner_radius);
-    BIND_METHOD(ParticlesMaterial,get_emission_ring_inner_radius);
+    SE_BIND_METHOD(ParticlesMaterial,set_emission_ring_inner_radius);
+    SE_BIND_METHOD(ParticlesMaterial,get_emission_ring_inner_radius);
 
-    BIND_METHOD(ParticlesMaterial,set_emission_ring_height);
-    BIND_METHOD(ParticlesMaterial,get_emission_ring_height);
+    SE_BIND_METHOD(ParticlesMaterial,set_emission_ring_height);
+    SE_BIND_METHOD(ParticlesMaterial,get_emission_ring_height);
 
-    BIND_METHOD(ParticlesMaterial,set_emission_ring_axis);
-    BIND_METHOD(ParticlesMaterial,get_emission_ring_axis);
+    SE_BIND_METHOD(ParticlesMaterial,set_emission_ring_axis);
+    SE_BIND_METHOD(ParticlesMaterial,get_emission_ring_axis);
 
-    BIND_METHOD(ParticlesMaterial,set_trail_divisor);
-    BIND_METHOD(ParticlesMaterial,get_trail_divisor);
+    SE_BIND_METHOD(ParticlesMaterial,set_trail_divisor);
+    SE_BIND_METHOD(ParticlesMaterial,get_trail_divisor);
 
-    BIND_METHOD(ParticlesMaterial,set_trail_size_modifier);
-    BIND_METHOD(ParticlesMaterial,get_trail_size_modifier);
+    SE_BIND_METHOD(ParticlesMaterial,set_trail_size_modifier);
+    SE_BIND_METHOD(ParticlesMaterial,get_trail_size_modifier);
 
-    BIND_METHOD(ParticlesMaterial,set_trail_color_modifier);
-    BIND_METHOD(ParticlesMaterial,get_trail_color_modifier);
+    SE_BIND_METHOD(ParticlesMaterial,set_trail_color_modifier);
+    SE_BIND_METHOD(ParticlesMaterial,get_trail_color_modifier);
 
-    BIND_METHOD(ParticlesMaterial,get_gravity);
-    BIND_METHOD(ParticlesMaterial,set_gravity);
+    SE_BIND_METHOD(ParticlesMaterial,get_gravity);
+    SE_BIND_METHOD(ParticlesMaterial,set_gravity);
 
-    BIND_METHOD(ParticlesMaterial,set_lifetime_randomness);
-    BIND_METHOD(ParticlesMaterial,get_lifetime_randomness);
+    SE_BIND_METHOD(ParticlesMaterial,set_lifetime_randomness);
+    SE_BIND_METHOD(ParticlesMaterial,get_lifetime_randomness);
 
     ADD_GROUP("Time", "tm_");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_lifetime_randomness", PropertyHint::Range, "0,1,0.01"), "set_lifetime_randomness", "get_lifetime_randomness");

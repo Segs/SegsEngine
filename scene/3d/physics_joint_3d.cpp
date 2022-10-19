@@ -218,17 +218,17 @@ bool Joint3D::get_exclude_nodes_from_collision() const {
 
 void Joint3D::_bind_methods() {
 
-    BIND_METHOD(Joint3D,set_node_a);
-    BIND_METHOD(Joint3D,get_node_a);
+    SE_BIND_METHOD(Joint3D,set_node_a);
+    SE_BIND_METHOD(Joint3D,get_node_a);
 
-    BIND_METHOD(Joint3D,set_node_b);
-    BIND_METHOD(Joint3D,get_node_b);
+    SE_BIND_METHOD(Joint3D,set_node_b);
+    SE_BIND_METHOD(Joint3D,get_node_b);
 
-    BIND_METHOD(Joint3D,set_solver_priority);
-    BIND_METHOD(Joint3D,get_solver_priority);
+    SE_BIND_METHOD(Joint3D,set_solver_priority);
+    SE_BIND_METHOD(Joint3D,get_solver_priority);
 
-    BIND_METHOD(Joint3D,set_exclude_nodes_from_collision);
-    BIND_METHOD(Joint3D,get_exclude_nodes_from_collision);
+    SE_BIND_METHOD(Joint3D,set_exclude_nodes_from_collision);
+    SE_BIND_METHOD(Joint3D,get_exclude_nodes_from_collision);
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "nodes/node_a", PropertyHint::NodePathValidTypes, "PhysicsBody3D"), "set_node_a", "get_node_a");
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "nodes/node_b", PropertyHint::NodePathValidTypes, "PhysicsBody3D"), "set_node_b", "get_node_b");
@@ -266,8 +266,8 @@ Joint3D::~Joint3D()
 
 void PinJoint3D::_bind_methods() {
 
-    BIND_METHOD(PinJoint3D,set_param);
-    BIND_METHOD(PinJoint3D,get_param);
+    SE_BIND_METHOD(PinJoint3D,set_param);
+    SE_BIND_METHOD(PinJoint3D,get_param);
     ADD_GROUP("Params","param_");
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "param_bias", PropertyHint::Range, "0.01,0.99,0.01"), "set_param", "get_param", PARAM_BIAS);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "param_damping", PropertyHint::Range, "0.01,8.0,0.01"), "set_param", "get_param", PARAM_DAMPING);
@@ -343,17 +343,17 @@ float HingeJoint3D::_get_lower_limit() const {
 
 void HingeJoint3D::_bind_methods() {
 
-    BIND_METHOD(HingeJoint3D,set_param);
-    BIND_METHOD(HingeJoint3D,get_param);
+    SE_BIND_METHOD(HingeJoint3D,set_param);
+    SE_BIND_METHOD(HingeJoint3D,get_param);
 
-    BIND_METHOD(HingeJoint3D,set_flag);
-    BIND_METHOD(HingeJoint3D,get_flag);
+    SE_BIND_METHOD(HingeJoint3D,set_flag);
+    SE_BIND_METHOD(HingeJoint3D,get_flag);
 
-    BIND_METHOD(HingeJoint3D,_set_upper_limit);
-    BIND_METHOD(HingeJoint3D,_get_upper_limit);
+    SE_BIND_METHOD(HingeJoint3D,_set_upper_limit);
+    SE_BIND_METHOD(HingeJoint3D,_get_upper_limit);
 
-    BIND_METHOD(HingeJoint3D,_set_lower_limit);
-    BIND_METHOD(HingeJoint3D,_get_lower_limit);
+    SE_BIND_METHOD(HingeJoint3D,_set_lower_limit);
+    SE_BIND_METHOD(HingeJoint3D,_get_lower_limit);
 
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "params/bias", PropertyHint::Range, "0.00,0.99,0.01"), "set_param", "get_param", PARAM_BIAS);
 
@@ -482,14 +482,14 @@ float SliderJoint3D::_get_lower_limit_angular() const {
 
 void SliderJoint3D::_bind_methods() {
 
-    BIND_METHOD(SliderJoint3D,set_param);
-    BIND_METHOD(SliderJoint3D,get_param);
+    SE_BIND_METHOD(SliderJoint3D,set_param);
+    SE_BIND_METHOD(SliderJoint3D,get_param);
 
-    BIND_METHOD(SliderJoint3D,_set_upper_limit_angular);
-    BIND_METHOD(SliderJoint3D,_get_upper_limit_angular);
+    SE_BIND_METHOD(SliderJoint3D,_set_upper_limit_angular);
+    SE_BIND_METHOD(SliderJoint3D,_get_upper_limit_angular);
 
-    BIND_METHOD(SliderJoint3D,_set_lower_limit_angular);
-    BIND_METHOD(SliderJoint3D,_get_lower_limit_angular);
+    SE_BIND_METHOD(SliderJoint3D,_set_lower_limit_angular);
+    SE_BIND_METHOD(SliderJoint3D,_get_lower_limit_angular);
 
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit/upper_distance", PropertyHint::Range, "-1024,1024,0.01"), "set_param", "get_param", PARAM_LINEAR_LIMIT_UPPER);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit/lower_distance", PropertyHint::Range, "-1024,1024,0.01"), "set_param", "get_param", PARAM_LINEAR_LIMIT_LOWER);
@@ -631,14 +631,14 @@ float ConeTwistJoint3D::_get_twist_span() const {
 
 void ConeTwistJoint3D::_bind_methods() {
 
-    BIND_METHOD(ConeTwistJoint3D,set_param);
-    BIND_METHOD(ConeTwistJoint3D,get_param);
+    SE_BIND_METHOD(ConeTwistJoint3D,set_param);
+    SE_BIND_METHOD(ConeTwistJoint3D,get_param);
 
-    BIND_METHOD(ConeTwistJoint3D,_set_swing_span);
-    BIND_METHOD(ConeTwistJoint3D,_get_swing_span);
+    SE_BIND_METHOD(ConeTwistJoint3D,_set_swing_span);
+    SE_BIND_METHOD(ConeTwistJoint3D,_get_swing_span);
 
-    BIND_METHOD(ConeTwistJoint3D,_set_twist_span);
-    BIND_METHOD(ConeTwistJoint3D,_get_twist_span);
+    SE_BIND_METHOD(ConeTwistJoint3D,_set_twist_span);
+    SE_BIND_METHOD(ConeTwistJoint3D,_get_twist_span);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "swing_span", PropertyHint::Range, "-180,180,0.1"), "_set_swing_span", "_get_swing_span");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "twist_span", PropertyHint::Range, "-40000,40000,0.1"), "_set_twist_span", "_get_twist_span");
@@ -770,41 +770,41 @@ float Generic6DOFJoint3D::_get_angular_lo_limit_z() const {
 
 void Generic6DOFJoint3D::_bind_methods() {
 
-    BIND_METHOD(Generic6DOFJoint3D,_set_angular_hi_limit_x);
-    BIND_METHOD(Generic6DOFJoint3D,_get_angular_hi_limit_x);
+    SE_BIND_METHOD(Generic6DOFJoint3D,_set_angular_hi_limit_x);
+    SE_BIND_METHOD(Generic6DOFJoint3D,_get_angular_hi_limit_x);
 
-    BIND_METHOD(Generic6DOFJoint3D,_set_angular_lo_limit_x);
-    BIND_METHOD(Generic6DOFJoint3D,_get_angular_lo_limit_x);
+    SE_BIND_METHOD(Generic6DOFJoint3D,_set_angular_lo_limit_x);
+    SE_BIND_METHOD(Generic6DOFJoint3D,_get_angular_lo_limit_x);
 
-    BIND_METHOD(Generic6DOFJoint3D,_set_angular_hi_limit_y);
-    BIND_METHOD(Generic6DOFJoint3D,_get_angular_hi_limit_y);
+    SE_BIND_METHOD(Generic6DOFJoint3D,_set_angular_hi_limit_y);
+    SE_BIND_METHOD(Generic6DOFJoint3D,_get_angular_hi_limit_y);
 
-    BIND_METHOD(Generic6DOFJoint3D,_set_angular_lo_limit_y);
-    BIND_METHOD(Generic6DOFJoint3D,_get_angular_lo_limit_y);
+    SE_BIND_METHOD(Generic6DOFJoint3D,_set_angular_lo_limit_y);
+    SE_BIND_METHOD(Generic6DOFJoint3D,_get_angular_lo_limit_y);
 
-    BIND_METHOD(Generic6DOFJoint3D,_set_angular_hi_limit_z);
-    BIND_METHOD(Generic6DOFJoint3D,_get_angular_hi_limit_z);
+    SE_BIND_METHOD(Generic6DOFJoint3D,_set_angular_hi_limit_z);
+    SE_BIND_METHOD(Generic6DOFJoint3D,_get_angular_hi_limit_z);
 
-    BIND_METHOD(Generic6DOFJoint3D,_set_angular_lo_limit_z);
-    BIND_METHOD(Generic6DOFJoint3D,_get_angular_lo_limit_z);
+    SE_BIND_METHOD(Generic6DOFJoint3D,_set_angular_lo_limit_z);
+    SE_BIND_METHOD(Generic6DOFJoint3D,_get_angular_lo_limit_z);
 
-    BIND_METHOD(Generic6DOFJoint3D,set_param_x);
-    BIND_METHOD(Generic6DOFJoint3D,get_param_x);
+    SE_BIND_METHOD(Generic6DOFJoint3D,set_param_x);
+    SE_BIND_METHOD(Generic6DOFJoint3D,get_param_x);
 
-    BIND_METHOD(Generic6DOFJoint3D,set_param_y);
-    BIND_METHOD(Generic6DOFJoint3D,get_param_y);
+    SE_BIND_METHOD(Generic6DOFJoint3D,set_param_y);
+    SE_BIND_METHOD(Generic6DOFJoint3D,get_param_y);
 
-    BIND_METHOD(Generic6DOFJoint3D,set_param_z);
-    BIND_METHOD(Generic6DOFJoint3D,get_param_z);
+    SE_BIND_METHOD(Generic6DOFJoint3D,set_param_z);
+    SE_BIND_METHOD(Generic6DOFJoint3D,get_param_z);
 
-    BIND_METHOD(Generic6DOFJoint3D,set_flag_x);
-    BIND_METHOD(Generic6DOFJoint3D,get_flag_x);
+    SE_BIND_METHOD(Generic6DOFJoint3D,set_flag_x);
+    SE_BIND_METHOD(Generic6DOFJoint3D,get_flag_x);
 
-    BIND_METHOD(Generic6DOFJoint3D,set_flag_y);
-    BIND_METHOD(Generic6DOFJoint3D,get_flag_y);
+    SE_BIND_METHOD(Generic6DOFJoint3D,set_flag_y);
+    SE_BIND_METHOD(Generic6DOFJoint3D,get_flag_y);
 
-    BIND_METHOD(Generic6DOFJoint3D,set_flag_z);
-    BIND_METHOD(Generic6DOFJoint3D,get_flag_z);
+    SE_BIND_METHOD(Generic6DOFJoint3D,set_flag_z);
+    SE_BIND_METHOD(Generic6DOFJoint3D,get_flag_z);
 
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "linear_limit_x/enabled"), "set_flag_x", "get_flag_x", FLAG_ENABLE_LINEAR_LIMIT);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit_x/upper_distance"), "set_param_x", "get_param_x", PARAM_LINEAR_UPPER_LIMIT);

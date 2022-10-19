@@ -288,9 +288,9 @@ void TileSetEditor::_bind_methods() {
     MethodBinder::bind_method("_validate_current_tile_id", &TileSetEditor::_validate_current_tile_id);
     MethodBinder::bind_method("_select_edited_shape_coord", &TileSetEditor::_select_edited_shape_coord);
 
-    BIND_METHOD(TileSetEditor,get_drag_data_fw);
-    BIND_METHOD(TileSetEditor,can_drop_data_fw);
-    BIND_METHOD(TileSetEditor,drop_data_fw);
+    SE_BIND_METHOD(TileSetEditor,get_drag_data_fw);
+    SE_BIND_METHOD(TileSetEditor,can_drop_data_fw);
+    SE_BIND_METHOD(TileSetEditor,drop_data_fw);
 
     MethodBinder::bind_method("edit", &TileSetEditor::edit);
     MethodBinder::bind_method("add_texture", &TileSetEditor::add_texture);

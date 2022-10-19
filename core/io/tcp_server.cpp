@@ -34,10 +34,10 @@
 IMPL_GDCLASS(TCP_Server)
 
 void TCP_Server::_bind_methods() {
-    BIND_METHOD(TCP_Server,is_connection_available);
-    BIND_METHOD(TCP_Server,is_listening);
-    BIND_METHOD(TCP_Server,take_connection);
-    BIND_METHOD(TCP_Server,stop);
+    SE_BIND_METHOD(TCP_Server,is_connection_available);
+    SE_BIND_METHOD(TCP_Server,is_listening);
+    SE_BIND_METHOD(TCP_Server,take_connection);
+    SE_BIND_METHOD(TCP_Server,stop);
     MethodBinder::bind_method(D_METHOD("listen", {"port", "bind_address"}), &TCP_Server::_listen, {DEFVAL("*")});
 }
 

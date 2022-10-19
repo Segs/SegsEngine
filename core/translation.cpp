@@ -1310,15 +1310,15 @@ int Translation::get_message_count() const {
 
 void Translation::_bind_methods() {
 
-    BIND_METHOD(Translation,set_locale);
-    BIND_METHOD(Translation,get_locale);
-    BIND_METHOD(Translation,add_message);
-    BIND_METHOD(Translation,get_message);
-    BIND_METHOD(Translation,erase_message);
+    SE_BIND_METHOD(Translation,set_locale);
+    SE_BIND_METHOD(Translation,get_locale);
+    SE_BIND_METHOD(Translation,add_message);
+    SE_BIND_METHOD(Translation,get_message);
+    SE_BIND_METHOD(Translation,erase_message);
     MethodBinder::bind_method(D_METHOD("get_message_list"), &Translation::_get_message_list);
-    BIND_METHOD(Translation,get_message_count);
-    BIND_METHOD(Translation,_set_messages);
-    BIND_METHOD(Translation,_get_messages);
+    SE_BIND_METHOD(Translation,get_message_count);
+    SE_BIND_METHOD(Translation,_set_messages);
+    SE_BIND_METHOD(Translation,_get_messages);
 
     BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_message", PropertyInfo(VariantType::STRING, "src_message")));
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_STRING_ARRAY, "messages", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_messages", "_get_messages");
@@ -1800,19 +1800,19 @@ StringName TranslationServer::doc_translate(const StringName &p_message) const {
 
 void TranslationServer::_bind_methods() {
 
-    BIND_METHOD(TranslationServer,set_locale);
-    BIND_METHOD(TranslationServer,get_locale);
+    SE_BIND_METHOD(TranslationServer,set_locale);
+    SE_BIND_METHOD(TranslationServer,get_locale);
 
-    BIND_METHOD(TranslationServer,get_locale_name);
+    SE_BIND_METHOD(TranslationServer,get_locale_name);
 
-    BIND_METHOD(TranslationServer,translate);
+    SE_BIND_METHOD(TranslationServer,translate);
 
-    BIND_METHOD(TranslationServer,add_translation);
-    BIND_METHOD(TranslationServer,remove_translation);
+    SE_BIND_METHOD(TranslationServer,add_translation);
+    SE_BIND_METHOD(TranslationServer,remove_translation);
 
-    BIND_METHOD(TranslationServer,clear);
+    SE_BIND_METHOD(TranslationServer,clear);
 
-    BIND_METHOD(TranslationServer,get_loaded_locales);
+    SE_BIND_METHOD(TranslationServer,get_loaded_locales);
 }
 
 void TranslationServer::load_translations() {

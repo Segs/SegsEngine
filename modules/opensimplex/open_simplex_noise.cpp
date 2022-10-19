@@ -156,31 +156,31 @@ Ref<Image> OpenSimplexNoise::get_seamless_image(int p_size) const {
 
 void OpenSimplexNoise::_bind_methods() {
 
-    BIND_METHOD(OpenSimplexNoise,get_seed);
-    BIND_METHOD(OpenSimplexNoise,set_seed);
+    SE_BIND_METHOD(OpenSimplexNoise,get_seed);
+    SE_BIND_METHOD(OpenSimplexNoise,set_seed);
 
-    BIND_METHOD(OpenSimplexNoise,set_octaves);
-    BIND_METHOD(OpenSimplexNoise,get_octaves);
+    SE_BIND_METHOD(OpenSimplexNoise,set_octaves);
+    SE_BIND_METHOD(OpenSimplexNoise,get_octaves);
 
-    BIND_METHOD(OpenSimplexNoise,set_period);
-    BIND_METHOD(OpenSimplexNoise,get_period);
+    SE_BIND_METHOD(OpenSimplexNoise,set_period);
+    SE_BIND_METHOD(OpenSimplexNoise,get_period);
 
-    BIND_METHOD(OpenSimplexNoise,set_persistence);
-    BIND_METHOD(OpenSimplexNoise,get_persistence);
+    SE_BIND_METHOD(OpenSimplexNoise,set_persistence);
+    SE_BIND_METHOD(OpenSimplexNoise,get_persistence);
 
-    BIND_METHOD(OpenSimplexNoise,set_lacunarity);
-    BIND_METHOD(OpenSimplexNoise,get_lacunarity);
+    SE_BIND_METHOD(OpenSimplexNoise,set_lacunarity);
+    SE_BIND_METHOD(OpenSimplexNoise,get_lacunarity);
 
-    BIND_METHOD(OpenSimplexNoise,get_image);
-    BIND_METHOD(OpenSimplexNoise,get_seamless_image);
+    SE_BIND_METHOD(OpenSimplexNoise,get_image);
+    SE_BIND_METHOD(OpenSimplexNoise,get_seamless_image);
 
-    BIND_METHOD(OpenSimplexNoise,get_noise_1d);
-    BIND_METHOD(OpenSimplexNoise,get_noise_2d);
-    BIND_METHOD(OpenSimplexNoise,get_noise_3d);
-    BIND_METHOD(OpenSimplexNoise,get_noise_4d);
+    SE_BIND_METHOD(OpenSimplexNoise,get_noise_1d);
+    SE_BIND_METHOD(OpenSimplexNoise,get_noise_2d);
+    SE_BIND_METHOD(OpenSimplexNoise,get_noise_3d);
+    SE_BIND_METHOD(OpenSimplexNoise,get_noise_4d);
 
-    BIND_METHOD(OpenSimplexNoise,get_noise_2dv);
-    BIND_METHOD(OpenSimplexNoise,get_noise_3dv);
+    SE_BIND_METHOD(OpenSimplexNoise,get_noise_2dv);
+    SE_BIND_METHOD(OpenSimplexNoise,get_noise_3dv);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "seed"), "set_seed", "get_seed");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "octaves", PropertyHint::Range, FormatSN("1,%d,1", MAX_OCTAVES)),

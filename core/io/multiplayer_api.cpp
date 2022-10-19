@@ -1000,29 +1000,29 @@ int MultiplayerAPI::get_outgoing_bandwidth_usage() {
 }
 
 void MultiplayerAPI::_bind_methods() {
-    BIND_METHOD(MultiplayerAPI,set_root_node);
-    BIND_METHOD(MultiplayerAPI,get_root_node);
+    SE_BIND_METHOD(MultiplayerAPI,set_root_node);
+    SE_BIND_METHOD(MultiplayerAPI,get_root_node);
 
     MethodBinder::bind_method(D_METHOD("send_bytes", {"bytes", "id", "mode"}), &MultiplayerAPI::send_bytes, {DEFVAL(NetworkedMultiplayerPeer::TARGET_PEER_BROADCAST), DEFVAL(NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE)});
-    BIND_METHOD(MultiplayerAPI,has_network_peer);
-    BIND_METHOD(MultiplayerAPI,get_network_peer);
-    BIND_METHOD(MultiplayerAPI,get_network_unique_id);
-    BIND_METHOD(MultiplayerAPI,is_network_server);
-    BIND_METHOD(MultiplayerAPI,get_rpc_sender_id);
-    BIND_METHOD(MultiplayerAPI,_add_peer);
-    BIND_METHOD(MultiplayerAPI,_del_peer);
-    BIND_METHOD(MultiplayerAPI,set_network_peer);
-    BIND_METHOD(MultiplayerAPI,poll);
-    BIND_METHOD(MultiplayerAPI,clear);
+    SE_BIND_METHOD(MultiplayerAPI,has_network_peer);
+    SE_BIND_METHOD(MultiplayerAPI,get_network_peer);
+    SE_BIND_METHOD(MultiplayerAPI,get_network_unique_id);
+    SE_BIND_METHOD(MultiplayerAPI,is_network_server);
+    SE_BIND_METHOD(MultiplayerAPI,get_rpc_sender_id);
+    SE_BIND_METHOD(MultiplayerAPI,_add_peer);
+    SE_BIND_METHOD(MultiplayerAPI,_del_peer);
+    SE_BIND_METHOD(MultiplayerAPI,set_network_peer);
+    SE_BIND_METHOD(MultiplayerAPI,poll);
+    SE_BIND_METHOD(MultiplayerAPI,clear);
 
-    BIND_METHOD(MultiplayerAPI,_connected_to_server);
-    BIND_METHOD(MultiplayerAPI,_connection_failed);
-    BIND_METHOD(MultiplayerAPI,_server_disconnected);
-    BIND_METHOD(MultiplayerAPI,get_network_connected_peers);
-    BIND_METHOD(MultiplayerAPI,set_refuse_new_network_connections);
-    BIND_METHOD(MultiplayerAPI,is_refusing_new_network_connections);
-    BIND_METHOD(MultiplayerAPI,set_allow_object_decoding);
-    BIND_METHOD(MultiplayerAPI,is_object_decoding_allowed);
+    SE_BIND_METHOD(MultiplayerAPI,_connected_to_server);
+    SE_BIND_METHOD(MultiplayerAPI,_connection_failed);
+    SE_BIND_METHOD(MultiplayerAPI,_server_disconnected);
+    SE_BIND_METHOD(MultiplayerAPI,get_network_connected_peers);
+    SE_BIND_METHOD(MultiplayerAPI,set_refuse_new_network_connections);
+    SE_BIND_METHOD(MultiplayerAPI,is_refusing_new_network_connections);
+    SE_BIND_METHOD(MultiplayerAPI,set_allow_object_decoding);
+    SE_BIND_METHOD(MultiplayerAPI,is_object_decoding_allowed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_object_decoding"), "set_allow_object_decoding", "is_object_decoding_allowed");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "refuse_new_network_connections"), "set_refuse_new_network_connections", "is_refusing_new_network_connections");

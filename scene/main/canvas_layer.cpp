@@ -314,38 +314,38 @@ void CanvasLayer::_update_follow_viewport(bool p_force_exit) {
 
 void CanvasLayer::_bind_methods() {
 
-    BIND_METHOD(CanvasLayer,set_layer);
-    BIND_METHOD(CanvasLayer,get_layer);
+    SE_BIND_METHOD(CanvasLayer,set_layer);
+    SE_BIND_METHOD(CanvasLayer,get_layer);
 
-    BIND_METHOD(CanvasLayer,set_visible);
-    BIND_METHOD(CanvasLayer,is_visible);
-    BIND_METHOD(CanvasLayer,show);
-    BIND_METHOD(CanvasLayer,hide);
-    BIND_METHOD(CanvasLayer,set_transform);
-    BIND_METHOD(CanvasLayer,get_transform);
+    SE_BIND_METHOD(CanvasLayer,set_visible);
+    SE_BIND_METHOD(CanvasLayer,is_visible);
+    SE_BIND_METHOD(CanvasLayer,show);
+    SE_BIND_METHOD(CanvasLayer,hide);
+    SE_BIND_METHOD(CanvasLayer,set_transform);
+    SE_BIND_METHOD(CanvasLayer,get_transform);
 
-    BIND_METHOD(CanvasLayer,set_offset);
-    BIND_METHOD(CanvasLayer,get_offset);
+    SE_BIND_METHOD(CanvasLayer,set_offset);
+    SE_BIND_METHOD(CanvasLayer,get_offset);
 
-    BIND_METHOD(CanvasLayer,set_rotation);
-    BIND_METHOD(CanvasLayer,get_rotation);
+    SE_BIND_METHOD(CanvasLayer,set_rotation);
+    SE_BIND_METHOD(CanvasLayer,get_rotation);
 
-    BIND_METHOD(CanvasLayer,set_rotation_degrees);
-    BIND_METHOD(CanvasLayer,get_rotation_degrees);
+    SE_BIND_METHOD(CanvasLayer,set_rotation_degrees);
+    SE_BIND_METHOD(CanvasLayer,get_rotation_degrees);
 
-    BIND_METHOD(CanvasLayer,set_scale);
-    BIND_METHOD(CanvasLayer,get_scale);
+    SE_BIND_METHOD(CanvasLayer,set_scale);
+    SE_BIND_METHOD(CanvasLayer,get_scale);
 
-    BIND_METHOD(CanvasLayer,set_follow_viewport);
-    BIND_METHOD(CanvasLayer,is_following_viewport);
+    SE_BIND_METHOD(CanvasLayer,set_follow_viewport);
+    SE_BIND_METHOD(CanvasLayer,is_following_viewport);
 
-    BIND_METHOD(CanvasLayer,set_follow_viewport_scale);
-    BIND_METHOD(CanvasLayer,get_follow_viewport_scale);
+    SE_BIND_METHOD(CanvasLayer,set_follow_viewport_scale);
+    SE_BIND_METHOD(CanvasLayer,get_follow_viewport_scale);
 
-    BIND_METHOD(CanvasLayer,set_custom_viewport);
-    BIND_METHOD(CanvasLayer,get_custom_viewport);
+    SE_BIND_METHOD(CanvasLayer,set_custom_viewport);
+    SE_BIND_METHOD(CanvasLayer,get_custom_viewport);
 
-    BIND_METHOD(CanvasLayer,get_canvas);
+    SE_BIND_METHOD(CanvasLayer,get_canvas);
 
     ADD_GROUP("Layer", "layer_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "layer_index", PropertyHint::Range, "-128,128,1"), "set_layer", "get_layer");

@@ -350,12 +350,12 @@ Error StreamPeerTCP::_connect(StringView p_address, int p_port) {
 void StreamPeerTCP::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("connect_to_host", {"host", "port"}), &StreamPeerTCP::_connect);
-    BIND_METHOD(StreamPeerTCP,is_connected_to_host);
-    BIND_METHOD(StreamPeerTCP,get_status);
-    BIND_METHOD(StreamPeerTCP,get_connected_host);
-    BIND_METHOD(StreamPeerTCP,get_connected_port);
-    BIND_METHOD(StreamPeerTCP,disconnect_from_host);
-    BIND_METHOD(StreamPeerTCP,set_no_delay);
+    SE_BIND_METHOD(StreamPeerTCP,is_connected_to_host);
+    SE_BIND_METHOD(StreamPeerTCP,get_status);
+    SE_BIND_METHOD(StreamPeerTCP,get_connected_host);
+    SE_BIND_METHOD(StreamPeerTCP,get_connected_port);
+    SE_BIND_METHOD(StreamPeerTCP,disconnect_from_host);
+    SE_BIND_METHOD(StreamPeerTCP,set_no_delay);
 
     BIND_ENUM_CONSTANT(STATUS_NONE);
     BIND_ENUM_CONSTANT(STATUS_CONNECTING);

@@ -603,32 +603,32 @@ void HTTPRequest::_bind_methods() {
             D_METHOD("request_raw", { "url", "custom_headers", "ssl_validate_domain", "method", "request_data_raw" }),
             &HTTPRequest::request_raw,
             { DEFVAL(PoolStringArray()), DEFVAL(true), DEFVAL(HTTPClient::METHOD_GET), DEFVAL(PoolByteArray()) });
-    BIND_METHOD(HTTPRequest,cancel_request);
+    SE_BIND_METHOD(HTTPRequest,cancel_request);
 
-    BIND_METHOD(HTTPRequest,get_http_client_status);
+    SE_BIND_METHOD(HTTPRequest,get_http_client_status);
 
-    BIND_METHOD(HTTPRequest,set_use_threads);
-    BIND_METHOD(HTTPRequest,is_using_threads);
+    SE_BIND_METHOD(HTTPRequest,set_use_threads);
+    SE_BIND_METHOD(HTTPRequest,is_using_threads);
 
-    BIND_METHOD(HTTPRequest,set_body_size_limit);
-    BIND_METHOD(HTTPRequest,get_body_size_limit);
+    SE_BIND_METHOD(HTTPRequest,set_body_size_limit);
+    SE_BIND_METHOD(HTTPRequest,get_body_size_limit);
 
-    BIND_METHOD(HTTPRequest,set_max_redirects);
-    BIND_METHOD(HTTPRequest,get_max_redirects);
+    SE_BIND_METHOD(HTTPRequest,set_max_redirects);
+    SE_BIND_METHOD(HTTPRequest,get_max_redirects);
 
-    BIND_METHOD(HTTPRequest,set_download_file);
-    BIND_METHOD(HTTPRequest,get_download_file);
+    SE_BIND_METHOD(HTTPRequest,set_download_file);
+    SE_BIND_METHOD(HTTPRequest,get_download_file);
 
-    BIND_METHOD(HTTPRequest,get_downloaded_bytes);
-    BIND_METHOD(HTTPRequest,get_body_size);
+    SE_BIND_METHOD(HTTPRequest,get_downloaded_bytes);
+    SE_BIND_METHOD(HTTPRequest,get_body_size);
 
-    BIND_METHOD(HTTPRequest,set_timeout);
-    BIND_METHOD(HTTPRequest,get_timeout);
+    SE_BIND_METHOD(HTTPRequest,set_timeout);
+    SE_BIND_METHOD(HTTPRequest,get_timeout);
 
-    BIND_METHOD(HTTPRequest,set_download_chunk_size);
-    BIND_METHOD(HTTPRequest,get_download_chunk_size);
-    BIND_METHOD(HTTPRequest,set_http_proxy);
-    BIND_METHOD(HTTPRequest,set_https_proxy);
+    SE_BIND_METHOD(HTTPRequest,set_download_chunk_size);
+    SE_BIND_METHOD(HTTPRequest,get_download_chunk_size);
+    SE_BIND_METHOD(HTTPRequest,set_http_proxy);
+    SE_BIND_METHOD(HTTPRequest,set_https_proxy);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "download_file", PropertyHint::File), "set_download_file", "get_download_file");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "download_chunk_size", PropertyHint::Range, "256,16777216"), "set_download_chunk_size", "get_download_chunk_size");

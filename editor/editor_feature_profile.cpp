@@ -306,8 +306,8 @@ void EditorFeatureProfile::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_feature_name", { "feature" }), &EditorFeatureProfile::_get_feature_name);
 
-    BIND_METHOD(EditorFeatureProfile,save_to_file);
-    BIND_METHOD(EditorFeatureProfile,load_from_file);
+    SE_BIND_METHOD(EditorFeatureProfile,save_to_file);
+    SE_BIND_METHOD(EditorFeatureProfile,load_from_file);
 
     BIND_ENUM_CONSTANT(FEATURE_3D);
     BIND_ENUM_CONSTANT(FEATURE_SCRIPT);

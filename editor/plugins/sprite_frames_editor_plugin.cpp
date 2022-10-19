@@ -1142,9 +1142,9 @@ void SpriteFramesEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 void SpriteFramesEditor::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_update_library", {"skipsel"}), &SpriteFramesEditor::_update_library, {DEFVAL(false)});
-    BIND_METHOD(SpriteFramesEditor,get_drag_data_fw);
-    BIND_METHOD(SpriteFramesEditor,can_drop_data_fw);
-    BIND_METHOD(SpriteFramesEditor,drop_data_fw);
+    SE_BIND_METHOD(SpriteFramesEditor,get_drag_data_fw);
+    SE_BIND_METHOD(SpriteFramesEditor,can_drop_data_fw);
+    SE_BIND_METHOD(SpriteFramesEditor,drop_data_fw);
 }
 
 SpriteFramesEditor::SpriteFramesEditor() {

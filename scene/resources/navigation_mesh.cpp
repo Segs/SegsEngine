@@ -403,84 +403,84 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
 }
 
 void NavigationMesh::_bind_methods() {
-    BIND_METHOD(NavigationMesh,set_sample_partition_type);
-    BIND_METHOD(NavigationMesh,get_sample_partition_type);
+    SE_BIND_METHOD(NavigationMesh,set_sample_partition_type);
+    SE_BIND_METHOD(NavigationMesh,get_sample_partition_type);
 
-    BIND_METHOD(NavigationMesh,set_parsed_geometry_type);
-    BIND_METHOD(NavigationMesh,get_parsed_geometry_type);
+    SE_BIND_METHOD(NavigationMesh,set_parsed_geometry_type);
+    SE_BIND_METHOD(NavigationMesh,get_parsed_geometry_type);
 
-    BIND_METHOD(NavigationMesh,set_collision_mask);
-    BIND_METHOD(NavigationMesh,get_collision_mask);
+    SE_BIND_METHOD(NavigationMesh,set_collision_mask);
+    SE_BIND_METHOD(NavigationMesh,get_collision_mask);
 
-    BIND_METHOD(NavigationMesh,set_collision_mask_bit);
-    BIND_METHOD(NavigationMesh,get_collision_mask_bit);
+    SE_BIND_METHOD(NavigationMesh,set_collision_mask_bit);
+    SE_BIND_METHOD(NavigationMesh,get_collision_mask_bit);
 
-    BIND_METHOD(NavigationMesh,set_source_geometry_mode);
-    BIND_METHOD(NavigationMesh,get_source_geometry_mode);
+    SE_BIND_METHOD(NavigationMesh,set_source_geometry_mode);
+    SE_BIND_METHOD(NavigationMesh,get_source_geometry_mode);
 
-    BIND_METHOD(NavigationMesh,set_source_group_name);
-    BIND_METHOD(NavigationMesh,get_source_group_name);
+    SE_BIND_METHOD(NavigationMesh,set_source_group_name);
+    SE_BIND_METHOD(NavigationMesh,get_source_group_name);
 
-    BIND_METHOD(NavigationMesh,set_cell_size);
-    BIND_METHOD(NavigationMesh,get_cell_size);
+    SE_BIND_METHOD(NavigationMesh,set_cell_size);
+    SE_BIND_METHOD(NavigationMesh,get_cell_size);
 
-    BIND_METHOD(NavigationMesh,set_cell_height);
-    BIND_METHOD(NavigationMesh,get_cell_height);
+    SE_BIND_METHOD(NavigationMesh,set_cell_height);
+    SE_BIND_METHOD(NavigationMesh,get_cell_height);
 
-    BIND_METHOD(NavigationMesh,set_agent_height);
-    BIND_METHOD(NavigationMesh,get_agent_height);
+    SE_BIND_METHOD(NavigationMesh,set_agent_height);
+    SE_BIND_METHOD(NavigationMesh,get_agent_height);
 
-    BIND_METHOD(NavigationMesh,set_agent_radius);
-    BIND_METHOD(NavigationMesh,get_agent_radius);
+    SE_BIND_METHOD(NavigationMesh,set_agent_radius);
+    SE_BIND_METHOD(NavigationMesh,get_agent_radius);
 
-    BIND_METHOD(NavigationMesh,set_agent_max_climb);
-    BIND_METHOD(NavigationMesh,get_agent_max_climb);
+    SE_BIND_METHOD(NavigationMesh,set_agent_max_climb);
+    SE_BIND_METHOD(NavigationMesh,get_agent_max_climb);
 
-    BIND_METHOD(NavigationMesh,set_agent_max_slope);
-    BIND_METHOD(NavigationMesh,get_agent_max_slope);
+    SE_BIND_METHOD(NavigationMesh,set_agent_max_slope);
+    SE_BIND_METHOD(NavigationMesh,get_agent_max_slope);
 
-    BIND_METHOD(NavigationMesh,set_region_min_size);
-    BIND_METHOD(NavigationMesh,get_region_min_size);
+    SE_BIND_METHOD(NavigationMesh,set_region_min_size);
+    SE_BIND_METHOD(NavigationMesh,get_region_min_size);
 
-    BIND_METHOD(NavigationMesh,set_region_merge_size);
-    BIND_METHOD(NavigationMesh,get_region_merge_size);
+    SE_BIND_METHOD(NavigationMesh,set_region_merge_size);
+    SE_BIND_METHOD(NavigationMesh,get_region_merge_size);
 
-    BIND_METHOD(NavigationMesh,set_edge_max_length);
-    BIND_METHOD(NavigationMesh,get_edge_max_length);
+    SE_BIND_METHOD(NavigationMesh,set_edge_max_length);
+    SE_BIND_METHOD(NavigationMesh,get_edge_max_length);
 
-    BIND_METHOD(NavigationMesh,set_edge_max_error);
-    BIND_METHOD(NavigationMesh,get_edge_max_error);
+    SE_BIND_METHOD(NavigationMesh,set_edge_max_error);
+    SE_BIND_METHOD(NavigationMesh,get_edge_max_error);
 
-    BIND_METHOD(NavigationMesh,set_verts_per_poly);
-    BIND_METHOD(NavigationMesh,get_verts_per_poly);
+    SE_BIND_METHOD(NavigationMesh,set_verts_per_poly);
+    SE_BIND_METHOD(NavigationMesh,get_verts_per_poly);
 
-    BIND_METHOD(NavigationMesh,set_detail_sample_distance);
-    BIND_METHOD(NavigationMesh,get_detail_sample_distance);
+    SE_BIND_METHOD(NavigationMesh,set_detail_sample_distance);
+    SE_BIND_METHOD(NavigationMesh,get_detail_sample_distance);
 
-    BIND_METHOD(NavigationMesh,set_detail_sample_max_error);
-    BIND_METHOD(NavigationMesh,get_detail_sample_max_error);
+    SE_BIND_METHOD(NavigationMesh,set_detail_sample_max_error);
+    SE_BIND_METHOD(NavigationMesh,get_detail_sample_max_error);
 
-    BIND_METHOD(NavigationMesh,set_filter_low_hanging_obstacles);
-    BIND_METHOD(NavigationMesh,get_filter_low_hanging_obstacles);
+    SE_BIND_METHOD(NavigationMesh,set_filter_low_hanging_obstacles);
+    SE_BIND_METHOD(NavigationMesh,get_filter_low_hanging_obstacles);
 
-    BIND_METHOD(NavigationMesh,set_filter_ledge_spans);
-    BIND_METHOD(NavigationMesh,get_filter_ledge_spans);
+    SE_BIND_METHOD(NavigationMesh,set_filter_ledge_spans);
+    SE_BIND_METHOD(NavigationMesh,get_filter_ledge_spans);
 
-    BIND_METHOD(NavigationMesh,set_filter_walkable_low_height_spans);
-    BIND_METHOD(NavigationMesh,get_filter_walkable_low_height_spans);
+    SE_BIND_METHOD(NavigationMesh,set_filter_walkable_low_height_spans);
+    SE_BIND_METHOD(NavigationMesh,get_filter_walkable_low_height_spans);
 
-    BIND_METHOD(NavigationMesh,set_vertices);
-    BIND_METHOD(NavigationMesh,get_vertices);
+    SE_BIND_METHOD(NavigationMesh,set_vertices);
+    SE_BIND_METHOD(NavigationMesh,get_vertices);
 
-    BIND_METHOD(NavigationMesh,add_polygon);
-    BIND_METHOD(NavigationMesh,get_polygon_count);
-    BIND_METHOD(NavigationMesh,get_polygon);
-    BIND_METHOD(NavigationMesh,clear_polygons);
+    SE_BIND_METHOD(NavigationMesh,add_polygon);
+    SE_BIND_METHOD(NavigationMesh,get_polygon_count);
+    SE_BIND_METHOD(NavigationMesh,get_polygon);
+    SE_BIND_METHOD(NavigationMesh,clear_polygons);
 
-    BIND_METHOD(NavigationMesh,create_from_mesh);
+    SE_BIND_METHOD(NavigationMesh,create_from_mesh);
 
-    BIND_METHOD(NavigationMesh,_set_polygons);
-    BIND_METHOD(NavigationMesh,_get_polygons);
+    SE_BIND_METHOD(NavigationMesh,_set_polygons);
+    SE_BIND_METHOD(NavigationMesh,_get_polygons);
 
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "vertices", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_vertices", "get_vertices");

@@ -411,20 +411,20 @@ UiTextAlign Button::get_icon_align() const {
 
 void Button::_bind_methods() {
 
-    BIND_METHOD(Button,set_text);
-    BIND_METHOD(Button,get_text);
-    BIND_METHOD(Button,set_button_icon);
-    BIND_METHOD(Button,get_button_icon);
-    BIND_METHOD(Button,set_flat);
-    BIND_METHOD(Button,is_flat);
-    BIND_METHOD(Button,set_clip_text);
-    BIND_METHOD(Button,get_clip_text);
-    BIND_METHOD(Button,set_text_align);
-    BIND_METHOD(Button,get_text_align);
-    BIND_METHOD(Button,set_icon_align);
-    BIND_METHOD(Button,get_icon_align);
-    BIND_METHOD(Button,set_expand_icon);
-    BIND_METHOD(Button,is_expand_icon);
+    SE_BIND_METHOD(Button,set_text);
+    SE_BIND_METHOD(Button,get_text);
+    SE_BIND_METHOD(Button,set_button_icon);
+    SE_BIND_METHOD(Button,get_button_icon);
+    SE_BIND_METHOD(Button,set_flat);
+    SE_BIND_METHOD(Button,is_flat);
+    SE_BIND_METHOD(Button,set_clip_text);
+    SE_BIND_METHOD(Button,get_clip_text);
+    SE_BIND_METHOD(Button,set_text_align);
+    SE_BIND_METHOD(Button,get_text_align);
+    SE_BIND_METHOD(Button,set_icon_align);
+    SE_BIND_METHOD(Button,get_icon_align);
+    SE_BIND_METHOD(Button,set_expand_icon);
+    SE_BIND_METHOD(Button,is_expand_icon);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT_INTL),
             "set_text", "get_text");

@@ -156,14 +156,14 @@ void ResourcePreloader::get_resource_list(List<StringName> *p_list) {
 
 void ResourcePreloader::_bind_methods() {
 
-    BIND_METHOD(ResourcePreloader,_set_resources);
-    BIND_METHOD(ResourcePreloader,_get_resources);
+    SE_BIND_METHOD(ResourcePreloader,_set_resources);
+    SE_BIND_METHOD(ResourcePreloader,_get_resources);
 
-    BIND_METHOD(ResourcePreloader,add_resource);
-    BIND_METHOD(ResourcePreloader,remove_resource);
-    BIND_METHOD(ResourcePreloader,rename_resource);
-    BIND_METHOD(ResourcePreloader,has_resource);
-    BIND_METHOD(ResourcePreloader,get_resource);
+    SE_BIND_METHOD(ResourcePreloader,add_resource);
+    SE_BIND_METHOD(ResourcePreloader,remove_resource);
+    SE_BIND_METHOD(ResourcePreloader,rename_resource);
+    SE_BIND_METHOD(ResourcePreloader,has_resource);
+    SE_BIND_METHOD(ResourcePreloader,get_resource);
     MethodBinder::bind_method(D_METHOD("get_resource_list"), &ResourcePreloader::_get_resource_list);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "resources", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_resources", "_get_resources");

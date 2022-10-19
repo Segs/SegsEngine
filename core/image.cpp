@@ -3043,86 +3043,80 @@ void Image::optimize_channels() {
 void Image::_bind_methods() {
     add_plugin_resolver(new CodecPluginResolver);
 
-    BIND_METHOD(Image,get_width);
-    BIND_METHOD(Image,get_height);
-    BIND_METHOD(Image,get_size);
-    BIND_METHOD(Image,has_mipmaps);
-    BIND_METHOD(Image,get_format);
-    BIND_METHOD(Image,get_data);
+    SE_BIND_METHOD(Image,get_width);
+    SE_BIND_METHOD(Image,get_height);
+    SE_BIND_METHOD(Image,get_size);
+    SE_BIND_METHOD(Image,has_mipmaps);
+    SE_BIND_METHOD(Image,get_format);
+    SE_BIND_METHOD(Image,get_data);
 
-    BIND_METHOD(Image,convert);
+    SE_BIND_METHOD(Image,convert);
 
-    BIND_METHOD(Image,get_mipmap_offset);
+    SE_BIND_METHOD(Image,get_mipmap_offset);
 
     MethodBinder::bind_method(D_METHOD("resize_to_po2", { "square" }), &Image::resize_to_po2, { DEFVAL(false) });
-    MethodBinder::bind_method(D_METHOD("resize", { "width", "height", "interpolation" }), &Image::resize,
-            { DEFVAL(INTERPOLATE_BILINEAR) });
-    BIND_METHOD(Image,shrink_x2);
-    BIND_METHOD(Image,expand_x2_hq2x);
+    MethodBinder::bind_method(D_METHOD("resize", { "width", "height", "interpolation" }), &Image::resize,{ DEFVAL(INTERPOLATE_BILINEAR) });
+    SE_BIND_METHOD(Image,shrink_x2);
+    SE_BIND_METHOD(Image,expand_x2_hq2x);
 
-    BIND_METHOD(Image,crop);
-    BIND_METHOD(Image,flip_x);
-    BIND_METHOD(Image,flip_y);
-    MethodBinder::bind_method(
-            D_METHOD("generate_mipmaps", { "renormalize" }), &Image::generate_mipmaps, { DEFVAL(false) });
-    BIND_METHOD(Image,clear_mipmaps);
+    SE_BIND_METHOD(Image,crop);
+    SE_BIND_METHOD(Image,flip_x);
+    SE_BIND_METHOD(Image,flip_y);
+    MethodBinder::bind_method(D_METHOD("generate_mipmaps", { "renormalize" }), &Image::generate_mipmaps, { DEFVAL(false) });
+    SE_BIND_METHOD(Image,clear_mipmaps);
 
-    MethodBinder::bind_method(
-            D_METHOD("create", { "width", "height", "use_mipmaps", "format" }), &Image::_create_empty);
+    MethodBinder::bind_method(D_METHOD("create", { "width", "height", "use_mipmaps", "format" }), &Image::_create_empty);
     MethodBinder::bind_method(D_METHOD("create_from_data", { "width", "height", "use_mipmaps", "format", "data" }),
             &Image::_create_from_data);
 
-    BIND_METHOD(Image,is_empty);
+    SE_BIND_METHOD(Image,is_empty);
 
-    BIND_METHOD(Image,load);
-    BIND_METHOD(Image,save_png);
+    SE_BIND_METHOD(Image,load);
+    SE_BIND_METHOD(Image,save_png);
     MethodBinder::bind_method(D_METHOD("save_exr", { "path", "grayscale" }), &Image::save_exr, { DEFVAL(false) });
 
-    BIND_METHOD(Image,detect_alpha);
-    BIND_METHOD(Image,is_invisible);
+    SE_BIND_METHOD(Image,detect_alpha);
+    SE_BIND_METHOD(Image,is_invisible);
 
-    MethodBinder::bind_method(D_METHOD("detect_used_channels", { "source" }), &Image::detect_used_channels,
-            { DEFVAL(int(ImageCompressSource::COMPRESS_SOURCE_GENERIC)) });
-    MethodBinder::bind_method(D_METHOD("compress", { "mode", "source", "lossy_quality" }), &Image::compress,
-            { DEFVAL(int(ImageCompressSource::COMPRESS_SOURCE_GENERIC)), DEFVAL(0.7f) });
-    MethodBinder::bind_method(D_METHOD("compress_from_channels", { "mode", "channels", "lossy_quality" }),
-            &Image::compress_from_channels, { DEFVAL(0.7) });
-    BIND_METHOD(Image,decompress);
-    BIND_METHOD(Image,is_compressed);
+    SE_BIND_METHOD_WITH_DEFAULTS(Image,detect_used_channels, DEFVAL(int(ImageCompressSource::COMPRESS_SOURCE_GENERIC)));
+    SE_BIND_METHOD_WITH_DEFAULTS(Image, compress, DEFVAL(int(ImageCompressSource::COMPRESS_SOURCE_GENERIC)), DEFVAL(0.7f));
+    SE_BIND_METHOD_WITH_DEFAULTS(Image, compress_from_channels, DEFVAL(0.7f));
+    SE_BIND_METHOD(Image,decompress);
+    SE_BIND_METHOD(Image,is_compressed);
 
-    BIND_METHOD(Image,fix_alpha_edges);
-    BIND_METHOD(Image,premultiply_alpha);
-    BIND_METHOD(Image,srgb_to_linear);
-    BIND_METHOD(Image,normalmap_to_xy);
-    BIND_METHOD(Image,rgbe_to_srgb);
+    SE_BIND_METHOD(Image,fix_alpha_edges);
+    SE_BIND_METHOD(Image,premultiply_alpha);
+    SE_BIND_METHOD(Image,srgb_to_linear);
+    SE_BIND_METHOD(Image,normalmap_to_xy);
+    SE_BIND_METHOD(Image,rgbe_to_srgb);
     MethodBinder::bind_method(
             D_METHOD("bumpmap_to_normalmap", { "bump_scale" }), &Image::bumpmap_to_normalmap, { DEFVAL(1.0) });
 
-    BIND_METHOD(Image,blit_rect);
-    BIND_METHOD(Image,blit_rect_mask);
-    BIND_METHOD(Image,blend_rect);
+    SE_BIND_METHOD(Image,blit_rect);
+    SE_BIND_METHOD(Image,blit_rect_mask);
+    SE_BIND_METHOD(Image,blend_rect);
     MethodBinder::bind_method(
             D_METHOD("blend_rect_mask", { "src", "mask", "src_rect", "dst" }), &Image::blend_rect_mask);
-    BIND_METHOD(Image,fill);
+    SE_BIND_METHOD(Image,fill);
 
-    BIND_METHOD(Image,get_used_rect);
-    BIND_METHOD(Image,get_rect);
+    SE_BIND_METHOD(Image,get_used_rect);
+    SE_BIND_METHOD(Image,get_rect);
 
     MethodBinder::bind_method(D_METHOD("copy_from", { "src" }), &Image::copy_internals_from);
 
-    BIND_METHOD(Image,_set_data);
-    BIND_METHOD(Image,_get_data);
+    SE_BIND_METHOD(Image,_set_data);
+    SE_BIND_METHOD(Image,_get_data);
 
-    BIND_METHOD(Image,lock);
-    BIND_METHOD(Image,unlock);
-    BIND_METHOD(Image,get_pixelv);
-    BIND_METHOD(Image,get_pixel);
-    BIND_METHOD(Image,set_pixelv);
-    BIND_METHOD(Image,set_pixel);
+    SE_BIND_METHOD(Image,lock);
+    SE_BIND_METHOD(Image,unlock);
+    SE_BIND_METHOD(Image,get_pixelv);
+    SE_BIND_METHOD(Image,get_pixel);
+    SE_BIND_METHOD(Image,set_pixelv);
+    SE_BIND_METHOD(Image,set_pixel);
 
-    BIND_METHOD(Image,load_png_from_buffer);
-    BIND_METHOD(Image,load_jpg_from_buffer);
-    BIND_METHOD(Image,load_webp_from_buffer);
+    SE_BIND_METHOD(Image,load_png_from_buffer);
+    SE_BIND_METHOD(Image,load_jpg_from_buffer);
+    SE_BIND_METHOD(Image,load_webp_from_buffer);
 
     ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_STORAGE),
             "_set_data", "_get_data");

@@ -135,7 +135,7 @@ IMPL_GDCLASS(PHashTranslation)
 
 void PHashTranslation::_bind_methods() {
 
-    BIND_METHOD(PHashTranslation,generate);
+    SE_BIND_METHOD(PHashTranslation,generate);
 }
 
 PHashTranslation::PHashTranslation() = default;

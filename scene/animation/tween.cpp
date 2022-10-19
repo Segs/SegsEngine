@@ -226,32 +226,32 @@ void Tween::_notification(int p_what) {
 
 void Tween::_bind_methods() {
     // Bind getters and setters
-    BIND_METHOD(Tween,is_active);
-    BIND_METHOD(Tween,set_active);
+    SE_BIND_METHOD(Tween,is_active);
+    SE_BIND_METHOD(Tween,set_active);
 
-    BIND_METHOD(Tween,is_repeat);
-    BIND_METHOD(Tween,set_repeat);
+    SE_BIND_METHOD(Tween,is_repeat);
+    SE_BIND_METHOD(Tween,set_repeat);
 
-    BIND_METHOD(Tween,set_speed_scale);
-    BIND_METHOD(Tween,get_speed_scale);
+    SE_BIND_METHOD(Tween,set_speed_scale);
+    SE_BIND_METHOD(Tween,get_speed_scale);
 
-    BIND_METHOD(Tween,set_tween_process_mode);
-    BIND_METHOD(Tween,get_tween_process_mode);
+    SE_BIND_METHOD(Tween,set_tween_process_mode);
+    SE_BIND_METHOD(Tween,get_tween_process_mode);
 
     // Bind the various Tween control methods
-    BIND_METHOD(Tween,start);
+    SE_BIND_METHOD(Tween,start);
     MethodBinder::bind_method(D_METHOD("reset", {"object", "key"}), &Tween::reset, {DEFVAL("")});
-    BIND_METHOD(Tween,reset_all);
+    SE_BIND_METHOD(Tween,reset_all);
     MethodBinder::bind_method(D_METHOD("stop", {"object", "key"}), &Tween::stop, {DEFVAL("")});
-    BIND_METHOD(Tween,stop_all);
+    SE_BIND_METHOD(Tween,stop_all);
     MethodBinder::bind_method(D_METHOD("resume", {"object", "key"}), &Tween::resume, {DEFVAL("")});
-    BIND_METHOD(Tween,resume_all);
+    SE_BIND_METHOD(Tween,resume_all);
     MethodBinder::bind_method(D_METHOD("remove", {"object", "key"}), &Tween::remove, {DEFVAL("")});
-    BIND_METHOD(Tween,_remove_by_uid);
-    BIND_METHOD(Tween,remove_all);
-    BIND_METHOD(Tween,seek);
-    BIND_METHOD(Tween,tell);
-    BIND_METHOD(Tween,get_runtime);
+    SE_BIND_METHOD(Tween,_remove_by_uid);
+    SE_BIND_METHOD(Tween,remove_all);
+    SE_BIND_METHOD(Tween,seek);
+    SE_BIND_METHOD(Tween,tell);
+    SE_BIND_METHOD(Tween,get_runtime);
 
     // Bind interpolation and follow methods
     MethodBinder::bind_method(D_METHOD("interpolate_property", {"object", "property", "initial_val", "final_val", "duration", "trans_type", "ease_type", "delay"}), &Tween::interpolate_property, {DEFVAL(TRANS_LINEAR), DEFVAL(EASE_IN_OUT), DEFVAL(0)});

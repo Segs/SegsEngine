@@ -202,18 +202,18 @@ bool CollisionPolygon3D::_is_editable_3d_polygon() const {
 }
 void CollisionPolygon3D::_bind_methods() {
 
-    BIND_METHOD(CollisionPolygon3D,set_depth);
-    BIND_METHOD(CollisionPolygon3D,get_depth);
+    SE_BIND_METHOD(CollisionPolygon3D,set_depth);
+    SE_BIND_METHOD(CollisionPolygon3D,get_depth);
 
-    BIND_METHOD(CollisionPolygon3D,set_polygon);
-    BIND_METHOD(CollisionPolygon3D,get_polygon);
+    SE_BIND_METHOD(CollisionPolygon3D,set_polygon);
+    SE_BIND_METHOD(CollisionPolygon3D,get_polygon);
 
-    BIND_METHOD(CollisionPolygon3D,set_disabled);
-    BIND_METHOD(CollisionPolygon3D,is_disabled);
-    BIND_METHOD(CollisionPolygon3D,set_margin);
-    BIND_METHOD(CollisionPolygon3D,get_margin);
+    SE_BIND_METHOD(CollisionPolygon3D,set_disabled);
+    SE_BIND_METHOD(CollisionPolygon3D,is_disabled);
+    SE_BIND_METHOD(CollisionPolygon3D,set_margin);
+    SE_BIND_METHOD(CollisionPolygon3D,get_margin);
 
-    BIND_METHOD(CollisionPolygon3D,_is_editable_3d_polygon);
+    SE_BIND_METHOD(CollisionPolygon3D,_is_editable_3d_polygon);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "depth"), "set_depth", "get_depth");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");

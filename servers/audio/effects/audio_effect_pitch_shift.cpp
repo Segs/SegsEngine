@@ -346,14 +346,14 @@ AudioEffectPitchShift::FFT_Size AudioEffectPitchShift::get_fft_size() const {
 
 void AudioEffectPitchShift::_bind_methods() {
 
-    BIND_METHOD(AudioEffectPitchShift,set_pitch_scale);
-    BIND_METHOD(AudioEffectPitchShift,get_pitch_scale);
+    SE_BIND_METHOD(AudioEffectPitchShift,set_pitch_scale);
+    SE_BIND_METHOD(AudioEffectPitchShift,get_pitch_scale);
 
-    BIND_METHOD(AudioEffectPitchShift,set_oversampling);
-    BIND_METHOD(AudioEffectPitchShift,get_oversampling);
+    SE_BIND_METHOD(AudioEffectPitchShift,set_oversampling);
+    SE_BIND_METHOD(AudioEffectPitchShift,get_oversampling);
 
-    BIND_METHOD(AudioEffectPitchShift,set_fft_size);
-    BIND_METHOD(AudioEffectPitchShift,get_fft_size);
+    SE_BIND_METHOD(AudioEffectPitchShift,set_fft_size);
+    SE_BIND_METHOD(AudioEffectPitchShift,get_fft_size);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pitch_scale", PropertyHint::Range, "0.01,16,0.01"), "set_pitch_scale", "get_pitch_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "oversampling", PropertyHint::Range, "4,32,1"), "set_oversampling", "get_oversampling");

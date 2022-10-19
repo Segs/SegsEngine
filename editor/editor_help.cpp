@@ -1705,7 +1705,7 @@ void EditorHelpBit::_meta_clicked(StringView p_select) {
 
 void EditorHelpBit::_bind_methods() {
 
-    BIND_METHOD(EditorHelpBit,set_text);
+    SE_BIND_METHOD(EditorHelpBit,set_text);
     ADD_SIGNAL(MethodInfo("request_hide"));
 }
 

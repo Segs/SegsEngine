@@ -1359,70 +1359,70 @@ void AudioServer::capture_set_device(StringView p_name) {
 
 void AudioServer::_bind_methods() {
 
-    BIND_METHOD(AudioServer,set_bus_count);
-    BIND_METHOD(AudioServer,get_bus_count);
+    SE_BIND_METHOD(AudioServer,set_bus_count);
+    SE_BIND_METHOD(AudioServer,get_bus_count);
 
-    BIND_METHOD(AudioServer,remove_bus);
+    SE_BIND_METHOD(AudioServer,remove_bus);
     MethodBinder::bind_method(D_METHOD("add_bus", {"at_position"}), &AudioServer::add_bus, {DEFVAL(-1)});
-    BIND_METHOD(AudioServer,move_bus);
+    SE_BIND_METHOD(AudioServer,move_bus);
 
-    BIND_METHOD(AudioServer,set_bus_name);
-    BIND_METHOD(AudioServer,get_bus_name);
-    BIND_METHOD(AudioServer,get_bus_index);
+    SE_BIND_METHOD(AudioServer,set_bus_name);
+    SE_BIND_METHOD(AudioServer,get_bus_name);
+    SE_BIND_METHOD(AudioServer,get_bus_index);
 
-    BIND_METHOD(AudioServer,get_bus_channels);
+    SE_BIND_METHOD(AudioServer,get_bus_channels);
 
-    BIND_METHOD(AudioServer,set_bus_volume_db);
-    BIND_METHOD(AudioServer,get_bus_volume_db);
+    SE_BIND_METHOD(AudioServer,set_bus_volume_db);
+    SE_BIND_METHOD(AudioServer,get_bus_volume_db);
 
-    BIND_METHOD(AudioServer,set_bus_send);
-    BIND_METHOD(AudioServer,get_bus_send);
+    SE_BIND_METHOD(AudioServer,set_bus_send);
+    SE_BIND_METHOD(AudioServer,get_bus_send);
 
-    BIND_METHOD(AudioServer,set_bus_solo);
-    BIND_METHOD(AudioServer,is_bus_solo);
+    SE_BIND_METHOD(AudioServer,set_bus_solo);
+    SE_BIND_METHOD(AudioServer,is_bus_solo);
 
-    BIND_METHOD(AudioServer,set_bus_mute);
-    BIND_METHOD(AudioServer,is_bus_mute);
+    SE_BIND_METHOD(AudioServer,set_bus_mute);
+    SE_BIND_METHOD(AudioServer,is_bus_mute);
 
-    BIND_METHOD(AudioServer,set_bus_bypass_effects);
-    BIND_METHOD(AudioServer,is_bus_bypassing_effects);
+    SE_BIND_METHOD(AudioServer,set_bus_bypass_effects);
+    SE_BIND_METHOD(AudioServer,is_bus_bypassing_effects);
 
     MethodBinder::bind_method(D_METHOD("add_bus_effect", {"bus_idx", "effect", "at_position"}), &AudioServer::add_bus_effect, {DEFVAL(-1)});
-    BIND_METHOD(AudioServer,remove_bus_effect);
+    SE_BIND_METHOD(AudioServer,remove_bus_effect);
 
-    BIND_METHOD(AudioServer,get_bus_effect_count);
-    BIND_METHOD(AudioServer,get_bus_effect);
+    SE_BIND_METHOD(AudioServer,get_bus_effect_count);
+    SE_BIND_METHOD(AudioServer,get_bus_effect);
     MethodBinder::bind_method(D_METHOD("get_bus_effect_instance", {"bus_idx", "effect_idx", "channel"}), &AudioServer::get_bus_effect_instance, {DEFVAL(0)});
-    BIND_METHOD(AudioServer,swap_bus_effects);
+    SE_BIND_METHOD(AudioServer,swap_bus_effects);
 
-    BIND_METHOD(AudioServer,set_bus_effect_enabled);
-    BIND_METHOD(AudioServer,is_bus_effect_enabled);
+    SE_BIND_METHOD(AudioServer,set_bus_effect_enabled);
+    SE_BIND_METHOD(AudioServer,is_bus_effect_enabled);
 
-    BIND_METHOD(AudioServer,get_bus_peak_volume_left_db);
-    BIND_METHOD(AudioServer,get_bus_peak_volume_right_db);
+    SE_BIND_METHOD(AudioServer,get_bus_peak_volume_left_db);
+    SE_BIND_METHOD(AudioServer,get_bus_peak_volume_right_db);
 
-    BIND_METHOD(AudioServer,set_global_rate_scale);
-    BIND_METHOD(AudioServer,get_global_rate_scale);
+    SE_BIND_METHOD(AudioServer,set_global_rate_scale);
+    SE_BIND_METHOD(AudioServer,get_global_rate_scale);
 
-    BIND_METHOD(AudioServer,lock);
-    BIND_METHOD(AudioServer,unlock);
+    SE_BIND_METHOD(AudioServer,lock);
+    SE_BIND_METHOD(AudioServer,unlock);
 
-    BIND_METHOD(AudioServer,get_speaker_mode);
-    BIND_METHOD(AudioServer,get_mix_rate);
-    BIND_METHOD(AudioServer,get_device_list);
-    BIND_METHOD(AudioServer,get_device);
-    BIND_METHOD(AudioServer,set_device);
+    SE_BIND_METHOD(AudioServer,get_speaker_mode);
+    SE_BIND_METHOD(AudioServer,get_mix_rate);
+    SE_BIND_METHOD(AudioServer,get_device_list);
+    SE_BIND_METHOD(AudioServer,get_device);
+    SE_BIND_METHOD(AudioServer,set_device);
 
-    BIND_METHOD(AudioServer,get_time_to_next_mix);
-    BIND_METHOD(AudioServer,get_time_since_last_mix);
-    BIND_METHOD(AudioServer,get_output_latency);
+    SE_BIND_METHOD(AudioServer,get_time_to_next_mix);
+    SE_BIND_METHOD(AudioServer,get_time_since_last_mix);
+    SE_BIND_METHOD(AudioServer,get_output_latency);
 
-    BIND_METHOD(AudioServer,capture_get_device_list);
-    BIND_METHOD(AudioServer,capture_get_device);
-    BIND_METHOD(AudioServer,capture_set_device);
+    SE_BIND_METHOD(AudioServer,capture_get_device_list);
+    SE_BIND_METHOD(AudioServer,capture_get_device);
+    SE_BIND_METHOD(AudioServer,capture_set_device);
 
-    BIND_METHOD(AudioServer,set_bus_layout);
-    BIND_METHOD(AudioServer,generate_bus_layout);
+    SE_BIND_METHOD(AudioServer,set_bus_layout);
+    SE_BIND_METHOD(AudioServer,generate_bus_layout);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "bus_count"), "set_bus_count", "get_bus_count");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "device"), "set_device", "get_device");

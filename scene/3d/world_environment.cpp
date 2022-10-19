@@ -118,8 +118,8 @@ String WorldEnvironment::get_configuration_warning() const {
 
 void WorldEnvironment::_bind_methods() {
 
-    BIND_METHOD(WorldEnvironment,set_environment);
-    BIND_METHOD(WorldEnvironment,get_environment);
+    SE_BIND_METHOD(WorldEnvironment,set_environment);
+    SE_BIND_METHOD(WorldEnvironment,get_environment);
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "environment", PropertyHint::ResourceType, "Environment"), "set_environment", "get_environment");
 }
 

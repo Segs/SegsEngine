@@ -69,12 +69,12 @@ uint32_t PhysicsBody2D::_get_layers() const {
 }
 
 void PhysicsBody2D::_bind_methods() {
-    BIND_METHOD(PhysicsBody2D,_set_layers);
-    BIND_METHOD(PhysicsBody2D,_get_layers);
+    SE_BIND_METHOD(PhysicsBody2D,_set_layers);
+    SE_BIND_METHOD(PhysicsBody2D,_get_layers);
 
-    BIND_METHOD(PhysicsBody2D,get_collision_exceptions);
-    BIND_METHOD(PhysicsBody2D,add_collision_exception_with);
-    BIND_METHOD(PhysicsBody2D,remove_collision_exception_with);
+    SE_BIND_METHOD(PhysicsBody2D,get_collision_exceptions);
+    SE_BIND_METHOD(PhysicsBody2D,add_collision_exception_with);
+    SE_BIND_METHOD(PhysicsBody2D,remove_collision_exception_with);
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "layers", PropertyHint::Layers2DPhysics, "", 0), "_set_layers", "_get_layers"); //for backwards compat
 
 }
@@ -163,13 +163,13 @@ Ref<PhysicsMaterial> StaticBody2D::get_physics_material_override() const {
 
 void StaticBody2D::_bind_methods() {
 
-    BIND_METHOD(StaticBody2D,set_constant_linear_velocity);
-    BIND_METHOD(StaticBody2D,set_constant_angular_velocity);
-    BIND_METHOD(StaticBody2D,get_constant_linear_velocity);
-    BIND_METHOD(StaticBody2D,get_constant_angular_velocity);
+    SE_BIND_METHOD(StaticBody2D,set_constant_linear_velocity);
+    SE_BIND_METHOD(StaticBody2D,set_constant_angular_velocity);
+    SE_BIND_METHOD(StaticBody2D,get_constant_linear_velocity);
+    SE_BIND_METHOD(StaticBody2D,get_constant_angular_velocity);
 
-    BIND_METHOD(StaticBody2D,set_physics_material_override);
-    BIND_METHOD(StaticBody2D,get_physics_material_override);
+    SE_BIND_METHOD(StaticBody2D,set_physics_material_override);
+    SE_BIND_METHOD(StaticBody2D,get_physics_material_override);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "constant_linear_velocity"), "set_constant_linear_velocity", "get_constant_linear_velocity");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "constant_angular_velocity"), "set_constant_angular_velocity", "get_constant_angular_velocity");
@@ -805,74 +805,74 @@ String RigidBody2D::get_configuration_warning() const {
 
 void RigidBody2D::_bind_methods() {
 
-    BIND_METHOD(RigidBody2D,set_mode);
-    BIND_METHOD(RigidBody2D,get_mode);
+    SE_BIND_METHOD(RigidBody2D,set_mode);
+    SE_BIND_METHOD(RigidBody2D,get_mode);
 
-    BIND_METHOD(RigidBody2D,set_mass);
-    BIND_METHOD(RigidBody2D,get_mass);
+    SE_BIND_METHOD(RigidBody2D,set_mass);
+    SE_BIND_METHOD(RigidBody2D,get_mass);
 
-    BIND_METHOD(RigidBody2D,get_inertia);
-    BIND_METHOD(RigidBody2D,set_inertia);
+    SE_BIND_METHOD(RigidBody2D,get_inertia);
+    SE_BIND_METHOD(RigidBody2D,set_inertia);
 
-    BIND_METHOD(RigidBody2D,set_weight);
-    BIND_METHOD(RigidBody2D,get_weight);
+    SE_BIND_METHOD(RigidBody2D,set_weight);
+    SE_BIND_METHOD(RigidBody2D,get_weight);
 
-    BIND_METHOD(RigidBody2D,set_physics_material_override);
-    BIND_METHOD(RigidBody2D,get_physics_material_override);
+    SE_BIND_METHOD(RigidBody2D,set_physics_material_override);
+    SE_BIND_METHOD(RigidBody2D,get_physics_material_override);
 
-    BIND_METHOD(RigidBody2D,set_gravity_scale);
-    BIND_METHOD(RigidBody2D,get_gravity_scale);
+    SE_BIND_METHOD(RigidBody2D,set_gravity_scale);
+    SE_BIND_METHOD(RigidBody2D,get_gravity_scale);
 
-    BIND_METHOD(RigidBody2D,set_linear_damp);
-    BIND_METHOD(RigidBody2D,get_linear_damp);
+    SE_BIND_METHOD(RigidBody2D,set_linear_damp);
+    SE_BIND_METHOD(RigidBody2D,get_linear_damp);
 
-    BIND_METHOD(RigidBody2D,set_angular_damp);
-    BIND_METHOD(RigidBody2D,get_angular_damp);
+    SE_BIND_METHOD(RigidBody2D,set_angular_damp);
+    SE_BIND_METHOD(RigidBody2D,get_angular_damp);
 
-    BIND_METHOD(RigidBody2D,set_linear_velocity);
-    BIND_METHOD(RigidBody2D,get_linear_velocity);
+    SE_BIND_METHOD(RigidBody2D,set_linear_velocity);
+    SE_BIND_METHOD(RigidBody2D,get_linear_velocity);
 
-    BIND_METHOD(RigidBody2D,set_angular_velocity);
-    BIND_METHOD(RigidBody2D,get_angular_velocity);
+    SE_BIND_METHOD(RigidBody2D,set_angular_velocity);
+    SE_BIND_METHOD(RigidBody2D,get_angular_velocity);
 
-    BIND_METHOD(RigidBody2D,set_max_contacts_reported);
-    BIND_METHOD(RigidBody2D,get_max_contacts_reported);
+    SE_BIND_METHOD(RigidBody2D,set_max_contacts_reported);
+    SE_BIND_METHOD(RigidBody2D,get_max_contacts_reported);
 
-    BIND_METHOD(RigidBody2D,set_use_custom_integrator);
-    BIND_METHOD(RigidBody2D,is_using_custom_integrator);
+    SE_BIND_METHOD(RigidBody2D,set_use_custom_integrator);
+    SE_BIND_METHOD(RigidBody2D,is_using_custom_integrator);
 
-    BIND_METHOD(RigidBody2D,set_contact_monitor);
-    BIND_METHOD(RigidBody2D,is_contact_monitor_enabled);
+    SE_BIND_METHOD(RigidBody2D,set_contact_monitor);
+    SE_BIND_METHOD(RigidBody2D,is_contact_monitor_enabled);
 
-    BIND_METHOD(RigidBody2D,set_continuous_collision_detection_mode);
-    BIND_METHOD(RigidBody2D,get_continuous_collision_detection_mode);
+    SE_BIND_METHOD(RigidBody2D,set_continuous_collision_detection_mode);
+    SE_BIND_METHOD(RigidBody2D,get_continuous_collision_detection_mode);
 
-    BIND_METHOD(RigidBody2D,set_axis_velocity);
-    BIND_METHOD(RigidBody2D,apply_central_impulse);
-    BIND_METHOD(RigidBody2D,apply_impulse);
-    BIND_METHOD(RigidBody2D,apply_torque_impulse);
+    SE_BIND_METHOD(RigidBody2D,set_axis_velocity);
+    SE_BIND_METHOD(RigidBody2D,apply_central_impulse);
+    SE_BIND_METHOD(RigidBody2D,apply_impulse);
+    SE_BIND_METHOD(RigidBody2D,apply_torque_impulse);
 
-    BIND_METHOD(RigidBody2D,set_applied_force);
-    BIND_METHOD(RigidBody2D,get_applied_force);
+    SE_BIND_METHOD(RigidBody2D,set_applied_force);
+    SE_BIND_METHOD(RigidBody2D,get_applied_force);
 
-    BIND_METHOD(RigidBody2D,set_applied_torque);
-    BIND_METHOD(RigidBody2D,get_applied_torque);
+    SE_BIND_METHOD(RigidBody2D,set_applied_torque);
+    SE_BIND_METHOD(RigidBody2D,get_applied_torque);
 
-    BIND_METHOD(RigidBody2D,add_central_force);
-    BIND_METHOD(RigidBody2D,add_force);
-    BIND_METHOD(RigidBody2D,add_torque);
+    SE_BIND_METHOD(RigidBody2D,add_central_force);
+    SE_BIND_METHOD(RigidBody2D,add_force);
+    SE_BIND_METHOD(RigidBody2D,add_torque);
 
-    BIND_METHOD(RigidBody2D,set_sleeping);
-    BIND_METHOD(RigidBody2D,is_sleeping);
+    SE_BIND_METHOD(RigidBody2D,set_sleeping);
+    SE_BIND_METHOD(RigidBody2D,is_sleeping);
 
-    BIND_METHOD(RigidBody2D,set_can_sleep);
-    BIND_METHOD(RigidBody2D,is_able_to_sleep);
+    SE_BIND_METHOD(RigidBody2D,set_can_sleep);
+    SE_BIND_METHOD(RigidBody2D,is_able_to_sleep);
 
     MethodBinder::bind_method(D_METHOD("test_motion", {"motion", "infinite_inertia", "margin", "result"}), &RigidBody2D::_test_motion, {DEFVAL(true), DEFVAL(0.08), DEFVAL(Variant())});
 
-    BIND_METHOD(RigidBody2D,_direct_state_changed);
+    SE_BIND_METHOD(RigidBody2D,_direct_state_changed);
 
-    BIND_METHOD(RigidBody2D,get_colliding_bodies);
+    SE_BIND_METHOD(RigidBody2D,get_colliding_bodies);
 
     BIND_VMETHOD(MethodInfo("_integrate_forces", PropertyInfo(VariantType::OBJECT, "state", PropertyHint::ResourceType, "PhysicsDirectBodyState2D")));
 
@@ -1430,28 +1430,28 @@ void KinematicBody2D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("test_move", {"from", "rel_vec", "infinite_inertia"}), &KinematicBody2D::test_move, {DEFVAL(true)});
 
-    BIND_METHOD(KinematicBody2D,is_on_floor);
-    BIND_METHOD(KinematicBody2D,is_on_ceiling);
-    BIND_METHOD(KinematicBody2D,is_on_wall);
-    BIND_METHOD(KinematicBody2D,get_floor_normal);
+    SE_BIND_METHOD(KinematicBody2D,is_on_floor);
+    SE_BIND_METHOD(KinematicBody2D,is_on_ceiling);
+    SE_BIND_METHOD(KinematicBody2D,is_on_wall);
+    SE_BIND_METHOD(KinematicBody2D,get_floor_normal);
     MethodBinder::bind_method(D_METHOD("get_floor_angle", {"up_direction"}), &KinematicBody2D::get_floor_angle, {DEFVAL(Vector2(0.0, -1.0))});
-    BIND_METHOD(KinematicBody2D,get_floor_velocity);
+    SE_BIND_METHOD(KinematicBody2D,get_floor_velocity);
 
-    BIND_METHOD(KinematicBody2D,set_safe_margin);
-    BIND_METHOD(KinematicBody2D,get_safe_margin);
+    SE_BIND_METHOD(KinematicBody2D,set_safe_margin);
+    SE_BIND_METHOD(KinematicBody2D,get_safe_margin);
     MethodBinder::bind_method(D_METHOD("set_moving_platform_apply_velocity_on_leave", {"on_leave_apply_velocity"}),
             &KinematicBody2D::set_moving_platform_apply_velocity_on_leave);
     MethodBinder::bind_method(D_METHOD("get_moving_platform_apply_velocity_on_leave"),
             &KinematicBody2D::get_moving_platform_apply_velocity_on_leave);
 
-    BIND_METHOD(KinematicBody2D,get_slide_count);
+    SE_BIND_METHOD(KinematicBody2D,get_slide_count);
     MethodBinder::bind_method(D_METHOD("get_slide_collision", {"slide_idx"}), &KinematicBody2D::_get_slide_collision);
     MethodBinder::bind_method(D_METHOD("get_last_slide_collision"), &KinematicBody2D::_get_last_slide_collision);
 
-    BIND_METHOD(KinematicBody2D,set_sync_to_physics);
-    BIND_METHOD(KinematicBody2D,is_sync_to_physics_enabled);
+    SE_BIND_METHOD(KinematicBody2D,set_sync_to_physics);
+    SE_BIND_METHOD(KinematicBody2D,is_sync_to_physics_enabled);
 
-    BIND_METHOD(KinematicBody2D,_direct_state_changed);
+    SE_BIND_METHOD(KinematicBody2D,_direct_state_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "collision/safe_margin", PropertyHint::Range, "0.001,256,0.001"), "set_safe_margin", "get_safe_margin");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "motion/sync_to_physics"), "set_sync_to_physics", "is_sync_to_physics_enabled");
@@ -1557,19 +1557,19 @@ Variant KinematicCollision2D::get_collider_metadata() const {
 
 void KinematicCollision2D::_bind_methods() {
 
-    BIND_METHOD(KinematicCollision2D,get_position);
-    BIND_METHOD(KinematicCollision2D,get_normal);
-    BIND_METHOD(KinematicCollision2D,get_travel);
-    BIND_METHOD(KinematicCollision2D,get_remainder);
+    SE_BIND_METHOD(KinematicCollision2D,get_position);
+    SE_BIND_METHOD(KinematicCollision2D,get_normal);
+    SE_BIND_METHOD(KinematicCollision2D,get_travel);
+    SE_BIND_METHOD(KinematicCollision2D,get_remainder);
     MethodBinder::bind_method(D_METHOD("get_angle", {"up_direction"}), &KinematicCollision2D::get_angle, {DEFVAL(Vector2(0.0, -1.0))});
-    BIND_METHOD(KinematicCollision2D,get_local_shape);
-    BIND_METHOD(KinematicCollision2D,get_collider);
-    BIND_METHOD(KinematicCollision2D,get_collider_id);
-    BIND_METHOD(KinematicCollision2D,get_collider_rid);
-    BIND_METHOD(KinematicCollision2D,get_collider_shape);
-    BIND_METHOD(KinematicCollision2D,get_collider_shape_index);
-    BIND_METHOD(KinematicCollision2D,get_collider_velocity);
-    BIND_METHOD(KinematicCollision2D,get_collider_metadata);
+    SE_BIND_METHOD(KinematicCollision2D,get_local_shape);
+    SE_BIND_METHOD(KinematicCollision2D,get_collider);
+    SE_BIND_METHOD(KinematicCollision2D,get_collider_id);
+    SE_BIND_METHOD(KinematicCollision2D,get_collider_rid);
+    SE_BIND_METHOD(KinematicCollision2D,get_collider_shape);
+    SE_BIND_METHOD(KinematicCollision2D,get_collider_shape_index);
+    SE_BIND_METHOD(KinematicCollision2D,get_collider_velocity);
+    SE_BIND_METHOD(KinematicCollision2D,get_collider_metadata);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "position"), "", "get_position");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "normal"), "", "get_normal");

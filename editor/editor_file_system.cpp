@@ -206,20 +206,20 @@ EditorFileSystemDirectory *EditorFileSystemDirectory::get_parent() {
 
 void EditorFileSystemDirectory::_bind_methods() {
 
-    BIND_METHOD(EditorFileSystemDirectory,get_subdir_count);
-    BIND_METHOD(EditorFileSystemDirectory,get_subdir);
-    BIND_METHOD(EditorFileSystemDirectory,get_file_count);
-    BIND_METHOD(EditorFileSystemDirectory,get_file);
-    BIND_METHOD(EditorFileSystemDirectory,get_file_path);
-    BIND_METHOD(EditorFileSystemDirectory,get_file_type);
-    BIND_METHOD(EditorFileSystemDirectory,get_file_script_class_name);
-    BIND_METHOD(EditorFileSystemDirectory,get_file_script_class_extends);
-    BIND_METHOD(EditorFileSystemDirectory,get_file_import_is_valid);
-    BIND_METHOD(EditorFileSystemDirectory,get_name);
-    BIND_METHOD(EditorFileSystemDirectory,get_path);
-    BIND_METHOD(EditorFileSystemDirectory,get_parent);
-    BIND_METHOD(EditorFileSystemDirectory,find_file_index);
-    BIND_METHOD(EditorFileSystemDirectory,find_dir_index);
+    SE_BIND_METHOD(EditorFileSystemDirectory,get_subdir_count);
+    SE_BIND_METHOD(EditorFileSystemDirectory,get_subdir);
+    SE_BIND_METHOD(EditorFileSystemDirectory,get_file_count);
+    SE_BIND_METHOD(EditorFileSystemDirectory,get_file);
+    SE_BIND_METHOD(EditorFileSystemDirectory,get_file_path);
+    SE_BIND_METHOD(EditorFileSystemDirectory,get_file_type);
+    SE_BIND_METHOD(EditorFileSystemDirectory,get_file_script_class_name);
+    SE_BIND_METHOD(EditorFileSystemDirectory,get_file_script_class_extends);
+    SE_BIND_METHOD(EditorFileSystemDirectory,get_file_import_is_valid);
+    SE_BIND_METHOD(EditorFileSystemDirectory,get_name);
+    SE_BIND_METHOD(EditorFileSystemDirectory,get_path);
+    SE_BIND_METHOD(EditorFileSystemDirectory,get_parent);
+    SE_BIND_METHOD(EditorFileSystemDirectory,find_file_index);
+    SE_BIND_METHOD(EditorFileSystemDirectory,find_dir_index);
 }
 
 EditorFileSystemDirectory::EditorFileSystemDirectory() {
@@ -2252,15 +2252,15 @@ void EditorFileSystem::move_group_file(StringView p_path, StringView p_new_path)
 
 void EditorFileSystem::_bind_methods() {
 
-    BIND_METHOD(EditorFileSystem,get_filesystem);
-    BIND_METHOD(EditorFileSystem,is_scanning);
-    BIND_METHOD(EditorFileSystem,get_scanning_progress);
-    BIND_METHOD(EditorFileSystem,scan);
-    BIND_METHOD(EditorFileSystem,scan_changes);
-    BIND_METHOD(EditorFileSystem,update_file);
-    BIND_METHOD(EditorFileSystem,get_filesystem_path);
-    BIND_METHOD(EditorFileSystem,get_file_type);
-    BIND_METHOD(EditorFileSystem,update_script_classes);
+    SE_BIND_METHOD(EditorFileSystem,get_filesystem);
+    SE_BIND_METHOD(EditorFileSystem,is_scanning);
+    SE_BIND_METHOD(EditorFileSystem,get_scanning_progress);
+    SE_BIND_METHOD(EditorFileSystem,scan);
+    SE_BIND_METHOD(EditorFileSystem,scan_changes);
+    SE_BIND_METHOD(EditorFileSystem,update_file);
+    SE_BIND_METHOD(EditorFileSystem,get_filesystem_path);
+    SE_BIND_METHOD(EditorFileSystem,get_file_type);
+    SE_BIND_METHOD(EditorFileSystem,update_script_classes);
 
     ADD_SIGNAL(MethodInfo("filesystem_changed"));
     ADD_SIGNAL(MethodInfo("sources_changed", PropertyInfo(VariantType::BOOL, "exist")));

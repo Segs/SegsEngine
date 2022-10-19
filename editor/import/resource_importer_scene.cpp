@@ -148,8 +148,8 @@ void EditorSceneImporter::_bind_methods() {
 void EditorScenePostImport::_bind_methods() {
 
     BIND_VMETHOD(MethodInfo(VariantType::OBJECT, "post_import", PropertyInfo(VariantType::OBJECT, "scene")));
-    BIND_METHOD(EditorScenePostImport,get_source_folder);
-    BIND_METHOD(EditorScenePostImport,get_source_file);
+    SE_BIND_METHOD(EditorScenePostImport,get_source_folder);
+    SE_BIND_METHOD(EditorScenePostImport,get_source_file);
 }
 
 Node *EditorScenePostImport::post_import(Node *p_scene) {

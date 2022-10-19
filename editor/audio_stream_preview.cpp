@@ -211,7 +211,7 @@ Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<
 }
 
 void AudioStreamPreviewGenerator::_bind_methods() {
-    BIND_METHOD(AudioStreamPreviewGenerator,generate_preview);
+    SE_BIND_METHOD(AudioStreamPreviewGenerator,generate_preview);
 
     ADD_SIGNAL(MethodInfo("preview_updated", PropertyInfo(VariantType::INT, "obj_id")));
 }

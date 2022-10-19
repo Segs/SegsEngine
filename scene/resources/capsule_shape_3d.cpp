@@ -113,10 +113,10 @@ float CapsuleShape3D::get_height() const {
 
 void CapsuleShape3D::_bind_methods() {
 
-    BIND_METHOD(CapsuleShape3D,set_radius);
-    BIND_METHOD(CapsuleShape3D,get_radius);
-    BIND_METHOD(CapsuleShape3D,set_height);
-    BIND_METHOD(CapsuleShape3D,get_height);
+    SE_BIND_METHOD(CapsuleShape3D,set_radius);
+    SE_BIND_METHOD(CapsuleShape3D,get_radius);
+    SE_BIND_METHOD(CapsuleShape3D,set_height);
+    SE_BIND_METHOD(CapsuleShape3D,get_height);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.001,100,0.001,or_greater"),
             "set_radius", "get_radius");

@@ -1674,17 +1674,17 @@ void _GodotSharp::_reload_assemblies(bool p_soft_reload) {
 
 void _GodotSharp::_bind_methods() {
 
-    BIND_METHOD(_GodotSharp,attach_thread);
-    BIND_METHOD(_GodotSharp,detach_thread);
+    SE_BIND_METHOD(_GodotSharp,attach_thread);
+    SE_BIND_METHOD(_GodotSharp,detach_thread);
 
-    BIND_METHOD(_GodotSharp,get_domain_id);
-    BIND_METHOD(_GodotSharp,get_scripts_domain_id);
-    BIND_METHOD(_GodotSharp,is_scripts_domain_loaded);
+    SE_BIND_METHOD(_GodotSharp,get_domain_id);
+    SE_BIND_METHOD(_GodotSharp,get_scripts_domain_id);
+    SE_BIND_METHOD(_GodotSharp,is_scripts_domain_loaded);
     MethodBinder::bind_method(D_METHOD("is_domain_finalizing_for_unload", {"domain_id"}), &_GodotSharp::_is_domain_finalizing_for_unload);
 
-    BIND_METHOD(_GodotSharp,is_runtime_shutting_down);
-    BIND_METHOD(_GodotSharp,is_runtime_initialized);
-    BIND_METHOD(_GodotSharp,_reload_assemblies);
+    SE_BIND_METHOD(_GodotSharp,is_runtime_shutting_down);
+    SE_BIND_METHOD(_GodotSharp,is_runtime_initialized);
+    SE_BIND_METHOD(_GodotSharp,_reload_assemblies);
 }
 
 _GodotSharp::_GodotSharp() {

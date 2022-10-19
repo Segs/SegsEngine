@@ -53,9 +53,9 @@ void SkinReference::_skin_changed() {
 }
 
 void SkinReference::_bind_methods() {
-    BIND_METHOD(SkinReference,_skin_changed);
-    BIND_METHOD(SkinReference,get_skeleton);
-    BIND_METHOD(SkinReference,get_skin);
+    SE_BIND_METHOD(SkinReference,_skin_changed);
+    SE_BIND_METHOD(SkinReference,get_skeleton);
+    SE_BIND_METHOD(SkinReference,get_skin);
 }
 
 Ref<Skin> SkinReference::get_skin() const {
@@ -878,50 +878,50 @@ Ref<SkinReference> Skeleton::register_skin(const Ref<Skin> &p_skin) {
 
 void Skeleton::_bind_methods() {
 
-    BIND_METHOD(Skeleton,add_bone);
-    BIND_METHOD(Skeleton,find_bone);
-    BIND_METHOD(Skeleton,get_bone_name);
-    BIND_METHOD(Skeleton,set_bone_name);
+    SE_BIND_METHOD(Skeleton,add_bone);
+    SE_BIND_METHOD(Skeleton,find_bone);
+    SE_BIND_METHOD(Skeleton,get_bone_name);
+    SE_BIND_METHOD(Skeleton,set_bone_name);
 
-    BIND_METHOD(Skeleton,get_bone_parent);
-    BIND_METHOD(Skeleton,set_bone_parent);
+    SE_BIND_METHOD(Skeleton,get_bone_parent);
+    SE_BIND_METHOD(Skeleton,set_bone_parent);
 
-    BIND_METHOD(Skeleton,get_bone_count);
+    SE_BIND_METHOD(Skeleton,get_bone_count);
 
-    BIND_METHOD(Skeleton,unparent_bone_and_rest);
+    SE_BIND_METHOD(Skeleton,unparent_bone_and_rest);
 
-    BIND_METHOD(Skeleton,get_bone_rest);
-    BIND_METHOD(Skeleton,set_bone_rest);
+    SE_BIND_METHOD(Skeleton,get_bone_rest);
+    SE_BIND_METHOD(Skeleton,set_bone_rest);
 
-    BIND_METHOD(Skeleton,register_skin);
-    BIND_METHOD(Skeleton,localize_rests);
+    SE_BIND_METHOD(Skeleton,register_skin);
+    SE_BIND_METHOD(Skeleton,localize_rests);
 
-    BIND_METHOD(Skeleton,set_bone_disable_rest);
-    BIND_METHOD(Skeleton,is_bone_rest_disabled);
+    SE_BIND_METHOD(Skeleton,set_bone_disable_rest);
+    SE_BIND_METHOD(Skeleton,is_bone_rest_disabled);
 
-    BIND_METHOD(Skeleton,bind_child_node_to_bone);
-    BIND_METHOD(Skeleton,unbind_child_node_from_bone);
+    SE_BIND_METHOD(Skeleton,bind_child_node_to_bone);
+    SE_BIND_METHOD(Skeleton,unbind_child_node_from_bone);
     MethodBinder::bind_method(D_METHOD("get_bound_child_nodes_to_bone", {"bone_idx"}), &Skeleton::_get_bound_child_nodes_to_bone);
 
-    BIND_METHOD(Skeleton,clear_bones);
+    SE_BIND_METHOD(Skeleton,clear_bones);
 
-    BIND_METHOD(Skeleton,get_bone_pose);
-    BIND_METHOD(Skeleton,set_bone_pose);
+    SE_BIND_METHOD(Skeleton,get_bone_pose);
+    SE_BIND_METHOD(Skeleton,set_bone_pose);
 
-    BIND_METHOD(Skeleton,clear_bones_global_pose_override);
+    SE_BIND_METHOD(Skeleton,clear_bones_global_pose_override);
     MethodBinder::bind_method(D_METHOD("set_bone_global_pose_override", {"bone_idx", "pose", "amount", "persistent"}), &Skeleton::set_bone_global_pose_override, {DEFVAL(false)});
-    BIND_METHOD(Skeleton,get_bone_global_pose);
-    BIND_METHOD(Skeleton,get_bone_global_pose_no_override);
+    SE_BIND_METHOD(Skeleton,get_bone_global_pose);
+    SE_BIND_METHOD(Skeleton,get_bone_global_pose_no_override);
 
-    BIND_METHOD(Skeleton,get_bone_custom_pose);
-    BIND_METHOD(Skeleton,set_bone_custom_pose);
+    SE_BIND_METHOD(Skeleton,get_bone_custom_pose);
+    SE_BIND_METHOD(Skeleton,set_bone_custom_pose);
 
 #ifndef _3D_DISABLED
 
-    BIND_METHOD(Skeleton,physical_bones_stop_simulation);
+    SE_BIND_METHOD(Skeleton,physical_bones_stop_simulation);
     MethodBinder::bind_method(D_METHOD("physical_bones_start_simulation", {"bones"}), &Skeleton::physical_bones_start_simulation_on, {DEFVAL(Array())});
-    BIND_METHOD(Skeleton,physical_bones_add_collision_exception);
-    BIND_METHOD(Skeleton,physical_bones_remove_collision_exception);
+    SE_BIND_METHOD(Skeleton,physical_bones_add_collision_exception);
+    SE_BIND_METHOD(Skeleton,physical_bones_remove_collision_exception);
 
 #endif // _3D_DISABLED
     ADD_SIGNAL(MethodInfo("skeleton_updated"));

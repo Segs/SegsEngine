@@ -250,29 +250,29 @@ void Range::_unref_shared() {
 
 void Range::_bind_methods() {
 
-    BIND_METHOD(Range,get_value);
-    BIND_METHOD(Range,get_min);
-    BIND_METHOD(Range,get_max);
-    BIND_METHOD(Range,get_step);
-    BIND_METHOD(Range,get_page);
-    BIND_METHOD(Range,get_as_ratio);
-    BIND_METHOD(Range,set_value);
-    BIND_METHOD(Range,set_min);
-    BIND_METHOD(Range,set_max);
-    BIND_METHOD(Range,set_step);
-    BIND_METHOD(Range,set_page);
-    BIND_METHOD(Range,set_as_ratio);
-    BIND_METHOD(Range,set_use_rounded_values);
-    BIND_METHOD(Range,is_using_rounded_values);
-    BIND_METHOD(Range,set_exp_ratio);
-    BIND_METHOD(Range,is_ratio_exp);
-    BIND_METHOD(Range,set_allow_greater);
-    BIND_METHOD(Range,is_greater_allowed);
-    BIND_METHOD(Range,set_allow_lesser);
-    BIND_METHOD(Range,is_lesser_allowed);
+    SE_BIND_METHOD(Range,get_value);
+    SE_BIND_METHOD(Range,get_min);
+    SE_BIND_METHOD(Range,get_max);
+    SE_BIND_METHOD(Range,get_step);
+    SE_BIND_METHOD(Range,get_page);
+    SE_BIND_METHOD(Range,get_as_ratio);
+    SE_BIND_METHOD(Range,set_value);
+    SE_BIND_METHOD(Range,set_min);
+    SE_BIND_METHOD(Range,set_max);
+    SE_BIND_METHOD(Range,set_step);
+    SE_BIND_METHOD(Range,set_page);
+    SE_BIND_METHOD(Range,set_as_ratio);
+    SE_BIND_METHOD(Range,set_use_rounded_values);
+    SE_BIND_METHOD(Range,is_using_rounded_values);
+    SE_BIND_METHOD(Range,set_exp_ratio);
+    SE_BIND_METHOD(Range,is_ratio_exp);
+    SE_BIND_METHOD(Range,set_allow_greater);
+    SE_BIND_METHOD(Range,is_greater_allowed);
+    SE_BIND_METHOD(Range,set_allow_lesser);
+    SE_BIND_METHOD(Range,is_lesser_allowed);
 
     MethodBinder::bind_method(D_METHOD("share", {"with"}), &Range::_share);
-    BIND_METHOD(Range,unshare);
+    SE_BIND_METHOD(Range,unshare);
 
     ADD_SIGNAL(MethodInfo("value_changed", PropertyInfo(VariantType::FLOAT, "value")));
     ADD_SIGNAL(MethodInfo("changed"));

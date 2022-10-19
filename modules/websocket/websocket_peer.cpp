@@ -44,14 +44,14 @@ WebSocketPeer::~WebSocketPeer() {
 }
 
 void WebSocketPeer::_bind_methods() {
-    BIND_METHOD(WebSocketPeer,get_write_mode);
-    BIND_METHOD(WebSocketPeer,set_write_mode);
-    BIND_METHOD(WebSocketPeer,is_connected_to_host);
-    BIND_METHOD(WebSocketPeer,was_string_packet);
+    SE_BIND_METHOD(WebSocketPeer,get_write_mode);
+    SE_BIND_METHOD(WebSocketPeer,set_write_mode);
+    SE_BIND_METHOD(WebSocketPeer,is_connected_to_host);
+    SE_BIND_METHOD(WebSocketPeer,was_string_packet);
     MethodBinder::bind_method(D_METHOD("close", {"code", "reason"}), &WebSocketPeer::close, {DEFVAL(1000), DEFVAL("")});
-    BIND_METHOD(WebSocketPeer,get_connected_host);
-    BIND_METHOD(WebSocketPeer,get_connected_port);
-    BIND_METHOD(WebSocketPeer,set_no_delay);
+    SE_BIND_METHOD(WebSocketPeer,get_connected_host);
+    SE_BIND_METHOD(WebSocketPeer,get_connected_port);
+    SE_BIND_METHOD(WebSocketPeer,set_no_delay);
 
     BIND_ENUM_CONSTANT(WRITE_MODE_TEXT);
     BIND_ENUM_CONSTANT(WRITE_MODE_BINARY);

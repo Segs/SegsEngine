@@ -264,14 +264,14 @@ AudioEffectSpectrumAnalyzer::FFT_Size AudioEffectSpectrumAnalyzer::get_fft_size(
 
 void AudioEffectSpectrumAnalyzer::_bind_methods() {
 
-    BIND_METHOD(AudioEffectSpectrumAnalyzer,set_buffer_length);
-    BIND_METHOD(AudioEffectSpectrumAnalyzer,get_buffer_length);
+    SE_BIND_METHOD(AudioEffectSpectrumAnalyzer,set_buffer_length);
+    SE_BIND_METHOD(AudioEffectSpectrumAnalyzer,get_buffer_length);
 
-    BIND_METHOD(AudioEffectSpectrumAnalyzer,set_tap_back_pos);
-    BIND_METHOD(AudioEffectSpectrumAnalyzer,get_tap_back_pos);
+    SE_BIND_METHOD(AudioEffectSpectrumAnalyzer,set_tap_back_pos);
+    SE_BIND_METHOD(AudioEffectSpectrumAnalyzer,get_tap_back_pos);
 
-    BIND_METHOD(AudioEffectSpectrumAnalyzer,set_fft_size);
-    BIND_METHOD(AudioEffectSpectrumAnalyzer,get_fft_size);
+    SE_BIND_METHOD(AudioEffectSpectrumAnalyzer,set_fft_size);
+    SE_BIND_METHOD(AudioEffectSpectrumAnalyzer,get_fft_size);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "buffer_length", PropertyHint::Range, "0.1,4,0.1"), "set_buffer_length", "get_buffer_length");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tap_back_pos", PropertyHint::Range, "0.1,4,0.1"), "set_tap_back_pos", "get_tap_back_pos");

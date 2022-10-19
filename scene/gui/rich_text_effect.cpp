@@ -72,29 +72,29 @@ IMPL_GDCLASS(CharFXTransform)
 
 void CharFXTransform::_bind_methods() {
 
-    BIND_METHOD(CharFXTransform,get_relative_index);
-    BIND_METHOD(CharFXTransform,set_relative_index);
+    SE_BIND_METHOD(CharFXTransform,get_relative_index);
+    SE_BIND_METHOD(CharFXTransform,set_relative_index);
 
-    BIND_METHOD(CharFXTransform,get_absolute_index);
-    BIND_METHOD(CharFXTransform,set_absolute_index);
+    SE_BIND_METHOD(CharFXTransform,get_absolute_index);
+    SE_BIND_METHOD(CharFXTransform,set_absolute_index);
 
-    BIND_METHOD(CharFXTransform,get_elapsed_time);
-    BIND_METHOD(CharFXTransform,set_elapsed_time);
+    SE_BIND_METHOD(CharFXTransform,get_elapsed_time);
+    SE_BIND_METHOD(CharFXTransform,set_elapsed_time);
 
-    BIND_METHOD(CharFXTransform,is_visible);
-    BIND_METHOD(CharFXTransform,set_visibility);
+    SE_BIND_METHOD(CharFXTransform,is_visible);
+    SE_BIND_METHOD(CharFXTransform,set_visibility);
 
-    BIND_METHOD(CharFXTransform,get_offset);
-    BIND_METHOD(CharFXTransform,set_offset);
+    SE_BIND_METHOD(CharFXTransform,get_offset);
+    SE_BIND_METHOD(CharFXTransform,set_offset);
 
-    BIND_METHOD(CharFXTransform,get_color);
-    BIND_METHOD(CharFXTransform,set_color);
+    SE_BIND_METHOD(CharFXTransform,get_color);
+    SE_BIND_METHOD(CharFXTransform,set_color);
 
-    BIND_METHOD(CharFXTransform,get_environment);
-    BIND_METHOD(CharFXTransform,set_environment);
+    SE_BIND_METHOD(CharFXTransform,get_environment);
+    SE_BIND_METHOD(CharFXTransform,set_environment);
 
-    BIND_METHOD(CharFXTransform,get_character);
-    BIND_METHOD(CharFXTransform,set_character);
+    SE_BIND_METHOD(CharFXTransform,get_character);
+    SE_BIND_METHOD(CharFXTransform,set_character);
 
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "relative_index"), "set_relative_index", "get_relative_index");

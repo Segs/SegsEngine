@@ -347,54 +347,54 @@ void Line2D::_curve_changed() {
 // static
 void Line2D::_bind_methods() {
 
-    BIND_METHOD(Line2D,set_points);
-    BIND_METHOD(Line2D,get_points);
+    SE_BIND_METHOD(Line2D,set_points);
+    SE_BIND_METHOD(Line2D,get_points);
 
-    BIND_METHOD(Line2D,set_point_position);
-    BIND_METHOD(Line2D,get_point_position);
+    SE_BIND_METHOD(Line2D,set_point_position);
+    SE_BIND_METHOD(Line2D,get_point_position);
 
-    BIND_METHOD(Line2D,get_point_count);
+    SE_BIND_METHOD(Line2D,get_point_count);
 
     MethodBinder::bind_method(D_METHOD("add_point", {"position", "at_position"}), &Line2D::add_point, {DEFVAL(-1)});
-    BIND_METHOD(Line2D,remove_point);
+    SE_BIND_METHOD(Line2D,remove_point);
 
-    BIND_METHOD(Line2D,clear_points);
+    SE_BIND_METHOD(Line2D,clear_points);
 
-    BIND_METHOD(Line2D,set_width);
-    BIND_METHOD(Line2D,get_width);
+    SE_BIND_METHOD(Line2D,set_width);
+    SE_BIND_METHOD(Line2D,get_width);
 
-    BIND_METHOD(Line2D,set_curve);
-    BIND_METHOD(Line2D,get_curve);
+    SE_BIND_METHOD(Line2D,set_curve);
+    SE_BIND_METHOD(Line2D,get_curve);
 
-    BIND_METHOD(Line2D,set_default_color);
-    BIND_METHOD(Line2D,get_default_color);
+    SE_BIND_METHOD(Line2D,set_default_color);
+    SE_BIND_METHOD(Line2D,get_default_color);
 
-    BIND_METHOD(Line2D,set_gradient);
-    BIND_METHOD(Line2D,get_gradient);
+    SE_BIND_METHOD(Line2D,set_gradient);
+    SE_BIND_METHOD(Line2D,get_gradient);
 
-    BIND_METHOD(Line2D,set_texture);
-    BIND_METHOD(Line2D,get_texture);
+    SE_BIND_METHOD(Line2D,set_texture);
+    SE_BIND_METHOD(Line2D,get_texture);
 
-    BIND_METHOD(Line2D,set_texture_mode);
-    BIND_METHOD(Line2D,get_texture_mode);
+    SE_BIND_METHOD(Line2D,set_texture_mode);
+    SE_BIND_METHOD(Line2D,get_texture_mode);
 
-    BIND_METHOD(Line2D,set_joint_mode);
-    BIND_METHOD(Line2D,get_joint_mode);
+    SE_BIND_METHOD(Line2D,set_joint_mode);
+    SE_BIND_METHOD(Line2D,get_joint_mode);
 
-    BIND_METHOD(Line2D,set_begin_cap_mode);
-    BIND_METHOD(Line2D,get_begin_cap_mode);
+    SE_BIND_METHOD(Line2D,set_begin_cap_mode);
+    SE_BIND_METHOD(Line2D,get_begin_cap_mode);
 
-    BIND_METHOD(Line2D,set_end_cap_mode);
-    BIND_METHOD(Line2D,get_end_cap_mode);
+    SE_BIND_METHOD(Line2D,set_end_cap_mode);
+    SE_BIND_METHOD(Line2D,get_end_cap_mode);
 
-    BIND_METHOD(Line2D,set_sharp_limit);
-    BIND_METHOD(Line2D,get_sharp_limit);
+    SE_BIND_METHOD(Line2D,set_sharp_limit);
+    SE_BIND_METHOD(Line2D,get_sharp_limit);
 
-    BIND_METHOD(Line2D,set_round_precision);
-    BIND_METHOD(Line2D,get_round_precision);
+    SE_BIND_METHOD(Line2D,set_round_precision);
+    SE_BIND_METHOD(Line2D,get_round_precision);
 
-    BIND_METHOD(Line2D,set_antialiased);
-    BIND_METHOD(Line2D,get_antialiased);
+    SE_BIND_METHOD(Line2D,set_antialiased);
+    SE_BIND_METHOD(Line2D,get_antialiased);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "points"), "set_points", "get_points");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "width"), "set_width", "get_width");

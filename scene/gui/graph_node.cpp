@@ -836,53 +836,53 @@ bool GraphNode::is_resizable() const {
 
 void GraphNode::_bind_methods() {
 
-    BIND_METHOD(GraphNode,set_title);
-    BIND_METHOD(GraphNode,get_title);
-    BIND_METHOD(GraphNode,_gui_input);
+    SE_BIND_METHOD(GraphNode,set_title);
+    SE_BIND_METHOD(GraphNode,get_title);
+    SE_BIND_METHOD(GraphNode,_gui_input);
 
     MethodBinder::bind_method(D_METHOD("set_slot", {"idx", "enable_left", "type_left", "color_left", "enable_right", "type_right", "color_right", "custom_left", "custom_right"}), &GraphNode::set_slot, {DEFVAL(Ref<Texture>()), DEFVAL(Ref<Texture>())});
-    BIND_METHOD(GraphNode,clear_slot);
-    BIND_METHOD(GraphNode,clear_all_slots);
-    BIND_METHOD(GraphNode,is_slot_enabled_left);
-    BIND_METHOD(GraphNode,set_slot_enabled_left);
-    BIND_METHOD(GraphNode,get_slot_type_left);
-    BIND_METHOD(GraphNode,set_slot_type_left);
-    BIND_METHOD(GraphNode,get_slot_color_left);
-    BIND_METHOD(GraphNode,set_slot_color_left);
-    BIND_METHOD(GraphNode,is_slot_enabled_right);
-    BIND_METHOD(GraphNode,set_slot_enabled_right);
-    BIND_METHOD(GraphNode,get_slot_type_right);
-    BIND_METHOD(GraphNode,set_slot_type_right);
-    BIND_METHOD(GraphNode,get_slot_color_right);
-    BIND_METHOD(GraphNode,set_slot_color_right);
+    SE_BIND_METHOD(GraphNode,clear_slot);
+    SE_BIND_METHOD(GraphNode,clear_all_slots);
+    SE_BIND_METHOD(GraphNode,is_slot_enabled_left);
+    SE_BIND_METHOD(GraphNode,set_slot_enabled_left);
+    SE_BIND_METHOD(GraphNode,get_slot_type_left);
+    SE_BIND_METHOD(GraphNode,set_slot_type_left);
+    SE_BIND_METHOD(GraphNode,get_slot_color_left);
+    SE_BIND_METHOD(GraphNode,set_slot_color_left);
+    SE_BIND_METHOD(GraphNode,is_slot_enabled_right);
+    SE_BIND_METHOD(GraphNode,set_slot_enabled_right);
+    SE_BIND_METHOD(GraphNode,get_slot_type_right);
+    SE_BIND_METHOD(GraphNode,set_slot_type_right);
+    SE_BIND_METHOD(GraphNode,get_slot_color_right);
+    SE_BIND_METHOD(GraphNode,set_slot_color_right);
 
-    BIND_METHOD(GraphNode,set_offset);
-    BIND_METHOD(GraphNode,get_offset);
+    SE_BIND_METHOD(GraphNode,set_offset);
+    SE_BIND_METHOD(GraphNode,get_offset);
 
-    BIND_METHOD(GraphNode,set_comment);
-    BIND_METHOD(GraphNode,is_comment);
+    SE_BIND_METHOD(GraphNode,set_comment);
+    SE_BIND_METHOD(GraphNode,is_comment);
 
-    BIND_METHOD(GraphNode,set_resizable);
-    BIND_METHOD(GraphNode,is_resizable);
+    SE_BIND_METHOD(GraphNode,set_resizable);
+    SE_BIND_METHOD(GraphNode,is_resizable);
 
-    BIND_METHOD(GraphNode,set_selected);
-    BIND_METHOD(GraphNode,is_selected);
+    SE_BIND_METHOD(GraphNode,set_selected);
+    SE_BIND_METHOD(GraphNode,is_selected);
 
-    BIND_METHOD(GraphNode,get_connection_output_count);
-    BIND_METHOD(GraphNode,get_connection_input_count);
+    SE_BIND_METHOD(GraphNode,get_connection_output_count);
+    SE_BIND_METHOD(GraphNode,get_connection_input_count);
 
-    BIND_METHOD(GraphNode,get_connection_output_position);
-    BIND_METHOD(GraphNode,get_connection_output_type);
-    BIND_METHOD(GraphNode,get_connection_output_color);
-    BIND_METHOD(GraphNode,get_connection_input_position);
-    BIND_METHOD(GraphNode,get_connection_input_type);
-    BIND_METHOD(GraphNode,get_connection_input_color);
+    SE_BIND_METHOD(GraphNode,get_connection_output_position);
+    SE_BIND_METHOD(GraphNode,get_connection_output_type);
+    SE_BIND_METHOD(GraphNode,get_connection_output_color);
+    SE_BIND_METHOD(GraphNode,get_connection_input_position);
+    SE_BIND_METHOD(GraphNode,get_connection_input_type);
+    SE_BIND_METHOD(GraphNode,get_connection_input_color);
 
-    BIND_METHOD(GraphNode,set_show_close_button);
-    BIND_METHOD(GraphNode,is_close_button_visible);
+    SE_BIND_METHOD(GraphNode,set_show_close_button);
+    SE_BIND_METHOD(GraphNode,is_close_button_visible);
 
-    BIND_METHOD(GraphNode,set_overlay);
-    BIND_METHOD(GraphNode,get_overlay);
+    SE_BIND_METHOD(GraphNode,set_overlay);
+    SE_BIND_METHOD(GraphNode,get_overlay);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "title"), "set_title", "get_title");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");

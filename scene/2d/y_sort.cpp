@@ -47,8 +47,8 @@ bool YSort::is_sort_enabled() const {
 
 void YSort::_bind_methods() {
 
-    BIND_METHOD(YSort,set_sort_enabled);
-    BIND_METHOD(YSort,is_sort_enabled);
+    SE_BIND_METHOD(YSort,set_sort_enabled);
+    SE_BIND_METHOD(YSort,is_sort_enabled);
 
     ADD_GROUP("Sort", "sort_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "sort_enabled"), "set_sort_enabled", "is_sort_enabled");

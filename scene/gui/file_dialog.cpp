@@ -836,32 +836,32 @@ bool FileDialog::default_show_hidden_files = false;
 
 void FileDialog::_bind_methods() {
 
-    BIND_METHOD(FileDialog,_unhandled_input);
+    SE_BIND_METHOD(FileDialog,_unhandled_input);
 
-    BIND_METHOD(FileDialog,clear_filters);
-    BIND_METHOD(FileDialog,add_filter);
-    BIND_METHOD(FileDialog,set_filters);
-    BIND_METHOD(FileDialog,get_filters);
-    BIND_METHOD(FileDialog,get_current_dir);
-    BIND_METHOD(FileDialog,get_current_file);
-    BIND_METHOD(FileDialog,get_current_path);
-    BIND_METHOD(FileDialog,set_current_dir);
-    BIND_METHOD(FileDialog,set_current_file);
-    BIND_METHOD(FileDialog,set_current_path);
+    SE_BIND_METHOD(FileDialog,clear_filters);
+    SE_BIND_METHOD(FileDialog,add_filter);
+    SE_BIND_METHOD(FileDialog,set_filters);
+    SE_BIND_METHOD(FileDialog,get_filters);
+    SE_BIND_METHOD(FileDialog,get_current_dir);
+    SE_BIND_METHOD(FileDialog,get_current_file);
+    SE_BIND_METHOD(FileDialog,get_current_path);
+    SE_BIND_METHOD(FileDialog,set_current_dir);
+    SE_BIND_METHOD(FileDialog,set_current_file);
+    SE_BIND_METHOD(FileDialog,set_current_path);
     MethodBinder::bind_method(
             D_METHOD("set_mode_overrides_title", { "override" }), &FileDialog::set_mode_overrides_title);
-    BIND_METHOD(FileDialog,is_mode_overriding_title);
-    BIND_METHOD(FileDialog,set_mode);
-    BIND_METHOD(FileDialog,get_mode);
-    BIND_METHOD(FileDialog,get_vbox);
-    BIND_METHOD(FileDialog,get_line_edit);
-    BIND_METHOD(FileDialog,set_access);
-    BIND_METHOD(FileDialog,get_access);
-    BIND_METHOD(FileDialog,set_show_hidden_files);
-    BIND_METHOD(FileDialog,is_showing_hidden_files);
-    BIND_METHOD(FileDialog,deselect_items);
+    SE_BIND_METHOD(FileDialog,is_mode_overriding_title);
+    SE_BIND_METHOD(FileDialog,set_mode);
+    SE_BIND_METHOD(FileDialog,get_mode);
+    SE_BIND_METHOD(FileDialog,get_vbox);
+    SE_BIND_METHOD(FileDialog,get_line_edit);
+    SE_BIND_METHOD(FileDialog,set_access);
+    SE_BIND_METHOD(FileDialog,get_access);
+    SE_BIND_METHOD(FileDialog,set_show_hidden_files);
+    SE_BIND_METHOD(FileDialog,is_showing_hidden_files);
+    SE_BIND_METHOD(FileDialog,deselect_items);
 
-    BIND_METHOD(FileDialog,invalidate);
+    SE_BIND_METHOD(FileDialog,invalidate);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "mode_overrides_title"), "set_mode_overrides_title",
             "is_mode_overriding_title");
@@ -1035,9 +1035,9 @@ FileDialog::~FileDialog() {
 
 void LineEditFileChooser::_bind_methods() {
 
-    BIND_METHOD(LineEditFileChooser,get_button);
-    BIND_METHOD(LineEditFileChooser,get_line_edit);
-    BIND_METHOD(LineEditFileChooser,get_file_dialog);
+    SE_BIND_METHOD(LineEditFileChooser,get_button);
+    SE_BIND_METHOD(LineEditFileChooser,get_line_edit);
+    SE_BIND_METHOD(LineEditFileChooser,get_file_dialog);
 }
 
 void LineEditFileChooser::_chosen(StringView p_text) {

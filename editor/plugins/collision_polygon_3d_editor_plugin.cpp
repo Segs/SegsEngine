@@ -529,7 +529,7 @@ void CollisionPolygon3DEditor::edit(Node *p_collision_polygon) {
 
 void CollisionPolygon3DEditor::_bind_methods() {
 
-    BIND_METHOD(CollisionPolygon3DEditor,_polygon_draw);
+    SE_BIND_METHOD(CollisionPolygon3DEditor,_polygon_draw);
 }
 
 CollisionPolygon3DEditor::CollisionPolygon3DEditor(EditorNode *p_editor) {

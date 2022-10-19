@@ -218,12 +218,12 @@ void AudioStreamEditor::edit(const Ref<AudioStream>& p_stream) {
 
 void AudioStreamEditor::_bind_methods() {
 
-    BIND_METHOD(AudioStreamEditor,_preview_changed);
-    BIND_METHOD(AudioStreamEditor,_play);
-    BIND_METHOD(AudioStreamEditor,_stop);
-    BIND_METHOD(AudioStreamEditor,_draw_preview);
-    BIND_METHOD(AudioStreamEditor,_draw_indicator);
-    BIND_METHOD(AudioStreamEditor,_on_input_indicator);
+    SE_BIND_METHOD(AudioStreamEditor,_preview_changed);
+    SE_BIND_METHOD(AudioStreamEditor,_play);
+    SE_BIND_METHOD(AudioStreamEditor,_stop);
+    SE_BIND_METHOD(AudioStreamEditor,_draw_preview);
+    SE_BIND_METHOD(AudioStreamEditor,_draw_indicator);
+    SE_BIND_METHOD(AudioStreamEditor,_on_input_indicator);
 }
 
 AudioStreamEditor::AudioStreamEditor() {

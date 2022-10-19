@@ -989,38 +989,38 @@ bool Tabs::get_select_with_rmb() const {
 
 void Tabs::_bind_methods() {
 
-    BIND_METHOD(Tabs,_gui_input);
-    BIND_METHOD(Tabs,_update_hover);
-    BIND_METHOD(Tabs,get_tab_count);
-    BIND_METHOD(Tabs,set_current_tab);
-    BIND_METHOD(Tabs,get_current_tab);
-    BIND_METHOD(Tabs,get_previous_tab);
-    BIND_METHOD(Tabs,set_tab_title);
-    BIND_METHOD(Tabs,get_tab_title);
-    BIND_METHOD(Tabs,set_tab_icon);
-    BIND_METHOD(Tabs,get_tab_icon);
-    BIND_METHOD(Tabs,set_tab_disabled);
-    BIND_METHOD(Tabs,get_tab_disabled);
-    BIND_METHOD(Tabs,remove_tab);
+    SE_BIND_METHOD(Tabs,_gui_input);
+    SE_BIND_METHOD(Tabs,_update_hover);
+    SE_BIND_METHOD(Tabs,get_tab_count);
+    SE_BIND_METHOD(Tabs,set_current_tab);
+    SE_BIND_METHOD(Tabs,get_current_tab);
+    SE_BIND_METHOD(Tabs,get_previous_tab);
+    SE_BIND_METHOD(Tabs,set_tab_title);
+    SE_BIND_METHOD(Tabs,get_tab_title);
+    SE_BIND_METHOD(Tabs,set_tab_icon);
+    SE_BIND_METHOD(Tabs,get_tab_icon);
+    SE_BIND_METHOD(Tabs,set_tab_disabled);
+    SE_BIND_METHOD(Tabs,get_tab_disabled);
+    SE_BIND_METHOD(Tabs,remove_tab);
     MethodBinder::bind_method(D_METHOD("add_tab", {"title", "icon"}), &Tabs::add_tab, {DEFVAL(""), DEFVAL(Ref<Texture>())});
-    BIND_METHOD(Tabs,set_tab_align);
-    BIND_METHOD(Tabs,get_tab_align);
-    BIND_METHOD(Tabs,get_tab_offset);
-    BIND_METHOD(Tabs,get_offset_buttons_visible);
-    BIND_METHOD(Tabs,ensure_tab_visible);
-    BIND_METHOD(Tabs,get_tab_rect);
-    BIND_METHOD(Tabs,move_tab);
-    BIND_METHOD(Tabs,set_tab_close_display_policy);
-    BIND_METHOD(Tabs,get_tab_close_display_policy);
-    BIND_METHOD(Tabs,set_scrolling_enabled);
-    BIND_METHOD(Tabs,get_scrolling_enabled);
-    BIND_METHOD(Tabs,set_drag_to_rearrange_enabled);
-    BIND_METHOD(Tabs,get_drag_to_rearrange_enabled);
-    BIND_METHOD(Tabs,set_tabs_rearrange_group);
-    BIND_METHOD(Tabs,get_tabs_rearrange_group);
+    SE_BIND_METHOD(Tabs,set_tab_align);
+    SE_BIND_METHOD(Tabs,get_tab_align);
+    SE_BIND_METHOD(Tabs,get_tab_offset);
+    SE_BIND_METHOD(Tabs,get_offset_buttons_visible);
+    SE_BIND_METHOD(Tabs,ensure_tab_visible);
+    SE_BIND_METHOD(Tabs,get_tab_rect);
+    SE_BIND_METHOD(Tabs,move_tab);
+    SE_BIND_METHOD(Tabs,set_tab_close_display_policy);
+    SE_BIND_METHOD(Tabs,get_tab_close_display_policy);
+    SE_BIND_METHOD(Tabs,set_scrolling_enabled);
+    SE_BIND_METHOD(Tabs,get_scrolling_enabled);
+    SE_BIND_METHOD(Tabs,set_drag_to_rearrange_enabled);
+    SE_BIND_METHOD(Tabs,get_drag_to_rearrange_enabled);
+    SE_BIND_METHOD(Tabs,set_tabs_rearrange_group);
+    SE_BIND_METHOD(Tabs,get_tabs_rearrange_group);
 
-    BIND_METHOD(Tabs,set_select_with_rmb);
-    BIND_METHOD(Tabs,get_select_with_rmb);
+    SE_BIND_METHOD(Tabs,set_select_with_rmb);
+    SE_BIND_METHOD(Tabs,get_select_with_rmb);
 
     ADD_SIGNAL(MethodInfo("tab_changed", PropertyInfo(VariantType::INT, "tab")));
     ADD_SIGNAL(MethodInfo("right_button_pressed", PropertyInfo(VariantType::INT, "tab")));

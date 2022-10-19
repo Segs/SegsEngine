@@ -897,64 +897,64 @@ void GridMap::_update_octants_callback() {
 
 void GridMap::_bind_methods() {
 
-    BIND_METHOD(GridMap,set_collision_layer);
-    BIND_METHOD(GridMap,get_collision_layer);
+    SE_BIND_METHOD(GridMap,set_collision_layer);
+    SE_BIND_METHOD(GridMap,get_collision_layer);
 
-    BIND_METHOD(GridMap,set_collision_mask);
-    BIND_METHOD(GridMap,get_collision_mask);
+    SE_BIND_METHOD(GridMap,set_collision_mask);
+    SE_BIND_METHOD(GridMap,get_collision_mask);
 
-    BIND_METHOD(GridMap,set_collision_mask_bit);
-    BIND_METHOD(GridMap,get_collision_mask_bit);
+    SE_BIND_METHOD(GridMap,set_collision_mask_bit);
+    SE_BIND_METHOD(GridMap,get_collision_mask_bit);
 
-    BIND_METHOD(GridMap,set_collision_layer_bit);
-    BIND_METHOD(GridMap,get_collision_layer_bit);
-    BIND_METHOD(GridMap,set_physics_material);
-    BIND_METHOD(GridMap,get_physics_material);
+    SE_BIND_METHOD(GridMap,set_collision_layer_bit);
+    SE_BIND_METHOD(GridMap,get_collision_layer_bit);
+    SE_BIND_METHOD(GridMap,set_physics_material);
+    SE_BIND_METHOD(GridMap,get_physics_material);
 
-    BIND_METHOD(GridMap,set_mesh_library);
-    BIND_METHOD(GridMap,get_mesh_library);
+    SE_BIND_METHOD(GridMap,set_mesh_library);
+    SE_BIND_METHOD(GridMap,get_mesh_library);
 
-    BIND_METHOD(GridMap,set_cell_size);
-    BIND_METHOD(GridMap,get_cell_size);
+    SE_BIND_METHOD(GridMap,set_cell_size);
+    SE_BIND_METHOD(GridMap,get_cell_size);
 
-    BIND_METHOD(GridMap,set_cell_scale);
-    BIND_METHOD(GridMap,get_cell_scale);
+    SE_BIND_METHOD(GridMap,set_cell_scale);
+    SE_BIND_METHOD(GridMap,get_cell_scale);
 
-    BIND_METHOD(GridMap,set_octant_size);
-    BIND_METHOD(GridMap,get_octant_size);
+    SE_BIND_METHOD(GridMap,set_octant_size);
+    SE_BIND_METHOD(GridMap,get_octant_size);
 
     MethodBinder::bind_method(D_METHOD("set_cell_item", {"x", "y", "z", "item", "orientation"}), &GridMap::set_cell_item, {DEFVAL(0)});
-    BIND_METHOD(GridMap,get_cell_item);
-    BIND_METHOD(GridMap,get_cell_item_orientation);
+    SE_BIND_METHOD(GridMap,get_cell_item);
+    SE_BIND_METHOD(GridMap,get_cell_item_orientation);
 
-    BIND_METHOD(GridMap,world_to_map);
-    BIND_METHOD(GridMap,map_to_world);
+    SE_BIND_METHOD(GridMap,world_to_map);
+    SE_BIND_METHOD(GridMap,map_to_world);
 
-    BIND_METHOD(GridMap,resource_changed);
+    SE_BIND_METHOD(GridMap,resource_changed);
 
-    BIND_METHOD(GridMap,set_center_x);
-    BIND_METHOD(GridMap,get_center_x);
-    BIND_METHOD(GridMap,set_center_y);
-    BIND_METHOD(GridMap,get_center_y);
-    BIND_METHOD(GridMap,set_center_z);
-    BIND_METHOD(GridMap,get_center_z);
+    SE_BIND_METHOD(GridMap,set_center_x);
+    SE_BIND_METHOD(GridMap,get_center_x);
+    SE_BIND_METHOD(GridMap,set_center_y);
+    SE_BIND_METHOD(GridMap,get_center_y);
+    SE_BIND_METHOD(GridMap,set_center_z);
+    SE_BIND_METHOD(GridMap,get_center_z);
 
     MethodBinder::bind_method(D_METHOD("set_clip", {"enabled", "clipabove", "floor", "axis"}), &GridMap::set_clip, {DEFVAL(true), DEFVAL(0), DEFVAL(Vector3::AXIS_X)});
 
-    BIND_METHOD(GridMap,clear);
+    SE_BIND_METHOD(GridMap,clear);
 
-    BIND_METHOD(GridMap,get_used_cells);
-    BIND_METHOD(GridMap,get_cells_used_by_item);
+    SE_BIND_METHOD(GridMap,get_used_cells);
+    SE_BIND_METHOD(GridMap,get_cells_used_by_item);
 
-    BIND_METHOD(GridMap,get_meshes);
-    BIND_METHOD(GridMap,get_bake_meshes);
-    BIND_METHOD(GridMap,get_bake_mesh_instance);
+    SE_BIND_METHOD(GridMap,get_meshes);
+    SE_BIND_METHOD(GridMap,get_bake_meshes);
+    SE_BIND_METHOD(GridMap,get_bake_mesh_instance);
 
-    BIND_METHOD(GridMap,clear_baked_meshes);
+    SE_BIND_METHOD(GridMap,clear_baked_meshes);
     MethodBinder::bind_method(D_METHOD("make_baked_meshes", {"gen_lightmap_uv", "lightmap_uv_texel_size"}), &GridMap::make_baked_meshes, {DEFVAL(false), DEFVAL(0.1)});
 
-    BIND_METHOD(GridMap,set_use_in_baked_light);
-    BIND_METHOD(GridMap,get_use_in_baked_light);
+    SE_BIND_METHOD(GridMap,set_use_in_baked_light);
+    SE_BIND_METHOD(GridMap,get_use_in_baked_light);
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh_library", PropertyHint::ResourceType, "MeshLibrary"), "set_mesh_library", "get_mesh_library");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "physics_material", PropertyHint::ResourceType, "PhysicsMaterial"), "set_physics_material", "get_physics_material");
 

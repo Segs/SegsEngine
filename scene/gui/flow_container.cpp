@@ -252,5 +252,5 @@ FlowContainer::FlowContainer(bool p_vertical) {
 }
 
 void FlowContainer::_bind_methods() {
-    BIND_METHOD(FlowContainer,get_line_count);
+    SE_BIND_METHOD(FlowContainer,get_line_count);
 }

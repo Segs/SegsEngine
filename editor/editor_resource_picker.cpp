@@ -704,7 +704,7 @@ void EditorResourcePicker::_bind_methods() {
     //    BIND_METHOD(EditorResourcePicker,_edit_menu_cbk);
 
     // Public binds.
-    BIND_METHOD(EditorResourcePicker,_update_resource_preview);
+    SE_BIND_METHOD(EditorResourcePicker,_update_resource_preview);
     MethodBinder::bind_method(
             D_METHOD("get_drag_data_fw", { "position", "from" }), &EditorResourcePicker::get_drag_data_fw);
     MethodBinder::bind_method(
@@ -712,17 +712,17 @@ void EditorResourcePicker::_bind_methods() {
     MethodBinder::bind_method(
             D_METHOD("drop_data_fw", { "position", "data", "from" }), &EditorResourcePicker::drop_data_fw);
 
-    BIND_METHOD(EditorResourcePicker,set_base_type);
-    BIND_METHOD(EditorResourcePicker,get_base_type);
-    BIND_METHOD(EditorResourcePicker,get_allowed_types);
+    SE_BIND_METHOD(EditorResourcePicker,set_base_type);
+    SE_BIND_METHOD(EditorResourcePicker,get_base_type);
+    SE_BIND_METHOD(EditorResourcePicker,get_allowed_types);
     MethodBinder::bind_method(
             D_METHOD("set_edited_resource", { "resource" }), &EditorResourcePicker::set_edited_resource);
-    BIND_METHOD(EditorResourcePicker,get_edited_resource);
-    BIND_METHOD(EditorResourcePicker,set_toggle_mode);
-    BIND_METHOD(EditorResourcePicker,is_toggle_mode);
-    BIND_METHOD(EditorResourcePicker,set_toggle_pressed);
-    BIND_METHOD(EditorResourcePicker,set_editable);
-    BIND_METHOD(EditorResourcePicker,is_editable);
+    SE_BIND_METHOD(EditorResourcePicker,get_edited_resource);
+    SE_BIND_METHOD(EditorResourcePicker,set_toggle_mode);
+    SE_BIND_METHOD(EditorResourcePicker,is_toggle_mode);
+    SE_BIND_METHOD(EditorResourcePicker,set_toggle_pressed);
+    SE_BIND_METHOD(EditorResourcePicker,set_editable);
+    SE_BIND_METHOD(EditorResourcePicker,is_editable);
 
     BIND_VMETHOD(MethodInfo("set_create_options", PropertyInfo(VariantType::OBJECT, "menu_node")));
     BIND_VMETHOD(MethodInfo(VariantType::BOOL,"handle_menu_selected", PropertyInfo(VariantType::INT, "id")));
@@ -961,8 +961,8 @@ Node *EditorScriptPicker::get_script_owner() const {
 }
 
 void EditorScriptPicker::_bind_methods() {
-    BIND_METHOD(EditorScriptPicker,set_script_owner);
-    BIND_METHOD(EditorScriptPicker,get_script_owner);
+    SE_BIND_METHOD(EditorScriptPicker,set_script_owner);
+    SE_BIND_METHOD(EditorScriptPicker,get_script_owner);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "script_owner", PropertyHint::ResourceType, "Node", 0),
             "set_script_owner", "get_script_owner");

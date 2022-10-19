@@ -375,41 +375,41 @@ void SkeletonIK3D::_validate_property(PropertyInfo &property) const {
 
 void SkeletonIK3D::_bind_methods() {
 
-    BIND_METHOD(SkeletonIK3D,set_root_bone);
-    BIND_METHOD(SkeletonIK3D,get_root_bone);
+    SE_BIND_METHOD(SkeletonIK3D,set_root_bone);
+    SE_BIND_METHOD(SkeletonIK3D,get_root_bone);
 
-    BIND_METHOD(SkeletonIK3D,set_tip_bone);
-    BIND_METHOD(SkeletonIK3D,get_tip_bone);
+    SE_BIND_METHOD(SkeletonIK3D,set_tip_bone);
+    SE_BIND_METHOD(SkeletonIK3D,get_tip_bone);
 
-    BIND_METHOD(SkeletonIK3D,set_interpolation);
-    BIND_METHOD(SkeletonIK3D,get_interpolation);
+    SE_BIND_METHOD(SkeletonIK3D,set_interpolation);
+    SE_BIND_METHOD(SkeletonIK3D,get_interpolation);
 
-    BIND_METHOD(SkeletonIK3D,set_target_transform);
-    BIND_METHOD(SkeletonIK3D,get_target_transform);
+    SE_BIND_METHOD(SkeletonIK3D,set_target_transform);
+    SE_BIND_METHOD(SkeletonIK3D,get_target_transform);
 
-    BIND_METHOD(SkeletonIK3D,set_target_node);
-    BIND_METHOD(SkeletonIK3D,get_target_node);
+    SE_BIND_METHOD(SkeletonIK3D,set_target_node);
+    SE_BIND_METHOD(SkeletonIK3D,get_target_node);
 
-    BIND_METHOD(SkeletonIK3D,set_override_tip_basis);
-    BIND_METHOD(SkeletonIK3D,is_override_tip_basis);
+    SE_BIND_METHOD(SkeletonIK3D,set_override_tip_basis);
+    SE_BIND_METHOD(SkeletonIK3D,is_override_tip_basis);
 
-    BIND_METHOD(SkeletonIK3D,set_use_magnet);
-    BIND_METHOD(SkeletonIK3D,is_using_magnet);
+    SE_BIND_METHOD(SkeletonIK3D,set_use_magnet);
+    SE_BIND_METHOD(SkeletonIK3D,is_using_magnet);
 
-    BIND_METHOD(SkeletonIK3D,set_magnet_position);
-    BIND_METHOD(SkeletonIK3D,get_magnet_position);
+    SE_BIND_METHOD(SkeletonIK3D,set_magnet_position);
+    SE_BIND_METHOD(SkeletonIK3D,get_magnet_position);
 
-    BIND_METHOD(SkeletonIK3D,get_parent_skeleton);
-    BIND_METHOD(SkeletonIK3D,is_running);
+    SE_BIND_METHOD(SkeletonIK3D,get_parent_skeleton);
+    SE_BIND_METHOD(SkeletonIK3D,is_running);
 
-    BIND_METHOD(SkeletonIK3D,set_min_distance);
-    BIND_METHOD(SkeletonIK3D,get_min_distance);
+    SE_BIND_METHOD(SkeletonIK3D,set_min_distance);
+    SE_BIND_METHOD(SkeletonIK3D,get_min_distance);
 
-    BIND_METHOD(SkeletonIK3D,set_max_iterations);
-    BIND_METHOD(SkeletonIK3D,get_max_iterations);
+    SE_BIND_METHOD(SkeletonIK3D,set_max_iterations);
+    SE_BIND_METHOD(SkeletonIK3D,get_max_iterations);
 
     MethodBinder::bind_method(D_METHOD("start", {"one_time"}), &SkeletonIK3D::start, {DEFVAL(false)});
-    BIND_METHOD(SkeletonIK3D,stop);
+    SE_BIND_METHOD(SkeletonIK3D,stop);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "root_bone"), "set_root_bone", "get_root_bone");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "tip_bone"), "set_tip_bone", "get_tip_bone");

@@ -154,8 +154,8 @@ void EditorLog::_undo_redo_cbk(void *p_self, StringView p_name) {
 
 void EditorLog::_bind_methods() {
 
-    BIND_METHOD(EditorLog,_clear_request);
-    BIND_METHOD(EditorLog,_copy_request);
+    SE_BIND_METHOD(EditorLog,_clear_request);
+    SE_BIND_METHOD(EditorLog,_copy_request);
     ADD_SIGNAL(MethodInfo("clear_request"));
     ADD_SIGNAL(MethodInfo("copy_request"));
 }

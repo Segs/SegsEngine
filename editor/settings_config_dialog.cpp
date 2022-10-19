@@ -396,9 +396,9 @@ void EditorSettingsDialog::_editor_restart_close() {
 
 void EditorSettingsDialog::_bind_methods() {
 
-    BIND_METHOD(EditorSettingsDialog,_unhandled_input);
-    BIND_METHOD(EditorSettingsDialog,_settings_changed);
-    BIND_METHOD(EditorSettingsDialog,_update_shortcuts);
+    SE_BIND_METHOD(EditorSettingsDialog,_unhandled_input);
+    SE_BIND_METHOD(EditorSettingsDialog,_settings_changed);
+    SE_BIND_METHOD(EditorSettingsDialog,_update_shortcuts);
 }
 
 EditorSettingsDialog::EditorSettingsDialog() {

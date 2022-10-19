@@ -110,13 +110,13 @@ void ResourceFormatLoader::get_recognized_extensions_for_type(StringView p_type,
 }
 
 void ResourceInteractiveLoader::_bind_methods() {
-    BIND_METHOD(ResourceInteractiveLoader,get_resource);
-    BIND_METHOD(ResourceInteractiveLoader,poll);
-    BIND_METHOD(ResourceInteractiveLoader,wait);
-    BIND_METHOD(ResourceInteractiveLoader,get_stage);
-    BIND_METHOD(ResourceInteractiveLoader,get_stage_count);
-    BIND_METHOD(ResourceInteractiveLoader, set_no_subresource_cache);
-    BIND_METHOD(ResourceInteractiveLoader, get_no_subresource_cache);
+    SE_BIND_METHOD(ResourceInteractiveLoader,get_resource);
+    SE_BIND_METHOD(ResourceInteractiveLoader,poll);
+    SE_BIND_METHOD(ResourceInteractiveLoader,wait);
+    SE_BIND_METHOD(ResourceInteractiveLoader,get_stage);
+    SE_BIND_METHOD(ResourceInteractiveLoader,get_stage_count);
+    SE_BIND_METHOD(ResourceInteractiveLoader, set_no_subresource_cache);
+    SE_BIND_METHOD(ResourceInteractiveLoader, get_no_subresource_cache);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "no_subresource_cache"), "set_no_subresource_cache", "get_no_subresource_cache");
 }

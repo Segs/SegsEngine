@@ -595,67 +595,67 @@ NodePath Polygon2D::get_skeleton() const {
 
 void Polygon2D::_bind_methods() {
 
-    BIND_METHOD(Polygon2D,set_polygon);
-    BIND_METHOD(Polygon2D,get_polygon);
+    SE_BIND_METHOD(Polygon2D,set_polygon);
+    SE_BIND_METHOD(Polygon2D,get_polygon);
 
-    BIND_METHOD(Polygon2D,set_uv);
-    BIND_METHOD(Polygon2D,get_uv);
+    SE_BIND_METHOD(Polygon2D,set_uv);
+    SE_BIND_METHOD(Polygon2D,get_uv);
 
-    BIND_METHOD(Polygon2D,set_color);
-    BIND_METHOD(Polygon2D,get_color);
+    SE_BIND_METHOD(Polygon2D,set_color);
+    SE_BIND_METHOD(Polygon2D,get_color);
 
-    BIND_METHOD(Polygon2D,set_polygons);
-    BIND_METHOD(Polygon2D,get_polygons);
+    SE_BIND_METHOD(Polygon2D,set_polygons);
+    SE_BIND_METHOD(Polygon2D,get_polygons);
 
-    BIND_METHOD(Polygon2D,set_vertex_colors);
-    BIND_METHOD(Polygon2D,get_vertex_colors);
+    SE_BIND_METHOD(Polygon2D,set_vertex_colors);
+    SE_BIND_METHOD(Polygon2D,get_vertex_colors);
 
-    BIND_METHOD(Polygon2D,set_texture);
-    BIND_METHOD(Polygon2D,get_texture);
+    SE_BIND_METHOD(Polygon2D,set_texture);
+    SE_BIND_METHOD(Polygon2D,get_texture);
 
-    BIND_METHOD(Polygon2D,set_texture_offset);
-    BIND_METHOD(Polygon2D,get_texture_offset);
+    SE_BIND_METHOD(Polygon2D,set_texture_offset);
+    SE_BIND_METHOD(Polygon2D,get_texture_offset);
 
-    BIND_METHOD(Polygon2D,set_texture_rotation);
-    BIND_METHOD(Polygon2D,get_texture_rotation);
+    SE_BIND_METHOD(Polygon2D,set_texture_rotation);
+    SE_BIND_METHOD(Polygon2D,get_texture_rotation);
 
-    BIND_METHOD(Polygon2D,set_texture_rotation_degrees);
-    BIND_METHOD(Polygon2D,get_texture_rotation_degrees);
+    SE_BIND_METHOD(Polygon2D,set_texture_rotation_degrees);
+    SE_BIND_METHOD(Polygon2D,get_texture_rotation_degrees);
 
-    BIND_METHOD(Polygon2D,set_texture_scale);
-    BIND_METHOD(Polygon2D,get_texture_scale);
+    SE_BIND_METHOD(Polygon2D,set_texture_scale);
+    SE_BIND_METHOD(Polygon2D,get_texture_scale);
 
-    BIND_METHOD(Polygon2D,set_invert);
-    BIND_METHOD(Polygon2D,get_invert);
+    SE_BIND_METHOD(Polygon2D,set_invert);
+    SE_BIND_METHOD(Polygon2D,get_invert);
 
-    BIND_METHOD(Polygon2D,set_antialiased);
-    BIND_METHOD(Polygon2D,get_antialiased);
+    SE_BIND_METHOD(Polygon2D,set_antialiased);
+    SE_BIND_METHOD(Polygon2D,get_antialiased);
 
-    BIND_METHOD(Polygon2D,set_invert_border);
-    BIND_METHOD(Polygon2D,get_invert_border);
+    SE_BIND_METHOD(Polygon2D,set_invert_border);
+    SE_BIND_METHOD(Polygon2D,get_invert_border);
 
-    BIND_METHOD(Polygon2D,set_offset);
-    BIND_METHOD(Polygon2D,get_offset);
+    SE_BIND_METHOD(Polygon2D,set_offset);
+    SE_BIND_METHOD(Polygon2D,get_offset);
 
-    BIND_METHOD(Polygon2D,add_bone);
-    BIND_METHOD(Polygon2D,get_bone_count);
-    BIND_METHOD(Polygon2D,get_bone_path);
-    BIND_METHOD(Polygon2D,get_bone_weights);
-    BIND_METHOD(Polygon2D,erase_bone);
-    BIND_METHOD(Polygon2D,clear_bones);
-    BIND_METHOD(Polygon2D,set_bone_path);
-    BIND_METHOD(Polygon2D,set_bone_weights);
+    SE_BIND_METHOD(Polygon2D,add_bone);
+    SE_BIND_METHOD(Polygon2D,get_bone_count);
+    SE_BIND_METHOD(Polygon2D,get_bone_path);
+    SE_BIND_METHOD(Polygon2D,get_bone_weights);
+    SE_BIND_METHOD(Polygon2D,erase_bone);
+    SE_BIND_METHOD(Polygon2D,clear_bones);
+    SE_BIND_METHOD(Polygon2D,set_bone_path);
+    SE_BIND_METHOD(Polygon2D,set_bone_weights);
 
-    BIND_METHOD(Polygon2D,set_skeleton);
-    BIND_METHOD(Polygon2D,get_skeleton);
+    SE_BIND_METHOD(Polygon2D,set_skeleton);
+    SE_BIND_METHOD(Polygon2D,get_skeleton);
 
-    BIND_METHOD(Polygon2D,set_internal_vertex_count);
-    BIND_METHOD(Polygon2D,get_internal_vertex_count);
+    SE_BIND_METHOD(Polygon2D,set_internal_vertex_count);
+    SE_BIND_METHOD(Polygon2D,get_internal_vertex_count);
 
-    BIND_METHOD(Polygon2D,_set_bones);
-    BIND_METHOD(Polygon2D,_get_bones);
+    SE_BIND_METHOD(Polygon2D,_set_bones);
+    SE_BIND_METHOD(Polygon2D,_get_bones);
 
-    BIND_METHOD(Polygon2D,_skeleton_bone_setup_changed);
+    SE_BIND_METHOD(Polygon2D,_skeleton_bone_setup_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");

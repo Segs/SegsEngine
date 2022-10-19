@@ -513,62 +513,62 @@ void MeshDataTool::set_material(const Ref<Material> &p_material) {
 
 void MeshDataTool::_bind_methods() {
 
-    BIND_METHOD(MeshDataTool,clear);
-    BIND_METHOD(MeshDataTool,create_from_surface);
-    BIND_METHOD(MeshDataTool,commit_to_surface);
+    SE_BIND_METHOD(MeshDataTool,clear);
+    SE_BIND_METHOD(MeshDataTool,create_from_surface);
+    SE_BIND_METHOD(MeshDataTool,commit_to_surface);
 
-    BIND_METHOD(MeshDataTool,get_format);
+    SE_BIND_METHOD(MeshDataTool,get_format);
 
-    BIND_METHOD(MeshDataTool,get_vertex_count);
-    BIND_METHOD(MeshDataTool,get_edge_count);
-    BIND_METHOD(MeshDataTool,get_face_count);
+    SE_BIND_METHOD(MeshDataTool,get_vertex_count);
+    SE_BIND_METHOD(MeshDataTool,get_edge_count);
+    SE_BIND_METHOD(MeshDataTool,get_face_count);
 
-    BIND_METHOD(MeshDataTool,set_vertex);
-    BIND_METHOD(MeshDataTool,get_vertex);
+    SE_BIND_METHOD(MeshDataTool,set_vertex);
+    SE_BIND_METHOD(MeshDataTool,get_vertex);
 
-    BIND_METHOD(MeshDataTool,set_vertex_normal);
-    BIND_METHOD(MeshDataTool,get_vertex_normal);
+    SE_BIND_METHOD(MeshDataTool,set_vertex_normal);
+    SE_BIND_METHOD(MeshDataTool,get_vertex_normal);
 
-    BIND_METHOD(MeshDataTool,set_vertex_tangent);
-    BIND_METHOD(MeshDataTool,get_vertex_tangent);
+    SE_BIND_METHOD(MeshDataTool,set_vertex_tangent);
+    SE_BIND_METHOD(MeshDataTool,get_vertex_tangent);
 
-    BIND_METHOD(MeshDataTool,set_vertex_uv);
-    BIND_METHOD(MeshDataTool,get_vertex_uv);
+    SE_BIND_METHOD(MeshDataTool,set_vertex_uv);
+    SE_BIND_METHOD(MeshDataTool,get_vertex_uv);
 
-    BIND_METHOD(MeshDataTool,set_vertex_uv2);
-    BIND_METHOD(MeshDataTool,get_vertex_uv2);
+    SE_BIND_METHOD(MeshDataTool,set_vertex_uv2);
+    SE_BIND_METHOD(MeshDataTool,get_vertex_uv2);
 
-    BIND_METHOD(MeshDataTool,set_vertex_color);
-    BIND_METHOD(MeshDataTool,get_vertex_color);
+    SE_BIND_METHOD(MeshDataTool,set_vertex_color);
+    SE_BIND_METHOD(MeshDataTool,get_vertex_color);
 
-    BIND_METHOD(MeshDataTool,set_vertex_bones);
-    BIND_METHOD(MeshDataTool,get_vertex_bones);
+    SE_BIND_METHOD(MeshDataTool,set_vertex_bones);
+    SE_BIND_METHOD(MeshDataTool,get_vertex_bones);
 
-    BIND_METHOD(MeshDataTool,set_vertex_weights);
-    BIND_METHOD(MeshDataTool,get_vertex_weights);
+    SE_BIND_METHOD(MeshDataTool,set_vertex_weights);
+    SE_BIND_METHOD(MeshDataTool,get_vertex_weights);
 
-    BIND_METHOD(MeshDataTool,set_vertex_meta);
-    BIND_METHOD(MeshDataTool,get_vertex_meta);
+    SE_BIND_METHOD(MeshDataTool,set_vertex_meta);
+    SE_BIND_METHOD(MeshDataTool,get_vertex_meta);
 
-    BIND_METHOD(MeshDataTool,get_vertex_edges);
-    BIND_METHOD(MeshDataTool,get_vertex_faces);
+    SE_BIND_METHOD(MeshDataTool,get_vertex_edges);
+    SE_BIND_METHOD(MeshDataTool,get_vertex_faces);
 
-    BIND_METHOD(MeshDataTool,get_edge_vertex);
-    BIND_METHOD(MeshDataTool,get_edge_faces);
+    SE_BIND_METHOD(MeshDataTool,get_edge_vertex);
+    SE_BIND_METHOD(MeshDataTool,get_edge_faces);
 
-    BIND_METHOD(MeshDataTool,set_edge_meta);
-    BIND_METHOD(MeshDataTool,get_edge_meta);
+    SE_BIND_METHOD(MeshDataTool,set_edge_meta);
+    SE_BIND_METHOD(MeshDataTool,get_edge_meta);
 
-    BIND_METHOD(MeshDataTool,get_face_vertex);
-    BIND_METHOD(MeshDataTool,get_face_edge);
+    SE_BIND_METHOD(MeshDataTool,get_face_vertex);
+    SE_BIND_METHOD(MeshDataTool,get_face_edge);
 
-    BIND_METHOD(MeshDataTool,set_face_meta);
-    BIND_METHOD(MeshDataTool,get_face_meta);
+    SE_BIND_METHOD(MeshDataTool,set_face_meta);
+    SE_BIND_METHOD(MeshDataTool,get_face_meta);
 
-    BIND_METHOD(MeshDataTool,get_face_normal);
+    SE_BIND_METHOD(MeshDataTool,get_face_normal);
 
-    BIND_METHOD(MeshDataTool,set_material);
-    BIND_METHOD(MeshDataTool,get_material);
+    SE_BIND_METHOD(MeshDataTool,set_material);
+    SE_BIND_METHOD(MeshDataTool,get_material);
 }
 
 MeshDataTool::MeshDataTool() {

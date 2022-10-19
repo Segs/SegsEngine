@@ -600,43 +600,43 @@ Point2 TextureProgress::get_radial_center_offset() {
 
 void TextureProgress::_bind_methods() {
 
-    BIND_METHOD(TextureProgress,set_under_texture);
-    BIND_METHOD(TextureProgress,get_under_texture);
+    SE_BIND_METHOD(TextureProgress,set_under_texture);
+    SE_BIND_METHOD(TextureProgress,get_under_texture);
 
-    BIND_METHOD(TextureProgress,set_progress_texture);
-    BIND_METHOD(TextureProgress,get_progress_texture);
+    SE_BIND_METHOD(TextureProgress,set_progress_texture);
+    SE_BIND_METHOD(TextureProgress,get_progress_texture);
 
-    BIND_METHOD(TextureProgress,set_over_texture);
-    BIND_METHOD(TextureProgress,get_over_texture);
+    SE_BIND_METHOD(TextureProgress,set_over_texture);
+    SE_BIND_METHOD(TextureProgress,get_over_texture);
 
-    BIND_METHOD(TextureProgress,set_fill_mode);
-    BIND_METHOD(TextureProgress,get_fill_mode);
+    SE_BIND_METHOD(TextureProgress,set_fill_mode);
+    SE_BIND_METHOD(TextureProgress,get_fill_mode);
 
-    BIND_METHOD(TextureProgress,set_tint_under);
-    BIND_METHOD(TextureProgress,get_tint_under);
+    SE_BIND_METHOD(TextureProgress,set_tint_under);
+    SE_BIND_METHOD(TextureProgress,get_tint_under);
 
-    BIND_METHOD(TextureProgress,set_tint_progress);
-    BIND_METHOD(TextureProgress,get_tint_progress);
+    SE_BIND_METHOD(TextureProgress,set_tint_progress);
+    SE_BIND_METHOD(TextureProgress,get_tint_progress);
 
-    BIND_METHOD(TextureProgress,set_tint_over);
-    BIND_METHOD(TextureProgress,get_tint_over);
-    BIND_METHOD(TextureProgress,set_progress_offset);
-    BIND_METHOD(TextureProgress,get_progress_offset);
+    SE_BIND_METHOD(TextureProgress,set_tint_over);
+    SE_BIND_METHOD(TextureProgress,get_tint_over);
+    SE_BIND_METHOD(TextureProgress,set_progress_offset);
+    SE_BIND_METHOD(TextureProgress,get_progress_offset);
 
-    BIND_METHOD(TextureProgress,set_radial_initial_angle);
-    BIND_METHOD(TextureProgress,get_radial_initial_angle);
+    SE_BIND_METHOD(TextureProgress,set_radial_initial_angle);
+    SE_BIND_METHOD(TextureProgress,get_radial_initial_angle);
 
-    BIND_METHOD(TextureProgress,set_radial_center_offset);
-    BIND_METHOD(TextureProgress,get_radial_center_offset);
+    SE_BIND_METHOD(TextureProgress,set_radial_center_offset);
+    SE_BIND_METHOD(TextureProgress,get_radial_center_offset);
 
-    BIND_METHOD(TextureProgress,set_fill_degrees);
-    BIND_METHOD(TextureProgress,get_fill_degrees);
+    SE_BIND_METHOD(TextureProgress,set_fill_degrees);
+    SE_BIND_METHOD(TextureProgress,get_fill_degrees);
 
-    BIND_METHOD(TextureProgress,set_stretch_margin);
-    BIND_METHOD(TextureProgress,get_stretch_margin);
+    SE_BIND_METHOD(TextureProgress,set_stretch_margin);
+    SE_BIND_METHOD(TextureProgress,get_stretch_margin);
 
-    BIND_METHOD(TextureProgress,set_nine_patch_stretch);
-    BIND_METHOD(TextureProgress,get_nine_patch_stretch);
+    SE_BIND_METHOD(TextureProgress,set_nine_patch_stretch);
+    SE_BIND_METHOD(TextureProgress,get_nine_patch_stretch);
 
     ADD_GROUP("Textures", "texture_");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_under", PropertyHint::ResourceType, "Texture"), "set_under_texture", "get_under_texture");

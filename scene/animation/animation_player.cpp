@@ -1665,67 +1665,67 @@ bool AnimationPlayer::can_apply_reset() const {
 
 void AnimationPlayer::_bind_methods() {
 
-    BIND_METHOD(AnimationPlayer,_animation_changed);
+    SE_BIND_METHOD(AnimationPlayer,_animation_changed);
 
-    BIND_METHOD(AnimationPlayer,add_animation);
-    BIND_METHOD(AnimationPlayer,remove_animation);
-    BIND_METHOD(AnimationPlayer,rename_animation);
-    BIND_METHOD(AnimationPlayer,has_animation);
-    BIND_METHOD(AnimationPlayer,get_animation);
-    BIND_METHOD(AnimationPlayer,get_animation_list);
+    SE_BIND_METHOD(AnimationPlayer,add_animation);
+    SE_BIND_METHOD(AnimationPlayer,remove_animation);
+    SE_BIND_METHOD(AnimationPlayer,rename_animation);
+    SE_BIND_METHOD(AnimationPlayer,has_animation);
+    SE_BIND_METHOD(AnimationPlayer,get_animation);
+    SE_BIND_METHOD(AnimationPlayer,get_animation_list);
 
-    BIND_METHOD(AnimationPlayer,animation_set_next);
-    BIND_METHOD(AnimationPlayer,animation_get_next);
+    SE_BIND_METHOD(AnimationPlayer,animation_set_next);
+    SE_BIND_METHOD(AnimationPlayer,animation_get_next);
 
-    BIND_METHOD(AnimationPlayer,set_blend_time);
-    BIND_METHOD(AnimationPlayer,get_blend_time);
+    SE_BIND_METHOD(AnimationPlayer,set_blend_time);
+    SE_BIND_METHOD(AnimationPlayer,get_blend_time);
 
-    BIND_METHOD(AnimationPlayer,set_default_blend_time);
-    BIND_METHOD(AnimationPlayer,get_default_blend_time);
+    SE_BIND_METHOD(AnimationPlayer,set_default_blend_time);
+    SE_BIND_METHOD(AnimationPlayer,get_default_blend_time);
 
     MethodBinder::bind_method(D_METHOD("play", {"name", "custom_blend", "custom_speed", "from_end"}), &AnimationPlayer::play, {DEFVAL(StringName()), DEFVAL(-1), DEFVAL(1.0), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("play_backwards", {"name", "custom_blend"}), &AnimationPlayer::play_backwards, {DEFVAL(StringName()), DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("stop", {"reset"}), &AnimationPlayer::stop, {DEFVAL(true)});
-    BIND_METHOD(AnimationPlayer,is_playing);
+    SE_BIND_METHOD(AnimationPlayer,is_playing);
 
-    BIND_METHOD(AnimationPlayer,set_current_animation);
-    BIND_METHOD(AnimationPlayer,get_current_animation);
-    BIND_METHOD(AnimationPlayer,set_assigned_animation);
-    BIND_METHOD(AnimationPlayer,get_assigned_animation);
-    BIND_METHOD(AnimationPlayer,queue);
-    BIND_METHOD(AnimationPlayer,get_queue);
-    BIND_METHOD(AnimationPlayer,clear_queue);
+    SE_BIND_METHOD(AnimationPlayer,set_current_animation);
+    SE_BIND_METHOD(AnimationPlayer,get_current_animation);
+    SE_BIND_METHOD(AnimationPlayer,set_assigned_animation);
+    SE_BIND_METHOD(AnimationPlayer,get_assigned_animation);
+    SE_BIND_METHOD(AnimationPlayer,queue);
+    SE_BIND_METHOD(AnimationPlayer,get_queue);
+    SE_BIND_METHOD(AnimationPlayer,clear_queue);
 
-    BIND_METHOD(AnimationPlayer,set_active);
-    BIND_METHOD(AnimationPlayer,is_active);
+    SE_BIND_METHOD(AnimationPlayer,set_active);
+    SE_BIND_METHOD(AnimationPlayer,is_active);
 
-    BIND_METHOD(AnimationPlayer,set_speed_scale);
-    BIND_METHOD(AnimationPlayer,get_speed_scale);
-    BIND_METHOD(AnimationPlayer,get_playing_speed);
+    SE_BIND_METHOD(AnimationPlayer,set_speed_scale);
+    SE_BIND_METHOD(AnimationPlayer,get_speed_scale);
+    SE_BIND_METHOD(AnimationPlayer,get_playing_speed);
 
-    BIND_METHOD(AnimationPlayer,set_autoplay);
-    BIND_METHOD(AnimationPlayer,get_autoplay);
+    SE_BIND_METHOD(AnimationPlayer,set_autoplay);
+    SE_BIND_METHOD(AnimationPlayer,get_autoplay);
 
-    BIND_METHOD(AnimationPlayer,set_reset_on_save_enabled);
-    BIND_METHOD(AnimationPlayer,is_reset_on_save_enabled);
-    BIND_METHOD(AnimationPlayer,set_root);
-    BIND_METHOD(AnimationPlayer,get_root);
+    SE_BIND_METHOD(AnimationPlayer,set_reset_on_save_enabled);
+    SE_BIND_METHOD(AnimationPlayer,is_reset_on_save_enabled);
+    SE_BIND_METHOD(AnimationPlayer,set_root);
+    SE_BIND_METHOD(AnimationPlayer,get_root);
 
-    BIND_METHOD(AnimationPlayer,find_animation);
+    SE_BIND_METHOD(AnimationPlayer,find_animation);
 
-    BIND_METHOD(AnimationPlayer,clear_caches);
+    SE_BIND_METHOD(AnimationPlayer,clear_caches);
 
-    BIND_METHOD(AnimationPlayer,set_animation_process_mode);
-    BIND_METHOD(AnimationPlayer,get_animation_process_mode);
+    SE_BIND_METHOD(AnimationPlayer,set_animation_process_mode);
+    SE_BIND_METHOD(AnimationPlayer,get_animation_process_mode);
 
-    BIND_METHOD(AnimationPlayer,set_method_call_mode);
-    BIND_METHOD(AnimationPlayer,get_method_call_mode);
+    SE_BIND_METHOD(AnimationPlayer,set_method_call_mode);
+    SE_BIND_METHOD(AnimationPlayer,get_method_call_mode);
 
-    BIND_METHOD(AnimationPlayer,get_current_animation_position);
-    BIND_METHOD(AnimationPlayer,get_current_animation_length);
+    SE_BIND_METHOD(AnimationPlayer,get_current_animation_position);
+    SE_BIND_METHOD(AnimationPlayer,get_current_animation_length);
 
     MethodBinder::bind_method(D_METHOD("seek", {"seconds", "update"}), &AnimationPlayer::seek, {DEFVAL(false)});
-    BIND_METHOD(AnimationPlayer,advance);
+    SE_BIND_METHOD(AnimationPlayer,advance);
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "root_node"), "set_root", "get_root");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "current_animation", PropertyHint::Enum, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_ANIMATE_AS_TRIGGER), "set_current_animation", "get_current_animation");

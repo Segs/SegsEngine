@@ -418,50 +418,50 @@ void Sprite2D::_texture_changed() {
 
 void Sprite2D::_bind_methods() {
 
-    BIND_METHOD(Sprite2D,set_texture);
-    BIND_METHOD(Sprite2D,get_texture);
+    SE_BIND_METHOD(Sprite2D,set_texture);
+    SE_BIND_METHOD(Sprite2D,get_texture);
 
-    BIND_METHOD(Sprite2D,set_normal_map);
-    BIND_METHOD(Sprite2D,get_normal_map);
+    SE_BIND_METHOD(Sprite2D,set_normal_map);
+    SE_BIND_METHOD(Sprite2D,get_normal_map);
 
-    BIND_METHOD(Sprite2D,set_centered);
-    BIND_METHOD(Sprite2D,is_centered);
+    SE_BIND_METHOD(Sprite2D,set_centered);
+    SE_BIND_METHOD(Sprite2D,is_centered);
 
-    BIND_METHOD(Sprite2D,set_offset);
-    BIND_METHOD(Sprite2D,get_offset);
+    SE_BIND_METHOD(Sprite2D,set_offset);
+    SE_BIND_METHOD(Sprite2D,get_offset);
 
-    BIND_METHOD(Sprite2D,set_flip_h);
-    BIND_METHOD(Sprite2D,is_flipped_h);
+    SE_BIND_METHOD(Sprite2D,set_flip_h);
+    SE_BIND_METHOD(Sprite2D,is_flipped_h);
 
-    BIND_METHOD(Sprite2D,set_flip_v);
-    BIND_METHOD(Sprite2D,is_flipped_v);
+    SE_BIND_METHOD(Sprite2D,set_flip_v);
+    SE_BIND_METHOD(Sprite2D,is_flipped_v);
 
-    BIND_METHOD(Sprite2D,set_region);
-    BIND_METHOD(Sprite2D,is_region);
+    SE_BIND_METHOD(Sprite2D,set_region);
+    SE_BIND_METHOD(Sprite2D,is_region);
 
-    BIND_METHOD(Sprite2D,is_pixel_opaque);
+    SE_BIND_METHOD(Sprite2D,is_pixel_opaque);
 
-    BIND_METHOD(Sprite2D,set_region_rect);
-    BIND_METHOD(Sprite2D,get_region_rect);
+    SE_BIND_METHOD(Sprite2D,set_region_rect);
+    SE_BIND_METHOD(Sprite2D,get_region_rect);
 
-    BIND_METHOD(Sprite2D,set_region_filter_clip);
-    BIND_METHOD(Sprite2D,is_region_filter_clip_enabled);
+    SE_BIND_METHOD(Sprite2D,set_region_filter_clip);
+    SE_BIND_METHOD(Sprite2D,is_region_filter_clip_enabled);
 
-    BIND_METHOD(Sprite2D,set_frame);
-    BIND_METHOD(Sprite2D,get_frame);
+    SE_BIND_METHOD(Sprite2D,set_frame);
+    SE_BIND_METHOD(Sprite2D,get_frame);
 
-    BIND_METHOD(Sprite2D,set_frame_coords);
-    BIND_METHOD(Sprite2D,get_frame_coords);
+    SE_BIND_METHOD(Sprite2D,set_frame_coords);
+    SE_BIND_METHOD(Sprite2D,get_frame_coords);
 
-    BIND_METHOD(Sprite2D,set_vframes);
-    BIND_METHOD(Sprite2D,get_vframes);
+    SE_BIND_METHOD(Sprite2D,set_vframes);
+    SE_BIND_METHOD(Sprite2D,get_vframes);
 
-    BIND_METHOD(Sprite2D,set_hframes);
-    BIND_METHOD(Sprite2D,get_hframes);
+    SE_BIND_METHOD(Sprite2D,set_hframes);
+    SE_BIND_METHOD(Sprite2D,get_hframes);
 
-    BIND_METHOD(Sprite2D,get_rect);
+    SE_BIND_METHOD(Sprite2D,get_rect);
 
-    BIND_METHOD(Sprite2D,_texture_changed);
+    SE_BIND_METHOD(Sprite2D,_texture_changed);
 
     ADD_SIGNAL(MethodInfo("frame_changed"));
     ADD_SIGNAL(MethodInfo("texture_changed"));

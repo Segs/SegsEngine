@@ -206,27 +206,27 @@ String Timer::get_configuration_warning() const {
 
 void Timer::_bind_methods() {
 
-    BIND_METHOD(Timer,set_wait_time);
-    BIND_METHOD(Timer,get_wait_time);
+    SE_BIND_METHOD(Timer,set_wait_time);
+    SE_BIND_METHOD(Timer,get_wait_time);
 
-    BIND_METHOD(Timer,set_one_shot);
-    BIND_METHOD(Timer,is_one_shot);
+    SE_BIND_METHOD(Timer,set_one_shot);
+    SE_BIND_METHOD(Timer,is_one_shot);
 
-    BIND_METHOD(Timer,set_autostart);
-    BIND_METHOD(Timer,has_autostart);
+    SE_BIND_METHOD(Timer,set_autostart);
+    SE_BIND_METHOD(Timer,has_autostart);
 
     MethodBinder::bind_method(D_METHOD("start", {"time_sec"}), &Timer::start, {DEFVAL(-1)});
-    BIND_METHOD(Timer,stop);
+    SE_BIND_METHOD(Timer,stop);
 
-    BIND_METHOD(Timer,set_paused);
-    BIND_METHOD(Timer,is_paused);
+    SE_BIND_METHOD(Timer,set_paused);
+    SE_BIND_METHOD(Timer,is_paused);
 
-    BIND_METHOD(Timer,is_stopped);
+    SE_BIND_METHOD(Timer,is_stopped);
 
-    BIND_METHOD(Timer,get_time_left);
+    SE_BIND_METHOD(Timer,get_time_left);
 
-    BIND_METHOD(Timer,set_timer_process_mode);
-    BIND_METHOD(Timer,get_timer_process_mode);
+    SE_BIND_METHOD(Timer,set_timer_process_mode);
+    SE_BIND_METHOD(Timer,get_timer_process_mode);
 
     ADD_SIGNAL(MethodInfo("timeout"));
 

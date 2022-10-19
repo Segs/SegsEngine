@@ -473,42 +473,42 @@ SpatialMaterial::BillboardMode SpriteBase3D::get_billboard_mode() const {
 }
 void SpriteBase3D::_bind_methods() {
 
-    BIND_METHOD(SpriteBase3D,set_centered);
-    BIND_METHOD(SpriteBase3D,is_centered);
+    SE_BIND_METHOD(SpriteBase3D,set_centered);
+    SE_BIND_METHOD(SpriteBase3D,is_centered);
 
-    BIND_METHOD(SpriteBase3D,set_offset);
-    BIND_METHOD(SpriteBase3D,get_offset);
+    SE_BIND_METHOD(SpriteBase3D,set_offset);
+    SE_BIND_METHOD(SpriteBase3D,get_offset);
 
-    BIND_METHOD(SpriteBase3D,set_flip_h);
-    BIND_METHOD(SpriteBase3D,is_flipped_h);
+    SE_BIND_METHOD(SpriteBase3D,set_flip_h);
+    SE_BIND_METHOD(SpriteBase3D,is_flipped_h);
 
-    BIND_METHOD(SpriteBase3D,set_flip_v);
-    BIND_METHOD(SpriteBase3D,is_flipped_v);
+    SE_BIND_METHOD(SpriteBase3D,set_flip_v);
+    SE_BIND_METHOD(SpriteBase3D,is_flipped_v);
 
-    BIND_METHOD(SpriteBase3D,set_modulate);
-    BIND_METHOD(SpriteBase3D,get_modulate);
+    SE_BIND_METHOD(SpriteBase3D,set_modulate);
+    SE_BIND_METHOD(SpriteBase3D,get_modulate);
 
-    BIND_METHOD(SpriteBase3D,set_opacity);
-    BIND_METHOD(SpriteBase3D,get_opacity);
+    SE_BIND_METHOD(SpriteBase3D,set_opacity);
+    SE_BIND_METHOD(SpriteBase3D,get_opacity);
 
-    BIND_METHOD(SpriteBase3D,set_pixel_size);
-    BIND_METHOD(SpriteBase3D,get_pixel_size);
+    SE_BIND_METHOD(SpriteBase3D,set_pixel_size);
+    SE_BIND_METHOD(SpriteBase3D,get_pixel_size);
 
-    BIND_METHOD(SpriteBase3D,set_axis);
-    BIND_METHOD(SpriteBase3D,get_axis);
+    SE_BIND_METHOD(SpriteBase3D,set_axis);
+    SE_BIND_METHOD(SpriteBase3D,get_axis);
 
-    BIND_METHOD(SpriteBase3D,set_draw_flag);
-    BIND_METHOD(SpriteBase3D,get_draw_flag);
+    SE_BIND_METHOD(SpriteBase3D,set_draw_flag);
+    SE_BIND_METHOD(SpriteBase3D,get_draw_flag);
 
-    BIND_METHOD(SpriteBase3D,set_alpha_cut_mode);
-    BIND_METHOD(SpriteBase3D,get_alpha_cut_mode);
-    BIND_METHOD(SpriteBase3D,set_billboard_mode);
-    BIND_METHOD(SpriteBase3D,get_billboard_mode);
+    SE_BIND_METHOD(SpriteBase3D,set_alpha_cut_mode);
+    SE_BIND_METHOD(SpriteBase3D,get_alpha_cut_mode);
+    SE_BIND_METHOD(SpriteBase3D,set_billboard_mode);
+    SE_BIND_METHOD(SpriteBase3D,get_billboard_mode);
 
-    BIND_METHOD(SpriteBase3D,get_item_rect);
-    BIND_METHOD(SpriteBase3D,generate_triangle_mesh);
+    SE_BIND_METHOD(SpriteBase3D,get_item_rect);
+    SE_BIND_METHOD(SpriteBase3D,generate_triangle_mesh);
 
-    BIND_METHOD(SpriteBase3D,_im_update);
+    SE_BIND_METHOD(SpriteBase3D,_im_update);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "centered"), "set_centered", "is_centered");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");
@@ -795,26 +795,26 @@ void Sprite3D::_validate_property(PropertyInfo &property) const {
 
 void Sprite3D::_bind_methods() {
 
-    BIND_METHOD(Sprite3D,set_texture);
-    BIND_METHOD(Sprite3D,get_texture);
+    SE_BIND_METHOD(Sprite3D,set_texture);
+    SE_BIND_METHOD(Sprite3D,get_texture);
 
-    BIND_METHOD(Sprite3D,set_region);
-    BIND_METHOD(Sprite3D,is_region);
+    SE_BIND_METHOD(Sprite3D,set_region);
+    SE_BIND_METHOD(Sprite3D,is_region);
 
-    BIND_METHOD(Sprite3D,set_region_rect);
-    BIND_METHOD(Sprite3D,get_region_rect);
+    SE_BIND_METHOD(Sprite3D,set_region_rect);
+    SE_BIND_METHOD(Sprite3D,get_region_rect);
 
-    BIND_METHOD(Sprite3D,set_frame);
-    BIND_METHOD(Sprite3D,get_frame);
+    SE_BIND_METHOD(Sprite3D,set_frame);
+    SE_BIND_METHOD(Sprite3D,get_frame);
 
-    BIND_METHOD(Sprite3D,set_frame_coords);
-    BIND_METHOD(Sprite3D,get_frame_coords);
+    SE_BIND_METHOD(Sprite3D,set_frame_coords);
+    SE_BIND_METHOD(Sprite3D,get_frame_coords);
 
-    BIND_METHOD(Sprite3D,set_vframes);
-    BIND_METHOD(Sprite3D,get_vframes);
+    SE_BIND_METHOD(Sprite3D,set_vframes);
+    SE_BIND_METHOD(Sprite3D,get_vframes);
 
-    BIND_METHOD(Sprite3D,set_hframes);
-    BIND_METHOD(Sprite3D,get_hframes);
+    SE_BIND_METHOD(Sprite3D,set_hframes);
+    SE_BIND_METHOD(Sprite3D,get_hframes);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
     ADD_GROUP("Animation", "");
@@ -1123,23 +1123,23 @@ String AnimatedSprite3D::get_configuration_warning() const {
 
 void AnimatedSprite3D::_bind_methods() {
 
-    BIND_METHOD(AnimatedSprite3D,set_sprite_frames);
-    BIND_METHOD(AnimatedSprite3D,get_sprite_frames);
+    SE_BIND_METHOD(AnimatedSprite3D,set_sprite_frames);
+    SE_BIND_METHOD(AnimatedSprite3D,get_sprite_frames);
 
-    BIND_METHOD(AnimatedSprite3D,set_animation);
-    BIND_METHOD(AnimatedSprite3D,get_animation);
+    SE_BIND_METHOD(AnimatedSprite3D,set_animation);
+    SE_BIND_METHOD(AnimatedSprite3D,get_animation);
 
-    BIND_METHOD(AnimatedSprite3D,_set_playing);
-    BIND_METHOD(AnimatedSprite3D,_is_playing);
+    SE_BIND_METHOD(AnimatedSprite3D,_set_playing);
+    SE_BIND_METHOD(AnimatedSprite3D,_is_playing);
 
     MethodBinder::bind_method(D_METHOD("play", {"anim"}), &AnimatedSprite3D::play, {DEFVAL(StringName())});
-    BIND_METHOD(AnimatedSprite3D,stop);
-    BIND_METHOD(AnimatedSprite3D,is_playing);
+    SE_BIND_METHOD(AnimatedSprite3D,stop);
+    SE_BIND_METHOD(AnimatedSprite3D,is_playing);
 
-    BIND_METHOD(AnimatedSprite3D,set_frame);
-    BIND_METHOD(AnimatedSprite3D,get_frame);
+    SE_BIND_METHOD(AnimatedSprite3D,set_frame);
+    SE_BIND_METHOD(AnimatedSprite3D,get_frame);
 
-    BIND_METHOD(AnimatedSprite3D,_res_changed);
+    SE_BIND_METHOD(AnimatedSprite3D,_res_changed);
 
     ADD_SIGNAL(MethodInfo("frame_changed"));
     ADD_SIGNAL(MethodInfo("animation_finished"));

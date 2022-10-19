@@ -332,43 +332,43 @@ EditorInterface *EditorInterface::singleton = nullptr;
 void EditorInterface::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("inspect_object", {"object", "for_property", "inspector_only"}), &EditorInterface::inspect_object, {DEFVAL(StringView("")),DEFVAL(false)});
-    BIND_METHOD(EditorInterface,get_selection);
-    BIND_METHOD(EditorInterface,get_editor_settings);
-    BIND_METHOD(EditorInterface,get_script_editor);
-    BIND_METHOD(EditorInterface,get_base_control);
-    BIND_METHOD(EditorInterface,get_editor_scale);
-    BIND_METHOD(EditorInterface,edit_resource);
-    BIND_METHOD(EditorInterface,edit_node);
+    SE_BIND_METHOD(EditorInterface,get_selection);
+    SE_BIND_METHOD(EditorInterface,get_editor_settings);
+    SE_BIND_METHOD(EditorInterface,get_script_editor);
+    SE_BIND_METHOD(EditorInterface,get_base_control);
+    SE_BIND_METHOD(EditorInterface,get_editor_scale);
+    SE_BIND_METHOD(EditorInterface,edit_resource);
+    SE_BIND_METHOD(EditorInterface,edit_node);
     MethodBinder::bind_method(D_METHOD("edit_script", {"script", "line", "column", "grab_focus"}), &EditorInterface::edit_script, {DEFVAL(-1), DEFVAL(0), DEFVAL(true)});
-    BIND_METHOD(EditorInterface,open_scene_from_path);
-    BIND_METHOD(EditorInterface,reload_scene_from_path);
-    BIND_METHOD(EditorInterface,play_main_scene);
-    BIND_METHOD(EditorInterface,play_current_scene);
-    BIND_METHOD(EditorInterface,play_custom_scene);
-    BIND_METHOD(EditorInterface,stop_playing_scene);
-    BIND_METHOD(EditorInterface,is_playing_scene);
-    BIND_METHOD(EditorInterface,get_playing_scene);
-    BIND_METHOD(EditorInterface,get_open_scenes);
-    BIND_METHOD(EditorInterface,get_edited_scene_root);
-    BIND_METHOD(EditorInterface,get_resource_previewer);
-    BIND_METHOD(EditorInterface,get_resource_file_system);
-    BIND_METHOD(EditorInterface,get_editor_viewport);
+    SE_BIND_METHOD(EditorInterface,open_scene_from_path);
+    SE_BIND_METHOD(EditorInterface,reload_scene_from_path);
+    SE_BIND_METHOD(EditorInterface,play_main_scene);
+    SE_BIND_METHOD(EditorInterface,play_current_scene);
+    SE_BIND_METHOD(EditorInterface,play_custom_scene);
+    SE_BIND_METHOD(EditorInterface,stop_playing_scene);
+    SE_BIND_METHOD(EditorInterface,is_playing_scene);
+    SE_BIND_METHOD(EditorInterface,get_playing_scene);
+    SE_BIND_METHOD(EditorInterface,get_open_scenes);
+    SE_BIND_METHOD(EditorInterface,get_edited_scene_root);
+    SE_BIND_METHOD(EditorInterface,get_resource_previewer);
+    SE_BIND_METHOD(EditorInterface,get_resource_file_system);
+    SE_BIND_METHOD(EditorInterface,get_editor_viewport);
     MethodBinder::bind_method(D_METHOD("make_mesh_previews", {"meshes", "preview_size"}), &EditorInterface::_make_mesh_previews);
-    BIND_METHOD(EditorInterface,select_file);
-    BIND_METHOD(EditorInterface,get_selected_path);
-    BIND_METHOD(EditorInterface,get_current_path);
-    BIND_METHOD(EditorInterface,get_file_system_dock);
+    SE_BIND_METHOD(EditorInterface,select_file);
+    SE_BIND_METHOD(EditorInterface,get_selected_path);
+    SE_BIND_METHOD(EditorInterface,get_current_path);
+    SE_BIND_METHOD(EditorInterface,get_file_system_dock);
 
-    BIND_METHOD(EditorInterface,set_plugin_enabled);
-    BIND_METHOD(EditorInterface,is_plugin_enabled);
+    SE_BIND_METHOD(EditorInterface,set_plugin_enabled);
+    SE_BIND_METHOD(EditorInterface,is_plugin_enabled);
 
-    BIND_METHOD(EditorInterface,get_inspector);
+    SE_BIND_METHOD(EditorInterface,get_inspector);
 
-    BIND_METHOD(EditorInterface,save_scene);
+    SE_BIND_METHOD(EditorInterface,save_scene);
     MethodBinder::bind_method(D_METHOD("save_scene_as", {"path", "with_preview"}), &EditorInterface::save_scene_as, {DEFVAL(true)});
 
-    BIND_METHOD(EditorInterface,set_main_screen_editor);
-    BIND_METHOD(EditorInterface,set_distraction_free_mode);
+    SE_BIND_METHOD(EditorInterface,set_main_screen_editor);
+    SE_BIND_METHOD(EditorInterface,set_distraction_free_mode);
 }
 
 EditorInterface::EditorInterface() {
@@ -905,43 +905,43 @@ ScriptCreateDialog *EditorPlugin::get_script_create_dialog() {
 
 void EditorPlugin::_bind_methods() {
 
-    BIND_METHOD(EditorPlugin,add_control_to_container);
-    BIND_METHOD(EditorPlugin,add_control_to_bottom_panel);
-    BIND_METHOD(EditorPlugin,add_control_to_dock);
-    BIND_METHOD(EditorPlugin,remove_control_from_docks);
-    BIND_METHOD(EditorPlugin,remove_control_from_bottom_panel);
-    BIND_METHOD(EditorPlugin,remove_control_from_container);
+    SE_BIND_METHOD(EditorPlugin,add_control_to_container);
+    SE_BIND_METHOD(EditorPlugin,add_control_to_bottom_panel);
+    SE_BIND_METHOD(EditorPlugin,add_control_to_dock);
+    SE_BIND_METHOD(EditorPlugin,remove_control_from_docks);
+    SE_BIND_METHOD(EditorPlugin,remove_control_from_bottom_panel);
+    SE_BIND_METHOD(EditorPlugin,remove_control_from_container);
     MethodBinder::bind_method(D_METHOD("add_tool_menu_item", {"name", "handler", "callback", "ud"}), &EditorPlugin::add_tool_menu_item, {DEFVAL(Variant())});
-    BIND_METHOD(EditorPlugin,add_tool_submenu_item);
-    BIND_METHOD(EditorPlugin,remove_tool_menu_item);
-    BIND_METHOD(EditorPlugin,add_custom_type);
-    BIND_METHOD(EditorPlugin,remove_custom_type);
+    SE_BIND_METHOD(EditorPlugin,add_tool_submenu_item);
+    SE_BIND_METHOD(EditorPlugin,remove_tool_menu_item);
+    SE_BIND_METHOD(EditorPlugin,add_custom_type);
+    SE_BIND_METHOD(EditorPlugin,remove_custom_type);
 
-    BIND_METHOD(EditorPlugin,add_autoload_singleton);
-    BIND_METHOD(EditorPlugin,remove_autoload_singleton);
+    SE_BIND_METHOD(EditorPlugin,add_autoload_singleton);
+    SE_BIND_METHOD(EditorPlugin,remove_autoload_singleton);
 
-    BIND_METHOD(EditorPlugin,update_overlays);
+    SE_BIND_METHOD(EditorPlugin,update_overlays);
 
-    BIND_METHOD(EditorPlugin,make_bottom_panel_item_visible);
-    BIND_METHOD(EditorPlugin,hide_bottom_panel);
+    SE_BIND_METHOD(EditorPlugin,make_bottom_panel_item_visible);
+    SE_BIND_METHOD(EditorPlugin,hide_bottom_panel);
 
-    BIND_METHOD(EditorPlugin,get_undo_redo);
-    BIND_METHOD(EditorPlugin,queue_save_layout);
-    BIND_METHOD(EditorPlugin,add_import_plugin);
-    BIND_METHOD(EditorPlugin,remove_import_plugin);
-    BIND_METHOD(EditorPlugin,add_scene_import_plugin);
-    BIND_METHOD(EditorPlugin,remove_scene_import_plugin);
-    BIND_METHOD(EditorPlugin,add_export_plugin);
-    BIND_METHOD(EditorPlugin,remove_export_plugin);
-    BIND_METHOD(EditorPlugin,add_spatial_gizmo_plugin);
-    BIND_METHOD(EditorPlugin,remove_spatial_gizmo_plugin);
-    BIND_METHOD(EditorPlugin,add_inspector_plugin);
-    BIND_METHOD(EditorPlugin,remove_inspector_plugin);
-    BIND_METHOD(EditorPlugin,set_input_event_forwarding_always_enabled);
-    BIND_METHOD(EditorPlugin,set_force_draw_over_forwarding_enabled);
+    SE_BIND_METHOD(EditorPlugin,get_undo_redo);
+    SE_BIND_METHOD(EditorPlugin,queue_save_layout);
+    SE_BIND_METHOD(EditorPlugin,add_import_plugin);
+    SE_BIND_METHOD(EditorPlugin,remove_import_plugin);
+    SE_BIND_METHOD(EditorPlugin,add_scene_import_plugin);
+    SE_BIND_METHOD(EditorPlugin,remove_scene_import_plugin);
+    SE_BIND_METHOD(EditorPlugin,add_export_plugin);
+    SE_BIND_METHOD(EditorPlugin,remove_export_plugin);
+    SE_BIND_METHOD(EditorPlugin,add_spatial_gizmo_plugin);
+    SE_BIND_METHOD(EditorPlugin,remove_spatial_gizmo_plugin);
+    SE_BIND_METHOD(EditorPlugin,add_inspector_plugin);
+    SE_BIND_METHOD(EditorPlugin,remove_inspector_plugin);
+    SE_BIND_METHOD(EditorPlugin,set_input_event_forwarding_always_enabled);
+    SE_BIND_METHOD(EditorPlugin,set_force_draw_over_forwarding_enabled);
 
-    BIND_METHOD(EditorPlugin,get_editor_interface);
-    BIND_METHOD(EditorPlugin,get_script_create_dialog);
+    SE_BIND_METHOD(EditorPlugin,get_editor_interface);
+    SE_BIND_METHOD(EditorPlugin,get_script_create_dialog);
 
     //TODO: make virtual method names match actual virtual method names ex. get_plugin_icon -> get_icon
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "forward_canvas_gui_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));

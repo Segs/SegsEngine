@@ -1572,25 +1572,25 @@ void SceneState::_bind_methods() {
 
     //unbuild API
 
-    BIND_METHOD(SceneState,get_node_count);
-    BIND_METHOD(SceneState,get_node_type);
-    BIND_METHOD(SceneState,get_node_name);
+    SE_BIND_METHOD(SceneState,get_node_count);
+    SE_BIND_METHOD(SceneState,get_node_type);
+    SE_BIND_METHOD(SceneState,get_node_name);
     MethodBinder::bind_method(D_METHOD("get_node_path", {"idx", "for_parent"}), &SceneState::get_node_path, {DEFVAL(false)});
-    BIND_METHOD(SceneState,get_node_owner_path);
-    BIND_METHOD(SceneState,is_node_instance_placeholder);
-    BIND_METHOD(SceneState,get_node_instance_placeholder);
-    BIND_METHOD(SceneState,get_node_instance);
+    SE_BIND_METHOD(SceneState,get_node_owner_path);
+    SE_BIND_METHOD(SceneState,is_node_instance_placeholder);
+    SE_BIND_METHOD(SceneState,get_node_instance_placeholder);
+    SE_BIND_METHOD(SceneState,get_node_instance);
     MethodBinder::bind_method(D_METHOD("get_node_groups", {"idx"}), &SceneState::_get_node_groups);
-    BIND_METHOD(SceneState,get_node_index);
-    BIND_METHOD(SceneState,get_node_property_count);
-    BIND_METHOD(SceneState,get_node_property_name);
-    BIND_METHOD(SceneState,get_node_property_value);
-    BIND_METHOD(SceneState,get_connection_count);
-    BIND_METHOD(SceneState,get_connection_source);
-    BIND_METHOD(SceneState,get_connection_signal);
-    BIND_METHOD(SceneState,get_connection_target);
-    BIND_METHOD(SceneState,get_connection_method);
-    BIND_METHOD(SceneState,get_connection_flags);
+    SE_BIND_METHOD(SceneState,get_node_index);
+    SE_BIND_METHOD(SceneState,get_node_property_count);
+    SE_BIND_METHOD(SceneState,get_node_property_name);
+    SE_BIND_METHOD(SceneState,get_node_property_value);
+    SE_BIND_METHOD(SceneState,get_connection_count);
+    SE_BIND_METHOD(SceneState,get_connection_source);
+    SE_BIND_METHOD(SceneState,get_connection_signal);
+    SE_BIND_METHOD(SceneState,get_connection_target);
+    SE_BIND_METHOD(SceneState,get_connection_method);
+    SE_BIND_METHOD(SceneState,get_connection_flags);
 
 }
 
@@ -1670,12 +1670,12 @@ void PackedScene::set_path(StringView p_path, bool p_take_over) {
 
 void PackedScene::_bind_methods() {
 
-    BIND_METHOD(PackedScene,pack);
+    SE_BIND_METHOD(PackedScene,pack);
     MethodBinder::bind_method(D_METHOD("instance", {"edit_state"}), &PackedScene::instance, {DEFVAL(GEN_EDIT_STATE_DISABLED)});
-    BIND_METHOD(PackedScene,can_instance);
-    BIND_METHOD(PackedScene,_set_bundled_scene);
-    BIND_METHOD(PackedScene,_get_bundled_scene);
-    BIND_METHOD(PackedScene,get_state);
+    SE_BIND_METHOD(PackedScene,can_instance);
+    SE_BIND_METHOD(PackedScene,_set_bundled_scene);
+    SE_BIND_METHOD(PackedScene,_get_bundled_scene);
+    SE_BIND_METHOD(PackedScene,get_state);
 
     ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "_bundled"), "_set_bundled_scene", "_get_bundled_scene");
 

@@ -429,33 +429,33 @@ Ref<ButtonGroup> BaseButton::get_button_group() const {
 
 void BaseButton::_bind_methods() {
 
-    BIND_METHOD(BaseButton,_gui_input);
-    BIND_METHOD(BaseButton,_unhandled_input);
-    BIND_METHOD(BaseButton,set_pressed);
-    BIND_METHOD(BaseButton,is_pressed);
-    BIND_METHOD(BaseButton,set_pressed_no_signal);
-    BIND_METHOD(BaseButton,is_hovered);
-    BIND_METHOD(BaseButton,set_toggle_mode);
-    BIND_METHOD(BaseButton,is_toggle_mode);
-    BIND_METHOD(BaseButton,set_shortcut_in_tooltip);
-    BIND_METHOD(BaseButton,is_shortcut_in_tooltip_enabled);
-    BIND_METHOD(BaseButton,set_disabled);
-    BIND_METHOD(BaseButton,is_disabled);
-    BIND_METHOD(BaseButton,set_action_mode);
-    BIND_METHOD(BaseButton,get_action_mode);
-    BIND_METHOD(BaseButton,set_button_mask);
-    BIND_METHOD(BaseButton,get_button_mask);
-    BIND_METHOD(BaseButton,get_draw_mode);
-    BIND_METHOD(BaseButton,set_enabled_focus_mode);
-    BIND_METHOD(BaseButton,get_enabled_focus_mode);
-    BIND_METHOD(BaseButton,set_keep_pressed_outside);
-    BIND_METHOD(BaseButton,is_keep_pressed_outside);
+    SE_BIND_METHOD(BaseButton,_gui_input);
+    SE_BIND_METHOD(BaseButton,_unhandled_input);
+    SE_BIND_METHOD(BaseButton,set_pressed);
+    SE_BIND_METHOD(BaseButton,is_pressed);
+    SE_BIND_METHOD(BaseButton,set_pressed_no_signal);
+    SE_BIND_METHOD(BaseButton,is_hovered);
+    SE_BIND_METHOD(BaseButton,set_toggle_mode);
+    SE_BIND_METHOD(BaseButton,is_toggle_mode);
+    SE_BIND_METHOD(BaseButton,set_shortcut_in_tooltip);
+    SE_BIND_METHOD(BaseButton,is_shortcut_in_tooltip_enabled);
+    SE_BIND_METHOD(BaseButton,set_disabled);
+    SE_BIND_METHOD(BaseButton,is_disabled);
+    SE_BIND_METHOD(BaseButton,set_action_mode);
+    SE_BIND_METHOD(BaseButton,get_action_mode);
+    SE_BIND_METHOD(BaseButton,set_button_mask);
+    SE_BIND_METHOD(BaseButton,get_button_mask);
+    SE_BIND_METHOD(BaseButton,get_draw_mode);
+    SE_BIND_METHOD(BaseButton,set_enabled_focus_mode);
+    SE_BIND_METHOD(BaseButton,get_enabled_focus_mode);
+    SE_BIND_METHOD(BaseButton,set_keep_pressed_outside);
+    SE_BIND_METHOD(BaseButton,is_keep_pressed_outside);
 
-    BIND_METHOD(BaseButton,set_shortcut);
-    BIND_METHOD(BaseButton,get_shortcut);
+    SE_BIND_METHOD(BaseButton,set_shortcut);
+    SE_BIND_METHOD(BaseButton,get_shortcut);
 
-    BIND_METHOD(BaseButton,set_button_group);
-    BIND_METHOD(BaseButton,get_button_group);
+    SE_BIND_METHOD(BaseButton,set_button_group);
+    SE_BIND_METHOD(BaseButton,get_button_group);
 
     BIND_VMETHOD(MethodInfo("_pressed"));
     BIND_VMETHOD(MethodInfo("_toggled", PropertyInfo(VariantType::BOOL, "button_pressed")));
@@ -521,8 +521,8 @@ BaseButton *ButtonGroup::get_pressed_button() {
 
 void ButtonGroup::_bind_methods() {
 
-    BIND_METHOD(ButtonGroup,get_pressed_button);
-    BIND_METHOD(ButtonGroup,get_buttons);
+    SE_BIND_METHOD(ButtonGroup,get_pressed_button);
+    SE_BIND_METHOD(ButtonGroup,get_buttons);
     ADD_SIGNAL(MethodInfo("pressed", PropertyInfo(VariantType::OBJECT, "button")));
 }
 

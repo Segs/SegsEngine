@@ -678,8 +678,8 @@ Variant UndoRedo::_add_undo_method(const Variant **p_args, int p_argcount, Calla
 void UndoRedo::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("create_action", {"name", "merge_mode"}), &UndoRedo::create_action, {DEFVAL(int(MERGE_DISABLE))});
-    BIND_METHOD(UndoRedo,commit_action);
-    BIND_METHOD(UndoRedo,is_committing_action);
+    SE_BIND_METHOD(UndoRedo,commit_action);
+    SE_BIND_METHOD(UndoRedo,is_committing_action);
 
     {
         MethodInfo mi("add_do_method",PropertyInfo(VariantType::OBJECT, "object"),PropertyInfo(VariantType::STRING_NAME, "method"));
@@ -690,17 +690,17 @@ void UndoRedo::_bind_methods() {
         MethodBinder::bind_vararg_method("add_undo_method", &UndoRedo::_add_undo_method, eastl::move(mi),null_variant_pvec,false);
     }
 
-    BIND_METHOD(UndoRedo,add_do_property);
-    BIND_METHOD(UndoRedo,add_undo_property);
-    BIND_METHOD(UndoRedo,add_do_reference);
-    BIND_METHOD(UndoRedo,add_undo_reference);
+    SE_BIND_METHOD(UndoRedo,add_do_property);
+    SE_BIND_METHOD(UndoRedo,add_undo_property);
+    SE_BIND_METHOD(UndoRedo,add_do_reference);
+    SE_BIND_METHOD(UndoRedo,add_undo_reference);
     MethodBinder::bind_method(D_METHOD("clear_history", {"increase_version"}), &UndoRedo::clear_history, {DEFVAL(true)});
-    BIND_METHOD(UndoRedo,get_current_action_name);
-    BIND_METHOD(UndoRedo,has_undo);
-    BIND_METHOD(UndoRedo,has_redo);
-    BIND_METHOD(UndoRedo,get_version);
-    BIND_METHOD(UndoRedo,redo);
-    BIND_METHOD(UndoRedo,undo);
+    SE_BIND_METHOD(UndoRedo,get_current_action_name);
+    SE_BIND_METHOD(UndoRedo,has_undo);
+    SE_BIND_METHOD(UndoRedo,has_redo);
+    SE_BIND_METHOD(UndoRedo,get_version);
+    SE_BIND_METHOD(UndoRedo,redo);
+    SE_BIND_METHOD(UndoRedo,undo);
 
     ADD_SIGNAL(MethodInfo("version_changed"));
 

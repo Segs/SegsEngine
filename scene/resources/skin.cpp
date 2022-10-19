@@ -146,21 +146,21 @@ void Skin::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
 void Skin::_bind_methods() {
 
-    BIND_METHOD(Skin,set_bind_count);
-    BIND_METHOD(Skin,get_bind_count);
+    SE_BIND_METHOD(Skin,set_bind_count);
+    SE_BIND_METHOD(Skin,get_bind_count);
 
-    BIND_METHOD(Skin,add_bind);
+    SE_BIND_METHOD(Skin,add_bind);
 
-    BIND_METHOD(Skin,set_bind_pose);
-    BIND_METHOD(Skin,get_bind_pose);
+    SE_BIND_METHOD(Skin,set_bind_pose);
+    SE_BIND_METHOD(Skin,get_bind_pose);
 
-    BIND_METHOD(Skin,set_bind_name);
-    BIND_METHOD(Skin,get_bind_name);
+    SE_BIND_METHOD(Skin,set_bind_name);
+    SE_BIND_METHOD(Skin,get_bind_name);
 
-    BIND_METHOD(Skin,set_bind_bone);
-    BIND_METHOD(Skin,get_bind_bone);
+    SE_BIND_METHOD(Skin,set_bind_bone);
+    SE_BIND_METHOD(Skin,get_bind_bone);
 
-    BIND_METHOD(Skin,clear_binds);
+    SE_BIND_METHOD(Skin,clear_binds);
 }
 
 Skin::Skin() {

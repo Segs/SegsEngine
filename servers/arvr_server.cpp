@@ -47,34 +47,34 @@ ARVRServer *ARVRServer::get_singleton() {
 }
 
 void ARVRServer::_bind_methods() {
-    BIND_METHOD(ARVRServer,get_world_scale);
-    BIND_METHOD(ARVRServer,set_world_scale);
-    BIND_METHOD(ARVRServer,get_reference_frame);
-    BIND_METHOD(ARVRServer,center_on_hmd);
-    BIND_METHOD(ARVRServer,get_hmd_transform);
+    SE_BIND_METHOD(ARVRServer,get_world_scale);
+    SE_BIND_METHOD(ARVRServer,set_world_scale);
+    SE_BIND_METHOD(ARVRServer,get_reference_frame);
+    SE_BIND_METHOD(ARVRServer,center_on_hmd);
+    SE_BIND_METHOD(ARVRServer,get_hmd_transform);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "world_scale"), "set_world_scale", "get_world_scale");
 
-    BIND_METHOD(ARVRServer,add_interface);
-    BIND_METHOD(ARVRServer,clear_primary_interface_if);
-    BIND_METHOD(ARVRServer,get_interface_count);
-    BIND_METHOD(ARVRServer,get_interface);
-    BIND_METHOD(ARVRServer,get_interfaces);
-    BIND_METHOD(ARVRServer,find_interface);
-    BIND_METHOD(ARVRServer,get_tracker_count);
-    BIND_METHOD(ARVRServer,remove_interface);
-    BIND_METHOD(ARVRServer,get_tracker);
-    BIND_METHOD(ARVRServer,add_tracker);
-    BIND_METHOD(ARVRServer,remove_tracker);
+    SE_BIND_METHOD(ARVRServer,add_interface);
+    SE_BIND_METHOD(ARVRServer,clear_primary_interface_if);
+    SE_BIND_METHOD(ARVRServer,get_interface_count);
+    SE_BIND_METHOD(ARVRServer,get_interface);
+    SE_BIND_METHOD(ARVRServer,get_interfaces);
+    SE_BIND_METHOD(ARVRServer,find_interface);
+    SE_BIND_METHOD(ARVRServer,get_tracker_count);
+    SE_BIND_METHOD(ARVRServer,remove_interface);
+    SE_BIND_METHOD(ARVRServer,get_tracker);
+    SE_BIND_METHOD(ARVRServer,add_tracker);
+    SE_BIND_METHOD(ARVRServer,remove_tracker);
 
-    BIND_METHOD(ARVRServer,get_primary_interface);
-    BIND_METHOD(ARVRServer,set_primary_interface);
+    SE_BIND_METHOD(ARVRServer,get_primary_interface);
+    SE_BIND_METHOD(ARVRServer,set_primary_interface);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "primary_interface"), "set_primary_interface", "get_primary_interface");
 
-    BIND_METHOD(ARVRServer,get_last_process_usec);
-    BIND_METHOD(ARVRServer,get_last_commit_usec);
-    BIND_METHOD(ARVRServer,get_last_frame_usec);
+    SE_BIND_METHOD(ARVRServer,get_last_process_usec);
+    SE_BIND_METHOD(ARVRServer,get_last_commit_usec);
+    SE_BIND_METHOD(ARVRServer,get_last_frame_usec);
 
     BIND_ENUM_CONSTANT(TRACKER_CONTROLLER);
     BIND_ENUM_CONSTANT(TRACKER_BASESTATION);

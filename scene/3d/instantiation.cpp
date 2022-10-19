@@ -43,14 +43,14 @@ IMPL_GDCLASS(LibraryEntryInstance)
 
 void LibraryEntryInstance::_bind_methods() {
 
-    BIND_METHOD(LibraryEntryInstance,set_library);
-    BIND_METHOD(LibraryEntryInstance,get_library);
+    SE_BIND_METHOD(LibraryEntryInstance,set_library);
+    SE_BIND_METHOD(LibraryEntryInstance,get_library);
 
-    BIND_METHOD(LibraryEntryInstance,set_library_path);
-    BIND_METHOD(LibraryEntryInstance,get_library_path);
+    SE_BIND_METHOD(LibraryEntryInstance,set_library_path);
+    SE_BIND_METHOD(LibraryEntryInstance,get_library_path);
 
-    BIND_METHOD(LibraryEntryInstance,set_entry);
-    BIND_METHOD(LibraryEntryInstance,get_entry);
+    SE_BIND_METHOD(LibraryEntryInstance,set_entry);
+    SE_BIND_METHOD(LibraryEntryInstance,get_entry);
 
     ClassDB::add_property(get_class_static_name(),
             PropertyInfo(VariantType::OBJECT, "library", PropertyHint::ResourceType, "SceneLibrary",PROPERTY_USAGE_EDITOR),
@@ -103,7 +103,6 @@ bool LibraryEntryInstance::instantiate() {
     }
     assert(children().empty());
 
-    int pos = get_position_in_parent();
     // get the packed scene from library.
     LibraryItemHandle h = resolved_library->find_item_by_name(entry_name);
     set_filename(lib_name + "::" + StringUtils::num(h));
@@ -114,13 +113,13 @@ bool LibraryEntryInstance::instantiate() {
     call_deferred([=] {
         // create the target scene instance
         scene->set_name(scene->get_name() + "_libinstance");
-        Node *base = get_parent();
+        Node *parent = get_parent();
         int pos = get_position_in_parent();
         auto t = get_transform();
         queue_delete();
-        base->remove_child(this);
-        base->add_child(scene);
-        base->move_child(scene, pos);
+        parent->remove_child(this);
+        parent->add_child(scene);
+        parent->move_child(scene, pos);
         scene->set_transform(t);
         set_owner_deep(EditorNode::get_singleton()->get_edited_scene(),scene);
     });

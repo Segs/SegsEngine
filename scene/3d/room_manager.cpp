@@ -274,14 +274,14 @@ void RoomManager::_bind_methods() {
     BIND_ENUM_CONSTANT(PVS_MODE_FULL);
 
     // main functions
-    BIND_METHOD(RoomManager,rooms_convert);
-    BIND_METHOD(RoomManager,rooms_clear);
+    SE_BIND_METHOD(RoomManager,rooms_convert);
+    SE_BIND_METHOD(RoomManager,rooms_clear);
 
-    BIND_METHOD(RoomManager,set_pvs_mode);
-    BIND_METHOD(RoomManager,get_pvs_mode);
+    SE_BIND_METHOD(RoomManager,set_pvs_mode);
+    SE_BIND_METHOD(RoomManager,get_pvs_mode);
 
-    BIND_METHOD(RoomManager,set_roomlist_path);
-    BIND_METHOD(RoomManager,get_roomlist_path);
+    SE_BIND_METHOD(RoomManager,set_roomlist_path);
+    SE_BIND_METHOD(RoomManager,get_roomlist_path);
 
     // These are commented out for now, but available in case we want to cache PVS to disk, the functionality exists
     // BIND_METHOD(RoomManager,set_pvs_filename);

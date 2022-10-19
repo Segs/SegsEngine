@@ -111,11 +111,11 @@ bool DictionaryPropertyEdit::_dont_undo_redo() {
 
 void DictionaryPropertyEdit::_bind_methods() {
 
-    BIND_METHOD(DictionaryPropertyEdit,_set_key);
-    BIND_METHOD(DictionaryPropertyEdit,_set_value);
-    BIND_METHOD(DictionaryPropertyEdit,_notif_change);
-    BIND_METHOD(DictionaryPropertyEdit,_notif_changev);
-    BIND_METHOD(DictionaryPropertyEdit,_dont_undo_redo);
+    SE_BIND_METHOD(DictionaryPropertyEdit,_set_key);
+    SE_BIND_METHOD(DictionaryPropertyEdit,_set_value);
+    SE_BIND_METHOD(DictionaryPropertyEdit,_notif_change);
+    SE_BIND_METHOD(DictionaryPropertyEdit,_notif_changev);
+    SE_BIND_METHOD(DictionaryPropertyEdit,_dont_undo_redo);
 }
 
 bool DictionaryPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {

@@ -1680,25 +1680,25 @@ void EditorSettings::notify_changes() {
 }
 
 void EditorSettings::_bind_methods() {
-    BIND_METHOD(EditorSettings, has_setting);
-    BIND_METHOD(EditorSettings, set_setting);
-    BIND_METHOD(EditorSettings, get_setting);
-    BIND_METHOD(EditorSettings, erase);
-    BIND_METHOD(EditorSettings, set_initial_value);
-    BIND_METHOD(EditorSettings, property_can_revert);
-    BIND_METHOD(EditorSettings, property_get_revert);
-    BIND_METHOD_WRAPPER(EditorSettings, add_property_info, _add_property_info_bind);
+    SE_BIND_METHOD(EditorSettings, has_setting);
+    SE_BIND_METHOD(EditorSettings, set_setting);
+    SE_BIND_METHOD(EditorSettings, get_setting);
+    SE_BIND_METHOD(EditorSettings, erase);
+    SE_BIND_METHOD(EditorSettings, set_initial_value);
+    SE_BIND_METHOD(EditorSettings, property_can_revert);
+    SE_BIND_METHOD(EditorSettings, property_get_revert);
+    SE_BIND_METHOD_WRAPPER(EditorSettings, add_property_info, _add_property_info_bind);
 
-    BIND_METHOD(EditorSettings, get_settings_dir);
-    BIND_METHOD(EditorSettings, get_project_settings_dir);
+    SE_BIND_METHOD(EditorSettings, get_settings_dir);
+    SE_BIND_METHOD(EditorSettings, get_project_settings_dir);
 
-    BIND_METHOD(EditorSettings, set_project_metadata);
+    SE_BIND_METHOD(EditorSettings, set_project_metadata);
     MethodBinder::bind_method(D_METHOD("get_project_metadata", {"section", "key", "default"}), &EditorSettings::get_project_metadata, {DEFVAL(Variant())});
 
-    BIND_METHOD(EditorSettings, set_favorites);
-    BIND_METHOD(EditorSettings, get_favorites);
-    BIND_METHOD(EditorSettings, set_recent_dirs);
-    BIND_METHOD(EditorSettings, get_recent_dirs);
+    SE_BIND_METHOD(EditorSettings, set_favorites);
+    SE_BIND_METHOD(EditorSettings, get_favorites);
+    SE_BIND_METHOD(EditorSettings, set_recent_dirs);
+    SE_BIND_METHOD(EditorSettings, get_recent_dirs);
 
     ADD_SIGNAL(MethodInfo("settings_changed"));
     BIND_CONSTANT(NOTIFICATION_EDITOR_SETTINGS_CHANGED)

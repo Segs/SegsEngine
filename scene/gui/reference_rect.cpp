@@ -70,14 +70,14 @@ bool ReferenceRect::get_editor_only() const {
 }
 
 void ReferenceRect::_bind_methods() {
-    BIND_METHOD(ReferenceRect,get_border_color);
-    BIND_METHOD(ReferenceRect,set_border_color);
+    SE_BIND_METHOD(ReferenceRect,get_border_color);
+    SE_BIND_METHOD(ReferenceRect,set_border_color);
 
-    BIND_METHOD(ReferenceRect,get_border_width);
-    BIND_METHOD(ReferenceRect,set_border_width);
+    SE_BIND_METHOD(ReferenceRect,get_border_width);
+    SE_BIND_METHOD(ReferenceRect,set_border_width);
 
-    BIND_METHOD(ReferenceRect,get_editor_only);
-    BIND_METHOD(ReferenceRect,set_editor_only);
+    SE_BIND_METHOD(ReferenceRect,get_editor_only);
+    SE_BIND_METHOD(ReferenceRect,set_editor_only);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "border_color"), "set_border_color", "get_border_color");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "border_width", PropertyHint::Range, "0.0,5.0,0.1,or_greater"), "set_border_width", "get_border_width");

@@ -45,19 +45,19 @@ void CameraFeed::_bind_methods() {
     // The setters prefixed with _ are only exposed so we can have feeds through GDNative!
     // They should not be called by the end user.
 
-    BIND_METHOD(CameraFeed,get_id);
-    BIND_METHOD(CameraFeed,get_name);
+    SE_BIND_METHOD(CameraFeed,get_id);
+    SE_BIND_METHOD(CameraFeed,get_name);
     MethodBinder::bind_method(D_METHOD("_set_name", {"name"}), &CameraFeed::set_name);
 
-    BIND_METHOD(CameraFeed,is_active);
-    BIND_METHOD(CameraFeed,set_active);
+    SE_BIND_METHOD(CameraFeed,is_active);
+    SE_BIND_METHOD(CameraFeed,set_active);
 
-    BIND_METHOD(CameraFeed,get_position);
+    SE_BIND_METHOD(CameraFeed,get_position);
     MethodBinder::bind_method(D_METHOD("_set_position", {"position"}), &CameraFeed::set_position);
 
     // Note, for transform some feeds may override what the user sets (such as ARKit)
-    BIND_METHOD(CameraFeed,get_transform);
-    BIND_METHOD(CameraFeed,set_transform);
+    SE_BIND_METHOD(CameraFeed,get_transform);
+    SE_BIND_METHOD(CameraFeed,set_transform);
 
     MethodBinder::bind_method(D_METHOD("_set_RGB_img", {"rgb_img"}), &CameraFeed::set_RGB_img);
     MethodBinder::bind_method(D_METHOD("_set_YCbCr_img", {"ycbcr_img"}), &CameraFeed::set_YCbCr_img);

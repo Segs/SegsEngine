@@ -402,17 +402,17 @@ uint64_t Time::get_ticks_usec() const {
 }
 
 void Time::_bind_methods() {
-    BIND_METHOD(Time, get_datetime_dict_from_unix_time);
-    BIND_METHOD(Time, get_date_dict_from_unix_time);
-    BIND_METHOD(Time, get_time_dict_from_unix_time);
+    SE_BIND_METHOD(Time, get_datetime_dict_from_unix_time);
+    SE_BIND_METHOD(Time, get_date_dict_from_unix_time);
+    SE_BIND_METHOD(Time, get_time_dict_from_unix_time);
     SE_BIND_METHOD_WITH_DEFAULTS(Time, get_datetime_string_from_unix_time, DEFVAL(false));
-    BIND_METHOD(Time, get_date_string_from_unix_time);
-    BIND_METHOD(Time, get_time_string_from_unix_time);
+    SE_BIND_METHOD(Time, get_date_string_from_unix_time);
+    SE_BIND_METHOD(Time, get_time_string_from_unix_time);
     //BIND_METHOD(Time, get_datetime_dict_from_string);
-    BIND_METHOD(Time, get_datetime_dict_from_datetime_string);
-    BIND_METHOD(Time, get_datetime_string_from_datetime_dict);
+    SE_BIND_METHOD(Time, get_datetime_dict_from_datetime_string);
+    SE_BIND_METHOD(Time, get_datetime_string_from_datetime_dict);
     //BIND_METHOD(Time, get_unix_time_from_datetime_string);
-    BIND_METHOD(Time, get_offset_string_from_offset_minutes);
+    SE_BIND_METHOD(Time, get_offset_string_from_offset_minutes);
 
     SE_BIND_METHOD_WITH_DEFAULTS(Time, get_datetime_dict_from_system,DEFVAL(false));
     SE_BIND_METHOD_WITH_DEFAULTS(Time, get_date_dict_from_system,DEFVAL(false));
@@ -422,10 +422,10 @@ void Time::_bind_methods() {
     SE_BIND_METHOD_WITH_DEFAULTS(Time, get_date_string_from_system,DEFVAL(false));
     SE_BIND_METHOD_WITH_DEFAULTS(Time, get_time_string_from_system,DEFVAL(false));
 
-    BIND_METHOD(Time, get_time_zone_from_system);
-    BIND_METHOD(Time, get_unix_time_from_system);
-    BIND_METHOD(Time, get_ticks_msec);
-    BIND_METHOD(Time, get_ticks_usec);
+    SE_BIND_METHOD(Time, get_time_zone_from_system);
+    SE_BIND_METHOD(Time, get_unix_time_from_system);
+    SE_BIND_METHOD(Time, get_ticks_msec);
+    SE_BIND_METHOD(Time, get_ticks_usec);
 
     BIND_ENUM_CONSTANT(MONTH_JANUARY);
     BIND_ENUM_CONSTANT(MONTH_FEBRUARY);

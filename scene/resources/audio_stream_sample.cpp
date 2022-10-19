@@ -629,28 +629,28 @@ String AudioStreamSample::get_stream_name() const {
 
 void AudioStreamSample::_bind_methods() {
 
-    BIND_METHOD(AudioStreamSample,set_data);
-    BIND_METHOD(AudioStreamSample,get_data);
+    SE_BIND_METHOD(AudioStreamSample,set_data);
+    SE_BIND_METHOD(AudioStreamSample,get_data);
 
-    BIND_METHOD(AudioStreamSample,set_format);
-    BIND_METHOD(AudioStreamSample,get_format);
+    SE_BIND_METHOD(AudioStreamSample,set_format);
+    SE_BIND_METHOD(AudioStreamSample,get_format);
 
-    BIND_METHOD(AudioStreamSample,set_loop_mode);
-    BIND_METHOD(AudioStreamSample,get_loop_mode);
+    SE_BIND_METHOD(AudioStreamSample,set_loop_mode);
+    SE_BIND_METHOD(AudioStreamSample,get_loop_mode);
 
-    BIND_METHOD(AudioStreamSample,set_loop_begin);
-    BIND_METHOD(AudioStreamSample,get_loop_begin);
+    SE_BIND_METHOD(AudioStreamSample,set_loop_begin);
+    SE_BIND_METHOD(AudioStreamSample,get_loop_begin);
 
-    BIND_METHOD(AudioStreamSample,set_loop_end);
-    BIND_METHOD(AudioStreamSample,get_loop_end);
+    SE_BIND_METHOD(AudioStreamSample,set_loop_end);
+    SE_BIND_METHOD(AudioStreamSample,get_loop_end);
 
-    BIND_METHOD(AudioStreamSample,set_mix_rate);
-    BIND_METHOD(AudioStreamSample,get_mix_rate);
+    SE_BIND_METHOD(AudioStreamSample,set_mix_rate);
+    SE_BIND_METHOD(AudioStreamSample,get_mix_rate);
 
-    BIND_METHOD(AudioStreamSample,set_stereo);
-    BIND_METHOD(AudioStreamSample,is_stereo);
+    SE_BIND_METHOD(AudioStreamSample,set_stereo);
+    SE_BIND_METHOD(AudioStreamSample,is_stereo);
 
-    BIND_METHOD(AudioStreamSample,save_to_wav);
+    SE_BIND_METHOD(AudioStreamSample,save_to_wav);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "format", PropertyHint::Enum, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");

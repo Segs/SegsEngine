@@ -988,7 +988,7 @@ public:
 
     static void _bind_methods() {
 
-        BIND_METHOD(EditorPropertyLayersGrid,_gui_input);
+        SE_BIND_METHOD(EditorPropertyLayersGrid,_gui_input);
         ADD_SIGNAL(MethodInfo("flag_changed", PropertyInfo(VariantType::INT, "flag")));
     }
 };
@@ -2699,8 +2699,8 @@ void EditorPropertyResource::_notification(int p_what) {
 
 void EditorPropertyResource::_bind_methods() {
 
-    BIND_METHOD(EditorPropertyResource,_resource_selected);
-    BIND_METHOD(EditorPropertyResource,_fold_other_editors);
+    SE_BIND_METHOD(EditorPropertyResource,_resource_selected);
+    SE_BIND_METHOD(EditorPropertyResource,_fold_other_editors);
 }
 
 EditorPropertyResource::EditorPropertyResource() {

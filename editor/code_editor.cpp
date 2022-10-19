@@ -1633,7 +1633,7 @@ void CodeTextEditor::remove_all_bookmarks() {
 
 void CodeTextEditor::_bind_methods() {
 
-    BIND_METHOD(CodeTextEditor,_input);
+    SE_BIND_METHOD(CodeTextEditor,_input);
 
     ADD_SIGNAL(MethodInfo("validate_script"));
     ADD_SIGNAL(MethodInfo("load_theme_settings"));

@@ -1026,38 +1026,38 @@ bool TabContainer::get_use_hidden_tabs_for_min_size() const {
 }
 void TabContainer::_bind_methods() {
 
-    BIND_METHOD(TabContainer,_gui_input);
-    BIND_METHOD(TabContainer,get_tab_count);
-    BIND_METHOD(TabContainer,set_current_tab);
-    BIND_METHOD(TabContainer,get_current_tab);
-    BIND_METHOD(TabContainer,get_previous_tab);
-    BIND_METHOD(TabContainer,get_current_tab_control);
-    BIND_METHOD(TabContainer,get_tab_control);
-    BIND_METHOD(TabContainer,set_tab_align);
-    BIND_METHOD(TabContainer,get_tab_align);
-    BIND_METHOD(TabContainer,set_tabs_visible);
-    BIND_METHOD(TabContainer,are_tabs_visible);
-    BIND_METHOD(TabContainer,set_all_tabs_in_front);
-    BIND_METHOD(TabContainer,is_all_tabs_in_front);
+    SE_BIND_METHOD(TabContainer,_gui_input);
+    SE_BIND_METHOD(TabContainer,get_tab_count);
+    SE_BIND_METHOD(TabContainer,set_current_tab);
+    SE_BIND_METHOD(TabContainer,get_current_tab);
+    SE_BIND_METHOD(TabContainer,get_previous_tab);
+    SE_BIND_METHOD(TabContainer,get_current_tab_control);
+    SE_BIND_METHOD(TabContainer,get_tab_control);
+    SE_BIND_METHOD(TabContainer,set_tab_align);
+    SE_BIND_METHOD(TabContainer,get_tab_align);
+    SE_BIND_METHOD(TabContainer,set_tabs_visible);
+    SE_BIND_METHOD(TabContainer,are_tabs_visible);
+    SE_BIND_METHOD(TabContainer,set_all_tabs_in_front);
+    SE_BIND_METHOD(TabContainer,is_all_tabs_in_front);
 
-    BIND_METHOD(TabContainer,set_tab_title);
-    BIND_METHOD(TabContainer,get_tab_title);
-    BIND_METHOD(TabContainer,set_tab_icon);
-    BIND_METHOD(TabContainer,get_tab_icon);
-    BIND_METHOD(TabContainer,set_tab_disabled);
-    BIND_METHOD(TabContainer,get_tab_disabled);
-    BIND_METHOD(TabContainer,set_tab_hidden);
-    BIND_METHOD(TabContainer,get_tab_hidden);
-    BIND_METHOD(TabContainer,get_tab_idx_at_point);
-    BIND_METHOD(TabContainer,set_popup);
-    BIND_METHOD(TabContainer,get_popup);
-    BIND_METHOD(TabContainer,set_drag_to_rearrange_enabled);
-    BIND_METHOD(TabContainer,get_drag_to_rearrange_enabled);
-    BIND_METHOD(TabContainer,set_tabs_rearrange_group);
-    BIND_METHOD(TabContainer,get_tabs_rearrange_group);
+    SE_BIND_METHOD(TabContainer,set_tab_title);
+    SE_BIND_METHOD(TabContainer,get_tab_title);
+    SE_BIND_METHOD(TabContainer,set_tab_icon);
+    SE_BIND_METHOD(TabContainer,get_tab_icon);
+    SE_BIND_METHOD(TabContainer,set_tab_disabled);
+    SE_BIND_METHOD(TabContainer,get_tab_disabled);
+    SE_BIND_METHOD(TabContainer,set_tab_hidden);
+    SE_BIND_METHOD(TabContainer,get_tab_hidden);
+    SE_BIND_METHOD(TabContainer,get_tab_idx_at_point);
+    SE_BIND_METHOD(TabContainer,set_popup);
+    SE_BIND_METHOD(TabContainer,get_popup);
+    SE_BIND_METHOD(TabContainer,set_drag_to_rearrange_enabled);
+    SE_BIND_METHOD(TabContainer,get_drag_to_rearrange_enabled);
+    SE_BIND_METHOD(TabContainer,set_tabs_rearrange_group);
+    SE_BIND_METHOD(TabContainer,get_tabs_rearrange_group);
 
-    BIND_METHOD(TabContainer,set_use_hidden_tabs_for_min_size);
-    BIND_METHOD(TabContainer,get_use_hidden_tabs_for_min_size);
+    SE_BIND_METHOD(TabContainer,set_use_hidden_tabs_for_min_size);
+    SE_BIND_METHOD(TabContainer,get_use_hidden_tabs_for_min_size);
 
     ADD_SIGNAL(MethodInfo("tab_changed", PropertyInfo(VariantType::INT, "tab")));
     ADD_SIGNAL(MethodInfo("tab_selected", PropertyInfo(VariantType::INT, "tab")));

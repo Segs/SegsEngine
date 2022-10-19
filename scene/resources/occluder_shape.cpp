@@ -68,11 +68,11 @@ AABB OccluderShape::get_fallback_gizmo_aabb() const {
 //////////////////////////////////////////////
 
 void OccluderShapeSphere::_bind_methods() {
-    BIND_METHOD(OccluderShapeSphere,set_spheres);
-    BIND_METHOD(OccluderShapeSphere,get_spheres);
+    SE_BIND_METHOD(OccluderShapeSphere,set_spheres);
+    SE_BIND_METHOD(OccluderShapeSphere,get_spheres);
 
-    BIND_METHOD(OccluderShapeSphere,set_sphere_position);
-    BIND_METHOD(OccluderShapeSphere,set_sphere_radius);
+    SE_BIND_METHOD(OccluderShapeSphere,set_sphere_position);
+    SE_BIND_METHOD(OccluderShapeSphere,set_sphere_radius);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "spheres", PropertyHint::None, itos((int)VariantType::PLANE) + ":"), "set_spheres", "get_spheres");
 }

@@ -1636,16 +1636,16 @@ void ProjectSettingsEditor::_update_theme() {
 }
 void ProjectSettingsEditor::_bind_methods() {
 
-    BIND_METHOD(ProjectSettingsEditor,_unhandled_input);
-    BIND_METHOD(ProjectSettingsEditor,_update_actions);
-    BIND_METHOD(ProjectSettingsEditor,_update_translations);
-    BIND_METHOD(ProjectSettingsEditor,_settings_changed);
+    SE_BIND_METHOD(ProjectSettingsEditor,_unhandled_input);
+    SE_BIND_METHOD(ProjectSettingsEditor,_update_actions);
+    SE_BIND_METHOD(ProjectSettingsEditor,_update_translations);
+    SE_BIND_METHOD(ProjectSettingsEditor,_settings_changed);
 
-    BIND_METHOD(ProjectSettingsEditor,get_tabs);
+    SE_BIND_METHOD(ProjectSettingsEditor,get_tabs);
 
-    BIND_METHOD(ProjectSettingsEditor,get_drag_data_fw);
-    BIND_METHOD(ProjectSettingsEditor,can_drop_data_fw);
-    BIND_METHOD(ProjectSettingsEditor,drop_data_fw);
+    SE_BIND_METHOD(ProjectSettingsEditor,get_drag_data_fw);
+    SE_BIND_METHOD(ProjectSettingsEditor,can_drop_data_fw);
+    SE_BIND_METHOD(ProjectSettingsEditor,drop_data_fw);
 }
 
 ProjectSettingsEditor::ProjectSettingsEditor(EditorData *p_data) {

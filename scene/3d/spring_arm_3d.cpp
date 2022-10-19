@@ -60,23 +60,23 @@ void SpringArm3D::_notification(int p_what) {
 
 void SpringArm3D::_bind_methods() {
 
-    BIND_METHOD(SpringArm3D,get_hit_length);
+    SE_BIND_METHOD(SpringArm3D,get_hit_length);
 
-    BIND_METHOD(SpringArm3D,set_length);
-    BIND_METHOD(SpringArm3D,get_length);
+    SE_BIND_METHOD(SpringArm3D,set_length);
+    SE_BIND_METHOD(SpringArm3D,get_length);
 
-    BIND_METHOD(SpringArm3D,set_shape);
-    BIND_METHOD(SpringArm3D,get_shape);
+    SE_BIND_METHOD(SpringArm3D,set_shape);
+    SE_BIND_METHOD(SpringArm3D,get_shape);
 
-    BIND_METHOD(SpringArm3D,add_excluded_object);
-    BIND_METHOD(SpringArm3D,remove_excluded_object);
-    BIND_METHOD(SpringArm3D,clear_excluded_objects);
+    SE_BIND_METHOD(SpringArm3D,add_excluded_object);
+    SE_BIND_METHOD(SpringArm3D,remove_excluded_object);
+    SE_BIND_METHOD(SpringArm3D,clear_excluded_objects);
 
-    BIND_METHOD(SpringArm3D,set_collision_mask);
-    BIND_METHOD(SpringArm3D,get_collision_mask);
+    SE_BIND_METHOD(SpringArm3D,set_collision_mask);
+    SE_BIND_METHOD(SpringArm3D,get_collision_mask);
 
-    BIND_METHOD(SpringArm3D,set_margin);
-    BIND_METHOD(SpringArm3D,get_margin);
+    SE_BIND_METHOD(SpringArm3D,set_margin);
+    SE_BIND_METHOD(SpringArm3D,get_margin);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PropertyHint::ResourceType, "Shape"), "set_shape", "get_shape");

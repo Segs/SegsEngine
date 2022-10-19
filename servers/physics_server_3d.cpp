@@ -102,51 +102,51 @@ PhysicsServer3D *PhysicsServer3D::get_singleton() {
 
 void PhysicsDirectBodyState3D::_bind_methods() {
 
-    BIND_METHOD(PhysicsDirectBodyState3D,get_total_gravity);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_total_linear_damp);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_total_angular_damp);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_total_gravity);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_total_linear_damp);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_total_angular_damp);
 
-    BIND_METHOD(PhysicsDirectBodyState3D,get_center_of_mass);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_principal_inertia_axes);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_center_of_mass);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_principal_inertia_axes);
 
-    BIND_METHOD(PhysicsDirectBodyState3D,get_inverse_mass);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_inverse_inertia);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_inverse_mass);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_inverse_inertia);
 
-    BIND_METHOD(PhysicsDirectBodyState3D,set_linear_velocity);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_linear_velocity);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,set_linear_velocity);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_linear_velocity);
 
-    BIND_METHOD(PhysicsDirectBodyState3D,set_angular_velocity);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_angular_velocity);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,set_angular_velocity);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_angular_velocity);
 
-    BIND_METHOD(PhysicsDirectBodyState3D,set_transform);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_transform);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_velocity_at_local_position);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,set_transform);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_transform);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_velocity_at_local_position);
 
-    BIND_METHOD(PhysicsDirectBodyState3D,add_central_force);
-    BIND_METHOD(PhysicsDirectBodyState3D,add_force);
-    BIND_METHOD(PhysicsDirectBodyState3D,add_torque);
-    BIND_METHOD(PhysicsDirectBodyState3D,apply_central_impulse);
-    BIND_METHOD(PhysicsDirectBodyState3D,apply_impulse);
-    BIND_METHOD(PhysicsDirectBodyState3D,apply_torque_impulse);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,add_central_force);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,add_force);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,add_torque);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,apply_central_impulse);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,apply_impulse);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,apply_torque_impulse);
 
-    BIND_METHOD(PhysicsDirectBodyState3D,set_sleep_state);
-    BIND_METHOD(PhysicsDirectBodyState3D,is_sleeping);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,set_sleep_state);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,is_sleeping);
 
-    BIND_METHOD(PhysicsDirectBodyState3D,get_contact_count);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_contact_count);
 
-    BIND_METHOD(PhysicsDirectBodyState3D,get_contact_local_position);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_contact_local_normal);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_contact_impulse);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_contact_local_shape);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_contact_collider);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_contact_collider_position);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_contact_collider_id);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_contact_collider_object);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_contact_collider_shape);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_contact_collider_velocity_at_position);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_step);
-    BIND_METHOD(PhysicsDirectBodyState3D,integrate_forces);
-    BIND_METHOD(PhysicsDirectBodyState3D,get_space_state);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_contact_local_position);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_contact_local_normal);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_contact_impulse);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_contact_local_shape);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_contact_collider);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_contact_collider_position);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_contact_collider_id);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_contact_collider_object);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_contact_collider_shape);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_contact_collider_velocity_at_position);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_step);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,integrate_forces);
+    SE_BIND_METHOD(PhysicsDirectBodyState3D,get_space_state);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "step"), "", "get_step");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "inverse_mass"), "", "get_inverse_mass");
@@ -246,27 +246,27 @@ bool PhysicsShapeQueryParameters3D::is_collide_with_areas_enabled() const {
 
 void PhysicsShapeQueryParameters3D::_bind_methods() {
 
-    BIND_METHOD(PhysicsShapeQueryParameters3D,set_shape);
-    BIND_METHOD(PhysicsShapeQueryParameters3D,set_shape_rid);
-    BIND_METHOD(PhysicsShapeQueryParameters3D,get_shape_rid);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,set_shape);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,set_shape_rid);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,get_shape_rid);
 
-    BIND_METHOD(PhysicsShapeQueryParameters3D,set_transform);
-    BIND_METHOD(PhysicsShapeQueryParameters3D,get_transform);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,set_transform);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,get_transform);
 
-    BIND_METHOD(PhysicsShapeQueryParameters3D,set_margin);
-    BIND_METHOD(PhysicsShapeQueryParameters3D,get_margin);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,set_margin);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,get_margin);
 
-    BIND_METHOD(PhysicsShapeQueryParameters3D,set_collision_mask);
-    BIND_METHOD(PhysicsShapeQueryParameters3D,get_collision_mask);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,set_collision_mask);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,get_collision_mask);
 
-    BIND_METHOD(PhysicsShapeQueryParameters3D,set_exclude);
-    BIND_METHOD(PhysicsShapeQueryParameters3D,get_exclude);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,set_exclude);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,get_exclude);
 
-    BIND_METHOD(PhysicsShapeQueryParameters3D,set_collide_with_bodies);
-    BIND_METHOD(PhysicsShapeQueryParameters3D,is_collide_with_bodies_enabled);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,set_collide_with_bodies);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,is_collide_with_bodies_enabled);
 
-    BIND_METHOD(PhysicsShapeQueryParameters3D,set_collide_with_areas);
-    BIND_METHOD(PhysicsShapeQueryParameters3D,is_collide_with_areas_enabled);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,set_collide_with_areas);
+    SE_BIND_METHOD(PhysicsShapeQueryParameters3D,is_collide_with_areas_enabled);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "exclude", PropertyHint::None, itos(int8_t(VariantType::_RID)) + ":"), "set_exclude", "get_exclude");
@@ -493,18 +493,18 @@ PhysicsTestMotionResult::PhysicsTestMotionResult() {
 }
 
 void PhysicsTestMotionResult::_bind_methods() {
-    BIND_METHOD(PhysicsTestMotionResult,get_motion);
-    BIND_METHOD(PhysicsTestMotionResult,get_motion_remainder);
-    BIND_METHOD(PhysicsTestMotionResult,get_collision_point);
-    BIND_METHOD(PhysicsTestMotionResult,get_collision_normal);
-    BIND_METHOD(PhysicsTestMotionResult,get_collider_velocity);
-    BIND_METHOD(PhysicsTestMotionResult,get_collider_id);
-    BIND_METHOD(PhysicsTestMotionResult,get_collider_rid);
-    BIND_METHOD(PhysicsTestMotionResult,get_collider);
-    BIND_METHOD(PhysicsTestMotionResult,get_collider_shape);
-    BIND_METHOD(PhysicsTestMotionResult,get_collision_depth);
-    BIND_METHOD(PhysicsTestMotionResult,get_collision_safe_fraction);
-    BIND_METHOD(PhysicsTestMotionResult,get_collision_unsafe_fraction);
+    SE_BIND_METHOD(PhysicsTestMotionResult,get_motion);
+    SE_BIND_METHOD(PhysicsTestMotionResult,get_motion_remainder);
+    SE_BIND_METHOD(PhysicsTestMotionResult,get_collision_point);
+    SE_BIND_METHOD(PhysicsTestMotionResult,get_collision_normal);
+    SE_BIND_METHOD(PhysicsTestMotionResult,get_collider_velocity);
+    SE_BIND_METHOD(PhysicsTestMotionResult,get_collider_id);
+    SE_BIND_METHOD(PhysicsTestMotionResult,get_collider_rid);
+    SE_BIND_METHOD(PhysicsTestMotionResult,get_collider);
+    SE_BIND_METHOD(PhysicsTestMotionResult,get_collider_shape);
+    SE_BIND_METHOD(PhysicsTestMotionResult,get_collision_depth);
+    SE_BIND_METHOD(PhysicsTestMotionResult,get_collision_safe_fraction);
+    SE_BIND_METHOD(PhysicsTestMotionResult,get_collision_unsafe_fraction);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "motion"), "", "get_motion");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "motion_remainder"), "", "get_motion_remainder");
@@ -536,127 +536,127 @@ void PhysicsServer3D::_bind_methods() {
 
 #ifndef _3D_DISABLED
 
-    BIND_METHOD(PhysicsServer3D,shape_create);
-    BIND_METHOD(PhysicsServer3D,shape_set_data);
+    SE_BIND_METHOD(PhysicsServer3D,shape_create);
+    SE_BIND_METHOD(PhysicsServer3D,shape_set_data);
 
-    BIND_METHOD(PhysicsServer3D,shape_get_type);
-    BIND_METHOD(PhysicsServer3D,shape_get_data);
+    SE_BIND_METHOD(PhysicsServer3D,shape_get_type);
+    SE_BIND_METHOD(PhysicsServer3D,shape_get_data);
 
-    BIND_METHOD(PhysicsServer3D,space_create);
-    BIND_METHOD(PhysicsServer3D,space_set_active);
-    BIND_METHOD(PhysicsServer3D,space_is_active);
-    BIND_METHOD(PhysicsServer3D,space_set_param);
-    BIND_METHOD(PhysicsServer3D,space_get_param);
-    BIND_METHOD(PhysicsServer3D,space_get_direct_state);
+    SE_BIND_METHOD(PhysicsServer3D,space_create);
+    SE_BIND_METHOD(PhysicsServer3D,space_set_active);
+    SE_BIND_METHOD(PhysicsServer3D,space_is_active);
+    SE_BIND_METHOD(PhysicsServer3D,space_set_param);
+    SE_BIND_METHOD(PhysicsServer3D,space_get_param);
+    SE_BIND_METHOD(PhysicsServer3D,space_get_direct_state);
 
-    BIND_METHOD(PhysicsServer3D,area_create);
-    BIND_METHOD(PhysicsServer3D,area_set_space);
-    BIND_METHOD(PhysicsServer3D,area_get_space);
+    SE_BIND_METHOD(PhysicsServer3D,area_create);
+    SE_BIND_METHOD(PhysicsServer3D,area_set_space);
+    SE_BIND_METHOD(PhysicsServer3D,area_get_space);
 
-    BIND_METHOD(PhysicsServer3D,area_set_space_override_mode);
-    BIND_METHOD(PhysicsServer3D,area_get_space_override_mode);
+    SE_BIND_METHOD(PhysicsServer3D,area_set_space_override_mode);
+    SE_BIND_METHOD(PhysicsServer3D,area_get_space_override_mode);
 
     MethodBinder::bind_method(D_METHOD("area_add_shape", {"area", "shape", "transform", "disabled"}), &PhysicsServer3D::area_add_shape, {DEFVAL(Transform()), DEFVAL(false)});
-    BIND_METHOD(PhysicsServer3D,area_set_shape);
-    BIND_METHOD(PhysicsServer3D,area_set_shape_transform);
-    BIND_METHOD(PhysicsServer3D,area_set_shape_disabled);
+    SE_BIND_METHOD(PhysicsServer3D,area_set_shape);
+    SE_BIND_METHOD(PhysicsServer3D,area_set_shape_transform);
+    SE_BIND_METHOD(PhysicsServer3D,area_set_shape_disabled);
 
-    BIND_METHOD(PhysicsServer3D,area_get_shape_count);
-    BIND_METHOD(PhysicsServer3D,area_get_shape);
-    BIND_METHOD(PhysicsServer3D,area_get_shape_transform);
+    SE_BIND_METHOD(PhysicsServer3D,area_get_shape_count);
+    SE_BIND_METHOD(PhysicsServer3D,area_get_shape);
+    SE_BIND_METHOD(PhysicsServer3D,area_get_shape_transform);
 
-    BIND_METHOD(PhysicsServer3D,area_remove_shape);
-    BIND_METHOD(PhysicsServer3D,area_clear_shapes);
+    SE_BIND_METHOD(PhysicsServer3D,area_remove_shape);
+    SE_BIND_METHOD(PhysicsServer3D,area_clear_shapes);
 
-    BIND_METHOD(PhysicsServer3D,area_set_collision_layer);
-    BIND_METHOD(PhysicsServer3D,area_set_collision_mask);
+    SE_BIND_METHOD(PhysicsServer3D,area_set_collision_layer);
+    SE_BIND_METHOD(PhysicsServer3D,area_set_collision_mask);
 
-    BIND_METHOD(PhysicsServer3D,area_set_param);
-    BIND_METHOD(PhysicsServer3D,area_set_transform);
+    SE_BIND_METHOD(PhysicsServer3D,area_set_param);
+    SE_BIND_METHOD(PhysicsServer3D,area_set_transform);
 
-    BIND_METHOD(PhysicsServer3D,area_get_param);
-    BIND_METHOD(PhysicsServer3D,area_get_transform);
+    SE_BIND_METHOD(PhysicsServer3D,area_get_param);
+    SE_BIND_METHOD(PhysicsServer3D,area_get_transform);
 
-    BIND_METHOD(PhysicsServer3D,area_attach_object_instance_id);
-    BIND_METHOD(PhysicsServer3D,area_get_object_instance_id);
+    SE_BIND_METHOD(PhysicsServer3D,area_attach_object_instance_id);
+    SE_BIND_METHOD(PhysicsServer3D,area_get_object_instance_id);
 
-    BIND_METHOD(PhysicsServer3D,area_set_monitor_callback);
-    BIND_METHOD(PhysicsServer3D,area_set_area_monitor_callback);
-    BIND_METHOD(PhysicsServer3D,area_set_monitorable);
+    SE_BIND_METHOD(PhysicsServer3D,area_set_monitor_callback);
+    SE_BIND_METHOD(PhysicsServer3D,area_set_area_monitor_callback);
+    SE_BIND_METHOD(PhysicsServer3D,area_set_monitorable);
 
-    BIND_METHOD(PhysicsServer3D,area_set_ray_pickable);
-    BIND_METHOD(PhysicsServer3D,area_is_ray_pickable);
+    SE_BIND_METHOD(PhysicsServer3D,area_set_ray_pickable);
+    SE_BIND_METHOD(PhysicsServer3D,area_is_ray_pickable);
 
     MethodBinder::bind_method(D_METHOD("body_create", {"mode", "init_sleeping"}), &PhysicsServer3D::body_create, {DEFVAL(BODY_MODE_RIGID), DEFVAL(false)});
 
-    BIND_METHOD(PhysicsServer3D,body_set_space);
-    BIND_METHOD(PhysicsServer3D,body_get_space);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_space);
+    SE_BIND_METHOD(PhysicsServer3D,body_get_space);
 
-    BIND_METHOD(PhysicsServer3D,body_set_mode);
-    BIND_METHOD(PhysicsServer3D,body_get_mode);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_mode);
+    SE_BIND_METHOD(PhysicsServer3D,body_get_mode);
 
-    BIND_METHOD(PhysicsServer3D,body_set_collision_layer);
-    BIND_METHOD(PhysicsServer3D,body_get_collision_layer);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_collision_layer);
+    SE_BIND_METHOD(PhysicsServer3D,body_get_collision_layer);
 
-    BIND_METHOD(PhysicsServer3D,body_set_collision_mask);
-    BIND_METHOD(PhysicsServer3D,body_get_collision_mask);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_collision_mask);
+    SE_BIND_METHOD(PhysicsServer3D,body_get_collision_mask);
 
     MethodBinder::bind_method(D_METHOD("body_add_shape", {"body", "shape", "transform", "disabled"}), &PhysicsServer3D::body_add_shape, {DEFVAL(Transform()), DEFVAL(false)});
-    BIND_METHOD(PhysicsServer3D,body_set_shape);
-    BIND_METHOD(PhysicsServer3D,body_set_shape_transform);
-    BIND_METHOD(PhysicsServer3D,body_set_shape_disabled);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_shape);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_shape_transform);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_shape_disabled);
 
-    BIND_METHOD(PhysicsServer3D,body_get_shape_count);
-    BIND_METHOD(PhysicsServer3D,body_get_shape);
-    BIND_METHOD(PhysicsServer3D,body_get_shape_transform);
+    SE_BIND_METHOD(PhysicsServer3D,body_get_shape_count);
+    SE_BIND_METHOD(PhysicsServer3D,body_get_shape);
+    SE_BIND_METHOD(PhysicsServer3D,body_get_shape_transform);
 
-    BIND_METHOD(PhysicsServer3D,body_remove_shape);
-    BIND_METHOD(PhysicsServer3D,body_clear_shapes);
+    SE_BIND_METHOD(PhysicsServer3D,body_remove_shape);
+    SE_BIND_METHOD(PhysicsServer3D,body_clear_shapes);
 
-    BIND_METHOD(PhysicsServer3D,body_attach_object_instance_id);
-    BIND_METHOD(PhysicsServer3D,body_get_object_instance_id);
+    SE_BIND_METHOD(PhysicsServer3D,body_attach_object_instance_id);
+    SE_BIND_METHOD(PhysicsServer3D,body_get_object_instance_id);
 
-    BIND_METHOD(PhysicsServer3D,body_set_enable_continuous_collision_detection);
-    BIND_METHOD(PhysicsServer3D,body_is_continuous_collision_detection_enabled);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_enable_continuous_collision_detection);
+    SE_BIND_METHOD(PhysicsServer3D,body_is_continuous_collision_detection_enabled);
 
-    BIND_METHOD(PhysicsServer3D,body_set_param);
-    BIND_METHOD(PhysicsServer3D,body_get_param);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_param);
+    SE_BIND_METHOD(PhysicsServer3D,body_get_param);
 
-    BIND_METHOD(PhysicsServer3D,body_set_kinematic_safe_margin);
-    BIND_METHOD(PhysicsServer3D,body_get_kinematic_safe_margin);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_kinematic_safe_margin);
+    SE_BIND_METHOD(PhysicsServer3D,body_get_kinematic_safe_margin);
 
-    BIND_METHOD(PhysicsServer3D,body_set_state);
-    BIND_METHOD(PhysicsServer3D,body_get_state);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_state);
+    SE_BIND_METHOD(PhysicsServer3D,body_get_state);
 
-    BIND_METHOD(PhysicsServer3D,body_add_central_force);
-    BIND_METHOD(PhysicsServer3D,body_add_force);
-    BIND_METHOD(PhysicsServer3D,body_add_torque);
+    SE_BIND_METHOD(PhysicsServer3D,body_add_central_force);
+    SE_BIND_METHOD(PhysicsServer3D,body_add_force);
+    SE_BIND_METHOD(PhysicsServer3D,body_add_torque);
 
-    BIND_METHOD(PhysicsServer3D,body_apply_central_impulse);
-    BIND_METHOD(PhysicsServer3D,body_apply_impulse);
-    BIND_METHOD(PhysicsServer3D,body_apply_torque_impulse);
-    BIND_METHOD(PhysicsServer3D,body_set_axis_velocity);
+    SE_BIND_METHOD(PhysicsServer3D,body_apply_central_impulse);
+    SE_BIND_METHOD(PhysicsServer3D,body_apply_impulse);
+    SE_BIND_METHOD(PhysicsServer3D,body_apply_torque_impulse);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_axis_velocity);
 
-    BIND_METHOD(PhysicsServer3D,body_set_axis_lock);
-    BIND_METHOD(PhysicsServer3D,body_is_axis_locked);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_axis_lock);
+    SE_BIND_METHOD(PhysicsServer3D,body_is_axis_locked);
 
-    BIND_METHOD(PhysicsServer3D,body_add_collision_exception);
-    BIND_METHOD(PhysicsServer3D,body_remove_collision_exception);
+    SE_BIND_METHOD(PhysicsServer3D,body_add_collision_exception);
+    SE_BIND_METHOD(PhysicsServer3D,body_remove_collision_exception);
 
-    BIND_METHOD(PhysicsServer3D,body_set_max_contacts_reported);
-    BIND_METHOD(PhysicsServer3D,body_get_max_contacts_reported);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_max_contacts_reported);
+    SE_BIND_METHOD(PhysicsServer3D,body_get_max_contacts_reported);
 
-    BIND_METHOD(PhysicsServer3D,body_set_omit_force_integration);
-    BIND_METHOD(PhysicsServer3D,body_is_omitting_force_integration);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_omit_force_integration);
+    SE_BIND_METHOD(PhysicsServer3D,body_is_omitting_force_integration);
 
-    BIND_METHOD(PhysicsServer3D,body_set_force_integration_callback);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_force_integration_callback);
 
-    BIND_METHOD(PhysicsServer3D,body_set_ray_pickable);
-    BIND_METHOD(PhysicsServer3D,body_is_ray_pickable);
+    SE_BIND_METHOD(PhysicsServer3D,body_set_ray_pickable);
+    SE_BIND_METHOD(PhysicsServer3D,body_is_ray_pickable);
 
     MethodBinder::bind_method(D_METHOD("body_test_motion", {"body", "from", "motion", "infinite_inertia", "result", "exclude_raycast_shapes", "exclude"}), &PhysicsServer3D::_body_test_motion, {DEFVAL(Variant()), DEFVAL(true), DEFVAL(Array())});
 
-    BIND_METHOD(PhysicsServer3D,body_get_direct_state);
+    SE_BIND_METHOD(PhysicsServer3D,body_get_direct_state);
 
     /* JOINT API */
 
@@ -666,15 +666,15 @@ void PhysicsServer3D::_bind_methods() {
     BIND_ENUM_CONSTANT(JOINT_CONE_TWIST);
     BIND_ENUM_CONSTANT(JOINT_6DOF);
 
-    BIND_METHOD(PhysicsServer3D,joint_create_pin);
-    BIND_METHOD(PhysicsServer3D,pin_joint_set_param);
-    BIND_METHOD(PhysicsServer3D,pin_joint_get_param);
+    SE_BIND_METHOD(PhysicsServer3D,joint_create_pin);
+    SE_BIND_METHOD(PhysicsServer3D,pin_joint_set_param);
+    SE_BIND_METHOD(PhysicsServer3D,pin_joint_get_param);
 
-    BIND_METHOD(PhysicsServer3D,pin_joint_set_local_a);
-    BIND_METHOD(PhysicsServer3D,pin_joint_get_local_a);
+    SE_BIND_METHOD(PhysicsServer3D,pin_joint_set_local_a);
+    SE_BIND_METHOD(PhysicsServer3D,pin_joint_get_local_a);
 
-    BIND_METHOD(PhysicsServer3D,pin_joint_set_local_b);
-    BIND_METHOD(PhysicsServer3D,pin_joint_get_local_b);
+    SE_BIND_METHOD(PhysicsServer3D,pin_joint_set_local_b);
+    SE_BIND_METHOD(PhysicsServer3D,pin_joint_get_local_b);
 
     BIND_ENUM_CONSTANT(PIN_JOINT_BIAS);
     BIND_ENUM_CONSTANT(PIN_JOINT_DAMPING);
@@ -692,18 +692,18 @@ void PhysicsServer3D::_bind_methods() {
     BIND_ENUM_CONSTANT(HINGE_JOINT_FLAG_USE_LIMIT);
     BIND_ENUM_CONSTANT(HINGE_JOINT_FLAG_ENABLE_MOTOR);
 
-    BIND_METHOD(PhysicsServer3D,joint_create_hinge);
+    SE_BIND_METHOD(PhysicsServer3D,joint_create_hinge);
 
-    BIND_METHOD(PhysicsServer3D,hinge_joint_set_param);
-    BIND_METHOD(PhysicsServer3D,hinge_joint_get_param);
+    SE_BIND_METHOD(PhysicsServer3D,hinge_joint_set_param);
+    SE_BIND_METHOD(PhysicsServer3D,hinge_joint_get_param);
 
-    BIND_METHOD(PhysicsServer3D,hinge_joint_set_flag);
-    BIND_METHOD(PhysicsServer3D,hinge_joint_get_flag);
+    SE_BIND_METHOD(PhysicsServer3D,hinge_joint_set_flag);
+    SE_BIND_METHOD(PhysicsServer3D,hinge_joint_get_flag);
 
-    BIND_METHOD(PhysicsServer3D,joint_create_slider);
+    SE_BIND_METHOD(PhysicsServer3D,joint_create_slider);
 
-    BIND_METHOD(PhysicsServer3D,slider_joint_set_param);
-    BIND_METHOD(PhysicsServer3D,slider_joint_get_param);
+    SE_BIND_METHOD(PhysicsServer3D,slider_joint_set_param);
+    SE_BIND_METHOD(PhysicsServer3D,slider_joint_get_param);
 
     BIND_ENUM_CONSTANT(SLIDER_JOINT_LINEAR_LIMIT_UPPER);
     BIND_ENUM_CONSTANT(SLIDER_JOINT_LINEAR_LIMIT_LOWER);
@@ -730,10 +730,10 @@ void PhysicsServer3D::_bind_methods() {
     BIND_ENUM_CONSTANT(SLIDER_JOINT_ANGULAR_ORTHOGONAL_DAMPING);
     BIND_ENUM_CONSTANT(SLIDER_JOINT_MAX);
 
-    BIND_METHOD(PhysicsServer3D,joint_create_cone_twist);
+    SE_BIND_METHOD(PhysicsServer3D,joint_create_cone_twist);
 
-    BIND_METHOD(PhysicsServer3D,cone_twist_joint_set_param);
-    BIND_METHOD(PhysicsServer3D,cone_twist_joint_get_param);
+    SE_BIND_METHOD(PhysicsServer3D,cone_twist_joint_set_param);
+    SE_BIND_METHOD(PhysicsServer3D,cone_twist_joint_get_param);
 
     BIND_ENUM_CONSTANT(CONE_TWIST_JOINT_SWING_SPAN);
     BIND_ENUM_CONSTANT(CONE_TWIST_JOINT_TWIST_SPAN);
@@ -763,26 +763,26 @@ void PhysicsServer3D::_bind_methods() {
     BIND_ENUM_CONSTANT(G6DOF_JOINT_FLAG_ENABLE_MOTOR);
     BIND_ENUM_CONSTANT(G6DOF_JOINT_FLAG_ENABLE_LINEAR_MOTOR);
 
-    BIND_METHOD(PhysicsServer3D,joint_get_type);
+    SE_BIND_METHOD(PhysicsServer3D,joint_get_type);
 
-    BIND_METHOD(PhysicsServer3D,joint_set_solver_priority);
-    BIND_METHOD(PhysicsServer3D,joint_get_solver_priority);
+    SE_BIND_METHOD(PhysicsServer3D,joint_set_solver_priority);
+    SE_BIND_METHOD(PhysicsServer3D,joint_get_solver_priority);
 
-    BIND_METHOD(PhysicsServer3D,joint_create_generic_6dof);
+    SE_BIND_METHOD(PhysicsServer3D,joint_create_generic_6dof);
 
-    BIND_METHOD(PhysicsServer3D,generic_6dof_joint_set_param);
-    BIND_METHOD(PhysicsServer3D,generic_6dof_joint_get_param);
+    SE_BIND_METHOD(PhysicsServer3D,generic_6dof_joint_set_param);
+    SE_BIND_METHOD(PhysicsServer3D,generic_6dof_joint_get_param);
 
-    BIND_METHOD(PhysicsServer3D,generic_6dof_joint_set_flag);
-    BIND_METHOD(PhysicsServer3D,generic_6dof_joint_get_flag);
+    SE_BIND_METHOD(PhysicsServer3D,generic_6dof_joint_set_flag);
+    SE_BIND_METHOD(PhysicsServer3D,generic_6dof_joint_get_flag);
 
-    BIND_METHOD(PhysicsServer3D,free_rid);
+    SE_BIND_METHOD(PhysicsServer3D,free_rid);
 
-    BIND_METHOD(PhysicsServer3D,set_active);
+    SE_BIND_METHOD(PhysicsServer3D,set_active);
   
-    BIND_METHOD(PhysicsServer3D,set_collision_iterations);
+    SE_BIND_METHOD(PhysicsServer3D,set_collision_iterations);
 
-    BIND_METHOD(PhysicsServer3D,get_process_info);
+    SE_BIND_METHOD(PhysicsServer3D,get_process_info);
 
     BIND_ENUM_CONSTANT(SHAPE_PLANE);
     BIND_ENUM_CONSTANT(SHAPE_RAY);

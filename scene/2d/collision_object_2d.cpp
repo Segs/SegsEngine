@@ -465,37 +465,37 @@ bool CollisionObject2D::get_collision_mask_bit(int p_bit) const {
 
 void CollisionObject2D::_bind_methods() {
 
-    BIND_METHOD(CollisionObject2D,get_rid);
+    SE_BIND_METHOD(CollisionObject2D,get_rid);
 
-    BIND_METHOD(CollisionObject2D,set_collision_layer);
-    BIND_METHOD(CollisionObject2D,get_collision_layer);
-    BIND_METHOD(CollisionObject2D,set_collision_mask);
-    BIND_METHOD(CollisionObject2D,get_collision_mask);
-    BIND_METHOD(CollisionObject2D,set_collision_layer_bit);
-    BIND_METHOD(CollisionObject2D,get_collision_layer_bit);
-    BIND_METHOD(CollisionObject2D,set_collision_mask_bit);
-    BIND_METHOD(CollisionObject2D,get_collision_mask_bit);
-    BIND_METHOD(CollisionObject2D,set_pickable);
-    BIND_METHOD(CollisionObject2D,is_pickable);
-    BIND_METHOD(CollisionObject2D,create_shape_owner);
-    BIND_METHOD(CollisionObject2D,remove_shape_owner);
+    SE_BIND_METHOD(CollisionObject2D,set_collision_layer);
+    SE_BIND_METHOD(CollisionObject2D,get_collision_layer);
+    SE_BIND_METHOD(CollisionObject2D,set_collision_mask);
+    SE_BIND_METHOD(CollisionObject2D,get_collision_mask);
+    SE_BIND_METHOD(CollisionObject2D,set_collision_layer_bit);
+    SE_BIND_METHOD(CollisionObject2D,get_collision_layer_bit);
+    SE_BIND_METHOD(CollisionObject2D,set_collision_mask_bit);
+    SE_BIND_METHOD(CollisionObject2D,get_collision_mask_bit);
+    SE_BIND_METHOD(CollisionObject2D,set_pickable);
+    SE_BIND_METHOD(CollisionObject2D,is_pickable);
+    SE_BIND_METHOD(CollisionObject2D,create_shape_owner);
+    SE_BIND_METHOD(CollisionObject2D,remove_shape_owner);
     MethodBinder::bind_method(D_METHOD("get_shape_owners"), &CollisionObject2D::_get_shape_owners);
-    BIND_METHOD(CollisionObject2D,shape_owner_set_transform);
-    BIND_METHOD(CollisionObject2D,shape_owner_get_transform);
-    BIND_METHOD(CollisionObject2D,shape_owner_get_owner);
-    BIND_METHOD(CollisionObject2D,shape_owner_set_disabled);
-    BIND_METHOD(CollisionObject2D,is_shape_owner_disabled);
-    BIND_METHOD(CollisionObject2D,shape_owner_set_one_way_collision);
-    BIND_METHOD(CollisionObject2D,is_shape_owner_one_way_collision_enabled);
-    BIND_METHOD(CollisionObject2D,shape_owner_set_one_way_collision_margin);
-    BIND_METHOD(CollisionObject2D,get_shape_owner_one_way_collision_margin);
-    BIND_METHOD(CollisionObject2D,shape_owner_add_shape);
-    BIND_METHOD(CollisionObject2D,shape_owner_get_shape_count);
-    BIND_METHOD(CollisionObject2D,shape_owner_get_shape);
-    BIND_METHOD(CollisionObject2D,shape_owner_get_shape_index);
-    BIND_METHOD(CollisionObject2D,shape_owner_remove_shape);
-    BIND_METHOD(CollisionObject2D,shape_owner_clear_shapes);
-    BIND_METHOD(CollisionObject2D,shape_find_owner);
+    SE_BIND_METHOD(CollisionObject2D,shape_owner_set_transform);
+    SE_BIND_METHOD(CollisionObject2D,shape_owner_get_transform);
+    SE_BIND_METHOD(CollisionObject2D,shape_owner_get_owner);
+    SE_BIND_METHOD(CollisionObject2D,shape_owner_set_disabled);
+    SE_BIND_METHOD(CollisionObject2D,is_shape_owner_disabled);
+    SE_BIND_METHOD(CollisionObject2D,shape_owner_set_one_way_collision);
+    SE_BIND_METHOD(CollisionObject2D,is_shape_owner_one_way_collision_enabled);
+    SE_BIND_METHOD(CollisionObject2D,shape_owner_set_one_way_collision_margin);
+    SE_BIND_METHOD(CollisionObject2D,get_shape_owner_one_way_collision_margin);
+    SE_BIND_METHOD(CollisionObject2D,shape_owner_add_shape);
+    SE_BIND_METHOD(CollisionObject2D,shape_owner_get_shape_count);
+    SE_BIND_METHOD(CollisionObject2D,shape_owner_get_shape);
+    SE_BIND_METHOD(CollisionObject2D,shape_owner_get_shape_index);
+    SE_BIND_METHOD(CollisionObject2D,shape_owner_remove_shape);
+    SE_BIND_METHOD(CollisionObject2D,shape_owner_clear_shapes);
+    SE_BIND_METHOD(CollisionObject2D,shape_find_owner);
 
     BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "viewport"), PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent"), PropertyInfo(VariantType::INT, "shape_idx")));
 

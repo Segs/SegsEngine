@@ -38,21 +38,21 @@ VARIANT_ENUM_CAST(ARVREyes);
 VARIANT_ENUM_CAST(ARVRInterface::Tracking_status);
 
 void ARVRInterface::_bind_methods() {
-    BIND_METHOD(ARVRInterface,get_name);
-    BIND_METHOD(ARVRInterface,get_capabilities);
+    SE_BIND_METHOD(ARVRInterface,get_name);
+    SE_BIND_METHOD(ARVRInterface,get_capabilities);
 
-    BIND_METHOD(ARVRInterface,is_primary);
-    BIND_METHOD(ARVRInterface,set_is_primary);
+    SE_BIND_METHOD(ARVRInterface,is_primary);
+    SE_BIND_METHOD(ARVRInterface,set_is_primary);
 
-    BIND_METHOD(ARVRInterface,is_initialized);
-    BIND_METHOD(ARVRInterface,set_is_initialized);
-    BIND_METHOD(ARVRInterface,initialize);
-    BIND_METHOD(ARVRInterface,uninitialize);
+    SE_BIND_METHOD(ARVRInterface,is_initialized);
+    SE_BIND_METHOD(ARVRInterface,set_is_initialized);
+    SE_BIND_METHOD(ARVRInterface,initialize);
+    SE_BIND_METHOD(ARVRInterface,uninitialize);
 
-    BIND_METHOD(ARVRInterface,get_tracking_status);
+    SE_BIND_METHOD(ARVRInterface,get_tracking_status);
 
-    BIND_METHOD(ARVRInterface,get_render_targetsize);
-    BIND_METHOD(ARVRInterface,is_stereo);
+    SE_BIND_METHOD(ARVRInterface,get_render_targetsize);
+    SE_BIND_METHOD(ARVRInterface,is_stereo);
 
     ADD_GROUP("Interface", "interface_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "interface_is_primary"), "set_is_primary", "is_primary");
@@ -61,9 +61,9 @@ void ARVRInterface::_bind_methods() {
     // we don't have any properties specific to VR yet....
 
     // but we do have properties specific to AR....
-    BIND_METHOD(ARVRInterface,get_anchor_detection_is_enabled);
-    BIND_METHOD(ARVRInterface,set_anchor_detection_is_enabled);
-    BIND_METHOD(ARVRInterface,get_camera_feed_id);
+    SE_BIND_METHOD(ARVRInterface,get_anchor_detection_is_enabled);
+    SE_BIND_METHOD(ARVRInterface,set_anchor_detection_is_enabled);
+    SE_BIND_METHOD(ARVRInterface,get_camera_feed_id);
 
     ADD_GROUP("AR", "ar_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ar_is_anchor_detection_enabled"), "set_anchor_detection_is_enabled", "get_anchor_detection_is_enabled");

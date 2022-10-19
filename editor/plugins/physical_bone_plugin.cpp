@@ -43,7 +43,7 @@ IMPL_GDCLASS(PhysicalBoneEditor)
 IMPL_GDCLASS(PhysicalBonePlugin)
 
 void PhysicalBoneEditor::_bind_methods() {
-    BIND_METHOD(PhysicalBoneEditor,_on_toggle_button_transform_joint);
+    SE_BIND_METHOD(PhysicalBoneEditor,_on_toggle_button_transform_joint);
 }
 
 void PhysicalBoneEditor::_on_toggle_button_transform_joint(bool p_is_pressed) {

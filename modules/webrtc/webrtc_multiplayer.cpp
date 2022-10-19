@@ -39,11 +39,11 @@ IMPL_GDCLASS(WebRTCMultiplayer)
 void WebRTCMultiplayer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("initialize", {"peer_id", "server_compatibility"}), &WebRTCMultiplayer::initialize, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("add_peer", {"peer", "peer_id", "unreliable_lifetime"}), &WebRTCMultiplayer::add_peer, {DEFVAL(1)});
-    BIND_METHOD(WebRTCMultiplayer,remove_peer);
-    BIND_METHOD(WebRTCMultiplayer,has_peer);
-    BIND_METHOD(WebRTCMultiplayer,get_peer);
-    BIND_METHOD(WebRTCMultiplayer,get_peers);
-    BIND_METHOD(WebRTCMultiplayer,close);
+    SE_BIND_METHOD(WebRTCMultiplayer,remove_peer);
+    SE_BIND_METHOD(WebRTCMultiplayer,has_peer);
+    SE_BIND_METHOD(WebRTCMultiplayer,get_peer);
+    SE_BIND_METHOD(WebRTCMultiplayer,get_peers);
+    SE_BIND_METHOD(WebRTCMultiplayer,close);
 }
 
 void WebRTCMultiplayer::set_transfer_mode(TransferMode p_mode) {

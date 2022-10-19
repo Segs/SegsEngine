@@ -57,7 +57,7 @@ void Camera3DEditor::_pressed() {
 
 void Camera3DEditor::_bind_methods() {
 
-    BIND_METHOD(Camera3DEditor,_pressed);
+    SE_BIND_METHOD(Camera3DEditor,_pressed);
 }
 
 void Camera3DEditor::edit(Node *p_camera) {

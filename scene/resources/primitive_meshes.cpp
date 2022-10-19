@@ -192,16 +192,16 @@ RenderingEntity PrimitiveMesh::get_rid() const {
 }
 
 void PrimitiveMesh::_bind_methods() {
-    BIND_METHOD(PrimitiveMesh,set_material);
-    BIND_METHOD(PrimitiveMesh,get_material);
+    SE_BIND_METHOD(PrimitiveMesh,set_material);
+    SE_BIND_METHOD(PrimitiveMesh,get_material);
 
     MethodBinder::bind_method(D_METHOD("get_mesh_arrays"), &PrimitiveMesh::_get_mesh_arrays);
 
-    BIND_METHOD(PrimitiveMesh,set_custom_aabb);
-    BIND_METHOD(PrimitiveMesh,get_custom_aabb);
+    SE_BIND_METHOD(PrimitiveMesh,set_custom_aabb);
+    SE_BIND_METHOD(PrimitiveMesh,get_custom_aabb);
 
-    BIND_METHOD(PrimitiveMesh,set_flip_faces);
-    BIND_METHOD(PrimitiveMesh,get_flip_faces);
+    SE_BIND_METHOD(PrimitiveMesh,set_flip_faces);
+    SE_BIND_METHOD(PrimitiveMesh,get_flip_faces);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PropertyHint::ResourceType, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
     ADD_PROPERTY(PropertyInfo(VariantType::AABB, "custom_aabb", PropertyHint::None, ""), "set_custom_aabb", "get_custom_aabb");
@@ -424,15 +424,15 @@ void CapsuleMesh::create_mesh_array(
 }
 
 void CapsuleMesh::_bind_methods() {
-    BIND_METHOD(CapsuleMesh,set_radius);
-    BIND_METHOD(CapsuleMesh,get_radius);
-    BIND_METHOD(CapsuleMesh,set_mid_height);
-    BIND_METHOD(CapsuleMesh,get_mid_height);
+    SE_BIND_METHOD(CapsuleMesh,set_radius);
+    SE_BIND_METHOD(CapsuleMesh,get_radius);
+    SE_BIND_METHOD(CapsuleMesh,set_mid_height);
+    SE_BIND_METHOD(CapsuleMesh,get_mid_height);
 
-    BIND_METHOD(CapsuleMesh,set_radial_segments);
-    BIND_METHOD(CapsuleMesh,get_radial_segments);
-    BIND_METHOD(CapsuleMesh,set_rings);
-    BIND_METHOD(CapsuleMesh,get_rings);
+    SE_BIND_METHOD(CapsuleMesh,set_radial_segments);
+    SE_BIND_METHOD(CapsuleMesh,get_radial_segments);
+    SE_BIND_METHOD(CapsuleMesh,set_rings);
+    SE_BIND_METHOD(CapsuleMesh,get_rings);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_radius", "get_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "mid_height", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_mid_height", "get_mid_height");
@@ -685,15 +685,15 @@ void CubeMesh::create_mesh_array(
 }
 
 void CubeMesh::_bind_methods() {
-    BIND_METHOD(CubeMesh,set_size);
-    BIND_METHOD(CubeMesh,get_size);
+    SE_BIND_METHOD(CubeMesh,set_size);
+    SE_BIND_METHOD(CubeMesh,get_size);
 
-    BIND_METHOD(CubeMesh,set_subdivide_width);
-    BIND_METHOD(CubeMesh,get_subdivide_width);
-    BIND_METHOD(CubeMesh,set_subdivide_height);
-    BIND_METHOD(CubeMesh,get_subdivide_height);
-    BIND_METHOD(CubeMesh,set_subdivide_depth);
-    BIND_METHOD(CubeMesh,get_subdivide_depth);
+    SE_BIND_METHOD(CubeMesh,set_subdivide_width);
+    SE_BIND_METHOD(CubeMesh,get_subdivide_width);
+    SE_BIND_METHOD(CubeMesh,set_subdivide_height);
+    SE_BIND_METHOD(CubeMesh,get_subdivide_height);
+    SE_BIND_METHOD(CubeMesh,set_subdivide_depth);
+    SE_BIND_METHOD(CubeMesh,get_subdivide_depth);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "size"), "set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_width", PropertyHint::Range, "0,100,1,or_greater"), "set_subdivide_width", "get_subdivide_width");
@@ -890,17 +890,17 @@ void CylinderMesh::create_mesh_array(
 }
 
 void CylinderMesh::_bind_methods() {
-    BIND_METHOD(CylinderMesh,set_top_radius);
-    BIND_METHOD(CylinderMesh,get_top_radius);
-    BIND_METHOD(CylinderMesh,set_bottom_radius);
-    BIND_METHOD(CylinderMesh,get_bottom_radius);
-    BIND_METHOD(CylinderMesh,set_height);
-    BIND_METHOD(CylinderMesh,get_height);
+    SE_BIND_METHOD(CylinderMesh,set_top_radius);
+    SE_BIND_METHOD(CylinderMesh,get_top_radius);
+    SE_BIND_METHOD(CylinderMesh,set_bottom_radius);
+    SE_BIND_METHOD(CylinderMesh,get_bottom_radius);
+    SE_BIND_METHOD(CylinderMesh,set_height);
+    SE_BIND_METHOD(CylinderMesh,get_height);
 
-    BIND_METHOD(CylinderMesh,set_radial_segments);
-    BIND_METHOD(CylinderMesh,get_radial_segments);
-    BIND_METHOD(CylinderMesh,set_rings);
-    BIND_METHOD(CylinderMesh,get_rings);
+    SE_BIND_METHOD(CylinderMesh,set_radial_segments);
+    SE_BIND_METHOD(CylinderMesh,get_radial_segments);
+    SE_BIND_METHOD(CylinderMesh,set_rings);
+    SE_BIND_METHOD(CylinderMesh,get_rings);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "top_radius", PropertyHint::Range, "0,100.0,0.001,or_greater"), "set_top_radius", "get_top_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bottom_radius", PropertyHint::Range, "0,100.0,0.001,or_greater"), "set_bottom_radius", "get_bottom_radius");
@@ -1029,15 +1029,15 @@ void PlaneMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
 }
 
 void PlaneMesh::_bind_methods() {
-    BIND_METHOD(PlaneMesh,set_size);
-    BIND_METHOD(PlaneMesh,get_size);
+    SE_BIND_METHOD(PlaneMesh,set_size);
+    SE_BIND_METHOD(PlaneMesh,get_size);
 
-    BIND_METHOD(PlaneMesh,set_subdivide_width);
-    BIND_METHOD(PlaneMesh,get_subdivide_width);
-    BIND_METHOD(PlaneMesh,set_subdivide_depth);
-    BIND_METHOD(PlaneMesh,get_subdivide_depth);
-    BIND_METHOD(PlaneMesh,set_center_offset);
-    BIND_METHOD(PlaneMesh,get_center_offset);
+    SE_BIND_METHOD(PlaneMesh,set_subdivide_width);
+    SE_BIND_METHOD(PlaneMesh,get_subdivide_width);
+    SE_BIND_METHOD(PlaneMesh,set_subdivide_depth);
+    SE_BIND_METHOD(PlaneMesh,get_subdivide_depth);
+    SE_BIND_METHOD(PlaneMesh,set_center_offset);
+    SE_BIND_METHOD(PlaneMesh,get_center_offset);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "size"), "set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_width", PropertyHint::Range, "0,100,1,or_greater"), "set_subdivide_width", "get_subdivide_width");
@@ -1294,18 +1294,18 @@ void PrismMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
 }
 
 void PrismMesh::_bind_methods() {
-    BIND_METHOD(PrismMesh,set_left_to_right);
-    BIND_METHOD(PrismMesh,get_left_to_right);
+    SE_BIND_METHOD(PrismMesh,set_left_to_right);
+    SE_BIND_METHOD(PrismMesh,get_left_to_right);
 
-    BIND_METHOD(PrismMesh,set_size);
-    BIND_METHOD(PrismMesh,get_size);
+    SE_BIND_METHOD(PrismMesh,set_size);
+    SE_BIND_METHOD(PrismMesh,get_size);
 
-    BIND_METHOD(PrismMesh,set_subdivide_width);
-    BIND_METHOD(PrismMesh,get_subdivide_width);
-    BIND_METHOD(PrismMesh,set_subdivide_height);
-    BIND_METHOD(PrismMesh,get_subdivide_height);
-    BIND_METHOD(PrismMesh,set_subdivide_depth);
-    BIND_METHOD(PrismMesh,get_subdivide_depth);
+    SE_BIND_METHOD(PrismMesh,set_subdivide_width);
+    SE_BIND_METHOD(PrismMesh,get_subdivide_width);
+    SE_BIND_METHOD(PrismMesh,set_subdivide_height);
+    SE_BIND_METHOD(PrismMesh,get_subdivide_height);
+    SE_BIND_METHOD(PrismMesh,set_subdivide_depth);
+    SE_BIND_METHOD(PrismMesh,get_subdivide_depth);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "left_to_right", PropertyHint::Range, "-2.0,2.0,0.1"), "set_left_to_right", "get_left_to_right");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "size"), "set_size", "get_size");
@@ -1424,10 +1424,10 @@ void QuadMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
 }
 
 void QuadMesh::_bind_methods() {
-    BIND_METHOD(QuadMesh,set_size);
-    BIND_METHOD(QuadMesh,get_size);
-    BIND_METHOD(QuadMesh,set_center_offset);
-    BIND_METHOD(QuadMesh,get_center_offset);
+    SE_BIND_METHOD(QuadMesh,set_size);
+    SE_BIND_METHOD(QuadMesh,get_size);
+    SE_BIND_METHOD(QuadMesh,set_center_offset);
+    SE_BIND_METHOD(QuadMesh,get_center_offset);
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "size"), "set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "center_offset"), "set_center_offset", "get_center_offset");
 }
@@ -1535,18 +1535,18 @@ void SphereMesh::create_mesh_array(
 }
 
 void SphereMesh::_bind_methods() {
-    BIND_METHOD(SphereMesh,set_radius);
-    BIND_METHOD(SphereMesh,get_radius);
-    BIND_METHOD(SphereMesh,set_height);
-    BIND_METHOD(SphereMesh,get_height);
+    SE_BIND_METHOD(SphereMesh,set_radius);
+    SE_BIND_METHOD(SphereMesh,get_radius);
+    SE_BIND_METHOD(SphereMesh,set_height);
+    SE_BIND_METHOD(SphereMesh,get_height);
 
-    BIND_METHOD(SphereMesh,set_radial_segments);
-    BIND_METHOD(SphereMesh,get_radial_segments);
-    BIND_METHOD(SphereMesh,set_rings);
-    BIND_METHOD(SphereMesh,get_rings);
+    SE_BIND_METHOD(SphereMesh,set_radial_segments);
+    SE_BIND_METHOD(SphereMesh,get_radial_segments);
+    SE_BIND_METHOD(SphereMesh,set_rings);
+    SE_BIND_METHOD(SphereMesh,get_rings);
 
-    BIND_METHOD(SphereMesh,set_is_hemisphere);
-    BIND_METHOD(SphereMesh,get_is_hemisphere);
+    SE_BIND_METHOD(SphereMesh,set_is_hemisphere);
+    SE_BIND_METHOD(SphereMesh,get_is_hemisphere);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_radius", "get_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_height", "get_height");

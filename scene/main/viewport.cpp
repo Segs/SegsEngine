@@ -176,7 +176,7 @@ void ViewportTexture::_bind_methods() {
 
     MethodBinder::bind_method(
             D_METHOD("set_viewport_path_in_scene", { "path" }), &ViewportTexture::set_viewport_path_in_scene);
-    BIND_METHOD(ViewportTexture,get_viewport_path_in_scene);
+    SE_BIND_METHOD(ViewportTexture,get_viewport_path_in_scene);
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "viewport_path", PropertyHint::NodePathValidTypes, "Viewport",
                          PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT),
@@ -3448,125 +3448,125 @@ void Viewport::_bind_methods() {
 
 
 
-    BIND_METHOD(Viewport,set_use_arvr);
-    BIND_METHOD(Viewport,use_arvr);
+    SE_BIND_METHOD(Viewport,set_use_arvr);
+    SE_BIND_METHOD(Viewport,use_arvr);
 
-    BIND_METHOD(Viewport,set_size);
-    BIND_METHOD(Viewport,get_size);
-    BIND_METHOD(Viewport,set_world_2d);
-    BIND_METHOD(Viewport,get_world_2d);
-    BIND_METHOD(Viewport,find_world_2d);
-    BIND_METHOD(Viewport,set_world_3d);
-    BIND_METHOD(Viewport,get_world_3d);
-    BIND_METHOD(Viewport,find_world_3d);
+    SE_BIND_METHOD(Viewport,set_size);
+    SE_BIND_METHOD(Viewport,get_size);
+    SE_BIND_METHOD(Viewport,set_world_2d);
+    SE_BIND_METHOD(Viewport,get_world_2d);
+    SE_BIND_METHOD(Viewport,find_world_2d);
+    SE_BIND_METHOD(Viewport,set_world_3d);
+    SE_BIND_METHOD(Viewport,get_world_3d);
+    SE_BIND_METHOD(Viewport,find_world_3d);
 
-    BIND_METHOD(Viewport,set_canvas_transform);
-    BIND_METHOD(Viewport,get_canvas_transform);
+    SE_BIND_METHOD(Viewport,set_canvas_transform);
+    SE_BIND_METHOD(Viewport,get_canvas_transform);
 
     MethodBinder::bind_method(
             D_METHOD("set_global_canvas_transform", { "xform" }), &Viewport::set_global_canvas_transform);
-    BIND_METHOD(Viewport,get_global_canvas_transform);
-    BIND_METHOD(Viewport,get_final_transform);
+    SE_BIND_METHOD(Viewport,get_global_canvas_transform);
+    SE_BIND_METHOD(Viewport,get_final_transform);
 
-    BIND_METHOD(Viewport,get_visible_rect);
+    SE_BIND_METHOD(Viewport,get_visible_rect);
     MethodBinder::bind_method(
             D_METHOD("set_transparent_background", { "enable" }), &Viewport::set_transparent_background);
-    BIND_METHOD(Viewport,has_transparent_background);
+    SE_BIND_METHOD(Viewport,has_transparent_background);
 
-    BIND_METHOD(Viewport,_vp_input);
-    BIND_METHOD(Viewport,_vp_input_text);
-    BIND_METHOD(Viewport,_vp_unhandled_input);
+    SE_BIND_METHOD(Viewport,_vp_input);
+    SE_BIND_METHOD(Viewport,_vp_input_text);
+    SE_BIND_METHOD(Viewport,_vp_unhandled_input);
 
     MethodBinder::bind_method(D_METHOD("set_size_override", { "enable", "size", "margin" }),
             &Viewport::set_size_override, { DEFVAL(Size2(-1, -1)), DEFVAL(Size2(0, 0)) });
-    BIND_METHOD(Viewport,get_size_override);
-    BIND_METHOD(Viewport,is_size_override_enabled);
+    SE_BIND_METHOD(Viewport,get_size_override);
+    SE_BIND_METHOD(Viewport,is_size_override_enabled);
     MethodBinder::bind_method(
             D_METHOD("set_size_override_stretch", { "enabled" }), &Viewport::set_size_override_stretch);
     MethodBinder::bind_method(
             D_METHOD("is_size_override_stretch_enabled"), &Viewport::is_size_override_stretch_enabled);
 
-    BIND_METHOD(Viewport,set_vflip);
-    BIND_METHOD(Viewport,get_vflip);
+    SE_BIND_METHOD(Viewport,set_vflip);
+    SE_BIND_METHOD(Viewport,get_vflip);
 
-    BIND_METHOD(Viewport,set_clear_mode);
-    BIND_METHOD(Viewport,get_clear_mode);
+    SE_BIND_METHOD(Viewport,set_clear_mode);
+    SE_BIND_METHOD(Viewport,get_clear_mode);
 
-    BIND_METHOD(Viewport,set_update_mode);
-    BIND_METHOD(Viewport,get_update_mode);
+    SE_BIND_METHOD(Viewport,set_update_mode);
+    SE_BIND_METHOD(Viewport,get_update_mode);
 
 
-    BIND_METHOD(Viewport,set_msaa);
-    BIND_METHOD(Viewport,get_msaa);
+    SE_BIND_METHOD(Viewport,set_msaa);
+    SE_BIND_METHOD(Viewport,get_msaa);
 
-    BIND_METHOD(Viewport,set_use_fxaa);
-    BIND_METHOD(Viewport,get_use_fxaa);
+    SE_BIND_METHOD(Viewport,set_use_fxaa);
+    SE_BIND_METHOD(Viewport,get_use_fxaa);
 
-    BIND_METHOD(Viewport,set_use_debanding);
-    BIND_METHOD(Viewport,get_use_debanding);
+    SE_BIND_METHOD(Viewport,set_use_debanding);
+    SE_BIND_METHOD(Viewport,get_use_debanding);
 
-    BIND_METHOD(Viewport,set_sharpen_intensity);
-    BIND_METHOD(Viewport,get_sharpen_intensity);
-    BIND_METHOD(Viewport,set_hdr);
-    BIND_METHOD(Viewport,get_hdr);
-    BIND_METHOD(Viewport,set_use_32_bpc_depth);
-    BIND_METHOD(Viewport,get_use_32_bpc_depth);
+    SE_BIND_METHOD(Viewport,set_sharpen_intensity);
+    SE_BIND_METHOD(Viewport,get_sharpen_intensity);
+    SE_BIND_METHOD(Viewport,set_hdr);
+    SE_BIND_METHOD(Viewport,get_hdr);
+    SE_BIND_METHOD(Viewport,set_use_32_bpc_depth);
+    SE_BIND_METHOD(Viewport,get_use_32_bpc_depth);
 
-    BIND_METHOD(Viewport,set_usage);
-    BIND_METHOD(Viewport,get_usage);
+    SE_BIND_METHOD(Viewport,set_usage);
+    SE_BIND_METHOD(Viewport,get_usage);
 
-    BIND_METHOD(Viewport,set_debug_draw);
-    BIND_METHOD(Viewport,get_debug_draw);
+    SE_BIND_METHOD(Viewport,set_debug_draw);
+    SE_BIND_METHOD(Viewport,get_debug_draw);
 
-    BIND_METHOD(Viewport,get_render_info);
+    SE_BIND_METHOD(Viewport,get_render_info);
 
-    BIND_METHOD(Viewport,get_texture);
+    SE_BIND_METHOD(Viewport,get_texture);
 
     MethodBinder::bind_method(
             D_METHOD("set_physics_object_picking", { "enable" }), &Viewport::set_physics_object_picking);
-    BIND_METHOD(Viewport,get_physics_object_picking);
+    SE_BIND_METHOD(Viewport,get_physics_object_picking);
 
-    BIND_METHOD(Viewport,get_viewport_rid);
-    BIND_METHOD(Viewport,input);
-    BIND_METHOD(Viewport,unhandled_input);
+    SE_BIND_METHOD(Viewport,get_viewport_rid);
+    SE_BIND_METHOD(Viewport,input);
+    SE_BIND_METHOD(Viewport,unhandled_input);
 
-    BIND_METHOD(Viewport,update_worlds);
+    SE_BIND_METHOD(Viewport,update_worlds);
 
-    BIND_METHOD(Viewport,set_use_own_world);
-    BIND_METHOD(Viewport,is_using_own_world);
+    SE_BIND_METHOD(Viewport,set_use_own_world);
+    SE_BIND_METHOD(Viewport,is_using_own_world);
 
-    BIND_METHOD(Viewport,get_camera);
+    SE_BIND_METHOD(Viewport,get_camera);
 
-    BIND_METHOD(Viewport,set_as_audio_listener);
-    BIND_METHOD(Viewport,is_audio_listener);
+    SE_BIND_METHOD(Viewport,set_as_audio_listener);
+    SE_BIND_METHOD(Viewport,is_audio_listener);
 
-    BIND_METHOD(Viewport,set_as_audio_listener_2d);
-    BIND_METHOD(Viewport,is_audio_listener_2d);
-    BIND_METHOD(Viewport,set_attach_to_screen_rect);
+    SE_BIND_METHOD(Viewport,set_as_audio_listener_2d);
+    SE_BIND_METHOD(Viewport,is_audio_listener_2d);
+    SE_BIND_METHOD(Viewport,set_attach_to_screen_rect);
 
-    BIND_METHOD(Viewport,get_mouse_position);
-    BIND_METHOD(Viewport,warp_mouse);
+    SE_BIND_METHOD(Viewport,get_mouse_position);
+    SE_BIND_METHOD(Viewport,warp_mouse);
 
-    BIND_METHOD(Viewport,gui_has_modal_stack);
-    BIND_METHOD(Viewport,gui_get_drag_data);
-    BIND_METHOD(Viewport,gui_is_dragging);
-    BIND_METHOD(Viewport,gui_is_drag_successful);
+    SE_BIND_METHOD(Viewport,gui_has_modal_stack);
+    SE_BIND_METHOD(Viewport,gui_get_drag_data);
+    SE_BIND_METHOD(Viewport,gui_is_dragging);
+    SE_BIND_METHOD(Viewport,gui_is_drag_successful);
 
-    BIND_METHOD(Viewport,get_modal_stack_top);
+    SE_BIND_METHOD(Viewport,get_modal_stack_top);
 
-    BIND_METHOD(Viewport,set_disable_input);
-    BIND_METHOD(Viewport,is_input_disabled);
+    SE_BIND_METHOD(Viewport,set_disable_input);
+    SE_BIND_METHOD(Viewport,is_input_disabled);
 
-    BIND_METHOD(Viewport,set_disable_3d);
-    BIND_METHOD(Viewport,is_3d_disabled);
+    SE_BIND_METHOD(Viewport,set_disable_3d);
+    SE_BIND_METHOD(Viewport,is_3d_disabled);
 
-    BIND_METHOD(Viewport,set_keep_3d_linear);
-    BIND_METHOD(Viewport,get_keep_3d_linear);
+    SE_BIND_METHOD(Viewport,set_keep_3d_linear);
+    SE_BIND_METHOD(Viewport,get_keep_3d_linear);
 
-    BIND_METHOD(Viewport,_gui_remove_focus);
+    SE_BIND_METHOD(Viewport,_gui_remove_focus);
 
-    BIND_METHOD(Viewport,set_shadow_atlas_size);
-    BIND_METHOD(Viewport,get_shadow_atlas_size);
+    SE_BIND_METHOD(Viewport,set_shadow_atlas_size);
+    SE_BIND_METHOD(Viewport,get_shadow_atlas_size);
 
     MethodBinder::bind_method(
             D_METHOD("set_snap_controls_to_pixels", { "enabled" }), &Viewport::set_snap_controls_to_pixels);
@@ -3578,13 +3578,13 @@ void Viewport::_bind_methods() {
     MethodBinder::bind_method(
             D_METHOD("get_shadow_atlas_quadrant_subdiv", { "quadrant" }), &Viewport::get_shadow_atlas_quadrant_subdiv);
 
-    BIND_METHOD(Viewport,set_input_as_handled);
-    BIND_METHOD(Viewport,is_input_handled);
+    SE_BIND_METHOD(Viewport,set_input_as_handled);
+    SE_BIND_METHOD(Viewport,is_input_handled);
 
-    BIND_METHOD(Viewport,set_handle_input_locally);
-    BIND_METHOD(Viewport,is_handling_input_locally);
+    SE_BIND_METHOD(Viewport,set_handle_input_locally);
+    SE_BIND_METHOD(Viewport,is_handling_input_locally);
 
-    BIND_METHOD(Viewport,_subwindow_visibility_changed);
+    SE_BIND_METHOD(Viewport,_subwindow_visibility_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "arvr"), "set_use_arvr", "use_arvr");
 

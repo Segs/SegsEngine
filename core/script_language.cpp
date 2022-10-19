@@ -120,17 +120,17 @@ Dictionary Script::_get_script_constant_map() {
 }
 void Script::_bind_methods() {
 
-    BIND_METHOD(Script,can_instance);
+    SE_BIND_METHOD(Script,can_instance);
     //BIND_METHOD(Script,instance_create);
-    BIND_METHOD(Script,instance_has);
-    BIND_METHOD(Script,has_source_code);
-    BIND_METHOD(Script,get_source_code);
-    BIND_METHOD(Script,set_source_code);
+    SE_BIND_METHOD(Script,instance_has);
+    SE_BIND_METHOD(Script,has_source_code);
+    SE_BIND_METHOD(Script,get_source_code);
+    SE_BIND_METHOD(Script,set_source_code);
     MethodBinder::bind_method(D_METHOD("reload", {"keep_state"}), &Script::reload, {DEFVAL(false)});
-    BIND_METHOD(Script,get_base_script);
-    BIND_METHOD(Script,get_instance_base_type);
+    SE_BIND_METHOD(Script,get_base_script);
+    SE_BIND_METHOD(Script,get_instance_base_type);
 
-    BIND_METHOD(Script,has_script_signal);
+    SE_BIND_METHOD(Script,has_script_signal);
 
     MethodBinder::bind_method(D_METHOD("get_script_property_list"), &Script::_get_script_property_list);
     MethodBinder::bind_method(D_METHOD("get_script_method_list"), &Script::_get_script_method_list);
@@ -138,7 +138,7 @@ void Script::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_script_constant_map"), &Script::_get_script_constant_map);
     MethodBinder::bind_method(D_METHOD("get_property_default_value", {"property"}), &Script::_get_property_default_value);
 
-    BIND_METHOD(Script,is_tool);
+    SE_BIND_METHOD(Script,is_tool);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "source_code", PropertyHint::None, "", 0), "set_source_code", "get_source_code");
 }

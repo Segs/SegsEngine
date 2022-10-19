@@ -142,20 +142,20 @@ float AudioEffectPhaser::get_depth() const {
 
 void AudioEffectPhaser::_bind_methods() {
 
-    BIND_METHOD(AudioEffectPhaser,set_range_min_hz);
-    BIND_METHOD(AudioEffectPhaser,get_range_min_hz);
+    SE_BIND_METHOD(AudioEffectPhaser,set_range_min_hz);
+    SE_BIND_METHOD(AudioEffectPhaser,get_range_min_hz);
 
-    BIND_METHOD(AudioEffectPhaser,set_range_max_hz);
-    BIND_METHOD(AudioEffectPhaser,get_range_max_hz);
+    SE_BIND_METHOD(AudioEffectPhaser,set_range_max_hz);
+    SE_BIND_METHOD(AudioEffectPhaser,get_range_max_hz);
 
-    BIND_METHOD(AudioEffectPhaser,set_rate_hz);
-    BIND_METHOD(AudioEffectPhaser,get_rate_hz);
+    SE_BIND_METHOD(AudioEffectPhaser,set_rate_hz);
+    SE_BIND_METHOD(AudioEffectPhaser,get_rate_hz);
 
-    BIND_METHOD(AudioEffectPhaser,set_feedback);
-    BIND_METHOD(AudioEffectPhaser,get_feedback);
+    SE_BIND_METHOD(AudioEffectPhaser,set_feedback);
+    SE_BIND_METHOD(AudioEffectPhaser,get_feedback);
 
-    BIND_METHOD(AudioEffectPhaser,set_depth);
-    BIND_METHOD(AudioEffectPhaser,get_depth);
+    SE_BIND_METHOD(AudioEffectPhaser,set_depth);
+    SE_BIND_METHOD(AudioEffectPhaser,get_depth);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "range_min_hz", PropertyHint::Range, "10,10000"), "set_range_min_hz", "get_range_min_hz");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "range_max_hz", PropertyHint::Range, "10,10000"), "set_range_max_hz", "get_range_max_hz");

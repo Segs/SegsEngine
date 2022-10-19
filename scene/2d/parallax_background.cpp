@@ -184,19 +184,19 @@ Vector2 ParallaxBackground::get_final_offset() const {
 
 void ParallaxBackground::_bind_methods() {
 
-    BIND_METHOD(ParallaxBackground,_camera_moved);
-    BIND_METHOD(ParallaxBackground,set_scroll_offset);
-    BIND_METHOD(ParallaxBackground,get_scroll_offset);
-    BIND_METHOD(ParallaxBackground,set_scroll_base_offset);
-    BIND_METHOD(ParallaxBackground,get_scroll_base_offset);
-    BIND_METHOD(ParallaxBackground,set_scroll_base_scale);
-    BIND_METHOD(ParallaxBackground,get_scroll_base_scale);
-    BIND_METHOD(ParallaxBackground,set_limit_begin);
-    BIND_METHOD(ParallaxBackground,get_limit_begin);
-    BIND_METHOD(ParallaxBackground,set_limit_end);
-    BIND_METHOD(ParallaxBackground,get_limit_end);
-    BIND_METHOD(ParallaxBackground,set_ignore_camera_zoom);
-    BIND_METHOD(ParallaxBackground,is_ignore_camera_zoom);
+    SE_BIND_METHOD(ParallaxBackground,_camera_moved);
+    SE_BIND_METHOD(ParallaxBackground,set_scroll_offset);
+    SE_BIND_METHOD(ParallaxBackground,get_scroll_offset);
+    SE_BIND_METHOD(ParallaxBackground,set_scroll_base_offset);
+    SE_BIND_METHOD(ParallaxBackground,get_scroll_base_offset);
+    SE_BIND_METHOD(ParallaxBackground,set_scroll_base_scale);
+    SE_BIND_METHOD(ParallaxBackground,get_scroll_base_scale);
+    SE_BIND_METHOD(ParallaxBackground,set_limit_begin);
+    SE_BIND_METHOD(ParallaxBackground,get_limit_begin);
+    SE_BIND_METHOD(ParallaxBackground,set_limit_end);
+    SE_BIND_METHOD(ParallaxBackground,get_limit_end);
+    SE_BIND_METHOD(ParallaxBackground,set_ignore_camera_zoom);
+    SE_BIND_METHOD(ParallaxBackground,is_ignore_camera_zoom);
 
     ADD_GROUP("Scroll", "scroll_");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "scroll_offset"), "set_scroll_offset", "get_scroll_offset");

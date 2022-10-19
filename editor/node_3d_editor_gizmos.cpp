@@ -849,11 +849,11 @@ void EditorNode3DGizmo::_bind_methods() {
             &EditorNode3DGizmo::add_unscaled_billboard, { DEFVAL(1), DEFVAL(Color(1, 1, 1)) });
     MethodBinder::bind_method(D_METHOD("add_handles", { "handles", "material", "billboard", "secondary" }),
             &EditorNode3DGizmo::add_handles, { DEFVAL(false), DEFVAL(false) });
-    BIND_METHOD(EditorNode3DGizmo,set_spatial_node);
-    BIND_METHOD(EditorNode3DGizmo,get_spatial_node);
-    BIND_METHOD(EditorNode3DGizmo,get_plugin);
-    BIND_METHOD(EditorNode3DGizmo,clear);
-    BIND_METHOD(EditorNode3DGizmo,set_hidden);
+    SE_BIND_METHOD(EditorNode3DGizmo,set_spatial_node);
+    SE_BIND_METHOD(EditorNode3DGizmo,get_spatial_node);
+    SE_BIND_METHOD(EditorNode3DGizmo,get_plugin);
+    SE_BIND_METHOD(EditorNode3DGizmo,clear);
+    SE_BIND_METHOD(EditorNode3DGizmo,set_hidden);
 
     BIND_VMETHOD(MethodInfo("redraw"));
     BIND_VMETHOD(MethodInfo(VariantType::STRING, "get_handle_name", PropertyInfo(VariantType::INT, "index")));

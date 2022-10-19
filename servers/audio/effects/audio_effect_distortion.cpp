@@ -163,20 +163,20 @@ float AudioEffectDistortion::get_post_gain() const {
 
 void AudioEffectDistortion::_bind_methods() {
 
-    BIND_METHOD(AudioEffectDistortion,set_mode);
-    BIND_METHOD(AudioEffectDistortion,get_mode);
+    SE_BIND_METHOD(AudioEffectDistortion,set_mode);
+    SE_BIND_METHOD(AudioEffectDistortion,get_mode);
 
-    BIND_METHOD(AudioEffectDistortion,set_pre_gain);
-    BIND_METHOD(AudioEffectDistortion,get_pre_gain);
+    SE_BIND_METHOD(AudioEffectDistortion,set_pre_gain);
+    SE_BIND_METHOD(AudioEffectDistortion,get_pre_gain);
 
-    BIND_METHOD(AudioEffectDistortion,set_keep_hf_hz);
-    BIND_METHOD(AudioEffectDistortion,get_keep_hf_hz);
+    SE_BIND_METHOD(AudioEffectDistortion,set_keep_hf_hz);
+    SE_BIND_METHOD(AudioEffectDistortion,get_keep_hf_hz);
 
-    BIND_METHOD(AudioEffectDistortion,set_drive);
-    BIND_METHOD(AudioEffectDistortion,get_drive);
+    SE_BIND_METHOD(AudioEffectDistortion,set_drive);
+    SE_BIND_METHOD(AudioEffectDistortion,get_drive);
 
-    BIND_METHOD(AudioEffectDistortion,set_post_gain);
-    BIND_METHOD(AudioEffectDistortion,get_post_gain);
+    SE_BIND_METHOD(AudioEffectDistortion,set_post_gain);
+    SE_BIND_METHOD(AudioEffectDistortion,get_post_gain);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Clip,ATan,LoFi,Overdrive,WaveShape"), "set_mode", "get_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pre_gain", PropertyHint::Range, "-60,60,0.01"), "set_pre_gain", "get_pre_gain");

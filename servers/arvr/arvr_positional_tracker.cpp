@@ -44,17 +44,17 @@ void ARVRPositionalTracker::_bind_methods() {
     BIND_ENUM_CONSTANT(TRACKER_RIGHT_HAND);
 
     // this class is read only from GDScript, so we only have access to getters..
-    BIND_METHOD(ARVRPositionalTracker,get_type);
-    BIND_METHOD(ARVRPositionalTracker,get_tracker_id);
-    BIND_METHOD(ARVRPositionalTracker,get_name);
-    BIND_METHOD(ARVRPositionalTracker,get_joy_id);
-    BIND_METHOD(ARVRPositionalTracker,get_tracks_orientation);
-    BIND_METHOD(ARVRPositionalTracker,get_orientation);
-    BIND_METHOD(ARVRPositionalTracker,get_tracks_position);
-    BIND_METHOD(ARVRPositionalTracker,get_position);
-    BIND_METHOD(ARVRPositionalTracker,get_hand);
-    BIND_METHOD(ARVRPositionalTracker,get_transform);
-    BIND_METHOD(ARVRPositionalTracker,get_mesh);
+    SE_BIND_METHOD(ARVRPositionalTracker,get_type);
+    SE_BIND_METHOD(ARVRPositionalTracker,get_tracker_id);
+    SE_BIND_METHOD(ARVRPositionalTracker,get_name);
+    SE_BIND_METHOD(ARVRPositionalTracker,get_joy_id);
+    SE_BIND_METHOD(ARVRPositionalTracker,get_tracks_orientation);
+    SE_BIND_METHOD(ARVRPositionalTracker,get_orientation);
+    SE_BIND_METHOD(ARVRPositionalTracker,get_tracks_position);
+    SE_BIND_METHOD(ARVRPositionalTracker,get_position);
+    SE_BIND_METHOD(ARVRPositionalTracker,get_hand);
+    SE_BIND_METHOD(ARVRPositionalTracker,get_transform);
+    SE_BIND_METHOD(ARVRPositionalTracker,get_mesh);
 
     // these functions we don't want to expose to normal users but do need to be callable from GDNative
     MethodBinder::bind_method(D_METHOD("_set_type", {"type"}), &ARVRPositionalTracker::set_type);
@@ -63,8 +63,8 @@ void ARVRPositionalTracker::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_orientation", {"orientation"}), &ARVRPositionalTracker::set_orientation);
     MethodBinder::bind_method(D_METHOD("_set_rw_position", {"rw_position"}), &ARVRPositionalTracker::set_rw_position);
     MethodBinder::bind_method(D_METHOD("_set_mesh", {"mesh"}), &ARVRPositionalTracker::set_mesh);
-    BIND_METHOD(ARVRPositionalTracker,get_rumble);
-    BIND_METHOD(ARVRPositionalTracker,set_rumble);
+    SE_BIND_METHOD(ARVRPositionalTracker,get_rumble);
+    SE_BIND_METHOD(ARVRPositionalTracker,set_rumble);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rumble"), "set_rumble", "get_rumble");
 }

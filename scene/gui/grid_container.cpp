@@ -192,8 +192,8 @@ void GridContainer::set_columns(int p_columns) {
 
 void GridContainer::_bind_methods() {
 
-    BIND_METHOD(GridContainer,set_columns);
-    BIND_METHOD(GridContainer,get_columns);
+    SE_BIND_METHOD(GridContainer,set_columns);
+    SE_BIND_METHOD(GridContainer,get_columns);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "columns", PropertyHint::Range, "1,1024,1"), "set_columns", "get_columns");
 }

@@ -900,23 +900,23 @@ void NetworkedMultiplayerENet::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("create_client", {"address", "port", "in_bandwidth", "out_bandwidth", "client_port"}), &NetworkedMultiplayerENet::create_client, {DEFVAL(0), DEFVAL(0), DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("close_connection", {"wait_usec"}), &NetworkedMultiplayerENet::close_connection, {DEFVAL(100)});
     MethodBinder::bind_method(D_METHOD("disconnect_peer", {"id", "now"}), &NetworkedMultiplayerENet::disconnect_peer, {DEFVAL(false)});
-    BIND_METHOD(NetworkedMultiplayerENet,set_compression_mode);
-    BIND_METHOD(NetworkedMultiplayerENet,get_compression_mode);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,set_compression_mode);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,get_compression_mode);
     MethodBinder::bind_method(D_METHOD("set_bind_ip", {"ip"}), (void (NetworkedMultiplayerENet::*)(StringView))&NetworkedMultiplayerENet::set_bind_ip);
-    BIND_METHOD(NetworkedMultiplayerENet,get_peer_address);
-    BIND_METHOD(NetworkedMultiplayerENet,get_peer_port);
-    BIND_METHOD(NetworkedMultiplayerENet,set_peer_timeout);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,get_peer_address);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,get_peer_port);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,set_peer_timeout);
 
-    BIND_METHOD(NetworkedMultiplayerENet,get_packet_channel);
-    BIND_METHOD(NetworkedMultiplayerENet,get_last_packet_channel);
-    BIND_METHOD(NetworkedMultiplayerENet,set_transfer_channel);
-    BIND_METHOD(NetworkedMultiplayerENet,get_transfer_channel);
-    BIND_METHOD(NetworkedMultiplayerENet,set_channel_count);
-    BIND_METHOD(NetworkedMultiplayerENet,get_channel_count);
-    BIND_METHOD(NetworkedMultiplayerENet,set_always_ordered);
-    BIND_METHOD(NetworkedMultiplayerENet,is_always_ordered);
-    BIND_METHOD(NetworkedMultiplayerENet,set_server_relay_enabled);
-    BIND_METHOD(NetworkedMultiplayerENet,is_server_relay_enabled);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,get_packet_channel);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,get_last_packet_channel);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,set_transfer_channel);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,get_transfer_channel);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,set_channel_count);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,get_channel_count);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,set_always_ordered);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,is_always_ordered);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,set_server_relay_enabled);
+    SE_BIND_METHOD(NetworkedMultiplayerENet,is_server_relay_enabled);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "compression_mode", PropertyHint::Enum, "None,Range Coder,FastLZ,ZLib,ZStd"), "set_compression_mode", "get_compression_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "transfer_channel"), "set_transfer_channel", "get_transfer_channel");

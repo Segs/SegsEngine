@@ -8,14 +8,14 @@
 IMPL_GDCLASS(CameraTexture)
 
 void CameraTexture::_bind_methods() {
-    BIND_METHOD(CameraTexture,set_camera_feed_id);
-    BIND_METHOD(CameraTexture,get_camera_feed_id);
+    SE_BIND_METHOD(CameraTexture,set_camera_feed_id);
+    SE_BIND_METHOD(CameraTexture,get_camera_feed_id);
 
-    BIND_METHOD(CameraTexture,set_which_feed);
-    BIND_METHOD(CameraTexture,get_which_feed);
+    SE_BIND_METHOD(CameraTexture,set_which_feed);
+    SE_BIND_METHOD(CameraTexture,get_which_feed);
 
-    BIND_METHOD(CameraTexture,set_camera_active);
-    BIND_METHOD(CameraTexture,get_camera_active);
+    SE_BIND_METHOD(CameraTexture,set_camera_active);
+    SE_BIND_METHOD(CameraTexture,get_camera_active);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "camera_feed_id"), "set_camera_feed_id", "get_camera_feed_id");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "which_feed"), "set_which_feed", "get_which_feed");

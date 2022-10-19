@@ -345,10 +345,10 @@ void IP::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("resolve_hostname", {"host", "ip_type"}), &IP::resolve_hostname, {DEFVAL(IP::TYPE_ANY)});
     MethodBinder::bind_method(D_METHOD("resolve_hostname_addresses", {"host", "ip_type"}), &IP::resolve_hostname_addresses, {DEFVAL(IP::TYPE_ANY)});
     MethodBinder::bind_method(D_METHOD("resolve_hostname_queue_item", {"host", "ip_type"}), &IP::resolve_hostname_queue_item, {DEFVAL(IP::TYPE_ANY)});
-    BIND_METHOD(IP,get_resolve_item_status);
-    BIND_METHOD(IP,get_resolve_item_address);
-    BIND_METHOD(IP,get_resolve_item_addresses);
-    BIND_METHOD(IP,erase_resolve_item);
+    SE_BIND_METHOD(IP,get_resolve_item_status);
+    SE_BIND_METHOD(IP,get_resolve_item_address);
+    SE_BIND_METHOD(IP,get_resolve_item_addresses);
+    SE_BIND_METHOD(IP,erase_resolve_item);
     MethodBinder::bind_method(D_METHOD("get_local_addresses"), &IP::_get_local_addresses);
     MethodBinder::bind_method(D_METHOD("get_local_interfaces"), &IP::_get_local_interfaces);
     MethodBinder::bind_method(D_METHOD("clear_cache", {"hostname"}), &IP::clear_cache, {DEFVAL("")});

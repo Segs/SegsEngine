@@ -119,7 +119,7 @@ void MeshEditor::_button_pressed(Node *p_button) {
 
 void MeshEditor::_bind_methods() {
 
-    BIND_METHOD(MeshEditor,_gui_input);
+    SE_BIND_METHOD(MeshEditor,_gui_input);
 }
 
 MeshEditor::MeshEditor() {

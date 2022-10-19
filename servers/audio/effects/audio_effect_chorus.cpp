@@ -301,32 +301,32 @@ void AudioEffectChorus::_validate_property(PropertyInfo &property) const {
 
 void AudioEffectChorus::_bind_methods() {
 
-    BIND_METHOD(AudioEffectChorus,set_voice_count);
-    BIND_METHOD(AudioEffectChorus,get_voice_count);
+    SE_BIND_METHOD(AudioEffectChorus,set_voice_count);
+    SE_BIND_METHOD(AudioEffectChorus,get_voice_count);
 
-    BIND_METHOD(AudioEffectChorus,set_voice_delay_ms);
-    BIND_METHOD(AudioEffectChorus,get_voice_delay_ms);
+    SE_BIND_METHOD(AudioEffectChorus,set_voice_delay_ms);
+    SE_BIND_METHOD(AudioEffectChorus,get_voice_delay_ms);
 
-    BIND_METHOD(AudioEffectChorus,set_voice_rate_hz);
-    BIND_METHOD(AudioEffectChorus,get_voice_rate_hz);
+    SE_BIND_METHOD(AudioEffectChorus,set_voice_rate_hz);
+    SE_BIND_METHOD(AudioEffectChorus,get_voice_rate_hz);
 
-    BIND_METHOD(AudioEffectChorus,set_voice_depth_ms);
-    BIND_METHOD(AudioEffectChorus,get_voice_depth_ms);
+    SE_BIND_METHOD(AudioEffectChorus,set_voice_depth_ms);
+    SE_BIND_METHOD(AudioEffectChorus,get_voice_depth_ms);
 
-    BIND_METHOD(AudioEffectChorus,set_voice_level_db);
-    BIND_METHOD(AudioEffectChorus,get_voice_level_db);
+    SE_BIND_METHOD(AudioEffectChorus,set_voice_level_db);
+    SE_BIND_METHOD(AudioEffectChorus,get_voice_level_db);
 
-    BIND_METHOD(AudioEffectChorus,set_voice_cutoff_hz);
-    BIND_METHOD(AudioEffectChorus,get_voice_cutoff_hz);
+    SE_BIND_METHOD(AudioEffectChorus,set_voice_cutoff_hz);
+    SE_BIND_METHOD(AudioEffectChorus,get_voice_cutoff_hz);
 
-    BIND_METHOD(AudioEffectChorus,set_voice_pan);
-    BIND_METHOD(AudioEffectChorus,get_voice_pan);
+    SE_BIND_METHOD(AudioEffectChorus,set_voice_pan);
+    SE_BIND_METHOD(AudioEffectChorus,get_voice_pan);
 
-    BIND_METHOD(AudioEffectChorus,set_wet);
-    BIND_METHOD(AudioEffectChorus,get_wet);
+    SE_BIND_METHOD(AudioEffectChorus,set_wet);
+    SE_BIND_METHOD(AudioEffectChorus,get_wet);
 
-    BIND_METHOD(AudioEffectChorus,set_dry);
-    BIND_METHOD(AudioEffectChorus,get_dry);
+    SE_BIND_METHOD(AudioEffectChorus,set_dry);
+    SE_BIND_METHOD(AudioEffectChorus,get_dry);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "voice_count", PropertyHint::Range, "1,4,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_voice_count", "get_voice_count");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "dry", PropertyHint::Range, "0,1,0.01"), "set_dry", "get_dry");

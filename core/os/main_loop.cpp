@@ -40,12 +40,12 @@ IMPL_GDCLASS(MainLoop)
 
 void MainLoop::_bind_methods() {
 
-    BIND_METHOD(MainLoop,input_event);
-    BIND_METHOD(MainLoop,input_text);
-    BIND_METHOD(MainLoop,init);
-    BIND_METHOD(MainLoop,iteration);
-    BIND_METHOD(MainLoop,idle);
-    BIND_METHOD(MainLoop,finish);
+    SE_BIND_METHOD(MainLoop,input_event);
+    SE_BIND_METHOD(MainLoop,input_text);
+    SE_BIND_METHOD(MainLoop,init);
+    SE_BIND_METHOD(MainLoop,iteration);
+    SE_BIND_METHOD(MainLoop,idle);
+    SE_BIND_METHOD(MainLoop,finish);
 
     BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
     BIND_VMETHOD(MethodInfo("_input_text", PropertyInfo(VariantType::STRING, "text")));

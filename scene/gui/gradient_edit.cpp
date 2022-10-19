@@ -504,6 +504,6 @@ Vector<Gradient::Point> &GradientEdit::get_points() {
 }
 
 void GradientEdit::_bind_methods() {
-    BIND_METHOD(GradientEdit,_gui_input);
+    SE_BIND_METHOD(GradientEdit,_gui_input);
     ADD_SIGNAL(MethodInfo("ramp_changed"));
 }

@@ -189,12 +189,12 @@ real_t HeightMapShape3D::get_enclosing_radius() const {
     return Vector3(real_t(map_width), max_height - min_height, real_t(map_depth)).length();
 }
 void HeightMapShape3D::_bind_methods() {
-    BIND_METHOD(HeightMapShape3D,set_map_width);
-    BIND_METHOD(HeightMapShape3D,get_map_width);
-    BIND_METHOD(HeightMapShape3D,set_map_depth);
-    BIND_METHOD(HeightMapShape3D,get_map_depth);
-    BIND_METHOD(HeightMapShape3D,set_map_data);
-    BIND_METHOD(HeightMapShape3D,get_map_data);
+    SE_BIND_METHOD(HeightMapShape3D,set_map_width);
+    SE_BIND_METHOD(HeightMapShape3D,get_map_width);
+    SE_BIND_METHOD(HeightMapShape3D,set_map_depth);
+    SE_BIND_METHOD(HeightMapShape3D,get_map_depth);
+    SE_BIND_METHOD(HeightMapShape3D,set_map_data);
+    SE_BIND_METHOD(HeightMapShape3D,get_map_data);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "map_width", PropertyHint::Range, "0.001,100,0.001,or_greater"),
             "set_map_width", "get_map_width");

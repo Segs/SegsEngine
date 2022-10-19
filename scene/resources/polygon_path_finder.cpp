@@ -575,17 +575,17 @@ float PolygonPathFinder::get_point_penalty(int p_point) const {
 
 void PolygonPathFinder::_bind_methods() {
 
-    BIND_METHOD(PolygonPathFinder,setup);
-    BIND_METHOD(PolygonPathFinder,find_path);
-    BIND_METHOD(PolygonPathFinder,get_intersections);
-    BIND_METHOD(PolygonPathFinder,get_closest_point);
-    BIND_METHOD(PolygonPathFinder,is_point_inside);
-    BIND_METHOD(PolygonPathFinder,set_point_penalty);
-    BIND_METHOD(PolygonPathFinder,get_point_penalty);
+    SE_BIND_METHOD(PolygonPathFinder,setup);
+    SE_BIND_METHOD(PolygonPathFinder,find_path);
+    SE_BIND_METHOD(PolygonPathFinder,get_intersections);
+    SE_BIND_METHOD(PolygonPathFinder,get_closest_point);
+    SE_BIND_METHOD(PolygonPathFinder,is_point_inside);
+    SE_BIND_METHOD(PolygonPathFinder,set_point_penalty);
+    SE_BIND_METHOD(PolygonPathFinder,get_point_penalty);
 
-    BIND_METHOD(PolygonPathFinder,get_bounds);
-    BIND_METHOD(PolygonPathFinder,_set_data);
-    BIND_METHOD(PolygonPathFinder,_get_data);
+    SE_BIND_METHOD(PolygonPathFinder,get_bounds);
+    SE_BIND_METHOD(PolygonPathFinder,_set_data);
+    SE_BIND_METHOD(PolygonPathFinder,_get_data);
 
     ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
 }

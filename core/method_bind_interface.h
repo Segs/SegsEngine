@@ -276,10 +276,10 @@ struct MethodBinder {
 #ifdef DEBUG_METHODS_ENABLED
 
 
-#define BIND_METHOD(class_name, method_name) \
+#define SE_BIND_METHOD(class_name, method_name) \
     MethodBinder::bind_methodA(StaticCString(#method_name), &class_name::method_name)
 
-#define BIND_METHOD_WRAPPER(class_name, method_name, wrapper)                                                          \
+#define SE_BIND_METHOD_WRAPPER(class_name, method_name, wrapper)                                                          \
     MethodBinder::bind_methodA(StaticCString(#method_name), &class_name::wrapper)
 
 #define SE_BIND_METHOD_WITH_DEFAULTS(class_name, method_name, ...) \
@@ -289,10 +289,10 @@ struct MethodBinder {
     MethodBinder::bind_methodA(StaticCString(#method_name), &class_name::wrapper, { __VA_ARGS__ })
 
 #else
-#define BIND_METHOD(class_name, method_name) \
+#define SE_BIND_METHOD(class_name, method_name) \
     MethodBinder::bind_methodA(#method_name, &class_name::method_name)
 
-#define BIND_METHOD_WRAPPER(class_name, method_name, wrapper)                                                          \
+#define SE_BIND_METHOD_WRAPPER(class_name, method_name, wrapper)                                                          \
     MethodBinder::bind_methodA(#method_name, &class_name::wrapper)
 
 #define SE_BIND_METHOD_WITH_DEFAULTS(class_name, method_name, ...) \

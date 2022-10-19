@@ -92,8 +92,8 @@ bool ProgressBar::is_percent_visible() const {
 
 void ProgressBar::_bind_methods() {
 
-    BIND_METHOD(ProgressBar,set_percent_visible);
-    BIND_METHOD(ProgressBar,is_percent_visible);
+    SE_BIND_METHOD(ProgressBar,set_percent_visible);
+    SE_BIND_METHOD(ProgressBar,is_percent_visible);
     ADD_GROUP("Percent", "percent_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "percent_visible"), "set_percent_visible", "is_percent_visible");
 }

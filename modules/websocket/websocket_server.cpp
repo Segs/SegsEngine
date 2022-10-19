@@ -46,28 +46,28 @@ WebSocketServer::~WebSocketServer() {
 
 void WebSocketServer::_bind_methods() {
 
-    BIND_METHOD(WebSocketServer,is_listening);
+    SE_BIND_METHOD(WebSocketServer,is_listening);
     MethodBinder::bind_method(D_METHOD("listen", {"port", "protocols", "gd_mp_api"}), &WebSocketServer::listen, {DEFVAL(PoolVector<String>()), DEFVAL(false)});
-    BIND_METHOD(WebSocketServer,stop);
-    BIND_METHOD(WebSocketServer,has_peer);
-    BIND_METHOD(WebSocketServer,get_peer_address);
-    BIND_METHOD(WebSocketServer,get_peer_port);
+    SE_BIND_METHOD(WebSocketServer,stop);
+    SE_BIND_METHOD(WebSocketServer,has_peer);
+    SE_BIND_METHOD(WebSocketServer,get_peer_address);
+    SE_BIND_METHOD(WebSocketServer,get_peer_port);
     MethodBinder::bind_method(D_METHOD("disconnect_peer", {"id", "code", "reason"}), &WebSocketServer::disconnect_peer, {DEFVAL(1000), DEFVAL("")});
 
-    BIND_METHOD(WebSocketServer,get_bind_ip);
+    SE_BIND_METHOD(WebSocketServer,get_bind_ip);
     MethodBinder::bind_method(D_METHOD("set_bind_ip"), (void (WebSocketServer::*)(StringView))&WebSocketServer::set_bind_ip);
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bind_ip"), "set_bind_ip", "get_bind_ip");
 
-    BIND_METHOD(WebSocketServer,get_private_key);
-    BIND_METHOD(WebSocketServer,set_private_key);
+    SE_BIND_METHOD(WebSocketServer,get_private_key);
+    SE_BIND_METHOD(WebSocketServer,set_private_key);
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "private_key", PropertyHint::ResourceType, "CryptoKey", 0), "set_private_key", "get_private_key");
 
-    BIND_METHOD(WebSocketServer,get_ssl_certificate);
-    BIND_METHOD(WebSocketServer,set_ssl_certificate);
+    SE_BIND_METHOD(WebSocketServer,get_ssl_certificate);
+    SE_BIND_METHOD(WebSocketServer,set_ssl_certificate);
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "ssl_certificate", PropertyHint::ResourceType, "X509Certificate", 0), "set_ssl_certificate", "get_ssl_certificate");
 
-    BIND_METHOD(WebSocketServer,get_ca_chain);
-    BIND_METHOD(WebSocketServer,set_ca_chain);
+    SE_BIND_METHOD(WebSocketServer,get_ca_chain);
+    SE_BIND_METHOD(WebSocketServer,set_ca_chain);
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "ca_chain", PropertyHint::ResourceType, "X509Certificate", 0), "set_ca_chain", "get_ca_chain");
 
     ADD_SIGNAL(MethodInfo("client_close_request", PropertyInfo(VariantType::INT, "id"), PropertyInfo(VariantType::INT, "code"), PropertyInfo(VariantType::STRING, "reason")));

@@ -247,14 +247,14 @@ String NavigationMeshInstance::get_configuration_warning() const {
 
 void NavigationMeshInstance::_bind_methods() {
 
-    BIND_METHOD(NavigationMeshInstance,set_navigation_mesh);
-    BIND_METHOD(NavigationMeshInstance,get_navigation_mesh);
+    SE_BIND_METHOD(NavigationMeshInstance,set_navigation_mesh);
+    SE_BIND_METHOD(NavigationMeshInstance,get_navigation_mesh);
 
-    BIND_METHOD(NavigationMeshInstance,set_enabled);
-    BIND_METHOD(NavigationMeshInstance,is_enabled);
+    SE_BIND_METHOD(NavigationMeshInstance,set_enabled);
+    SE_BIND_METHOD(NavigationMeshInstance,is_enabled);
 
-    BIND_METHOD(NavigationMeshInstance,bake_navigation_mesh);
-    BIND_METHOD(NavigationMeshInstance,_bake_finished);
+    SE_BIND_METHOD(NavigationMeshInstance,bake_navigation_mesh);
+    SE_BIND_METHOD(NavigationMeshInstance,_bake_finished);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "navmesh", PropertyHint::ResourceType, "NavigationMesh"), "set_navigation_mesh", "get_navigation_mesh");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enabled"), "set_enabled", "is_enabled");

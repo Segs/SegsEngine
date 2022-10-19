@@ -147,8 +147,8 @@ StringView AnimationNodeAnimation::get_caption() const {
 }
 
 void AnimationNodeAnimation::_bind_methods() {
-    BIND_METHOD(AnimationNodeAnimation,set_animation);
-    BIND_METHOD(AnimationNodeAnimation,get_animation);
+    SE_BIND_METHOD(AnimationNodeAnimation,set_animation);
+    SE_BIND_METHOD(AnimationNodeAnimation,get_animation);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "animation"), "set_animation", "get_animation");
 }
@@ -342,26 +342,26 @@ bool AnimationNodeOneShot::is_using_sync() const {
 
 void AnimationNodeOneShot::_bind_methods() {
 
-    BIND_METHOD(AnimationNodeOneShot,set_fadein_time);
-    BIND_METHOD(AnimationNodeOneShot,get_fadein_time);
+    SE_BIND_METHOD(AnimationNodeOneShot,set_fadein_time);
+    SE_BIND_METHOD(AnimationNodeOneShot,get_fadein_time);
 
-    BIND_METHOD(AnimationNodeOneShot,set_fadeout_time);
-    BIND_METHOD(AnimationNodeOneShot,get_fadeout_time);
+    SE_BIND_METHOD(AnimationNodeOneShot,set_fadeout_time);
+    SE_BIND_METHOD(AnimationNodeOneShot,get_fadeout_time);
 
-    BIND_METHOD(AnimationNodeOneShot,set_autorestart);
-    BIND_METHOD(AnimationNodeOneShot,has_autorestart);
+    SE_BIND_METHOD(AnimationNodeOneShot,set_autorestart);
+    SE_BIND_METHOD(AnimationNodeOneShot,has_autorestart);
 
-    BIND_METHOD(AnimationNodeOneShot,set_autorestart_delay);
-    BIND_METHOD(AnimationNodeOneShot,get_autorestart_delay);
+    SE_BIND_METHOD(AnimationNodeOneShot,set_autorestart_delay);
+    SE_BIND_METHOD(AnimationNodeOneShot,get_autorestart_delay);
 
-    BIND_METHOD(AnimationNodeOneShot,set_autorestart_random_delay);
-    BIND_METHOD(AnimationNodeOneShot,get_autorestart_random_delay);
+    SE_BIND_METHOD(AnimationNodeOneShot,set_autorestart_random_delay);
+    SE_BIND_METHOD(AnimationNodeOneShot,get_autorestart_random_delay);
 
-    BIND_METHOD(AnimationNodeOneShot,set_mix_mode);
-    BIND_METHOD(AnimationNodeOneShot,get_mix_mode);
+    SE_BIND_METHOD(AnimationNodeOneShot,set_mix_mode);
+    SE_BIND_METHOD(AnimationNodeOneShot,get_mix_mode);
 
-    BIND_METHOD(AnimationNodeOneShot,set_use_sync);
-    BIND_METHOD(AnimationNodeOneShot,is_using_sync);
+    SE_BIND_METHOD(AnimationNodeOneShot,set_use_sync);
+    SE_BIND_METHOD(AnimationNodeOneShot,is_using_sync);
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mix_mode", PropertyHint::Enum, "Blend,Add"), "set_mix_mode", "get_mix_mode");
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "fadein_time", PropertyHint::Range, "0,60,0.01,or_greater"), "set_fadein_time", "get_fadein_time");
@@ -439,8 +439,8 @@ float AnimationNodeAdd2::process(float p_time, bool p_seek) {
 
 void AnimationNodeAdd2::_bind_methods() {
 
-    BIND_METHOD(AnimationNodeAdd2,set_use_sync);
-    BIND_METHOD(AnimationNodeAdd2,is_using_sync);
+    SE_BIND_METHOD(AnimationNodeAdd2,set_use_sync);
+    SE_BIND_METHOD(AnimationNodeAdd2,is_using_sync);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "sync"), "set_use_sync", "is_using_sync");
 }
@@ -492,8 +492,8 @@ float AnimationNodeAdd3::process(float p_time, bool p_seek) {
 
 void AnimationNodeAdd3::_bind_methods() {
 
-    BIND_METHOD(AnimationNodeAdd3,set_use_sync);
-    BIND_METHOD(AnimationNodeAdd3,is_using_sync);
+    SE_BIND_METHOD(AnimationNodeAdd3,set_use_sync);
+    SE_BIND_METHOD(AnimationNodeAdd3,is_using_sync);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "sync"), "set_use_sync", "is_using_sync");
 }
@@ -545,8 +545,8 @@ bool AnimationNodeBlend2::has_filter() const {
 }
 void AnimationNodeBlend2::_bind_methods() {
 
-    BIND_METHOD(AnimationNodeBlend2,set_use_sync);
-    BIND_METHOD(AnimationNodeBlend2,is_using_sync);
+    SE_BIND_METHOD(AnimationNodeBlend2,set_use_sync);
+    SE_BIND_METHOD(AnimationNodeBlend2,is_using_sync);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "sync"), "set_use_sync", "is_using_sync");
 }
@@ -592,8 +592,8 @@ float AnimationNodeBlend3::process(float p_time, bool p_seek) {
 
 void AnimationNodeBlend3::_bind_methods() {
 
-    BIND_METHOD(AnimationNodeBlend3,set_use_sync);
-    BIND_METHOD(AnimationNodeBlend3,is_using_sync);
+    SE_BIND_METHOD(AnimationNodeBlend3,set_use_sync);
+    SE_BIND_METHOD(AnimationNodeBlend3,is_using_sync);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "sync"), "set_use_sync", "is_using_sync");
 }
@@ -840,17 +840,17 @@ void AnimationNodeTransition::_validate_property(PropertyInfo &property) const {
 
 void AnimationNodeTransition::_bind_methods() {
 
-    BIND_METHOD(AnimationNodeTransition,set_enabled_inputs);
-    BIND_METHOD(AnimationNodeTransition,get_enabled_inputs);
+    SE_BIND_METHOD(AnimationNodeTransition,set_enabled_inputs);
+    SE_BIND_METHOD(AnimationNodeTransition,get_enabled_inputs);
 
-    BIND_METHOD(AnimationNodeTransition,set_input_as_auto_advance);
-    BIND_METHOD(AnimationNodeTransition,is_input_set_as_auto_advance);
+    SE_BIND_METHOD(AnimationNodeTransition,set_input_as_auto_advance);
+    SE_BIND_METHOD(AnimationNodeTransition,is_input_set_as_auto_advance);
 
-    BIND_METHOD(AnimationNodeTransition,set_input_caption);
-    BIND_METHOD(AnimationNodeTransition,get_input_caption);
+    SE_BIND_METHOD(AnimationNodeTransition,set_input_caption);
+    SE_BIND_METHOD(AnimationNodeTransition,get_input_caption);
 
-    BIND_METHOD(AnimationNodeTransition,set_cross_fade_time);
-    BIND_METHOD(AnimationNodeTransition,get_cross_fade_time);
+    SE_BIND_METHOD(AnimationNodeTransition,set_cross_fade_time);
+    SE_BIND_METHOD(AnimationNodeTransition,get_cross_fade_time);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "input_count", PropertyHint::Range, "0,64,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_enabled_inputs", "get_enabled_inputs");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "xfade_time", PropertyHint::Range, "0,120,0.01"), "set_cross_fade_time", "get_cross_fade_time");
@@ -1250,18 +1250,18 @@ void AnimationNodeBlendTree::_node_changed(const StringName &p_node) {
 void AnimationNodeBlendTree::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_node", {"name", "node", "position"}), &AnimationNodeBlendTree::add_node, {DEFVAL(Vector2())});
-    BIND_METHOD(AnimationNodeBlendTree,get_node);
-    BIND_METHOD(AnimationNodeBlendTree,remove_node);
-    BIND_METHOD(AnimationNodeBlendTree,rename_node);
-    BIND_METHOD(AnimationNodeBlendTree,has_node);
-    BIND_METHOD(AnimationNodeBlendTree,connect_node);
-    BIND_METHOD(AnimationNodeBlendTree,disconnect_node);
+    SE_BIND_METHOD(AnimationNodeBlendTree,get_node);
+    SE_BIND_METHOD(AnimationNodeBlendTree,remove_node);
+    SE_BIND_METHOD(AnimationNodeBlendTree,rename_node);
+    SE_BIND_METHOD(AnimationNodeBlendTree,has_node);
+    SE_BIND_METHOD(AnimationNodeBlendTree,connect_node);
+    SE_BIND_METHOD(AnimationNodeBlendTree,disconnect_node);
 
-    BIND_METHOD(AnimationNodeBlendTree,set_node_position);
-    BIND_METHOD(AnimationNodeBlendTree,get_node_position);
+    SE_BIND_METHOD(AnimationNodeBlendTree,set_node_position);
+    SE_BIND_METHOD(AnimationNodeBlendTree,get_node_position);
 
-    BIND_METHOD(AnimationNodeBlendTree,set_graph_offset);
-    BIND_METHOD(AnimationNodeBlendTree,get_graph_offset);
+    SE_BIND_METHOD(AnimationNodeBlendTree,set_graph_offset);
+    SE_BIND_METHOD(AnimationNodeBlendTree,get_graph_offset);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "graph_offset", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_graph_offset", "get_graph_offset");
 

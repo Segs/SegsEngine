@@ -3153,88 +3153,88 @@ int RichTextLabel::get_content_height() {
 
 void RichTextLabel::_bind_methods() {
 
-    BIND_METHOD(RichTextLabel,_gui_input);
-    BIND_METHOD(RichTextLabel,get_text);
-    BIND_METHOD(RichTextLabel,add_text);
-    BIND_METHOD(RichTextLabel,set_text);
+    SE_BIND_METHOD(RichTextLabel,_gui_input);
+    SE_BIND_METHOD(RichTextLabel,get_text);
+    SE_BIND_METHOD(RichTextLabel,add_text);
+    SE_BIND_METHOD(RichTextLabel,set_text);
     MethodBinder::bind_method(D_METHOD("add_image", {"image", "width", "height", "align" }), &RichTextLabel::add_image, {DEFVAL(0), DEFVAL(0), DEFVAL(INLINE_ALIGN_BASELINE) });
     MethodBinder::bind_method(D_METHOD("newline"), &RichTextLabel::add_newline);
-    BIND_METHOD(RichTextLabel,remove_line);
-    BIND_METHOD(RichTextLabel,push_font);
-    BIND_METHOD(RichTextLabel,push_normal);
-    BIND_METHOD(RichTextLabel,push_bold);
-    BIND_METHOD(RichTextLabel,push_bold_italics);
-    BIND_METHOD(RichTextLabel,push_italics);
-    BIND_METHOD(RichTextLabel,push_mono);
-    BIND_METHOD(RichTextLabel,push_color);
-    BIND_METHOD(RichTextLabel,push_align);
-    BIND_METHOD(RichTextLabel,push_indent);
-    BIND_METHOD(RichTextLabel,push_list);
-    BIND_METHOD(RichTextLabel,push_meta);
-    BIND_METHOD(RichTextLabel,push_underline);
-    BIND_METHOD(RichTextLabel,push_strikethrough);
-    BIND_METHOD(RichTextLabel,push_table);
-    BIND_METHOD(RichTextLabel,set_table_column_expand);
-    BIND_METHOD(RichTextLabel,push_cell);
-    BIND_METHOD(RichTextLabel,pop);
+    SE_BIND_METHOD(RichTextLabel,remove_line);
+    SE_BIND_METHOD(RichTextLabel,push_font);
+    SE_BIND_METHOD(RichTextLabel,push_normal);
+    SE_BIND_METHOD(RichTextLabel,push_bold);
+    SE_BIND_METHOD(RichTextLabel,push_bold_italics);
+    SE_BIND_METHOD(RichTextLabel,push_italics);
+    SE_BIND_METHOD(RichTextLabel,push_mono);
+    SE_BIND_METHOD(RichTextLabel,push_color);
+    SE_BIND_METHOD(RichTextLabel,push_align);
+    SE_BIND_METHOD(RichTextLabel,push_indent);
+    SE_BIND_METHOD(RichTextLabel,push_list);
+    SE_BIND_METHOD(RichTextLabel,push_meta);
+    SE_BIND_METHOD(RichTextLabel,push_underline);
+    SE_BIND_METHOD(RichTextLabel,push_strikethrough);
+    SE_BIND_METHOD(RichTextLabel,push_table);
+    SE_BIND_METHOD(RichTextLabel,set_table_column_expand);
+    SE_BIND_METHOD(RichTextLabel,push_cell);
+    SE_BIND_METHOD(RichTextLabel,pop);
 
-    BIND_METHOD(RichTextLabel,clear);
-    BIND_METHOD(RichTextLabel,get_selected_text);
-    BIND_METHOD(RichTextLabel,deselect);
+    SE_BIND_METHOD(RichTextLabel,clear);
+    SE_BIND_METHOD(RichTextLabel,get_selected_text);
+    SE_BIND_METHOD(RichTextLabel,deselect);
 
-    BIND_METHOD(RichTextLabel,set_meta_underline);
-    BIND_METHOD(RichTextLabel,is_meta_underlined);
+    SE_BIND_METHOD(RichTextLabel,set_meta_underline);
+    SE_BIND_METHOD(RichTextLabel,is_meta_underlined);
 
-    BIND_METHOD(RichTextLabel,set_override_selected_font_color);
-    BIND_METHOD(RichTextLabel,is_overriding_selected_font_color);
+    SE_BIND_METHOD(RichTextLabel,set_override_selected_font_color);
+    SE_BIND_METHOD(RichTextLabel,is_overriding_selected_font_color);
 
-    BIND_METHOD(RichTextLabel,set_scroll_active);
-    BIND_METHOD(RichTextLabel,is_scroll_active);
+    SE_BIND_METHOD(RichTextLabel,set_scroll_active);
+    SE_BIND_METHOD(RichTextLabel,is_scroll_active);
 
-    BIND_METHOD(RichTextLabel,set_scroll_follow);
-    BIND_METHOD(RichTextLabel,is_scroll_following);
+    SE_BIND_METHOD(RichTextLabel,set_scroll_follow);
+    SE_BIND_METHOD(RichTextLabel,is_scroll_following);
 
-    BIND_METHOD(RichTextLabel,get_v_scroll);
+    SE_BIND_METHOD(RichTextLabel,get_v_scroll);
 
-    BIND_METHOD(RichTextLabel,scroll_to_line);
+    SE_BIND_METHOD(RichTextLabel,scroll_to_line);
 
-    BIND_METHOD(RichTextLabel,set_tab_size);
-    BIND_METHOD(RichTextLabel,get_tab_size);
+    SE_BIND_METHOD(RichTextLabel,set_tab_size);
+    SE_BIND_METHOD(RichTextLabel,get_tab_size);
 
-    BIND_METHOD(RichTextLabel,set_selection_enabled);
-    BIND_METHOD(RichTextLabel,is_selection_enabled);
+    SE_BIND_METHOD(RichTextLabel,set_selection_enabled);
+    SE_BIND_METHOD(RichTextLabel,is_selection_enabled);
 
     MethodBinder::bind_method(D_METHOD("set_deselect_on_focus_loss_enabled", {"enable"}),
             &RichTextLabel::set_deselect_on_focus_loss_enabled);
     MethodBinder::bind_method(
             D_METHOD("is_deselect_on_focus_loss_enabled"), &RichTextLabel::is_deselect_on_focus_loss_enabled);
-    BIND_METHOD(RichTextLabel,parse_bbcode);
-    BIND_METHOD(RichTextLabel,append_bbcode);
+    SE_BIND_METHOD(RichTextLabel,parse_bbcode);
+    SE_BIND_METHOD(RichTextLabel,append_bbcode);
 
-    BIND_METHOD(RichTextLabel,set_bbcode);
-    BIND_METHOD(RichTextLabel,get_bbcode);
+    SE_BIND_METHOD(RichTextLabel,set_bbcode);
+    SE_BIND_METHOD(RichTextLabel,get_bbcode);
 
-    BIND_METHOD(RichTextLabel,set_visible_characters);
-    BIND_METHOD(RichTextLabel,get_visible_characters);
+    SE_BIND_METHOD(RichTextLabel,set_visible_characters);
+    SE_BIND_METHOD(RichTextLabel,get_visible_characters);
 
-    BIND_METHOD(RichTextLabel,set_percent_visible);
-    BIND_METHOD(RichTextLabel,get_percent_visible);
+    SE_BIND_METHOD(RichTextLabel,set_percent_visible);
+    SE_BIND_METHOD(RichTextLabel,get_percent_visible);
 
-    BIND_METHOD(RichTextLabel,get_total_character_count);
+    SE_BIND_METHOD(RichTextLabel,get_total_character_count);
 
-    BIND_METHOD(RichTextLabel,set_use_bbcode);
-    BIND_METHOD(RichTextLabel,is_using_bbcode);
+    SE_BIND_METHOD(RichTextLabel,set_use_bbcode);
+    SE_BIND_METHOD(RichTextLabel,is_using_bbcode);
 
-    BIND_METHOD(RichTextLabel,get_line_count);
-    BIND_METHOD(RichTextLabel,get_visible_line_count);
+    SE_BIND_METHOD(RichTextLabel,get_line_count);
+    SE_BIND_METHOD(RichTextLabel,get_visible_line_count);
 
-    BIND_METHOD(RichTextLabel,get_content_height);
+    SE_BIND_METHOD(RichTextLabel,get_content_height);
 
-    BIND_METHOD(RichTextLabel,parse_expressions_for_values);
+    SE_BIND_METHOD(RichTextLabel,parse_expressions_for_values);
 
-    BIND_METHOD(RichTextLabel,set_effects);
-    BIND_METHOD(RichTextLabel,get_effects);
-    BIND_METHOD(RichTextLabel,install_effect);
+    SE_BIND_METHOD(RichTextLabel,set_effects);
+    SE_BIND_METHOD(RichTextLabel,get_effects);
+    SE_BIND_METHOD(RichTextLabel,install_effect);
 
     ADD_GROUP("BBCode", "bbcode_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "bbcode_enabled"), "set_use_bbcode", "is_using_bbcode");

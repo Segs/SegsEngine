@@ -69,15 +69,15 @@ void AudioEffectCapture::clear_buffer() {
 }
 
 void AudioEffectCapture::_bind_methods() {
-    BIND_METHOD(AudioEffectCapture,can_get_buffer);
-    BIND_METHOD(AudioEffectCapture,get_buffer);
-    BIND_METHOD(AudioEffectCapture,clear_buffer);
-    BIND_METHOD(AudioEffectCapture,set_buffer_length);
-    BIND_METHOD(AudioEffectCapture,get_buffer_length);
-    BIND_METHOD(AudioEffectCapture,get_frames_available);
-    BIND_METHOD(AudioEffectCapture,get_discarded_frames);
-    BIND_METHOD(AudioEffectCapture,get_buffer_length_frames);
-    BIND_METHOD(AudioEffectCapture,get_pushed_frames);
+    SE_BIND_METHOD(AudioEffectCapture,can_get_buffer);
+    SE_BIND_METHOD(AudioEffectCapture,get_buffer);
+    SE_BIND_METHOD(AudioEffectCapture,clear_buffer);
+    SE_BIND_METHOD(AudioEffectCapture,set_buffer_length);
+    SE_BIND_METHOD(AudioEffectCapture,get_buffer_length);
+    SE_BIND_METHOD(AudioEffectCapture,get_frames_available);
+    SE_BIND_METHOD(AudioEffectCapture,get_discarded_frames);
+    SE_BIND_METHOD(AudioEffectCapture,get_buffer_length_frames);
+    SE_BIND_METHOD(AudioEffectCapture,get_pushed_frames);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "buffer_length", PropertyHint::Range, "0.01,10,0.01"), "set_buffer_length", "get_buffer_length");
 }

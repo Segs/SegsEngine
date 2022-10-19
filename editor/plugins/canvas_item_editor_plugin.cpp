@@ -5692,9 +5692,9 @@ void CanvasItemEditor::_bind_methods() {
     MethodBinder::bind_method("_get_editor_data", &CanvasItemEditor::_get_editor_data);
     MethodBinder::bind_method("_unhandled_key_input", &CanvasItemEditor::_unhandled_key_input);
     MethodBinder::bind_method("_queue_update_bone_list", &CanvasItemEditor::_update_bone_list);
-    BIND_METHOD(CanvasItemEditor,set_state);
-    BIND_METHOD(CanvasItemEditor,get_state);
-    BIND_METHOD(CanvasItemEditor,update_viewport);
+    SE_BIND_METHOD(CanvasItemEditor,set_state);
+    SE_BIND_METHOD(CanvasItemEditor,get_state);
+    SE_BIND_METHOD(CanvasItemEditor,update_viewport);
 
     ADD_SIGNAL(MethodInfo("item_lock_status_changed"));
     ADD_SIGNAL(MethodInfo("item_group_status_changed"));

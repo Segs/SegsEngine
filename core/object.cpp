@@ -1356,16 +1356,16 @@ void Object::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_property_list"), &Object::_get_property_list_bind);
     MethodBinder::bind_method(D_METHOD("get_method_list"), &Object::_get_method_list_bind);
     MethodBinder::bind_method(D_METHOD("notification", {"what", "reversed"}), &Object::notification, {DEFVAL(false)});
-    BIND_METHOD(Object,to_string);
-    BIND_METHOD(Object,get_instance_id);
+    SE_BIND_METHOD(Object,to_string);
+    SE_BIND_METHOD(Object,get_instance_id);
 
-    BIND_METHOD(Object,set_script);
-    BIND_METHOD(Object,get_script);
+    SE_BIND_METHOD(Object,set_script);
+    SE_BIND_METHOD(Object,get_script);
 
-    BIND_METHOD(Object,set_meta);
-    BIND_METHOD(Object,remove_meta);
-    BIND_METHOD(Object,get_meta);
-    BIND_METHOD(Object,has_meta);
+    SE_BIND_METHOD(Object,set_meta);
+    SE_BIND_METHOD(Object,remove_meta);
+    SE_BIND_METHOD(Object,get_meta);
+    SE_BIND_METHOD(Object,has_meta);
     MethodBinder::bind_method(D_METHOD("get_meta_list"), &Object::_get_meta_list_bind);
 
     MethodBinder::bind_method(D_METHOD("emit_signal", {"signal","arg1","arg2","arg3","arg4","arg5"}), (void (Object::*)(const StringName &,VARIANT_ARG_DECLARE))&Object::do_emit_signal,{Variant(),Variant(),Variant(),Variant(),Variant()});
@@ -1376,32 +1376,32 @@ void Object::_bind_methods() {
         MethodBinder::bind_vararg_method("call_deferred", &Object::_call_deferred_bind, eastl::move(mi), null_variant_pvec, false);
     }
 
-    BIND_METHOD(Object,set_deferred);
+    SE_BIND_METHOD(Object,set_deferred);
 
-    BIND_METHOD(Object,callv);
+    SE_BIND_METHOD(Object,callv);
 
-    BIND_METHOD(Object,has_method);
+    SE_BIND_METHOD(Object,has_method);
 
-    BIND_METHOD(Object,has_signal);
+    SE_BIND_METHOD(Object,has_signal);
     MethodBinder::bind_method(D_METHOD("get_signal_list"), &Object::_get_signal_list);
     MethodBinder::bind_method(D_METHOD("get_signal_connection_list", {"signal"}), &Object::_get_signal_connection_list);
     MethodBinder::bind_method(D_METHOD("get_incoming_connections"), &Object::_get_incoming_connections);
 
     MethodBinder::bind_method(D_METHOD("connect", {"signal", "callable", "flags"}), &Object::connect, {DEFVAL(0)});
-    BIND_METHOD(Object,disconnect);
-    BIND_METHOD(Object,is_connected);
+    SE_BIND_METHOD(Object,disconnect);
+    SE_BIND_METHOD(Object,is_connected);
 
-    BIND_METHOD(Object,set_block_signals);
-    BIND_METHOD(Object,is_blocking_signals);
-    BIND_METHOD(Object,property_list_changed_notify);
+    SE_BIND_METHOD(Object,set_block_signals);
+    SE_BIND_METHOD(Object,is_blocking_signals);
+    SE_BIND_METHOD(Object,property_list_changed_notify);
 
-    BIND_METHOD(Object,set_message_translation);
-    BIND_METHOD(Object,can_translate_messages);
-    BIND_METHOD(Object,tr);
+    SE_BIND_METHOD(Object,set_message_translation);
+    SE_BIND_METHOD(Object,can_translate_messages);
+    SE_BIND_METHOD(Object,tr);
 
-    BIND_METHOD(Object,is_queued_for_deletion);
+    SE_BIND_METHOD(Object,is_queued_for_deletion);
 
-    BIND_METHOD(Object,free);
+    SE_BIND_METHOD(Object,free);
 
     ADD_SIGNAL(MethodInfo("script_changed"));
 

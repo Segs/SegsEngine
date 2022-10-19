@@ -153,10 +153,10 @@ bool Listener3D::is_current() const {
 
 void Listener3D::_bind_methods() {
 
-    BIND_METHOD(Listener3D,make_current);
-    BIND_METHOD(Listener3D,clear_current);
-    BIND_METHOD(Listener3D,is_current);
-    BIND_METHOD(Listener3D,get_listener_transform);
+    SE_BIND_METHOD(Listener3D,make_current);
+    SE_BIND_METHOD(Listener3D,clear_current);
+    SE_BIND_METHOD(Listener3D,is_current);
+    SE_BIND_METHOD(Listener3D,get_listener_transform);
 }
 
 Listener3D::Listener3D() {

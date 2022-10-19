@@ -1251,7 +1251,7 @@ void Polygon2DEditor::_uv_draw() {
 }
 
 void Polygon2DEditor::_bind_methods() {
-    BIND_METHOD(Polygon2DEditor,_update_polygon_editing_state);
+    SE_BIND_METHOD(Polygon2DEditor,_update_polygon_editing_state);
 }
 
 Vector2 Polygon2DEditor::snap_point(Vector2 p_target) const {

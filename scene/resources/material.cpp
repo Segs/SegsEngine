@@ -232,11 +232,11 @@ void Material::_validate_property(PropertyInfo &property) const {
 
 void Material::_bind_methods() {
 
-    BIND_METHOD(Material,set_next_pass);
-    BIND_METHOD(Material,get_next_pass);
+    SE_BIND_METHOD(Material,set_next_pass);
+    SE_BIND_METHOD(Material,get_next_pass);
 
-    BIND_METHOD(Material,set_render_priority);
-    BIND_METHOD(Material,get_render_priority);
+    SE_BIND_METHOD(Material,set_render_priority);
+    SE_BIND_METHOD(Material,get_render_priority);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_priority", PropertyHint::Range, ::to_string(RENDER_PRIORITY_MIN) + "," + ::to_string(RENDER_PRIORITY_MAX) + ",1"), "set_render_priority", "get_render_priority");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "next_pass", PropertyHint::ResourceType, "Material"), "set_next_pass", "get_next_pass");
@@ -375,12 +375,12 @@ void ShaderMaterial::_shader_changed() {
 
 void ShaderMaterial::_bind_methods() {
 
-    BIND_METHOD(ShaderMaterial,set_shader);
-    BIND_METHOD(ShaderMaterial,get_shader);
-    BIND_METHOD(ShaderMaterial,set_shader_param);
-    BIND_METHOD(ShaderMaterial,get_shader_param);
-    BIND_METHOD(ShaderMaterial,property_can_revert);
-    BIND_METHOD(ShaderMaterial,property_get_revert);
+    SE_BIND_METHOD(ShaderMaterial,set_shader);
+    SE_BIND_METHOD(ShaderMaterial,get_shader);
+    SE_BIND_METHOD(ShaderMaterial,set_shader_param);
+    SE_BIND_METHOD(ShaderMaterial,get_shader_param);
+    SE_BIND_METHOD(ShaderMaterial,property_can_revert);
+    SE_BIND_METHOD(ShaderMaterial,property_get_revert);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shader", PropertyHint::ResourceType, "Shader"), "set_shader", "get_shader");
 }
@@ -2070,179 +2070,179 @@ SpatialMaterial::AsyncMode SpatialMaterial::get_async_mode() const {
 
 void SpatialMaterial::_bind_methods() {
 
-    BIND_METHOD(SpatialMaterial,set_albedo);
-    BIND_METHOD(SpatialMaterial,get_albedo);
+    SE_BIND_METHOD(SpatialMaterial,set_albedo);
+    SE_BIND_METHOD(SpatialMaterial,get_albedo);
 
-    BIND_METHOD(SpatialMaterial,set_specular);
-    BIND_METHOD(SpatialMaterial,get_specular);
+    SE_BIND_METHOD(SpatialMaterial,set_specular);
+    SE_BIND_METHOD(SpatialMaterial,get_specular);
 
-    BIND_METHOD(SpatialMaterial,set_metallic);
-    BIND_METHOD(SpatialMaterial,get_metallic);
+    SE_BIND_METHOD(SpatialMaterial,set_metallic);
+    SE_BIND_METHOD(SpatialMaterial,get_metallic);
 
-    BIND_METHOD(SpatialMaterial,set_roughness);
-    BIND_METHOD(SpatialMaterial,get_roughness);
+    SE_BIND_METHOD(SpatialMaterial,set_roughness);
+    SE_BIND_METHOD(SpatialMaterial,get_roughness);
 
-    BIND_METHOD(SpatialMaterial,set_emission);
-    BIND_METHOD(SpatialMaterial,get_emission);
+    SE_BIND_METHOD(SpatialMaterial,set_emission);
+    SE_BIND_METHOD(SpatialMaterial,get_emission);
 
-    BIND_METHOD(SpatialMaterial,set_emission_energy);
-    BIND_METHOD(SpatialMaterial,get_emission_energy);
+    SE_BIND_METHOD(SpatialMaterial,set_emission_energy);
+    SE_BIND_METHOD(SpatialMaterial,get_emission_energy);
 
-    BIND_METHOD(SpatialMaterial,set_normal_scale);
-    BIND_METHOD(SpatialMaterial,get_normal_scale);
+    SE_BIND_METHOD(SpatialMaterial,set_normal_scale);
+    SE_BIND_METHOD(SpatialMaterial,get_normal_scale);
 
-    BIND_METHOD(SpatialMaterial,set_rim);
-    BIND_METHOD(SpatialMaterial,get_rim);
+    SE_BIND_METHOD(SpatialMaterial,set_rim);
+    SE_BIND_METHOD(SpatialMaterial,get_rim);
 
-    BIND_METHOD(SpatialMaterial,set_rim_tint);
-    BIND_METHOD(SpatialMaterial,get_rim_tint);
+    SE_BIND_METHOD(SpatialMaterial,set_rim_tint);
+    SE_BIND_METHOD(SpatialMaterial,get_rim_tint);
 
-    BIND_METHOD(SpatialMaterial,set_clearcoat);
-    BIND_METHOD(SpatialMaterial,get_clearcoat);
+    SE_BIND_METHOD(SpatialMaterial,set_clearcoat);
+    SE_BIND_METHOD(SpatialMaterial,get_clearcoat);
 
-    BIND_METHOD(SpatialMaterial,set_clearcoat_gloss);
-    BIND_METHOD(SpatialMaterial,get_clearcoat_gloss);
+    SE_BIND_METHOD(SpatialMaterial,set_clearcoat_gloss);
+    SE_BIND_METHOD(SpatialMaterial,get_clearcoat_gloss);
 
-    BIND_METHOD(SpatialMaterial,set_anisotropy);
-    BIND_METHOD(SpatialMaterial,get_anisotropy);
+    SE_BIND_METHOD(SpatialMaterial,set_anisotropy);
+    SE_BIND_METHOD(SpatialMaterial,get_anisotropy);
 
-    BIND_METHOD(SpatialMaterial,set_depth_scale);
-    BIND_METHOD(SpatialMaterial,get_depth_scale);
+    SE_BIND_METHOD(SpatialMaterial,set_depth_scale);
+    SE_BIND_METHOD(SpatialMaterial,get_depth_scale);
 
-    BIND_METHOD(SpatialMaterial,set_subsurface_scattering_strength);
-    BIND_METHOD(SpatialMaterial,get_subsurface_scattering_strength);
+    SE_BIND_METHOD(SpatialMaterial,set_subsurface_scattering_strength);
+    SE_BIND_METHOD(SpatialMaterial,get_subsurface_scattering_strength);
 
-    BIND_METHOD(SpatialMaterial,set_transmission);
-    BIND_METHOD(SpatialMaterial,get_transmission);
+    SE_BIND_METHOD(SpatialMaterial,set_transmission);
+    SE_BIND_METHOD(SpatialMaterial,get_transmission);
 
-    BIND_METHOD(SpatialMaterial,set_refraction);
-    BIND_METHOD(SpatialMaterial,get_refraction);
+    SE_BIND_METHOD(SpatialMaterial,set_refraction);
+    SE_BIND_METHOD(SpatialMaterial,get_refraction);
 
-    BIND_METHOD(SpatialMaterial,set_line_width);
-    BIND_METHOD(SpatialMaterial,get_line_width);
+    SE_BIND_METHOD(SpatialMaterial,set_line_width);
+    SE_BIND_METHOD(SpatialMaterial,get_line_width);
 
-    BIND_METHOD(SpatialMaterial,set_point_size);
-    BIND_METHOD(SpatialMaterial,get_point_size);
+    SE_BIND_METHOD(SpatialMaterial,set_point_size);
+    SE_BIND_METHOD(SpatialMaterial,get_point_size);
 
-    BIND_METHOD(SpatialMaterial,set_detail_uv);
-    BIND_METHOD(SpatialMaterial,get_detail_uv);
+    SE_BIND_METHOD(SpatialMaterial,set_detail_uv);
+    SE_BIND_METHOD(SpatialMaterial,get_detail_uv);
 
-    BIND_METHOD(SpatialMaterial,set_blend_mode);
-    BIND_METHOD(SpatialMaterial,get_blend_mode);
+    SE_BIND_METHOD(SpatialMaterial,set_blend_mode);
+    SE_BIND_METHOD(SpatialMaterial,get_blend_mode);
 
-    BIND_METHOD(SpatialMaterial,set_depth_draw_mode);
-    BIND_METHOD(SpatialMaterial,get_depth_draw_mode);
+    SE_BIND_METHOD(SpatialMaterial,set_depth_draw_mode);
+    SE_BIND_METHOD(SpatialMaterial,get_depth_draw_mode);
 
-    BIND_METHOD(SpatialMaterial,set_cull_mode);
-    BIND_METHOD(SpatialMaterial,get_cull_mode);
+    SE_BIND_METHOD(SpatialMaterial,set_cull_mode);
+    SE_BIND_METHOD(SpatialMaterial,get_cull_mode);
 
-    BIND_METHOD(SpatialMaterial,set_diffuse_mode);
-    BIND_METHOD(SpatialMaterial,get_diffuse_mode);
+    SE_BIND_METHOD(SpatialMaterial,set_diffuse_mode);
+    SE_BIND_METHOD(SpatialMaterial,get_diffuse_mode);
 
-    BIND_METHOD(SpatialMaterial,set_specular_mode);
-    BIND_METHOD(SpatialMaterial,get_specular_mode);
+    SE_BIND_METHOD(SpatialMaterial,set_specular_mode);
+    SE_BIND_METHOD(SpatialMaterial,get_specular_mode);
 
-    BIND_METHOD(SpatialMaterial,set_flag);
-    BIND_METHOD(SpatialMaterial,get_flag);
+    SE_BIND_METHOD(SpatialMaterial,set_flag);
+    SE_BIND_METHOD(SpatialMaterial,get_flag);
 
-    BIND_METHOD(SpatialMaterial,set_feature);
-    BIND_METHOD(SpatialMaterial,get_feature);
+    SE_BIND_METHOD(SpatialMaterial,set_feature);
+    SE_BIND_METHOD(SpatialMaterial,get_feature);
 
-    BIND_METHOD(SpatialMaterial,set_texture);
-    BIND_METHOD(SpatialMaterial,get_texture);
+    SE_BIND_METHOD(SpatialMaterial,set_texture);
+    SE_BIND_METHOD(SpatialMaterial,get_texture);
 
-    BIND_METHOD(SpatialMaterial,set_detail_blend_mode);
-    BIND_METHOD(SpatialMaterial,get_detail_blend_mode);
+    SE_BIND_METHOD(SpatialMaterial,set_detail_blend_mode);
+    SE_BIND_METHOD(SpatialMaterial,get_detail_blend_mode);
 
-    BIND_METHOD(SpatialMaterial,set_uv1_scale);
-    BIND_METHOD(SpatialMaterial,get_uv1_scale);
+    SE_BIND_METHOD(SpatialMaterial,set_uv1_scale);
+    SE_BIND_METHOD(SpatialMaterial,get_uv1_scale);
 
-    BIND_METHOD(SpatialMaterial,set_uv1_offset);
-    BIND_METHOD(SpatialMaterial,get_uv1_offset);
+    SE_BIND_METHOD(SpatialMaterial,set_uv1_offset);
+    SE_BIND_METHOD(SpatialMaterial,get_uv1_offset);
 
-    BIND_METHOD(SpatialMaterial,set_uv1_triplanar_blend_sharpness);
-    BIND_METHOD(SpatialMaterial,get_uv1_triplanar_blend_sharpness);
+    SE_BIND_METHOD(SpatialMaterial,set_uv1_triplanar_blend_sharpness);
+    SE_BIND_METHOD(SpatialMaterial,get_uv1_triplanar_blend_sharpness);
 
-    BIND_METHOD(SpatialMaterial,set_uv2_scale);
-    BIND_METHOD(SpatialMaterial,get_uv2_scale);
+    SE_BIND_METHOD(SpatialMaterial,set_uv2_scale);
+    SE_BIND_METHOD(SpatialMaterial,get_uv2_scale);
 
-    BIND_METHOD(SpatialMaterial,set_uv2_offset);
-    BIND_METHOD(SpatialMaterial,get_uv2_offset);
+    SE_BIND_METHOD(SpatialMaterial,set_uv2_offset);
+    SE_BIND_METHOD(SpatialMaterial,get_uv2_offset);
 
-    BIND_METHOD(SpatialMaterial,set_uv2_triplanar_blend_sharpness);
-    BIND_METHOD(SpatialMaterial,get_uv2_triplanar_blend_sharpness);
+    SE_BIND_METHOD(SpatialMaterial,set_uv2_triplanar_blend_sharpness);
+    SE_BIND_METHOD(SpatialMaterial,get_uv2_triplanar_blend_sharpness);
 
-    BIND_METHOD(SpatialMaterial,set_billboard_mode);
-    BIND_METHOD(SpatialMaterial,get_billboard_mode);
+    SE_BIND_METHOD(SpatialMaterial,set_billboard_mode);
+    SE_BIND_METHOD(SpatialMaterial,get_billboard_mode);
 
-    BIND_METHOD(SpatialMaterial,set_particles_anim_h_frames);
-    BIND_METHOD(SpatialMaterial,get_particles_anim_h_frames);
+    SE_BIND_METHOD(SpatialMaterial,set_particles_anim_h_frames);
+    SE_BIND_METHOD(SpatialMaterial,get_particles_anim_h_frames);
 
-    BIND_METHOD(SpatialMaterial,set_particles_anim_v_frames);
-    BIND_METHOD(SpatialMaterial,get_particles_anim_v_frames);
+    SE_BIND_METHOD(SpatialMaterial,set_particles_anim_v_frames);
+    SE_BIND_METHOD(SpatialMaterial,get_particles_anim_v_frames);
 
-    BIND_METHOD(SpatialMaterial,set_particles_anim_loop);
-    BIND_METHOD(SpatialMaterial,get_particles_anim_loop);
+    SE_BIND_METHOD(SpatialMaterial,set_particles_anim_loop);
+    SE_BIND_METHOD(SpatialMaterial,get_particles_anim_loop);
 
-    BIND_METHOD(SpatialMaterial,set_depth_deep_parallax);
-    BIND_METHOD(SpatialMaterial,is_depth_deep_parallax_enabled);
+    SE_BIND_METHOD(SpatialMaterial,set_depth_deep_parallax);
+    SE_BIND_METHOD(SpatialMaterial,is_depth_deep_parallax_enabled);
 
-    BIND_METHOD(SpatialMaterial,set_depth_deep_parallax_min_layers);
-    BIND_METHOD(SpatialMaterial,get_depth_deep_parallax_min_layers);
+    SE_BIND_METHOD(SpatialMaterial,set_depth_deep_parallax_min_layers);
+    SE_BIND_METHOD(SpatialMaterial,get_depth_deep_parallax_min_layers);
 
-    BIND_METHOD(SpatialMaterial,set_depth_deep_parallax_max_layers);
-    BIND_METHOD(SpatialMaterial,get_depth_deep_parallax_max_layers);
+    SE_BIND_METHOD(SpatialMaterial,set_depth_deep_parallax_max_layers);
+    SE_BIND_METHOD(SpatialMaterial,get_depth_deep_parallax_max_layers);
 
-    BIND_METHOD(SpatialMaterial,set_depth_deep_parallax_flip_tangent);
-    BIND_METHOD(SpatialMaterial,get_depth_deep_parallax_flip_tangent);
+    SE_BIND_METHOD(SpatialMaterial,set_depth_deep_parallax_flip_tangent);
+    SE_BIND_METHOD(SpatialMaterial,get_depth_deep_parallax_flip_tangent);
 
-    BIND_METHOD(SpatialMaterial,set_depth_deep_parallax_flip_binormal);
-    BIND_METHOD(SpatialMaterial,get_depth_deep_parallax_flip_binormal);
+    SE_BIND_METHOD(SpatialMaterial,set_depth_deep_parallax_flip_binormal);
+    SE_BIND_METHOD(SpatialMaterial,get_depth_deep_parallax_flip_binormal);
 
-    BIND_METHOD(SpatialMaterial,set_grow);
-    BIND_METHOD(SpatialMaterial,get_grow);
+    SE_BIND_METHOD(SpatialMaterial,set_grow);
+    SE_BIND_METHOD(SpatialMaterial,get_grow);
 
-    BIND_METHOD(SpatialMaterial,set_emission_operator);
-    BIND_METHOD(SpatialMaterial,get_emission_operator);
+    SE_BIND_METHOD(SpatialMaterial,set_emission_operator);
+    SE_BIND_METHOD(SpatialMaterial,get_emission_operator);
 
-    BIND_METHOD(SpatialMaterial,set_ao_light_affect);
-    BIND_METHOD(SpatialMaterial,get_ao_light_affect);
+    SE_BIND_METHOD(SpatialMaterial,set_ao_light_affect);
+    SE_BIND_METHOD(SpatialMaterial,get_ao_light_affect);
 
-    BIND_METHOD(SpatialMaterial,set_alpha_scissor_threshold);
-    BIND_METHOD(SpatialMaterial,get_alpha_scissor_threshold);
+    SE_BIND_METHOD(SpatialMaterial,set_alpha_scissor_threshold);
+    SE_BIND_METHOD(SpatialMaterial,get_alpha_scissor_threshold);
 
-    BIND_METHOD(SpatialMaterial,set_grow_enabled);
-    BIND_METHOD(SpatialMaterial,is_grow_enabled);
+    SE_BIND_METHOD(SpatialMaterial,set_grow_enabled);
+    SE_BIND_METHOD(SpatialMaterial,is_grow_enabled);
 
-    BIND_METHOD(SpatialMaterial,set_metallic_texture_channel);
-    BIND_METHOD(SpatialMaterial,get_metallic_texture_channel);
+    SE_BIND_METHOD(SpatialMaterial,set_metallic_texture_channel);
+    SE_BIND_METHOD(SpatialMaterial,get_metallic_texture_channel);
 
-    BIND_METHOD(SpatialMaterial,set_roughness_texture_channel);
-    BIND_METHOD(SpatialMaterial,get_roughness_texture_channel);
+    SE_BIND_METHOD(SpatialMaterial,set_roughness_texture_channel);
+    SE_BIND_METHOD(SpatialMaterial,get_roughness_texture_channel);
 
-    BIND_METHOD(SpatialMaterial,set_ao_texture_channel);
-    BIND_METHOD(SpatialMaterial,get_ao_texture_channel);
+    SE_BIND_METHOD(SpatialMaterial,set_ao_texture_channel);
+    SE_BIND_METHOD(SpatialMaterial,get_ao_texture_channel);
 
-    BIND_METHOD(SpatialMaterial,set_refraction_texture_channel);
-    BIND_METHOD(SpatialMaterial,get_refraction_texture_channel);
+    SE_BIND_METHOD(SpatialMaterial,set_refraction_texture_channel);
+    SE_BIND_METHOD(SpatialMaterial,get_refraction_texture_channel);
 
-    BIND_METHOD(SpatialMaterial,set_proximity_fade);
-    BIND_METHOD(SpatialMaterial,is_proximity_fade_enabled);
+    SE_BIND_METHOD(SpatialMaterial,set_proximity_fade);
+    SE_BIND_METHOD(SpatialMaterial,is_proximity_fade_enabled);
 
-    BIND_METHOD(SpatialMaterial,set_proximity_fade_distance);
-    BIND_METHOD(SpatialMaterial,get_proximity_fade_distance);
+    SE_BIND_METHOD(SpatialMaterial,set_proximity_fade_distance);
+    SE_BIND_METHOD(SpatialMaterial,get_proximity_fade_distance);
 
-    BIND_METHOD(SpatialMaterial,set_distance_fade);
-    BIND_METHOD(SpatialMaterial,get_distance_fade);
+    SE_BIND_METHOD(SpatialMaterial,set_distance_fade);
+    SE_BIND_METHOD(SpatialMaterial,get_distance_fade);
 
-    BIND_METHOD(SpatialMaterial,set_distance_fade_max_distance);
-    BIND_METHOD(SpatialMaterial,get_distance_fade_max_distance);
+    SE_BIND_METHOD(SpatialMaterial,set_distance_fade_max_distance);
+    SE_BIND_METHOD(SpatialMaterial,get_distance_fade_max_distance);
 
-    BIND_METHOD(SpatialMaterial,set_distance_fade_min_distance);
-    BIND_METHOD(SpatialMaterial,get_distance_fade_min_distance);
+    SE_BIND_METHOD(SpatialMaterial,set_distance_fade_min_distance);
+    SE_BIND_METHOD(SpatialMaterial,get_distance_fade_min_distance);
 
-    BIND_METHOD(SpatialMaterial,set_async_mode);
-    BIND_METHOD(SpatialMaterial,get_async_mode);
+    SE_BIND_METHOD(SpatialMaterial,set_async_mode);
+    SE_BIND_METHOD(SpatialMaterial,get_async_mode);
     ADD_GROUP("Flags", "flags_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flags_transparent"), "set_feature", "get_feature", FEATURE_TRANSPARENT);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flags_use_shadow_to_opacity"), "set_flag", "get_flag", FLAG_USE_SHADOW_TO_OPACITY);

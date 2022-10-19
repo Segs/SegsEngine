@@ -81,8 +81,8 @@ real_t ConvexPolygonShape3D::get_enclosing_radius() const {
 
 void ConvexPolygonShape3D::_bind_methods() {
 
-    BIND_METHOD(ConvexPolygonShape3D,set_points);
-    BIND_METHOD(ConvexPolygonShape3D,get_points);
+    SE_BIND_METHOD(ConvexPolygonShape3D,set_points);
+    SE_BIND_METHOD(ConvexPolygonShape3D,get_points);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "points"), "set_points", "get_points");
 }

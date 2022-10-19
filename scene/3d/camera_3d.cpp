@@ -488,49 +488,49 @@ Camera3D::DopplerTracking Camera3D::get_doppler_tracking() const {
 
 void Camera3D::_bind_methods() {
 
-    BIND_METHOD(Camera3D,project_ray_normal);
-    BIND_METHOD(Camera3D,project_local_ray_normal);
-    BIND_METHOD(Camera3D,project_ray_origin);
-    BIND_METHOD(Camera3D,unproject_position);
-    BIND_METHOD(Camera3D,is_position_behind);
-    BIND_METHOD(Camera3D,project_position);
-    BIND_METHOD(Camera3D,set_perspective);
-    BIND_METHOD(Camera3D,set_orthogonal);
-    BIND_METHOD(Camera3D,set_frustum);
-    BIND_METHOD(Camera3D,make_current);
+    SE_BIND_METHOD(Camera3D,project_ray_normal);
+    SE_BIND_METHOD(Camera3D,project_local_ray_normal);
+    SE_BIND_METHOD(Camera3D,project_ray_origin);
+    SE_BIND_METHOD(Camera3D,unproject_position);
+    SE_BIND_METHOD(Camera3D,is_position_behind);
+    SE_BIND_METHOD(Camera3D,project_position);
+    SE_BIND_METHOD(Camera3D,set_perspective);
+    SE_BIND_METHOD(Camera3D,set_orthogonal);
+    SE_BIND_METHOD(Camera3D,set_frustum);
+    SE_BIND_METHOD(Camera3D,make_current);
     MethodBinder::bind_method(D_METHOD("clear_current", {"enable_next"}), &Camera3D::clear_current, {DEFVAL(true)});
-    BIND_METHOD(Camera3D,set_current);
-    BIND_METHOD(Camera3D,is_current);
-    BIND_METHOD(Camera3D,get_camera_transform);
-    BIND_METHOD(Camera3D,get_fov);
-    BIND_METHOD(Camera3D,get_frustum_offset);
-    BIND_METHOD(Camera3D,get_size);
-    BIND_METHOD(Camera3D,get_zfar);
-    BIND_METHOD(Camera3D,get_znear);
-    BIND_METHOD(Camera3D,set_fov);
-    BIND_METHOD(Camera3D,set_frustum_offset);
-    BIND_METHOD(Camera3D,set_size);
-    BIND_METHOD(Camera3D,set_zfar);
-    BIND_METHOD(Camera3D,set_znear);
-    BIND_METHOD(Camera3D,get_projection);
-    BIND_METHOD(Camera3D,set_projection);
-    BIND_METHOD(Camera3D,set_h_offset);
-    BIND_METHOD(Camera3D,get_h_offset);
-    BIND_METHOD(Camera3D,set_v_offset);
-    BIND_METHOD(Camera3D,get_v_offset);
-    BIND_METHOD(Camera3D,set_cull_mask);
-    BIND_METHOD(Camera3D,get_cull_mask);
-    BIND_METHOD(Camera3D,set_environment);
-    BIND_METHOD(Camera3D,get_environment);
-    BIND_METHOD(Camera3D,set_keep_aspect_mode);
-    BIND_METHOD(Camera3D,get_keep_aspect_mode);
-    BIND_METHOD(Camera3D,set_doppler_tracking);
-    BIND_METHOD(Camera3D,get_doppler_tracking);
-    BIND_METHOD(Camera3D,get_frustum);
-    BIND_METHOD(Camera3D,get_camera_rid);
+    SE_BIND_METHOD(Camera3D,set_current);
+    SE_BIND_METHOD(Camera3D,is_current);
+    SE_BIND_METHOD(Camera3D,get_camera_transform);
+    SE_BIND_METHOD(Camera3D,get_fov);
+    SE_BIND_METHOD(Camera3D,get_frustum_offset);
+    SE_BIND_METHOD(Camera3D,get_size);
+    SE_BIND_METHOD(Camera3D,get_zfar);
+    SE_BIND_METHOD(Camera3D,get_znear);
+    SE_BIND_METHOD(Camera3D,set_fov);
+    SE_BIND_METHOD(Camera3D,set_frustum_offset);
+    SE_BIND_METHOD(Camera3D,set_size);
+    SE_BIND_METHOD(Camera3D,set_zfar);
+    SE_BIND_METHOD(Camera3D,set_znear);
+    SE_BIND_METHOD(Camera3D,get_projection);
+    SE_BIND_METHOD(Camera3D,set_projection);
+    SE_BIND_METHOD(Camera3D,set_h_offset);
+    SE_BIND_METHOD(Camera3D,get_h_offset);
+    SE_BIND_METHOD(Camera3D,set_v_offset);
+    SE_BIND_METHOD(Camera3D,get_v_offset);
+    SE_BIND_METHOD(Camera3D,set_cull_mask);
+    SE_BIND_METHOD(Camera3D,get_cull_mask);
+    SE_BIND_METHOD(Camera3D,set_environment);
+    SE_BIND_METHOD(Camera3D,get_environment);
+    SE_BIND_METHOD(Camera3D,set_keep_aspect_mode);
+    SE_BIND_METHOD(Camera3D,get_keep_aspect_mode);
+    SE_BIND_METHOD(Camera3D,set_doppler_tracking);
+    SE_BIND_METHOD(Camera3D,get_doppler_tracking);
+    SE_BIND_METHOD(Camera3D,get_frustum);
+    SE_BIND_METHOD(Camera3D,get_camera_rid);
 
-    BIND_METHOD(Camera3D,set_cull_mask_bit);
-    BIND_METHOD(Camera3D,get_cull_mask_bit);
+    SE_BIND_METHOD(Camera3D,set_cull_mask_bit);
+    SE_BIND_METHOD(Camera3D,get_cull_mask_bit);
 
     //MethodBinder::bind_method(D_METHOD("_camera_make_current"),&Camera3D::_camera_make_current );
 
@@ -878,33 +878,33 @@ bool ClippedCamera3D::is_clip_to_bodies_enabled() const {
 
 void ClippedCamera3D::_bind_methods() {
 
-    BIND_METHOD(ClippedCamera3D,set_margin);
-    BIND_METHOD(ClippedCamera3D,get_margin);
+    SE_BIND_METHOD(ClippedCamera3D,set_margin);
+    SE_BIND_METHOD(ClippedCamera3D,get_margin);
 
-    BIND_METHOD(ClippedCamera3D,set_process_mode);
-    BIND_METHOD(ClippedCamera3D,get_process_mode);
+    SE_BIND_METHOD(ClippedCamera3D,set_process_mode);
+    SE_BIND_METHOD(ClippedCamera3D,get_process_mode);
 
-    BIND_METHOD(ClippedCamera3D,set_collision_mask);
-    BIND_METHOD(ClippedCamera3D,get_collision_mask);
+    SE_BIND_METHOD(ClippedCamera3D,set_collision_mask);
+    SE_BIND_METHOD(ClippedCamera3D,get_collision_mask);
 
-    BIND_METHOD(ClippedCamera3D,set_collision_mask_bit);
-    BIND_METHOD(ClippedCamera3D,get_collision_mask_bit);
+    SE_BIND_METHOD(ClippedCamera3D,set_collision_mask_bit);
+    SE_BIND_METHOD(ClippedCamera3D,get_collision_mask_bit);
 
-    BIND_METHOD(ClippedCamera3D,add_exception_rid);
-    BIND_METHOD(ClippedCamera3D,add_exception);
+    SE_BIND_METHOD(ClippedCamera3D,add_exception_rid);
+    SE_BIND_METHOD(ClippedCamera3D,add_exception);
 
-    BIND_METHOD(ClippedCamera3D,remove_exception_rid);
-    BIND_METHOD(ClippedCamera3D,remove_exception);
+    SE_BIND_METHOD(ClippedCamera3D,remove_exception_rid);
+    SE_BIND_METHOD(ClippedCamera3D,remove_exception);
 
-    BIND_METHOD(ClippedCamera3D,set_clip_to_areas);
-    BIND_METHOD(ClippedCamera3D,is_clip_to_areas_enabled);
+    SE_BIND_METHOD(ClippedCamera3D,set_clip_to_areas);
+    SE_BIND_METHOD(ClippedCamera3D,is_clip_to_areas_enabled);
 
-    BIND_METHOD(ClippedCamera3D,get_clip_offset);
+    SE_BIND_METHOD(ClippedCamera3D,get_clip_offset);
 
-    BIND_METHOD(ClippedCamera3D,set_clip_to_bodies);
-    BIND_METHOD(ClippedCamera3D,is_clip_to_bodies_enabled);
+    SE_BIND_METHOD(ClippedCamera3D,set_clip_to_bodies);
+    SE_BIND_METHOD(ClippedCamera3D,is_clip_to_bodies_enabled);
 
-    BIND_METHOD(ClippedCamera3D,clear_exceptions);
+    SE_BIND_METHOD(ClippedCamera3D,clear_exceptions);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "margin", PropertyHint::Range, "0,32,0.01"), "set_margin", "get_margin");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_mode", PropertyHint::Enum, "Physics,Idle"), "set_process_mode", "get_process_mode");

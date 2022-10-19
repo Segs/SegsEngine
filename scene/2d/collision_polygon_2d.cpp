@@ -330,17 +330,17 @@ float CollisionPolygon2D::get_one_way_collision_margin() const {
 }
 void CollisionPolygon2D::_bind_methods() {
 
-    BIND_METHOD(CollisionPolygon2D,set_polygon);
-    BIND_METHOD(CollisionPolygon2D,get_polygon);
+    SE_BIND_METHOD(CollisionPolygon2D,set_polygon);
+    SE_BIND_METHOD(CollisionPolygon2D,get_polygon);
 
-    BIND_METHOD(CollisionPolygon2D,set_build_mode);
-    BIND_METHOD(CollisionPolygon2D,get_build_mode);
-    BIND_METHOD(CollisionPolygon2D,set_disabled);
-    BIND_METHOD(CollisionPolygon2D,is_disabled);
-    BIND_METHOD(CollisionPolygon2D,set_one_way_collision);
-    BIND_METHOD(CollisionPolygon2D,is_one_way_collision_enabled);
-    BIND_METHOD(CollisionPolygon2D,set_one_way_collision_margin);
-    BIND_METHOD(CollisionPolygon2D,get_one_way_collision_margin);
+    SE_BIND_METHOD(CollisionPolygon2D,set_build_mode);
+    SE_BIND_METHOD(CollisionPolygon2D,get_build_mode);
+    SE_BIND_METHOD(CollisionPolygon2D,set_disabled);
+    SE_BIND_METHOD(CollisionPolygon2D,is_disabled);
+    SE_BIND_METHOD(CollisionPolygon2D,set_one_way_collision);
+    SE_BIND_METHOD(CollisionPolygon2D,is_one_way_collision_enabled);
+    SE_BIND_METHOD(CollisionPolygon2D,set_one_way_collision_margin);
+    SE_BIND_METHOD(CollisionPolygon2D,get_one_way_collision_margin);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "build_mode", PropertyHint::Enum, "Solids,Segments"), "set_build_mode", "get_build_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");

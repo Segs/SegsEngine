@@ -1248,7 +1248,7 @@ void GridMapEditor::_bind_methods() {
     MethodBinder::bind_method("_configure", &GridMapEditor::_configure);
     MethodBinder::bind_method("_set_selection", &GridMapEditor::_set_selection);
 
-    BIND_METHOD(GridMapEditor,_set_display_mode);
+    SE_BIND_METHOD(GridMapEditor,_set_display_mode);
     MethodBinder::bind_method("_draw_grids", &GridMapEditor::_draw_grids);
 }
 

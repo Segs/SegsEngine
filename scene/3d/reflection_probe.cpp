@@ -207,41 +207,41 @@ void ReflectionProbe::_validate_property(PropertyInfo &property) const {
 
 void ReflectionProbe::_bind_methods() {
 
-    BIND_METHOD(ReflectionProbe,set_intensity);
-    BIND_METHOD(ReflectionProbe,get_intensity);
+    SE_BIND_METHOD(ReflectionProbe,set_intensity);
+    SE_BIND_METHOD(ReflectionProbe,get_intensity);
 
-    BIND_METHOD(ReflectionProbe,set_interior_ambient);
-    BIND_METHOD(ReflectionProbe,get_interior_ambient);
+    SE_BIND_METHOD(ReflectionProbe,set_interior_ambient);
+    SE_BIND_METHOD(ReflectionProbe,get_interior_ambient);
 
-    BIND_METHOD(ReflectionProbe,set_interior_ambient_energy);
-    BIND_METHOD(ReflectionProbe,get_interior_ambient_energy);
+    SE_BIND_METHOD(ReflectionProbe,set_interior_ambient_energy);
+    SE_BIND_METHOD(ReflectionProbe,get_interior_ambient_energy);
 
-    BIND_METHOD(ReflectionProbe,set_interior_ambient_probe_contribution);
-    BIND_METHOD(ReflectionProbe,get_interior_ambient_probe_contribution);
+    SE_BIND_METHOD(ReflectionProbe,set_interior_ambient_probe_contribution);
+    SE_BIND_METHOD(ReflectionProbe,get_interior_ambient_probe_contribution);
 
-    BIND_METHOD(ReflectionProbe,set_max_distance);
-    BIND_METHOD(ReflectionProbe,get_max_distance);
+    SE_BIND_METHOD(ReflectionProbe,set_max_distance);
+    SE_BIND_METHOD(ReflectionProbe,get_max_distance);
 
-    BIND_METHOD(ReflectionProbe,set_extents);
-    BIND_METHOD(ReflectionProbe,get_extents);
+    SE_BIND_METHOD(ReflectionProbe,set_extents);
+    SE_BIND_METHOD(ReflectionProbe,get_extents);
 
-    BIND_METHOD(ReflectionProbe,set_origin_offset);
-    BIND_METHOD(ReflectionProbe,get_origin_offset);
+    SE_BIND_METHOD(ReflectionProbe,set_origin_offset);
+    SE_BIND_METHOD(ReflectionProbe,get_origin_offset);
 
-    BIND_METHOD(ReflectionProbe,set_as_interior);
-    BIND_METHOD(ReflectionProbe,is_set_as_interior);
+    SE_BIND_METHOD(ReflectionProbe,set_as_interior);
+    SE_BIND_METHOD(ReflectionProbe,is_set_as_interior);
 
-    BIND_METHOD(ReflectionProbe,set_enable_box_projection);
-    BIND_METHOD(ReflectionProbe,is_box_projection_enabled);
+    SE_BIND_METHOD(ReflectionProbe,set_enable_box_projection);
+    SE_BIND_METHOD(ReflectionProbe,is_box_projection_enabled);
 
-    BIND_METHOD(ReflectionProbe,set_enable_shadows);
-    BIND_METHOD(ReflectionProbe,are_shadows_enabled);
+    SE_BIND_METHOD(ReflectionProbe,set_enable_shadows);
+    SE_BIND_METHOD(ReflectionProbe,are_shadows_enabled);
 
-    BIND_METHOD(ReflectionProbe,set_cull_mask);
-    BIND_METHOD(ReflectionProbe,get_cull_mask);
+    SE_BIND_METHOD(ReflectionProbe,set_cull_mask);
+    SE_BIND_METHOD(ReflectionProbe,get_cull_mask);
 
-    BIND_METHOD(ReflectionProbe,set_update_mode);
-    BIND_METHOD(ReflectionProbe,get_update_mode);
+    SE_BIND_METHOD(ReflectionProbe,set_update_mode);
+    SE_BIND_METHOD(ReflectionProbe,get_update_mode);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "update_mode", PropertyHint::Enum, "Once (Fast),Always (Slow)"), "set_update_mode", "get_update_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "intensity", PropertyHint::Range, "0,1,0.01"), "set_intensity", "get_intensity");
