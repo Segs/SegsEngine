@@ -202,13 +202,13 @@ void ViewportContainer::_unhandled_input(const Ref<InputEvent> &p_event) {
 
 void ViewportContainer::_bind_methods() {
 
-    BIND_METHOD(ViewportContainer,_unhandled_input);
-    BIND_METHOD(ViewportContainer,_input);
-    BIND_METHOD(ViewportContainer,set_stretch);
-    BIND_METHOD(ViewportContainer,is_stretch_enabled);
+    SE_BIND_METHOD(ViewportContainer,_unhandled_input);
+    SE_BIND_METHOD(ViewportContainer,_input);
+    SE_BIND_METHOD(ViewportContainer,set_stretch);
+    SE_BIND_METHOD(ViewportContainer,is_stretch_enabled);
 
-    BIND_METHOD(ViewportContainer,set_stretch_shrink);
-    BIND_METHOD(ViewportContainer,get_stretch_shrink);
+    SE_BIND_METHOD(ViewportContainer,set_stretch_shrink);
+    SE_BIND_METHOD(ViewportContainer,get_stretch_shrink);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stretch"), "set_stretch", "is_stretch_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "stretch_shrink"), "set_stretch_shrink", "get_stretch_shrink");

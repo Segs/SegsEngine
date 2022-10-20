@@ -346,17 +346,17 @@ bool SplitContainer::is_collapsed() const {
 
 void SplitContainer::_bind_methods() {
 
-    BIND_METHOD(SplitContainer,_gui_input);
+    SE_BIND_METHOD(SplitContainer,_gui_input);
 
-    BIND_METHOD(SplitContainer,set_split_offset);
-    BIND_METHOD(SplitContainer,get_split_offset);
-    BIND_METHOD(SplitContainer,clamp_split_offset);
+    SE_BIND_METHOD(SplitContainer,set_split_offset);
+    SE_BIND_METHOD(SplitContainer,get_split_offset);
+    SE_BIND_METHOD(SplitContainer,clamp_split_offset);
 
-    BIND_METHOD(SplitContainer,set_collapsed);
-    BIND_METHOD(SplitContainer,is_collapsed);
+    SE_BIND_METHOD(SplitContainer,set_collapsed);
+    SE_BIND_METHOD(SplitContainer,is_collapsed);
 
-    BIND_METHOD(SplitContainer,set_dragger_visibility);
-    BIND_METHOD(SplitContainer,get_dragger_visibility);
+    SE_BIND_METHOD(SplitContainer,set_dragger_visibility);
+    SE_BIND_METHOD(SplitContainer,get_dragger_visibility);
 
     ADD_SIGNAL(MethodInfo("dragged", PropertyInfo(VariantType::INT, "offset")));
 

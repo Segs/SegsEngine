@@ -335,62 +335,62 @@ void SoftBody3D::_notification(int p_what) {
 
 void SoftBody3D::_bind_methods() {
 
-    BIND_METHOD(SoftBody3D,_draw_soft_mesh);
-    BIND_METHOD(SoftBody3D,set_physics_enabled);
-    BIND_METHOD(SoftBody3D,is_physics_enabled);
+    SE_BIND_METHOD(SoftBody3D,_draw_soft_mesh);
+    SE_BIND_METHOD(SoftBody3D,set_physics_enabled);
+    SE_BIND_METHOD(SoftBody3D,is_physics_enabled);
 
-    BIND_METHOD(SoftBody3D,set_collision_mask);
-    BIND_METHOD(SoftBody3D,get_collision_mask);
+    SE_BIND_METHOD(SoftBody3D,set_collision_mask);
+    SE_BIND_METHOD(SoftBody3D,get_collision_mask);
 
-    BIND_METHOD(SoftBody3D,set_collision_layer);
-    BIND_METHOD(SoftBody3D,get_collision_layer);
+    SE_BIND_METHOD(SoftBody3D,set_collision_layer);
+    SE_BIND_METHOD(SoftBody3D,get_collision_layer);
 
-    BIND_METHOD(SoftBody3D,set_collision_mask_bit);
-    BIND_METHOD(SoftBody3D,get_collision_mask_bit);
+    SE_BIND_METHOD(SoftBody3D,set_collision_mask_bit);
+    SE_BIND_METHOD(SoftBody3D,get_collision_mask_bit);
 
-    BIND_METHOD(SoftBody3D,set_collision_layer_bit);
-    BIND_METHOD(SoftBody3D,get_collision_layer_bit);
+    SE_BIND_METHOD(SoftBody3D,set_collision_layer_bit);
+    SE_BIND_METHOD(SoftBody3D,get_collision_layer_bit);
 
-    BIND_METHOD(SoftBody3D,set_parent_collision_ignore);
-    BIND_METHOD(SoftBody3D,get_parent_collision_ignore);
+    SE_BIND_METHOD(SoftBody3D,set_parent_collision_ignore);
+    SE_BIND_METHOD(SoftBody3D,get_parent_collision_ignore);
 
-    BIND_METHOD(SoftBody3D,get_collision_exceptions);
-    BIND_METHOD(SoftBody3D,add_collision_exception_with);
-    BIND_METHOD(SoftBody3D,remove_collision_exception_with);
+    SE_BIND_METHOD(SoftBody3D,get_collision_exceptions);
+    SE_BIND_METHOD(SoftBody3D,add_collision_exception_with);
+    SE_BIND_METHOD(SoftBody3D,remove_collision_exception_with);
 
-    BIND_METHOD(SoftBody3D,set_simulation_precision);
-    BIND_METHOD(SoftBody3D,get_simulation_precision);
+    SE_BIND_METHOD(SoftBody3D,set_simulation_precision);
+    SE_BIND_METHOD(SoftBody3D,get_simulation_precision);
 
-    BIND_METHOD(SoftBody3D,set_total_mass);
-    BIND_METHOD(SoftBody3D,get_total_mass);
+    SE_BIND_METHOD(SoftBody3D,set_total_mass);
+    SE_BIND_METHOD(SoftBody3D,get_total_mass);
 
-    BIND_METHOD(SoftBody3D,set_linear_stiffness);
-    BIND_METHOD(SoftBody3D,get_linear_stiffness);
+    SE_BIND_METHOD(SoftBody3D,set_linear_stiffness);
+    SE_BIND_METHOD(SoftBody3D,get_linear_stiffness);
 
-    BIND_METHOD(SoftBody3D,set_areaAngular_stiffness);
-    BIND_METHOD(SoftBody3D,get_areaAngular_stiffness);
+    SE_BIND_METHOD(SoftBody3D,set_areaAngular_stiffness);
+    SE_BIND_METHOD(SoftBody3D,get_areaAngular_stiffness);
 
-    BIND_METHOD(SoftBody3D,set_volume_stiffness);
-    BIND_METHOD(SoftBody3D,get_volume_stiffness);
+    SE_BIND_METHOD(SoftBody3D,set_volume_stiffness);
+    SE_BIND_METHOD(SoftBody3D,get_volume_stiffness);
 
-    BIND_METHOD(SoftBody3D,set_pressure_coefficient);
-    BIND_METHOD(SoftBody3D,get_pressure_coefficient);
+    SE_BIND_METHOD(SoftBody3D,set_pressure_coefficient);
+    SE_BIND_METHOD(SoftBody3D,get_pressure_coefficient);
 
-    BIND_METHOD(SoftBody3D,set_pose_matching_coefficient);
-    BIND_METHOD(SoftBody3D,get_pose_matching_coefficient);
+    SE_BIND_METHOD(SoftBody3D,set_pose_matching_coefficient);
+    SE_BIND_METHOD(SoftBody3D,get_pose_matching_coefficient);
 
-    BIND_METHOD(SoftBody3D,set_damping_coefficient);
-    BIND_METHOD(SoftBody3D,get_damping_coefficient);
+    SE_BIND_METHOD(SoftBody3D,set_damping_coefficient);
+    SE_BIND_METHOD(SoftBody3D,get_damping_coefficient);
 
-    BIND_METHOD(SoftBody3D,set_drag_coefficient);
-    BIND_METHOD(SoftBody3D,get_drag_coefficient);
-    BIND_METHOD(SoftBody3D,get_point_transform);
+    SE_BIND_METHOD(SoftBody3D,set_drag_coefficient);
+    SE_BIND_METHOD(SoftBody3D,get_drag_coefficient);
+    SE_BIND_METHOD(SoftBody3D,get_point_transform);
 
     MethodBinder::bind_method(D_METHOD("set_point_pinned", {"point_index", "pinned", "attachment_path"}), &SoftBody3D::set_point_pinned, {DEFVAL(NodePath())});
-    BIND_METHOD(SoftBody3D,is_point_pinned);
+    SE_BIND_METHOD(SoftBody3D,is_point_pinned);
 
-    BIND_METHOD(SoftBody3D,set_ray_pickable);
-    BIND_METHOD(SoftBody3D,is_ray_pickable);
+    SE_BIND_METHOD(SoftBody3D,set_ray_pickable);
+    SE_BIND_METHOD(SoftBody3D,is_ray_pickable);
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "physics_enabled"), "set_physics_enabled", "is_physics_enabled");
 
     ADD_GROUP("Collision", "collision_");

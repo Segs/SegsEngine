@@ -673,23 +673,23 @@ void BitMap::blit(const Vector2 &p_pos, const Ref<BitMap> &p_bitmap) {
 
 void BitMap::_bind_methods() {
 
-    BIND_METHOD(BitMap,create);
+    SE_BIND_METHOD(BitMap,create);
     MethodBinder::bind_method(D_METHOD("create_from_image_alpha", {"image", "threshold"}), &BitMap::create_from_image_alpha, {DEFVAL(0.1)});
 
-    BIND_METHOD(BitMap,set_bit);
-    BIND_METHOD(BitMap,get_bit);
+    SE_BIND_METHOD(BitMap,set_bit);
+    SE_BIND_METHOD(BitMap,get_bit);
 
-    BIND_METHOD(BitMap,set_bit_rect);
-    BIND_METHOD(BitMap,get_true_bit_count);
+    SE_BIND_METHOD(BitMap,set_bit_rect);
+    SE_BIND_METHOD(BitMap,get_true_bit_count);
 
-    BIND_METHOD(BitMap,get_size);
-    BIND_METHOD(BitMap,resize);
+    SE_BIND_METHOD(BitMap,get_size);
+    SE_BIND_METHOD(BitMap,resize);
 
-    BIND_METHOD(BitMap,_set_data);
-    BIND_METHOD(BitMap,_get_data);
+    SE_BIND_METHOD(BitMap,_set_data);
+    SE_BIND_METHOD(BitMap,_get_data);
 
-    BIND_METHOD(BitMap,grow_mask);
-    BIND_METHOD(BitMap,convert_to_image);
+    SE_BIND_METHOD(BitMap,grow_mask);
+    SE_BIND_METHOD(BitMap,convert_to_image);
     MethodBinder::bind_method(D_METHOD("opaque_to_polygons", {"rect", "epsilon"}), &BitMap::opaque_to_polygons, {DEFVAL(2.0)});
 
     ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");

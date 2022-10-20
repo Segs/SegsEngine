@@ -313,26 +313,26 @@ void ConfigFile::clear() {
 
 void ConfigFile::_bind_methods() {
 
-    BIND_METHOD(ConfigFile,set_value);
+    SE_BIND_METHOD(ConfigFile,set_value);
     MethodBinder::bind_method(D_METHOD("get_value", {"section", "key", "default"}), &ConfigFile::get_value, {DEFVAL(Variant())});
 
-    BIND_METHOD(ConfigFile,has_section);
-    BIND_METHOD(ConfigFile,has_section_key);
+    SE_BIND_METHOD(ConfigFile,has_section);
+    SE_BIND_METHOD(ConfigFile,has_section_key);
 
-    BIND_METHOD(ConfigFile,get_sections);
+    SE_BIND_METHOD(ConfigFile,get_sections);
     MethodBinder::bind_method(D_METHOD("get_section_keys", {"section"}), &ConfigFile::_get_section_keys);
 
-    BIND_METHOD(ConfigFile,erase_section);
-    BIND_METHOD(ConfigFile,erase_section_key);
+    SE_BIND_METHOD(ConfigFile,erase_section);
+    SE_BIND_METHOD(ConfigFile,erase_section_key);
 
-    BIND_METHOD(ConfigFile,load);
-    BIND_METHOD(ConfigFile,parse);
-    BIND_METHOD(ConfigFile,save);
+    SE_BIND_METHOD(ConfigFile,load);
+    SE_BIND_METHOD(ConfigFile,parse);
+    SE_BIND_METHOD(ConfigFile,save);
 
-    BIND_METHOD(ConfigFile,load_encrypted);
-    BIND_METHOD(ConfigFile,load_encrypted_pass);
+    SE_BIND_METHOD(ConfigFile,load_encrypted);
+    SE_BIND_METHOD(ConfigFile,load_encrypted_pass);
 
-    BIND_METHOD(ConfigFile,save_encrypted);
-    BIND_METHOD(ConfigFile,save_encrypted_pass);
-    BIND_METHOD(ConfigFile,clear);
+    SE_BIND_METHOD(ConfigFile,save_encrypted);
+    SE_BIND_METHOD(ConfigFile,save_encrypted_pass);
+    SE_BIND_METHOD(ConfigFile,clear);
 }

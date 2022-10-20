@@ -152,15 +152,15 @@ void ImmediateGeometry3D::add_sphere(int p_lats, int p_lons, float p_radius, boo
 void ImmediateGeometry3D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("begin", {"primitive", "texture"}), &ImmediateGeometry3D::begin, {DEFVAL(Ref<Texture>())});
-    BIND_METHOD(ImmediateGeometry3D,set_normal);
-    BIND_METHOD(ImmediateGeometry3D,set_tangent);
-    BIND_METHOD(ImmediateGeometry3D,set_color);
-    BIND_METHOD(ImmediateGeometry3D,set_uv);
-    BIND_METHOD(ImmediateGeometry3D,set_uv2);
-    BIND_METHOD(ImmediateGeometry3D,add_vertex);
+    SE_BIND_METHOD(ImmediateGeometry3D,set_normal);
+    SE_BIND_METHOD(ImmediateGeometry3D,set_tangent);
+    SE_BIND_METHOD(ImmediateGeometry3D,set_color);
+    SE_BIND_METHOD(ImmediateGeometry3D,set_uv);
+    SE_BIND_METHOD(ImmediateGeometry3D,set_uv2);
+    SE_BIND_METHOD(ImmediateGeometry3D,add_vertex);
     MethodBinder::bind_method(D_METHOD("add_sphere", {"lats", "lons", "radius", "add_uv"}), &ImmediateGeometry3D::add_sphere, {DEFVAL(true)});
-    BIND_METHOD(ImmediateGeometry3D,end);
-    BIND_METHOD(ImmediateGeometry3D,clear);
+    SE_BIND_METHOD(ImmediateGeometry3D,end);
+    SE_BIND_METHOD(ImmediateGeometry3D,clear);
 }
 
 ImmediateGeometry3D::ImmediateGeometry3D() {

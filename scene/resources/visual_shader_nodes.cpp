@@ -158,8 +158,8 @@ Vector<StringName> VisualShaderNodeScalarConstant::get_editable_properties() con
 }
 
 void VisualShaderNodeScalarConstant::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeScalarConstant,set_constant);
-    BIND_METHOD(VisualShaderNodeScalarConstant,get_constant);
+    SE_BIND_METHOD(VisualShaderNodeScalarConstant,set_constant);
+    SE_BIND_METHOD(VisualShaderNodeScalarConstant,get_constant);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "constant"), "set_constant", "get_constant");
 }
@@ -218,8 +218,8 @@ Vector<StringName> VisualShaderNodeBooleanConstant::get_editable_properties() co
 }
 
 void VisualShaderNodeBooleanConstant::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeBooleanConstant,set_constant);
-    BIND_METHOD(VisualShaderNodeBooleanConstant,get_constant);
+    SE_BIND_METHOD(VisualShaderNodeBooleanConstant,set_constant);
+    SE_BIND_METHOD(VisualShaderNodeBooleanConstant,get_constant);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "constant"), "set_constant", "get_constant");
 }
@@ -278,8 +278,8 @@ Vector<StringName> VisualShaderNodeColorConstant::get_editable_properties() cons
 }
 
 void VisualShaderNodeColorConstant::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeColorConstant,set_constant);
-    BIND_METHOD(VisualShaderNodeColorConstant,get_constant);
+    SE_BIND_METHOD(VisualShaderNodeColorConstant,set_constant);
+    SE_BIND_METHOD(VisualShaderNodeColorConstant,get_constant);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "constant"), "set_constant", "get_constant");
 }
@@ -335,8 +335,8 @@ Vector<StringName> VisualShaderNodeVec3Constant::get_editable_properties() const
 }
 
 void VisualShaderNodeVec3Constant::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeVec3Constant,set_constant);
-    BIND_METHOD(VisualShaderNodeVec3Constant,get_constant);
+    SE_BIND_METHOD(VisualShaderNodeVec3Constant,set_constant);
+    SE_BIND_METHOD(VisualShaderNodeVec3Constant,get_constant);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "constant"), "set_constant", "get_constant");
 }
@@ -397,8 +397,8 @@ Vector<StringName> VisualShaderNodeTransformConstant::get_editable_properties() 
 }
 
 void VisualShaderNodeTransformConstant::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeTransformConstant,set_constant);
-    BIND_METHOD(VisualShaderNodeTransformConstant,get_constant);
+    SE_BIND_METHOD(VisualShaderNodeTransformConstant,set_constant);
+    SE_BIND_METHOD(VisualShaderNodeTransformConstant,get_constant);
 
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "constant"), "set_constant", "get_constant");
 }
@@ -763,14 +763,14 @@ StringName VisualShaderNodeTexture::get_warning(ShaderMode p_mode, VisualShader:
 }
 
 void VisualShaderNodeTexture::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeTexture,set_source);
-    BIND_METHOD(VisualShaderNodeTexture,get_source);
+    SE_BIND_METHOD(VisualShaderNodeTexture,set_source);
+    SE_BIND_METHOD(VisualShaderNodeTexture,get_source);
 
-    BIND_METHOD(VisualShaderNodeTexture,set_texture);
-    BIND_METHOD(VisualShaderNodeTexture,get_texture);
+    SE_BIND_METHOD(VisualShaderNodeTexture,set_texture);
+    SE_BIND_METHOD(VisualShaderNodeTexture,get_texture);
 
-    BIND_METHOD(VisualShaderNodeTexture,set_texture_type);
-    BIND_METHOD(VisualShaderNodeTexture,get_texture_type);
+    SE_BIND_METHOD(VisualShaderNodeTexture,set_texture_type);
+    SE_BIND_METHOD(VisualShaderNodeTexture,get_texture_type);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "source", PropertyHint::Enum,
                          "Texture,Screen,Texture2D,NormalMap2D,Depth,SamplerPort"),
@@ -961,14 +961,14 @@ StringName VisualShaderNodeCubeMap::get_warning(
 }
 
 void VisualShaderNodeCubeMap::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeCubeMap,set_source);
-    BIND_METHOD(VisualShaderNodeCubeMap,get_source);
+    SE_BIND_METHOD(VisualShaderNodeCubeMap,set_source);
+    SE_BIND_METHOD(VisualShaderNodeCubeMap,get_source);
 
-    BIND_METHOD(VisualShaderNodeCubeMap,set_cube_map);
-    BIND_METHOD(VisualShaderNodeCubeMap,get_cube_map);
+    SE_BIND_METHOD(VisualShaderNodeCubeMap,set_cube_map);
+    SE_BIND_METHOD(VisualShaderNodeCubeMap,get_cube_map);
 
-    BIND_METHOD(VisualShaderNodeCubeMap,set_texture_type);
-    BIND_METHOD(VisualShaderNodeCubeMap,get_texture_type);
+    SE_BIND_METHOD(VisualShaderNodeCubeMap,set_texture_type);
+    SE_BIND_METHOD(VisualShaderNodeCubeMap,get_texture_type);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "source", PropertyHint::Enum, "Texture,SamplerPort"), "set_source",
             "get_source");
@@ -1069,8 +1069,8 @@ Vector<StringName> VisualShaderNodeScalarOp::get_editable_properties() const {
 }
 
 void VisualShaderNodeScalarOp::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeScalarOp,set_operator);
-    BIND_METHOD(VisualShaderNodeScalarOp,get_operator);
+    SE_BIND_METHOD(VisualShaderNodeScalarOp,set_operator);
+    SE_BIND_METHOD(VisualShaderNodeScalarOp,get_operator);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "operator", PropertyHint::Enum,
                          "Add,Sub,Multiply,Divide,Remainder,Power,Max,Min,Atan2,Step"),
@@ -1180,8 +1180,8 @@ Vector<StringName> VisualShaderNodeVectorOp::get_editable_properties() const {
 }
 
 void VisualShaderNodeVectorOp::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeVectorOp,set_operator);
-    BIND_METHOD(VisualShaderNodeVectorOp,get_operator);
+    SE_BIND_METHOD(VisualShaderNodeVectorOp,set_operator);
+    SE_BIND_METHOD(VisualShaderNodeVectorOp,get_operator);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "operator", PropertyHint::Enum,
                          "Add,Sub,Multiply,Divide,Remainder,Power,Max,Min,Cross,Atan2,Reflect,Step"),
@@ -1352,8 +1352,8 @@ Vector<StringName> VisualShaderNodeColorOp::get_editable_properties() const {
 }
 
 void VisualShaderNodeColorOp::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeColorOp,set_operator);
-    BIND_METHOD(VisualShaderNodeColorOp,get_operator);
+    SE_BIND_METHOD(VisualShaderNodeColorOp,set_operator);
+    SE_BIND_METHOD(VisualShaderNodeColorOp,get_operator);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "operator", PropertyHint::Enum,
                          "Screen,Difference,Darken,Lighten,Overlay,Dodge,Burn,SoftLight,HardLight"),
@@ -1431,8 +1431,8 @@ Vector<StringName> VisualShaderNodeTransformMult::get_editable_properties() cons
 }
 
 void VisualShaderNodeTransformMult::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeTransformMult,set_operator);
-    BIND_METHOD(VisualShaderNodeTransformMult,get_operator);
+    SE_BIND_METHOD(VisualShaderNodeTransformMult,set_operator);
+    SE_BIND_METHOD(VisualShaderNodeTransformMult,get_operator);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "operator", PropertyHint::Enum,
                          "A x B,B x A,A x B(per component),B x A(per component)"),
@@ -1505,8 +1505,8 @@ Vector<StringName> VisualShaderNodeTransformVecMult::get_editable_properties() c
 }
 
 void VisualShaderNodeTransformVecMult::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeTransformVecMult,set_operator);
-    BIND_METHOD(VisualShaderNodeTransformVecMult,get_operator);
+    SE_BIND_METHOD(VisualShaderNodeTransformVecMult,set_operator);
+    SE_BIND_METHOD(VisualShaderNodeTransformVecMult,get_operator);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "operator", PropertyHint::Enum, "A x B,B x A,A x B (3x3),B x A (3x3)"),
             "set_operator", "get_operator");
@@ -1576,8 +1576,8 @@ Vector<StringName> VisualShaderNodeScalarFunc::get_editable_properties() const {
 }
 
 void VisualShaderNodeScalarFunc::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeScalarFunc,set_function);
-    BIND_METHOD(VisualShaderNodeScalarFunc,get_function);
+    SE_BIND_METHOD(VisualShaderNodeScalarFunc,set_function);
+    SE_BIND_METHOD(VisualShaderNodeScalarFunc,get_function);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PropertyHint::Enum,
                          "Sin,Cos,Tan,ASin,ACos,ATan,SinH,CosH,TanH,Log,Exp,Sqrt,Abs,Sign,Floor,Round,Ceil,Frac,"
@@ -1708,8 +1708,8 @@ Vector<StringName> VisualShaderNodeVectorFunc::get_editable_properties() const {
 }
 
 void VisualShaderNodeVectorFunc::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeVectorFunc,set_function);
-    BIND_METHOD(VisualShaderNodeVectorFunc,get_function);
+    SE_BIND_METHOD(VisualShaderNodeVectorFunc,set_function);
+    SE_BIND_METHOD(VisualShaderNodeVectorFunc,get_function);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PropertyHint::Enum,
                          "Normalize,Saturate,Negate,Reciprocal,RGB2HSV,HSV2RGB,Abs,ACos,ACosH,ASin,ASinH,ATan,ATanH,"
@@ -1831,8 +1831,8 @@ Vector<StringName> VisualShaderNodeColorFunc::get_editable_properties() const {
 }
 
 void VisualShaderNodeColorFunc::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeColorFunc,set_function);
-    BIND_METHOD(VisualShaderNodeColorFunc,get_function);
+    SE_BIND_METHOD(VisualShaderNodeColorFunc,set_function);
+    SE_BIND_METHOD(VisualShaderNodeColorFunc,get_function);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, "Grayscale,Sepia"), "set_function",
             "get_function");
@@ -1901,8 +1901,8 @@ Vector<StringName> VisualShaderNodeTransformFunc::get_editable_properties() cons
 }
 
 void VisualShaderNodeTransformFunc::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeTransformFunc,set_function);
-    BIND_METHOD(VisualShaderNodeTransformFunc,get_function);
+    SE_BIND_METHOD(VisualShaderNodeTransformFunc,set_function);
+    SE_BIND_METHOD(VisualShaderNodeTransformFunc,get_function);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, "Inverse,Transpose"), "set_function",
             "get_function");
@@ -2084,7 +2084,7 @@ Vector<StringName> VisualShaderNodeScalarDerivativeFunc::get_editable_properties
 void VisualShaderNodeScalarDerivativeFunc::_bind_methods() {
     MethodBinder::bind_method(
             D_METHOD("set_function", { "func" }), &VisualShaderNodeScalarDerivativeFunc::set_function);
-    BIND_METHOD(VisualShaderNodeScalarDerivativeFunc,get_function);
+    SE_BIND_METHOD(VisualShaderNodeScalarDerivativeFunc,get_function);
 
     ADD_PROPERTY(
             PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, "Sum,X,Y"), "set_function", "get_function");
@@ -2157,7 +2157,7 @@ Vector<StringName> VisualShaderNodeVectorDerivativeFunc::get_editable_properties
 void VisualShaderNodeVectorDerivativeFunc::_bind_methods() {
     MethodBinder::bind_method(
             D_METHOD("set_function", { "func" }), &VisualShaderNodeVectorDerivativeFunc::set_function);
-    BIND_METHOD(VisualShaderNodeVectorDerivativeFunc,get_function);
+    SE_BIND_METHOD(VisualShaderNodeVectorDerivativeFunc,get_function);
 
     ADD_PROPERTY(
             PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, "Sum,X,Y"), "set_function", "get_function");
@@ -3117,23 +3117,23 @@ float VisualShaderNodeScalarUniform::get_default_value() const {
 }
 
 void VisualShaderNodeScalarUniform::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeScalarUniform,set_hint);
-    BIND_METHOD(VisualShaderNodeScalarUniform,get_hint);
+    SE_BIND_METHOD(VisualShaderNodeScalarUniform,set_hint);
+    SE_BIND_METHOD(VisualShaderNodeScalarUniform,get_hint);
 
-    BIND_METHOD(VisualShaderNodeScalarUniform,set_min);
-    BIND_METHOD(VisualShaderNodeScalarUniform,get_min);
+    SE_BIND_METHOD(VisualShaderNodeScalarUniform,set_min);
+    SE_BIND_METHOD(VisualShaderNodeScalarUniform,get_min);
 
-    BIND_METHOD(VisualShaderNodeScalarUniform,set_max);
-    BIND_METHOD(VisualShaderNodeScalarUniform,get_max);
+    SE_BIND_METHOD(VisualShaderNodeScalarUniform,set_max);
+    SE_BIND_METHOD(VisualShaderNodeScalarUniform,get_max);
 
-    BIND_METHOD(VisualShaderNodeScalarUniform,set_step);
-    BIND_METHOD(VisualShaderNodeScalarUniform,get_step);
+    SE_BIND_METHOD(VisualShaderNodeScalarUniform,set_step);
+    SE_BIND_METHOD(VisualShaderNodeScalarUniform,get_step);
 
-    BIND_METHOD(VisualShaderNodeScalarUniform,set_default_value_enabled);
-    BIND_METHOD(VisualShaderNodeScalarUniform,is_default_value_enabled);
+    SE_BIND_METHOD(VisualShaderNodeScalarUniform,set_default_value_enabled);
+    SE_BIND_METHOD(VisualShaderNodeScalarUniform,is_default_value_enabled);
 
-    BIND_METHOD(VisualShaderNodeScalarUniform,set_default_value);
-    BIND_METHOD(VisualShaderNodeScalarUniform,get_default_value);
+    SE_BIND_METHOD(VisualShaderNodeScalarUniform,set_default_value);
+    SE_BIND_METHOD(VisualShaderNodeScalarUniform,get_default_value);
 
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "hint", PropertyHint::Enum, "None,Range,Range+Step"), "set_hint",
@@ -3239,11 +3239,11 @@ bool VisualShaderNodeBooleanUniform::get_default_value() const {
 }
 
 void VisualShaderNodeBooleanUniform::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeBooleanUniform,set_default_value_enabled);
-    BIND_METHOD(VisualShaderNodeBooleanUniform,is_default_value_enabled);
+    SE_BIND_METHOD(VisualShaderNodeBooleanUniform,set_default_value_enabled);
+    SE_BIND_METHOD(VisualShaderNodeBooleanUniform,is_default_value_enabled);
 
-    BIND_METHOD(VisualShaderNodeBooleanUniform,set_default_value);
-    BIND_METHOD(VisualShaderNodeBooleanUniform,get_default_value);
+    SE_BIND_METHOD(VisualShaderNodeBooleanUniform,set_default_value);
+    SE_BIND_METHOD(VisualShaderNodeBooleanUniform,get_default_value);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "default_value_enabled"), "set_default_value_enabled", "is_default_value_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "default_value"), "set_default_value", "get_default_value");
@@ -3326,11 +3326,11 @@ Color VisualShaderNodeColorUniform::get_default_value() const {
 }
 
 void VisualShaderNodeColorUniform::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeColorUniform,set_default_value_enabled);
-    BIND_METHOD(VisualShaderNodeColorUniform,is_default_value_enabled);
+    SE_BIND_METHOD(VisualShaderNodeColorUniform,set_default_value_enabled);
+    SE_BIND_METHOD(VisualShaderNodeColorUniform,is_default_value_enabled);
 
-    BIND_METHOD(VisualShaderNodeColorUniform,set_default_value);
-    BIND_METHOD(VisualShaderNodeColorUniform,get_default_value);
+    SE_BIND_METHOD(VisualShaderNodeColorUniform,set_default_value);
+    SE_BIND_METHOD(VisualShaderNodeColorUniform,get_default_value);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "default_value_enabled"), "set_default_value_enabled", "is_default_value_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "default_value"), "set_default_value", "get_default_value");
@@ -3403,11 +3403,11 @@ Vector3 VisualShaderNodeVec3Uniform::get_default_value() const {
 }
 
 void VisualShaderNodeVec3Uniform::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeVec3Uniform,set_default_value_enabled);
-    BIND_METHOD(VisualShaderNodeVec3Uniform,is_default_value_enabled);
+    SE_BIND_METHOD(VisualShaderNodeVec3Uniform,set_default_value_enabled);
+    SE_BIND_METHOD(VisualShaderNodeVec3Uniform,is_default_value_enabled);
 
-    BIND_METHOD(VisualShaderNodeVec3Uniform,set_default_value);
-    BIND_METHOD(VisualShaderNodeVec3Uniform,get_default_value);
+    SE_BIND_METHOD(VisualShaderNodeVec3Uniform,set_default_value);
+    SE_BIND_METHOD(VisualShaderNodeVec3Uniform,get_default_value);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "default_value_enabled"), "set_default_value_enabled", "is_default_value_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "default_value"), "set_default_value", "get_default_value");
@@ -3488,11 +3488,11 @@ Transform VisualShaderNodeTransformUniform::get_default_value() const {
 }
 
 void VisualShaderNodeTransformUniform::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeTransformUniform,set_default_value_enabled);
-    BIND_METHOD(VisualShaderNodeTransformUniform,is_default_value_enabled);
+    SE_BIND_METHOD(VisualShaderNodeTransformUniform,set_default_value_enabled);
+    SE_BIND_METHOD(VisualShaderNodeTransformUniform,is_default_value_enabled);
 
-    BIND_METHOD(VisualShaderNodeTransformUniform,set_default_value);
-    BIND_METHOD(VisualShaderNodeTransformUniform,get_default_value);
+    SE_BIND_METHOD(VisualShaderNodeTransformUniform,set_default_value);
+    SE_BIND_METHOD(VisualShaderNodeTransformUniform,get_default_value);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "default_value_enabled"), "set_default_value_enabled", "is_default_value_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "default_value"), "set_default_value", "get_default_value");
@@ -3635,11 +3635,11 @@ Vector<StringName> VisualShaderNodeTextureUniform::get_editable_properties() con
 void VisualShaderNodeTextureUniform::_bind_methods() {
     MethodBinder::bind_method(
             D_METHOD("set_texture_type", { "type" }), &VisualShaderNodeTextureUniform::set_texture_type);
-    BIND_METHOD(VisualShaderNodeTextureUniform,get_texture_type);
+    SE_BIND_METHOD(VisualShaderNodeTextureUniform,get_texture_type);
 
     MethodBinder::bind_method(
             D_METHOD("set_color_default", { "type" }), &VisualShaderNodeTextureUniform::set_color_default);
-    BIND_METHOD(VisualShaderNodeTextureUniform,get_color_default);
+    SE_BIND_METHOD(VisualShaderNodeTextureUniform,get_color_default);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "texture_type", PropertyHint::Enum, "Data,Color,Normalmap,Aniso"),
             "set_texture_type", "get_texture_type");
@@ -4155,8 +4155,8 @@ Vector<StringName> VisualShaderNodeIs::get_editable_properties() const {
 }
 
 void VisualShaderNodeIs::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeIs,set_function);
-    BIND_METHOD(VisualShaderNodeIs,get_function);
+    SE_BIND_METHOD(VisualShaderNodeIs,set_function);
+    SE_BIND_METHOD(VisualShaderNodeIs,get_function);
 
     ADD_PROPERTY(
             PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, "Inf,NaN"), "set_function", "get_function");
@@ -4361,13 +4361,13 @@ Vector<StringName> VisualShaderNodeCompare::get_editable_properties() const {
 void VisualShaderNodeCompare::_bind_methods() {
     MethodBinder::bind_method(
             D_METHOD("set_comparison_type", { "type" }), &VisualShaderNodeCompare::set_comparison_type);
-    BIND_METHOD(VisualShaderNodeCompare,get_comparison_type);
+    SE_BIND_METHOD(VisualShaderNodeCompare,get_comparison_type);
 
-    BIND_METHOD(VisualShaderNodeCompare,set_function);
-    BIND_METHOD(VisualShaderNodeCompare,get_function);
+    SE_BIND_METHOD(VisualShaderNodeCompare,set_function);
+    SE_BIND_METHOD(VisualShaderNodeCompare,get_function);
 
-    BIND_METHOD(VisualShaderNodeCompare,set_condition);
-    BIND_METHOD(VisualShaderNodeCompare,get_condition);
+    SE_BIND_METHOD(VisualShaderNodeCompare,set_condition);
+    SE_BIND_METHOD(VisualShaderNodeCompare,get_condition);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PropertyHint::Enum, "Scalar,Vector,Boolean,Transform"),
             "set_comparison_type", "get_comparison_type");

@@ -161,16 +161,16 @@ bool Texture::get_rect_region(const Rect2 &p_rect, const Rect2 &p_src_rect, Rect
 }
 
 void Texture::_bind_methods() {
-    BIND_METHOD(Texture,get_width);
-    BIND_METHOD(Texture,get_height);
-    BIND_METHOD(Texture,get_size);
-    BIND_METHOD(Texture,has_alpha);
-    BIND_METHOD(Texture,set_flags);
-    BIND_METHOD(Texture,get_flags);
+    SE_BIND_METHOD(Texture,get_width);
+    SE_BIND_METHOD(Texture,get_height);
+    SE_BIND_METHOD(Texture,get_size);
+    SE_BIND_METHOD(Texture,has_alpha);
+    SE_BIND_METHOD(Texture,set_flags);
+    SE_BIND_METHOD(Texture,get_flags);
     MethodBinder::bind_method(D_METHOD("draw", {"canvas_item", "position", "modulate", "transpose", "normal_map"}), &Texture::draw, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant())});
     MethodBinder::bind_method(D_METHOD("draw_rect", {"canvas_item", "rect", "tile", "modulate", "transpose", "normal_map"}), &Texture::draw_rect, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant())});
     MethodBinder::bind_method(D_METHOD("draw_rect_region", {"canvas_item", "rect", "src_rect", "modulate", "transpose", "normal_map", "clip_uv"}), &Texture::draw_rect_region, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant()), DEFVAL(true)});
-    BIND_METHOD(Texture,get_data);
+    SE_BIND_METHOD(Texture,get_data);
 
     ADD_GROUP("Flags", "flg_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "flg_flags", PropertyHint::Flags, "Mipmaps,Repeat,Filter,Anisotropic Filter,Convert to Linear,Mirrored Repeat,Video Surface"), "set_flags", "get_flags");
@@ -483,14 +483,14 @@ void ImageTexture::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("create", {"width", "height", "format", "flags"}), &ImageTexture::create, {DEFVAL(FLAGS_DEFAULT)});
     MethodBinder::bind_method(D_METHOD("create_from_image", {"image", "flags"}), &ImageTexture::create_from_image, {DEFVAL(FLAGS_DEFAULT)});
-    BIND_METHOD(ImageTexture,get_format);
-    BIND_METHOD(ImageTexture,set_data);
-    BIND_METHOD(ImageTexture,set_storage);
-    BIND_METHOD(ImageTexture,get_storage);
-    BIND_METHOD(ImageTexture,set_lossy_storage_quality);
-    BIND_METHOD(ImageTexture,get_lossy_storage_quality);
+    SE_BIND_METHOD(ImageTexture,get_format);
+    SE_BIND_METHOD(ImageTexture,set_data);
+    SE_BIND_METHOD(ImageTexture,set_storage);
+    SE_BIND_METHOD(ImageTexture,get_storage);
+    SE_BIND_METHOD(ImageTexture,set_lossy_storage_quality);
+    SE_BIND_METHOD(ImageTexture,get_lossy_storage_quality);
 
-    BIND_METHOD(ImageTexture,set_size_override);
+    SE_BIND_METHOD(ImageTexture,set_size_override);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "storage", PropertyHint::Enum, "Uncompressed,Compress Lossy,Compress Lossless"), "set_storage", "get_storage");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "lossy_quality", PropertyHint::Range, "0.0,1.0,0.01"), "set_lossy_storage_quality", "get_lossy_storage_quality");
@@ -925,8 +925,8 @@ void StreamTexture::_validate_property(PropertyInfo &property) const {
 
 void StreamTexture::_bind_methods() {
 
-    BIND_METHOD(StreamTexture,load);
-    BIND_METHOD(StreamTexture,get_load_path);
+    SE_BIND_METHOD(StreamTexture,load);
+    SE_BIND_METHOD(StreamTexture,get_load_path);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "load_path", PropertyHint::File, "*.stex"), "load", "get_load_path");
 }
@@ -1088,17 +1088,17 @@ bool AtlasTexture::has_filter_clip() const {
 
 void AtlasTexture::_bind_methods() {
 
-    BIND_METHOD(AtlasTexture,set_atlas);
-    BIND_METHOD(AtlasTexture,get_atlas);
+    SE_BIND_METHOD(AtlasTexture,set_atlas);
+    SE_BIND_METHOD(AtlasTexture,get_atlas);
 
-    BIND_METHOD(AtlasTexture,set_region);
-    BIND_METHOD(AtlasTexture,get_region);
+    SE_BIND_METHOD(AtlasTexture,set_region);
+    SE_BIND_METHOD(AtlasTexture,get_region);
 
-    BIND_METHOD(AtlasTexture,set_margin);
-    BIND_METHOD(AtlasTexture,get_margin);
+    SE_BIND_METHOD(AtlasTexture,set_margin);
+    SE_BIND_METHOD(AtlasTexture,get_margin);
 
-    BIND_METHOD(AtlasTexture,set_filter_clip);
-    BIND_METHOD(AtlasTexture,has_filter_clip);
+    SE_BIND_METHOD(AtlasTexture,set_filter_clip);
+    SE_BIND_METHOD(AtlasTexture,has_filter_clip);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "atlas", PropertyHint::ResourceType, "Texture"), "set_atlas", "get_atlas");
     ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "region"), "set_region", "get_region");
@@ -1333,12 +1333,12 @@ bool MeshTexture::is_pixel_opaque(int p_x, int p_y) const {
 }
 
 void MeshTexture::_bind_methods() {
-    BIND_METHOD(MeshTexture,set_mesh);
-    BIND_METHOD(MeshTexture,get_mesh);
-    BIND_METHOD(MeshTexture,set_image_size);
-    BIND_METHOD(MeshTexture,get_image_size);
-    BIND_METHOD(MeshTexture,set_base_texture);
-    BIND_METHOD(MeshTexture,get_base_texture);
+    SE_BIND_METHOD(MeshTexture,set_mesh);
+    SE_BIND_METHOD(MeshTexture,get_mesh);
+    SE_BIND_METHOD(MeshTexture,set_image_size);
+    SE_BIND_METHOD(MeshTexture,get_image_size);
+    SE_BIND_METHOD(MeshTexture,set_base_texture);
+    SE_BIND_METHOD(MeshTexture,get_base_texture);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh"), "set_mesh", "get_mesh");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "base_texture", PropertyHint::ResourceType, "Texture"), "set_base_texture", "get_base_texture");
@@ -1474,18 +1474,18 @@ Ref<Image> LargeTexture::to_image() const {
 
 void LargeTexture::_bind_methods() {
 
-    BIND_METHOD(LargeTexture,add_piece);
-    BIND_METHOD(LargeTexture,set_piece_offset);
-    BIND_METHOD(LargeTexture,set_piece_texture);
-    BIND_METHOD(LargeTexture,set_size);
-    BIND_METHOD(LargeTexture,clear);
+    SE_BIND_METHOD(LargeTexture,add_piece);
+    SE_BIND_METHOD(LargeTexture,set_piece_offset);
+    SE_BIND_METHOD(LargeTexture,set_piece_texture);
+    SE_BIND_METHOD(LargeTexture,set_size);
+    SE_BIND_METHOD(LargeTexture,clear);
 
-    BIND_METHOD(LargeTexture,get_piece_count);
-    BIND_METHOD(LargeTexture,get_piece_offset);
-    BIND_METHOD(LargeTexture,get_piece_texture);
+    SE_BIND_METHOD(LargeTexture,get_piece_count);
+    SE_BIND_METHOD(LargeTexture,get_piece_offset);
+    SE_BIND_METHOD(LargeTexture,get_piece_texture);
 
-    BIND_METHOD(LargeTexture,_set_data);
-    BIND_METHOD(LargeTexture,_get_data);
+    SE_BIND_METHOD(LargeTexture,_set_data);
+    SE_BIND_METHOD(LargeTexture,_get_data);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "_data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
 }
@@ -1702,16 +1702,16 @@ void CubeMap::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
 void CubeMap::_bind_methods() {
 
-    BIND_METHOD(CubeMap,get_width);
-    BIND_METHOD(CubeMap,get_height);
-    BIND_METHOD(CubeMap,set_flags);
-    BIND_METHOD(CubeMap,get_flags);
-    BIND_METHOD(CubeMap,set_side);
-    BIND_METHOD(CubeMap,get_side);
-    BIND_METHOD(CubeMap,set_storage);
-    BIND_METHOD(CubeMap,get_storage);
-    BIND_METHOD(CubeMap,set_lossy_storage_quality);
-    BIND_METHOD(CubeMap,get_lossy_storage_quality);
+    SE_BIND_METHOD(CubeMap,get_width);
+    SE_BIND_METHOD(CubeMap,get_height);
+    SE_BIND_METHOD(CubeMap,set_flags);
+    SE_BIND_METHOD(CubeMap,get_flags);
+    SE_BIND_METHOD(CubeMap,set_side);
+    SE_BIND_METHOD(CubeMap,get_side);
+    SE_BIND_METHOD(CubeMap,set_storage);
+    SE_BIND_METHOD(CubeMap,get_storage);
+    SE_BIND_METHOD(CubeMap,set_lossy_storage_quality);
+    SE_BIND_METHOD(CubeMap,get_lossy_storage_quality);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "flags", PropertyHint::Flags, "Mipmaps,Repeat,Filter"), "set_flags", "get_flags");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "storage_mode", PropertyHint::Enum, "Raw,Lossy Compressed,Lossless Compressed"), "set_storage", "get_storage");
@@ -1781,14 +1781,14 @@ GradientTexture::~GradientTexture() {
 
 void GradientTexture::_bind_methods() {
 
-    BIND_METHOD(GradientTexture,set_gradient);
-    BIND_METHOD(GradientTexture,get_gradient);
+    SE_BIND_METHOD(GradientTexture,set_gradient);
+    SE_BIND_METHOD(GradientTexture,get_gradient);
 
-    BIND_METHOD(GradientTexture,set_width);
+    SE_BIND_METHOD(GradientTexture,set_width);
     // The `get_width()` method is already exposed by the parent class Texture.
 
-    BIND_METHOD(GradientTexture,set_use_hdr);
-    BIND_METHOD(GradientTexture,is_using_hdr);
+    SE_BIND_METHOD(GradientTexture,set_use_hdr);
+    SE_BIND_METHOD(GradientTexture,is_using_hdr);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "gradient", PropertyHint::ResourceType, "Gradient"), "set_gradient", "get_gradient");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PropertyHint::Range, "1,4096,1,or_greater"), "set_width", "get_width");
@@ -2124,27 +2124,27 @@ Ref<Image> GradientTexture2D::get_image() const {
 }
 
 void GradientTexture2D::_bind_methods() {
-    BIND_METHOD(GradientTexture2D,set_gradient);
-    BIND_METHOD(GradientTexture2D,get_gradient);
+    SE_BIND_METHOD(GradientTexture2D,set_gradient);
+    SE_BIND_METHOD(GradientTexture2D,get_gradient);
 
-    BIND_METHOD(GradientTexture2D,set_width);
-    BIND_METHOD(GradientTexture2D,set_height);
+    SE_BIND_METHOD(GradientTexture2D,set_width);
+    SE_BIND_METHOD(GradientTexture2D,set_height);
 
-    BIND_METHOD(GradientTexture2D,set_use_hdr);
-    BIND_METHOD(GradientTexture2D,is_using_hdr);
+    SE_BIND_METHOD(GradientTexture2D,set_use_hdr);
+    SE_BIND_METHOD(GradientTexture2D,is_using_hdr);
 
-    BIND_METHOD(GradientTexture2D,set_fill);
-    BIND_METHOD(GradientTexture2D,get_fill);
-    BIND_METHOD(GradientTexture2D,set_fill_from);
-    BIND_METHOD(GradientTexture2D,get_fill_from);
-    BIND_METHOD(GradientTexture2D,set_fill_to);
-    BIND_METHOD(GradientTexture2D,get_fill_to);
+    SE_BIND_METHOD(GradientTexture2D,set_fill);
+    SE_BIND_METHOD(GradientTexture2D,get_fill);
+    SE_BIND_METHOD(GradientTexture2D,set_fill_from);
+    SE_BIND_METHOD(GradientTexture2D,get_fill_from);
+    SE_BIND_METHOD(GradientTexture2D,set_fill_to);
+    SE_BIND_METHOD(GradientTexture2D,get_fill_to);
 
-    BIND_METHOD(GradientTexture2D,set_repeat);
-    BIND_METHOD(GradientTexture2D,get_repeat);
+    SE_BIND_METHOD(GradientTexture2D,set_repeat);
+    SE_BIND_METHOD(GradientTexture2D,get_repeat);
 
-    BIND_METHOD(GradientTexture2D,_update);
-    BIND_METHOD(GradientTexture2D,_queue_update);
+    SE_BIND_METHOD(GradientTexture2D,_update);
+    SE_BIND_METHOD(GradientTexture2D,_queue_update);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "gradient", PropertyHint::ResourceType, "Gradient"), "set_gradient", "get_gradient");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PropertyHint::Range, "1,2048,1,or_greater"), "set_width", "get_width");
@@ -2170,8 +2170,8 @@ void GradientTexture2D::_bind_methods() {
 //////////////////////////////////
 void ProxyTexture::_bind_methods() {
 
-    BIND_METHOD(ProxyTexture,set_base);
-    BIND_METHOD(ProxyTexture,get_base);
+    SE_BIND_METHOD(ProxyTexture,set_base);
+    SE_BIND_METHOD(ProxyTexture,get_base);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "base", PropertyHint::ResourceType, "Texture"), "set_base", "get_base");
 }
@@ -2447,26 +2447,26 @@ void AnimatedTexture::_validate_property(PropertyInfo &property) const {
 }
 
 void AnimatedTexture::_bind_methods() {
-    BIND_METHOD(AnimatedTexture,set_frames);
-    BIND_METHOD(AnimatedTexture,get_frames);
+    SE_BIND_METHOD(AnimatedTexture,set_frames);
+    SE_BIND_METHOD(AnimatedTexture,get_frames);
 
-    BIND_METHOD(AnimatedTexture,set_current_frame);
-    BIND_METHOD(AnimatedTexture,get_current_frame);
+    SE_BIND_METHOD(AnimatedTexture,set_current_frame);
+    SE_BIND_METHOD(AnimatedTexture,get_current_frame);
 
-    BIND_METHOD(AnimatedTexture,set_pause);
-    BIND_METHOD(AnimatedTexture,get_pause);
+    SE_BIND_METHOD(AnimatedTexture,set_pause);
+    SE_BIND_METHOD(AnimatedTexture,get_pause);
 
-    BIND_METHOD(AnimatedTexture,set_oneshot);
-    BIND_METHOD(AnimatedTexture,get_oneshot);
+    SE_BIND_METHOD(AnimatedTexture,set_oneshot);
+    SE_BIND_METHOD(AnimatedTexture,get_oneshot);
 
-    BIND_METHOD(AnimatedTexture,set_fps);
-    BIND_METHOD(AnimatedTexture,get_fps);
+    SE_BIND_METHOD(AnimatedTexture,set_fps);
+    SE_BIND_METHOD(AnimatedTexture,get_fps);
 
-    BIND_METHOD(AnimatedTexture,set_frame_texture);
-    BIND_METHOD(AnimatedTexture,get_frame_texture);
+    SE_BIND_METHOD(AnimatedTexture,set_frame_texture);
+    SE_BIND_METHOD(AnimatedTexture,get_frame_texture);
 
-    BIND_METHOD(AnimatedTexture,set_frame_delay);
-    BIND_METHOD(AnimatedTexture,get_frame_delay);
+    SE_BIND_METHOD(AnimatedTexture,set_frame_delay);
+    SE_BIND_METHOD(AnimatedTexture,get_frame_delay);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "frames", PropertyHint::Range, "1," + itos(MAX_FRAMES), PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_frames", "get_frames");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_frame", PropertyHint::None, "", 0), "set_current_frame", "get_current_frame");
@@ -2617,21 +2617,21 @@ void TextureLayered::set_path(StringView p_path, bool p_take_over) {
 }
 
 void TextureLayered::_bind_methods() {
-    BIND_METHOD(TextureLayered,set_flags);
-    BIND_METHOD(TextureLayered,get_flags);
+    SE_BIND_METHOD(TextureLayered,set_flags);
+    SE_BIND_METHOD(TextureLayered,get_flags);
 
-    BIND_METHOD(TextureLayered,get_format);
+    SE_BIND_METHOD(TextureLayered,get_format);
 
-    BIND_METHOD(TextureLayered,get_width);
-    BIND_METHOD(TextureLayered,get_height);
-    BIND_METHOD(TextureLayered,get_depth);
+    SE_BIND_METHOD(TextureLayered,get_width);
+    SE_BIND_METHOD(TextureLayered,get_height);
+    SE_BIND_METHOD(TextureLayered,get_depth);
 
-    BIND_METHOD(TextureLayered,set_layer_data);
-    BIND_METHOD(TextureLayered,get_layer_data);
+    SE_BIND_METHOD(TextureLayered,set_layer_data);
+    SE_BIND_METHOD(TextureLayered,get_layer_data);
     MethodBinder::bind_method(D_METHOD("set_data_partial", {"image", "x_offset", "y_offset", "layer", "mipmap"}), &TextureLayered::set_data_partial, {DEFVAL(0)});
 
-    BIND_METHOD(TextureLayered,_set_data);
-    BIND_METHOD(TextureLayered,_get_data);
+    SE_BIND_METHOD(TextureLayered,_set_data);
+    SE_BIND_METHOD(TextureLayered,_get_data);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "flags", PropertyHint::Flags, "Mipmaps,Repeat,Filter,Anisotropic Filter"), "set_flags", "get_flags");
     ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "_set_data", "_get_data");
@@ -2842,8 +2842,8 @@ String ResourceFormatLoaderTextureLayered::get_resource_type(StringView p_path) 
 
 
 void ExternalTexture::_bind_methods() {
-    BIND_METHOD(ExternalTexture,set_size);
-    BIND_METHOD(ExternalTexture,get_external_texture_id);
+    SE_BIND_METHOD(ExternalTexture,set_size);
+    SE_BIND_METHOD(ExternalTexture,get_external_texture_id);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "size"), "set_size", "get_size");
 }

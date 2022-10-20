@@ -107,15 +107,15 @@ void Font::update_changes() {
 void Font::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("draw", {"canvas_item", "position", "string", "modulate", "clip_w", "outline_modulate"}), &Font::draw, {DEFVAL(Color(1, 1, 1)), DEFVAL(-1), DEFVAL(Color(1, 1, 1))});
-    BIND_METHOD(Font,get_ascent);
-    BIND_METHOD(Font,get_descent);
-    BIND_METHOD(Font,get_height);
-    BIND_METHOD(Font,is_distance_field_hint);
-    BIND_METHOD(Font,get_string_size);
-    BIND_METHOD(Font,get_wordwrap_string_size);
-    BIND_METHOD(Font,has_outline);
+    SE_BIND_METHOD(Font,get_ascent);
+    SE_BIND_METHOD(Font,get_descent);
+    SE_BIND_METHOD(Font,get_height);
+    SE_BIND_METHOD(Font,is_distance_field_hint);
+    SE_BIND_METHOD(Font,get_string_size);
+    SE_BIND_METHOD(Font,get_wordwrap_string_size);
+    SE_BIND_METHOD(Font,has_outline);
     MethodBinder::bind_method(D_METHOD("draw_char", {"canvas_item", "position", "char", "next", "modulate", "outline"}), &Font::draw_char, {DEFVAL(0), DEFVAL(Color(1, 1, 1)), DEFVAL(false)});
-    BIND_METHOD(Font,update_changes);
+    SE_BIND_METHOD(Font,update_changes);
 }
 
 Font::Font() {
@@ -772,37 +772,37 @@ Size2 BitmapFont::get_char_size(CharType p_char, CharType p_next) const {
 
 void BitmapFont::_bind_methods() {
 
-    BIND_METHOD(BitmapFont,create_from_fnt);
-    BIND_METHOD(BitmapFont,set_height);
+    SE_BIND_METHOD(BitmapFont,create_from_fnt);
+    SE_BIND_METHOD(BitmapFont,set_height);
 
-    BIND_METHOD(BitmapFont,set_ascent);
+    SE_BIND_METHOD(BitmapFont,set_ascent);
 
-    BIND_METHOD(BitmapFont,add_kerning_pair);
-    BIND_METHOD(BitmapFont,get_kerning_pair);
+    SE_BIND_METHOD(BitmapFont,add_kerning_pair);
+    SE_BIND_METHOD(BitmapFont,get_kerning_pair);
 
-    BIND_METHOD(BitmapFont,add_texture);
+    SE_BIND_METHOD(BitmapFont,add_texture);
     MethodBinder::bind_method(D_METHOD("add_char", {"character", "texture", "rect", "align", "advance"}), &BitmapFont::add_char, {DEFVAL(Point2()), DEFVAL(-1)});
 
-    BIND_METHOD(BitmapFont,get_texture_count);
-    BIND_METHOD(BitmapFont,get_texture);
+    SE_BIND_METHOD(BitmapFont,get_texture_count);
+    SE_BIND_METHOD(BitmapFont,get_texture);
 
     MethodBinder::bind_method(D_METHOD("get_char_size", {"char", "next"}), &BitmapFont::get_char_size, {DEFVAL(0)});
 
-    BIND_METHOD(BitmapFont,set_distance_field_hint);
+    SE_BIND_METHOD(BitmapFont,set_distance_field_hint);
 
-    BIND_METHOD(BitmapFont,clear);
+    SE_BIND_METHOD(BitmapFont,clear);
 
-    BIND_METHOD(BitmapFont,_set_chars);
-    BIND_METHOD(BitmapFont,_get_chars);
+    SE_BIND_METHOD(BitmapFont,_set_chars);
+    SE_BIND_METHOD(BitmapFont,_get_chars);
 
-    BIND_METHOD(BitmapFont,_set_kernings);
-    BIND_METHOD(BitmapFont,_get_kernings);
+    SE_BIND_METHOD(BitmapFont,_set_kernings);
+    SE_BIND_METHOD(BitmapFont,_get_kernings);
 
-    BIND_METHOD(BitmapFont,_set_textures);
-    BIND_METHOD(BitmapFont,_get_textures);
+    SE_BIND_METHOD(BitmapFont,_set_textures);
+    SE_BIND_METHOD(BitmapFont,_get_textures);
 
-    BIND_METHOD(BitmapFont,set_fallback);
-    BIND_METHOD(BitmapFont,get_fallback);
+    SE_BIND_METHOD(BitmapFont,set_fallback);
+    SE_BIND_METHOD(BitmapFont,get_fallback);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "textures", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_textures", "_get_textures");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_INT_ARRAY, "chars", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_chars", "_get_chars");

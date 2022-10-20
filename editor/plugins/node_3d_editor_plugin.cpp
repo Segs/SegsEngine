@@ -283,7 +283,7 @@ void ViewportRotationControl::set_viewport(Node3DEditorViewport *p_viewport) {
 }
 
 void ViewportRotationControl::_bind_methods() {
-    BIND_METHOD(ViewportRotationControl,_gui_input);
+    SE_BIND_METHOD(ViewportRotationControl,_gui_input);
 }
 
 void Node3DEditorViewport::_view_settings_confirmed(float p_interp_delta) {
@@ -3816,9 +3816,9 @@ Dictionary Node3DEditorViewport::get_state() const {
 }
 
 void Node3DEditorViewport::_bind_methods() {
-    BIND_METHOD(Node3DEditorViewport,update_transform_gizmo_view);
-    BIND_METHOD(Node3DEditorViewport,can_drop_data_fw);
-    BIND_METHOD(Node3DEditorViewport,drop_data_fw);
+    SE_BIND_METHOD(Node3DEditorViewport,update_transform_gizmo_view);
+    SE_BIND_METHOD(Node3DEditorViewport,can_drop_data_fw);
+    SE_BIND_METHOD(Node3DEditorViewport,drop_data_fw);
 
     ADD_SIGNAL(MethodInfo("toggle_maximize_view", PropertyInfo(VariantType::OBJECT, "viewport")));
     ADD_SIGNAL(MethodInfo("clicked", PropertyInfo(VariantType::OBJECT, "viewport")));
@@ -7539,7 +7539,7 @@ void EditorSpatialGizmoPlugin::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("create_icon_material", {"name", "texture", "on_top", "color"}), &EditorSpatialGizmoPlugin::create_icon_material, {DEFVAL(false), DEFVAL(Color(1, 1, 1, 1))});
     MethodBinder::bind_method(D_METHOD("create_handle_material", { "name", "billboard", "texture" }),
             &EditorSpatialGizmoPlugin::create_handle_material, { DEFVAL(false), DEFVAL(Variant()) });
-    BIND_METHOD(EditorSpatialGizmoPlugin,add_material);
+    SE_BIND_METHOD(EditorSpatialGizmoPlugin,add_material);
 
     MethodBinder::bind_method(D_METHOD("get_material", {"name", "gizmo"}), &EditorSpatialGizmoPlugin::get_material, {DEFVAL(Ref<EditorNode3DGizmo>())});
 

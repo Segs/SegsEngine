@@ -690,74 +690,74 @@ bool Camera2D::is_margin_drawing_enabled() const {
 
 void Camera2D::_bind_methods() {
 
-    BIND_METHOD(Camera2D,set_offset);
-    BIND_METHOD(Camera2D,get_offset);
+    SE_BIND_METHOD(Camera2D,set_offset);
+    SE_BIND_METHOD(Camera2D,get_offset);
 
-    BIND_METHOD(Camera2D,set_anchor_mode);
-    BIND_METHOD(Camera2D,get_anchor_mode);
+    SE_BIND_METHOD(Camera2D,set_anchor_mode);
+    SE_BIND_METHOD(Camera2D,get_anchor_mode);
 
-    BIND_METHOD(Camera2D,set_rotating);
-    BIND_METHOD(Camera2D,is_rotating);
+    SE_BIND_METHOD(Camera2D,set_rotating);
+    SE_BIND_METHOD(Camera2D,is_rotating);
 
-    BIND_METHOD(Camera2D,make_current);
-    BIND_METHOD(Camera2D,clear_current);
-    BIND_METHOD(Camera2D,_make_current);
+    SE_BIND_METHOD(Camera2D,make_current);
+    SE_BIND_METHOD(Camera2D,clear_current);
+    SE_BIND_METHOD(Camera2D,_make_current);
 
-    BIND_METHOD(Camera2D,set_process_mode);
-    BIND_METHOD(Camera2D,get_process_mode);
+    SE_BIND_METHOD(Camera2D,set_process_mode);
+    SE_BIND_METHOD(Camera2D,get_process_mode);
 
-    BIND_METHOD(Camera2D,_set_current);
-    BIND_METHOD(Camera2D,is_current);
+    SE_BIND_METHOD(Camera2D,_set_current);
+    SE_BIND_METHOD(Camera2D,is_current);
 
-    BIND_METHOD(Camera2D,set_limit);
-    BIND_METHOD(Camera2D,get_limit);
+    SE_BIND_METHOD(Camera2D,set_limit);
+    SE_BIND_METHOD(Camera2D,get_limit);
 
-    BIND_METHOD(Camera2D,set_limit_smoothing_enabled);
-    BIND_METHOD(Camera2D,is_limit_smoothing_enabled);
+    SE_BIND_METHOD(Camera2D,set_limit_smoothing_enabled);
+    SE_BIND_METHOD(Camera2D,is_limit_smoothing_enabled);
 
-    BIND_METHOD(Camera2D,set_v_drag_enabled);
-    BIND_METHOD(Camera2D,is_v_drag_enabled);
+    SE_BIND_METHOD(Camera2D,set_v_drag_enabled);
+    SE_BIND_METHOD(Camera2D,is_v_drag_enabled);
 
-    BIND_METHOD(Camera2D,set_h_drag_enabled);
-    BIND_METHOD(Camera2D,is_h_drag_enabled);
+    SE_BIND_METHOD(Camera2D,set_h_drag_enabled);
+    SE_BIND_METHOD(Camera2D,is_h_drag_enabled);
 
-    BIND_METHOD(Camera2D,set_v_offset);
-    BIND_METHOD(Camera2D,get_v_offset);
+    SE_BIND_METHOD(Camera2D,set_v_offset);
+    SE_BIND_METHOD(Camera2D,get_v_offset);
 
-    BIND_METHOD(Camera2D,set_h_offset);
-    BIND_METHOD(Camera2D,get_h_offset);
+    SE_BIND_METHOD(Camera2D,set_h_offset);
+    SE_BIND_METHOD(Camera2D,get_h_offset);
 
-    BIND_METHOD(Camera2D,set_drag_margin);
-    BIND_METHOD(Camera2D,get_drag_margin);
+    SE_BIND_METHOD(Camera2D,set_drag_margin);
+    SE_BIND_METHOD(Camera2D,get_drag_margin);
 
-    BIND_METHOD(Camera2D,get_camera_position);
-    BIND_METHOD(Camera2D,get_camera_screen_center);
+    SE_BIND_METHOD(Camera2D,get_camera_position);
+    SE_BIND_METHOD(Camera2D,get_camera_screen_center);
 
-    BIND_METHOD(Camera2D,set_zoom);
-    BIND_METHOD(Camera2D,get_zoom);
+    SE_BIND_METHOD(Camera2D,set_zoom);
+    SE_BIND_METHOD(Camera2D,get_zoom);
 
-    BIND_METHOD(Camera2D,set_custom_viewport);
-    BIND_METHOD(Camera2D,get_custom_viewport);
+    SE_BIND_METHOD(Camera2D,set_custom_viewport);
+    SE_BIND_METHOD(Camera2D,get_custom_viewport);
 
-    BIND_METHOD(Camera2D,set_follow_smoothing);
-    BIND_METHOD(Camera2D,get_follow_smoothing);
+    SE_BIND_METHOD(Camera2D,set_follow_smoothing);
+    SE_BIND_METHOD(Camera2D,get_follow_smoothing);
 
-    BIND_METHOD(Camera2D,set_enable_follow_smoothing);
-    BIND_METHOD(Camera2D,is_follow_smoothing_enabled);
+    SE_BIND_METHOD(Camera2D,set_enable_follow_smoothing);
+    SE_BIND_METHOD(Camera2D,is_follow_smoothing_enabled);
 
-    BIND_METHOD(Camera2D,force_update_scroll);
-    BIND_METHOD(Camera2D,reset_smoothing);
-    BIND_METHOD(Camera2D,align);
+    SE_BIND_METHOD(Camera2D,force_update_scroll);
+    SE_BIND_METHOD(Camera2D,reset_smoothing);
+    SE_BIND_METHOD(Camera2D,align);
 
 
-    BIND_METHOD(Camera2D,set_screen_drawing_enabled);
-    BIND_METHOD(Camera2D,is_screen_drawing_enabled);
+    SE_BIND_METHOD(Camera2D,set_screen_drawing_enabled);
+    SE_BIND_METHOD(Camera2D,is_screen_drawing_enabled);
 
-    BIND_METHOD(Camera2D,set_limit_drawing_enabled);
-    BIND_METHOD(Camera2D,is_limit_drawing_enabled);
+    SE_BIND_METHOD(Camera2D,set_limit_drawing_enabled);
+    SE_BIND_METHOD(Camera2D,is_limit_drawing_enabled);
 
-    BIND_METHOD(Camera2D,set_margin_drawing_enabled);
-    BIND_METHOD(Camera2D,is_margin_drawing_enabled);
+    SE_BIND_METHOD(Camera2D,set_margin_drawing_enabled);
+    SE_BIND_METHOD(Camera2D,is_margin_drawing_enabled);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "anchor_mode", PropertyHint::Enum, "Fixed TopLeft,Drag Center"), "set_anchor_mode", "get_anchor_mode");

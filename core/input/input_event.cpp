@@ -129,24 +129,24 @@ bool InputEvent::is_action_type() const {
 }
 
 void InputEvent::_bind_methods() {
-    BIND_METHOD(InputEvent, set_device);
-    BIND_METHOD(InputEvent, get_device);
+    SE_BIND_METHOD(InputEvent, set_device);
+    SE_BIND_METHOD(InputEvent, get_device);
 
-    BIND_METHOD(InputEvent, is_action);
+    SE_BIND_METHOD(InputEvent, is_action);
     SE_BIND_METHOD_WITH_DEFAULTS(InputEvent, is_action_pressed, DEFVAL(false) );
-    BIND_METHOD(InputEvent, is_action_released);
-    BIND_METHOD(InputEvent, get_action_strength);
+    SE_BIND_METHOD(InputEvent, is_action_released);
+    SE_BIND_METHOD(InputEvent, get_action_strength);
 
-    BIND_METHOD(InputEvent, is_pressed);
-    BIND_METHOD(InputEvent, is_echo);
+    SE_BIND_METHOD(InputEvent, is_pressed);
+    SE_BIND_METHOD(InputEvent, is_echo);
 
-    BIND_METHOD(InputEvent, as_text);
+    SE_BIND_METHOD(InputEvent, as_text);
 
-    BIND_METHOD(InputEvent, shortcut_match);
+    SE_BIND_METHOD(InputEvent, shortcut_match);
 
-    BIND_METHOD(InputEvent, is_action_type);
+    SE_BIND_METHOD(InputEvent, is_action_type);
 
-    BIND_METHOD(InputEvent, accumulate);
+    SE_BIND_METHOD(InputEvent, accumulate);
 
     SE_BIND_METHOD_WITH_DEFAULTS(InputEvent, xformed_by, DEFVAL(Vector2()) );
 
@@ -220,20 +220,20 @@ uint32_t InputEventWithModifiers::get_modifiers_mask() const {
 }
 
 void InputEventWithModifiers::_bind_methods() {
-    BIND_METHOD(InputEventWithModifiers, set_alt);
-    BIND_METHOD(InputEventWithModifiers, get_alt);
+    SE_BIND_METHOD(InputEventWithModifiers, set_alt);
+    SE_BIND_METHOD(InputEventWithModifiers, get_alt);
 
-    BIND_METHOD(InputEventWithModifiers, set_shift);
-    BIND_METHOD(InputEventWithModifiers, get_shift);
+    SE_BIND_METHOD(InputEventWithModifiers, set_shift);
+    SE_BIND_METHOD(InputEventWithModifiers, get_shift);
 
-    BIND_METHOD(InputEventWithModifiers, set_control);
-    BIND_METHOD(InputEventWithModifiers, get_control);
+    SE_BIND_METHOD(InputEventWithModifiers, set_control);
+    SE_BIND_METHOD(InputEventWithModifiers, get_control);
 
-    BIND_METHOD(InputEventWithModifiers, set_metakey);
-    BIND_METHOD(InputEventWithModifiers, get_metakey);
+    SE_BIND_METHOD(InputEventWithModifiers, set_metakey);
+    SE_BIND_METHOD(InputEventWithModifiers, get_metakey);
 
-    BIND_METHOD(InputEventWithModifiers, set_command);
-    BIND_METHOD(InputEventWithModifiers, get_command);
+    SE_BIND_METHOD(InputEventWithModifiers, set_command);
+    SE_BIND_METHOD(InputEventWithModifiers, get_command);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "alt"), "set_alt", "get_alt");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "shift"), "set_shift", "get_shift");
@@ -375,20 +375,20 @@ bool InputEventKey::shortcut_match(const Ref<InputEvent> &p_event, bool p_exact_
 }
 
 void InputEventKey::_bind_methods() {
-    BIND_METHOD(InputEventKey, set_pressed);
+    SE_BIND_METHOD(InputEventKey, set_pressed);
 
-    BIND_METHOD(InputEventKey, set_keycode);
-    BIND_METHOD(InputEventKey, get_keycode);
+    SE_BIND_METHOD(InputEventKey, set_keycode);
+    SE_BIND_METHOD(InputEventKey, get_keycode);
 
-    BIND_METHOD(InputEventKey, set_physical_scancode);
-    BIND_METHOD(InputEventKey, get_physical_scancode);
+    SE_BIND_METHOD(InputEventKey, set_physical_scancode);
+    SE_BIND_METHOD(InputEventKey, get_physical_scancode);
 
-    BIND_METHOD(InputEventKey, set_unicode);
-    BIND_METHOD(InputEventKey, get_unicode);
+    SE_BIND_METHOD(InputEventKey, set_unicode);
+    SE_BIND_METHOD(InputEventKey, get_unicode);
 
-    BIND_METHOD(InputEventKey, set_echo);
+    SE_BIND_METHOD(InputEventKey, set_echo);
 
-    BIND_METHOD(InputEventKey, get_keycode_with_modifiers);
+    SE_BIND_METHOD(InputEventKey, get_keycode_with_modifiers);
     MethodBinder::bind_method(
             D_METHOD("get_physical_scancode_with_modifiers"), &InputEventKey::get_physical_scancode_with_modifiers);
 
@@ -431,15 +431,15 @@ Vector2 InputEventMouse::get_global_position() const {
 }
 
 void InputEventMouse::_bind_methods() {
-    BIND_METHOD(InputEventMouse, set_button_mask);
-    BIND_METHOD(InputEventMouse, get_button_mask);
+    SE_BIND_METHOD(InputEventMouse, set_button_mask);
+    SE_BIND_METHOD(InputEventMouse, get_button_mask);
 
-    BIND_METHOD(InputEventMouse, set_position);
-    BIND_METHOD(InputEventMouse, get_position);
+    SE_BIND_METHOD(InputEventMouse, set_position);
+    SE_BIND_METHOD(InputEventMouse, get_position);
 
     MethodBinder::bind_method(
             D_METHOD("set_global_position", { "global_position" }), &InputEventMouse::set_global_position);
-    BIND_METHOD(InputEventMouse, get_global_position);
+    SE_BIND_METHOD(InputEventMouse, get_global_position);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "button_mask"), "set_button_mask", "get_button_mask");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "position"), "set_position", "get_position");
@@ -587,18 +587,18 @@ String InputEventMouseButton::as_text() const {
 }
 
 void InputEventMouseButton::_bind_methods() {
-    BIND_METHOD(InputEventMouseButton, set_factor);
-    BIND_METHOD(InputEventMouseButton, get_factor);
+    SE_BIND_METHOD(InputEventMouseButton, set_factor);
+    SE_BIND_METHOD(InputEventMouseButton, get_factor);
 
     MethodBinder::bind_method(
             D_METHOD("set_button_index", { "button_index" }), &InputEventMouseButton::set_button_index);
-    BIND_METHOD(InputEventMouseButton, get_button_index);
+    SE_BIND_METHOD(InputEventMouseButton, get_button_index);
 
-    BIND_METHOD(InputEventMouseButton, set_pressed);
+    SE_BIND_METHOD(InputEventMouseButton, set_pressed);
     //    BIND_METHOD(InputEventMouseButton, is_pressed);
 
-    BIND_METHOD(InputEventMouseButton, set_doubleclick);
-    BIND_METHOD(InputEventMouseButton, is_doubleclick);
+    SE_BIND_METHOD(InputEventMouseButton, set_doubleclick);
+    SE_BIND_METHOD(InputEventMouseButton, is_doubleclick);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "factor"), "set_factor", "get_factor");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "button_index"), "set_button_index", "get_button_index");
@@ -731,17 +731,17 @@ bool InputEventMouseMotion::accumulate(const Ref<InputEvent> &p_event) {
 }
 
 void InputEventMouseMotion::_bind_methods() {
-    BIND_METHOD(InputEventMouseMotion, set_tilt);
-    BIND_METHOD(InputEventMouseMotion, get_tilt);
+    SE_BIND_METHOD(InputEventMouseMotion, set_tilt);
+    SE_BIND_METHOD(InputEventMouseMotion, get_tilt);
 
-    BIND_METHOD(InputEventMouseMotion, set_pressure);
-    BIND_METHOD(InputEventMouseMotion, get_pressure);
+    SE_BIND_METHOD(InputEventMouseMotion, set_pressure);
+    SE_BIND_METHOD(InputEventMouseMotion, get_pressure);
 
-    BIND_METHOD(InputEventMouseMotion, set_relative);
-    BIND_METHOD(InputEventMouseMotion, get_relative);
+    SE_BIND_METHOD(InputEventMouseMotion, set_relative);
+    SE_BIND_METHOD(InputEventMouseMotion, get_relative);
 
-    BIND_METHOD(InputEventMouseMotion, set_speed);
-    BIND_METHOD(InputEventMouseMotion, get_speed);
+    SE_BIND_METHOD(InputEventMouseMotion, set_speed);
+    SE_BIND_METHOD(InputEventMouseMotion, get_speed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "tilt"), "set_tilt", "get_tilt");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pressure"), "set_pressure", "get_pressure");
@@ -828,11 +828,11 @@ String InputEventJoypadMotion::as_text() const {
 }
 
 void InputEventJoypadMotion::_bind_methods() {
-    BIND_METHOD(InputEventJoypadMotion, set_axis);
-    BIND_METHOD(InputEventJoypadMotion, get_axis);
+    SE_BIND_METHOD(InputEventJoypadMotion, set_axis);
+    SE_BIND_METHOD(InputEventJoypadMotion, get_axis);
 
-    BIND_METHOD(InputEventJoypadMotion, set_axis_value);
-    BIND_METHOD(InputEventJoypadMotion, get_axis_value);
+    SE_BIND_METHOD(InputEventJoypadMotion, set_axis_value);
+    SE_BIND_METHOD(InputEventJoypadMotion, get_axis_value);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "axis"), "set_axis", "get_axis");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "axis_value"), "set_axis_value", "get_axis_value");
@@ -909,12 +909,12 @@ String InputEventJoypadButton::as_text() const {
 void InputEventJoypadButton::_bind_methods() {
     MethodBinder::bind_method(
             D_METHOD("set_button_index", { "button_index" }), &InputEventJoypadButton::set_button_index);
-    BIND_METHOD(InputEventJoypadButton, get_button_index);
+    SE_BIND_METHOD(InputEventJoypadButton, get_button_index);
 
-    BIND_METHOD(InputEventJoypadButton, set_pressure);
-    BIND_METHOD(InputEventJoypadButton, get_pressure);
+    SE_BIND_METHOD(InputEventJoypadButton, set_pressure);
+    SE_BIND_METHOD(InputEventJoypadButton, get_pressure);
 
-    BIND_METHOD(InputEventJoypadButton, set_pressed);
+    SE_BIND_METHOD(InputEventJoypadButton, set_pressed);
     //    BIND_METHOD(InputEventJoypadButton, is_pressed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "button_index"), "set_button_index", "get_button_index");
@@ -968,13 +968,13 @@ String InputEventScreenTouch::as_text() const {
 }
 
 void InputEventScreenTouch::_bind_methods() {
-    BIND_METHOD(InputEventScreenTouch, set_index);
-    BIND_METHOD(InputEventScreenTouch, get_index);
+    SE_BIND_METHOD(InputEventScreenTouch, set_index);
+    SE_BIND_METHOD(InputEventScreenTouch, get_index);
 
-    BIND_METHOD(InputEventScreenTouch, set_position);
-    BIND_METHOD(InputEventScreenTouch, get_position);
+    SE_BIND_METHOD(InputEventScreenTouch, set_position);
+    SE_BIND_METHOD(InputEventScreenTouch, get_position);
 
-    BIND_METHOD(InputEventScreenTouch, set_pressed);
+    SE_BIND_METHOD(InputEventScreenTouch, set_pressed);
     // BIND_METHOD(InputEventScreenTouch, is_pressed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "index"), "set_index", "get_index");
@@ -1053,17 +1053,17 @@ bool InputEventScreenDrag::accumulate(const Ref<InputEvent> &p_event) {
 }
 
 void InputEventScreenDrag::_bind_methods() {
-    BIND_METHOD(InputEventScreenDrag, set_index);
-    BIND_METHOD(InputEventScreenDrag, get_index);
+    SE_BIND_METHOD(InputEventScreenDrag, set_index);
+    SE_BIND_METHOD(InputEventScreenDrag, get_index);
 
-    BIND_METHOD(InputEventScreenDrag, set_position);
-    BIND_METHOD(InputEventScreenDrag, get_position);
+    SE_BIND_METHOD(InputEventScreenDrag, set_position);
+    SE_BIND_METHOD(InputEventScreenDrag, get_position);
 
-    BIND_METHOD(InputEventScreenDrag, set_relative);
-    BIND_METHOD(InputEventScreenDrag, get_relative);
+    SE_BIND_METHOD(InputEventScreenDrag, set_relative);
+    SE_BIND_METHOD(InputEventScreenDrag, get_relative);
 
-    BIND_METHOD(InputEventScreenDrag, set_speed);
-    BIND_METHOD(InputEventScreenDrag, get_speed);
+    SE_BIND_METHOD(InputEventScreenDrag, set_speed);
+    SE_BIND_METHOD(InputEventScreenDrag, get_speed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "index"), "set_index", "get_index");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "position"), "set_position", "get_position");
@@ -1140,14 +1140,14 @@ String InputEventAction::as_text() const {
 }
 
 void InputEventAction::_bind_methods() {
-    BIND_METHOD(InputEventAction, set_action);
-    BIND_METHOD(InputEventAction, get_action);
+    SE_BIND_METHOD(InputEventAction, set_action);
+    SE_BIND_METHOD(InputEventAction, get_action);
 
-    BIND_METHOD(InputEventAction, set_pressed);
+    SE_BIND_METHOD(InputEventAction, set_pressed);
     // BIND_METHOD(InputEventAction, is_pressed);
 
-    BIND_METHOD(InputEventAction, set_strength);
-    BIND_METHOD(InputEventAction, get_strength);
+    SE_BIND_METHOD(InputEventAction, set_strength);
+    SE_BIND_METHOD(InputEventAction, get_strength);
 
     //    BIND_METHOD(InputEventAction, is_action);
 
@@ -1164,8 +1164,8 @@ void InputEventGesture::set_position(const Vector2 &p_pos) {
 }
 
 void InputEventGesture::_bind_methods() {
-    BIND_METHOD(InputEventGesture, set_position);
-    BIND_METHOD(InputEventGesture, get_position);
+    SE_BIND_METHOD(InputEventGesture, set_position);
+    SE_BIND_METHOD(InputEventGesture, get_position);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "position"), "set_position", "get_position");
 }
@@ -1201,8 +1201,8 @@ String InputEventMagnifyGesture::as_text() const {
 }
 
 void InputEventMagnifyGesture::_bind_methods() {
-    BIND_METHOD(InputEventMagnifyGesture, set_factor);
-    BIND_METHOD(InputEventMagnifyGesture, get_factor);
+    SE_BIND_METHOD(InputEventMagnifyGesture, set_factor);
+    SE_BIND_METHOD(InputEventMagnifyGesture, get_factor);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "factor"), "set_factor", "get_factor");
 }
@@ -1237,8 +1237,8 @@ String InputEventPanGesture::as_text() const {
 }
 
 void InputEventPanGesture::_bind_methods() {
-    BIND_METHOD(InputEventPanGesture, set_delta);
-    BIND_METHOD(InputEventPanGesture, get_delta);
+    SE_BIND_METHOD(InputEventPanGesture, set_delta);
+    SE_BIND_METHOD(InputEventPanGesture, get_delta);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "delta"), "set_delta", "get_delta");
 }
@@ -1318,24 +1318,24 @@ String InputEventMIDI::as_text() const {
 }
 
 void InputEventMIDI::_bind_methods() {
-    BIND_METHOD(InputEventMIDI, set_channel);
-    BIND_METHOD(InputEventMIDI, get_channel);
-    BIND_METHOD(InputEventMIDI, set_message);
-    BIND_METHOD(InputEventMIDI, get_message);
-    BIND_METHOD(InputEventMIDI, set_pitch);
-    BIND_METHOD(InputEventMIDI, get_pitch);
-    BIND_METHOD(InputEventMIDI, set_velocity);
-    BIND_METHOD(InputEventMIDI, get_velocity);
-    BIND_METHOD(InputEventMIDI, set_instrument);
-    BIND_METHOD(InputEventMIDI, get_instrument);
-    BIND_METHOD(InputEventMIDI, set_pressure);
-    BIND_METHOD(InputEventMIDI, get_pressure);
+    SE_BIND_METHOD(InputEventMIDI, set_channel);
+    SE_BIND_METHOD(InputEventMIDI, get_channel);
+    SE_BIND_METHOD(InputEventMIDI, set_message);
+    SE_BIND_METHOD(InputEventMIDI, get_message);
+    SE_BIND_METHOD(InputEventMIDI, set_pitch);
+    SE_BIND_METHOD(InputEventMIDI, get_pitch);
+    SE_BIND_METHOD(InputEventMIDI, set_velocity);
+    SE_BIND_METHOD(InputEventMIDI, get_velocity);
+    SE_BIND_METHOD(InputEventMIDI, set_instrument);
+    SE_BIND_METHOD(InputEventMIDI, get_instrument);
+    SE_BIND_METHOD(InputEventMIDI, set_pressure);
+    SE_BIND_METHOD(InputEventMIDI, get_pressure);
     MethodBinder::bind_method(
             D_METHOD("set_controller_number", { "controller_number" }), &InputEventMIDI::set_controller_number);
-    BIND_METHOD(InputEventMIDI, get_controller_number);
+    SE_BIND_METHOD(InputEventMIDI, get_controller_number);
     MethodBinder::bind_method(
             D_METHOD("set_controller_value", { "controller_value" }), &InputEventMIDI::set_controller_value);
-    BIND_METHOD(InputEventMIDI, get_controller_value);
+    SE_BIND_METHOD(InputEventMIDI, get_controller_value);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "channel"), "set_channel", "get_channel");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "message"), "set_message", "get_message");

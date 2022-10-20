@@ -1197,11 +1197,11 @@ void SceneTreeEditor::_bind_methods() {
     MethodBinder::bind_method("_renamed", &SceneTreeEditor::_renamed);
     MethodBinder::bind_method("_rename_node", &SceneTreeEditor::_rename_node);
 
-    BIND_METHOD(SceneTreeEditor,get_drag_data_fw);
-    BIND_METHOD(SceneTreeEditor,can_drop_data_fw);
-    BIND_METHOD(SceneTreeEditor,drop_data_fw);
+    SE_BIND_METHOD(SceneTreeEditor,get_drag_data_fw);
+    SE_BIND_METHOD(SceneTreeEditor,can_drop_data_fw);
+    SE_BIND_METHOD(SceneTreeEditor,drop_data_fw);
 
-    BIND_METHOD(SceneTreeEditor,update_tree);
+    SE_BIND_METHOD(SceneTreeEditor,update_tree);
 
     ADD_SIGNAL(MethodInfo("node_selected"));
     ADD_SIGNAL(MethodInfo("node_renamed"));

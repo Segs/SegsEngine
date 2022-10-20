@@ -390,40 +390,40 @@ Ref<AudioStreamPlayback> AudioStreamPlayer::get_stream_playback() {
 
 void AudioStreamPlayer::_bind_methods() {
 
-    BIND_METHOD(AudioStreamPlayer,set_stream);
-    BIND_METHOD(AudioStreamPlayer,get_stream);
+    SE_BIND_METHOD(AudioStreamPlayer,set_stream);
+    SE_BIND_METHOD(AudioStreamPlayer,get_stream);
 
-    BIND_METHOD(AudioStreamPlayer,set_volume_db);
-    BIND_METHOD(AudioStreamPlayer,get_volume_db);
+    SE_BIND_METHOD(AudioStreamPlayer,set_volume_db);
+    SE_BIND_METHOD(AudioStreamPlayer,get_volume_db);
 
-    BIND_METHOD(AudioStreamPlayer,set_pitch_scale);
-    BIND_METHOD(AudioStreamPlayer,get_pitch_scale);
+    SE_BIND_METHOD(AudioStreamPlayer,set_pitch_scale);
+    SE_BIND_METHOD(AudioStreamPlayer,get_pitch_scale);
 
     MethodBinder::bind_method(D_METHOD("play", {"from_position"}), &AudioStreamPlayer::play, {DEFVAL(0.0)});
-    BIND_METHOD(AudioStreamPlayer,seek);
-    BIND_METHOD(AudioStreamPlayer,stop);
+    SE_BIND_METHOD(AudioStreamPlayer,seek);
+    SE_BIND_METHOD(AudioStreamPlayer,stop);
 
-    BIND_METHOD(AudioStreamPlayer,is_playing);
-    BIND_METHOD(AudioStreamPlayer,get_playback_position);
+    SE_BIND_METHOD(AudioStreamPlayer,is_playing);
+    SE_BIND_METHOD(AudioStreamPlayer,get_playback_position);
 
-    BIND_METHOD(AudioStreamPlayer,set_bus);
-    BIND_METHOD(AudioStreamPlayer,get_bus);
+    SE_BIND_METHOD(AudioStreamPlayer,set_bus);
+    SE_BIND_METHOD(AudioStreamPlayer,get_bus);
 
-    BIND_METHOD(AudioStreamPlayer,set_autoplay);
-    BIND_METHOD(AudioStreamPlayer,is_autoplay_enabled);
+    SE_BIND_METHOD(AudioStreamPlayer,set_autoplay);
+    SE_BIND_METHOD(AudioStreamPlayer,is_autoplay_enabled);
 
-    BIND_METHOD(AudioStreamPlayer,set_mix_target);
-    BIND_METHOD(AudioStreamPlayer,get_mix_target);
+    SE_BIND_METHOD(AudioStreamPlayer,set_mix_target);
+    SE_BIND_METHOD(AudioStreamPlayer,get_mix_target);
 
-    BIND_METHOD(AudioStreamPlayer,_set_playing);
-    BIND_METHOD(AudioStreamPlayer,_is_active);
+    SE_BIND_METHOD(AudioStreamPlayer,_set_playing);
+    SE_BIND_METHOD(AudioStreamPlayer,_is_active);
 
-    BIND_METHOD(AudioStreamPlayer,_bus_layout_changed);
+    SE_BIND_METHOD(AudioStreamPlayer,_bus_layout_changed);
 
-    BIND_METHOD(AudioStreamPlayer,set_stream_paused);
-    BIND_METHOD(AudioStreamPlayer,get_stream_paused);
+    SE_BIND_METHOD(AudioStreamPlayer,set_stream_paused);
+    SE_BIND_METHOD(AudioStreamPlayer,get_stream_paused);
 
-    BIND_METHOD(AudioStreamPlayer,get_stream_playback);
+    SE_BIND_METHOD(AudioStreamPlayer,get_stream_playback);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream", PropertyHint::ResourceType, "AudioStream"), "set_stream", "get_stream");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "volume_db", PropertyHint::Range, "-80,24"), "set_volume_db", "get_volume_db");

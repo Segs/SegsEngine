@@ -385,68 +385,68 @@ float Light2D::get_shadow_smooth() const {
 
 void Light2D::_bind_methods() {
 
-    BIND_METHOD(Light2D,set_enabled);
-    BIND_METHOD(Light2D,is_enabled);
+    SE_BIND_METHOD(Light2D,set_enabled);
+    SE_BIND_METHOD(Light2D,is_enabled);
 
-    BIND_METHOD(Light2D,set_editor_only);
-    BIND_METHOD(Light2D,is_editor_only);
+    SE_BIND_METHOD(Light2D,set_editor_only);
+    SE_BIND_METHOD(Light2D,is_editor_only);
 
-    BIND_METHOD(Light2D,set_texture);
-    BIND_METHOD(Light2D,get_texture);
+    SE_BIND_METHOD(Light2D,set_texture);
+    SE_BIND_METHOD(Light2D,get_texture);
 
-    BIND_METHOD(Light2D,set_texture_offset);
-    BIND_METHOD(Light2D,get_texture_offset);
+    SE_BIND_METHOD(Light2D,set_texture_offset);
+    SE_BIND_METHOD(Light2D,get_texture_offset);
 
-    BIND_METHOD(Light2D,set_color);
-    BIND_METHOD(Light2D,get_color);
+    SE_BIND_METHOD(Light2D,set_color);
+    SE_BIND_METHOD(Light2D,get_color);
 
-    BIND_METHOD(Light2D,set_height);
-    BIND_METHOD(Light2D,get_height);
+    SE_BIND_METHOD(Light2D,set_height);
+    SE_BIND_METHOD(Light2D,get_height);
 
-    BIND_METHOD(Light2D,set_energy);
-    BIND_METHOD(Light2D,get_energy);
+    SE_BIND_METHOD(Light2D,set_energy);
+    SE_BIND_METHOD(Light2D,get_energy);
 
-    BIND_METHOD(Light2D,set_texture_scale);
-    BIND_METHOD(Light2D,get_texture_scale);
+    SE_BIND_METHOD(Light2D,set_texture_scale);
+    SE_BIND_METHOD(Light2D,get_texture_scale);
 
-    BIND_METHOD(Light2D,set_z_range_min);
-    BIND_METHOD(Light2D,get_z_range_min);
+    SE_BIND_METHOD(Light2D,set_z_range_min);
+    SE_BIND_METHOD(Light2D,get_z_range_min);
 
-    BIND_METHOD(Light2D,set_z_range_max);
-    BIND_METHOD(Light2D,get_z_range_max);
+    SE_BIND_METHOD(Light2D,set_z_range_max);
+    SE_BIND_METHOD(Light2D,get_z_range_max);
 
-    BIND_METHOD(Light2D,set_layer_range_min);
-    BIND_METHOD(Light2D,get_layer_range_min);
+    SE_BIND_METHOD(Light2D,set_layer_range_min);
+    SE_BIND_METHOD(Light2D,get_layer_range_min);
 
-    BIND_METHOD(Light2D,set_layer_range_max);
-    BIND_METHOD(Light2D,get_layer_range_max);
+    SE_BIND_METHOD(Light2D,set_layer_range_max);
+    SE_BIND_METHOD(Light2D,get_layer_range_max);
 
-    BIND_METHOD(Light2D,set_item_cull_mask);
-    BIND_METHOD(Light2D,get_item_cull_mask);
+    SE_BIND_METHOD(Light2D,set_item_cull_mask);
+    SE_BIND_METHOD(Light2D,get_item_cull_mask);
 
-    BIND_METHOD(Light2D,set_item_shadow_cull_mask);
-    BIND_METHOD(Light2D,get_item_shadow_cull_mask);
+    SE_BIND_METHOD(Light2D,set_item_shadow_cull_mask);
+    SE_BIND_METHOD(Light2D,get_item_shadow_cull_mask);
 
-    BIND_METHOD(Light2D,set_mode);
-    BIND_METHOD(Light2D,get_mode);
+    SE_BIND_METHOD(Light2D,set_mode);
+    SE_BIND_METHOD(Light2D,get_mode);
 
-    BIND_METHOD(Light2D,set_shadow_enabled);
-    BIND_METHOD(Light2D,is_shadow_enabled);
+    SE_BIND_METHOD(Light2D,set_shadow_enabled);
+    SE_BIND_METHOD(Light2D,is_shadow_enabled);
 
-    BIND_METHOD(Light2D,set_shadow_buffer_size);
-    BIND_METHOD(Light2D,get_shadow_buffer_size);
+    SE_BIND_METHOD(Light2D,set_shadow_buffer_size);
+    SE_BIND_METHOD(Light2D,get_shadow_buffer_size);
 
-    BIND_METHOD(Light2D,set_shadow_smooth);
-    BIND_METHOD(Light2D,get_shadow_smooth);
+    SE_BIND_METHOD(Light2D,set_shadow_smooth);
+    SE_BIND_METHOD(Light2D,get_shadow_smooth);
 
-    BIND_METHOD(Light2D,set_shadow_gradient_length);
-    BIND_METHOD(Light2D,get_shadow_gradient_length);
+    SE_BIND_METHOD(Light2D,set_shadow_gradient_length);
+    SE_BIND_METHOD(Light2D,get_shadow_gradient_length);
 
-    BIND_METHOD(Light2D,set_shadow_filter);
-    BIND_METHOD(Light2D,get_shadow_filter);
+    SE_BIND_METHOD(Light2D,set_shadow_filter);
+    SE_BIND_METHOD(Light2D,get_shadow_filter);
 
-    BIND_METHOD(Light2D,set_shadow_color);
-    BIND_METHOD(Light2D,get_shadow_color);
+    SE_BIND_METHOD(Light2D,set_shadow_color);
+    SE_BIND_METHOD(Light2D,get_shadow_color);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enabled"), "set_enabled", "is_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor_only"), "set_editor_only", "is_editor_only");

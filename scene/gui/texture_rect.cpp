@@ -133,17 +133,17 @@ Size2 TextureRect::get_minimum_size() const {
 }
 void TextureRect::_bind_methods() {
 
-    BIND_METHOD(TextureRect,set_texture);
-    BIND_METHOD(TextureRect,get_texture);
-    BIND_METHOD(TextureRect,set_expand);
-    BIND_METHOD(TextureRect,has_expand);
-    BIND_METHOD(TextureRect,set_flip_h);
-    BIND_METHOD(TextureRect,is_flipped_h);
-    BIND_METHOD(TextureRect,set_flip_v);
-    BIND_METHOD(TextureRect,is_flipped_v);
-    BIND_METHOD(TextureRect,set_stretch_mode);
-    BIND_METHOD(TextureRect,get_stretch_mode);
-    BIND_METHOD(TextureRect,_texture_changed);
+    SE_BIND_METHOD(TextureRect,set_texture);
+    SE_BIND_METHOD(TextureRect,get_texture);
+    SE_BIND_METHOD(TextureRect,set_expand);
+    SE_BIND_METHOD(TextureRect,has_expand);
+    SE_BIND_METHOD(TextureRect,set_flip_h);
+    SE_BIND_METHOD(TextureRect,is_flipped_h);
+    SE_BIND_METHOD(TextureRect,set_flip_v);
+    SE_BIND_METHOD(TextureRect,is_flipped_v);
+    SE_BIND_METHOD(TextureRect,set_stretch_mode);
+    SE_BIND_METHOD(TextureRect,get_stretch_mode);
+    SE_BIND_METHOD(TextureRect,_texture_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "expand"), "set_expand", "has_expand");

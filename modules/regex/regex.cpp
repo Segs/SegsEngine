@@ -153,10 +153,10 @@ int RegExMatch::get_end(const Variant &p_name) const {
 
 void RegExMatch::_bind_methods() {
 
-    BIND_METHOD(RegExMatch,get_subject);
-    BIND_METHOD(RegExMatch,get_group_count);
-    BIND_METHOD(RegExMatch,get_names);
-    BIND_METHOD(RegExMatch,get_strings);
+    SE_BIND_METHOD(RegExMatch,get_subject);
+    SE_BIND_METHOD(RegExMatch,get_group_count);
+    SE_BIND_METHOD(RegExMatch,get_names);
+    SE_BIND_METHOD(RegExMatch,get_strings);
     MethodBinder::bind_method(D_METHOD("get_string", {"name"}), &RegExMatch::get_string, {DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("get_start", {"name"}), &RegExMatch::get_start, {DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("get_end", {"name"}), &RegExMatch::get_end, {DEFVAL(0)});
@@ -396,13 +396,13 @@ RegEx::~RegEx() {
 
 void RegEx::_bind_methods() {
 
-    BIND_METHOD(RegEx,clear);
-    BIND_METHOD(RegEx,compile);
+    SE_BIND_METHOD(RegEx,clear);
+    SE_BIND_METHOD(RegEx,compile);
     MethodBinder::bind_method(D_METHOD("search", {"subject", "offset", "end"}), &RegEx::search, {DEFVAL(0), DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("search_all", {"subject", "offset", "end"}), &RegEx::search_all, {DEFVAL(0), DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("sub", {"subject", "replacement", "all", "offset", "end"}), &RegEx::sub, {DEFVAL(false), DEFVAL(0), DEFVAL(-1)});
-    BIND_METHOD(RegEx,is_valid);
-    BIND_METHOD(RegEx,get_pattern);
-    BIND_METHOD(RegEx,get_group_count);
-    BIND_METHOD(RegEx,get_names);
+    SE_BIND_METHOD(RegEx,is_valid);
+    SE_BIND_METHOD(RegEx,get_pattern);
+    SE_BIND_METHOD(RegEx,get_group_count);
+    SE_BIND_METHOD(RegEx,get_names);
 }

@@ -52,9 +52,9 @@ bool RefCounted::init_ref() {
 
 void RefCounted::_bind_methods() {
 
-    BIND_METHOD(RefCounted,init_ref);
-    BIND_METHOD(RefCounted,reference);
-    BIND_METHOD(RefCounted,unreference);
+    SE_BIND_METHOD(RefCounted,init_ref);
+    SE_BIND_METHOD(RefCounted,reference);
+    SE_BIND_METHOD(RefCounted,unreference);
 }
 
 int RefCounted::reference_get_count() const {
@@ -144,5 +144,5 @@ void WeakRef::set_ref(const REF &p_ref) {
 
 void WeakRef::_bind_methods() {
 
-    BIND_METHOD(WeakRef,get_ref);
+    SE_BIND_METHOD(WeakRef,get_ref);
 }

@@ -91,11 +91,11 @@ Rect2 SegmentShape2D::get_rect() const {
 
 void SegmentShape2D::_bind_methods() {
 
-    BIND_METHOD(SegmentShape2D,set_a);
-    BIND_METHOD(SegmentShape2D,get_a);
+    SE_BIND_METHOD(SegmentShape2D,set_a);
+    SE_BIND_METHOD(SegmentShape2D,get_a);
 
-    BIND_METHOD(SegmentShape2D,set_b);
-    BIND_METHOD(SegmentShape2D,get_b);
+    SE_BIND_METHOD(SegmentShape2D,set_b);
+    SE_BIND_METHOD(SegmentShape2D,get_b);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "a"), "set_a", "get_a");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "b"), "set_b", "get_b");
@@ -145,11 +145,11 @@ Rect2 RayShape2D::get_rect() const {
 
 void RayShape2D::_bind_methods() {
 
-    BIND_METHOD(RayShape2D,set_length);
-    BIND_METHOD(RayShape2D,get_length);
+    SE_BIND_METHOD(RayShape2D,set_length);
+    SE_BIND_METHOD(RayShape2D,get_length);
 
-    BIND_METHOD(RayShape2D,set_slips_on_slope);
-    BIND_METHOD(RayShape2D,get_slips_on_slope);
+    SE_BIND_METHOD(RayShape2D,set_slips_on_slope);
+    SE_BIND_METHOD(RayShape2D,get_slips_on_slope);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "length", PropertyHint::Range, "0.01,1024,0.01,or_greater"),
             "set_length", "get_length");

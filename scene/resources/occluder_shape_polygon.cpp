@@ -201,21 +201,21 @@ void OccluderShapePolygon::clear() {
 }
 
 void OccluderShapePolygon::_bind_methods() {
-    BIND_METHOD(OccluderShapePolygon,set_two_way);
-    BIND_METHOD(OccluderShapePolygon,is_two_way);
+    SE_BIND_METHOD(OccluderShapePolygon,set_two_way);
+    SE_BIND_METHOD(OccluderShapePolygon,is_two_way);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, {"two_way"}), "set_two_way", "is_two_way");
 
-    BIND_METHOD(OccluderShapePolygon,set_polygon_points);
-    BIND_METHOD(OccluderShapePolygon,get_polygon_points);
+    SE_BIND_METHOD(OccluderShapePolygon,set_polygon_points);
+    SE_BIND_METHOD(OccluderShapePolygon,get_polygon_points);
 
-    BIND_METHOD(OccluderShapePolygon,set_polygon_point);
+    SE_BIND_METHOD(OccluderShapePolygon,set_polygon_point);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon_points"), "set_polygon_points", "get_polygon_points");
 
-    BIND_METHOD(OccluderShapePolygon,set_hole_points);
-    BIND_METHOD(OccluderShapePolygon,get_hole_points);
-    BIND_METHOD(OccluderShapePolygon,set_hole_point);
+    SE_BIND_METHOD(OccluderShapePolygon,set_hole_points);
+    SE_BIND_METHOD(OccluderShapePolygon,get_hole_points);
+    SE_BIND_METHOD(OccluderShapePolygon,set_hole_point);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "hole_points"), "set_hole_points", "get_hole_points");
 }

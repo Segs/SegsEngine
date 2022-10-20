@@ -41,8 +41,8 @@
 IMPL_GDCLASS(RoomGroup)
 
 void RoomGroup::_bind_methods() {
-    BIND_METHOD(RoomGroup,set_roomgroup_priority);
-    BIND_METHOD(RoomGroup,get_roomgroup_priority);
+    SE_BIND_METHOD(RoomGroup,set_roomgroup_priority);
+    SE_BIND_METHOD(RoomGroup,get_roomgroup_priority);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "roomgroup_priority", PropertyHint::Range, "-16,16,1", PROPERTY_USAGE_DEFAULT), "set_roomgroup_priority", "get_roomgroup_priority");
 }

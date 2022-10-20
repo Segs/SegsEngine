@@ -53,8 +53,8 @@
 IMPL_GDCLASS(EncodedObjectAsID)
 
 void EncodedObjectAsID::_bind_methods() {
-    BIND_METHOD(EncodedObjectAsID,set_object_id);
-    BIND_METHOD(EncodedObjectAsID,get_object_id);
+    SE_BIND_METHOD(EncodedObjectAsID,set_object_id);
+    SE_BIND_METHOD(EncodedObjectAsID,get_object_id);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "object_id"), "set_object_id", "get_object_id");
 }

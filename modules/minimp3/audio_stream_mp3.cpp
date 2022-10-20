@@ -216,14 +216,14 @@ float AudioStreamMP3::get_length() const {
 }
 
 void AudioStreamMP3::_bind_methods() {
-    BIND_METHOD(AudioStreamMP3,set_data);
-    BIND_METHOD(AudioStreamMP3,get_data);
+    SE_BIND_METHOD(AudioStreamMP3,set_data);
+    SE_BIND_METHOD(AudioStreamMP3,get_data);
 
-    BIND_METHOD(AudioStreamMP3,set_loop);
-    BIND_METHOD(AudioStreamMP3,has_loop);
+    SE_BIND_METHOD(AudioStreamMP3,set_loop);
+    SE_BIND_METHOD(AudioStreamMP3,has_loop);
 
-    BIND_METHOD(AudioStreamMP3,set_loop_offset);
-    BIND_METHOD(AudioStreamMP3,get_loop_offset);
+    SE_BIND_METHOD(AudioStreamMP3,set_loop_offset);
+    SE_BIND_METHOD(AudioStreamMP3,get_loop_offset);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");

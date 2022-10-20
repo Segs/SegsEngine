@@ -17,10 +17,10 @@ IMPL_GDCLASS(CurveTexture)
 
 void CurveTexture::_bind_methods() {
 
-    BIND_METHOD(CurveTexture,set_width);
+    SE_BIND_METHOD(CurveTexture,set_width);
 
-    BIND_METHOD(CurveTexture,set_curve);
-    BIND_METHOD(CurveTexture,get_curve);
+    SE_BIND_METHOD(CurveTexture,set_curve);
+    SE_BIND_METHOD(CurveTexture,get_curve);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PropertyHint::Range, "1,4096"), "set_width", "get_width");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "curve", PropertyHint::ResourceType, "Curve"), "set_curve", "get_curve");

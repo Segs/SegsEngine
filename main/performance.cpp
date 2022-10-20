@@ -52,7 +52,7 @@ VARIANT_ENUM_CAST(Performance::Monitor);
 
 void Performance::_bind_methods() {
 
-    BIND_METHOD(Performance,get_monitor);
+    SE_BIND_METHOD(Performance,get_monitor);
 
     BIND_ENUM_CONSTANT(TIME_FPS);
     BIND_ENUM_CONSTANT(TIME_PROCESS);

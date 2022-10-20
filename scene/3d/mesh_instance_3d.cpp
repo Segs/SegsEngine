@@ -1270,23 +1270,23 @@ bool MeshInstance3D::_merge_meshes(Span<MeshInstance3D *> p_list, bool p_use_glo
 
 void MeshInstance3D::_bind_methods() {
 
-    BIND_METHOD(MeshInstance3D,set_mesh);
-    BIND_METHOD(MeshInstance3D,get_mesh);
-    BIND_METHOD(MeshInstance3D,set_skeleton_path);
-    BIND_METHOD(MeshInstance3D,get_skeleton_path);
-    BIND_METHOD(MeshInstance3D,set_skin);
-    BIND_METHOD(MeshInstance3D,get_skin);
+    SE_BIND_METHOD(MeshInstance3D,set_mesh);
+    SE_BIND_METHOD(MeshInstance3D,get_mesh);
+    SE_BIND_METHOD(MeshInstance3D,set_skeleton_path);
+    SE_BIND_METHOD(MeshInstance3D,get_skeleton_path);
+    SE_BIND_METHOD(MeshInstance3D,set_skin);
+    SE_BIND_METHOD(MeshInstance3D,get_skin);
 
-    BIND_METHOD(MeshInstance3D,get_surface_material_count);
-    BIND_METHOD(MeshInstance3D,set_surface_material);
-    BIND_METHOD(MeshInstance3D,get_surface_material);
-    BIND_METHOD(MeshInstance3D,get_active_material);
+    SE_BIND_METHOD(MeshInstance3D,get_surface_material_count);
+    SE_BIND_METHOD(MeshInstance3D,set_surface_material);
+    SE_BIND_METHOD(MeshInstance3D,get_surface_material);
+    SE_BIND_METHOD(MeshInstance3D,get_active_material);
 
-    BIND_METHOD(MeshInstance3D,set_software_skinning_transform_normals);
-    BIND_METHOD(MeshInstance3D,is_software_skinning_transform_normals_enabled);
+    SE_BIND_METHOD(MeshInstance3D,set_software_skinning_transform_normals);
+    SE_BIND_METHOD(MeshInstance3D,is_software_skinning_transform_normals_enabled);
 
-    BIND_METHOD(MeshInstance3D,create_trimesh_collision);
-    BIND_METHOD(MeshInstance3D,create_convex_collision);
+    SE_BIND_METHOD(MeshInstance3D,create_trimesh_collision);
+    SE_BIND_METHOD(MeshInstance3D,create_convex_collision);
 
     MethodBinder::bind_method(D_METHOD("create_debug_tangents"), &MeshInstance3D::create_debug_tangents,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 

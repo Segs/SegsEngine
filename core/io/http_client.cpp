@@ -924,36 +924,36 @@ Vector<String> HTTPClient::_get_response_headers() {
 void HTTPClient::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("connect_to_host", { "host", "port", "use_ssl", "verify_host" }),
             &HTTPClient::connect_to_host, { DEFVAL(-1), DEFVAL(false), DEFVAL(true) });
-    BIND_METHOD(HTTPClient,set_connection);
-    BIND_METHOD(HTTPClient,get_connection);
+    SE_BIND_METHOD(HTTPClient,set_connection);
+    SE_BIND_METHOD(HTTPClient,get_connection);
     MethodBinder::bind_method(
             D_METHOD("request_raw", { "method", "url", "headers", "body" }), &HTTPClient::request_raw);
     MethodBinder::bind_method(
             D_METHOD("request", { "method", "url", "headers", "body" }), &HTTPClient::request, { DEFVAL(String()) });
-    BIND_METHOD(HTTPClient,close);
+    SE_BIND_METHOD(HTTPClient,close);
 
-    BIND_METHOD(HTTPClient,has_response);
-    BIND_METHOD(HTTPClient,is_response_chunked);
-    BIND_METHOD(HTTPClient,get_response_code);
+    SE_BIND_METHOD(HTTPClient,has_response);
+    SE_BIND_METHOD(HTTPClient,is_response_chunked);
+    SE_BIND_METHOD(HTTPClient,get_response_code);
     MethodBinder::bind_method(D_METHOD("get_response_headers"), &HTTPClient::_get_response_headers);
     MethodBinder::bind_method(
             D_METHOD("get_response_headers_as_dictionary"), &HTTPClient::get_response_headers_as_dictionary);
-    BIND_METHOD(HTTPClient,get_response_body_length);
-    BIND_METHOD(HTTPClient,read_response_body_chunk);
-    BIND_METHOD(HTTPClient,set_read_chunk_size);
-    BIND_METHOD(HTTPClient,get_read_chunk_size);
+    SE_BIND_METHOD(HTTPClient,get_response_body_length);
+    SE_BIND_METHOD(HTTPClient,read_response_body_chunk);
+    SE_BIND_METHOD(HTTPClient,set_read_chunk_size);
+    SE_BIND_METHOD(HTTPClient,get_read_chunk_size);
 
-    BIND_METHOD(HTTPClient,set_blocking_mode);
-    BIND_METHOD(HTTPClient,is_blocking_mode_enabled);
+    SE_BIND_METHOD(HTTPClient,set_blocking_mode);
+    SE_BIND_METHOD(HTTPClient,is_blocking_mode_enabled);
 
-    BIND_METHOD(HTTPClient,get_status);
-    BIND_METHOD(HTTPClient,poll);
+    SE_BIND_METHOD(HTTPClient,get_status);
+    SE_BIND_METHOD(HTTPClient,poll);
 
-    BIND_METHOD(HTTPClient,set_http_proxy);
-    BIND_METHOD(HTTPClient,set_https_proxy);
+    SE_BIND_METHOD(HTTPClient,set_http_proxy);
+    SE_BIND_METHOD(HTTPClient,set_https_proxy);
 
 
-    BIND_METHOD(HTTPClient,query_string_from_dict);
+    SE_BIND_METHOD(HTTPClient,query_string_from_dict);
 
     ADD_PROPERTY(
             PropertyInfo(VariantType::BOOL, "blocking_mode_enabled"), "set_blocking_mode", "is_blocking_mode_enabled");

@@ -79,8 +79,8 @@ Rect2 RectangleShape2D::get_rect() const {
 
 void RectangleShape2D::_bind_methods() {
 
-    BIND_METHOD(RectangleShape2D,set_extents);
-    BIND_METHOD(RectangleShape2D,get_extents);
+    SE_BIND_METHOD(RectangleShape2D,set_extents);
+    SE_BIND_METHOD(RectangleShape2D,get_extents);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "extents"), "set_extents", "get_extents");
 }

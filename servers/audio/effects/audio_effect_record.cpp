@@ -398,11 +398,11 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
 }
 
 void AudioEffectRecord::_bind_methods() {
-    BIND_METHOD(AudioEffectRecord,set_recording_active);
-    BIND_METHOD(AudioEffectRecord,is_recording_active);
-    BIND_METHOD(AudioEffectRecord,set_format);
-    BIND_METHOD(AudioEffectRecord,get_format);
-    BIND_METHOD(AudioEffectRecord,get_recording);
+    SE_BIND_METHOD(AudioEffectRecord,set_recording_active);
+    SE_BIND_METHOD(AudioEffectRecord,is_recording_active);
+    SE_BIND_METHOD(AudioEffectRecord,set_format);
+    SE_BIND_METHOD(AudioEffectRecord,get_format);
+    SE_BIND_METHOD(AudioEffectRecord,get_recording);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "format", PropertyHint::Enum, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");
 }

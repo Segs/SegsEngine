@@ -966,73 +966,73 @@ Ref<AudioStreamPlayback> AudioStreamPlayer3D::get_stream_playback() {
 
 void AudioStreamPlayer3D::_bind_methods() {
 
-    BIND_METHOD(AudioStreamPlayer3D,set_stream);
-    BIND_METHOD(AudioStreamPlayer3D,get_stream);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_stream);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_stream);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_unit_db);
-    BIND_METHOD(AudioStreamPlayer3D,get_unit_db);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_unit_db);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_unit_db);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_unit_size);
-    BIND_METHOD(AudioStreamPlayer3D,get_unit_size);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_unit_size);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_unit_size);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_max_db);
-    BIND_METHOD(AudioStreamPlayer3D,get_max_db);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_max_db);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_max_db);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_pitch_scale);
-    BIND_METHOD(AudioStreamPlayer3D,get_pitch_scale);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_pitch_scale);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_pitch_scale);
 
     MethodBinder::bind_method(D_METHOD("play", {"from_position"}), &AudioStreamPlayer3D::play, {DEFVAL(0.0)});
-    BIND_METHOD(AudioStreamPlayer3D,seek);
-    BIND_METHOD(AudioStreamPlayer3D,stop);
+    SE_BIND_METHOD(AudioStreamPlayer3D,seek);
+    SE_BIND_METHOD(AudioStreamPlayer3D,stop);
 
-    BIND_METHOD(AudioStreamPlayer3D,is_playing);
-    BIND_METHOD(AudioStreamPlayer3D,get_playback_position);
+    SE_BIND_METHOD(AudioStreamPlayer3D,is_playing);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_playback_position);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_bus);
-    BIND_METHOD(AudioStreamPlayer3D,get_bus);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_bus);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_bus);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_autoplay);
-    BIND_METHOD(AudioStreamPlayer3D,is_autoplay_enabled);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_autoplay);
+    SE_BIND_METHOD(AudioStreamPlayer3D,is_autoplay_enabled);
 
-    BIND_METHOD(AudioStreamPlayer3D,_set_playing);
-    BIND_METHOD(AudioStreamPlayer3D,_is_active);
+    SE_BIND_METHOD(AudioStreamPlayer3D,_set_playing);
+    SE_BIND_METHOD(AudioStreamPlayer3D,_is_active);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_max_distance);
-    BIND_METHOD(AudioStreamPlayer3D,get_max_distance);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_max_distance);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_max_distance);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_area_mask);
-    BIND_METHOD(AudioStreamPlayer3D,get_area_mask);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_area_mask);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_area_mask);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_emission_angle);
-    BIND_METHOD(AudioStreamPlayer3D,get_emission_angle);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_emission_angle);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_emission_angle);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_emission_angle_enabled);
-    BIND_METHOD(AudioStreamPlayer3D,is_emission_angle_enabled);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_emission_angle_enabled);
+    SE_BIND_METHOD(AudioStreamPlayer3D,is_emission_angle_enabled);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_emission_angle_filter_attenuation_db);
-    BIND_METHOD(AudioStreamPlayer3D,get_emission_angle_filter_attenuation_db);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_emission_angle_filter_attenuation_db);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_emission_angle_filter_attenuation_db);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_attenuation_filter_cutoff_hz);
-    BIND_METHOD(AudioStreamPlayer3D,get_attenuation_filter_cutoff_hz);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_attenuation_filter_cutoff_hz);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_attenuation_filter_cutoff_hz);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_attenuation_filter_db);
-    BIND_METHOD(AudioStreamPlayer3D,get_attenuation_filter_db);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_attenuation_filter_db);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_attenuation_filter_db);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_attenuation_model);
-    BIND_METHOD(AudioStreamPlayer3D,get_attenuation_model);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_attenuation_model);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_attenuation_model);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_out_of_range_mode);
-    BIND_METHOD(AudioStreamPlayer3D,get_out_of_range_mode);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_out_of_range_mode);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_out_of_range_mode);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_doppler_tracking);
-    BIND_METHOD(AudioStreamPlayer3D,get_doppler_tracking);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_doppler_tracking);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_doppler_tracking);
 
-    BIND_METHOD(AudioStreamPlayer3D,set_stream_paused);
-    BIND_METHOD(AudioStreamPlayer3D,get_stream_paused);
+    SE_BIND_METHOD(AudioStreamPlayer3D,set_stream_paused);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_stream_paused);
 
-    BIND_METHOD(AudioStreamPlayer3D,get_stream_playback);
+    SE_BIND_METHOD(AudioStreamPlayer3D,get_stream_playback);
 
-    BIND_METHOD(AudioStreamPlayer3D,_bus_layout_changed);
+    SE_BIND_METHOD(AudioStreamPlayer3D,_bus_layout_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream", PropertyHint::ResourceType, "AudioStream"), "set_stream", "get_stream");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "attenuation_model", PropertyHint::Enum, "Inverse,InverseSquare,Logarithmic,Disabled"), "set_attenuation_model", "get_attenuation_model");

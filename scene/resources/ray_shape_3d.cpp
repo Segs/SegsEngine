@@ -77,11 +77,11 @@ bool RayShape3D::get_slips_on_slope() const {
 
 void RayShape3D::_bind_methods() {
 
-    BIND_METHOD(RayShape3D,set_length);
-    BIND_METHOD(RayShape3D,get_length);
+    SE_BIND_METHOD(RayShape3D,set_length);
+    SE_BIND_METHOD(RayShape3D,get_length);
 
-    BIND_METHOD(RayShape3D,set_slips_on_slope);
-    BIND_METHOD(RayShape3D,get_slips_on_slope);
+    SE_BIND_METHOD(RayShape3D,set_slips_on_slope);
+    SE_BIND_METHOD(RayShape3D,get_slips_on_slope);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "length", PropertyHint::Range, "0.001,100,0.001,or_greater"),
             "set_length", "get_length");

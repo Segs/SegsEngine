@@ -422,27 +422,27 @@ Ref<AnimationNode> AnimationNode::get_child_by_name(const StringName &p_name) {
 
 void AnimationNode::_bind_methods() {
 
-    BIND_METHOD(AnimationNode,get_input_count);
-    BIND_METHOD(AnimationNode,get_input_name);
+    SE_BIND_METHOD(AnimationNode,get_input_count);
+    SE_BIND_METHOD(AnimationNode,get_input_name);
 
-    BIND_METHOD(AnimationNode,add_input);
-    BIND_METHOD(AnimationNode,remove_input);
+    SE_BIND_METHOD(AnimationNode,add_input);
+    SE_BIND_METHOD(AnimationNode,remove_input);
 
-    BIND_METHOD(AnimationNode,set_filter_path);
-    BIND_METHOD(AnimationNode,is_path_filtered);
+    SE_BIND_METHOD(AnimationNode,set_filter_path);
+    SE_BIND_METHOD(AnimationNode,is_path_filtered);
 
-    BIND_METHOD(AnimationNode,set_filter_enabled);
-    BIND_METHOD(AnimationNode,is_filter_enabled);
+    SE_BIND_METHOD(AnimationNode,set_filter_enabled);
+    SE_BIND_METHOD(AnimationNode,is_filter_enabled);
 
-    BIND_METHOD(AnimationNode,_set_filters);
-    BIND_METHOD(AnimationNode,_get_filters);
+    SE_BIND_METHOD(AnimationNode,_set_filters);
+    SE_BIND_METHOD(AnimationNode,_get_filters);
 
-    BIND_METHOD(AnimationNode,blend_animation);
+    SE_BIND_METHOD(AnimationNode,blend_animation);
     MethodBinder::bind_method(D_METHOD("blend_node", {"name", "node", "time", "seek", "blend", "filter", "optimize"}), &AnimationNode::blend_node, {DEFVAL(FILTER_IGNORE), DEFVAL(true)});
     MethodBinder::bind_method(D_METHOD("blend_input", {"input_index", "time", "seek", "blend", "filter", "optimize"}), &AnimationNode::blend_input, {DEFVAL(FILTER_IGNORE), DEFVAL(true)});
 
-    BIND_METHOD(AnimationNode,set_parameter);
-    BIND_METHOD(AnimationNode,get_parameter);
+    SE_BIND_METHOD(AnimationNode,set_parameter);
+    SE_BIND_METHOD(AnimationNode,get_parameter);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "filter_enabled", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_filter_enabled", "is_filter_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "filters", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_filters", "_get_filters");
@@ -1545,26 +1545,26 @@ float AnimationTree::get_connection_activity(const StringName &p_path, int p_con
 }
 
 void AnimationTree::_bind_methods() {
-    BIND_METHOD(AnimationTree,set_active);
-    BIND_METHOD(AnimationTree,is_active);
+    SE_BIND_METHOD(AnimationTree,set_active);
+    SE_BIND_METHOD(AnimationTree,is_active);
 
-    BIND_METHOD(AnimationTree,set_tree_root);
-    BIND_METHOD(AnimationTree,get_tree_root);
+    SE_BIND_METHOD(AnimationTree,set_tree_root);
+    SE_BIND_METHOD(AnimationTree,get_tree_root);
 
-    BIND_METHOD(AnimationTree,set_process_mode);
-    BIND_METHOD(AnimationTree,get_process_mode);
+    SE_BIND_METHOD(AnimationTree,set_process_mode);
+    SE_BIND_METHOD(AnimationTree,get_process_mode);
 
-    BIND_METHOD(AnimationTree,set_animation_player);
-    BIND_METHOD(AnimationTree,get_animation_player);
+    SE_BIND_METHOD(AnimationTree,set_animation_player);
+    SE_BIND_METHOD(AnimationTree,get_animation_player);
 
-    BIND_METHOD(AnimationTree,set_root_motion_track);
-    BIND_METHOD(AnimationTree,get_root_motion_track);
+    SE_BIND_METHOD(AnimationTree,set_root_motion_track);
+    SE_BIND_METHOD(AnimationTree,get_root_motion_track);
 
-    BIND_METHOD(AnimationTree,get_root_motion_transform);
+    SE_BIND_METHOD(AnimationTree,get_root_motion_transform);
 
-    BIND_METHOD(AnimationTree,rename_parameter);
+    SE_BIND_METHOD(AnimationTree,rename_parameter);
 
-    BIND_METHOD(AnimationTree,advance);
+    SE_BIND_METHOD(AnimationTree,advance);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "tree_root", PropertyHint::ResourceType, "AnimationRootNode"), "set_tree_root", "get_tree_root");
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "anim_player", PropertyHint::NodePathValidTypes, "AnimationPlayer"), "set_animation_player", "get_animation_player");

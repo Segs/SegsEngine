@@ -778,23 +778,23 @@ bool ColorPicker::are_presets_visible() const {
 
 void ColorPicker::_bind_methods() {
 
-    BIND_METHOD(ColorPicker,set_pick_color);
-    BIND_METHOD(ColorPicker,get_pick_color);
-    BIND_METHOD(ColorPicker,set_hsv_mode);
-    BIND_METHOD(ColorPicker,is_hsv_mode);
-    BIND_METHOD(ColorPicker,set_raw_mode);
-    BIND_METHOD(ColorPicker,is_raw_mode);
-    BIND_METHOD(ColorPicker,set_deferred_mode);
-    BIND_METHOD(ColorPicker,is_deferred_mode);
-    BIND_METHOD(ColorPicker,set_edit_alpha);
-    BIND_METHOD(ColorPicker,is_editing_alpha);
-    BIND_METHOD(ColorPicker,set_presets_enabled);
-    BIND_METHOD(ColorPicker,are_presets_enabled);
-    BIND_METHOD(ColorPicker,set_presets_visible);
-    BIND_METHOD(ColorPicker,are_presets_visible);
-    BIND_METHOD(ColorPicker,add_preset);
-    BIND_METHOD(ColorPicker,erase_preset);
-    BIND_METHOD(ColorPicker,get_presets);
+    SE_BIND_METHOD(ColorPicker,set_pick_color);
+    SE_BIND_METHOD(ColorPicker,get_pick_color);
+    SE_BIND_METHOD(ColorPicker,set_hsv_mode);
+    SE_BIND_METHOD(ColorPicker,is_hsv_mode);
+    SE_BIND_METHOD(ColorPicker,set_raw_mode);
+    SE_BIND_METHOD(ColorPicker,is_raw_mode);
+    SE_BIND_METHOD(ColorPicker,set_deferred_mode);
+    SE_BIND_METHOD(ColorPicker,is_deferred_mode);
+    SE_BIND_METHOD(ColorPicker,set_edit_alpha);
+    SE_BIND_METHOD(ColorPicker,is_editing_alpha);
+    SE_BIND_METHOD(ColorPicker,set_presets_enabled);
+    SE_BIND_METHOD(ColorPicker,are_presets_enabled);
+    SE_BIND_METHOD(ColorPicker,set_presets_visible);
+    SE_BIND_METHOD(ColorPicker,are_presets_visible);
+    SE_BIND_METHOD(ColorPicker,add_preset);
+    SE_BIND_METHOD(ColorPicker,erase_preset);
+    SE_BIND_METHOD(ColorPicker,get_presets);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_pick_color", "get_pick_color");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "edit_alpha"), "set_edit_alpha", "is_editing_alpha");
@@ -1082,12 +1082,12 @@ void ColorPickerButton::_update_picker() {
 
 void ColorPickerButton::_bind_methods() {
 
-    BIND_METHOD(ColorPickerButton,set_pick_color);
-    BIND_METHOD(ColorPickerButton,get_pick_color);
-    BIND_METHOD(ColorPickerButton,get_picker);
-    BIND_METHOD(ColorPickerButton,get_popup);
-    BIND_METHOD(ColorPickerButton,set_edit_alpha);
-    BIND_METHOD(ColorPickerButton,is_editing_alpha);
+    SE_BIND_METHOD(ColorPickerButton,set_pick_color);
+    SE_BIND_METHOD(ColorPickerButton,get_pick_color);
+    SE_BIND_METHOD(ColorPickerButton,get_picker);
+    SE_BIND_METHOD(ColorPickerButton,get_popup);
+    SE_BIND_METHOD(ColorPickerButton,set_edit_alpha);
+    SE_BIND_METHOD(ColorPickerButton,is_editing_alpha);
 
     ADD_SIGNAL(MethodInfo("color_changed", PropertyInfo(VariantType::COLOR, "color")));
     ADD_SIGNAL(MethodInfo("popup_closed"));

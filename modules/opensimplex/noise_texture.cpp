@@ -65,23 +65,23 @@ NoiseTexture::~NoiseTexture() {
 
 void NoiseTexture::_bind_methods() {
 
-    BIND_METHOD(NoiseTexture,set_width);
-    BIND_METHOD(NoiseTexture,set_height);
+    SE_BIND_METHOD(NoiseTexture,set_width);
+    SE_BIND_METHOD(NoiseTexture,set_height);
 
-    BIND_METHOD(NoiseTexture,set_noise);
-    BIND_METHOD(NoiseTexture,get_noise);
+    SE_BIND_METHOD(NoiseTexture,set_noise);
+    SE_BIND_METHOD(NoiseTexture,get_noise);
 
-    BIND_METHOD(NoiseTexture,set_noise_offset);
-    BIND_METHOD(NoiseTexture,get_noise_offset);
+    SE_BIND_METHOD(NoiseTexture,set_noise_offset);
+    SE_BIND_METHOD(NoiseTexture,get_noise_offset);
 
-    BIND_METHOD(NoiseTexture,set_seamless);
-    BIND_METHOD(NoiseTexture,get_seamless);
+    SE_BIND_METHOD(NoiseTexture,set_seamless);
+    SE_BIND_METHOD(NoiseTexture,get_seamless);
 
-    BIND_METHOD(NoiseTexture,set_as_normalmap);
-    BIND_METHOD(NoiseTexture,is_normalmap);
+    SE_BIND_METHOD(NoiseTexture,set_as_normalmap);
+    SE_BIND_METHOD(NoiseTexture,is_normalmap);
 
-    BIND_METHOD(NoiseTexture,set_bump_strength);
-    BIND_METHOD(NoiseTexture,get_bump_strength);
+    SE_BIND_METHOD(NoiseTexture,set_bump_strength);
+    SE_BIND_METHOD(NoiseTexture,get_bump_strength);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PropertyHint::Range, "1,2048,1,or_greater"), "set_width", "get_width");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "height", PropertyHint::Range, "1,2048,1,or_greater"), "set_height", "get_height");

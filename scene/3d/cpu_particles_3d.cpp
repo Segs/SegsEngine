@@ -1323,43 +1323,43 @@ void CPUParticles3D::convert_from_particles(Node *p_particles) {
 }
 
 void CPUParticles3D::_bind_methods() {
-    BIND_METHOD(CPUParticles3D,set_emitting);
-    BIND_METHOD(CPUParticles3D,set_amount);
-    BIND_METHOD(CPUParticles3D,set_lifetime);
-    BIND_METHOD(CPUParticles3D,set_one_shot);
-    BIND_METHOD(CPUParticles3D,set_pre_process_time);
+    SE_BIND_METHOD(CPUParticles3D,set_emitting);
+    SE_BIND_METHOD(CPUParticles3D,set_amount);
+    SE_BIND_METHOD(CPUParticles3D,set_lifetime);
+    SE_BIND_METHOD(CPUParticles3D,set_one_shot);
+    SE_BIND_METHOD(CPUParticles3D,set_pre_process_time);
     MethodBinder::bind_method(
             D_METHOD("set_explosiveness_ratio", { "ratio" }), &CPUParticles3D::set_explosiveness_ratio);
-    BIND_METHOD(CPUParticles3D,set_randomness_ratio);
+    SE_BIND_METHOD(CPUParticles3D,set_randomness_ratio);
     MethodBinder::bind_method(
             D_METHOD("set_lifetime_randomness", { "random" }), &CPUParticles3D::set_lifetime_randomness);
     MethodBinder::bind_method(
             D_METHOD("set_use_local_coordinates", { "enable" }), &CPUParticles3D::set_use_local_coordinates);
-    BIND_METHOD(CPUParticles3D,set_fixed_fps);
-    BIND_METHOD(CPUParticles3D,set_fractional_delta);
-    BIND_METHOD(CPUParticles3D,set_speed_scale);
+    SE_BIND_METHOD(CPUParticles3D,set_fixed_fps);
+    SE_BIND_METHOD(CPUParticles3D,set_fractional_delta);
+    SE_BIND_METHOD(CPUParticles3D,set_speed_scale);
 
-    BIND_METHOD(CPUParticles3D,is_emitting);
-    BIND_METHOD(CPUParticles3D,get_amount);
-    BIND_METHOD(CPUParticles3D,get_lifetime);
-    BIND_METHOD(CPUParticles3D,get_one_shot);
-    BIND_METHOD(CPUParticles3D,get_pre_process_time);
-    BIND_METHOD(CPUParticles3D,get_explosiveness_ratio);
-    BIND_METHOD(CPUParticles3D,get_randomness_ratio);
-    BIND_METHOD(CPUParticles3D,get_lifetime_randomness);
-    BIND_METHOD(CPUParticles3D,get_use_local_coordinates);
-    BIND_METHOD(CPUParticles3D,get_fixed_fps);
-    BIND_METHOD(CPUParticles3D,get_fractional_delta);
-    BIND_METHOD(CPUParticles3D,get_speed_scale);
+    SE_BIND_METHOD(CPUParticles3D,is_emitting);
+    SE_BIND_METHOD(CPUParticles3D,get_amount);
+    SE_BIND_METHOD(CPUParticles3D,get_lifetime);
+    SE_BIND_METHOD(CPUParticles3D,get_one_shot);
+    SE_BIND_METHOD(CPUParticles3D,get_pre_process_time);
+    SE_BIND_METHOD(CPUParticles3D,get_explosiveness_ratio);
+    SE_BIND_METHOD(CPUParticles3D,get_randomness_ratio);
+    SE_BIND_METHOD(CPUParticles3D,get_lifetime_randomness);
+    SE_BIND_METHOD(CPUParticles3D,get_use_local_coordinates);
+    SE_BIND_METHOD(CPUParticles3D,get_fixed_fps);
+    SE_BIND_METHOD(CPUParticles3D,get_fractional_delta);
+    SE_BIND_METHOD(CPUParticles3D,get_speed_scale);
 
-    BIND_METHOD(CPUParticles3D,set_draw_order);
+    SE_BIND_METHOD(CPUParticles3D,set_draw_order);
 
-    BIND_METHOD(CPUParticles3D,get_draw_order);
+    SE_BIND_METHOD(CPUParticles3D,get_draw_order);
 
-    BIND_METHOD(CPUParticles3D,set_mesh);
-    BIND_METHOD(CPUParticles3D,get_mesh);
+    SE_BIND_METHOD(CPUParticles3D,set_mesh);
+    SE_BIND_METHOD(CPUParticles3D,get_mesh);
 
-    BIND_METHOD(CPUParticles3D,restart);
+    SE_BIND_METHOD(CPUParticles3D,restart);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emitting"), "set_emitting", "is_emitting");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PropertyHint::ExpRange, "1,1000000,1"), "set_amount",
@@ -1394,58 +1394,58 @@ void CPUParticles3D::_bind_methods() {
 
     ////////////////////////////////
 
-    BIND_METHOD(CPUParticles3D,set_direction);
-    BIND_METHOD(CPUParticles3D,get_direction);
+    SE_BIND_METHOD(CPUParticles3D,set_direction);
+    SE_BIND_METHOD(CPUParticles3D,get_direction);
 
-    BIND_METHOD(CPUParticles3D,set_spread);
-    BIND_METHOD(CPUParticles3D,get_spread);
+    SE_BIND_METHOD(CPUParticles3D,set_spread);
+    SE_BIND_METHOD(CPUParticles3D,get_spread);
 
-    BIND_METHOD(CPUParticles3D,set_flatness);
-    BIND_METHOD(CPUParticles3D,get_flatness);
+    SE_BIND_METHOD(CPUParticles3D,set_flatness);
+    SE_BIND_METHOD(CPUParticles3D,get_flatness);
 
-    BIND_METHOD(CPUParticles3D,set_param);
-    BIND_METHOD(CPUParticles3D,get_param);
+    SE_BIND_METHOD(CPUParticles3D,set_param);
+    SE_BIND_METHOD(CPUParticles3D,get_param);
 
     MethodBinder::bind_method(
             D_METHOD("set_param_randomness", { "param", "randomness" }), &CPUParticles3D::set_param_randomness);
-    BIND_METHOD(CPUParticles3D,get_param_randomness);
+    SE_BIND_METHOD(CPUParticles3D,get_param_randomness);
 
-    BIND_METHOD(CPUParticles3D,set_param_curve);
-    BIND_METHOD(CPUParticles3D,get_param_curve);
+    SE_BIND_METHOD(CPUParticles3D,set_param_curve);
+    SE_BIND_METHOD(CPUParticles3D,get_param_curve);
 
-    BIND_METHOD(CPUParticles3D,set_color);
-    BIND_METHOD(CPUParticles3D,get_color);
+    SE_BIND_METHOD(CPUParticles3D,set_color);
+    SE_BIND_METHOD(CPUParticles3D,get_color);
 
-    BIND_METHOD(CPUParticles3D,set_color_ramp);
-    BIND_METHOD(CPUParticles3D,get_color_ramp);
+    SE_BIND_METHOD(CPUParticles3D,set_color_ramp);
+    SE_BIND_METHOD(CPUParticles3D,get_color_ramp);
 
-    BIND_METHOD(CPUParticles3D,set_color_initial_ramp);
-    BIND_METHOD(CPUParticles3D,get_color_initial_ramp);
-    BIND_METHOD(CPUParticles3D,set_particle_flag);
-    BIND_METHOD(CPUParticles3D,get_particle_flag);
+    SE_BIND_METHOD(CPUParticles3D,set_color_initial_ramp);
+    SE_BIND_METHOD(CPUParticles3D,get_color_initial_ramp);
+    SE_BIND_METHOD(CPUParticles3D,set_particle_flag);
+    SE_BIND_METHOD(CPUParticles3D,get_particle_flag);
 
-    BIND_METHOD(CPUParticles3D,set_emission_shape);
-    BIND_METHOD(CPUParticles3D,get_emission_shape);
+    SE_BIND_METHOD(CPUParticles3D,set_emission_shape);
+    SE_BIND_METHOD(CPUParticles3D,get_emission_shape);
 
     MethodBinder::bind_method(
             D_METHOD("set_emission_sphere_radius", { "radius" }), &CPUParticles3D::set_emission_sphere_radius);
-    BIND_METHOD(CPUParticles3D,get_emission_sphere_radius);
+    SE_BIND_METHOD(CPUParticles3D,get_emission_sphere_radius);
 
     MethodBinder::bind_method(
             D_METHOD("set_emission_box_extents", { "extents" }), &CPUParticles3D::set_emission_box_extents);
-    BIND_METHOD(CPUParticles3D,get_emission_box_extents);
+    SE_BIND_METHOD(CPUParticles3D,get_emission_box_extents);
 
-    BIND_METHOD(CPUParticles3D,set_emission_points);
-    BIND_METHOD(CPUParticles3D,get_emission_points);
+    SE_BIND_METHOD(CPUParticles3D,set_emission_points);
+    SE_BIND_METHOD(CPUParticles3D,get_emission_points);
 
-    BIND_METHOD(CPUParticles3D,set_emission_normals);
-    BIND_METHOD(CPUParticles3D,get_emission_normals);
+    SE_BIND_METHOD(CPUParticles3D,set_emission_normals);
+    SE_BIND_METHOD(CPUParticles3D,get_emission_normals);
 
-    BIND_METHOD(CPUParticles3D,set_emission_colors);
-    BIND_METHOD(CPUParticles3D,get_emission_colors);
+    SE_BIND_METHOD(CPUParticles3D,set_emission_colors);
+    SE_BIND_METHOD(CPUParticles3D,get_emission_colors);
     MethodBinder::bind_method(
             D_METHOD("set_emission_ring_radius", { "radius" }), &CPUParticles3D::set_emission_ring_radius);
-    BIND_METHOD(CPUParticles3D,get_emission_ring_radius);
+    SE_BIND_METHOD(CPUParticles3D,get_emission_ring_radius);
 
     MethodBinder::bind_method(
             D_METHOD("set_emission_ring_inner_radius", { "offset" }), &CPUParticles3D::set_emission_ring_inner_radius);
@@ -1454,18 +1454,18 @@ void CPUParticles3D::_bind_methods() {
 
     MethodBinder::bind_method(
             D_METHOD("set_emission_ring_height", { "height" }), &CPUParticles3D::set_emission_ring_height);
-    BIND_METHOD(CPUParticles3D,get_emission_ring_height);
+    SE_BIND_METHOD(CPUParticles3D,get_emission_ring_height);
 
-    BIND_METHOD(CPUParticles3D,set_emission_ring_axis);
-    BIND_METHOD(CPUParticles3D,get_emission_ring_axis);
+    SE_BIND_METHOD(CPUParticles3D,set_emission_ring_axis);
+    SE_BIND_METHOD(CPUParticles3D,get_emission_ring_axis);
 
-    BIND_METHOD(CPUParticles3D,get_gravity);
-    BIND_METHOD(CPUParticles3D,set_gravity);
+    SE_BIND_METHOD(CPUParticles3D,get_gravity);
+    SE_BIND_METHOD(CPUParticles3D,set_gravity);
 
     MethodBinder::bind_method(
             D_METHOD("convert_from_particles", { "particles" }), &CPUParticles3D::convert_from_particles);
 
-    BIND_METHOD(CPUParticles3D,_update_render_thread);
+    SE_BIND_METHOD(CPUParticles3D,_update_render_thread);
 
     ADD_GROUP("Emission Shape", "emission_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_shape", PropertyHint::Enum,

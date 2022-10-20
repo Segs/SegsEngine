@@ -800,108 +800,108 @@ void TreeItem::call_recursive(
 }
 void TreeItem::_bind_methods() {
 
-    BIND_METHOD(TreeItem,set_cell_mode);
-    BIND_METHOD(TreeItem,get_cell_mode);
+    SE_BIND_METHOD(TreeItem,set_cell_mode);
+    SE_BIND_METHOD(TreeItem,get_cell_mode);
 
-    BIND_METHOD(TreeItem,set_checked);
-    BIND_METHOD(TreeItem,is_checked);
+    SE_BIND_METHOD(TreeItem,set_checked);
+    SE_BIND_METHOD(TreeItem,is_checked);
 
-    BIND_METHOD(TreeItem,set_text);
-    BIND_METHOD(TreeItem,get_text);
+    SE_BIND_METHOD(TreeItem,set_text);
+    SE_BIND_METHOD(TreeItem,get_text);
 
-    BIND_METHOD(TreeItem,set_suffix);
-    BIND_METHOD(TreeItem,get_suffix);
+    SE_BIND_METHOD(TreeItem,set_suffix);
+    SE_BIND_METHOD(TreeItem,get_suffix);
 
-    BIND_METHOD(TreeItem,set_icon);
-    BIND_METHOD(TreeItem,get_icon);
+    SE_BIND_METHOD(TreeItem,set_icon);
+    SE_BIND_METHOD(TreeItem,get_icon);
 
-    BIND_METHOD(TreeItem,set_icon_region);
-    BIND_METHOD(TreeItem,get_icon_region);
+    SE_BIND_METHOD(TreeItem,set_icon_region);
+    SE_BIND_METHOD(TreeItem,get_icon_region);
 
-    BIND_METHOD(TreeItem,set_icon_max_width);
-    BIND_METHOD(TreeItem,get_icon_max_width);
+    SE_BIND_METHOD(TreeItem,set_icon_max_width);
+    SE_BIND_METHOD(TreeItem,get_icon_max_width);
 
-    BIND_METHOD(TreeItem,set_icon_modulate);
-    BIND_METHOD(TreeItem,get_icon_modulate);
+    SE_BIND_METHOD(TreeItem,set_icon_modulate);
+    SE_BIND_METHOD(TreeItem,get_icon_modulate);
 
-    BIND_METHOD(TreeItem,set_range);
-    BIND_METHOD(TreeItem,get_range);
+    SE_BIND_METHOD(TreeItem,set_range);
+    SE_BIND_METHOD(TreeItem,get_range);
     MethodBinder::bind_method(D_METHOD("set_range_config", { "column", "min", "max", "step", "expr" }),
             &TreeItem::set_range_config, { DEFVAL(false) });
     MethodBinder::bind_method(D_METHOD("get_range_config", {"column"}), &TreeItem::_get_range_config);
 
-    BIND_METHOD(TreeItem,set_metadata);
-    BIND_METHOD(TreeItem,get_metadata);
+    SE_BIND_METHOD(TreeItem,set_metadata);
+    SE_BIND_METHOD(TreeItem,get_metadata);
 
-    BIND_METHOD(TreeItem,set_custom_draw);
+    SE_BIND_METHOD(TreeItem,set_custom_draw);
 
-    BIND_METHOD(TreeItem,set_collapsed);
-    BIND_METHOD(TreeItem,is_collapsed);
+    SE_BIND_METHOD(TreeItem,set_collapsed);
+    SE_BIND_METHOD(TreeItem,is_collapsed);
 
     MethodBinder::bind_method(
             D_METHOD("set_custom_minimum_height", { "height" }), &TreeItem::set_custom_minimum_height);
-    BIND_METHOD(TreeItem,get_custom_minimum_height);
+    SE_BIND_METHOD(TreeItem,get_custom_minimum_height);
 
-    BIND_METHOD(TreeItem,get_next);
-    BIND_METHOD(TreeItem,get_prev);
-    BIND_METHOD(TreeItem,get_parent);
-    BIND_METHOD(TreeItem,get_children);
+    SE_BIND_METHOD(TreeItem,get_next);
+    SE_BIND_METHOD(TreeItem,get_prev);
+    SE_BIND_METHOD(TreeItem,get_parent);
+    SE_BIND_METHOD(TreeItem,get_children);
 
     MethodBinder::bind_method(D_METHOD("get_next_visible", {"wrap"}), &TreeItem::get_next_visible, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("get_prev_visible", {"wrap"}), &TreeItem::get_prev_visible, {DEFVAL(false)});
 
-    BIND_METHOD(TreeItem,remove_child);
+    SE_BIND_METHOD(TreeItem,remove_child);
 
-    BIND_METHOD(TreeItem,set_selectable);
-    BIND_METHOD(TreeItem,is_selectable);
+    SE_BIND_METHOD(TreeItem,set_selectable);
+    SE_BIND_METHOD(TreeItem,is_selectable);
 
-    BIND_METHOD(TreeItem,is_selected);
-    BIND_METHOD(TreeItem,select);
-    BIND_METHOD(TreeItem,deselect);
+    SE_BIND_METHOD(TreeItem,is_selected);
+    SE_BIND_METHOD(TreeItem,select);
+    SE_BIND_METHOD(TreeItem,deselect);
 
-    BIND_METHOD(TreeItem,set_editable);
-    BIND_METHOD(TreeItem,is_editable);
+    SE_BIND_METHOD(TreeItem,set_editable);
+    SE_BIND_METHOD(TreeItem,is_editable);
 
-    BIND_METHOD(TreeItem,set_custom_color);
-    BIND_METHOD(TreeItem,clear_custom_color);
-    BIND_METHOD(TreeItem,get_custom_color);
+    SE_BIND_METHOD(TreeItem,set_custom_color);
+    SE_BIND_METHOD(TreeItem,clear_custom_color);
+    SE_BIND_METHOD(TreeItem,get_custom_color);
 
     MethodBinder::bind_method(D_METHOD("set_custom_bg_color", { "column", "color", "just_outline" }),
             &TreeItem::set_custom_bg_color, { DEFVAL(false) });
-    BIND_METHOD(TreeItem,clear_custom_bg_color);
-    BIND_METHOD(TreeItem,get_custom_bg_color);
+    SE_BIND_METHOD(TreeItem,clear_custom_bg_color);
+    SE_BIND_METHOD(TreeItem,get_custom_bg_color);
 
     MethodBinder::bind_method(
             D_METHOD("set_custom_as_button", { "column", "enable" }), &TreeItem::set_custom_as_button);
-    BIND_METHOD(TreeItem,is_custom_set_as_button);
+    SE_BIND_METHOD(TreeItem,is_custom_set_as_button);
 
     MethodBinder::bind_method(D_METHOD("add_button", { "column", "button", "id", "disabled", "tooltip" }),
             &TreeItem::add_button, { DEFVAL(-1), DEFVAL(false), DEFVAL("") });
-    BIND_METHOD(TreeItem,get_button_count);
+    SE_BIND_METHOD(TreeItem,get_button_count);
     MethodBinder::bind_method(
             D_METHOD("get_button_tooltip", { "column", "button_idx" }), &TreeItem::get_button_tooltip);
-    BIND_METHOD(TreeItem,get_button_id);
-    BIND_METHOD(TreeItem,get_button_by_id);
-    BIND_METHOD(TreeItem,get_button);
-    BIND_METHOD(TreeItem,set_button);
-    BIND_METHOD(TreeItem,erase_button);
+    SE_BIND_METHOD(TreeItem,get_button_id);
+    SE_BIND_METHOD(TreeItem,get_button_by_id);
+    SE_BIND_METHOD(TreeItem,get_button);
+    SE_BIND_METHOD(TreeItem,set_button);
+    SE_BIND_METHOD(TreeItem,erase_button);
     MethodBinder::bind_method(
             D_METHOD("set_button_disabled", { "column", "button_idx", "disabled" }), &TreeItem::set_button_disabled);
     MethodBinder::bind_method(
             D_METHOD("is_button_disabled", { "column", "button_idx" }), &TreeItem::is_button_disabled);
 
-    BIND_METHOD(TreeItem,set_expand_right);
-    BIND_METHOD(TreeItem,get_expand_right);
+    SE_BIND_METHOD(TreeItem,set_expand_right);
+    SE_BIND_METHOD(TreeItem,get_expand_right);
 
-    BIND_METHOD(TreeItem,set_tooltip);
-    BIND_METHOD(TreeItem,get_tooltip);
-    BIND_METHOD(TreeItem,set_text_align);
-    BIND_METHOD(TreeItem,get_text_align);
-    BIND_METHOD(TreeItem,move_to_top);
-    BIND_METHOD(TreeItem,move_to_bottom);
+    SE_BIND_METHOD(TreeItem,set_tooltip);
+    SE_BIND_METHOD(TreeItem,get_tooltip);
+    SE_BIND_METHOD(TreeItem,set_text_align);
+    SE_BIND_METHOD(TreeItem,get_text_align);
+    SE_BIND_METHOD(TreeItem,move_to_top);
+    SE_BIND_METHOD(TreeItem,move_to_bottom);
 
-    BIND_METHOD(TreeItem,set_disable_folding);
-    BIND_METHOD(TreeItem,is_folding_disabled);
+    SE_BIND_METHOD(TreeItem,set_disable_folding);
+    SE_BIND_METHOD(TreeItem,is_folding_disabled);
     {
         MethodInfo mi;
         mi.name = "call_recursive";
@@ -4133,62 +4133,62 @@ bool Tree::get_allow_reselect() const {
 
 void Tree::_bind_methods() {
 
-    BIND_METHOD(Tree,_gui_input);
+    SE_BIND_METHOD(Tree,_gui_input);
 
-    BIND_METHOD(Tree,clear);
+    SE_BIND_METHOD(Tree,clear);
     MethodBinder::bind_method(
             D_METHOD("create_item", { "parent", "idx" }), &Tree::_create_item, { DEFVAL(Variant()), DEFVAL(-1) });
 
-    BIND_METHOD(Tree,get_root);
-    BIND_METHOD(Tree,set_column_min_width);
-    BIND_METHOD(Tree,set_column_expand);
-    BIND_METHOD(Tree,get_column_width);
+    SE_BIND_METHOD(Tree,get_root);
+    SE_BIND_METHOD(Tree,set_column_min_width);
+    SE_BIND_METHOD(Tree,set_column_expand);
+    SE_BIND_METHOD(Tree,get_column_width);
 
-    BIND_METHOD(Tree,set_hide_root);
-    BIND_METHOD(Tree,is_root_hidden);
+    SE_BIND_METHOD(Tree,set_hide_root);
+    SE_BIND_METHOD(Tree,is_root_hidden);
     MethodBinder::bind_method(D_METHOD("get_next_selected", {"from"}), &Tree::_get_next_selected);
-    BIND_METHOD(Tree,get_selected);
-    BIND_METHOD(Tree,get_selected_column);
-    BIND_METHOD(Tree,get_pressed_button);
-    BIND_METHOD(Tree,set_select_mode);
-    BIND_METHOD(Tree,get_select_mode);
+    SE_BIND_METHOD(Tree,get_selected);
+    SE_BIND_METHOD(Tree,get_selected_column);
+    SE_BIND_METHOD(Tree,get_pressed_button);
+    SE_BIND_METHOD(Tree,set_select_mode);
+    SE_BIND_METHOD(Tree,get_select_mode);
 
-    BIND_METHOD(Tree,set_columns);
-    BIND_METHOD(Tree,get_columns);
+    SE_BIND_METHOD(Tree,set_columns);
+    SE_BIND_METHOD(Tree,get_columns);
 
-    BIND_METHOD(Tree,get_edited);
-    BIND_METHOD(Tree,get_edited_column);
-    BIND_METHOD(Tree,edit_selected);
-    BIND_METHOD(Tree,get_custom_popup_rect);
+    SE_BIND_METHOD(Tree,get_edited);
+    SE_BIND_METHOD(Tree,get_edited_column);
+    SE_BIND_METHOD(Tree,edit_selected);
+    SE_BIND_METHOD(Tree,get_custom_popup_rect);
     MethodBinder::bind_method(
             D_METHOD("get_item_area_rect", { "item", "column" }), &Tree::_get_item_rect, { DEFVAL(-1) });
-    BIND_METHOD(Tree,get_item_at_position);
-    BIND_METHOD(Tree,get_column_at_position);
+    SE_BIND_METHOD(Tree,get_item_at_position);
+    SE_BIND_METHOD(Tree,get_column_at_position);
     MethodBinder::bind_method(
             D_METHOD("get_drop_section_at_position", { "position" }), &Tree::get_drop_section_at_position);
-    BIND_METHOD(Tree,get_button_id_at_position);
+    SE_BIND_METHOD(Tree,get_button_id_at_position);
 
-    BIND_METHOD(Tree,ensure_cursor_is_visible);
+    SE_BIND_METHOD(Tree,ensure_cursor_is_visible);
 
-    BIND_METHOD(Tree,set_column_titles_visible);
-    BIND_METHOD(Tree,are_column_titles_visible);
+    SE_BIND_METHOD(Tree,set_column_titles_visible);
+    SE_BIND_METHOD(Tree,are_column_titles_visible);
 
-    BIND_METHOD(Tree,set_column_title);
-    BIND_METHOD(Tree,get_column_title);
-    BIND_METHOD(Tree,get_scroll);
+    SE_BIND_METHOD(Tree,set_column_title);
+    SE_BIND_METHOD(Tree,get_column_title);
+    SE_BIND_METHOD(Tree,get_scroll);
     MethodBinder::bind_method(D_METHOD("scroll_to_item", { "item" }), &Tree::_scroll_to_item);
 
-    BIND_METHOD(Tree,set_hide_folding);
-    BIND_METHOD(Tree,is_folding_hidden);
+    SE_BIND_METHOD(Tree,set_hide_folding);
+    SE_BIND_METHOD(Tree,is_folding_hidden);
 
-    BIND_METHOD(Tree,set_drop_mode_flags);
-    BIND_METHOD(Tree,get_drop_mode_flags);
+    SE_BIND_METHOD(Tree,set_drop_mode_flags);
+    SE_BIND_METHOD(Tree,get_drop_mode_flags);
 
-    BIND_METHOD(Tree,set_allow_rmb_select);
-    BIND_METHOD(Tree,get_allow_rmb_select);
+    SE_BIND_METHOD(Tree,set_allow_rmb_select);
+    SE_BIND_METHOD(Tree,get_allow_rmb_select);
 
-    BIND_METHOD(Tree,set_allow_reselect);
-    BIND_METHOD(Tree,get_allow_reselect);
+    SE_BIND_METHOD(Tree,set_allow_reselect);
+    SE_BIND_METHOD(Tree,get_allow_reselect);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "columns"), "set_columns", "get_columns");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "column_titles_visible"), "set_column_titles_visible",

@@ -322,34 +322,34 @@ bool CollisionObject3D::is_ray_pickable() const {
 
 void CollisionObject3D::_bind_methods() {
 
-    BIND_METHOD(CollisionObject3D,set_collision_layer);
-    BIND_METHOD(CollisionObject3D,get_collision_layer);
-    BIND_METHOD(CollisionObject3D,set_collision_mask);
-    BIND_METHOD(CollisionObject3D,get_collision_mask);
-    BIND_METHOD(CollisionObject3D,set_collision_layer_bit);
-    BIND_METHOD(CollisionObject3D,get_collision_layer_bit);
-    BIND_METHOD(CollisionObject3D,set_collision_mask_bit);
-    BIND_METHOD(CollisionObject3D,get_collision_mask_bit);
-    BIND_METHOD(CollisionObject3D,set_ray_pickable);
-    BIND_METHOD(CollisionObject3D,is_ray_pickable);
-    BIND_METHOD(CollisionObject3D,set_capture_input_on_drag);
-    BIND_METHOD(CollisionObject3D,get_capture_input_on_drag);
-    BIND_METHOD(CollisionObject3D,get_rid);
-    BIND_METHOD(CollisionObject3D,create_shape_owner);
-    BIND_METHOD(CollisionObject3D,remove_shape_owner);
+    SE_BIND_METHOD(CollisionObject3D,set_collision_layer);
+    SE_BIND_METHOD(CollisionObject3D,get_collision_layer);
+    SE_BIND_METHOD(CollisionObject3D,set_collision_mask);
+    SE_BIND_METHOD(CollisionObject3D,get_collision_mask);
+    SE_BIND_METHOD(CollisionObject3D,set_collision_layer_bit);
+    SE_BIND_METHOD(CollisionObject3D,get_collision_layer_bit);
+    SE_BIND_METHOD(CollisionObject3D,set_collision_mask_bit);
+    SE_BIND_METHOD(CollisionObject3D,get_collision_mask_bit);
+    SE_BIND_METHOD(CollisionObject3D,set_ray_pickable);
+    SE_BIND_METHOD(CollisionObject3D,is_ray_pickable);
+    SE_BIND_METHOD(CollisionObject3D,set_capture_input_on_drag);
+    SE_BIND_METHOD(CollisionObject3D,get_capture_input_on_drag);
+    SE_BIND_METHOD(CollisionObject3D,get_rid);
+    SE_BIND_METHOD(CollisionObject3D,create_shape_owner);
+    SE_BIND_METHOD(CollisionObject3D,remove_shape_owner);
     MethodBinder::bind_method(D_METHOD("get_shape_owners"), &CollisionObject3D::_get_shape_owners);
-    BIND_METHOD(CollisionObject3D,shape_owner_set_transform);
-    BIND_METHOD(CollisionObject3D,shape_owner_get_transform);
-    BIND_METHOD(CollisionObject3D,shape_owner_get_owner);
-    BIND_METHOD(CollisionObject3D,shape_owner_set_disabled);
-    BIND_METHOD(CollisionObject3D,is_shape_owner_disabled);
-    BIND_METHOD(CollisionObject3D,shape_owner_add_shape);
-    BIND_METHOD(CollisionObject3D,shape_owner_get_shape_count);
-    BIND_METHOD(CollisionObject3D,shape_owner_get_shape);
-    BIND_METHOD(CollisionObject3D,shape_owner_get_shape_index);
-    BIND_METHOD(CollisionObject3D,shape_owner_remove_shape);
-    BIND_METHOD(CollisionObject3D,shape_owner_clear_shapes);
-    BIND_METHOD(CollisionObject3D,shape_find_owner);
+    SE_BIND_METHOD(CollisionObject3D,shape_owner_set_transform);
+    SE_BIND_METHOD(CollisionObject3D,shape_owner_get_transform);
+    SE_BIND_METHOD(CollisionObject3D,shape_owner_get_owner);
+    SE_BIND_METHOD(CollisionObject3D,shape_owner_set_disabled);
+    SE_BIND_METHOD(CollisionObject3D,is_shape_owner_disabled);
+    SE_BIND_METHOD(CollisionObject3D,shape_owner_add_shape);
+    SE_BIND_METHOD(CollisionObject3D,shape_owner_get_shape_count);
+    SE_BIND_METHOD(CollisionObject3D,shape_owner_get_shape);
+    SE_BIND_METHOD(CollisionObject3D,shape_owner_get_shape_index);
+    SE_BIND_METHOD(CollisionObject3D,shape_owner_remove_shape);
+    SE_BIND_METHOD(CollisionObject3D,shape_owner_clear_shapes);
+    SE_BIND_METHOD(CollisionObject3D,shape_find_owner);
 
     BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "camera"),
             PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent"),

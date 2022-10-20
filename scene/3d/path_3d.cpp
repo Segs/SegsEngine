@@ -85,9 +85,9 @@ Ref<Curve3D> Path3D::get_curve() const {
 
 void Path3D::_bind_methods() {
 
-    BIND_METHOD(Path3D,set_curve);
-    BIND_METHOD(Path3D,get_curve);
-    BIND_METHOD(Path3D,_curve_changed);
+    SE_BIND_METHOD(Path3D,set_curve);
+    SE_BIND_METHOD(Path3D,get_curve);
+    SE_BIND_METHOD(Path3D,_curve_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "curve", PropertyHint::ResourceType, "Curve3D"), "set_curve", "get_curve");
 
@@ -302,26 +302,26 @@ String PathFollow3D::get_configuration_warning() const {
 
 void PathFollow3D::_bind_methods() {
 
-    BIND_METHOD(PathFollow3D,set_offset);
-    BIND_METHOD(PathFollow3D,get_offset);
+    SE_BIND_METHOD(PathFollow3D,set_offset);
+    SE_BIND_METHOD(PathFollow3D,get_offset);
 
-    BIND_METHOD(PathFollow3D,set_h_offset);
-    BIND_METHOD(PathFollow3D,get_h_offset);
+    SE_BIND_METHOD(PathFollow3D,set_h_offset);
+    SE_BIND_METHOD(PathFollow3D,get_h_offset);
 
-    BIND_METHOD(PathFollow3D,set_v_offset);
-    BIND_METHOD(PathFollow3D,get_v_offset);
+    SE_BIND_METHOD(PathFollow3D,set_v_offset);
+    SE_BIND_METHOD(PathFollow3D,get_v_offset);
 
-    BIND_METHOD(PathFollow3D,set_unit_offset);
-    BIND_METHOD(PathFollow3D,get_unit_offset);
+    SE_BIND_METHOD(PathFollow3D,set_unit_offset);
+    SE_BIND_METHOD(PathFollow3D,get_unit_offset);
 
-    BIND_METHOD(PathFollow3D,set_rotation_mode);
-    BIND_METHOD(PathFollow3D,get_rotation_mode);
+    SE_BIND_METHOD(PathFollow3D,set_rotation_mode);
+    SE_BIND_METHOD(PathFollow3D,get_rotation_mode);
 
-    BIND_METHOD(PathFollow3D,set_cubic_interpolation);
-    BIND_METHOD(PathFollow3D,get_cubic_interpolation);
+    SE_BIND_METHOD(PathFollow3D,set_cubic_interpolation);
+    SE_BIND_METHOD(PathFollow3D,get_cubic_interpolation);
 
-    BIND_METHOD(PathFollow3D,set_loop);
-    BIND_METHOD(PathFollow3D,has_loop);
+    SE_BIND_METHOD(PathFollow3D,set_loop);
+    SE_BIND_METHOD(PathFollow3D,has_loop);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "offset", PropertyHint::Range, "0,10000,0.01,or_lesser,or_greater"), "set_offset", "get_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "unit_offset", PropertyHint::Range, "0,1,0.0001,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_unit_offset", "get_unit_offset");

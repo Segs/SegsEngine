@@ -97,9 +97,9 @@ void Shape::_update_shape() {
 
 void Shape::_bind_methods() {
 
-    BIND_METHOD(Shape,set_margin);
-    BIND_METHOD(Shape,get_margin);
-    BIND_METHOD(Shape,get_debug_mesh);
+    SE_BIND_METHOD(Shape,set_margin);
+    SE_BIND_METHOD(Shape,get_margin);
+    SE_BIND_METHOD(Shape,get_debug_mesh);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "margin", PropertyHint::Range, "0.001,10,0.001"), "set_margin", "get_margin");
 }

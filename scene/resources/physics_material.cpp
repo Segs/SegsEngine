@@ -36,17 +36,17 @@ RES_BASE_EXTENSION_IMPL(PhysicsMaterial,"phymat")
 
 void PhysicsMaterial::_bind_methods() {
 
-    BIND_METHOD(PhysicsMaterial,set_friction);
-    BIND_METHOD(PhysicsMaterial,get_friction);
+    SE_BIND_METHOD(PhysicsMaterial,set_friction);
+    SE_BIND_METHOD(PhysicsMaterial,get_friction);
 
-    BIND_METHOD(PhysicsMaterial,set_rough);
-    BIND_METHOD(PhysicsMaterial,is_rough);
+    SE_BIND_METHOD(PhysicsMaterial,set_rough);
+    SE_BIND_METHOD(PhysicsMaterial,is_rough);
 
-    BIND_METHOD(PhysicsMaterial,set_bounce);
-    BIND_METHOD(PhysicsMaterial,get_bounce);
+    SE_BIND_METHOD(PhysicsMaterial,set_bounce);
+    SE_BIND_METHOD(PhysicsMaterial,get_bounce);
 
-    BIND_METHOD(PhysicsMaterial,set_absorbent);
-    BIND_METHOD(PhysicsMaterial,is_absorbent);
+    SE_BIND_METHOD(PhysicsMaterial,set_absorbent);
+    SE_BIND_METHOD(PhysicsMaterial,is_absorbent);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "friction",PropertyHint::Range,"0,1,0.01,or_greater"), "set_friction", "get_friction");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rough"), "set_rough", "is_rough");

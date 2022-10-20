@@ -657,9 +657,9 @@ void EditorExportPlugin::skip() {
 void EditorExportPlugin::_bind_methods() {
     MethodBinder::bind_method(
             D_METHOD("add_shared_object", { "path", "tags" }), &EditorExportPlugin::add_shared_object);
-    BIND_METHOD(EditorExportPlugin,add_file);
-    BIND_METHOD(EditorExportPlugin,skip);
-    BIND_METHOD(EditorExportPlugin,add_osx_plugin_file);
+    SE_BIND_METHOD(EditorExportPlugin,add_file);
+    SE_BIND_METHOD(EditorExportPlugin,skip);
+    SE_BIND_METHOD(EditorExportPlugin,add_osx_plugin_file);
 
     BIND_VMETHOD(MethodInfo("_export_file", PropertyInfo(VariantType::STRING, "path"),
             PropertyInfo(VariantType::STRING, "type"), PropertyInfo(VariantType::POOL_STRING_ARRAY, "features")));

@@ -93,18 +93,18 @@ Rect2 StyleBox::get_draw_rect(const Rect2 &p_rect) const {
 
 void StyleBox::_bind_methods() {
 
-    BIND_METHOD(StyleBox,test_mask);
+    SE_BIND_METHOD(StyleBox,test_mask);
 
-    BIND_METHOD(StyleBox,set_default_margin);
-    BIND_METHOD(StyleBox,get_default_margin);
+    SE_BIND_METHOD(StyleBox,set_default_margin);
+    SE_BIND_METHOD(StyleBox,get_default_margin);
 
 
-    BIND_METHOD(StyleBox,get_margin);
-    BIND_METHOD(StyleBox,get_minimum_size);
-    BIND_METHOD(StyleBox,get_center_size);
-    BIND_METHOD(StyleBox,get_offset);
+    SE_BIND_METHOD(StyleBox,get_margin);
+    SE_BIND_METHOD(StyleBox,get_minimum_size);
+    SE_BIND_METHOD(StyleBox,get_center_size);
+    SE_BIND_METHOD(StyleBox,get_offset);
 
-    BIND_METHOD(StyleBox,draw);
+    SE_BIND_METHOD(StyleBox,draw);
 
     ADD_GROUP("Content Margin", "content_margin_");
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "content_margin_left", PropertyHint::Range, "-1,2048,1"), "set_default_margin", "get_default_margin", (int)Margin::Left);
@@ -298,34 +298,34 @@ void StyleBoxTexture::set_modulate(const Color &p_modulate) {
 
 void StyleBoxTexture::_bind_methods() {
 
-    BIND_METHOD(StyleBoxTexture,set_texture);
-    BIND_METHOD(StyleBoxTexture,get_texture);
+    SE_BIND_METHOD(StyleBoxTexture,set_texture);
+    SE_BIND_METHOD(StyleBoxTexture,get_texture);
 
-    BIND_METHOD(StyleBoxTexture,set_normal_map);
-    BIND_METHOD(StyleBoxTexture,get_normal_map);
+    SE_BIND_METHOD(StyleBoxTexture,set_normal_map);
+    SE_BIND_METHOD(StyleBoxTexture,get_normal_map);
 
-    BIND_METHOD(StyleBoxTexture,set_margin_size);
-    BIND_METHOD(StyleBoxTexture,get_margin_size);
+    SE_BIND_METHOD(StyleBoxTexture,set_margin_size);
+    SE_BIND_METHOD(StyleBoxTexture,get_margin_size);
 
-    BIND_METHOD(StyleBoxTexture,set_expand_margin_size);
+    SE_BIND_METHOD(StyleBoxTexture,set_expand_margin_size);
     MethodBinder::bind_method(D_METHOD("set_expand_margin_all", {"size"}), &StyleBoxTexture::set_expand_margin_size_all);
     MethodBinder::bind_method(D_METHOD("set_expand_margin_individual", {"size_left", "size_top", "size_right", "size_bottom"}), &StyleBoxTexture::set_expand_margin_size_individual);
-    BIND_METHOD(StyleBoxTexture,get_expand_margin_size);
+    SE_BIND_METHOD(StyleBoxTexture,get_expand_margin_size);
 
-    BIND_METHOD(StyleBoxTexture,set_region_rect);
-    BIND_METHOD(StyleBoxTexture,get_region_rect);
+    SE_BIND_METHOD(StyleBoxTexture,set_region_rect);
+    SE_BIND_METHOD(StyleBoxTexture,get_region_rect);
 
-    BIND_METHOD(StyleBoxTexture,set_draw_center);
-    BIND_METHOD(StyleBoxTexture,is_draw_center_enabled);
+    SE_BIND_METHOD(StyleBoxTexture,set_draw_center);
+    SE_BIND_METHOD(StyleBoxTexture,is_draw_center_enabled);
 
-    BIND_METHOD(StyleBoxTexture,set_modulate);
-    BIND_METHOD(StyleBoxTexture,get_modulate);
+    SE_BIND_METHOD(StyleBoxTexture,set_modulate);
+    SE_BIND_METHOD(StyleBoxTexture,get_modulate);
 
-    BIND_METHOD(StyleBoxTexture,set_h_axis_stretch_mode);
-    BIND_METHOD(StyleBoxTexture,get_h_axis_stretch_mode);
+    SE_BIND_METHOD(StyleBoxTexture,set_h_axis_stretch_mode);
+    SE_BIND_METHOD(StyleBoxTexture,get_h_axis_stretch_mode);
 
-    BIND_METHOD(StyleBoxTexture,set_v_axis_stretch_mode);
-    BIND_METHOD(StyleBoxTexture,get_v_axis_stretch_mode);
+    SE_BIND_METHOD(StyleBoxTexture,set_v_axis_stretch_mode);
+    SE_BIND_METHOD(StyleBoxTexture,get_v_axis_stretch_mode);
 
     ADD_SIGNAL(MethodInfo("texture_changed"));
 
@@ -864,52 +864,52 @@ float StyleBoxFlat::get_style_margin(Margin p_margin) const {
 }
 void StyleBoxFlat::_bind_methods() {
 
-    BIND_METHOD(StyleBoxFlat,set_bg_color);
-    BIND_METHOD(StyleBoxFlat,get_bg_color);
+    SE_BIND_METHOD(StyleBoxFlat,set_bg_color);
+    SE_BIND_METHOD(StyleBoxFlat,get_bg_color);
 
-    BIND_METHOD(StyleBoxFlat,set_border_color);
-    BIND_METHOD(StyleBoxFlat,get_border_color);
+    SE_BIND_METHOD(StyleBoxFlat,set_border_color);
+    SE_BIND_METHOD(StyleBoxFlat,get_border_color);
 
-    BIND_METHOD(StyleBoxFlat,set_border_width_all);
-    BIND_METHOD(StyleBoxFlat,get_border_width_min);
+    SE_BIND_METHOD(StyleBoxFlat,set_border_width_all);
+    SE_BIND_METHOD(StyleBoxFlat,get_border_width_min);
 
-    BIND_METHOD(StyleBoxFlat,set_border_width);
-    BIND_METHOD(StyleBoxFlat,get_border_width);
+    SE_BIND_METHOD(StyleBoxFlat,set_border_width);
+    SE_BIND_METHOD(StyleBoxFlat,get_border_width);
 
-    BIND_METHOD(StyleBoxFlat,set_border_blend);
-    BIND_METHOD(StyleBoxFlat,get_border_blend);
+    SE_BIND_METHOD(StyleBoxFlat,set_border_blend);
+    SE_BIND_METHOD(StyleBoxFlat,get_border_blend);
 
-    BIND_METHOD(StyleBoxFlat,set_corner_radius_individual);
-    BIND_METHOD(StyleBoxFlat,set_corner_radius_all);
+    SE_BIND_METHOD(StyleBoxFlat,set_corner_radius_individual);
+    SE_BIND_METHOD(StyleBoxFlat,set_corner_radius_all);
 
-    BIND_METHOD(StyleBoxFlat,set_corner_radius);
-    BIND_METHOD(StyleBoxFlat,get_corner_radius);
+    SE_BIND_METHOD(StyleBoxFlat,set_corner_radius);
+    SE_BIND_METHOD(StyleBoxFlat,get_corner_radius);
 
     MethodBinder::bind_method(D_METHOD("set_expand_margin", {"margin", "size"}), &StyleBoxFlat::set_expand_margin_size);
     MethodBinder::bind_method(D_METHOD("set_expand_margin_all", {"size"}), &StyleBoxFlat::set_expand_margin_size_all);
     MethodBinder::bind_method(D_METHOD("set_expand_margin_individual", {"size_left", "size_top", "size_right", "size_bottom"}), &StyleBoxFlat::set_expand_margin_size_individual);
     MethodBinder::bind_method(D_METHOD("get_expand_margin", {"margin"}), &StyleBoxFlat::get_expand_margin_size);
 
-    BIND_METHOD(StyleBoxFlat,set_draw_center);
-    BIND_METHOD(StyleBoxFlat,is_draw_center_enabled);
+    SE_BIND_METHOD(StyleBoxFlat,set_draw_center);
+    SE_BIND_METHOD(StyleBoxFlat,is_draw_center_enabled);
 
-    BIND_METHOD(StyleBoxFlat,set_shadow_color);
-    BIND_METHOD(StyleBoxFlat,get_shadow_color);
+    SE_BIND_METHOD(StyleBoxFlat,set_shadow_color);
+    SE_BIND_METHOD(StyleBoxFlat,get_shadow_color);
 
-    BIND_METHOD(StyleBoxFlat,set_shadow_size);
-    BIND_METHOD(StyleBoxFlat,get_shadow_size);
+    SE_BIND_METHOD(StyleBoxFlat,set_shadow_size);
+    SE_BIND_METHOD(StyleBoxFlat,get_shadow_size);
 
-    BIND_METHOD(StyleBoxFlat,set_shadow_offset);
-    BIND_METHOD(StyleBoxFlat,get_shadow_offset);
+    SE_BIND_METHOD(StyleBoxFlat,set_shadow_offset);
+    SE_BIND_METHOD(StyleBoxFlat,get_shadow_offset);
 
-    BIND_METHOD(StyleBoxFlat,set_anti_aliased);
-    BIND_METHOD(StyleBoxFlat,is_anti_aliased);
+    SE_BIND_METHOD(StyleBoxFlat,set_anti_aliased);
+    SE_BIND_METHOD(StyleBoxFlat,is_anti_aliased);
 
-    BIND_METHOD(StyleBoxFlat,set_aa_size);
-    BIND_METHOD(StyleBoxFlat,get_aa_size);
+    SE_BIND_METHOD(StyleBoxFlat,set_aa_size);
+    SE_BIND_METHOD(StyleBoxFlat,get_aa_size);
 
-    BIND_METHOD(StyleBoxFlat,set_corner_detail);
-    BIND_METHOD(StyleBoxFlat,get_corner_detail);
+    SE_BIND_METHOD(StyleBoxFlat,set_corner_detail);
+    SE_BIND_METHOD(StyleBoxFlat,get_corner_detail);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "bg_color"), "set_bg_color", "get_bg_color");
 
@@ -1026,16 +1026,16 @@ float StyleBoxLine::get_grow_begin() const {
 
 void StyleBoxLine::_bind_methods() {
 
-    BIND_METHOD(StyleBoxLine,set_color);
-    BIND_METHOD(StyleBoxLine,get_color);
-    BIND_METHOD(StyleBoxLine,set_thickness);
-    BIND_METHOD(StyleBoxLine,get_thickness);
-    BIND_METHOD(StyleBoxLine,set_grow_begin);
-    BIND_METHOD(StyleBoxLine,get_grow_begin);
-    BIND_METHOD(StyleBoxLine,set_grow_end);
-    BIND_METHOD(StyleBoxLine,get_grow_end);
-    BIND_METHOD(StyleBoxLine,set_vertical);
-    BIND_METHOD(StyleBoxLine,is_vertical);
+    SE_BIND_METHOD(StyleBoxLine,set_color);
+    SE_BIND_METHOD(StyleBoxLine,get_color);
+    SE_BIND_METHOD(StyleBoxLine,set_thickness);
+    SE_BIND_METHOD(StyleBoxLine,get_thickness);
+    SE_BIND_METHOD(StyleBoxLine,set_grow_begin);
+    SE_BIND_METHOD(StyleBoxLine,get_grow_begin);
+    SE_BIND_METHOD(StyleBoxLine,set_grow_end);
+    SE_BIND_METHOD(StyleBoxLine,get_grow_end);
+    SE_BIND_METHOD(StyleBoxLine,set_vertical);
+    SE_BIND_METHOD(StyleBoxLine,is_vertical);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "grow_begin", PropertyHint::Range, "-300,300,1"), "set_grow_begin", "get_grow_begin");

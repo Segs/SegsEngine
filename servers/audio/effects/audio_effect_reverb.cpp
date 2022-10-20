@@ -163,29 +163,29 @@ float AudioEffectReverb::get_hpf() const {
 
 void AudioEffectReverb::_bind_methods() {
 
-    BIND_METHOD(AudioEffectReverb,set_predelay_msec);
-    BIND_METHOD(AudioEffectReverb,get_predelay_msec);
+    SE_BIND_METHOD(AudioEffectReverb,set_predelay_msec);
+    SE_BIND_METHOD(AudioEffectReverb,get_predelay_msec);
 
-    BIND_METHOD(AudioEffectReverb,set_predelay_feedback);
-    BIND_METHOD(AudioEffectReverb,get_predelay_feedback);
+    SE_BIND_METHOD(AudioEffectReverb,set_predelay_feedback);
+    SE_BIND_METHOD(AudioEffectReverb,get_predelay_feedback);
 
-    BIND_METHOD(AudioEffectReverb,set_room_size);
-    BIND_METHOD(AudioEffectReverb,get_room_size);
+    SE_BIND_METHOD(AudioEffectReverb,set_room_size);
+    SE_BIND_METHOD(AudioEffectReverb,get_room_size);
 
-    BIND_METHOD(AudioEffectReverb,set_damping);
-    BIND_METHOD(AudioEffectReverb,get_damping);
+    SE_BIND_METHOD(AudioEffectReverb,set_damping);
+    SE_BIND_METHOD(AudioEffectReverb,get_damping);
 
-    BIND_METHOD(AudioEffectReverb,set_spread);
-    BIND_METHOD(AudioEffectReverb,get_spread);
+    SE_BIND_METHOD(AudioEffectReverb,set_spread);
+    SE_BIND_METHOD(AudioEffectReverb,get_spread);
 
-    BIND_METHOD(AudioEffectReverb,set_dry);
-    BIND_METHOD(AudioEffectReverb,get_dry);
+    SE_BIND_METHOD(AudioEffectReverb,set_dry);
+    SE_BIND_METHOD(AudioEffectReverb,get_dry);
 
-    BIND_METHOD(AudioEffectReverb,set_wet);
-    BIND_METHOD(AudioEffectReverb,get_wet);
+    SE_BIND_METHOD(AudioEffectReverb,set_wet);
+    SE_BIND_METHOD(AudioEffectReverb,get_wet);
 
-    BIND_METHOD(AudioEffectReverb,set_hpf);
-    BIND_METHOD(AudioEffectReverb,get_hpf);
+    SE_BIND_METHOD(AudioEffectReverb,set_hpf);
+    SE_BIND_METHOD(AudioEffectReverb,get_hpf);
 
     ADD_GROUP("Predelay", "predelay_");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "predelay_msec", PropertyHint::Range, "20,500,1"), "set_predelay_msec", "get_predelay_msec");

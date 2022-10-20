@@ -64,26 +64,26 @@ void AnimationNodeBlendSpace1D::_tree_changed() {
 
 void AnimationNodeBlendSpace1D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("add_blend_point", {"node", "pos", "at_index"}), &AnimationNodeBlendSpace1D::add_blend_point, {DEFVAL(-1)});
-    BIND_METHOD(AnimationNodeBlendSpace1D,set_blend_point_position);
-    BIND_METHOD(AnimationNodeBlendSpace1D,get_blend_point_position);
-    BIND_METHOD(AnimationNodeBlendSpace1D,set_blend_point_node);
-    BIND_METHOD(AnimationNodeBlendSpace1D,get_blend_point_node);
-    BIND_METHOD(AnimationNodeBlendSpace1D,remove_blend_point);
-    BIND_METHOD(AnimationNodeBlendSpace1D,get_blend_point_count);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,set_blend_point_position);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,get_blend_point_position);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,set_blend_point_node);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,get_blend_point_node);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,remove_blend_point);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,get_blend_point_count);
 
-    BIND_METHOD(AnimationNodeBlendSpace1D,set_min_space);
-    BIND_METHOD(AnimationNodeBlendSpace1D,get_min_space);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,set_min_space);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,get_min_space);
 
-    BIND_METHOD(AnimationNodeBlendSpace1D,set_max_space);
-    BIND_METHOD(AnimationNodeBlendSpace1D,get_max_space);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,set_max_space);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,get_max_space);
 
-    BIND_METHOD(AnimationNodeBlendSpace1D,set_snap);
-    BIND_METHOD(AnimationNodeBlendSpace1D,get_snap);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,set_snap);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,get_snap);
 
-    BIND_METHOD(AnimationNodeBlendSpace1D,set_value_label);
-    BIND_METHOD(AnimationNodeBlendSpace1D,get_value_label);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,set_value_label);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,get_value_label);
 
-    BIND_METHOD(AnimationNodeBlendSpace1D,_add_blend_point);
+    SE_BIND_METHOD(AnimationNodeBlendSpace1D,_add_blend_point);
 
     ADD_PROPERTY_ARRAY("Blend Points",MAX_BLEND_POINTS,"blend_point");
     for (int i = 0; i < MAX_BLEND_POINTS; i++) {

@@ -120,8 +120,8 @@ PoolVector<Vector3> ConcavePolygonShape3D::get_faces() const {
 
 void ConcavePolygonShape3D::_bind_methods() {
 
-    BIND_METHOD(ConcavePolygonShape3D,set_faces);
-    BIND_METHOD(ConcavePolygonShape3D,get_faces);
+    SE_BIND_METHOD(ConcavePolygonShape3D,set_faces);
+    SE_BIND_METHOD(ConcavePolygonShape3D,get_faces);
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_faces", "get_faces");
 }
 

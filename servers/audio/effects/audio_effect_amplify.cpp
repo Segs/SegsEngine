@@ -67,8 +67,8 @@ float AudioEffectAmplify::get_volume_db() const {
 
 void AudioEffectAmplify::_bind_methods() {
 
-    BIND_METHOD(AudioEffectAmplify,set_volume_db);
-    BIND_METHOD(AudioEffectAmplify,get_volume_db);
+    SE_BIND_METHOD(AudioEffectAmplify,set_volume_db);
+    SE_BIND_METHOD(AudioEffectAmplify,get_volume_db);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "volume_db", PropertyHint::Range, "-80,24,0.01"), "set_volume_db", "get_volume_db");
 }

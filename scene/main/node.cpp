@@ -2978,94 +2978,94 @@ void Node::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_child_below_node", {"node", "child_node", "legible_unique_name"}), &Node::add_child_below_node, {DEFVAL(false)});
 
-    BIND_METHOD(Node,set_name);
-    BIND_METHOD(Node,get_name);
+    SE_BIND_METHOD(Node,set_name);
+    SE_BIND_METHOD(Node,get_name);
     MethodBinder::bind_method(D_METHOD("add_child", {"node", "legible_unique_name"}), &Node::add_child, {DEFVAL(false)});
-    BIND_METHOD(Node,remove_child);
-    BIND_METHOD(Node,get_child_count);
+    SE_BIND_METHOD(Node,remove_child);
+    SE_BIND_METHOD(Node,get_child_count);
     MethodBinder::bind_method(D_METHOD("get_children"), &Node::_get_children);
-    BIND_METHOD(Node,get_child);
-    BIND_METHOD(Node,has_node);
-    BIND_METHOD(Node,get_node);
-    BIND_METHOD(Node,get_node_or_null);
-    BIND_METHOD(Node,get_parent);
-    BIND_METHOD(Node,has_node_and_resource);
+    SE_BIND_METHOD(Node,get_child);
+    SE_BIND_METHOD(Node,has_node);
+    SE_BIND_METHOD(Node,get_node);
+    SE_BIND_METHOD(Node,get_node_or_null);
+    SE_BIND_METHOD(Node,get_parent);
+    SE_BIND_METHOD(Node,has_node_and_resource);
     MethodBinder::bind_method(D_METHOD("get_node_and_resource", {"path"}), &Node::_get_node_and_resource);
 
-    BIND_METHOD(Node,is_inside_tree);
-    BIND_METHOD(Node,is_a_parent_of);
-    BIND_METHOD(Node,is_greater_than);
-    BIND_METHOD(Node,get_path);
-    BIND_METHOD(Node,get_path_to);
+    SE_BIND_METHOD(Node,is_inside_tree);
+    SE_BIND_METHOD(Node,is_a_parent_of);
+    SE_BIND_METHOD(Node,is_greater_than);
+    SE_BIND_METHOD(Node,get_path);
+    SE_BIND_METHOD(Node,get_path_to);
     MethodBinder::bind_method(D_METHOD("add_to_group", {"group", "persistent"}), &Node::add_to_group, {DEFVAL(false)});
-    BIND_METHOD(Node,remove_from_group);
-    BIND_METHOD(Node,is_in_group);
-    BIND_METHOD(Node,move_child);
+    SE_BIND_METHOD(Node,remove_from_group);
+    SE_BIND_METHOD(Node,is_in_group);
+    SE_BIND_METHOD(Node,move_child);
     MethodBinder::bind_method(D_METHOD("get_groups"), &Node::_get_groups);
-    BIND_METHOD(Node,raise);
-    BIND_METHOD(Node,set_owner);
-    BIND_METHOD(Node,get_owner);
-    BIND_METHOD(Node,remove_and_skip);
-    BIND_METHOD(Node,get_index);
-    BIND_METHOD(Node,print_tree);
+    SE_BIND_METHOD(Node,raise);
+    SE_BIND_METHOD(Node,set_owner);
+    SE_BIND_METHOD(Node,get_owner);
+    SE_BIND_METHOD(Node,remove_and_skip);
+    SE_BIND_METHOD(Node,get_index);
+    SE_BIND_METHOD(Node,print_tree);
 
-    BIND_METHOD(Node,set_filename);
-    BIND_METHOD(Node,get_filename);
-    BIND_METHOD(Node,propagate_notification);
+    SE_BIND_METHOD(Node,set_filename);
+    SE_BIND_METHOD(Node,get_filename);
+    SE_BIND_METHOD(Node,propagate_notification);
     MethodBinder::bind_method(D_METHOD("propagate_call", {"method", "args", "parent_first"}), &Node::propagate_call, {DEFVAL(Array()), DEFVAL(false)});
-    BIND_METHOD(Node,set_physics_process);
-    BIND_METHOD(Node,get_physics_process_delta_time);
-    BIND_METHOD(Node,is_physics_processing);
-    BIND_METHOD(Node,get_process_delta_time);
-    BIND_METHOD(Node,set_process);
-    BIND_METHOD(Node,set_process_priority);
-    BIND_METHOD(Node,get_process_priority);
-    BIND_METHOD(Node,is_processing);
-    BIND_METHOD(Node,set_process_input);
-    BIND_METHOD(Node,is_processing_input);
-    BIND_METHOD(Node,set_process_unhandled_input);
-    BIND_METHOD(Node,is_processing_unhandled_input);
-    BIND_METHOD(Node,set_process_unhandled_key_input);
-    BIND_METHOD(Node,is_processing_unhandled_key_input);
-    BIND_METHOD(Node,set_pause_mode);
-    BIND_METHOD(Node,get_pause_mode);
-    BIND_METHOD(Node,can_process);
+    SE_BIND_METHOD(Node,set_physics_process);
+    SE_BIND_METHOD(Node,get_physics_process_delta_time);
+    SE_BIND_METHOD(Node,is_physics_processing);
+    SE_BIND_METHOD(Node,get_process_delta_time);
+    SE_BIND_METHOD(Node,set_process);
+    SE_BIND_METHOD(Node,set_process_priority);
+    SE_BIND_METHOD(Node,get_process_priority);
+    SE_BIND_METHOD(Node,is_processing);
+    SE_BIND_METHOD(Node,set_process_input);
+    SE_BIND_METHOD(Node,is_processing_input);
+    SE_BIND_METHOD(Node,set_process_unhandled_input);
+    SE_BIND_METHOD(Node,is_processing_unhandled_input);
+    SE_BIND_METHOD(Node,set_process_unhandled_key_input);
+    SE_BIND_METHOD(Node,is_processing_unhandled_key_input);
+    SE_BIND_METHOD(Node,set_pause_mode);
+    SE_BIND_METHOD(Node,get_pause_mode);
+    SE_BIND_METHOD(Node,can_process);
     MethodBinder::bind_method(D_METHOD("print_stray_nodes"), &Node::_print_stray_nodes);
-    BIND_METHOD(Node,get_position_in_parent);
+    SE_BIND_METHOD(Node,get_position_in_parent);
 
-    BIND_METHOD(Node,set_display_folded);
-    BIND_METHOD(Node,is_displayed_folded);
+    SE_BIND_METHOD(Node,set_display_folded);
+    SE_BIND_METHOD(Node,is_displayed_folded);
 
-    BIND_METHOD(Node,set_process_internal);
-    BIND_METHOD(Node,is_processing_internal);
+    SE_BIND_METHOD(Node,set_process_internal);
+    SE_BIND_METHOD(Node,is_processing_internal);
 
-    BIND_METHOD(Node,set_physics_process_internal);
-    BIND_METHOD(Node,is_physics_processing_internal);
+    SE_BIND_METHOD(Node,set_physics_process_internal);
+    SE_BIND_METHOD(Node,is_physics_processing_internal);
 
-    BIND_METHOD(Node,get_tree);
+    SE_BIND_METHOD(Node,get_tree);
 
     MethodBinder::bind_method(D_METHOD("duplicate", {"flags"}), &Node::duplicate, {DEFVAL(DUPLICATE_USE_INSTANCING | DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS)});
     MethodBinder::bind_method(D_METHOD("replace_by", {"node", "keep_data"}), &Node::replace_by, {DEFVAL(false)});
 
-    BIND_METHOD(Node,set_scene_instance_load_placeholder);
-    BIND_METHOD(Node,get_scene_instance_load_placeholder);
+    SE_BIND_METHOD(Node,set_scene_instance_load_placeholder);
+    SE_BIND_METHOD(Node,get_scene_instance_load_placeholder);
 
-    BIND_METHOD(Node,get_viewport);
+    SE_BIND_METHOD(Node,get_viewport);
 
     MethodBinder::bind_method(D_METHOD("queue_free"), &Node::queue_delete);
 
-    BIND_METHOD(Node,request_ready);
+    SE_BIND_METHOD(Node,request_ready);
 
     MethodBinder::bind_method(D_METHOD("set_network_master", {"id", "recursive"}), &Node::set_network_master, {DEFVAL(true)});
-    BIND_METHOD(Node,get_network_master);
+    SE_BIND_METHOD(Node,get_network_master);
 
-    BIND_METHOD(Node,is_network_master);
+    SE_BIND_METHOD(Node,is_network_master);
 
-    BIND_METHOD(Node,get_multiplayer);
-    BIND_METHOD(Node,get_custom_multiplayer);
-    BIND_METHOD(Node,set_custom_multiplayer);
-    BIND_METHOD(Node,rpc_config);
-    BIND_METHOD(Node,rset_config);
+    SE_BIND_METHOD(Node,get_multiplayer);
+    SE_BIND_METHOD(Node,get_custom_multiplayer);
+    SE_BIND_METHOD(Node,set_custom_multiplayer);
+    SE_BIND_METHOD(Node,rpc_config);
+    SE_BIND_METHOD(Node,rset_config);
 
     MethodBinder::bind_method(D_METHOD("_set_editor_description", {"editor_description"}), &Node::set_editor_description);
     MethodBinder::bind_method(D_METHOD("_get_editor_description"), &Node::get_editor_description);
@@ -3073,7 +3073,7 @@ void Node::_bind_methods() {
 
 
     MethodBinder::bind_method(D_METHOD("_set_import_path", {"import_path"}), &Node::set_import_path);
-    BIND_METHOD(Node,get_import_path);
+    SE_BIND_METHOD(Node,get_import_path);
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "_import_path", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_import_path", "get_import_path");
 
     {
@@ -3093,12 +3093,12 @@ void Node::_bind_methods() {
         MethodBinder::bind_vararg_method( "rpc_unreliable_id", &Node::_rpc_unreliable_id_bind, eastl::move(mi));
     }
 
-    BIND_METHOD(Node,rset);
-    BIND_METHOD(Node,rset_id);
-    BIND_METHOD(Node,rset_unreliable);
-    BIND_METHOD(Node,rset_unreliable_id);
+    SE_BIND_METHOD(Node,rset);
+    SE_BIND_METHOD(Node,rset_id);
+    SE_BIND_METHOD(Node,rset_unreliable);
+    SE_BIND_METHOD(Node,rset_unreliable_id);
 
-    BIND_METHOD(Node,update_configuration_warning);
+    SE_BIND_METHOD(Node,update_configuration_warning);
 
     BIND_CONSTANT(NOTIFICATION_ENTER_TREE);
     BIND_CONSTANT(NOTIFICATION_EXIT_TREE);

@@ -62,8 +62,8 @@ real_t CircleShape2D::get_radius() const {
 
 void CircleShape2D::_bind_methods() {
 
-    BIND_METHOD(CircleShape2D,set_radius);
-    BIND_METHOD(CircleShape2D,get_radius);
+    SE_BIND_METHOD(CircleShape2D,set_radius);
+    SE_BIND_METHOD(CircleShape2D,get_radius);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.01,1024,0.01,or_greater"), "set_radius", "get_radius");
 }

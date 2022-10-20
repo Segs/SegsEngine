@@ -332,14 +332,14 @@ void World3D::get_camera_list(Vector<Camera3D *> *r_cameras) {
 
 void World3D::_bind_methods() {
 
-    BIND_METHOD(World3D, get_space);
-    BIND_METHOD(World3D, get_scenario);
-    BIND_METHOD(World3D, get_navigation_map);
-    BIND_METHOD(World3D, set_environment);
-    BIND_METHOD(World3D, get_environment);
-    BIND_METHOD(World3D, set_fallback_environment);
-    BIND_METHOD(World3D, get_fallback_environment);
-    BIND_METHOD(World3D, get_direct_space_state);
+    SE_BIND_METHOD(World3D, get_space);
+    SE_BIND_METHOD(World3D, get_scenario);
+    SE_BIND_METHOD(World3D, get_navigation_map);
+    SE_BIND_METHOD(World3D, set_environment);
+    SE_BIND_METHOD(World3D, get_environment);
+    SE_BIND_METHOD(World3D, set_fallback_environment);
+    SE_BIND_METHOD(World3D, get_fallback_environment);
+    SE_BIND_METHOD(World3D, get_direct_space_state);
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "environment", PropertyHint::ResourceType, "Environment"), "set_environment", "get_environment");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "fallback_environment", PropertyHint::ResourceType, "Environment"), "set_fallback_environment", "get_fallback_environment");
     ADD_PROPERTY(PropertyInfo(VariantType::_RID, "space", PropertyHint::None, "", 0), "", "get_space");

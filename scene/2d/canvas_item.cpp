@@ -821,7 +821,7 @@ void CanvasItem::force_update_transform() {
 
 void CanvasItem::_bind_methods() {
 
-    BIND_METHOD(CanvasItem,_toplevel_raise_self);
+    SE_BIND_METHOD(CanvasItem,_toplevel_raise_self);
 #ifdef TOOLS_ENABLED
     MethodBinder::bind_method(D_METHOD("_edit_set_state", {"state"}), &CanvasItem::_edit_set_state,METHOD_FLAG_EDITOR_ONLY);
     MethodBinder::bind_method(D_METHOD("_edit_get_state"), &CanvasItem::_edit_get_state,METHOD_FLAG_EDITOR_ONLY);
@@ -841,32 +841,32 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_edit_get_transform"), &CanvasItem::_edit_get_transform,METHOD_FLAG_EDITOR_ONLY);
 #endif
 
-    BIND_METHOD(CanvasItem,get_canvas_item);
+    SE_BIND_METHOD(CanvasItem,get_canvas_item);
 
-    BIND_METHOD(CanvasItem,set_visible);
-    BIND_METHOD(CanvasItem,is_visible);
-    BIND_METHOD(CanvasItem,is_visible_in_tree);
-    BIND_METHOD(CanvasItem,show);
-    BIND_METHOD(CanvasItem,hide);
+    SE_BIND_METHOD(CanvasItem,set_visible);
+    SE_BIND_METHOD(CanvasItem,is_visible);
+    SE_BIND_METHOD(CanvasItem,is_visible_in_tree);
+    SE_BIND_METHOD(CanvasItem,show);
+    SE_BIND_METHOD(CanvasItem,hide);
 
-    BIND_METHOD(CanvasItem,update);
+    SE_BIND_METHOD(CanvasItem,update);
 
-    BIND_METHOD(CanvasItem,set_as_top_level);
-    BIND_METHOD(CanvasItem,is_set_as_top_level);
+    SE_BIND_METHOD(CanvasItem,set_as_top_level);
+    SE_BIND_METHOD(CanvasItem,is_set_as_top_level);
 
-    BIND_METHOD(CanvasItem,set_light_mask);
-    BIND_METHOD(CanvasItem,get_light_mask);
+    SE_BIND_METHOD(CanvasItem,set_light_mask);
+    SE_BIND_METHOD(CanvasItem,get_light_mask);
 
-    BIND_METHOD(CanvasItem,set_modulate);
-    BIND_METHOD(CanvasItem,get_modulate);
-    BIND_METHOD(CanvasItem,set_self_modulate);
-    BIND_METHOD(CanvasItem,get_self_modulate);
+    SE_BIND_METHOD(CanvasItem,set_modulate);
+    SE_BIND_METHOD(CanvasItem,get_modulate);
+    SE_BIND_METHOD(CanvasItem,set_self_modulate);
+    SE_BIND_METHOD(CanvasItem,get_self_modulate);
 
-    BIND_METHOD(CanvasItem,set_draw_behind_parent);
-    BIND_METHOD(CanvasItem,is_draw_behind_parent_enabled);
+    SE_BIND_METHOD(CanvasItem,set_draw_behind_parent);
+    SE_BIND_METHOD(CanvasItem,is_draw_behind_parent_enabled);
 
-    BIND_METHOD(CanvasItem,_set_on_top);
-    BIND_METHOD(CanvasItem,_is_on_top);
+    SE_BIND_METHOD(CanvasItem,_set_on_top);
+    SE_BIND_METHOD(CanvasItem,_is_on_top);
 
     MethodBinder::bind_method(D_METHOD("draw_line", {"from", "to", "color", "width", "antialiased"}), &CanvasItem::draw_line, {DEFVAL(1.0), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("draw_polyline", {"points", "color", "width", "antialiased"}), &CanvasItem::draw_polyline, {DEFVAL(1.0), DEFVAL(false)});
@@ -875,12 +875,12 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("draw_multiline", {"points", "color", "width", "antialiased"}), &CanvasItem::draw_multiline, {DEFVAL(1.0), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("draw_multiline_colors", {"points", "colors", "width", "antialiased"}), &CanvasItem::draw_multiline_colors, {DEFVAL(1.0), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("draw_rect_stroke", {"rect", "color", "width", "antialiased"}), &CanvasItem::draw_rect_stroke, {DEFVAL(1.0f), DEFVAL(false)});
-    BIND_METHOD(CanvasItem,draw_rect_filled);
-    BIND_METHOD(CanvasItem,draw_circle);
+    SE_BIND_METHOD(CanvasItem,draw_rect_filled);
+    SE_BIND_METHOD(CanvasItem,draw_circle);
     MethodBinder::bind_method(D_METHOD("draw_texture", {"texture", "position", "modulate", "normal_map"}), &CanvasItem::draw_texture, {DEFVAL(Color(1, 1, 1, 1)), DEFVAL(Variant())});
     MethodBinder::bind_method(D_METHOD("draw_texture_rect", {"texture", "rect", "tile", "modulate", "transpose", "normal_map"}), &CanvasItem::draw_texture_rect, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant())});
     MethodBinder::bind_method(D_METHOD("draw_texture_rect_region", {"texture", "rect", "src_rect", "modulate", "transpose", "normal_map", "clip_uv"}), &CanvasItem::draw_texture_rect_region, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant()), DEFVAL(true)});
-    BIND_METHOD(CanvasItem,draw_style_box);
+    SE_BIND_METHOD(CanvasItem,draw_style_box);
     MethodBinder::bind_method(D_METHOD("draw_primitive", {"points", "colors", "uvs", "texture", "width", "normal_map"}), &CanvasItem::draw_primitive, {DEFVAL(Variant()), DEFVAL(1.0), DEFVAL(Variant())});
     MethodBinder::bind_method(D_METHOD("draw_polygon", {"points", "colors", "uvs", "texture", "normal_map", "antialiased"}), &CanvasItem::draw_polygon, {DEFVAL(Variant(PoolVector2Array())), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("draw_colored_polygon", {"points", "color", "uvs", "texture", "normal_map", "antialiased"}), &CanvasItem::draw_colored_polygon, {DEFVAL(Variant(PoolVector2Array())), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(false)});
@@ -889,35 +889,35 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("draw_mesh", {"mesh", "texture", "normal_map", "transform", "modulate"}), &CanvasItem::draw_mesh, {DEFVAL(Ref<Texture>()), DEFVAL(Transform2D()), DEFVAL(Color(1, 1, 1))});
     MethodBinder::bind_method(D_METHOD("draw_multimesh", {"multimesh", "texture", "normal_map"}), &CanvasItem::draw_multimesh, {DEFVAL(Ref<Texture>())});
 
-    BIND_METHOD(CanvasItem,draw_set_transform);
-    BIND_METHOD(CanvasItem,draw_set_transform_matrix);
-    BIND_METHOD(CanvasItem,get_transform);
-    BIND_METHOD(CanvasItem,get_global_transform);
-    BIND_METHOD(CanvasItem,get_global_transform_with_canvas);
-    BIND_METHOD(CanvasItem,get_viewport_transform);
-    BIND_METHOD(CanvasItem,get_viewport_rect);
-    BIND_METHOD(CanvasItem,get_canvas_transform);
-    BIND_METHOD(CanvasItem,get_local_mouse_position);
-    BIND_METHOD(CanvasItem,get_global_mouse_position);
-    BIND_METHOD(CanvasItem,get_canvas);
-    BIND_METHOD(CanvasItem,get_world_2d);
+    SE_BIND_METHOD(CanvasItem,draw_set_transform);
+    SE_BIND_METHOD(CanvasItem,draw_set_transform_matrix);
+    SE_BIND_METHOD(CanvasItem,get_transform);
+    SE_BIND_METHOD(CanvasItem,get_global_transform);
+    SE_BIND_METHOD(CanvasItem,get_global_transform_with_canvas);
+    SE_BIND_METHOD(CanvasItem,get_viewport_transform);
+    SE_BIND_METHOD(CanvasItem,get_viewport_rect);
+    SE_BIND_METHOD(CanvasItem,get_canvas_transform);
+    SE_BIND_METHOD(CanvasItem,get_local_mouse_position);
+    SE_BIND_METHOD(CanvasItem,get_global_mouse_position);
+    SE_BIND_METHOD(CanvasItem,get_canvas);
+    SE_BIND_METHOD(CanvasItem,get_world_2d);
 
-    BIND_METHOD(CanvasItem,set_material);
-    BIND_METHOD(CanvasItem,get_material);
+    SE_BIND_METHOD(CanvasItem,set_material);
+    SE_BIND_METHOD(CanvasItem,get_material);
 
-    BIND_METHOD(CanvasItem,set_use_parent_material);
-    BIND_METHOD(CanvasItem,get_use_parent_material);
+    SE_BIND_METHOD(CanvasItem,set_use_parent_material);
+    SE_BIND_METHOD(CanvasItem,get_use_parent_material);
 
-    BIND_METHOD(CanvasItem,set_notify_local_transform);
-    BIND_METHOD(CanvasItem,is_local_transform_notification_enabled);
+    SE_BIND_METHOD(CanvasItem,set_notify_local_transform);
+    SE_BIND_METHOD(CanvasItem,is_local_transform_notification_enabled);
 
-    BIND_METHOD(CanvasItem,set_notify_transform);
-    BIND_METHOD(CanvasItem,is_transform_notification_enabled);
+    SE_BIND_METHOD(CanvasItem,set_notify_transform);
+    SE_BIND_METHOD(CanvasItem,is_transform_notification_enabled);
 
-    BIND_METHOD(CanvasItem,force_update_transform);
+    SE_BIND_METHOD(CanvasItem,force_update_transform);
 
-    BIND_METHOD(CanvasItem,make_canvas_position_local);
-    BIND_METHOD(CanvasItem,make_input_local);
+    SE_BIND_METHOD(CanvasItem,make_canvas_position_local);
+    SE_BIND_METHOD(CanvasItem,make_input_local);
 
     BIND_VMETHOD(MethodInfo("_draw"));
 

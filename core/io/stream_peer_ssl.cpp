@@ -62,13 +62,13 @@ bool StreamPeerSSL::is_blocking_handshake_enabled() const {
 
 void StreamPeerSSL::_bind_methods() {
 
-    BIND_METHOD(StreamPeerSSL,poll);
+    SE_BIND_METHOD(StreamPeerSSL,poll);
     MethodBinder::bind_method(D_METHOD("accept_stream", {"stream", "private_key", "certificate", "chain"}), &StreamPeerSSL::accept_stream, {DEFVAL(Ref<X509Certificate>())});
     MethodBinder::bind_method(D_METHOD("connect_to_stream", {"stream", "validate_certs", "for_hostname", "valid_certificate"}), &StreamPeerSSL::connect_to_stream, {DEFVAL(false), DEFVAL(String()), DEFVAL(Ref<X509Certificate>())});
-    BIND_METHOD(StreamPeerSSL,get_status);
-    BIND_METHOD(StreamPeerSSL,disconnect_from_stream);
-    BIND_METHOD(StreamPeerSSL,set_blocking_handshake_enabled);
-    BIND_METHOD(StreamPeerSSL,is_blocking_handshake_enabled);
+    SE_BIND_METHOD(StreamPeerSSL,get_status);
+    SE_BIND_METHOD(StreamPeerSSL,disconnect_from_stream);
+    SE_BIND_METHOD(StreamPeerSSL,set_blocking_handshake_enabled);
+    SE_BIND_METHOD(StreamPeerSSL,is_blocking_handshake_enabled);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "blocking_handshake"), "set_blocking_handshake_enabled", "is_blocking_handshake_enabled");
 

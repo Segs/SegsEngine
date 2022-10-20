@@ -176,20 +176,20 @@ Vector<Face3> RootMotionView::get_faces(uint32_t p_usage_flags) const {
 
 void RootMotionView::_bind_methods() {
 
-    BIND_METHOD(RootMotionView,set_animation_path);
-    BIND_METHOD(RootMotionView,get_animation_path);
+    SE_BIND_METHOD(RootMotionView,set_animation_path);
+    SE_BIND_METHOD(RootMotionView,get_animation_path);
 
-    BIND_METHOD(RootMotionView,set_color);
-    BIND_METHOD(RootMotionView,get_color);
+    SE_BIND_METHOD(RootMotionView,set_color);
+    SE_BIND_METHOD(RootMotionView,get_color);
 
-    BIND_METHOD(RootMotionView,set_cell_size);
-    BIND_METHOD(RootMotionView,get_cell_size);
+    SE_BIND_METHOD(RootMotionView,set_cell_size);
+    SE_BIND_METHOD(RootMotionView,get_cell_size);
 
-    BIND_METHOD(RootMotionView,set_radius);
-    BIND_METHOD(RootMotionView,get_radius);
+    SE_BIND_METHOD(RootMotionView,set_radius);
+    SE_BIND_METHOD(RootMotionView,get_radius);
 
-    BIND_METHOD(RootMotionView,set_zero_y);
-    BIND_METHOD(RootMotionView,get_zero_y);
+    SE_BIND_METHOD(RootMotionView,set_zero_y);
+    SE_BIND_METHOD(RootMotionView,get_zero_y);
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "animation_path", PropertyHint::NodePathValidTypes, "AnimationTree"), "set_animation_path", "get_animation_path");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");

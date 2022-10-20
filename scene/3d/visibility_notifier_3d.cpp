@@ -174,9 +174,9 @@ void VisibilityNotifier3D::set_max_distance(real_t p_max_distance) {
 
 void VisibilityNotifier3D::_bind_methods() {
 
-    BIND_METHOD(VisibilityNotifier3D,set_aabb);
-    BIND_METHOD(VisibilityNotifier3D,get_aabb);
-    BIND_METHOD(VisibilityNotifier3D,is_on_screen);
+    SE_BIND_METHOD(VisibilityNotifier3D,set_aabb);
+    SE_BIND_METHOD(VisibilityNotifier3D,get_aabb);
+    SE_BIND_METHOD(VisibilityNotifier3D,is_on_screen);
 
     ADD_PROPERTY(PropertyInfo(VariantType::AABB, "aabb"), "set_aabb", "get_aabb");
 
@@ -319,8 +319,8 @@ void VisibilityEnabler3D::_node_removed(Node *p_node) {
 
 void VisibilityEnabler3D::_bind_methods() {
 
-    BIND_METHOD(VisibilityEnabler3D,set_enabler);
-    BIND_METHOD(VisibilityEnabler3D,is_enabler_enabled);
+    SE_BIND_METHOD(VisibilityEnabler3D,set_enabler);
+    SE_BIND_METHOD(VisibilityEnabler3D,is_enabler_enabled);
 
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "pause_animations"), "set_enabler", "is_enabler_enabled", ENABLER_PAUSE_ANIMATIONS);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "freeze_bodies"), "set_enabler", "is_enabler_enabled", ENABLER_FREEZE_BODIES);

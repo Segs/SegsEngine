@@ -8306,9 +8306,9 @@ int TextEdit::get_line_height() const {
 }
 void TextEdit::_bind_methods() {
 
-    BIND_METHOD(TextEdit,_gui_input);
-    BIND_METHOD(TextEdit,_cursor_changed_emit);
-    BIND_METHOD(TextEdit,_text_changed_emit);
+    SE_BIND_METHOD(TextEdit,_gui_input);
+    SE_BIND_METHOD(TextEdit,_cursor_changed_emit);
+    SE_BIND_METHOD(TextEdit,_text_changed_emit);
 
     BIND_ENUM_CONSTANT(SEARCH_MATCH_CASE);
     BIND_ENUM_CONSTANT(SEARCH_WHOLE_WORDS);
@@ -8321,115 +8321,115 @@ void TextEdit::_bind_methods() {
     BIND_METHOD(TextEdit,delete_line);
 */
 
-    BIND_METHOD(TextEdit,set_text);
-    BIND_METHOD(TextEdit,insert_text_at_cursor);
+    SE_BIND_METHOD(TextEdit,set_text);
+    SE_BIND_METHOD(TextEdit,insert_text_at_cursor);
 
-    BIND_METHOD(TextEdit,get_line_count);
-    BIND_METHOD(TextEdit,get_text);
-    BIND_METHOD(TextEdit,get_line);
-    BIND_METHOD(TextEdit,set_line);
+    SE_BIND_METHOD(TextEdit,get_line_count);
+    SE_BIND_METHOD(TextEdit,get_text);
+    SE_BIND_METHOD(TextEdit,get_line);
+    SE_BIND_METHOD(TextEdit,set_line);
     //MethodBinder::bind_method(D_METHOD("get_line_wrapped_text", {"line"}), &TextEdit::get_wrap_rows_text);
 
     MethodBinder::bind_method(D_METHOD("get_line_width", {"line", "wrap_index"}), &TextEdit::get_line_width, {DEFVAL(-1)});
-    BIND_METHOD(TextEdit,get_line_height);
+    SE_BIND_METHOD(TextEdit,get_line_height);
 
-    BIND_METHOD(TextEdit,is_line_wrapped);
-    BIND_METHOD(TextEdit,get_line_wrap_count);
+    SE_BIND_METHOD(TextEdit,is_line_wrapped);
+    SE_BIND_METHOD(TextEdit,get_line_wrap_count);
 
-    BIND_METHOD(TextEdit,center_viewport_to_cursor);
+    SE_BIND_METHOD(TextEdit,center_viewport_to_cursor);
     MethodBinder::bind_method(D_METHOD("cursor_set_column", { "column", "adjust_viewport" }),
             &TextEdit::cursor_set_column, { DEFVAL(true) });
     MethodBinder::bind_method(D_METHOD("cursor_set_line", { "line", "adjust_viewport", "can_be_hidden", "wrap_index" }),
             &TextEdit::cursor_set_line, { DEFVAL(true), DEFVAL(true), DEFVAL(0) });
 
-    BIND_METHOD(TextEdit,cursor_get_column);
-    BIND_METHOD(TextEdit,cursor_get_line);
-    BIND_METHOD(TextEdit,cursor_set_blink_enabled);
-    BIND_METHOD(TextEdit,cursor_get_blink_enabled);
-    BIND_METHOD(TextEdit,cursor_set_blink_speed);
-    BIND_METHOD(TextEdit,cursor_get_blink_speed);
-    BIND_METHOD(TextEdit,cursor_set_block_mode);
-    BIND_METHOD(TextEdit,cursor_is_block_mode);
+    SE_BIND_METHOD(TextEdit,cursor_get_column);
+    SE_BIND_METHOD(TextEdit,cursor_get_line);
+    SE_BIND_METHOD(TextEdit,cursor_set_blink_enabled);
+    SE_BIND_METHOD(TextEdit,cursor_get_blink_enabled);
+    SE_BIND_METHOD(TextEdit,cursor_set_blink_speed);
+    SE_BIND_METHOD(TextEdit,cursor_get_blink_speed);
+    SE_BIND_METHOD(TextEdit,cursor_set_block_mode);
+    SE_BIND_METHOD(TextEdit,cursor_is_block_mode);
 
     MethodBinder::bind_method(
             D_METHOD("set_right_click_moves_caret", { "enable" }), &TextEdit::set_right_click_moves_caret);
-    BIND_METHOD(TextEdit,is_right_click_moving_caret);
+    SE_BIND_METHOD(TextEdit,is_right_click_moving_caret);
     /* Line and character position. */
-    BIND_METHOD(TextEdit,get_pos_at_line_column);
-    BIND_METHOD(TextEdit,get_rect_at_line_column);
-    BIND_METHOD(TextEdit,get_line_column_at_pos);
+    SE_BIND_METHOD(TextEdit,get_pos_at_line_column);
+    SE_BIND_METHOD(TextEdit,get_rect_at_line_column);
+    SE_BIND_METHOD(TextEdit,get_line_column_at_pos);
 
-    BIND_METHOD(TextEdit,set_readonly);
-    BIND_METHOD(TextEdit,is_readonly);
+    SE_BIND_METHOD(TextEdit,set_readonly);
+    SE_BIND_METHOD(TextEdit,is_readonly);
 
-    BIND_METHOD(TextEdit,set_wrap_enabled);
-    BIND_METHOD(TextEdit,is_wrap_enabled);
-    BIND_METHOD(TextEdit,set_context_menu_enabled);
-    BIND_METHOD(TextEdit,is_context_menu_enabled);
+    SE_BIND_METHOD(TextEdit,set_wrap_enabled);
+    SE_BIND_METHOD(TextEdit,is_wrap_enabled);
+    SE_BIND_METHOD(TextEdit,set_context_menu_enabled);
+    SE_BIND_METHOD(TextEdit,is_context_menu_enabled);
     MethodBinder::bind_method(
             D_METHOD("set_shortcut_keys_enabled", { "enable" }), &TextEdit::set_shortcut_keys_enabled);
-    BIND_METHOD(TextEdit,is_shortcut_keys_enabled);
-    BIND_METHOD(TextEdit,set_middle_mouse_paste_enabled);
-    BIND_METHOD(TextEdit,is_middle_mouse_paste_enabled);
-    BIND_METHOD(TextEdit,set_selecting_enabled);
-    BIND_METHOD(TextEdit,is_selecting_enabled);
-    BIND_METHOD(TextEdit,set_deselect_on_focus_loss_enabled);
-    BIND_METHOD(TextEdit,is_deselect_on_focus_loss_enabled);
+    SE_BIND_METHOD(TextEdit,is_shortcut_keys_enabled);
+    SE_BIND_METHOD(TextEdit,set_middle_mouse_paste_enabled);
+    SE_BIND_METHOD(TextEdit,is_middle_mouse_paste_enabled);
+    SE_BIND_METHOD(TextEdit,set_selecting_enabled);
+    SE_BIND_METHOD(TextEdit,is_selecting_enabled);
+    SE_BIND_METHOD(TextEdit,set_deselect_on_focus_loss_enabled);
+    SE_BIND_METHOD(TextEdit,is_deselect_on_focus_loss_enabled);
 
-    BIND_METHOD(TextEdit,cut);
-    BIND_METHOD(TextEdit,copy);
-    BIND_METHOD(TextEdit,paste);
+    SE_BIND_METHOD(TextEdit,cut);
+    SE_BIND_METHOD(TextEdit,copy);
+    SE_BIND_METHOD(TextEdit,paste);
 
     MethodBinder::bind_method(
             D_METHOD("select", { "from_line", "from_column", "to_line", "to_column" }), &TextEdit::select);
-    BIND_METHOD(TextEdit,select_all);
-    BIND_METHOD(TextEdit,deselect);
+    SE_BIND_METHOD(TextEdit,select_all);
+    SE_BIND_METHOD(TextEdit,deselect);
 
-    BIND_METHOD(TextEdit,is_selection_active);
-    BIND_METHOD(TextEdit,get_selection_from_line);
-    BIND_METHOD(TextEdit,get_selection_from_column);
-    BIND_METHOD(TextEdit,get_selection_to_line);
-    BIND_METHOD(TextEdit,get_selection_to_column);
-    BIND_METHOD(TextEdit,get_selection_text);
-    BIND_METHOD(TextEdit,is_mouse_over_selection);
-    BIND_METHOD(TextEdit,get_word_under_cursor);
+    SE_BIND_METHOD(TextEdit,is_selection_active);
+    SE_BIND_METHOD(TextEdit,get_selection_from_line);
+    SE_BIND_METHOD(TextEdit,get_selection_from_column);
+    SE_BIND_METHOD(TextEdit,get_selection_to_line);
+    SE_BIND_METHOD(TextEdit,get_selection_to_column);
+    SE_BIND_METHOD(TextEdit,get_selection_text);
+    SE_BIND_METHOD(TextEdit,is_mouse_over_selection);
+    SE_BIND_METHOD(TextEdit,get_word_under_cursor);
     MethodBinder::bind_method(
             D_METHOD("search", { "key", "flags", "from_line", "from_column" }), &TextEdit::_search_bind);
 
-    BIND_METHOD(TextEdit,has_undo);
-    BIND_METHOD(TextEdit,has_redo);
-    BIND_METHOD(TextEdit,undo);
-    BIND_METHOD(TextEdit,redo);
-    BIND_METHOD(TextEdit,clear_undo_history);
+    SE_BIND_METHOD(TextEdit,has_undo);
+    SE_BIND_METHOD(TextEdit,has_redo);
+    SE_BIND_METHOD(TextEdit,undo);
+    SE_BIND_METHOD(TextEdit,redo);
+    SE_BIND_METHOD(TextEdit,clear_undo_history);
 
-    BIND_METHOD(TextEdit,set_show_line_numbers);
-    BIND_METHOD(TextEdit,is_show_line_numbers_enabled);
-    BIND_METHOD(TextEdit,set_draw_tabs);
-    BIND_METHOD(TextEdit,is_drawing_tabs);
-    BIND_METHOD(TextEdit,set_draw_spaces);
-    BIND_METHOD(TextEdit,is_drawing_spaces);
-    BIND_METHOD(TextEdit,set_bookmark_gutter_enabled);
-    BIND_METHOD(TextEdit,is_bookmark_gutter_enabled);
+    SE_BIND_METHOD(TextEdit,set_show_line_numbers);
+    SE_BIND_METHOD(TextEdit,is_show_line_numbers_enabled);
+    SE_BIND_METHOD(TextEdit,set_draw_tabs);
+    SE_BIND_METHOD(TextEdit,is_drawing_tabs);
+    SE_BIND_METHOD(TextEdit,set_draw_spaces);
+    SE_BIND_METHOD(TextEdit,is_drawing_spaces);
+    SE_BIND_METHOD(TextEdit,set_bookmark_gutter_enabled);
+    SE_BIND_METHOD(TextEdit,is_bookmark_gutter_enabled);
     MethodBinder::bind_method(
             D_METHOD("set_breakpoint_gutter_enabled", { "enable" }), &TextEdit::set_breakpoint_gutter_enabled);
-    BIND_METHOD(TextEdit,is_breakpoint_gutter_enabled);
-    BIND_METHOD(TextEdit,set_draw_fold_gutter);
-    BIND_METHOD(TextEdit,is_drawing_fold_gutter);
-    BIND_METHOD(TextEdit,get_total_gutter_width);
-    BIND_METHOD(TextEdit,get_visible_rows);
-    BIND_METHOD(TextEdit,get_total_visible_rows);
+    SE_BIND_METHOD(TextEdit,is_breakpoint_gutter_enabled);
+    SE_BIND_METHOD(TextEdit,set_draw_fold_gutter);
+    SE_BIND_METHOD(TextEdit,is_drawing_fold_gutter);
+    SE_BIND_METHOD(TextEdit,get_total_gutter_width);
+    SE_BIND_METHOD(TextEdit,get_visible_rows);
+    SE_BIND_METHOD(TextEdit,get_total_visible_rows);
 
-    BIND_METHOD(TextEdit,set_hiding_enabled);
-    BIND_METHOD(TextEdit,is_hiding_enabled);
-    BIND_METHOD(TextEdit,set_line_as_hidden);
-    BIND_METHOD(TextEdit,is_line_hidden);
-    BIND_METHOD(TextEdit,fold_all_lines);
-    BIND_METHOD(TextEdit,unhide_all_lines);
-    BIND_METHOD(TextEdit,fold_line);
-    BIND_METHOD(TextEdit,unfold_line);
-    BIND_METHOD(TextEdit,toggle_fold_line);
-    BIND_METHOD(TextEdit,can_fold);
-    BIND_METHOD(TextEdit,is_folded);
+    SE_BIND_METHOD(TextEdit,set_hiding_enabled);
+    SE_BIND_METHOD(TextEdit,is_hiding_enabled);
+    SE_BIND_METHOD(TextEdit,set_line_as_hidden);
+    SE_BIND_METHOD(TextEdit,is_line_hidden);
+    SE_BIND_METHOD(TextEdit,fold_all_lines);
+    SE_BIND_METHOD(TextEdit,unhide_all_lines);
+    SE_BIND_METHOD(TextEdit,fold_line);
+    SE_BIND_METHOD(TextEdit,unfold_line);
+    SE_BIND_METHOD(TextEdit,toggle_fold_line);
+    SE_BIND_METHOD(TextEdit,can_fold);
+    SE_BIND_METHOD(TextEdit,is_folded);
 
     MethodBinder::bind_method(
             D_METHOD("set_highlight_all_occurrences", { "enable" }), &TextEdit::set_highlight_all_occurrences);
@@ -8441,8 +8441,8 @@ void TextEdit::_bind_methods() {
     MethodBinder::bind_method(
             D_METHOD("is_overriding_selected_font_color"), &TextEdit::is_overriding_selected_font_color);
 
-    BIND_METHOD(TextEdit,set_syntax_coloring);
-    BIND_METHOD(TextEdit,is_syntax_coloring_enabled);
+    SE_BIND_METHOD(TextEdit,set_syntax_coloring);
+    SE_BIND_METHOD(TextEdit,is_syntax_coloring_enabled);
 
     MethodBinder::bind_method(
             D_METHOD("set_highlight_current_line", { "enabled" }), &TextEdit::set_highlight_current_line);
@@ -8451,31 +8451,31 @@ void TextEdit::_bind_methods() {
 
     MethodBinder::bind_method(
             D_METHOD("set_smooth_scroll_enabled", { "enable" }), &TextEdit::set_smooth_scroll_enabled);
-    BIND_METHOD(TextEdit,is_smooth_scroll_enabled);
-    BIND_METHOD(TextEdit,set_v_scroll_speed);
-    BIND_METHOD(TextEdit,get_v_scroll_speed);
-    BIND_METHOD(TextEdit,set_v_scroll);
-    BIND_METHOD(TextEdit,get_v_scroll);
-    BIND_METHOD(TextEdit,set_h_scroll);
-    BIND_METHOD(TextEdit,get_h_scroll);
+    SE_BIND_METHOD(TextEdit,is_smooth_scroll_enabled);
+    SE_BIND_METHOD(TextEdit,set_v_scroll_speed);
+    SE_BIND_METHOD(TextEdit,get_v_scroll_speed);
+    SE_BIND_METHOD(TextEdit,set_v_scroll);
+    SE_BIND_METHOD(TextEdit,get_v_scroll);
+    SE_BIND_METHOD(TextEdit,set_h_scroll);
+    SE_BIND_METHOD(TextEdit,get_h_scroll);
 
 
-    BIND_METHOD(TextEdit,add_keyword_color);
-    BIND_METHOD(TextEdit,has_keyword_color);
-    BIND_METHOD(TextEdit,get_keyword_color);
+    SE_BIND_METHOD(TextEdit,add_keyword_color);
+    SE_BIND_METHOD(TextEdit,has_keyword_color);
+    SE_BIND_METHOD(TextEdit,get_keyword_color);
     MethodBinder::bind_method(D_METHOD("add_color_region", { "begin_key", "end_key", "color", "line_only" }),
             &TextEdit::add_color_region, { DEFVAL(false) });
-    BIND_METHOD(TextEdit,clear_colors);
-    BIND_METHOD(TextEdit,menu_option);
-    BIND_METHOD(TextEdit,get_menu);
+    SE_BIND_METHOD(TextEdit,clear_colors);
+    SE_BIND_METHOD(TextEdit,menu_option);
+    SE_BIND_METHOD(TextEdit,get_menu);
 
     MethodBinder::bind_method(D_METHOD("get_breakpoints"), &TextEdit::get_breakpoints_array);
-    BIND_METHOD(TextEdit,remove_breakpoints);
+    SE_BIND_METHOD(TextEdit,remove_breakpoints);
 
-    BIND_METHOD(TextEdit,set_draw_minimap);
-    BIND_METHOD(TextEdit,is_drawing_minimap);
-    BIND_METHOD(TextEdit,set_minimap_width);
-    BIND_METHOD(TextEdit,get_minimap_width);
+    SE_BIND_METHOD(TextEdit,set_draw_minimap);
+    SE_BIND_METHOD(TextEdit,is_drawing_minimap);
+    SE_BIND_METHOD(TextEdit,set_minimap_width);
+    SE_BIND_METHOD(TextEdit,get_minimap_width);
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text", PropertyHint::MultilineText), "set_text", "get_text");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "readonly"), "set_readonly", "is_readonly");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "highlight_current_line"), "set_highlight_current_line",

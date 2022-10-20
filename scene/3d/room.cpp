@@ -281,16 +281,16 @@ void Room::_notification(int p_what) {
 }
 
 void Room::_bind_methods() {
-    BIND_METHOD(Room,set_use_default_simplify);
-    BIND_METHOD(Room,get_use_default_simplify);
+    SE_BIND_METHOD(Room,set_use_default_simplify);
+    SE_BIND_METHOD(Room,get_use_default_simplify);
 
-    BIND_METHOD(Room,set_room_simplify);
-    BIND_METHOD(Room,get_room_simplify);
+    SE_BIND_METHOD(Room,set_room_simplify);
+    SE_BIND_METHOD(Room,get_room_simplify);
 
-    BIND_METHOD(Room,set_points);
-    BIND_METHOD(Room,get_points);
+    SE_BIND_METHOD(Room,set_points);
+    SE_BIND_METHOD(Room,get_points);
 
-    BIND_METHOD(Room,set_point);
+    SE_BIND_METHOD(Room,set_point);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_default_simplify"), "set_use_default_simplify", "get_use_default_simplify");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "room_simplify", PropertyHint::Range, "0.0,1.0,0.005"),

@@ -592,34 +592,34 @@ bool AStar::is_point_disabled(int p_id) const {
 
 void AStar::_bind_methods() {
 
-    BIND_METHOD(AStar,get_available_point_id);
+    SE_BIND_METHOD(AStar,get_available_point_id);
     SE_BIND_METHOD_WITH_DEFAULTS(AStar, add_point,DEFVAL(1.0));
-    BIND_METHOD(AStar,get_point_position);
-    BIND_METHOD(AStar,set_point_position);
-    BIND_METHOD(AStar,get_point_weight_scale);
-    BIND_METHOD(AStar,set_point_weight_scale);
-    BIND_METHOD(AStar,remove_point);
-    BIND_METHOD(AStar,has_point);
-    BIND_METHOD(AStar,get_point_connections);
-    BIND_METHOD(AStar,get_points);
+    SE_BIND_METHOD(AStar,get_point_position);
+    SE_BIND_METHOD(AStar,set_point_position);
+    SE_BIND_METHOD(AStar,get_point_weight_scale);
+    SE_BIND_METHOD(AStar,set_point_weight_scale);
+    SE_BIND_METHOD(AStar,remove_point);
+    SE_BIND_METHOD(AStar,has_point);
+    SE_BIND_METHOD(AStar,get_point_connections);
+    SE_BIND_METHOD(AStar,get_points);
 
     SE_BIND_METHOD_WITH_DEFAULTS(AStar, set_point_disabled,DEFVAL(true));
-    BIND_METHOD(AStar,is_point_disabled);
+    SE_BIND_METHOD(AStar,is_point_disabled);
 
     SE_BIND_METHOD_WITH_DEFAULTS(AStar, connect_points,DEFVAL(true));
     SE_BIND_METHOD_WITH_DEFAULTS(AStar, disconnect_points,DEFVAL(true));
     SE_BIND_METHOD_WITH_DEFAULTS(AStar, are_points_connected,DEFVAL(true));
 
-    BIND_METHOD(AStar,get_point_count);
-    BIND_METHOD(AStar,get_point_capacity);
-    BIND_METHOD(AStar,reserve_space);
-    BIND_METHOD(AStar,clear);
+    SE_BIND_METHOD(AStar,get_point_count);
+    SE_BIND_METHOD(AStar,get_point_capacity);
+    SE_BIND_METHOD(AStar,reserve_space);
+    SE_BIND_METHOD(AStar,clear);
 
     SE_BIND_METHOD_WITH_DEFAULTS(AStar, get_closest_point,DEFVAL(false));
-    BIND_METHOD(AStar,get_closest_position_in_segment);
+    SE_BIND_METHOD(AStar,get_closest_position_in_segment);
 
-    BIND_METHOD(AStar,get_point_path);
-    BIND_METHOD(AStar,get_id_path);
+    SE_BIND_METHOD(AStar,get_point_path);
+    SE_BIND_METHOD(AStar,get_id_path);
 
     BIND_VMETHOD(MethodInfo(VariantType::FLOAT, "_estimate_cost", PropertyInfo(VariantType::INT, "from_id"), PropertyInfo(VariantType::INT, "to_id")));
     BIND_VMETHOD(MethodInfo(VariantType::FLOAT, "_compute_cost", PropertyInfo(VariantType::INT, "from_id"), PropertyInfo(VariantType::INT, "to_id")));
@@ -918,34 +918,34 @@ bool AStar2D::_solve(AStarPoint *begin_point, AStarPoint *end_point) {
 
 void AStar2D::_bind_methods() {
 
-    BIND_METHOD(AStar2D,get_available_point_id);
+    SE_BIND_METHOD(AStar2D,get_available_point_id);
     SE_BIND_METHOD_WITH_DEFAULTS(AStar2D, add_point,DEFVAL(1.0));
-    BIND_METHOD(AStar2D,get_point_position);
-    BIND_METHOD(AStar2D,set_point_position);
-    BIND_METHOD(AStar2D,get_point_weight_scale);
-    BIND_METHOD(AStar2D,set_point_weight_scale);
-    BIND_METHOD(AStar2D,remove_point);
-    BIND_METHOD(AStar2D,has_point);
-    BIND_METHOD(AStar2D,get_point_connections);
-    BIND_METHOD(AStar2D,get_points);
+    SE_BIND_METHOD(AStar2D,get_point_position);
+    SE_BIND_METHOD(AStar2D,set_point_position);
+    SE_BIND_METHOD(AStar2D,get_point_weight_scale);
+    SE_BIND_METHOD(AStar2D,set_point_weight_scale);
+    SE_BIND_METHOD(AStar2D,remove_point);
+    SE_BIND_METHOD(AStar2D,has_point);
+    SE_BIND_METHOD(AStar2D,get_point_connections);
+    SE_BIND_METHOD(AStar2D,get_points);
 
     SE_BIND_METHOD_WITH_DEFAULTS(AStar2D, set_point_disabled, DEFVAL(true));
-    BIND_METHOD(AStar2D,is_point_disabled);
+    SE_BIND_METHOD(AStar2D,is_point_disabled);
 
     SE_BIND_METHOD_WITH_DEFAULTS(AStar2D, connect_points, DEFVAL(true));
-    BIND_METHOD(AStar2D,disconnect_points);
-    BIND_METHOD(AStar2D,are_points_connected);
+    SE_BIND_METHOD(AStar2D,disconnect_points);
+    SE_BIND_METHOD(AStar2D,are_points_connected);
 
-    BIND_METHOD(AStar2D,get_point_count);
-    BIND_METHOD(AStar2D,get_point_capacity);
-    BIND_METHOD(AStar2D,reserve_space);
-    BIND_METHOD(AStar2D,clear);
+    SE_BIND_METHOD(AStar2D,get_point_count);
+    SE_BIND_METHOD(AStar2D,get_point_capacity);
+    SE_BIND_METHOD(AStar2D,reserve_space);
+    SE_BIND_METHOD(AStar2D,clear);
 
     SE_BIND_METHOD_WITH_DEFAULTS(AStar2D, get_closest_point,DEFVAL(false));
-    BIND_METHOD(AStar2D,get_closest_position_in_segment);
+    SE_BIND_METHOD(AStar2D,get_closest_position_in_segment);
 
-    BIND_METHOD(AStar2D,get_point_path);
-    BIND_METHOD(AStar2D,get_id_path);
+    SE_BIND_METHOD(AStar2D,get_point_path);
+    SE_BIND_METHOD(AStar2D,get_id_path);
 
     BIND_VMETHOD(MethodInfo(VariantType::FLOAT, "_estimate_cost", PropertyInfo(VariantType::INT, "from_id"), PropertyInfo(VariantType::INT, "to_id")));
     BIND_VMETHOD(MethodInfo(VariantType::FLOAT, "_compute_cost", PropertyInfo(VariantType::INT, "from_id"), PropertyInfo(VariantType::INT, "to_id")));

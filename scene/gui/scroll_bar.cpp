@@ -647,11 +647,11 @@ bool ScrollBar::is_smooth_scroll_enabled() const {
 
 void ScrollBar::_bind_methods() {
 
-    BIND_METHOD(ScrollBar,_gui_input);
-    BIND_METHOD(ScrollBar,set_custom_step);
-    BIND_METHOD(ScrollBar,get_custom_step);
-    BIND_METHOD(ScrollBar,_drag_node_input);
-    BIND_METHOD(ScrollBar,_drag_node_exit);
+    SE_BIND_METHOD(ScrollBar,_gui_input);
+    SE_BIND_METHOD(ScrollBar,set_custom_step);
+    SE_BIND_METHOD(ScrollBar,get_custom_step);
+    SE_BIND_METHOD(ScrollBar,_drag_node_input);
+    SE_BIND_METHOD(ScrollBar,_drag_node_exit);
 
     ADD_SIGNAL(MethodInfo("scrolling"));
 

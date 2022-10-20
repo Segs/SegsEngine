@@ -107,11 +107,11 @@ Rect2 LineShape2D::get_rect() const {
 
 void LineShape2D::_bind_methods() {
 
-    BIND_METHOD(LineShape2D,set_normal);
-    BIND_METHOD(LineShape2D,get_normal);
+    SE_BIND_METHOD(LineShape2D,set_normal);
+    SE_BIND_METHOD(LineShape2D,get_normal);
 
-    BIND_METHOD(LineShape2D,set_d);
-    BIND_METHOD(LineShape2D,get_d);
+    SE_BIND_METHOD(LineShape2D,set_d);
+    SE_BIND_METHOD(LineShape2D,get_d);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "normal"), "set_normal", "get_normal");
     ADD_PROPERTY(

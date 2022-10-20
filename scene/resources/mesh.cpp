@@ -459,17 +459,17 @@ Size2 Mesh::get_lightmap_size_hint() const {
 
 void Mesh::_bind_methods() {
 
-    BIND_METHOD(Mesh,set_lightmap_size_hint);
-    BIND_METHOD(Mesh,get_lightmap_size_hint);
-    BIND_METHOD(Mesh,get_aabb);
+    SE_BIND_METHOD(Mesh,set_lightmap_size_hint);
+    SE_BIND_METHOD(Mesh,get_lightmap_size_hint);
+    SE_BIND_METHOD(Mesh,get_aabb);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "lightmap_size_hint"), "set_lightmap_size_hint", "get_lightmap_size_hint");
 
-    BIND_METHOD(Mesh,get_surface_count);
+    SE_BIND_METHOD(Mesh,get_surface_count);
     MethodBinder::bind_method(D_METHOD("surface_get_arrays", {"surf_idx"}), &Mesh::_surface_get_arrays);
     MethodBinder::bind_method(D_METHOD("surface_get_blend_shape_arrays", {"surf_idx"}), &Mesh::_surface_get_blend_shape_arrays);
-    BIND_METHOD(Mesh,surface_set_material);
-    BIND_METHOD(Mesh,surface_get_material);
+    SE_BIND_METHOD(Mesh,surface_set_material);
+    SE_BIND_METHOD(Mesh,surface_get_material);
 
     BIND_ENUM_CONSTANT(PRIMITIVE_POINTS);
     BIND_ENUM_CONSTANT(PRIMITIVE_LINES);
@@ -1446,35 +1446,35 @@ Error ArrayMesh::lightmap_unwrap_cached(int *&r_cache_data, unsigned int &r_cach
 
 void ArrayMesh::_bind_methods() {
 
-    BIND_METHOD(ArrayMesh,add_blend_shape);
-    BIND_METHOD(ArrayMesh,get_blend_shape_count);
-    BIND_METHOD(ArrayMesh,get_blend_shape_name);
-    BIND_METHOD(ArrayMesh,set_blend_shape_name);
-    BIND_METHOD(ArrayMesh,clear_blend_shapes);
-    BIND_METHOD(ArrayMesh,set_blend_shape_mode);
-    BIND_METHOD(ArrayMesh,get_blend_shape_mode);
+    SE_BIND_METHOD(ArrayMesh,add_blend_shape);
+    SE_BIND_METHOD(ArrayMesh,get_blend_shape_count);
+    SE_BIND_METHOD(ArrayMesh,get_blend_shape_name);
+    SE_BIND_METHOD(ArrayMesh,set_blend_shape_name);
+    SE_BIND_METHOD(ArrayMesh,clear_blend_shapes);
+    SE_BIND_METHOD(ArrayMesh,set_blend_shape_mode);
+    SE_BIND_METHOD(ArrayMesh,get_blend_shape_mode);
 
     MethodBinder::bind_method(D_METHOD("add_surface_from_arrays", {"primitive", "arrays", "blend_shapes", "compress_flags"}), &ArrayMesh::_add_surface_from_arrays, {DEFVAL(Array()), DEFVAL(ARRAY_COMPRESS_DEFAULT)});
-    BIND_METHOD(ArrayMesh,clear_surfaces);
-    BIND_METHOD(ArrayMesh,surface_remove);
-    BIND_METHOD(ArrayMesh,surface_update_region);
-    BIND_METHOD(ArrayMesh,surface_get_array_len);
-    BIND_METHOD(ArrayMesh,surface_get_array_index_len);
-    BIND_METHOD(ArrayMesh,surface_get_format);
-    BIND_METHOD(ArrayMesh,surface_get_primitive_type);
-    BIND_METHOD(ArrayMesh,surface_find_by_name);
-    BIND_METHOD(ArrayMesh,surface_set_name);
-    BIND_METHOD(ArrayMesh,surface_get_name);
-    BIND_METHOD(ArrayMesh,create_trimesh_shape);
+    SE_BIND_METHOD(ArrayMesh,clear_surfaces);
+    SE_BIND_METHOD(ArrayMesh,surface_remove);
+    SE_BIND_METHOD(ArrayMesh,surface_update_region);
+    SE_BIND_METHOD(ArrayMesh,surface_get_array_len);
+    SE_BIND_METHOD(ArrayMesh,surface_get_array_index_len);
+    SE_BIND_METHOD(ArrayMesh,surface_get_format);
+    SE_BIND_METHOD(ArrayMesh,surface_get_primitive_type);
+    SE_BIND_METHOD(ArrayMesh,surface_find_by_name);
+    SE_BIND_METHOD(ArrayMesh,surface_set_name);
+    SE_BIND_METHOD(ArrayMesh,surface_get_name);
+    SE_BIND_METHOD(ArrayMesh,create_trimesh_shape);
     MethodBinder::bind_method(D_METHOD("create_convex_shape", {"clean", "simplify"}), &ArrayMesh::create_convex_shape,{DEFVAL(true), DEFVAL(false)});
-    BIND_METHOD(ArrayMesh,create_outline);
+    SE_BIND_METHOD(ArrayMesh,create_outline);
     MethodBinder::bind_method(D_METHOD("regen_normalmaps"), &ArrayMesh::regen_normalmaps,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
     MethodBinder::bind_method(D_METHOD("lightmap_unwrap", {"transform", "texel_size"}), &ArrayMesh::lightmap_unwrap,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
-    BIND_METHOD(ArrayMesh,get_faces);
-    BIND_METHOD(ArrayMesh,generate_triangle_mesh);
+    SE_BIND_METHOD(ArrayMesh,get_faces);
+    SE_BIND_METHOD(ArrayMesh,generate_triangle_mesh);
 
-    BIND_METHOD(ArrayMesh,set_custom_aabb);
-    BIND_METHOD(ArrayMesh,get_custom_aabb);
+    SE_BIND_METHOD(ArrayMesh,set_custom_aabb);
+    SE_BIND_METHOD(ArrayMesh,get_custom_aabb);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "blend_shape_mode", PropertyHint::Enum, "Normalized,Relative", PROPERTY_USAGE_NOEDITOR), "set_blend_shape_mode", "get_blend_shape_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::AABB, "custom_aabb", PropertyHint::None, ""), "set_custom_aabb", "get_custom_aabb");

@@ -1834,102 +1834,102 @@ bool TileMap::is_show_collision_enabled() const {
 
 void TileMap::_bind_methods() {
 
-    BIND_METHOD(TileMap,set_tileset);
-    BIND_METHOD(TileMap,get_tileset);
+    SE_BIND_METHOD(TileMap,set_tileset);
+    SE_BIND_METHOD(TileMap,get_tileset);
 
-    BIND_METHOD(TileMap,set_mode);
-    BIND_METHOD(TileMap,get_mode);
+    SE_BIND_METHOD(TileMap,set_mode);
+    SE_BIND_METHOD(TileMap,get_mode);
 
-    BIND_METHOD(TileMap,set_half_offset);
-    BIND_METHOD(TileMap,get_half_offset);
+    SE_BIND_METHOD(TileMap,set_half_offset);
+    SE_BIND_METHOD(TileMap,get_half_offset);
 
-    BIND_METHOD(TileMap,set_custom_transform);
-    BIND_METHOD(TileMap,get_custom_transform);
+    SE_BIND_METHOD(TileMap,set_custom_transform);
+    SE_BIND_METHOD(TileMap,get_custom_transform);
 
-    BIND_METHOD(TileMap,set_cell_size);
-    BIND_METHOD(TileMap,get_cell_size);
+    SE_BIND_METHOD(TileMap,set_cell_size);
+    SE_BIND_METHOD(TileMap,get_cell_size);
 
-    BIND_METHOD(TileMap,_set_old_cell_size);
-    BIND_METHOD(TileMap,_get_old_cell_size);
+    SE_BIND_METHOD(TileMap,_set_old_cell_size);
+    SE_BIND_METHOD(TileMap,_get_old_cell_size);
 
-    BIND_METHOD(TileMap,set_quadrant_size);
-    BIND_METHOD(TileMap,get_quadrant_size);
+    SE_BIND_METHOD(TileMap,set_quadrant_size);
+    SE_BIND_METHOD(TileMap,get_quadrant_size);
 
-    BIND_METHOD(TileMap,set_tile_origin);
-    BIND_METHOD(TileMap,get_tile_origin);
+    SE_BIND_METHOD(TileMap,set_tile_origin);
+    SE_BIND_METHOD(TileMap,get_tile_origin);
 
-    BIND_METHOD(TileMap,set_clip_uv);
-    BIND_METHOD(TileMap,get_clip_uv);
+    SE_BIND_METHOD(TileMap,set_clip_uv);
+    SE_BIND_METHOD(TileMap,get_clip_uv);
 
-    BIND_METHOD(TileMap,set_y_sort_mode);
-    BIND_METHOD(TileMap,is_y_sort_mode_enabled);
+    SE_BIND_METHOD(TileMap,set_y_sort_mode);
+    SE_BIND_METHOD(TileMap,is_y_sort_mode_enabled);
 
-    BIND_METHOD(TileMap,set_compatibility_mode);
-    BIND_METHOD(TileMap,is_compatibility_mode_enabled);
+    SE_BIND_METHOD(TileMap,set_compatibility_mode);
+    SE_BIND_METHOD(TileMap,is_compatibility_mode_enabled);
 
-    BIND_METHOD(TileMap,set_show_collision);
-    BIND_METHOD(TileMap,is_show_collision_enabled);
+    SE_BIND_METHOD(TileMap,set_show_collision);
+    SE_BIND_METHOD(TileMap,is_show_collision_enabled);
 
-    BIND_METHOD(TileMap,set_centered_textures);
-    BIND_METHOD(TileMap,is_centered_textures_enabled);
+    SE_BIND_METHOD(TileMap,set_centered_textures);
+    SE_BIND_METHOD(TileMap,is_centered_textures_enabled);
 
-    BIND_METHOD(TileMap,set_collision_use_kinematic);
-    BIND_METHOD(TileMap,get_collision_use_kinematic);
+    SE_BIND_METHOD(TileMap,set_collision_use_kinematic);
+    SE_BIND_METHOD(TileMap,get_collision_use_kinematic);
 
-    BIND_METHOD(TileMap,set_collision_use_parent);
-    BIND_METHOD(TileMap,get_collision_use_parent);
+    SE_BIND_METHOD(TileMap,set_collision_use_parent);
+    SE_BIND_METHOD(TileMap,get_collision_use_parent);
 
-    BIND_METHOD(TileMap,set_collision_layer);
-    BIND_METHOD(TileMap,get_collision_layer);
+    SE_BIND_METHOD(TileMap,set_collision_layer);
+    SE_BIND_METHOD(TileMap,get_collision_layer);
 
-    BIND_METHOD(TileMap,set_collision_mask);
-    BIND_METHOD(TileMap,get_collision_mask);
+    SE_BIND_METHOD(TileMap,set_collision_mask);
+    SE_BIND_METHOD(TileMap,get_collision_mask);
 
-    BIND_METHOD(TileMap,set_collision_layer_bit);
-    BIND_METHOD(TileMap,get_collision_layer_bit);
+    SE_BIND_METHOD(TileMap,set_collision_layer_bit);
+    SE_BIND_METHOD(TileMap,get_collision_layer_bit);
 
-    BIND_METHOD(TileMap,set_collision_mask_bit);
-    BIND_METHOD(TileMap,get_collision_mask_bit);
+    SE_BIND_METHOD(TileMap,set_collision_mask_bit);
+    SE_BIND_METHOD(TileMap,get_collision_mask_bit);
 
-    BIND_METHOD(TileMap,set_collision_friction);
-    BIND_METHOD(TileMap,get_collision_friction);
+    SE_BIND_METHOD(TileMap,set_collision_friction);
+    SE_BIND_METHOD(TileMap,get_collision_friction);
 
-    BIND_METHOD(TileMap,set_collision_bounce);
-    BIND_METHOD(TileMap,get_collision_bounce);
+    SE_BIND_METHOD(TileMap,set_collision_bounce);
+    SE_BIND_METHOD(TileMap,get_collision_bounce);
 
-    BIND_METHOD(TileMap,set_occluder_light_mask);
-    BIND_METHOD(TileMap,get_occluder_light_mask);
+    SE_BIND_METHOD(TileMap,set_occluder_light_mask);
+    SE_BIND_METHOD(TileMap,get_occluder_light_mask);
 
     MethodBinder::bind_method(D_METHOD("set_cell", {"x", "y", "tile", "flip_x", "flip_y", "transpose", "autotile_coord"}), &TileMap::set_cell, {DEFVAL(false), DEFVAL(false), DEFVAL(false), DEFVAL(Vector2())});
     MethodBinder::bind_method(D_METHOD("set_cellv", { "position", "tile", "flip_x", "flip_y", "transpose", "autotile_coord" }), &TileMap::set_cellv, { DEFVAL(false), DEFVAL(false), DEFVAL(false), DEFVAL(Vector2()) });
-    BIND_METHOD(TileMap,_set_celld);
-    BIND_METHOD(TileMap,get_cell);
-    BIND_METHOD(TileMap,get_cellv);
-    BIND_METHOD(TileMap,is_cell_x_flipped);
-    BIND_METHOD(TileMap,is_cell_y_flipped);
-    BIND_METHOD(TileMap,is_cell_transposed);
+    SE_BIND_METHOD(TileMap,_set_celld);
+    SE_BIND_METHOD(TileMap,get_cell);
+    SE_BIND_METHOD(TileMap,get_cellv);
+    SE_BIND_METHOD(TileMap,is_cell_x_flipped);
+    SE_BIND_METHOD(TileMap,is_cell_y_flipped);
+    SE_BIND_METHOD(TileMap,is_cell_transposed);
 
-    BIND_METHOD(TileMap,get_cell_autotile_coord);
+    SE_BIND_METHOD(TileMap,get_cell_autotile_coord);
 
-    BIND_METHOD(TileMap,fix_invalid_tiles);
-    BIND_METHOD(TileMap,clear);
+    SE_BIND_METHOD(TileMap,fix_invalid_tiles);
+    SE_BIND_METHOD(TileMap,clear);
 
-    BIND_METHOD(TileMap,get_used_cells);
-    BIND_METHOD(TileMap,get_used_cells_by_id);
-    BIND_METHOD(TileMap,get_used_rect);
+    SE_BIND_METHOD(TileMap,get_used_cells);
+    SE_BIND_METHOD(TileMap,get_used_cells_by_id);
+    SE_BIND_METHOD(TileMap,get_used_rect);
 
     MethodBinder::bind_method(D_METHOD("map_to_world", {"map_position", "ignore_half_ofs"}), &TileMap::map_to_world, {DEFVAL(false)});
-    BIND_METHOD(TileMap,world_to_map);
+    SE_BIND_METHOD(TileMap,world_to_map);
 
-    BIND_METHOD(TileMap,_clear_quadrants);
-    BIND_METHOD(TileMap,_recreate_quadrants);
-    BIND_METHOD(TileMap,update_dirty_quadrants);
+    SE_BIND_METHOD(TileMap,_clear_quadrants);
+    SE_BIND_METHOD(TileMap,_recreate_quadrants);
+    SE_BIND_METHOD(TileMap,update_dirty_quadrants);
 
-    BIND_METHOD(TileMap,update_bitmask_area);
+    SE_BIND_METHOD(TileMap,update_bitmask_area);
     MethodBinder::bind_method(D_METHOD("update_bitmask_region", {"start", "end"}), &TileMap::update_bitmask_region, {DEFVAL(Vector2()), DEFVAL(Vector2())});
 
-    BIND_METHOD(TileMap,_set_tile_data);
-    BIND_METHOD(TileMap,_get_tile_data);
+    SE_BIND_METHOD(TileMap,_set_tile_data);
+    SE_BIND_METHOD(TileMap,_get_tile_data);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Square,Isometric,Custom"), "set_mode", "get_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "tile_set", PropertyHint::ResourceType, "TileSet"), "set_tileset", "get_tileset");

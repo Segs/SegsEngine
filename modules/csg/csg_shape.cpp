@@ -658,34 +658,34 @@ Array CSGShape::get_meshes() const {
 }
 void CSGShape::_bind_methods() {
 
-    BIND_METHOD(CSGShape,_update_shape);
-    BIND_METHOD(CSGShape,is_root_shape);
+    SE_BIND_METHOD(CSGShape,_update_shape);
+    SE_BIND_METHOD(CSGShape,is_root_shape);
 
-    BIND_METHOD(CSGShape,set_operation);
-    BIND_METHOD(CSGShape,get_operation);
+    SE_BIND_METHOD(CSGShape,set_operation);
+    SE_BIND_METHOD(CSGShape,get_operation);
 
-    BIND_METHOD(CSGShape,set_snap);
-    BIND_METHOD(CSGShape,get_snap);
+    SE_BIND_METHOD(CSGShape,set_snap);
+    SE_BIND_METHOD(CSGShape,get_snap);
 
-    BIND_METHOD(CSGShape,set_use_collision);
-    BIND_METHOD(CSGShape,is_using_collision);
+    SE_BIND_METHOD(CSGShape,set_use_collision);
+    SE_BIND_METHOD(CSGShape,is_using_collision);
 
-    BIND_METHOD(CSGShape,set_collision_layer);
-    BIND_METHOD(CSGShape,get_collision_layer);
+    SE_BIND_METHOD(CSGShape,set_collision_layer);
+    SE_BIND_METHOD(CSGShape,get_collision_layer);
 
-    BIND_METHOD(CSGShape,set_collision_mask);
-    BIND_METHOD(CSGShape,get_collision_mask);
+    SE_BIND_METHOD(CSGShape,set_collision_mask);
+    SE_BIND_METHOD(CSGShape,get_collision_mask);
 
-    BIND_METHOD(CSGShape,set_collision_mask_bit);
-    BIND_METHOD(CSGShape,get_collision_mask_bit);
+    SE_BIND_METHOD(CSGShape,set_collision_mask_bit);
+    SE_BIND_METHOD(CSGShape,get_collision_mask_bit);
 
-    BIND_METHOD(CSGShape,set_collision_layer_bit);
-    BIND_METHOD(CSGShape,get_collision_layer_bit);
+    SE_BIND_METHOD(CSGShape,set_collision_layer_bit);
+    SE_BIND_METHOD(CSGShape,get_collision_layer_bit);
 
-    BIND_METHOD(CSGShape,set_calculate_tangents);
-    BIND_METHOD(CSGShape,is_calculating_tangents);
+    SE_BIND_METHOD(CSGShape,set_calculate_tangents);
+    SE_BIND_METHOD(CSGShape,is_calculating_tangents);
 
-    BIND_METHOD(CSGShape,get_meshes);
+    SE_BIND_METHOD(CSGShape,get_meshes);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "operation", PropertyHint::Enum, "Union,Intersection,Subtraction"), "set_operation", "get_operation");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "snap", PropertyHint::Range, "0.0001,1,0.001"), "set_snap", "get_snap");
@@ -749,8 +749,8 @@ CSGBrush *CSGPrimitive::_create_brush_from_arrays(const PoolVector<Vector3> &p_v
 
 void CSGPrimitive::_bind_methods() {
 
-    BIND_METHOD(CSGPrimitive,set_invert_faces);
-    BIND_METHOD(CSGPrimitive,is_inverting_faces);
+    SE_BIND_METHOD(CSGPrimitive,set_invert_faces);
+    SE_BIND_METHOD(CSGPrimitive,is_inverting_faces);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "invert_faces"), "set_invert_faces", "is_inverting_faces");
 }
@@ -933,11 +933,11 @@ Ref<Material> CSGMesh::get_material() const {
 
 void CSGMesh::_bind_methods() {
 
-    BIND_METHOD(CSGMesh,set_mesh);
-    BIND_METHOD(CSGMesh,get_mesh);
+    SE_BIND_METHOD(CSGMesh,set_mesh);
+    SE_BIND_METHOD(CSGMesh,get_mesh);
 
-    BIND_METHOD(CSGMesh,set_material);
-    BIND_METHOD(CSGMesh,get_material);
+    SE_BIND_METHOD(CSGMesh,set_material);
+    SE_BIND_METHOD(CSGMesh,get_material);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh"), "set_mesh", "get_mesh");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PropertyHint::ResourceType, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
@@ -1094,19 +1094,19 @@ CSGBrush *CSGSphere::_build_brush() {
 }
 
 void CSGSphere::_bind_methods() {
-    BIND_METHOD(CSGSphere,set_radius);
-    BIND_METHOD(CSGSphere,get_radius);
+    SE_BIND_METHOD(CSGSphere,set_radius);
+    SE_BIND_METHOD(CSGSphere,get_radius);
 
-    BIND_METHOD(CSGSphere,set_radial_segments);
-    BIND_METHOD(CSGSphere,get_radial_segments);
-    BIND_METHOD(CSGSphere,set_rings);
-    BIND_METHOD(CSGSphere,get_rings);
+    SE_BIND_METHOD(CSGSphere,set_radial_segments);
+    SE_BIND_METHOD(CSGSphere,get_radial_segments);
+    SE_BIND_METHOD(CSGSphere,set_rings);
+    SE_BIND_METHOD(CSGSphere,get_rings);
 
-    BIND_METHOD(CSGSphere,set_smooth_faces);
-    BIND_METHOD(CSGSphere,get_smooth_faces);
+    SE_BIND_METHOD(CSGSphere,set_smooth_faces);
+    SE_BIND_METHOD(CSGSphere,get_smooth_faces);
 
-    BIND_METHOD(CSGSphere,set_material);
-    BIND_METHOD(CSGSphere,get_material);
+    SE_BIND_METHOD(CSGSphere,set_material);
+    SE_BIND_METHOD(CSGSphere,get_material);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.001,100.0,0.001"), "set_radius", "get_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "radial_segments", PropertyHint::Range, "1,100,1"), "set_radial_segments", "get_radial_segments");
@@ -1283,17 +1283,17 @@ CSGBrush *CSGBox::_build_brush() {
 }
 
 void CSGBox::_bind_methods() {
-    BIND_METHOD(CSGBox,set_width);
-    BIND_METHOD(CSGBox,get_width);
+    SE_BIND_METHOD(CSGBox,set_width);
+    SE_BIND_METHOD(CSGBox,get_width);
 
-    BIND_METHOD(CSGBox,set_height);
-    BIND_METHOD(CSGBox,get_height);
+    SE_BIND_METHOD(CSGBox,set_height);
+    SE_BIND_METHOD(CSGBox,get_height);
 
-    BIND_METHOD(CSGBox,set_depth);
-    BIND_METHOD(CSGBox,get_depth);
+    SE_BIND_METHOD(CSGBox,set_depth);
+    SE_BIND_METHOD(CSGBox,get_depth);
 
-    BIND_METHOD(CSGBox,set_material);
-    BIND_METHOD(CSGBox,get_material);
+    SE_BIND_METHOD(CSGBox,set_material);
+    SE_BIND_METHOD(CSGBox,get_material);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "width", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_width", "get_width");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_height", "get_height");
@@ -1494,23 +1494,23 @@ CSGBrush *CSGCylinder::_build_brush() {
 }
 
 void CSGCylinder::_bind_methods() {
-    BIND_METHOD(CSGCylinder,set_radius);
-    BIND_METHOD(CSGCylinder,get_radius);
+    SE_BIND_METHOD(CSGCylinder,set_radius);
+    SE_BIND_METHOD(CSGCylinder,get_radius);
 
-    BIND_METHOD(CSGCylinder,set_height);
-    BIND_METHOD(CSGCylinder,get_height);
+    SE_BIND_METHOD(CSGCylinder,set_height);
+    SE_BIND_METHOD(CSGCylinder,get_height);
 
-    BIND_METHOD(CSGCylinder,set_sides);
-    BIND_METHOD(CSGCylinder,get_sides);
+    SE_BIND_METHOD(CSGCylinder,set_sides);
+    SE_BIND_METHOD(CSGCylinder,get_sides);
 
-    BIND_METHOD(CSGCylinder,set_cone);
-    BIND_METHOD(CSGCylinder,is_cone);
+    SE_BIND_METHOD(CSGCylinder,set_cone);
+    SE_BIND_METHOD(CSGCylinder,is_cone);
 
-    BIND_METHOD(CSGCylinder,set_material);
-    BIND_METHOD(CSGCylinder,get_material);
+    SE_BIND_METHOD(CSGCylinder,set_material);
+    SE_BIND_METHOD(CSGCylinder,get_material);
 
-    BIND_METHOD(CSGCylinder,set_smooth_faces);
-    BIND_METHOD(CSGCylinder,get_smooth_faces);
+    SE_BIND_METHOD(CSGCylinder,set_smooth_faces);
+    SE_BIND_METHOD(CSGCylinder,get_smooth_faces);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_radius", "get_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_height", "get_height");
@@ -1728,23 +1728,23 @@ CSGBrush *CSGTorus::_build_brush() {
 }
 
 void CSGTorus::_bind_methods() {
-    BIND_METHOD(CSGTorus,set_inner_radius);
-    BIND_METHOD(CSGTorus,get_inner_radius);
+    SE_BIND_METHOD(CSGTorus,set_inner_radius);
+    SE_BIND_METHOD(CSGTorus,get_inner_radius);
 
-    BIND_METHOD(CSGTorus,set_outer_radius);
-    BIND_METHOD(CSGTorus,get_outer_radius);
+    SE_BIND_METHOD(CSGTorus,set_outer_radius);
+    SE_BIND_METHOD(CSGTorus,get_outer_radius);
 
-    BIND_METHOD(CSGTorus,set_sides);
-    BIND_METHOD(CSGTorus,get_sides);
+    SE_BIND_METHOD(CSGTorus,set_sides);
+    SE_BIND_METHOD(CSGTorus,get_sides);
 
-    BIND_METHOD(CSGTorus,set_ring_sides);
-    BIND_METHOD(CSGTorus,get_ring_sides);
+    SE_BIND_METHOD(CSGTorus,set_ring_sides);
+    SE_BIND_METHOD(CSGTorus,get_ring_sides);
 
-    BIND_METHOD(CSGTorus,set_material);
-    BIND_METHOD(CSGTorus,get_material);
+    SE_BIND_METHOD(CSGTorus,set_material);
+    SE_BIND_METHOD(CSGTorus,get_material);
 
-    BIND_METHOD(CSGTorus,set_smooth_faces);
-    BIND_METHOD(CSGTorus,get_smooth_faces);
+    SE_BIND_METHOD(CSGTorus,set_smooth_faces);
+    SE_BIND_METHOD(CSGTorus,get_smooth_faces);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "inner_radius", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_inner_radius", "get_inner_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "outer_radius", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_outer_radius", "get_outer_radius");
@@ -2212,55 +2212,55 @@ void CSGPolygon::_path_exited() {
 }
 
 void CSGPolygon::_bind_methods() {
-    BIND_METHOD(CSGPolygon,set_polygon);
-    BIND_METHOD(CSGPolygon,get_polygon);
+    SE_BIND_METHOD(CSGPolygon,set_polygon);
+    SE_BIND_METHOD(CSGPolygon,get_polygon);
 
-    BIND_METHOD(CSGPolygon,set_mode);
-    BIND_METHOD(CSGPolygon,get_mode);
+    SE_BIND_METHOD(CSGPolygon,set_mode);
+    SE_BIND_METHOD(CSGPolygon,get_mode);
 
-    BIND_METHOD(CSGPolygon,set_depth);
-    BIND_METHOD(CSGPolygon,get_depth);
+    SE_BIND_METHOD(CSGPolygon,set_depth);
+    SE_BIND_METHOD(CSGPolygon,get_depth);
 
-    BIND_METHOD(CSGPolygon,set_spin_degrees);
-    BIND_METHOD(CSGPolygon,get_spin_degrees);
+    SE_BIND_METHOD(CSGPolygon,set_spin_degrees);
+    SE_BIND_METHOD(CSGPolygon,get_spin_degrees);
 
-    BIND_METHOD(CSGPolygon,set_spin_sides);
-    BIND_METHOD(CSGPolygon,get_spin_sides);
+    SE_BIND_METHOD(CSGPolygon,set_spin_sides);
+    SE_BIND_METHOD(CSGPolygon,get_spin_sides);
 
-    BIND_METHOD(CSGPolygon,set_path_node);
-    BIND_METHOD(CSGPolygon,get_path_node);
+    SE_BIND_METHOD(CSGPolygon,set_path_node);
+    SE_BIND_METHOD(CSGPolygon,get_path_node);
 
-    BIND_METHOD(CSGPolygon,set_path_interval_type);
-    BIND_METHOD(CSGPolygon,get_path_interval_type);
+    SE_BIND_METHOD(CSGPolygon,set_path_interval_type);
+    SE_BIND_METHOD(CSGPolygon,get_path_interval_type);
 
-    BIND_METHOD(CSGPolygon,set_path_interval);
-    BIND_METHOD(CSGPolygon,get_path_interval);
+    SE_BIND_METHOD(CSGPolygon,set_path_interval);
+    SE_BIND_METHOD(CSGPolygon,get_path_interval);
 
-    BIND_METHOD(CSGPolygon,set_path_simplify_angle);
-    BIND_METHOD(CSGPolygon,get_path_simplify_angle);
+    SE_BIND_METHOD(CSGPolygon,set_path_simplify_angle);
+    SE_BIND_METHOD(CSGPolygon,get_path_simplify_angle);
 
-    BIND_METHOD(CSGPolygon,set_path_rotation);
-    BIND_METHOD(CSGPolygon,get_path_rotation);
+    SE_BIND_METHOD(CSGPolygon,set_path_rotation);
+    SE_BIND_METHOD(CSGPolygon,get_path_rotation);
 
-    BIND_METHOD(CSGPolygon,set_path_local);
-    BIND_METHOD(CSGPolygon,is_path_local);
+    SE_BIND_METHOD(CSGPolygon,set_path_local);
+    SE_BIND_METHOD(CSGPolygon,is_path_local);
 
-    BIND_METHOD(CSGPolygon,set_path_continuous_u);
-    BIND_METHOD(CSGPolygon,is_path_continuous_u);
-    BIND_METHOD(CSGPolygon,set_path_u_distance);
-    BIND_METHOD(CSGPolygon,get_path_u_distance);
+    SE_BIND_METHOD(CSGPolygon,set_path_continuous_u);
+    SE_BIND_METHOD(CSGPolygon,is_path_continuous_u);
+    SE_BIND_METHOD(CSGPolygon,set_path_u_distance);
+    SE_BIND_METHOD(CSGPolygon,get_path_u_distance);
 
-    BIND_METHOD(CSGPolygon,set_path_joined);
-    BIND_METHOD(CSGPolygon,is_path_joined);
+    SE_BIND_METHOD(CSGPolygon,set_path_joined);
+    SE_BIND_METHOD(CSGPolygon,is_path_joined);
 
-    BIND_METHOD(CSGPolygon,set_material);
-    BIND_METHOD(CSGPolygon,get_material);
+    SE_BIND_METHOD(CSGPolygon,set_material);
+    SE_BIND_METHOD(CSGPolygon,get_material);
 
-    BIND_METHOD(CSGPolygon,set_smooth_faces);
-    BIND_METHOD(CSGPolygon,get_smooth_faces);
+    SE_BIND_METHOD(CSGPolygon,set_smooth_faces);
+    SE_BIND_METHOD(CSGPolygon,get_smooth_faces);
 
-    BIND_METHOD(CSGPolygon,_is_editable_3d_polygon);
-    BIND_METHOD(CSGPolygon,_has_editable_3d_polygon_no_depth);
+    SE_BIND_METHOD(CSGPolygon,_is_editable_3d_polygon);
+    SE_BIND_METHOD(CSGPolygon,_has_editable_3d_polygon_no_depth);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Depth,Spin,Path"), "set_mode", "get_mode");

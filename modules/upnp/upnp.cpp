@@ -338,32 +338,32 @@ int UPNP::delete_port_mapping(int port, StringView proto) const {
 }
 
 void UPNP::_bind_methods() {
-    BIND_METHOD(UPNP,get_device_count);
-    BIND_METHOD(UPNP,get_device);
-    BIND_METHOD(UPNP,add_device);
-    BIND_METHOD(UPNP,set_device);
-    BIND_METHOD(UPNP,remove_device);
-    BIND_METHOD(UPNP,clear_devices);
+    SE_BIND_METHOD(UPNP,get_device_count);
+    SE_BIND_METHOD(UPNP,get_device);
+    SE_BIND_METHOD(UPNP,add_device);
+    SE_BIND_METHOD(UPNP,set_device);
+    SE_BIND_METHOD(UPNP,remove_device);
+    SE_BIND_METHOD(UPNP,clear_devices);
 
-    BIND_METHOD(UPNP,get_gateway);
+    SE_BIND_METHOD(UPNP,get_gateway);
 
     MethodBinder::bind_method(D_METHOD("discover", {"timeout", "ttl", "device_filter"}), &UPNP::discover, {DEFVAL(2000), DEFVAL(2), DEFVAL("InternetGatewayDevice")});
 
-    BIND_METHOD(UPNP,query_external_address);
+    SE_BIND_METHOD(UPNP,query_external_address);
 
     MethodBinder::bind_method(D_METHOD("add_port_mapping", {"port", "port_internal", "desc", "proto", "duration"}), &UPNP::add_port_mapping, {DEFVAL(0), DEFVAL(""), DEFVAL("UDP"), DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("delete_port_mapping", {"port", "proto"}), &UPNP::delete_port_mapping, {DEFVAL("UDP")});
 
-    BIND_METHOD(UPNP,set_discover_multicast_if);
-    BIND_METHOD(UPNP,get_discover_multicast_if);
+    SE_BIND_METHOD(UPNP,set_discover_multicast_if);
+    SE_BIND_METHOD(UPNP,get_discover_multicast_if);
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "discover_multicast_if"), "set_discover_multicast_if", "get_discover_multicast_if");
 
-    BIND_METHOD(UPNP,set_discover_local_port);
-    BIND_METHOD(UPNP,get_discover_local_port);
+    SE_BIND_METHOD(UPNP,set_discover_local_port);
+    SE_BIND_METHOD(UPNP,get_discover_local_port);
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "discover_local_port", PropertyHint::Range, "0,65535"), "set_discover_local_port", "get_discover_local_port");
 
-    BIND_METHOD(UPNP,set_discover_ipv6);
-    BIND_METHOD(UPNP,is_discover_ipv6);
+    SE_BIND_METHOD(UPNP,set_discover_ipv6);
+    SE_BIND_METHOD(UPNP,is_discover_ipv6);
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "discover_ipv6"), "set_discover_ipv6", "is_discover_ipv6");
 
     BIND_ENUM_CONSTANT(UPNP_RESULT_SUCCESS);

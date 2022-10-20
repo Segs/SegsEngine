@@ -2331,9 +2331,9 @@ void VisualShaderEditor::_bind_methods() {
     MethodBinder::bind_method("_set_node_size", &VisualShaderEditor::_set_node_size);
     MethodBinder::bind_method("_clear_buffer", &VisualShaderEditor::_clear_buffer);
 
-    BIND_METHOD(VisualShaderEditor,get_drag_data_fw);
-    BIND_METHOD(VisualShaderEditor,can_drop_data_fw);
-    BIND_METHOD(VisualShaderEditor,drop_data_fw);
+    SE_BIND_METHOD(VisualShaderEditor,get_drag_data_fw);
+    SE_BIND_METHOD(VisualShaderEditor,can_drop_data_fw);
+    SE_BIND_METHOD(VisualShaderEditor,drop_data_fw);
 }
 
 VisualShaderEditor *VisualShaderEditor::singleton = nullptr;

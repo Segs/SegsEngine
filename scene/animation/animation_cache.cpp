@@ -333,8 +333,8 @@ void AnimationCache::set_animation(const Ref<Animation> &p_animation) {
 
 void AnimationCache::_bind_methods() {
 
-    BIND_METHOD(AnimationCache,_node_exit_tree);
-    BIND_METHOD(AnimationCache,_animation_changed);
+    SE_BIND_METHOD(AnimationCache,_node_exit_tree);
+    SE_BIND_METHOD(AnimationCache,_animation_changed);
 }
 
 void AnimationCache::set_root(Node *p_root) {

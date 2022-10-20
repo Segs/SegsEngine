@@ -178,10 +178,10 @@ protected:
     }
     static void _bind_methods() {
 
-        BIND_METHOD(ScriptEditorDebuggerInspectedObject,get_title);
-        BIND_METHOD(ScriptEditorDebuggerInspectedObject,get_variant);
-        BIND_METHOD(ScriptEditorDebuggerInspectedObject,clear);
-        BIND_METHOD(ScriptEditorDebuggerInspectedObject,get_remote_object_id);
+        SE_BIND_METHOD(ScriptEditorDebuggerInspectedObject,get_title);
+        SE_BIND_METHOD(ScriptEditorDebuggerInspectedObject,get_variant);
+        SE_BIND_METHOD(ScriptEditorDebuggerInspectedObject,clear);
+        SE_BIND_METHOD(ScriptEditorDebuggerInspectedObject,get_remote_object_id);
 
         ADD_SIGNAL(MethodInfo("value_edited"));
     }
@@ -2364,21 +2364,21 @@ void ScriptEditorDebugger::_tab_changed(int p_tab) {
 void ScriptEditorDebugger::_bind_methods() {
 
 
-    BIND_METHOD(ScriptEditorDebugger,debug_skip_breakpoints);
-    BIND_METHOD(ScriptEditorDebugger,debug_copy);
+    SE_BIND_METHOD(ScriptEditorDebugger,debug_skip_breakpoints);
+    SE_BIND_METHOD(ScriptEditorDebugger,debug_copy);
 
-    BIND_METHOD(ScriptEditorDebugger,debug_next);
-    BIND_METHOD(ScriptEditorDebugger,debug_step);
-    BIND_METHOD(ScriptEditorDebugger,debug_break);
-    BIND_METHOD(ScriptEditorDebugger,debug_continue);
+    SE_BIND_METHOD(ScriptEditorDebugger,debug_next);
+    SE_BIND_METHOD(ScriptEditorDebugger,debug_step);
+    SE_BIND_METHOD(ScriptEditorDebugger,debug_break);
+    SE_BIND_METHOD(ScriptEditorDebugger,debug_continue);
 
-    BIND_METHOD(ScriptEditorDebugger,live_debug_create_node);
-    BIND_METHOD(ScriptEditorDebugger,live_debug_instance_node);
-    BIND_METHOD(ScriptEditorDebugger,live_debug_remove_node);
-    BIND_METHOD(ScriptEditorDebugger,live_debug_remove_and_keep_node);
-    BIND_METHOD(ScriptEditorDebugger,live_debug_restore_node);
-    BIND_METHOD(ScriptEditorDebugger,live_debug_duplicate_node);
-    BIND_METHOD(ScriptEditorDebugger,live_debug_reparent_node);
+    SE_BIND_METHOD(ScriptEditorDebugger,live_debug_create_node);
+    SE_BIND_METHOD(ScriptEditorDebugger,live_debug_instance_node);
+    SE_BIND_METHOD(ScriptEditorDebugger,live_debug_remove_node);
+    SE_BIND_METHOD(ScriptEditorDebugger,live_debug_remove_and_keep_node);
+    SE_BIND_METHOD(ScriptEditorDebugger,live_debug_restore_node);
+    SE_BIND_METHOD(ScriptEditorDebugger,live_debug_duplicate_node);
+    SE_BIND_METHOD(ScriptEditorDebugger,live_debug_reparent_node);
 
     ADD_SIGNAL(MethodInfo("goto_script_line"));
     ADD_SIGNAL(MethodInfo("set_execution", PropertyInfo("script",VariantType::OBJECT), PropertyInfo(VariantType::INT, "line")));

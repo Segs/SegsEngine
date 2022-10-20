@@ -433,54 +433,54 @@ Point2 Node2D::to_global(Point2 p_local) const {
 
 void Node2D::_bind_methods() {
 
-    BIND_METHOD(Node2D,set_position);
-    BIND_METHOD(Node2D,set_rotation);
-    BIND_METHOD(Node2D,set_rotation_degrees);
-    BIND_METHOD(Node2D,set_skew);
-    BIND_METHOD(Node2D,set_skew_degrees);
+    SE_BIND_METHOD(Node2D,set_position);
+    SE_BIND_METHOD(Node2D,set_rotation);
+    SE_BIND_METHOD(Node2D,set_rotation_degrees);
+    SE_BIND_METHOD(Node2D,set_skew);
+    SE_BIND_METHOD(Node2D,set_skew_degrees);
 
-    BIND_METHOD(Node2D,set_scale);
+    SE_BIND_METHOD(Node2D,set_scale);
 
-    BIND_METHOD(Node2D,get_position);
-    BIND_METHOD(Node2D,get_rotation);
-    BIND_METHOD(Node2D,get_rotation_degrees);
-    BIND_METHOD(Node2D,get_skew);
-    BIND_METHOD(Node2D,get_skew_degrees);
+    SE_BIND_METHOD(Node2D,get_position);
+    SE_BIND_METHOD(Node2D,get_rotation);
+    SE_BIND_METHOD(Node2D,get_rotation_degrees);
+    SE_BIND_METHOD(Node2D,get_skew);
+    SE_BIND_METHOD(Node2D,get_skew_degrees);
 
-    BIND_METHOD(Node2D,get_scale);
+    SE_BIND_METHOD(Node2D,get_scale);
 
-    BIND_METHOD(Node2D,rotate);
+    SE_BIND_METHOD(Node2D,rotate);
     MethodBinder::bind_method(D_METHOD("move_local_x", {"delta", "scaled"}), &Node2D::move_x, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("move_local_y", {"delta", "scaled"}), &Node2D::move_y, {DEFVAL(false)});
-    BIND_METHOD(Node2D,translate);
-    BIND_METHOD(Node2D,global_translate);
-    BIND_METHOD(Node2D,apply_scale);
+    SE_BIND_METHOD(Node2D,translate);
+    SE_BIND_METHOD(Node2D,global_translate);
+    SE_BIND_METHOD(Node2D,apply_scale);
 
-    BIND_METHOD(Node2D,set_global_position);
-    BIND_METHOD(Node2D,get_global_position);
-    BIND_METHOD(Node2D,set_global_rotation);
-    BIND_METHOD(Node2D,get_global_rotation);
-    BIND_METHOD(Node2D,set_global_rotation_degrees);
-    BIND_METHOD(Node2D,get_global_rotation_degrees);
-    BIND_METHOD(Node2D,set_global_scale);
-    BIND_METHOD(Node2D,get_global_scale);
+    SE_BIND_METHOD(Node2D,set_global_position);
+    SE_BIND_METHOD(Node2D,get_global_position);
+    SE_BIND_METHOD(Node2D,set_global_rotation);
+    SE_BIND_METHOD(Node2D,get_global_rotation);
+    SE_BIND_METHOD(Node2D,set_global_rotation_degrees);
+    SE_BIND_METHOD(Node2D,get_global_rotation_degrees);
+    SE_BIND_METHOD(Node2D,set_global_scale);
+    SE_BIND_METHOD(Node2D,get_global_scale);
 
-    BIND_METHOD(Node2D,set_transform);
-    BIND_METHOD(Node2D,set_global_transform);
+    SE_BIND_METHOD(Node2D,set_transform);
+    SE_BIND_METHOD(Node2D,set_global_transform);
 
-    BIND_METHOD(Node2D,look_at);
-    BIND_METHOD(Node2D,get_angle_to);
+    SE_BIND_METHOD(Node2D,look_at);
+    SE_BIND_METHOD(Node2D,get_angle_to);
 
-    BIND_METHOD(Node2D,to_local);
-    BIND_METHOD(Node2D,to_global);
+    SE_BIND_METHOD(Node2D,to_local);
+    SE_BIND_METHOD(Node2D,to_global);
 
-    BIND_METHOD(Node2D,set_z_index);
-    BIND_METHOD(Node2D,get_z_index);
+    SE_BIND_METHOD(Node2D,set_z_index);
+    SE_BIND_METHOD(Node2D,get_z_index);
 
-    BIND_METHOD(Node2D,set_z_as_relative);
-    BIND_METHOD(Node2D,is_z_relative);
+    SE_BIND_METHOD(Node2D,set_z_as_relative);
+    SE_BIND_METHOD(Node2D,is_z_relative);
 
-    BIND_METHOD(Node2D,get_relative_transform_to_parent);
+    SE_BIND_METHOD(Node2D,get_relative_transform_to_parent);
 
     ADD_GROUP("Transform", "");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "position"), "set_position", "get_position");

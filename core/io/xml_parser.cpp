@@ -344,23 +344,23 @@ Error XMLParser::seek(uint64_t p_pos) {
 
 void XMLParser::_bind_methods() {
 
-    BIND_METHOD(XMLParser,read);
-    BIND_METHOD(XMLParser,get_node_type);
-    BIND_METHOD(XMLParser,get_node_name);
-    BIND_METHOD(XMLParser,get_node_data);
-    BIND_METHOD(XMLParser,get_node_offset);
-    BIND_METHOD(XMLParser,get_attribute_count);
-    BIND_METHOD(XMLParser,get_attribute_name);
+    SE_BIND_METHOD(XMLParser,read);
+    SE_BIND_METHOD(XMLParser,get_node_type);
+    SE_BIND_METHOD(XMLParser,get_node_name);
+    SE_BIND_METHOD(XMLParser,get_node_data);
+    SE_BIND_METHOD(XMLParser,get_node_offset);
+    SE_BIND_METHOD(XMLParser,get_attribute_count);
+    SE_BIND_METHOD(XMLParser,get_attribute_name);
     MethodBinder::bind_method(D_METHOD("get_attribute_value", {"idx"}), (const String &(XMLParser::*)(int) const) & XMLParser::get_attribute_value);
-    BIND_METHOD(XMLParser,has_attribute);
+    SE_BIND_METHOD(XMLParser,has_attribute);
     MethodBinder::bind_method(D_METHOD("get_named_attribute_value", {"name"}), (const String &(XMLParser::*)(StringView) const) & XMLParser::get_attribute_value);
     MethodBinder::bind_method(D_METHOD("get_named_attribute_value_safe", {"name"}), &XMLParser::get_attribute_value_safe);
-    BIND_METHOD(XMLParser,is_empty);
-    BIND_METHOD(XMLParser,get_current_line);
-    BIND_METHOD(XMLParser,skip_section);
-    BIND_METHOD(XMLParser,seek);
-    BIND_METHOD(XMLParser,open);
-    BIND_METHOD(XMLParser,open_buffer);
+    SE_BIND_METHOD(XMLParser,is_empty);
+    SE_BIND_METHOD(XMLParser,get_current_line);
+    SE_BIND_METHOD(XMLParser,skip_section);
+    SE_BIND_METHOD(XMLParser,seek);
+    SE_BIND_METHOD(XMLParser,open);
+    SE_BIND_METHOD(XMLParser,open_buffer);
 
     BIND_ENUM_CONSTANT(NODE_NONE);
     BIND_ENUM_CONSTANT(NODE_ELEMENT);

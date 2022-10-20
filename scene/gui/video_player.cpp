@@ -433,44 +433,44 @@ void VideoPlayer::_validate_property(PropertyInfo &p_property) const {
 
 void VideoPlayer::_bind_methods() {
 
-    BIND_METHOD(VideoPlayer,set_stream);
-    BIND_METHOD(VideoPlayer,get_stream);
+    SE_BIND_METHOD(VideoPlayer,set_stream);
+    SE_BIND_METHOD(VideoPlayer,get_stream);
 
-    BIND_METHOD(VideoPlayer,play);
-    BIND_METHOD(VideoPlayer,stop);
+    SE_BIND_METHOD(VideoPlayer,play);
+    SE_BIND_METHOD(VideoPlayer,stop);
 
-    BIND_METHOD(VideoPlayer,is_playing);
+    SE_BIND_METHOD(VideoPlayer,is_playing);
 
-    BIND_METHOD(VideoPlayer,set_paused);
-    BIND_METHOD(VideoPlayer,is_paused);
+    SE_BIND_METHOD(VideoPlayer,set_paused);
+    SE_BIND_METHOD(VideoPlayer,is_paused);
 
-    BIND_METHOD(VideoPlayer,set_volume);
-    BIND_METHOD(VideoPlayer,get_volume);
+    SE_BIND_METHOD(VideoPlayer,set_volume);
+    SE_BIND_METHOD(VideoPlayer,get_volume);
 
-    BIND_METHOD(VideoPlayer,set_volume_db);
-    BIND_METHOD(VideoPlayer,get_volume_db);
+    SE_BIND_METHOD(VideoPlayer,set_volume_db);
+    SE_BIND_METHOD(VideoPlayer,get_volume_db);
 
-    BIND_METHOD(VideoPlayer,set_audio_track);
-    BIND_METHOD(VideoPlayer,get_audio_track);
+    SE_BIND_METHOD(VideoPlayer,set_audio_track);
+    SE_BIND_METHOD(VideoPlayer,get_audio_track);
 
-    BIND_METHOD(VideoPlayer,get_stream_name);
+    SE_BIND_METHOD(VideoPlayer,get_stream_name);
 
-    BIND_METHOD(VideoPlayer,set_stream_position);
-    BIND_METHOD(VideoPlayer,get_stream_position);
+    SE_BIND_METHOD(VideoPlayer,set_stream_position);
+    SE_BIND_METHOD(VideoPlayer,get_stream_position);
 
-    BIND_METHOD(VideoPlayer,set_autoplay);
-    BIND_METHOD(VideoPlayer,has_autoplay);
+    SE_BIND_METHOD(VideoPlayer,set_autoplay);
+    SE_BIND_METHOD(VideoPlayer,has_autoplay);
 
-    BIND_METHOD(VideoPlayer,set_expand);
-    BIND_METHOD(VideoPlayer,has_expand);
+    SE_BIND_METHOD(VideoPlayer,set_expand);
+    SE_BIND_METHOD(VideoPlayer,has_expand);
 
-    BIND_METHOD(VideoPlayer,set_buffering_msec);
-    BIND_METHOD(VideoPlayer,get_buffering_msec);
+    SE_BIND_METHOD(VideoPlayer,set_buffering_msec);
+    SE_BIND_METHOD(VideoPlayer,get_buffering_msec);
 
-    BIND_METHOD(VideoPlayer,set_bus);
-    BIND_METHOD(VideoPlayer,get_bus);
+    SE_BIND_METHOD(VideoPlayer,set_bus);
+    SE_BIND_METHOD(VideoPlayer,get_bus);
 
-    BIND_METHOD(VideoPlayer,get_video_texture);
+    SE_BIND_METHOD(VideoPlayer,get_video_texture);
 
     ADD_SIGNAL(MethodInfo("finished"));
 

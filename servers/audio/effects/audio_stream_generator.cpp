@@ -71,11 +71,11 @@ float AudioStreamGenerator::get_length() const {
 }
 
 void AudioStreamGenerator::_bind_methods() {
-    BIND_METHOD(AudioStreamGenerator,set_mix_rate);
-    BIND_METHOD(AudioStreamGenerator,get_mix_rate);
+    SE_BIND_METHOD(AudioStreamGenerator,set_mix_rate);
+    SE_BIND_METHOD(AudioStreamGenerator,get_mix_rate);
 
-    BIND_METHOD(AudioStreamGenerator,set_buffer_length);
-    BIND_METHOD(AudioStreamGenerator,get_buffer_length);
+    SE_BIND_METHOD(AudioStreamGenerator,set_buffer_length);
+    SE_BIND_METHOD(AudioStreamGenerator,get_buffer_length);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "mix_rate", PropertyHint::Range, "20,192000,1"), "set_mix_rate", "get_mix_rate");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "buffer_length", PropertyHint::Range, "0.01,10,0.01"), "set_buffer_length", "get_buffer_length");
@@ -199,12 +199,12 @@ void AudioStreamGeneratorPlayback::seek(float p_time) {
 }
 
 void AudioStreamGeneratorPlayback::_bind_methods() {
-    BIND_METHOD(AudioStreamGeneratorPlayback,push_frame);
-    BIND_METHOD(AudioStreamGeneratorPlayback,can_push_buffer);
-    BIND_METHOD(AudioStreamGeneratorPlayback,push_buffer);
-    BIND_METHOD(AudioStreamGeneratorPlayback,get_frames_available);
-    BIND_METHOD(AudioStreamGeneratorPlayback,get_skips);
-    BIND_METHOD(AudioStreamGeneratorPlayback,clear_buffer);
+    SE_BIND_METHOD(AudioStreamGeneratorPlayback,push_frame);
+    SE_BIND_METHOD(AudioStreamGeneratorPlayback,can_push_buffer);
+    SE_BIND_METHOD(AudioStreamGeneratorPlayback,push_buffer);
+    SE_BIND_METHOD(AudioStreamGeneratorPlayback,get_frames_available);
+    SE_BIND_METHOD(AudioStreamGeneratorPlayback,get_skips);
+    SE_BIND_METHOD(AudioStreamGeneratorPlayback,clear_buffer);
 }
 
 AudioStreamGeneratorPlayback::AudioStreamGeneratorPlayback() {

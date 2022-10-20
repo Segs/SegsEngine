@@ -346,12 +346,12 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
 
 void ResourcePreloaderEditor::_bind_methods() {
 
-    BIND_METHOD(ResourcePreloaderEditor,_gui_input);
-    BIND_METHOD(ResourcePreloaderEditor,_update_library);
+    SE_BIND_METHOD(ResourcePreloaderEditor,_gui_input);
+    SE_BIND_METHOD(ResourcePreloaderEditor,_update_library);
 
-    BIND_METHOD(ResourcePreloaderEditor,get_drag_data_fw);
-    BIND_METHOD(ResourcePreloaderEditor,can_drop_data_fw);
-    BIND_METHOD(ResourcePreloaderEditor,drop_data_fw);
+    SE_BIND_METHOD(ResourcePreloaderEditor,get_drag_data_fw);
+    SE_BIND_METHOD(ResourcePreloaderEditor,can_drop_data_fw);
+    SE_BIND_METHOD(ResourcePreloaderEditor,drop_data_fw);
 }
 
 ResourcePreloaderEditor::ResourcePreloaderEditor() {

@@ -3348,15 +3348,15 @@ void ScriptEditor::_bind_methods() {
     MethodBinder::bind_method("_get_debug_tooltip", &ScriptEditor::_get_debug_tooltip);
     MethodBinder::bind_method("_unhandled_input", &ScriptEditor::_unhandled_input);
 
-    BIND_METHOD(ScriptEditor,get_drag_data_fw);
-    BIND_METHOD(ScriptEditor,can_drop_data_fw);
-    BIND_METHOD(ScriptEditor,drop_data_fw);
+    SE_BIND_METHOD(ScriptEditor,get_drag_data_fw);
+    SE_BIND_METHOD(ScriptEditor,can_drop_data_fw);
+    SE_BIND_METHOD(ScriptEditor,drop_data_fw);
 
     MethodBinder::bind_method(D_METHOD("goto_line", {"line_number"}), &ScriptEditor::_goto_script_line2);
     MethodBinder::bind_method(D_METHOD("get_current_script"), &ScriptEditor::_get_current_script);
     MethodBinder::bind_method(D_METHOD("get_open_scripts"), &ScriptEditor::_get_open_scripts);
-    BIND_METHOD(ScriptEditor,open_script_create_dialog);
-    BIND_METHOD(ScriptEditor,reload_scripts);
+    SE_BIND_METHOD(ScriptEditor,open_script_create_dialog);
+    SE_BIND_METHOD(ScriptEditor,reload_scripts);
 
     ADD_SIGNAL(MethodInfo("editor_script_changed", PropertyInfo(VariantType::OBJECT, "script", PropertyHint::ResourceType, "Script")));
     ADD_SIGNAL(MethodInfo("script_close", PropertyInfo(VariantType::OBJECT, "script", PropertyHint::ResourceType, "Script")));

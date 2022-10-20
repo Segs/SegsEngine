@@ -37,8 +37,8 @@ IMPL_GDCLASS(MultiMeshInstance3D)
 
 void MultiMeshInstance3D::_bind_methods() {
 
-    BIND_METHOD(MultiMeshInstance3D,set_multimesh);
-    BIND_METHOD(MultiMeshInstance3D,get_multimesh);
+    SE_BIND_METHOD(MultiMeshInstance3D,set_multimesh);
+    SE_BIND_METHOD(MultiMeshInstance3D,get_multimesh);
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "multimesh", PropertyHint::ResourceType, "MultiMesh"), "set_multimesh", "get_multimesh");
 }
 

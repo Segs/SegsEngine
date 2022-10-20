@@ -2799,90 +2799,90 @@ void Animation::copy_track(int p_track, Ref<Animation> p_to_animation) {
 void Animation::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_track", {"type", "at_position"}), &Animation::add_track, {DEFVAL(-1)});
-    BIND_METHOD(Animation,remove_track);
-    BIND_METHOD(Animation,get_track_count);
-    BIND_METHOD(Animation,track_get_type);
-    BIND_METHOD(Animation,track_get_path);
-    BIND_METHOD(Animation,track_set_path);
-    BIND_METHOD(Animation,find_track);
+    SE_BIND_METHOD(Animation,remove_track);
+    SE_BIND_METHOD(Animation,get_track_count);
+    SE_BIND_METHOD(Animation,track_get_type);
+    SE_BIND_METHOD(Animation,track_get_path);
+    SE_BIND_METHOD(Animation,track_set_path);
+    SE_BIND_METHOD(Animation,find_track);
 
-    BIND_METHOD(Animation,track_move_up);
-    BIND_METHOD(Animation,track_move_down);
-    BIND_METHOD(Animation,track_move_to);
-    BIND_METHOD(Animation,track_swap);
+    SE_BIND_METHOD(Animation,track_move_up);
+    SE_BIND_METHOD(Animation,track_move_down);
+    SE_BIND_METHOD(Animation,track_move_to);
+    SE_BIND_METHOD(Animation,track_swap);
 
-    BIND_METHOD(Animation,track_set_imported);
-    BIND_METHOD(Animation,track_is_imported);
+    SE_BIND_METHOD(Animation,track_set_imported);
+    SE_BIND_METHOD(Animation,track_is_imported);
 
-    BIND_METHOD(Animation,track_set_enabled);
-    BIND_METHOD(Animation,track_is_enabled);
+    SE_BIND_METHOD(Animation,track_set_enabled);
+    SE_BIND_METHOD(Animation,track_is_enabled);
 
-    BIND_METHOD(Animation,transform_track_insert_key);
+    SE_BIND_METHOD(Animation,transform_track_insert_key);
     MethodBinder::bind_method(D_METHOD("track_insert_key", {"track_idx", "time", "key", "transition"}), &Animation::track_insert_key, {DEFVAL(1)});
-    BIND_METHOD(Animation,track_remove_key);
-    BIND_METHOD(Animation,track_remove_key_at_position);
-    BIND_METHOD(Animation,track_set_key_value);
-    BIND_METHOD(Animation,track_set_key_transition);
-    BIND_METHOD(Animation,track_set_key_time);
-    BIND_METHOD(Animation,track_get_key_transition);
+    SE_BIND_METHOD(Animation,track_remove_key);
+    SE_BIND_METHOD(Animation,track_remove_key_at_position);
+    SE_BIND_METHOD(Animation,track_set_key_value);
+    SE_BIND_METHOD(Animation,track_set_key_transition);
+    SE_BIND_METHOD(Animation,track_set_key_time);
+    SE_BIND_METHOD(Animation,track_get_key_transition);
 
-    BIND_METHOD(Animation,track_get_key_count);
-    BIND_METHOD(Animation,track_get_key_value);
-    BIND_METHOD(Animation,track_get_key_time);
+    SE_BIND_METHOD(Animation,track_get_key_count);
+    SE_BIND_METHOD(Animation,track_get_key_value);
+    SE_BIND_METHOD(Animation,track_get_key_time);
     MethodBinder::bind_method(D_METHOD("track_find_key", {"track_idx", "time", "exact"}), &Animation::track_find_key, {DEFVAL(false)});
 
-    BIND_METHOD(Animation,track_set_interpolation_type);
-    BIND_METHOD(Animation,track_get_interpolation_type);
+    SE_BIND_METHOD(Animation,track_set_interpolation_type);
+    SE_BIND_METHOD(Animation,track_get_interpolation_type);
 
-    BIND_METHOD(Animation,track_set_interpolation_loop_wrap);
-    BIND_METHOD(Animation,track_get_interpolation_loop_wrap);
+    SE_BIND_METHOD(Animation,track_set_interpolation_loop_wrap);
+    SE_BIND_METHOD(Animation,track_get_interpolation_loop_wrap);
 
     MethodBinder::bind_method(D_METHOD("transform_track_interpolate", {"track_idx", "time_sec"}), (Array(Animation::*)(int , float ) const)&Animation::transform_track_interpolate);
-    BIND_METHOD(Animation,value_track_set_update_mode);
-    BIND_METHOD(Animation,value_track_get_update_mode);
+    SE_BIND_METHOD(Animation,value_track_set_update_mode);
+    SE_BIND_METHOD(Animation,value_track_get_update_mode);
 
     MethodBinder::bind_method(D_METHOD("value_track_get_key_indices", {"track_idx", "time_sec", "delta"}), (PoolVector<int>(Animation::*)(int, float, float) const)&Animation::value_track_get_key_indices);
-    BIND_METHOD(Animation,value_track_interpolate);
+    SE_BIND_METHOD(Animation,value_track_interpolate);
 
     MethodBinder::bind_method(D_METHOD("method_track_get_key_indices", {"track_idx", "time_sec", "delta"}), (PoolVector<int>(Animation::*)(int, float, float) const)&Animation::method_track_get_key_indices);
-    BIND_METHOD(Animation,method_track_get_name);
-    BIND_METHOD(Animation,method_track_get_params);
+    SE_BIND_METHOD(Animation,method_track_get_name);
+    SE_BIND_METHOD(Animation,method_track_get_params);
 
     MethodBinder::bind_method(D_METHOD("bezier_track_insert_key", {"track", "time", "value", "in_handle", "out_handle"}), &Animation::bezier_track_insert_key, {DEFVAL(Vector2()), DEFVAL(Vector2())});
 
-    BIND_METHOD(Animation,bezier_track_set_key_value);
-    BIND_METHOD(Animation,bezier_track_set_key_in_handle);
-    BIND_METHOD(Animation,bezier_track_set_key_out_handle);
+    SE_BIND_METHOD(Animation,bezier_track_set_key_value);
+    SE_BIND_METHOD(Animation,bezier_track_set_key_in_handle);
+    SE_BIND_METHOD(Animation,bezier_track_set_key_out_handle);
 
-    BIND_METHOD(Animation,bezier_track_get_key_value);
-    BIND_METHOD(Animation,bezier_track_get_key_in_handle);
-    BIND_METHOD(Animation,bezier_track_get_key_out_handle);
+    SE_BIND_METHOD(Animation,bezier_track_get_key_value);
+    SE_BIND_METHOD(Animation,bezier_track_get_key_in_handle);
+    SE_BIND_METHOD(Animation,bezier_track_get_key_out_handle);
 
-    BIND_METHOD(Animation,bezier_track_interpolate);
+    SE_BIND_METHOD(Animation,bezier_track_interpolate);
 
     MethodBinder::bind_method(D_METHOD("audio_track_insert_key", {"track", "time", "stream", "start_offset", "end_offset"}), &Animation::audio_track_insert_key, {DEFVAL(0), DEFVAL(0)});
-    BIND_METHOD(Animation,audio_track_set_key_stream);
-    BIND_METHOD(Animation,audio_track_set_key_start_offset);
-    BIND_METHOD(Animation,audio_track_set_key_end_offset);
-    BIND_METHOD(Animation,audio_track_get_key_stream);
-    BIND_METHOD(Animation,audio_track_get_key_start_offset);
-    BIND_METHOD(Animation,audio_track_get_key_end_offset);
+    SE_BIND_METHOD(Animation,audio_track_set_key_stream);
+    SE_BIND_METHOD(Animation,audio_track_set_key_start_offset);
+    SE_BIND_METHOD(Animation,audio_track_set_key_end_offset);
+    SE_BIND_METHOD(Animation,audio_track_get_key_stream);
+    SE_BIND_METHOD(Animation,audio_track_get_key_start_offset);
+    SE_BIND_METHOD(Animation,audio_track_get_key_end_offset);
 
-    BIND_METHOD(Animation,animation_track_insert_key);
-    BIND_METHOD(Animation,animation_track_set_key_animation);
-    BIND_METHOD(Animation,animation_track_get_key_animation);
+    SE_BIND_METHOD(Animation,animation_track_insert_key);
+    SE_BIND_METHOD(Animation,animation_track_set_key_animation);
+    SE_BIND_METHOD(Animation,animation_track_get_key_animation);
 
-    BIND_METHOD(Animation,set_length);
-    BIND_METHOD(Animation,get_length);
+    SE_BIND_METHOD(Animation,set_length);
+    SE_BIND_METHOD(Animation,get_length);
 
-    BIND_METHOD(Animation,set_loop);
-    BIND_METHOD(Animation,has_loop);
+    SE_BIND_METHOD(Animation,set_loop);
+    SE_BIND_METHOD(Animation,has_loop);
 
-    BIND_METHOD(Animation,set_step);
-    BIND_METHOD(Animation,get_step);
+    SE_BIND_METHOD(Animation,set_step);
+    SE_BIND_METHOD(Animation,get_step);
 
-    BIND_METHOD(Animation,clear);
-    BIND_METHOD(Animation,copy_track);
+    SE_BIND_METHOD(Animation,clear);
+    SE_BIND_METHOD(Animation,copy_track);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "length", PropertyHint::Range, "0.001,99999,0.001"), "set_length", "get_length");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");

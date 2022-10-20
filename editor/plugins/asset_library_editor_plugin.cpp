@@ -224,9 +224,9 @@ void EditorAssetLibraryItemDescription::_notification(int p_what) {
     }
 }
 void EditorAssetLibraryItemDescription::_bind_methods() {
-    BIND_METHOD(EditorAssetLibraryItemDescription,set_image);
-    BIND_METHOD(EditorAssetLibraryItemDescription,_link_click);
-    BIND_METHOD(EditorAssetLibraryItemDescription,_preview_click);
+    SE_BIND_METHOD(EditorAssetLibraryItemDescription,set_image);
+    SE_BIND_METHOD(EditorAssetLibraryItemDescription,_link_click);
+    SE_BIND_METHOD(EditorAssetLibraryItemDescription,_preview_click);
 }
 
 void EditorAssetLibraryItemDescription::_link_click(StringView p_url) {

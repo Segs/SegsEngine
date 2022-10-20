@@ -108,7 +108,7 @@ void AudioStreamPlaybackResampled::mix(AudioFrame *p_buffer, float p_rate_scale,
 
 void AudioStream::_bind_methods() {
 
-    BIND_METHOD(AudioStream,get_length);
+    SE_BIND_METHOD(AudioStream,get_length);
 }
 
 ////////////////////////////////
@@ -301,11 +301,11 @@ float AudioStreamRandomPitch::get_length() const {
 
 void AudioStreamRandomPitch::_bind_methods() {
 
-    BIND_METHOD(AudioStreamRandomPitch,set_audio_stream);
-    BIND_METHOD(AudioStreamRandomPitch,get_audio_stream);
+    SE_BIND_METHOD(AudioStreamRandomPitch,set_audio_stream);
+    SE_BIND_METHOD(AudioStreamRandomPitch,get_audio_stream);
 
-    BIND_METHOD(AudioStreamRandomPitch,set_random_pitch);
-    BIND_METHOD(AudioStreamRandomPitch,get_random_pitch);
+    SE_BIND_METHOD(AudioStreamRandomPitch,set_random_pitch);
+    SE_BIND_METHOD(AudioStreamRandomPitch,get_random_pitch);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "audio_stream", PropertyHint::ResourceType, "AudioStream"), "set_audio_stream", "get_audio_stream");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "random_pitch", PropertyHint::Range, "1,16,0.01"), "set_random_pitch", "get_random_pitch");

@@ -422,8 +422,8 @@ void SceneTree::_debugger_request_tree() {
 
 void SceneTreeTimer::_bind_methods() {
 
-    BIND_METHOD(SceneTreeTimer,set_time_left);
-    BIND_METHOD(SceneTreeTimer,get_time_left);
+    SE_BIND_METHOD(SceneTreeTimer,set_time_left);
+    SE_BIND_METHOD(SceneTreeTimer,get_time_left);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "time_left"), "set_time_left", "get_time_left");
 
@@ -1834,34 +1834,34 @@ bool SceneTree::is_refusing_new_network_connections() const {
 
 void SceneTree::_bind_methods() {
 
-    BIND_METHOD(SceneTree,get_root);
-    BIND_METHOD(SceneTree,has_group);
+    SE_BIND_METHOD(SceneTree,get_root);
+    SE_BIND_METHOD(SceneTree,has_group);
 
-    BIND_METHOD(SceneTree,set_auto_accept_quit);
-    BIND_METHOD(SceneTree,set_quit_on_go_back);
+    SE_BIND_METHOD(SceneTree,set_auto_accept_quit);
+    SE_BIND_METHOD(SceneTree,set_quit_on_go_back);
 
-    BIND_METHOD(SceneTree,set_debug_collisions_hint);
-    BIND_METHOD(SceneTree,is_debugging_collisions_hint);
-    BIND_METHOD(SceneTree,set_debug_navigation_hint);
-    BIND_METHOD(SceneTree,is_debugging_navigation_hint);
+    SE_BIND_METHOD(SceneTree,set_debug_collisions_hint);
+    SE_BIND_METHOD(SceneTree,is_debugging_collisions_hint);
+    SE_BIND_METHOD(SceneTree,set_debug_navigation_hint);
+    SE_BIND_METHOD(SceneTree,is_debugging_navigation_hint);
 
-    BIND_METHOD(SceneTree,set_edited_scene_root);
-    BIND_METHOD(SceneTree,get_edited_scene_root);
+    SE_BIND_METHOD(SceneTree,set_edited_scene_root);
+    SE_BIND_METHOD(SceneTree,get_edited_scene_root);
 
-    BIND_METHOD(SceneTree,set_pause);
-    BIND_METHOD(SceneTree,is_paused);
-    BIND_METHOD(SceneTree,set_input_as_handled);
-    BIND_METHOD(SceneTree,is_input_handled);
+    SE_BIND_METHOD(SceneTree,set_pause);
+    SE_BIND_METHOD(SceneTree,is_paused);
+    SE_BIND_METHOD(SceneTree,set_input_as_handled);
+    SE_BIND_METHOD(SceneTree,is_input_handled);
 
     MethodBinder::bind_method(D_METHOD("create_timer", {"time_sec", "pause_mode_process"}), &SceneTree::create_timer, {DEFVAL(true)});
 
-    BIND_METHOD(SceneTree,get_node_count);
-    BIND_METHOD(SceneTree,get_frame);
+    SE_BIND_METHOD(SceneTree,get_node_count);
+    SE_BIND_METHOD(SceneTree,get_frame);
     MethodBinder::bind_method(D_METHOD("quit", {"exit_code"}), &SceneTree::quit, {DEFVAL(-1)});
 
     MethodBinder::bind_method(D_METHOD("set_screen_stretch", {"mode", "aspect", "minsize", "scale"}), &SceneTree::set_screen_stretch, {DEFVAL(1.0f)});
 
-    BIND_METHOD(SceneTree,queue_delete);
+    SE_BIND_METHOD(SceneTree,queue_delete);
 
     MethodInfo mi("call_group_flags",
                   PropertyInfo(VariantType::INT, "flags"),
@@ -1870,8 +1870,8 @@ void SceneTree::_bind_methods() {
 
     MethodBinder::bind_vararg_method("call_group_flags", &SceneTree::_call_group_flags, eastl::move(mi));
 
-    BIND_METHOD(SceneTree,notify_group_flags);
-    BIND_METHOD(SceneTree,set_group_flags);
+    SE_BIND_METHOD(SceneTree,notify_group_flags);
+    SE_BIND_METHOD(SceneTree,set_group_flags);
 
     MethodInfo mi2("call_group",
                    PropertyInfo(VariantType::STRING_NAME, "group"),
@@ -1879,37 +1879,37 @@ void SceneTree::_bind_methods() {
 
     MethodBinder::bind_vararg_method( "call_group", &SceneTree::_call_group, eastl::move(mi2));
 
-    BIND_METHOD(SceneTree,notify_group);
-    BIND_METHOD(SceneTree,set_group);
+    SE_BIND_METHOD(SceneTree,notify_group);
+    SE_BIND_METHOD(SceneTree,set_group);
 
     MethodBinder::bind_method(D_METHOD("get_nodes_in_group", {"group"}), &SceneTree::_get_nodes_in_group);
 
-    BIND_METHOD(SceneTree,set_current_scene);
-    BIND_METHOD(SceneTree,get_current_scene);
+    SE_BIND_METHOD(SceneTree,set_current_scene);
+    SE_BIND_METHOD(SceneTree,get_current_scene);
 
-    BIND_METHOD(SceneTree,change_scene);
-    BIND_METHOD(SceneTree,change_scene_to);
+    SE_BIND_METHOD(SceneTree,change_scene);
+    SE_BIND_METHOD(SceneTree,change_scene_to);
 
-    BIND_METHOD(SceneTree,reload_current_scene);
+    SE_BIND_METHOD(SceneTree,reload_current_scene);
 
-    BIND_METHOD(SceneTree,_change_scene);
+    SE_BIND_METHOD(SceneTree,_change_scene);
 
-    BIND_METHOD(SceneTree,set_multiplayer);
-    BIND_METHOD(SceneTree,get_multiplayer);
-    BIND_METHOD(SceneTree,set_multiplayer_poll_enabled);
-    BIND_METHOD(SceneTree,is_multiplayer_poll_enabled);
-    BIND_METHOD(SceneTree,set_network_peer);
-    BIND_METHOD(SceneTree,get_network_peer);
-    BIND_METHOD(SceneTree,is_network_server);
-    BIND_METHOD(SceneTree,has_network_peer);
-    BIND_METHOD(SceneTree,get_network_connected_peers);
-    BIND_METHOD(SceneTree,get_network_unique_id);
-    BIND_METHOD(SceneTree,get_rpc_sender_id);
-    BIND_METHOD(SceneTree,set_refuse_new_network_connections);
-    BIND_METHOD(SceneTree,is_refusing_new_network_connections);
+    SE_BIND_METHOD(SceneTree,set_multiplayer);
+    SE_BIND_METHOD(SceneTree,get_multiplayer);
+    SE_BIND_METHOD(SceneTree,set_multiplayer_poll_enabled);
+    SE_BIND_METHOD(SceneTree,is_multiplayer_poll_enabled);
+    SE_BIND_METHOD(SceneTree,set_network_peer);
+    SE_BIND_METHOD(SceneTree,get_network_peer);
+    SE_BIND_METHOD(SceneTree,is_network_server);
+    SE_BIND_METHOD(SceneTree,has_network_peer);
+    SE_BIND_METHOD(SceneTree,get_network_connected_peers);
+    SE_BIND_METHOD(SceneTree,get_network_unique_id);
+    SE_BIND_METHOD(SceneTree,get_rpc_sender_id);
+    SE_BIND_METHOD(SceneTree,set_refuse_new_network_connections);
+    SE_BIND_METHOD(SceneTree,is_refusing_new_network_connections);
 
-    BIND_METHOD(SceneTree,set_use_font_oversampling);
-    BIND_METHOD(SceneTree,is_using_font_oversampling);
+    SE_BIND_METHOD(SceneTree,set_use_font_oversampling);
+    SE_BIND_METHOD(SceneTree,is_using_font_oversampling);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "debug_collisions_hint"), "set_debug_collisions_hint", "is_debugging_collisions_hint");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "debug_navigation_hint"), "set_debug_navigation_hint", "is_debugging_navigation_hint");

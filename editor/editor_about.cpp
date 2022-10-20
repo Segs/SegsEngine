@@ -83,7 +83,7 @@ void EditorAbout::_version_button_pressed() {
 
 void EditorAbout::_bind_methods() {
 
-    BIND_METHOD(EditorAbout,_license_tree_selected);
+    SE_BIND_METHOD(EditorAbout,_license_tree_selected);
 }
 
 TextureRect *EditorAbout::get_logo() const {

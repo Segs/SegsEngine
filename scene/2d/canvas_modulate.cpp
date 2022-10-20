@@ -74,8 +74,8 @@ void CanvasModulate::_notification(int p_what) {
 
 void CanvasModulate::_bind_methods() {
 
-    BIND_METHOD(CanvasModulate,set_color);
-    BIND_METHOD(CanvasModulate,get_color);
+    SE_BIND_METHOD(CanvasModulate,set_color);
+    SE_BIND_METHOD(CanvasModulate,get_color);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
 }

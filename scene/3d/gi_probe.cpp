@@ -149,35 +149,35 @@ RenderingEntity GIProbeData::get_rid() const {
 
 void GIProbeData::_bind_methods() {
 
-    BIND_METHOD(GIProbeData,set_bounds);
-    BIND_METHOD(GIProbeData,get_bounds);
+    SE_BIND_METHOD(GIProbeData,set_bounds);
+    SE_BIND_METHOD(GIProbeData,get_bounds);
 
-    BIND_METHOD(GIProbeData,set_cell_size);
-    BIND_METHOD(GIProbeData,get_cell_size);
+    SE_BIND_METHOD(GIProbeData,set_cell_size);
+    SE_BIND_METHOD(GIProbeData,get_cell_size);
 
-    BIND_METHOD(GIProbeData,set_to_cell_xform);
-    BIND_METHOD(GIProbeData,get_to_cell_xform);
+    SE_BIND_METHOD(GIProbeData,set_to_cell_xform);
+    SE_BIND_METHOD(GIProbeData,get_to_cell_xform);
 
-    BIND_METHOD(GIProbeData,set_dynamic_data);
-    BIND_METHOD(GIProbeData,get_dynamic_data);
+    SE_BIND_METHOD(GIProbeData,set_dynamic_data);
+    SE_BIND_METHOD(GIProbeData,get_dynamic_data);
 
-    BIND_METHOD(GIProbeData,set_dynamic_range);
-    BIND_METHOD(GIProbeData,get_dynamic_range);
+    SE_BIND_METHOD(GIProbeData,set_dynamic_range);
+    SE_BIND_METHOD(GIProbeData,get_dynamic_range);
 
-    BIND_METHOD(GIProbeData,set_energy);
-    BIND_METHOD(GIProbeData,get_energy);
+    SE_BIND_METHOD(GIProbeData,set_energy);
+    SE_BIND_METHOD(GIProbeData,get_energy);
 
-    BIND_METHOD(GIProbeData,set_bias);
-    BIND_METHOD(GIProbeData,get_bias);
+    SE_BIND_METHOD(GIProbeData,set_bias);
+    SE_BIND_METHOD(GIProbeData,get_bias);
 
-    BIND_METHOD(GIProbeData,set_normal_bias);
-    BIND_METHOD(GIProbeData,get_normal_bias);
+    SE_BIND_METHOD(GIProbeData,set_normal_bias);
+    SE_BIND_METHOD(GIProbeData,get_normal_bias);
 
-    BIND_METHOD(GIProbeData,set_propagation);
-    BIND_METHOD(GIProbeData,get_propagation);
+    SE_BIND_METHOD(GIProbeData,set_propagation);
+    SE_BIND_METHOD(GIProbeData,get_propagation);
 
-    BIND_METHOD(GIProbeData,set_interior);
-    BIND_METHOD(GIProbeData,is_interior);
+    SE_BIND_METHOD(GIProbeData,set_interior);
+    SE_BIND_METHOD(GIProbeData,is_interior);
 
     ADD_PROPERTY(PropertyInfo(VariantType::AABB, "bounds", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_bounds", "get_bounds");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "cell_size", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_cell_size", "get_cell_size");
@@ -480,32 +480,32 @@ String GIProbe::get_configuration_warning() const {
 
 void GIProbe::_bind_methods() {
 
-    BIND_METHOD(GIProbe,set_probe_data);
-    BIND_METHOD(GIProbe,get_probe_data);
+    SE_BIND_METHOD(GIProbe,set_probe_data);
+    SE_BIND_METHOD(GIProbe,get_probe_data);
 
-    BIND_METHOD(GIProbe,set_subdiv);
-    BIND_METHOD(GIProbe,get_subdiv);
+    SE_BIND_METHOD(GIProbe,set_subdiv);
+    SE_BIND_METHOD(GIProbe,get_subdiv);
 
-    BIND_METHOD(GIProbe,set_extents);
-    BIND_METHOD(GIProbe,get_extents);
+    SE_BIND_METHOD(GIProbe,set_extents);
+    SE_BIND_METHOD(GIProbe,get_extents);
 
-    BIND_METHOD(GIProbe,set_dynamic_range);
-    BIND_METHOD(GIProbe,get_dynamic_range);
+    SE_BIND_METHOD(GIProbe,set_dynamic_range);
+    SE_BIND_METHOD(GIProbe,get_dynamic_range);
 
-    BIND_METHOD(GIProbe,set_energy);
-    BIND_METHOD(GIProbe,get_energy);
+    SE_BIND_METHOD(GIProbe,set_energy);
+    SE_BIND_METHOD(GIProbe,get_energy);
 
-    BIND_METHOD(GIProbe,set_bias);
-    BIND_METHOD(GIProbe,get_bias);
+    SE_BIND_METHOD(GIProbe,set_bias);
+    SE_BIND_METHOD(GIProbe,get_bias);
 
-    BIND_METHOD(GIProbe,set_normal_bias);
-    BIND_METHOD(GIProbe,get_normal_bias);
+    SE_BIND_METHOD(GIProbe,set_normal_bias);
+    SE_BIND_METHOD(GIProbe,get_normal_bias);
 
-    BIND_METHOD(GIProbe,set_propagation);
-    BIND_METHOD(GIProbe,get_propagation);
+    SE_BIND_METHOD(GIProbe,set_propagation);
+    SE_BIND_METHOD(GIProbe,get_propagation);
 
-    BIND_METHOD(GIProbe,set_interior);
-    BIND_METHOD(GIProbe,is_interior);
+    SE_BIND_METHOD(GIProbe,set_interior);
+    SE_BIND_METHOD(GIProbe,is_interior);
 
     MethodBinder::bind_method(D_METHOD("bake", {"from_node", "create_visual_debug"}), &GIProbe::bake, {DEFVAL(Variant()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("debug_bake"), &GIProbe::debug_bake,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);

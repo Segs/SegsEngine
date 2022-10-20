@@ -353,49 +353,49 @@ void GPUParticles2D::_notification(int p_what) {
 
 void GPUParticles2D::_bind_methods() {
 
-    BIND_METHOD(GPUParticles2D,set_emitting);
-    BIND_METHOD(GPUParticles2D,set_amount);
-    BIND_METHOD(GPUParticles2D,set_lifetime);
-    BIND_METHOD(GPUParticles2D,set_one_shot);
-    BIND_METHOD(GPUParticles2D,set_pre_process_time);
+    SE_BIND_METHOD(GPUParticles2D,set_emitting);
+    SE_BIND_METHOD(GPUParticles2D,set_amount);
+    SE_BIND_METHOD(GPUParticles2D,set_lifetime);
+    SE_BIND_METHOD(GPUParticles2D,set_one_shot);
+    SE_BIND_METHOD(GPUParticles2D,set_pre_process_time);
     MethodBinder::bind_method(
             D_METHOD("set_explosiveness_ratio", { "ratio" }), &GPUParticles2D::set_explosiveness_ratio);
-    BIND_METHOD(GPUParticles2D,set_randomness_ratio);
+    SE_BIND_METHOD(GPUParticles2D,set_randomness_ratio);
     MethodBinder::bind_method(
             D_METHOD("set_visibility_rect", { "visibility_rect" }), &GPUParticles2D::set_visibility_rect);
     MethodBinder::bind_method(
             D_METHOD("set_use_local_coordinates", { "enable" }), &GPUParticles2D::set_use_local_coordinates);
-    BIND_METHOD(GPUParticles2D,set_fixed_fps);
-    BIND_METHOD(GPUParticles2D,set_fractional_delta);
-    BIND_METHOD(GPUParticles2D,set_process_material);
-    BIND_METHOD(GPUParticles2D,set_speed_scale);
+    SE_BIND_METHOD(GPUParticles2D,set_fixed_fps);
+    SE_BIND_METHOD(GPUParticles2D,set_fractional_delta);
+    SE_BIND_METHOD(GPUParticles2D,set_process_material);
+    SE_BIND_METHOD(GPUParticles2D,set_speed_scale);
 
-    BIND_METHOD(GPUParticles2D,is_emitting);
-    BIND_METHOD(GPUParticles2D,get_amount);
-    BIND_METHOD(GPUParticles2D,get_lifetime);
-    BIND_METHOD(GPUParticles2D,get_one_shot);
-    BIND_METHOD(GPUParticles2D,get_pre_process_time);
-    BIND_METHOD(GPUParticles2D,get_explosiveness_ratio);
-    BIND_METHOD(GPUParticles2D,get_randomness_ratio);
-    BIND_METHOD(GPUParticles2D,get_visibility_rect);
-    BIND_METHOD(GPUParticles2D,get_use_local_coordinates);
-    BIND_METHOD(GPUParticles2D,get_fixed_fps);
-    BIND_METHOD(GPUParticles2D,get_fractional_delta);
-    BIND_METHOD(GPUParticles2D,get_process_material);
-    BIND_METHOD(GPUParticles2D,get_speed_scale);
+    SE_BIND_METHOD(GPUParticles2D,is_emitting);
+    SE_BIND_METHOD(GPUParticles2D,get_amount);
+    SE_BIND_METHOD(GPUParticles2D,get_lifetime);
+    SE_BIND_METHOD(GPUParticles2D,get_one_shot);
+    SE_BIND_METHOD(GPUParticles2D,get_pre_process_time);
+    SE_BIND_METHOD(GPUParticles2D,get_explosiveness_ratio);
+    SE_BIND_METHOD(GPUParticles2D,get_randomness_ratio);
+    SE_BIND_METHOD(GPUParticles2D,get_visibility_rect);
+    SE_BIND_METHOD(GPUParticles2D,get_use_local_coordinates);
+    SE_BIND_METHOD(GPUParticles2D,get_fixed_fps);
+    SE_BIND_METHOD(GPUParticles2D,get_fractional_delta);
+    SE_BIND_METHOD(GPUParticles2D,get_process_material);
+    SE_BIND_METHOD(GPUParticles2D,get_speed_scale);
 
-    BIND_METHOD(GPUParticles2D,set_draw_order);
-    BIND_METHOD(GPUParticles2D,get_draw_order);
+    SE_BIND_METHOD(GPUParticles2D,set_draw_order);
+    SE_BIND_METHOD(GPUParticles2D,get_draw_order);
 
-    BIND_METHOD(GPUParticles2D,set_texture);
-    BIND_METHOD(GPUParticles2D,get_texture);
+    SE_BIND_METHOD(GPUParticles2D,set_texture);
+    SE_BIND_METHOD(GPUParticles2D,get_texture);
 
-    BIND_METHOD(GPUParticles2D,set_normal_map);
-    BIND_METHOD(GPUParticles2D,get_normal_map);
+    SE_BIND_METHOD(GPUParticles2D,set_normal_map);
+    SE_BIND_METHOD(GPUParticles2D,get_normal_map);
 
-    BIND_METHOD(GPUParticles2D,capture_rect);
+    SE_BIND_METHOD(GPUParticles2D,capture_rect);
 
-    BIND_METHOD(GPUParticles2D,restart);
+    SE_BIND_METHOD(GPUParticles2D,restart);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emitting"), "set_emitting", "is_emitting");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PropertyHint::ExpRange, "1,1000000,1"), "set_amount",

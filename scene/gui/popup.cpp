@@ -215,14 +215,14 @@ bool Popup::is_exclusive() const {
 
 void Popup::_bind_methods() {
 
-    BIND_METHOD(Popup,set_as_minsize);
+    SE_BIND_METHOD(Popup,set_as_minsize);
     MethodBinder::bind_method(D_METHOD("popup_centered", {"size"}), &Popup::popup_centered, {DEFVAL(Size2())});
     MethodBinder::bind_method(D_METHOD("popup_centered_ratio", {"ratio"}), &Popup::popup_centered_ratio, {DEFVAL(0.75)});
     MethodBinder::bind_method(D_METHOD("popup_centered_minsize", {"minsize"}), &Popup::popup_centered_minsize, {DEFVAL(Size2())});
     MethodBinder::bind_method(D_METHOD("popup_centered_clamped", {"size", "fallback_ratio"}), &Popup::popup_centered_clamped, {DEFVAL(Size2()), DEFVAL(0.75)});
     MethodBinder::bind_method(D_METHOD("popup", {"bounds"}), &Popup::popup, {DEFVAL(Rect2())});
-    BIND_METHOD(Popup,set_exclusive);
-    BIND_METHOD(Popup,is_exclusive);
+    SE_BIND_METHOD(Popup,set_exclusive);
+    SE_BIND_METHOD(Popup,is_exclusive);
     ADD_SIGNAL(MethodInfo("about_to_show"));
     ADD_SIGNAL(MethodInfo("popup_hide"));
     ADD_GROUP("PopupMode", "popup_");

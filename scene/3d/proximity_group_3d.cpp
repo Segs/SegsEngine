@@ -182,14 +182,14 @@ Vector3 ProximityGroup3D::get_grid_radius() const {
 
 void ProximityGroup3D::_bind_methods() {
 
-    BIND_METHOD(ProximityGroup3D,set_group_name);
-    BIND_METHOD(ProximityGroup3D,get_group_name);
-    BIND_METHOD(ProximityGroup3D,set_dispatch_mode);
-    BIND_METHOD(ProximityGroup3D,get_dispatch_mode);
-    BIND_METHOD(ProximityGroup3D,set_grid_radius);
-    BIND_METHOD(ProximityGroup3D,get_grid_radius);
-    BIND_METHOD(ProximityGroup3D,broadcast);
-    BIND_METHOD(ProximityGroup3D,_proximity_group_broadcast);
+    SE_BIND_METHOD(ProximityGroup3D,set_group_name);
+    SE_BIND_METHOD(ProximityGroup3D,get_group_name);
+    SE_BIND_METHOD(ProximityGroup3D,set_dispatch_mode);
+    SE_BIND_METHOD(ProximityGroup3D,get_dispatch_mode);
+    SE_BIND_METHOD(ProximityGroup3D,set_grid_radius);
+    SE_BIND_METHOD(ProximityGroup3D,get_grid_radius);
+    SE_BIND_METHOD(ProximityGroup3D,broadcast);
+    SE_BIND_METHOD(ProximityGroup3D,_proximity_group_broadcast);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "group_name"), "set_group_name", "get_group_name");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "dispatch_mode", PropertyHint::Enum, "Proxy,Signal"), "set_dispatch_mode", "get_dispatch_mode");

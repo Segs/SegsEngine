@@ -192,17 +192,17 @@ LibraryItemHandle SceneLibrary::add_item(Item &&data)
 
 void SceneLibrary::_bind_methods() {
 
-    BIND_METHOD(SceneLibrary,create_item);
-    BIND_METHOD(SceneLibrary,set_item_name);
-    BIND_METHOD(SceneLibrary,set_item_preview);
-    BIND_METHOD(SceneLibrary,get_item_name);
-    BIND_METHOD(SceneLibrary,get_item_preview);
-    BIND_METHOD(SceneLibrary,remove_item);
-    BIND_METHOD(SceneLibrary,find_item_by_name);
+    SE_BIND_METHOD(SceneLibrary,create_item);
+    SE_BIND_METHOD(SceneLibrary,set_item_name);
+    SE_BIND_METHOD(SceneLibrary,set_item_preview);
+    SE_BIND_METHOD(SceneLibrary,get_item_name);
+    SE_BIND_METHOD(SceneLibrary,get_item_preview);
+    SE_BIND_METHOD(SceneLibrary,remove_item);
+    SE_BIND_METHOD(SceneLibrary,find_item_by_name);
 
-    BIND_METHOD(SceneLibrary,clear);
-    BIND_METHOD(SceneLibrary,get_item_list);
-    BIND_METHOD(SceneLibrary,get_last_unused_item_id);
+    SE_BIND_METHOD(SceneLibrary,clear);
+    SE_BIND_METHOD(SceneLibrary,get_item_list);
+    SE_BIND_METHOD(SceneLibrary,get_last_unused_item_id);
 }
 
 

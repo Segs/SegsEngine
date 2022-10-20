@@ -58,18 +58,18 @@ Gradient::~Gradient() {
 
 void Gradient::_bind_methods() {
 
-    BIND_METHOD(Gradient,add_point);
-    BIND_METHOD(Gradient,remove_point);
+    SE_BIND_METHOD(Gradient,add_point);
+    SE_BIND_METHOD(Gradient,remove_point);
 
-    BIND_METHOD(Gradient,set_offset);
-    BIND_METHOD(Gradient,get_offset);
+    SE_BIND_METHOD(Gradient,set_offset);
+    SE_BIND_METHOD(Gradient,get_offset);
 
-    BIND_METHOD(Gradient,set_color);
-    BIND_METHOD(Gradient,get_color);
+    SE_BIND_METHOD(Gradient,set_color);
+    SE_BIND_METHOD(Gradient,get_color);
 
     MethodBinder::bind_method(D_METHOD("interpolate", {"offset"}), &Gradient::get_color_at_offset);
 
-    BIND_METHOD(Gradient,get_point_count);
+    SE_BIND_METHOD(Gradient,get_point_count);
 
     MethodBinder::bind_method(D_METHOD(COLOR_RAMP_SET_OFFSETS, {"offsets"}), &Gradient::set_offsets);
     MethodBinder::bind_method(D_METHOD(COLOR_RAMP_GET_OFFSETS), &Gradient::get_offsets);

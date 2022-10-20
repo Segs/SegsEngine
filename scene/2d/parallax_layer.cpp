@@ -161,12 +161,12 @@ String ParallaxLayer::get_configuration_warning() const {
 
 void ParallaxLayer::_bind_methods() {
 
-    BIND_METHOD(ParallaxLayer,set_motion_scale);
-    BIND_METHOD(ParallaxLayer,get_motion_scale);
-    BIND_METHOD(ParallaxLayer,set_motion_offset);
-    BIND_METHOD(ParallaxLayer,get_motion_offset);
-    BIND_METHOD(ParallaxLayer,set_mirroring);
-    BIND_METHOD(ParallaxLayer,get_mirroring);
+    SE_BIND_METHOD(ParallaxLayer,set_motion_scale);
+    SE_BIND_METHOD(ParallaxLayer,get_motion_scale);
+    SE_BIND_METHOD(ParallaxLayer,set_motion_offset);
+    SE_BIND_METHOD(ParallaxLayer,get_motion_offset);
+    SE_BIND_METHOD(ParallaxLayer,set_mirroring);
+    SE_BIND_METHOD(ParallaxLayer,get_mirroring);
 
     ADD_GROUP("Motion", "motion_");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "motion_scale"), "set_motion_scale", "get_motion_scale");

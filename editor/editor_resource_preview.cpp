@@ -499,11 +499,11 @@ void EditorResourcePreview::_bind_methods() {
 
     MethodBinder::bind_method("_preview_ready", &EditorResourcePreview::_preview_ready);
 
-    BIND_METHOD(EditorResourcePreview,queue_resource_preview);
-    BIND_METHOD(EditorResourcePreview,queue_edited_resource_preview);
-    BIND_METHOD(EditorResourcePreview,add_preview_generator);
-    BIND_METHOD(EditorResourcePreview,remove_preview_generator);
-    BIND_METHOD(EditorResourcePreview,check_for_invalidation);
+    SE_BIND_METHOD(EditorResourcePreview,queue_resource_preview);
+    SE_BIND_METHOD(EditorResourcePreview,queue_edited_resource_preview);
+    SE_BIND_METHOD(EditorResourcePreview,add_preview_generator);
+    SE_BIND_METHOD(EditorResourcePreview,remove_preview_generator);
+    SE_BIND_METHOD(EditorResourcePreview,check_for_invalidation);
 
     ADD_SIGNAL(MethodInfo("preview_invalidated", PropertyInfo(VariantType::STRING, "path")));
 }

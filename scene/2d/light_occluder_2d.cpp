@@ -129,14 +129,14 @@ RenderingEntity OccluderPolygon2D::get_rid() const {
 
 void OccluderPolygon2D::_bind_methods() {
 
-    BIND_METHOD(OccluderPolygon2D,set_closed);
-    BIND_METHOD(OccluderPolygon2D,is_closed);
+    SE_BIND_METHOD(OccluderPolygon2D,set_closed);
+    SE_BIND_METHOD(OccluderPolygon2D,is_closed);
 
-    BIND_METHOD(OccluderPolygon2D,set_cull_mode);
-    BIND_METHOD(OccluderPolygon2D,get_cull_mode);
+    SE_BIND_METHOD(OccluderPolygon2D,set_cull_mode);
+    SE_BIND_METHOD(OccluderPolygon2D,get_cull_mode);
 
-    BIND_METHOD(OccluderPolygon2D,set_polygon);
-    BIND_METHOD(OccluderPolygon2D,get_polygon);
+    SE_BIND_METHOD(OccluderPolygon2D,set_polygon);
+    SE_BIND_METHOD(OccluderPolygon2D,get_polygon);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "closed"), "set_closed", "is_closed");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "cull_mode", PropertyHint::Enum, "Disabled,ClockWise,CounterClockWise"), "set_cull_mode", "get_cull_mode");
@@ -282,11 +282,11 @@ String LightOccluder2D::get_configuration_warning() const {
 
 void LightOccluder2D::_bind_methods() {
 
-    BIND_METHOD(LightOccluder2D,set_occluder_polygon);
-    BIND_METHOD(LightOccluder2D,get_occluder_polygon);
+    SE_BIND_METHOD(LightOccluder2D,set_occluder_polygon);
+    SE_BIND_METHOD(LightOccluder2D,get_occluder_polygon);
 
-    BIND_METHOD(LightOccluder2D,set_occluder_light_mask);
-    BIND_METHOD(LightOccluder2D,get_occluder_light_mask);
+    SE_BIND_METHOD(LightOccluder2D,set_occluder_light_mask);
+    SE_BIND_METHOD(LightOccluder2D,get_occluder_light_mask);
 
     MethodBinder::bind_method("_poly_changed", &LightOccluder2D::_poly_changed);
 

@@ -492,46 +492,46 @@ Ref<AudioStreamPlayback> AudioStreamPlayer2D::get_stream_playback() {
 
 void AudioStreamPlayer2D::_bind_methods() {
 
-    BIND_METHOD(AudioStreamPlayer2D,set_stream);
-    BIND_METHOD(AudioStreamPlayer2D,get_stream);
+    SE_BIND_METHOD(AudioStreamPlayer2D,set_stream);
+    SE_BIND_METHOD(AudioStreamPlayer2D,get_stream);
 
-    BIND_METHOD(AudioStreamPlayer2D,set_volume_db);
-    BIND_METHOD(AudioStreamPlayer2D,get_volume_db);
+    SE_BIND_METHOD(AudioStreamPlayer2D,set_volume_db);
+    SE_BIND_METHOD(AudioStreamPlayer2D,get_volume_db);
 
-    BIND_METHOD(AudioStreamPlayer2D,set_pitch_scale);
-    BIND_METHOD(AudioStreamPlayer2D,get_pitch_scale);
+    SE_BIND_METHOD(AudioStreamPlayer2D,set_pitch_scale);
+    SE_BIND_METHOD(AudioStreamPlayer2D,get_pitch_scale);
 
     MethodBinder::bind_method(D_METHOD("play", {"from_position"}), &AudioStreamPlayer2D::play, {DEFVAL(0.0)});
-    BIND_METHOD(AudioStreamPlayer2D,seek);
-    BIND_METHOD(AudioStreamPlayer2D,stop);
+    SE_BIND_METHOD(AudioStreamPlayer2D,seek);
+    SE_BIND_METHOD(AudioStreamPlayer2D,stop);
 
-    BIND_METHOD(AudioStreamPlayer2D,is_playing);
-    BIND_METHOD(AudioStreamPlayer2D,get_playback_position);
+    SE_BIND_METHOD(AudioStreamPlayer2D,is_playing);
+    SE_BIND_METHOD(AudioStreamPlayer2D,get_playback_position);
 
-    BIND_METHOD(AudioStreamPlayer2D,set_bus);
-    BIND_METHOD(AudioStreamPlayer2D,get_bus);
+    SE_BIND_METHOD(AudioStreamPlayer2D,set_bus);
+    SE_BIND_METHOD(AudioStreamPlayer2D,get_bus);
 
-    BIND_METHOD(AudioStreamPlayer2D,set_autoplay);
-    BIND_METHOD(AudioStreamPlayer2D,is_autoplay_enabled);
+    SE_BIND_METHOD(AudioStreamPlayer2D,set_autoplay);
+    SE_BIND_METHOD(AudioStreamPlayer2D,is_autoplay_enabled);
 
-    BIND_METHOD(AudioStreamPlayer2D,_set_playing);
-    BIND_METHOD(AudioStreamPlayer2D,_is_active);
+    SE_BIND_METHOD(AudioStreamPlayer2D,_set_playing);
+    SE_BIND_METHOD(AudioStreamPlayer2D,_is_active);
 
-    BIND_METHOD(AudioStreamPlayer2D,set_max_distance);
-    BIND_METHOD(AudioStreamPlayer2D,get_max_distance);
+    SE_BIND_METHOD(AudioStreamPlayer2D,set_max_distance);
+    SE_BIND_METHOD(AudioStreamPlayer2D,get_max_distance);
 
-    BIND_METHOD(AudioStreamPlayer2D,set_attenuation);
-    BIND_METHOD(AudioStreamPlayer2D,get_attenuation);
+    SE_BIND_METHOD(AudioStreamPlayer2D,set_attenuation);
+    SE_BIND_METHOD(AudioStreamPlayer2D,get_attenuation);
 
-    BIND_METHOD(AudioStreamPlayer2D,set_area_mask);
-    BIND_METHOD(AudioStreamPlayer2D,get_area_mask);
+    SE_BIND_METHOD(AudioStreamPlayer2D,set_area_mask);
+    SE_BIND_METHOD(AudioStreamPlayer2D,get_area_mask);
 
-    BIND_METHOD(AudioStreamPlayer2D,set_stream_paused);
-    BIND_METHOD(AudioStreamPlayer2D,get_stream_paused);
+    SE_BIND_METHOD(AudioStreamPlayer2D,set_stream_paused);
+    SE_BIND_METHOD(AudioStreamPlayer2D,get_stream_paused);
 
-    BIND_METHOD(AudioStreamPlayer2D,get_stream_playback);
+    SE_BIND_METHOD(AudioStreamPlayer2D,get_stream_playback);
 
-    BIND_METHOD(AudioStreamPlayer2D,_bus_layout_changed);
+    SE_BIND_METHOD(AudioStreamPlayer2D,_bus_layout_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream", PropertyHint::ResourceType, "AudioStream"), "set_stream", "get_stream");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "volume_db", PropertyHint::Range, "-80,24"), "set_volume_db", "get_volume_db");

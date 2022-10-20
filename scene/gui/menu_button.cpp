@@ -117,13 +117,13 @@ void MenuButton::_notification(int p_what) {
 
 void MenuButton::_bind_methods() {
 
-    BIND_METHOD(MenuButton,get_popup);
-    BIND_METHOD(MenuButton,_unhandled_key_input);
-    BIND_METHOD(MenuButton,_set_items);
-    BIND_METHOD(MenuButton,_get_items);
-    BIND_METHOD(MenuButton,set_switch_on_hover);
-    BIND_METHOD(MenuButton,is_switch_on_hover);
-    BIND_METHOD(MenuButton,set_disable_shortcuts);
+    SE_BIND_METHOD(MenuButton,get_popup);
+    SE_BIND_METHOD(MenuButton,_unhandled_key_input);
+    SE_BIND_METHOD(MenuButton,_set_items);
+    SE_BIND_METHOD(MenuButton,_get_items);
+    SE_BIND_METHOD(MenuButton,set_switch_on_hover);
+    SE_BIND_METHOD(MenuButton,is_switch_on_hover);
+    SE_BIND_METHOD(MenuButton,set_disable_shortcuts);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "switch_on_hover"), "set_switch_on_hover", "is_switch_on_hover");

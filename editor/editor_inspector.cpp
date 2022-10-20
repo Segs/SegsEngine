@@ -703,31 +703,31 @@ Control *EditorProperty::make_custom_tooltip(StringView p_text) const {
 }
 
 void EditorProperty::_bind_methods() {
-    BIND_METHOD(EditorProperty,set_label);
-    BIND_METHOD(EditorProperty,get_label);
+    SE_BIND_METHOD(EditorProperty,set_label);
+    SE_BIND_METHOD(EditorProperty,get_label);
 
-    BIND_METHOD(EditorProperty,set_read_only);
-    BIND_METHOD(EditorProperty,is_read_only);
+    SE_BIND_METHOD(EditorProperty,set_read_only);
+    SE_BIND_METHOD(EditorProperty,is_read_only);
 
-    BIND_METHOD(EditorProperty,set_checkable);
-    BIND_METHOD(EditorProperty,is_checkable);
+    SE_BIND_METHOD(EditorProperty,set_checkable);
+    SE_BIND_METHOD(EditorProperty,is_checkable);
 
-    BIND_METHOD(EditorProperty,set_checked);
-    BIND_METHOD(EditorProperty,is_checked);
+    SE_BIND_METHOD(EditorProperty,set_checked);
+    SE_BIND_METHOD(EditorProperty,is_checked);
 
-    BIND_METHOD(EditorProperty,set_draw_red);
-    BIND_METHOD(EditorProperty,is_draw_red);
+    SE_BIND_METHOD(EditorProperty,set_draw_red);
+    SE_BIND_METHOD(EditorProperty,is_draw_red);
 
-    BIND_METHOD(EditorProperty,set_keying);
-    BIND_METHOD(EditorProperty,is_keying);
+    SE_BIND_METHOD(EditorProperty,set_keying);
+    SE_BIND_METHOD(EditorProperty,is_keying);
 
-    BIND_METHOD(EditorProperty,get_edited_property);
-    BIND_METHOD(EditorProperty,get_edited_object);
+    SE_BIND_METHOD(EditorProperty,get_edited_property);
+    SE_BIND_METHOD(EditorProperty,get_edited_object);
 
-    BIND_METHOD(EditorProperty,_gui_input);
+    SE_BIND_METHOD(EditorProperty,_gui_input);
 
-    BIND_METHOD(EditorProperty,add_focusable);
-    BIND_METHOD(EditorProperty,set_bottom_editor);
+    SE_BIND_METHOD(EditorProperty,add_focusable);
+    SE_BIND_METHOD(EditorProperty,set_bottom_editor);
 
     MethodBinder::bind_method(D_METHOD("emit_changed", { "property", "value", "field", "changing" }),
             &EditorProperty::emit_changed, { DEFVAL(StringName()), DEFVAL(false) });
@@ -1194,10 +1194,10 @@ void EditorInspectorSection::fold() {
 void EditorInspectorSection::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("setup", { "section", "label", "object", "bg_color", "foldable" }),
             &EditorInspectorSection::setup);
-    BIND_METHOD(EditorInspectorSection,get_vbox);
-    BIND_METHOD(EditorInspectorSection,unfold);
-    BIND_METHOD(EditorInspectorSection,fold);
-    BIND_METHOD(EditorInspectorSection,_gui_input);
+    SE_BIND_METHOD(EditorInspectorSection,get_vbox);
+    SE_BIND_METHOD(EditorInspectorSection,unfold);
+    SE_BIND_METHOD(EditorInspectorSection,fold);
+    SE_BIND_METHOD(EditorInspectorSection,_gui_input);
 }
 
 EditorInspectorSection::EditorInspectorSection() {

@@ -303,9 +303,9 @@ BoxContainer::BoxContainer(bool p_vertical) : vertical(p_vertical) {
 
 void BoxContainer::_bind_methods() {
 
-    BIND_METHOD(BoxContainer,add_spacer);
-    BIND_METHOD(BoxContainer,get_alignment);
-    BIND_METHOD(BoxContainer,set_alignment);
+    SE_BIND_METHOD(BoxContainer,add_spacer);
+    SE_BIND_METHOD(BoxContainer,get_alignment);
+    SE_BIND_METHOD(BoxContainer,set_alignment);
 
     BIND_ENUM_CONSTANT(ALIGN_BEGIN);
     BIND_ENUM_CONSTANT(ALIGN_CENTER);

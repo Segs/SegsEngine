@@ -149,11 +149,11 @@ void LinkButton::_notification(int p_what) {
 
 void LinkButton::_bind_methods() {
 
-    BIND_METHOD(LinkButton,set_text);
-    BIND_METHOD(LinkButton,get_text);
+    SE_BIND_METHOD(LinkButton,set_text);
+    SE_BIND_METHOD(LinkButton,get_text);
 
-    BIND_METHOD(LinkButton,set_underline_mode);
-    BIND_METHOD(LinkButton,get_underline_mode);
+    SE_BIND_METHOD(LinkButton,set_underline_mode);
+    SE_BIND_METHOD(LinkButton,get_underline_mode);
 
     BIND_ENUM_CONSTANT(UNDERLINE_MODE_ALWAYS);
     BIND_ENUM_CONSTANT(UNDERLINE_MODE_ON_HOVER);

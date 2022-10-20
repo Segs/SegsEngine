@@ -248,27 +248,27 @@ void TextureButton::_notification(int p_what) {
 
 void TextureButton::_bind_methods() {
 
-    BIND_METHOD(TextureButton,set_normal_texture);
-    BIND_METHOD(TextureButton,set_pressed_texture);
-    BIND_METHOD(TextureButton,set_hover_texture);
-    BIND_METHOD(TextureButton,set_disabled_texture);
-    BIND_METHOD(TextureButton,set_focused_texture);
-    BIND_METHOD(TextureButton,set_click_mask);
-    BIND_METHOD(TextureButton,set_expand);
-    BIND_METHOD(TextureButton,set_stretch_mode);
-    BIND_METHOD(TextureButton,set_flip_h);
-    BIND_METHOD(TextureButton,is_flipped_h);
-    BIND_METHOD(TextureButton,set_flip_v);
-    BIND_METHOD(TextureButton,is_flipped_v);
+    SE_BIND_METHOD(TextureButton,set_normal_texture);
+    SE_BIND_METHOD(TextureButton,set_pressed_texture);
+    SE_BIND_METHOD(TextureButton,set_hover_texture);
+    SE_BIND_METHOD(TextureButton,set_disabled_texture);
+    SE_BIND_METHOD(TextureButton,set_focused_texture);
+    SE_BIND_METHOD(TextureButton,set_click_mask);
+    SE_BIND_METHOD(TextureButton,set_expand);
+    SE_BIND_METHOD(TextureButton,set_stretch_mode);
+    SE_BIND_METHOD(TextureButton,set_flip_h);
+    SE_BIND_METHOD(TextureButton,is_flipped_h);
+    SE_BIND_METHOD(TextureButton,set_flip_v);
+    SE_BIND_METHOD(TextureButton,is_flipped_v);
 
-    BIND_METHOD(TextureButton,get_normal_texture);
-    BIND_METHOD(TextureButton,get_pressed_texture);
-    BIND_METHOD(TextureButton,get_hover_texture);
-    BIND_METHOD(TextureButton,get_disabled_texture);
-    BIND_METHOD(TextureButton,get_focused_texture);
-    BIND_METHOD(TextureButton,get_click_mask);
-    BIND_METHOD(TextureButton,get_expand);
-    BIND_METHOD(TextureButton,get_stretch_mode);
+    SE_BIND_METHOD(TextureButton,get_normal_texture);
+    SE_BIND_METHOD(TextureButton,get_pressed_texture);
+    SE_BIND_METHOD(TextureButton,get_hover_texture);
+    SE_BIND_METHOD(TextureButton,get_disabled_texture);
+    SE_BIND_METHOD(TextureButton,get_focused_texture);
+    SE_BIND_METHOD(TextureButton,get_click_mask);
+    SE_BIND_METHOD(TextureButton,get_expand);
+    SE_BIND_METHOD(TextureButton,get_stretch_mode);
 
     ADD_GROUP("Textures", "texture_");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_normal", PropertyHint::ResourceType, "Texture"), "set_normal_texture", "get_normal_texture");

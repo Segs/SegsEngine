@@ -74,8 +74,8 @@ Vector3 BoxShape3D::get_extents() const {
 
 void BoxShape3D::_bind_methods() {
 
-    BIND_METHOD(BoxShape3D,set_extents);
-    BIND_METHOD(BoxShape3D,get_extents);
+    SE_BIND_METHOD(BoxShape3D,set_extents);
+    SE_BIND_METHOD(BoxShape3D,get_extents);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "extents"), "set_extents", "get_extents");
 }

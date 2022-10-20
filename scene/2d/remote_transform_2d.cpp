@@ -204,19 +204,19 @@ String RemoteTransform2D::get_configuration_warning() const {
 
 void RemoteTransform2D::_bind_methods() {
 
-    BIND_METHOD(RemoteTransform2D,set_remote_node);
-    BIND_METHOD(RemoteTransform2D,get_remote_node);
-    BIND_METHOD(RemoteTransform2D,force_update_cache);
+    SE_BIND_METHOD(RemoteTransform2D,set_remote_node);
+    SE_BIND_METHOD(RemoteTransform2D,get_remote_node);
+    SE_BIND_METHOD(RemoteTransform2D,force_update_cache);
 
-    BIND_METHOD(RemoteTransform2D,set_use_global_coordinates);
-    BIND_METHOD(RemoteTransform2D,get_use_global_coordinates);
+    SE_BIND_METHOD(RemoteTransform2D,set_use_global_coordinates);
+    SE_BIND_METHOD(RemoteTransform2D,get_use_global_coordinates);
 
-    BIND_METHOD(RemoteTransform2D,set_update_position);
-    BIND_METHOD(RemoteTransform2D,get_update_position);
-    BIND_METHOD(RemoteTransform2D,set_update_rotation);
-    BIND_METHOD(RemoteTransform2D,get_update_rotation);
-    BIND_METHOD(RemoteTransform2D,set_update_scale);
-    BIND_METHOD(RemoteTransform2D,get_update_scale);
+    SE_BIND_METHOD(RemoteTransform2D,set_update_position);
+    SE_BIND_METHOD(RemoteTransform2D,get_update_position);
+    SE_BIND_METHOD(RemoteTransform2D,set_update_rotation);
+    SE_BIND_METHOD(RemoteTransform2D,get_update_rotation);
+    SE_BIND_METHOD(RemoteTransform2D,set_update_scale);
+    SE_BIND_METHOD(RemoteTransform2D,get_update_scale);
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "remote_path", PropertyHint::NodePathValidTypes, "Node2D"), "set_remote_node", "get_remote_node");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_global_coordinates"), "set_use_global_coordinates", "get_use_global_coordinates");

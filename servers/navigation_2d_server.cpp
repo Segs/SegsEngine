@@ -131,36 +131,36 @@ Ref<NavigationMesh> poly_to_mesh(Ref<NavigationPolygon> d) {
 }
 
 void Navigation2DServer::_bind_methods() {
-    BIND_METHOD(Navigation2DServer,map_create);
-    BIND_METHOD(Navigation2DServer,map_set_active);
-    BIND_METHOD(Navigation2DServer,map_is_active);
-    BIND_METHOD(Navigation2DServer,map_set_cell_size);
-    BIND_METHOD(Navigation2DServer,map_get_cell_size);
-    BIND_METHOD(Navigation2DServer,map_set_edge_connection_margin);
-    BIND_METHOD(Navigation2DServer,map_get_edge_connection_margin);
-    BIND_METHOD(Navigation2DServer,map_get_path);
+    SE_BIND_METHOD(Navigation2DServer,map_create);
+    SE_BIND_METHOD(Navigation2DServer,map_set_active);
+    SE_BIND_METHOD(Navigation2DServer,map_is_active);
+    SE_BIND_METHOD(Navigation2DServer,map_set_cell_size);
+    SE_BIND_METHOD(Navigation2DServer,map_get_cell_size);
+    SE_BIND_METHOD(Navigation2DServer,map_set_edge_connection_margin);
+    SE_BIND_METHOD(Navigation2DServer,map_get_edge_connection_margin);
+    SE_BIND_METHOD(Navigation2DServer,map_get_path);
 
-    BIND_METHOD(Navigation2DServer,map_get_closest_point);
-    BIND_METHOD(Navigation2DServer,map_get_closest_point_owner);
-    BIND_METHOD(Navigation2DServer,region_create);
-    BIND_METHOD(Navigation2DServer,region_set_map);
-    BIND_METHOD(Navigation2DServer,region_set_transform);
-    BIND_METHOD(Navigation2DServer,region_set_navpoly);
+    SE_BIND_METHOD(Navigation2DServer,map_get_closest_point);
+    SE_BIND_METHOD(Navigation2DServer,map_get_closest_point_owner);
+    SE_BIND_METHOD(Navigation2DServer,region_create);
+    SE_BIND_METHOD(Navigation2DServer,region_set_map);
+    SE_BIND_METHOD(Navigation2DServer,region_set_transform);
+    SE_BIND_METHOD(Navigation2DServer,region_set_navpoly);
 
-    BIND_METHOD(Navigation2DServer,agent_create);
-    BIND_METHOD(Navigation2DServer,agent_set_map);
-    BIND_METHOD(Navigation2DServer,agent_set_neighbor_dist);
-    BIND_METHOD(Navigation2DServer,agent_set_max_neighbors);
-    BIND_METHOD(Navigation2DServer,agent_set_time_horizon);
-    BIND_METHOD(Navigation2DServer,agent_set_radius);
-    BIND_METHOD(Navigation2DServer,agent_set_max_speed);
-    BIND_METHOD(Navigation2DServer,agent_set_velocity);
-    BIND_METHOD(Navigation2DServer,agent_set_target_velocity);
-    BIND_METHOD(Navigation2DServer,agent_set_position);
-    BIND_METHOD(Navigation2DServer,agent_is_map_changed);
-    BIND_METHOD(Navigation2DServer,agent_set_callback);
+    SE_BIND_METHOD(Navigation2DServer,agent_create);
+    SE_BIND_METHOD(Navigation2DServer,agent_set_map);
+    SE_BIND_METHOD(Navigation2DServer,agent_set_neighbor_dist);
+    SE_BIND_METHOD(Navigation2DServer,agent_set_max_neighbors);
+    SE_BIND_METHOD(Navigation2DServer,agent_set_time_horizon);
+    SE_BIND_METHOD(Navigation2DServer,agent_set_radius);
+    SE_BIND_METHOD(Navigation2DServer,agent_set_max_speed);
+    SE_BIND_METHOD(Navigation2DServer,agent_set_velocity);
+    SE_BIND_METHOD(Navigation2DServer,agent_set_target_velocity);
+    SE_BIND_METHOD(Navigation2DServer,agent_set_position);
+    SE_BIND_METHOD(Navigation2DServer,agent_is_map_changed);
+    SE_BIND_METHOD(Navigation2DServer,agent_set_callback);
 
-    BIND_METHOD(Navigation2DServer,free_rid);
+    SE_BIND_METHOD(Navigation2DServer,free_rid);
 }
 
 Navigation2DServer::Navigation2DServer() {

@@ -6291,7 +6291,7 @@ void EditorNode::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_global_menu_action"), &EditorNode::_global_menu_action, { DEFVAL(Variant()) });
     MethodBinder::bind_method("edit_item_resource", &EditorNode::edit_item_resource);
 
-    BIND_METHOD(EditorNode,get_gui_base);
+    SE_BIND_METHOD(EditorNode,get_gui_base);
 
     ADD_SIGNAL(MethodInfo("play_pressed"));
     ADD_SIGNAL(MethodInfo("pause_pressed"));

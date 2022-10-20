@@ -346,27 +346,27 @@ Array MeshLibrary::_get_item_shapes(int p_item) const {
 
 void MeshLibrary::_bind_methods() {
 
-    BIND_METHOD(MeshLibrary,create_item);
-    BIND_METHOD(MeshLibrary,set_item_name);
-    BIND_METHOD(MeshLibrary,set_item_mesh);
-    BIND_METHOD(MeshLibrary,set_item_mesh_transform);
-    BIND_METHOD(MeshLibrary,set_item_navmesh);
-    BIND_METHOD(MeshLibrary,set_item_navmesh_transform);
+    SE_BIND_METHOD(MeshLibrary,create_item);
+    SE_BIND_METHOD(MeshLibrary,set_item_name);
+    SE_BIND_METHOD(MeshLibrary,set_item_mesh);
+    SE_BIND_METHOD(MeshLibrary,set_item_mesh_transform);
+    SE_BIND_METHOD(MeshLibrary,set_item_navmesh);
+    SE_BIND_METHOD(MeshLibrary,set_item_navmesh_transform);
     MethodBinder::bind_method(D_METHOD("set_item_shapes", {"id", "shapes"}), &MeshLibrary::_set_item_shapes);
-    BIND_METHOD(MeshLibrary,set_item_preview);
-    BIND_METHOD(MeshLibrary,get_item_name);
-    BIND_METHOD(MeshLibrary,get_item_mesh);
-    BIND_METHOD(MeshLibrary,get_item_mesh_transform);
-    BIND_METHOD(MeshLibrary,get_item_navmesh);
-    BIND_METHOD(MeshLibrary,get_item_navmesh_transform);
+    SE_BIND_METHOD(MeshLibrary,set_item_preview);
+    SE_BIND_METHOD(MeshLibrary,get_item_name);
+    SE_BIND_METHOD(MeshLibrary,get_item_mesh);
+    SE_BIND_METHOD(MeshLibrary,get_item_mesh_transform);
+    SE_BIND_METHOD(MeshLibrary,get_item_navmesh);
+    SE_BIND_METHOD(MeshLibrary,get_item_navmesh_transform);
     MethodBinder::bind_method(D_METHOD("get_item_shapes", {"id"}), &MeshLibrary::_get_item_shapes);
-    BIND_METHOD(MeshLibrary,get_item_preview);
-    BIND_METHOD(MeshLibrary,remove_item);
-    BIND_METHOD(MeshLibrary,find_item_by_name);
+    SE_BIND_METHOD(MeshLibrary,get_item_preview);
+    SE_BIND_METHOD(MeshLibrary,remove_item);
+    SE_BIND_METHOD(MeshLibrary,find_item_by_name);
 
-    BIND_METHOD(MeshLibrary,clear);
-    BIND_METHOD(MeshLibrary,get_item_list);
-    BIND_METHOD(MeshLibrary,get_last_unused_item_id);
+    SE_BIND_METHOD(MeshLibrary,clear);
+    SE_BIND_METHOD(MeshLibrary,get_item_list);
+    SE_BIND_METHOD(MeshLibrary,get_last_unused_item_id);
 }
 
 MeshLibrary::MeshLibrary() {

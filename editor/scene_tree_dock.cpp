@@ -3431,15 +3431,15 @@ void SceneTreeDock::_create_remap_for_resource(RES p_resource, HashMap<RES, RES>
 void SceneTreeDock::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_tool_selected"), &SceneTreeDock::_tool_selected, {DEFVAL(false)});
-    BIND_METHOD(SceneTreeDock,_create);
-    BIND_METHOD(SceneTreeDock,_set_owners);
-    BIND_METHOD(SceneTreeDock,_unhandled_key_input);
-    BIND_METHOD(SceneTreeDock,_input);
-    BIND_METHOD(SceneTreeDock,_update_script_button);
+    SE_BIND_METHOD(SceneTreeDock,_create);
+    SE_BIND_METHOD(SceneTreeDock,_set_owners);
+    SE_BIND_METHOD(SceneTreeDock,_unhandled_key_input);
+    SE_BIND_METHOD(SceneTreeDock,_input);
+    SE_BIND_METHOD(SceneTreeDock,_update_script_button);
 
-    BIND_METHOD(SceneTreeDock,instance);
-    BIND_METHOD(SceneTreeDock,get_tree_editor);
-    BIND_METHOD(SceneTreeDock,replace_node);
+    SE_BIND_METHOD(SceneTreeDock,instance);
+    SE_BIND_METHOD(SceneTreeDock,get_tree_editor);
+    SE_BIND_METHOD(SceneTreeDock,replace_node);
 
     ADD_SIGNAL(MethodInfo("remote_tree_selected"));
     ADD_SIGNAL(MethodInfo("add_node_used"));

@@ -333,11 +333,11 @@ void World2D::get_viewport_list(Vector<Viewport *> *r_viewports) {
 }
 
 void World2D::_bind_methods() {
-    BIND_METHOD(World2D,get_canvas);
-    BIND_METHOD(World2D,get_space);
-    BIND_METHOD(World2D,get_navigation_map);
+    SE_BIND_METHOD(World2D,get_canvas);
+    SE_BIND_METHOD(World2D,get_space);
+    SE_BIND_METHOD(World2D,get_navigation_map);
 
-    BIND_METHOD(World2D,get_direct_space_state);
+    SE_BIND_METHOD(World2D,get_direct_space_state);
 
     ADD_PROPERTY(PropertyInfo(VariantType::_RID, "canvas", PropertyHint::None, "", 0), "", "get_canvas");
     ADD_PROPERTY(PropertyInfo(VariantType::_RID, "space", PropertyHint::None, "", 0), "", "get_space");

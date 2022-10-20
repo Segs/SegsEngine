@@ -300,10 +300,10 @@ bool ArrayPropertyEdit::_dont_undo_redo() {
 
 void ArrayPropertyEdit::_bind_methods() {
 
-    BIND_METHOD(ArrayPropertyEdit,_set_value);
-    BIND_METHOD(ArrayPropertyEdit,_notif_change);
-    BIND_METHOD(ArrayPropertyEdit,_notif_changev);
-    BIND_METHOD(ArrayPropertyEdit,_dont_undo_redo);
+    SE_BIND_METHOD(ArrayPropertyEdit,_set_value);
+    SE_BIND_METHOD(ArrayPropertyEdit,_notif_change);
+    SE_BIND_METHOD(ArrayPropertyEdit,_notif_changev);
+    SE_BIND_METHOD(ArrayPropertyEdit,_dont_undo_redo);
 }
 
 ArrayPropertyEdit::ArrayPropertyEdit() {

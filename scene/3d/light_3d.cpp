@@ -239,33 +239,33 @@ void Light3D::_validate_property(PropertyInfo &property) const {
 
 void Light3D::_bind_methods() {
 
-    BIND_METHOD(Light3D,set_editor_only);
-    BIND_METHOD(Light3D,is_editor_only);
+    SE_BIND_METHOD(Light3D,set_editor_only);
+    SE_BIND_METHOD(Light3D,is_editor_only);
 
-    BIND_METHOD(Light3D,set_param);
-    BIND_METHOD(Light3D,get_param);
+    SE_BIND_METHOD(Light3D,set_param);
+    SE_BIND_METHOD(Light3D,get_param);
 
-    BIND_METHOD(Light3D,set_shadow);
-    BIND_METHOD(Light3D,has_shadow);
+    SE_BIND_METHOD(Light3D,set_shadow);
+    SE_BIND_METHOD(Light3D,has_shadow);
 
-    BIND_METHOD(Light3D,set_negative);
-    BIND_METHOD(Light3D,is_negative);
+    SE_BIND_METHOD(Light3D,set_negative);
+    SE_BIND_METHOD(Light3D,is_negative);
 
-    BIND_METHOD(Light3D,set_cull_mask);
-    BIND_METHOD(Light3D,get_cull_mask);
+    SE_BIND_METHOD(Light3D,set_cull_mask);
+    SE_BIND_METHOD(Light3D,get_cull_mask);
 
-    BIND_METHOD(Light3D,set_color);
-    BIND_METHOD(Light3D,get_color);
+    SE_BIND_METHOD(Light3D,set_color);
+    SE_BIND_METHOD(Light3D,get_color);
 
     MethodBinder::bind_method(
             D_METHOD("set_shadow_reverse_cull_face", { "enable" }), &Light3D::set_shadow_reverse_cull_face);
-    BIND_METHOD(Light3D,get_shadow_reverse_cull_face);
+    SE_BIND_METHOD(Light3D,get_shadow_reverse_cull_face);
 
-    BIND_METHOD(Light3D,set_shadow_color);
-    BIND_METHOD(Light3D,get_shadow_color);
+    SE_BIND_METHOD(Light3D,set_shadow_color);
+    SE_BIND_METHOD(Light3D,get_shadow_color);
 
-    BIND_METHOD(Light3D,set_bake_mode);
-    BIND_METHOD(Light3D,get_bake_mode);
+    SE_BIND_METHOD(Light3D,set_bake_mode);
+    SE_BIND_METHOD(Light3D,get_bake_mode);
 
     ADD_GROUP("Light", "light_");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "light_color", PropertyHint::ColorNoAlpha), "set_color", "get_color");
@@ -435,15 +435,15 @@ void DirectionalLight3D::_validate_property(PropertyInfo &property) const {
 
 void DirectionalLight3D::_bind_methods() {
 
-    BIND_METHOD(DirectionalLight3D,set_shadow_mode);
-    BIND_METHOD(DirectionalLight3D,get_shadow_mode);
+    SE_BIND_METHOD(DirectionalLight3D,set_shadow_mode);
+    SE_BIND_METHOD(DirectionalLight3D,get_shadow_mode);
 
     MethodBinder::bind_method(
             D_METHOD("set_shadow_depth_range", { "mode" }), &DirectionalLight3D::set_shadow_depth_range);
-    BIND_METHOD(DirectionalLight3D,get_shadow_depth_range);
+    SE_BIND_METHOD(DirectionalLight3D,get_shadow_depth_range);
 
-    BIND_METHOD(DirectionalLight3D,set_blend_splits);
-    BIND_METHOD(DirectionalLight3D,is_blend_splits_enabled);
+    SE_BIND_METHOD(DirectionalLight3D,set_blend_splits);
+    SE_BIND_METHOD(DirectionalLight3D,is_blend_splits_enabled);
 
     ADD_GROUP("Directional Shadow", "directional_shadow_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "directional_shadow_mode", PropertyHint::Enum,
@@ -512,11 +512,11 @@ OmniLight3D::ShadowDetail OmniLight3D::get_shadow_detail() const {
 
 void OmniLight3D::_bind_methods() {
 
-    BIND_METHOD(OmniLight3D,set_shadow_mode);
-    BIND_METHOD(OmniLight3D,get_shadow_mode);
+    SE_BIND_METHOD(OmniLight3D,set_shadow_mode);
+    SE_BIND_METHOD(OmniLight3D,get_shadow_mode);
 
-    BIND_METHOD(OmniLight3D,set_shadow_detail);
-    BIND_METHOD(OmniLight3D,get_shadow_detail);
+    SE_BIND_METHOD(OmniLight3D,set_shadow_detail);
+    SE_BIND_METHOD(OmniLight3D,get_shadow_detail);
 
     ADD_GROUP("Omni", "omni_");
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "omni_range", PropertyHint::ExpRange, "0,4096,0.001,or_greater"),

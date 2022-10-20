@@ -94,9 +94,9 @@ void EditorScript::set_editor(EditorNode *p_editor) {
 
 void EditorScript::_bind_methods() {
 
-    BIND_METHOD(EditorScript,add_root_node);
-    BIND_METHOD(EditorScript,get_scene);
-    BIND_METHOD(EditorScript,get_editor_interface);
+    SE_BIND_METHOD(EditorScript,add_root_node);
+    SE_BIND_METHOD(EditorScript,get_scene);
+    SE_BIND_METHOD(EditorScript,get_editor_interface);
     BIND_VMETHOD(MethodInfo("_run"));
 }
 

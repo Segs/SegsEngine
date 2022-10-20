@@ -58,8 +58,8 @@ Sky::RadianceSize Sky::get_radiance_size() const {
 
 void Sky::_bind_methods() {
 
-    BIND_METHOD(Sky,set_radiance_size);
-    BIND_METHOD(Sky,get_radiance_size);
+    SE_BIND_METHOD(Sky,set_radiance_size);
+    SE_BIND_METHOD(Sky,get_radiance_size);
 
     // Don't expose 1024 and 2048 in the property hint as these sizes will cause GPU hangs on many systems.
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "radiance_size", PropertyHint::Enum, "32,64,128,256,512"), "set_radiance_size", "get_radiance_size");
@@ -115,8 +115,8 @@ RenderingEntity PanoramaSky::get_rid() const {
 
 void PanoramaSky::_bind_methods() {
 
-    BIND_METHOD(PanoramaSky,set_panorama);
-    BIND_METHOD(PanoramaSky,get_panorama);
+    SE_BIND_METHOD(PanoramaSky,set_panorama);
+    SE_BIND_METHOD(PanoramaSky,get_panorama);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "panorama", PropertyHint::ResourceType, "Texture"), "set_panorama", "get_panorama");
 }
@@ -468,53 +468,53 @@ void ProceduralSky::_thread_function(void *p_ud) {
 
 void ProceduralSky::_bind_methods() {
 
-    BIND_METHOD(ProceduralSky,set_sky_top_color);
-    BIND_METHOD(ProceduralSky,get_sky_top_color);
+    SE_BIND_METHOD(ProceduralSky,set_sky_top_color);
+    SE_BIND_METHOD(ProceduralSky,get_sky_top_color);
 
-    BIND_METHOD(ProceduralSky,set_sky_horizon_color);
-    BIND_METHOD(ProceduralSky,get_sky_horizon_color);
+    SE_BIND_METHOD(ProceduralSky,set_sky_horizon_color);
+    SE_BIND_METHOD(ProceduralSky,get_sky_horizon_color);
 
-    BIND_METHOD(ProceduralSky,set_sky_curve);
-    BIND_METHOD(ProceduralSky,get_sky_curve);
+    SE_BIND_METHOD(ProceduralSky,set_sky_curve);
+    SE_BIND_METHOD(ProceduralSky,get_sky_curve);
 
-    BIND_METHOD(ProceduralSky,set_sky_energy);
-    BIND_METHOD(ProceduralSky,get_sky_energy);
+    SE_BIND_METHOD(ProceduralSky,set_sky_energy);
+    SE_BIND_METHOD(ProceduralSky,get_sky_energy);
 
-    BIND_METHOD(ProceduralSky,set_ground_bottom_color);
-    BIND_METHOD(ProceduralSky,get_ground_bottom_color);
+    SE_BIND_METHOD(ProceduralSky,set_ground_bottom_color);
+    SE_BIND_METHOD(ProceduralSky,get_ground_bottom_color);
 
-    BIND_METHOD(ProceduralSky,set_ground_horizon_color);
-    BIND_METHOD(ProceduralSky,get_ground_horizon_color);
+    SE_BIND_METHOD(ProceduralSky,set_ground_horizon_color);
+    SE_BIND_METHOD(ProceduralSky,get_ground_horizon_color);
 
-    BIND_METHOD(ProceduralSky,set_ground_curve);
-    BIND_METHOD(ProceduralSky,get_ground_curve);
+    SE_BIND_METHOD(ProceduralSky,set_ground_curve);
+    SE_BIND_METHOD(ProceduralSky,get_ground_curve);
 
-    BIND_METHOD(ProceduralSky,set_ground_energy);
-    BIND_METHOD(ProceduralSky,get_ground_energy);
+    SE_BIND_METHOD(ProceduralSky,set_ground_energy);
+    SE_BIND_METHOD(ProceduralSky,get_ground_energy);
 
-    BIND_METHOD(ProceduralSky,set_sun_color);
-    BIND_METHOD(ProceduralSky,get_sun_color);
+    SE_BIND_METHOD(ProceduralSky,set_sun_color);
+    SE_BIND_METHOD(ProceduralSky,get_sun_color);
 
-    BIND_METHOD(ProceduralSky,set_sun_latitude);
-    BIND_METHOD(ProceduralSky,get_sun_latitude);
+    SE_BIND_METHOD(ProceduralSky,set_sun_latitude);
+    SE_BIND_METHOD(ProceduralSky,get_sun_latitude);
 
-    BIND_METHOD(ProceduralSky,set_sun_longitude);
-    BIND_METHOD(ProceduralSky,get_sun_longitude);
+    SE_BIND_METHOD(ProceduralSky,set_sun_longitude);
+    SE_BIND_METHOD(ProceduralSky,get_sun_longitude);
 
-    BIND_METHOD(ProceduralSky,set_sun_angle_min);
-    BIND_METHOD(ProceduralSky,get_sun_angle_min);
+    SE_BIND_METHOD(ProceduralSky,set_sun_angle_min);
+    SE_BIND_METHOD(ProceduralSky,get_sun_angle_min);
 
-    BIND_METHOD(ProceduralSky,set_sun_angle_max);
-    BIND_METHOD(ProceduralSky,get_sun_angle_max);
+    SE_BIND_METHOD(ProceduralSky,set_sun_angle_max);
+    SE_BIND_METHOD(ProceduralSky,get_sun_angle_max);
 
-    BIND_METHOD(ProceduralSky,set_sun_curve);
-    BIND_METHOD(ProceduralSky,get_sun_curve);
+    SE_BIND_METHOD(ProceduralSky,set_sun_curve);
+    SE_BIND_METHOD(ProceduralSky,get_sun_curve);
 
-    BIND_METHOD(ProceduralSky,set_sun_energy);
-    BIND_METHOD(ProceduralSky,get_sun_energy);
+    SE_BIND_METHOD(ProceduralSky,set_sun_energy);
+    SE_BIND_METHOD(ProceduralSky,get_sun_energy);
 
-    BIND_METHOD(ProceduralSky,set_texture_size);
-    BIND_METHOD(ProceduralSky,get_texture_size);
+    SE_BIND_METHOD(ProceduralSky,set_texture_size);
+    SE_BIND_METHOD(ProceduralSky,get_texture_size);
 
     ADD_GROUP("Sky", "sky_");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "sky_top_color"), "set_sky_top_color", "get_sky_top_color");

@@ -334,33 +334,33 @@ void OptionButton::_bind_methods() {
     SE_BIND_METHOD_WITH_DEFAULTS(OptionButton, add_item, DEFVAL(-1));
     SE_BIND_METHOD_WITH_DEFAULTS(OptionButton, add_icon_item, DEFVAL(-1));
 
-    BIND_METHOD(OptionButton,set_item_text);
-    BIND_METHOD(OptionButton,set_item_icon);
-    BIND_METHOD(OptionButton,set_item_disabled);
-    BIND_METHOD(OptionButton,set_item_id);
-    BIND_METHOD(OptionButton,set_item_metadata);
-    BIND_METHOD(OptionButton,set_item_tooltip);
-    BIND_METHOD(OptionButton,get_item_text);
-    BIND_METHOD(OptionButton,get_item_icon);
-    BIND_METHOD(OptionButton,get_item_id);
-    BIND_METHOD(OptionButton,get_item_index);
-    BIND_METHOD(OptionButton,get_item_metadata);
-    BIND_METHOD(OptionButton,get_item_tooltip);
-    BIND_METHOD(OptionButton,is_item_disabled);
-    BIND_METHOD(OptionButton,get_item_count);
-    BIND_METHOD(OptionButton,add_separator);
-    BIND_METHOD(OptionButton,clear);
-    BIND_METHOD(OptionButton,select);
-    BIND_METHOD(OptionButton,get_selected);
-    BIND_METHOD(OptionButton,get_selected_id);
-    BIND_METHOD(OptionButton,get_selected_metadata);
-    BIND_METHOD(OptionButton,remove_item);
-    BIND_METHOD(OptionButton,_select_int);
+    SE_BIND_METHOD(OptionButton,set_item_text);
+    SE_BIND_METHOD(OptionButton,set_item_icon);
+    SE_BIND_METHOD(OptionButton,set_item_disabled);
+    SE_BIND_METHOD(OptionButton,set_item_id);
+    SE_BIND_METHOD(OptionButton,set_item_metadata);
+    SE_BIND_METHOD(OptionButton,set_item_tooltip);
+    SE_BIND_METHOD(OptionButton,get_item_text);
+    SE_BIND_METHOD(OptionButton,get_item_icon);
+    SE_BIND_METHOD(OptionButton,get_item_id);
+    SE_BIND_METHOD(OptionButton,get_item_index);
+    SE_BIND_METHOD(OptionButton,get_item_metadata);
+    SE_BIND_METHOD(OptionButton,get_item_tooltip);
+    SE_BIND_METHOD(OptionButton,is_item_disabled);
+    SE_BIND_METHOD(OptionButton,get_item_count);
+    SE_BIND_METHOD(OptionButton,add_separator);
+    SE_BIND_METHOD(OptionButton,clear);
+    SE_BIND_METHOD(OptionButton,select);
+    SE_BIND_METHOD(OptionButton,get_selected);
+    SE_BIND_METHOD(OptionButton,get_selected_id);
+    SE_BIND_METHOD(OptionButton,get_selected_metadata);
+    SE_BIND_METHOD(OptionButton,remove_item);
+    SE_BIND_METHOD(OptionButton,_select_int);
 
-    BIND_METHOD(OptionButton,get_popup);
+    SE_BIND_METHOD(OptionButton,get_popup);
 
-    BIND_METHOD(OptionButton,_set_items);
-    BIND_METHOD(OptionButton,_get_items);
+    SE_BIND_METHOD(OptionButton,_set_items);
+    SE_BIND_METHOD(OptionButton,_get_items);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PropertyHint::None, "",
                          PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),

@@ -584,61 +584,61 @@ void Area3D::_validate_property(PropertyInfo &property) const {
 
 void Area3D::_bind_methods() {
 
-    BIND_METHOD(Area3D,set_space_override_mode);
-    BIND_METHOD(Area3D,get_space_override_mode);
+    SE_BIND_METHOD(Area3D,set_space_override_mode);
+    SE_BIND_METHOD(Area3D,get_space_override_mode);
 
-    BIND_METHOD(Area3D,set_gravity_is_point);
-    BIND_METHOD(Area3D,is_gravity_a_point);
+    SE_BIND_METHOD(Area3D,set_gravity_is_point);
+    SE_BIND_METHOD(Area3D,is_gravity_a_point);
 
     MethodBinder::bind_method(
             D_METHOD("set_gravity_distance_scale", { "distance_scale" }), &Area3D::set_gravity_distance_scale);
-    BIND_METHOD(Area3D,get_gravity_distance_scale);
+    SE_BIND_METHOD(Area3D,get_gravity_distance_scale);
 
-    BIND_METHOD(Area3D,set_gravity_vector);
-    BIND_METHOD(Area3D,get_gravity_vector);
+    SE_BIND_METHOD(Area3D,set_gravity_vector);
+    SE_BIND_METHOD(Area3D,get_gravity_vector);
 
-    BIND_METHOD(Area3D,set_gravity);
-    BIND_METHOD(Area3D,get_gravity);
+    SE_BIND_METHOD(Area3D,set_gravity);
+    SE_BIND_METHOD(Area3D,get_gravity);
 
-    BIND_METHOD(Area3D,set_angular_damp);
-    BIND_METHOD(Area3D,get_angular_damp);
+    SE_BIND_METHOD(Area3D,set_angular_damp);
+    SE_BIND_METHOD(Area3D,get_angular_damp);
 
-    BIND_METHOD(Area3D,set_linear_damp);
-    BIND_METHOD(Area3D,get_linear_damp);
+    SE_BIND_METHOD(Area3D,set_linear_damp);
+    SE_BIND_METHOD(Area3D,get_linear_damp);
 
-    BIND_METHOD(Area3D,set_priority);
-    BIND_METHOD(Area3D,get_priority);
+    SE_BIND_METHOD(Area3D,set_priority);
+    SE_BIND_METHOD(Area3D,get_priority);
 
 
-    BIND_METHOD(Area3D,set_monitorable);
-    BIND_METHOD(Area3D,is_monitorable);
+    SE_BIND_METHOD(Area3D,set_monitorable);
+    SE_BIND_METHOD(Area3D,is_monitorable);
 
-    BIND_METHOD(Area3D,set_monitoring);
-    BIND_METHOD(Area3D,is_monitoring);
+    SE_BIND_METHOD(Area3D,set_monitoring);
+    SE_BIND_METHOD(Area3D,is_monitoring);
 
-    BIND_METHOD(Area3D,get_overlapping_bodies);
-    BIND_METHOD(Area3D,get_overlapping_areas);
+    SE_BIND_METHOD(Area3D,get_overlapping_bodies);
+    SE_BIND_METHOD(Area3D,get_overlapping_areas);
 
-    BIND_METHOD(Area3D,overlaps_body);
-    BIND_METHOD(Area3D,overlaps_area);
+    SE_BIND_METHOD(Area3D,overlaps_body);
+    SE_BIND_METHOD(Area3D,overlaps_area);
 
-    BIND_METHOD(Area3D,set_audio_bus_override);
-    BIND_METHOD(Area3D,is_overriding_audio_bus);
+    SE_BIND_METHOD(Area3D,set_audio_bus_override);
+    SE_BIND_METHOD(Area3D,is_overriding_audio_bus);
 
-    BIND_METHOD(Area3D,set_audio_bus);
-    BIND_METHOD(Area3D,get_audio_bus);
+    SE_BIND_METHOD(Area3D,set_audio_bus);
+    SE_BIND_METHOD(Area3D,get_audio_bus);
 
-    BIND_METHOD(Area3D,set_use_reverb_bus);
-    BIND_METHOD(Area3D,is_using_reverb_bus);
+    SE_BIND_METHOD(Area3D,set_use_reverb_bus);
+    SE_BIND_METHOD(Area3D,is_using_reverb_bus);
 
-    BIND_METHOD(Area3D,set_reverb_bus);
-    BIND_METHOD(Area3D,get_reverb_bus);
+    SE_BIND_METHOD(Area3D,set_reverb_bus);
+    SE_BIND_METHOD(Area3D,get_reverb_bus);
 
-    BIND_METHOD(Area3D,set_reverb_amount);
-    BIND_METHOD(Area3D,get_reverb_amount);
+    SE_BIND_METHOD(Area3D,set_reverb_amount);
+    SE_BIND_METHOD(Area3D,get_reverb_amount);
 
-    BIND_METHOD(Area3D,set_reverb_uniformity);
-    BIND_METHOD(Area3D,get_reverb_uniformity);
+    SE_BIND_METHOD(Area3D,set_reverb_uniformity);
+    SE_BIND_METHOD(Area3D,get_reverb_uniformity);
 
     ADD_SIGNAL(MethodInfo("body_shape_entered", PropertyInfo(VariantType::_RID, "body_rid"),
             PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node"),

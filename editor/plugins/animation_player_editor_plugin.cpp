@@ -1597,11 +1597,11 @@ void AnimationPlayerEditor::_pin_pressed() {
 
 void AnimationPlayerEditor::_bind_methods() {
 
-    BIND_METHOD(AnimationPlayerEditor,_animation_player_changed);
-    BIND_METHOD(AnimationPlayerEditor,_unhandled_key_input);
+    SE_BIND_METHOD(AnimationPlayerEditor,_animation_player_changed);
+    SE_BIND_METHOD(AnimationPlayerEditor,_unhandled_key_input);
 
-    BIND_METHOD(AnimationPlayerEditor,_start_onion_skinning);
-    BIND_METHOD(AnimationPlayerEditor,_stop_onion_skinning);
+    SE_BIND_METHOD(AnimationPlayerEditor,_start_onion_skinning);
+    SE_BIND_METHOD(AnimationPlayerEditor,_stop_onion_skinning);
 
 }
 

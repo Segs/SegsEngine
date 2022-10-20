@@ -140,7 +140,7 @@ void InstancePlaceholder::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_stored_values", {"with_order"}), &InstancePlaceholder::get_stored_values, {DEFVAL(false)});
 //    MethodBinder::bind_method(D_METHOD("create_instance", {"replace", "custom_scene"}), &InstancePlaceholder::create_instance, {DEFVAL(false), DEFVAL(Variant())});
-    BIND_METHOD(InstancePlaceholder,get_instance_path);
+    SE_BIND_METHOD(InstancePlaceholder,get_instance_path);
 }
 
 InstancePlaceholder::InstancePlaceholder() {

@@ -944,34 +944,34 @@ void SurfaceTool::clear() {
 
 void SurfaceTool::_bind_methods() {
 
-    BIND_METHOD(SurfaceTool,begin);
+    SE_BIND_METHOD(SurfaceTool,begin);
 
-    BIND_METHOD(SurfaceTool,add_vertex);
-    BIND_METHOD(SurfaceTool,add_color);
-    BIND_METHOD(SurfaceTool,add_normal);
-    BIND_METHOD(SurfaceTool,add_tangent);
-    BIND_METHOD(SurfaceTool,add_uv);
-    BIND_METHOD(SurfaceTool,add_uv2);
-    BIND_METHOD(SurfaceTool,add_bones);
-    BIND_METHOD(SurfaceTool,add_weights);
-    BIND_METHOD(SurfaceTool,add_smooth_group);
+    SE_BIND_METHOD(SurfaceTool,add_vertex);
+    SE_BIND_METHOD(SurfaceTool,add_color);
+    SE_BIND_METHOD(SurfaceTool,add_normal);
+    SE_BIND_METHOD(SurfaceTool,add_tangent);
+    SE_BIND_METHOD(SurfaceTool,add_uv);
+    SE_BIND_METHOD(SurfaceTool,add_uv2);
+    SE_BIND_METHOD(SurfaceTool,add_bones);
+    SE_BIND_METHOD(SurfaceTool,add_weights);
+    SE_BIND_METHOD(SurfaceTool,add_smooth_group);
 
     MethodBinder::bind_method(D_METHOD("add_triangle_fan", {"vertices", "uvs", "colors", "uv2s", "normals", "tangents"}), &SurfaceTool::add_triangle_fan, {DEFVAL(Vector<Vector2>()), DEFVAL(Vector<Color>()), DEFVAL(Vector<Vector2>()), DEFVAL(Vector<Vector3>()), DEFVAL(Vector<Plane>())});
 
-    BIND_METHOD(SurfaceTool,add_index);
+    SE_BIND_METHOD(SurfaceTool,add_index);
 
-    BIND_METHOD(SurfaceTool,index);
-    BIND_METHOD(SurfaceTool,deindex);
+    SE_BIND_METHOD(SurfaceTool,index);
+    SE_BIND_METHOD(SurfaceTool,deindex);
     MethodBinder::bind_method(D_METHOD("generate_normals", {"flip"}), &SurfaceTool::generate_normals, {DEFVAL(false)});
-    BIND_METHOD(SurfaceTool,generate_tangents);
+    SE_BIND_METHOD(SurfaceTool,generate_tangents);
 
-    BIND_METHOD(SurfaceTool,set_material);
+    SE_BIND_METHOD(SurfaceTool,set_material);
 
-    BIND_METHOD(SurfaceTool,clear);
+    SE_BIND_METHOD(SurfaceTool,clear);
 
-    BIND_METHOD(SurfaceTool,create_from);
-    BIND_METHOD(SurfaceTool,create_from_blend_shape);
-    BIND_METHOD(SurfaceTool,append_from);
+    SE_BIND_METHOD(SurfaceTool,create_from);
+    SE_BIND_METHOD(SurfaceTool,create_from_blend_shape);
+    SE_BIND_METHOD(SurfaceTool,append_from);
     MethodBinder::bind_method(D_METHOD("commit", {"existing", "flags"}), &SurfaceTool::commit, {DEFVAL(Variant()), DEFVAL(Mesh::ARRAY_COMPRESS_DEFAULT)});
     MethodBinder::bind_method(D_METHOD("commit_to_arrays"), &SurfaceTool::_commit_to_arrays);
 }

@@ -271,17 +271,17 @@ void SpinBox::apply() {
 }
 void SpinBox::_bind_methods() {
 
-    BIND_METHOD(SpinBox,_gui_input);
-    BIND_METHOD(SpinBox,set_align);
-    BIND_METHOD(SpinBox,get_align);
-    BIND_METHOD(SpinBox,set_suffix);
-    BIND_METHOD(SpinBox,get_suffix);
-    BIND_METHOD(SpinBox,set_prefix);
-    BIND_METHOD(SpinBox,get_prefix);
-    BIND_METHOD(SpinBox,set_editable);
-    BIND_METHOD(SpinBox,is_editable);
-    BIND_METHOD(SpinBox,apply);
-    BIND_METHOD(SpinBox,get_line_edit);
+    SE_BIND_METHOD(SpinBox,_gui_input);
+    SE_BIND_METHOD(SpinBox,set_align);
+    SE_BIND_METHOD(SpinBox,get_align);
+    SE_BIND_METHOD(SpinBox,set_suffix);
+    SE_BIND_METHOD(SpinBox,get_suffix);
+    SE_BIND_METHOD(SpinBox,set_prefix);
+    SE_BIND_METHOD(SpinBox,get_prefix);
+    SE_BIND_METHOD(SpinBox,set_editable);
+    SE_BIND_METHOD(SpinBox,is_editable);
+    SE_BIND_METHOD(SpinBox,apply);
+    SE_BIND_METHOD(SpinBox,get_line_edit);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PropertyHint::Enum, "Left,Center,Right,Fill"), "set_align", "get_align");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editable"), "set_editable", "is_editable");

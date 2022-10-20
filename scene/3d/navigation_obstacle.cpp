@@ -45,10 +45,10 @@ void NavigationObstacle::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_navigation", {"navigation"}),&NavigationObstacle::set_navigation_node);
     MethodBinder::bind_method(D_METHOD("get_navigation"), &NavigationObstacle::get_navigation_node);
-    BIND_METHOD(NavigationObstacle,is_radius_estimated);
-    BIND_METHOD(NavigationObstacle,set_estimate_radius);
-    BIND_METHOD(NavigationObstacle,set_radius);
-    BIND_METHOD(NavigationObstacle,get_radius);
+    SE_BIND_METHOD(NavigationObstacle,is_radius_estimated);
+    SE_BIND_METHOD(NavigationObstacle,set_estimate_radius);
+    SE_BIND_METHOD(NavigationObstacle,set_radius);
+    SE_BIND_METHOD(NavigationObstacle,get_radius);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "estimate_radius"), "set_estimate_radius", "is_radius_estimated");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.01,100,0.01"), "set_radius", "get_radius");

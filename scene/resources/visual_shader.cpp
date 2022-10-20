@@ -374,14 +374,14 @@ StringName VisualShaderNode::get_input_port_default_hint(int p_port) const {
 
 void VisualShaderNode::_bind_methods() {
 
-    BIND_METHOD(VisualShaderNode,set_output_port_for_preview);
-    BIND_METHOD(VisualShaderNode,get_output_port_for_preview);
+    SE_BIND_METHOD(VisualShaderNode,set_output_port_for_preview);
+    SE_BIND_METHOD(VisualShaderNode,get_output_port_for_preview);
 
-    BIND_METHOD(VisualShaderNode,set_input_port_default_value);
-    BIND_METHOD(VisualShaderNode,get_input_port_default_value);
+    SE_BIND_METHOD(VisualShaderNode,set_input_port_default_value);
+    SE_BIND_METHOD(VisualShaderNode,get_input_port_default_value);
 
-    BIND_METHOD(VisualShaderNode,set_default_input_values);
-    BIND_METHOD(VisualShaderNode,get_default_input_values);
+    SE_BIND_METHOD(VisualShaderNode,set_default_input_values);
+    SE_BIND_METHOD(VisualShaderNode,get_default_input_values);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "output_port_for_preview"), "set_output_port_for_preview", "get_output_port_for_preview");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "default_input_values", PropertyHint::None, "",
@@ -565,8 +565,8 @@ void VisualShaderNodeCustom::_bind_methods() {
             PropertyInfo(VariantType::ARRAY, "output_vars"), PropertyInfo(VariantType::INT, "mode"),
             PropertyInfo(VariantType::INT, "type")));
     BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_global_code", PropertyInfo(VariantType::INT, "mode")));
-    BIND_METHOD(VisualShaderNodeCustom,_set_initialized);
-    BIND_METHOD(VisualShaderNodeCustom,_is_initialized);
+    SE_BIND_METHOD(VisualShaderNodeCustom,_set_initialized);
+    SE_BIND_METHOD(VisualShaderNodeCustom,_is_initialized);
     MethodBinder::bind_method(D_METHOD("_set_input_port_default_value", { "port", "value" }),
             &VisualShaderNodeCustom::_set_input_port_default_value);
 
@@ -1558,30 +1558,30 @@ void VisualShader::rebuild() {
 
 void VisualShader::_bind_methods() {
 
-    BIND_METHOD(VisualShader,set_mode);
+    SE_BIND_METHOD(VisualShader,set_mode);
 
-    BIND_METHOD(VisualShader,add_node);
-    BIND_METHOD(VisualShader,get_node);
+    SE_BIND_METHOD(VisualShader,add_node);
+    SE_BIND_METHOD(VisualShader,get_node);
 
-    BIND_METHOD(VisualShader,set_node_position);
-    BIND_METHOD(VisualShader,get_node_position);
+    SE_BIND_METHOD(VisualShader,set_node_position);
+    SE_BIND_METHOD(VisualShader,get_node_position);
 
-    BIND_METHOD(VisualShader,get_node_list);
-    BIND_METHOD(VisualShader,get_valid_node_id);
+    SE_BIND_METHOD(VisualShader,get_node_list);
+    SE_BIND_METHOD(VisualShader,get_valid_node_id);
 
-    BIND_METHOD(VisualShader,remove_node);
+    SE_BIND_METHOD(VisualShader,remove_node);
 
-    BIND_METHOD(VisualShader,is_node_connection);
+    SE_BIND_METHOD(VisualShader,is_node_connection);
     MethodBinder::bind_method(D_METHOD("can_connect_nodes", {"type", "from_node", "from_port", "to_node", "to_port"}), &VisualShader::is_node_connection);
 
-    BIND_METHOD(VisualShader,connect_nodes);
-    BIND_METHOD(VisualShader,disconnect_nodes);
-    BIND_METHOD(VisualShader,connect_nodes_forced);
+    SE_BIND_METHOD(VisualShader,connect_nodes);
+    SE_BIND_METHOD(VisualShader,disconnect_nodes);
+    SE_BIND_METHOD(VisualShader,connect_nodes_forced);
 
     MethodBinder::bind_method(D_METHOD("get_node_connections", {"type"}), &VisualShader::_get_node_connections);
 
-    BIND_METHOD(VisualShader,set_graph_offset);
-    BIND_METHOD(VisualShader,get_graph_offset);
+    SE_BIND_METHOD(VisualShader,set_graph_offset);
+    SE_BIND_METHOD(VisualShader,get_graph_offset);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "graph_offset", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_graph_offset", "get_graph_offset");
     ADD_PROPERTY_DEFAULT("code", ""); // Inherited from Shader, prevents showing default code as override in docs.
@@ -2014,9 +2014,9 @@ Vector<StringName> VisualShaderNodeInput::get_editable_properties() const {
 
 void VisualShaderNodeInput::_bind_methods() {
 
-    BIND_METHOD(VisualShaderNodeInput,set_input_name);
-    BIND_METHOD(VisualShaderNodeInput,get_input_name);
-    BIND_METHOD(VisualShaderNodeInput,get_input_real_name);
+    SE_BIND_METHOD(VisualShaderNodeInput,set_input_name);
+    SE_BIND_METHOD(VisualShaderNodeInput,get_input_name);
+    SE_BIND_METHOD(VisualShaderNodeInput,get_input_real_name);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "input_name", PropertyHint::Enum, ""), "set_input_name", "get_input_name");
     ADD_SIGNAL(MethodInfo("input_type_changed"));
@@ -2193,8 +2193,8 @@ String VisualShaderNodeUniformRef::generate_code(RenderingServerEnums::ShaderMod
 }
 
 void VisualShaderNodeUniformRef::_bind_methods() {
-    BIND_METHOD(VisualShaderNodeUniformRef,set_uniform_name);
-    BIND_METHOD(VisualShaderNodeUniformRef,get_uniform_name);
+    SE_BIND_METHOD(VisualShaderNodeUniformRef,set_uniform_name);
+    SE_BIND_METHOD(VisualShaderNodeUniformRef,get_uniform_name);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "uniform_name", PropertyHint::Enum, ""), "set_uniform_name", "get_uniform_name");
 }
@@ -2406,8 +2406,8 @@ bool VisualShaderNodeUniform::is_global_code_generated() const {
 
 void VisualShaderNodeUniform::_bind_methods() {
 
-    BIND_METHOD(VisualShaderNodeUniform,set_uniform_name);
-    BIND_METHOD(VisualShaderNodeUniform,get_uniform_name);
+    SE_BIND_METHOD(VisualShaderNodeUniform,set_uniform_name);
+    SE_BIND_METHOD(VisualShaderNodeUniform,get_uniform_name);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "uniform_name"), "set_uniform_name", "get_uniform_name");
 }
@@ -2851,36 +2851,36 @@ bool VisualShaderNodeGroupBase::is_editable() const {
 
 void VisualShaderNodeGroupBase::_bind_methods() {
 
-    BIND_METHOD(VisualShaderNodeGroupBase,set_size);
-    BIND_METHOD(VisualShaderNodeGroupBase,get_size);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,set_size);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,get_size);
 
-    BIND_METHOD(VisualShaderNodeGroupBase,set_inputs);
-    BIND_METHOD(VisualShaderNodeGroupBase,get_inputs);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,set_inputs);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,get_inputs);
 
-    BIND_METHOD(VisualShaderNodeGroupBase,set_outputs);
-    BIND_METHOD(VisualShaderNodeGroupBase,get_outputs);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,set_outputs);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,get_outputs);
 
-    BIND_METHOD(VisualShaderNodeGroupBase,is_valid_port_name);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,is_valid_port_name);
 
-    BIND_METHOD(VisualShaderNodeGroupBase,add_input_port);
-    BIND_METHOD(VisualShaderNodeGroupBase,remove_input_port);
-    BIND_METHOD(VisualShaderNodeGroupBase,get_input_port_count);
-    BIND_METHOD(VisualShaderNodeGroupBase,has_input_port);
-    BIND_METHOD(VisualShaderNodeGroupBase,clear_input_ports);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,add_input_port);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,remove_input_port);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,get_input_port_count);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,has_input_port);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,clear_input_ports);
 
-    BIND_METHOD(VisualShaderNodeGroupBase,add_output_port);
-    BIND_METHOD(VisualShaderNodeGroupBase,remove_output_port);
-    BIND_METHOD(VisualShaderNodeGroupBase,get_output_port_count);
-    BIND_METHOD(VisualShaderNodeGroupBase,has_output_port);
-    BIND_METHOD(VisualShaderNodeGroupBase,clear_output_ports);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,add_output_port);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,remove_output_port);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,get_output_port_count);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,has_output_port);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,clear_output_ports);
 
-    BIND_METHOD(VisualShaderNodeGroupBase,set_input_port_name);
-    BIND_METHOD(VisualShaderNodeGroupBase,set_input_port_type);
-    BIND_METHOD(VisualShaderNodeGroupBase,set_output_port_name);
-    BIND_METHOD(VisualShaderNodeGroupBase,set_output_port_type);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,set_input_port_name);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,set_input_port_type);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,set_output_port_name);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,set_output_port_type);
 
-    BIND_METHOD(VisualShaderNodeGroupBase,get_free_input_port_id);
-    BIND_METHOD(VisualShaderNodeGroupBase,get_free_output_port_id);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,get_free_input_port_id);
+    SE_BIND_METHOD(VisualShaderNodeGroupBase,get_free_output_port_id);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "size"), "set_size", "get_size");
 }
@@ -2975,8 +2975,8 @@ String VisualShaderNodeExpression::generate_code(RenderingServerEnums::ShaderMod
 
 void VisualShaderNodeExpression::_bind_methods() {
 
-    BIND_METHOD(VisualShaderNodeExpression,set_expression);
-    BIND_METHOD(VisualShaderNodeExpression,get_expression);
+    SE_BIND_METHOD(VisualShaderNodeExpression,set_expression);
+    SE_BIND_METHOD(VisualShaderNodeExpression,get_expression);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "expression"), "set_expression", "get_expression");
 }

@@ -63,8 +63,8 @@ float AudioEffectPanner::get_pan() const {
 
 void AudioEffectPanner::_bind_methods() {
 
-    BIND_METHOD(AudioEffectPanner,set_pan);
-    BIND_METHOD(AudioEffectPanner,get_pan);
+    SE_BIND_METHOD(AudioEffectPanner,set_pan);
+    SE_BIND_METHOD(AudioEffectPanner,get_pan);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pan", PropertyHint::Range, "-1,1,0.01"), "set_pan", "get_pan");
 }

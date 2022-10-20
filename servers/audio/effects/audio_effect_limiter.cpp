@@ -119,17 +119,17 @@ float AudioEffectLimiter::get_soft_clip_ratio() const {
 
 void AudioEffectLimiter::_bind_methods() {
 
-    BIND_METHOD(AudioEffectLimiter,set_ceiling_db);
-    BIND_METHOD(AudioEffectLimiter,get_ceiling_db);
+    SE_BIND_METHOD(AudioEffectLimiter,set_ceiling_db);
+    SE_BIND_METHOD(AudioEffectLimiter,get_ceiling_db);
 
-    BIND_METHOD(AudioEffectLimiter,set_threshold_db);
-    BIND_METHOD(AudioEffectLimiter,get_threshold_db);
+    SE_BIND_METHOD(AudioEffectLimiter,set_threshold_db);
+    SE_BIND_METHOD(AudioEffectLimiter,get_threshold_db);
 
-    BIND_METHOD(AudioEffectLimiter,set_soft_clip_db);
-    BIND_METHOD(AudioEffectLimiter,get_soft_clip_db);
+    SE_BIND_METHOD(AudioEffectLimiter,set_soft_clip_db);
+    SE_BIND_METHOD(AudioEffectLimiter,get_soft_clip_db);
 
-    BIND_METHOD(AudioEffectLimiter,set_soft_clip_ratio);
-    BIND_METHOD(AudioEffectLimiter,get_soft_clip_ratio);
+    SE_BIND_METHOD(AudioEffectLimiter,set_soft_clip_ratio);
+    SE_BIND_METHOD(AudioEffectLimiter,get_soft_clip_ratio);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "ceiling_db", PropertyHint::Range, "-20,-0.1,0.1"), "set_ceiling_db", "get_ceiling_db");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "threshold_db", PropertyHint::Range, "-30,0,0.1"), "set_threshold_db", "get_threshold_db");

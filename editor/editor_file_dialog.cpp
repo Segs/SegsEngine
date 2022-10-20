@@ -1446,29 +1446,29 @@ EditorFileDialog::DisplayMode EditorFileDialog::get_display_mode() const {
 
 void EditorFileDialog::_bind_methods() {
 
-    BIND_METHOD(EditorFileDialog,_unhandled_input);
+    SE_BIND_METHOD(EditorFileDialog,_unhandled_input);
 
-    BIND_METHOD(EditorFileDialog,clear_filters);
-    BIND_METHOD(EditorFileDialog,add_filter);
-    BIND_METHOD(EditorFileDialog,get_current_dir);
-    BIND_METHOD(EditorFileDialog,get_current_file);
-    BIND_METHOD(EditorFileDialog,get_current_path);
-    BIND_METHOD(EditorFileDialog,set_current_dir);
-    BIND_METHOD(EditorFileDialog,set_current_file);
-    BIND_METHOD(EditorFileDialog,set_current_path);
-    BIND_METHOD(EditorFileDialog,set_mode);
-    BIND_METHOD(EditorFileDialog,get_mode);
-    BIND_METHOD(EditorFileDialog,get_vbox);
-    BIND_METHOD(EditorFileDialog,set_access);
-    BIND_METHOD(EditorFileDialog,get_access);
-    BIND_METHOD(EditorFileDialog,set_show_hidden_files);
-    BIND_METHOD(EditorFileDialog,is_showing_hidden_files);
-    BIND_METHOD(EditorFileDialog,set_display_mode);
-    BIND_METHOD(EditorFileDialog,get_display_mode);
-    BIND_METHOD(EditorFileDialog,set_disable_overwrite_warning);
-    BIND_METHOD(EditorFileDialog,is_overwrite_warning_disabled);
+    SE_BIND_METHOD(EditorFileDialog,clear_filters);
+    SE_BIND_METHOD(EditorFileDialog,add_filter);
+    SE_BIND_METHOD(EditorFileDialog,get_current_dir);
+    SE_BIND_METHOD(EditorFileDialog,get_current_file);
+    SE_BIND_METHOD(EditorFileDialog,get_current_path);
+    SE_BIND_METHOD(EditorFileDialog,set_current_dir);
+    SE_BIND_METHOD(EditorFileDialog,set_current_file);
+    SE_BIND_METHOD(EditorFileDialog,set_current_path);
+    SE_BIND_METHOD(EditorFileDialog,set_mode);
+    SE_BIND_METHOD(EditorFileDialog,get_mode);
+    SE_BIND_METHOD(EditorFileDialog,get_vbox);
+    SE_BIND_METHOD(EditorFileDialog,set_access);
+    SE_BIND_METHOD(EditorFileDialog,get_access);
+    SE_BIND_METHOD(EditorFileDialog,set_show_hidden_files);
+    SE_BIND_METHOD(EditorFileDialog,is_showing_hidden_files);
+    SE_BIND_METHOD(EditorFileDialog,set_display_mode);
+    SE_BIND_METHOD(EditorFileDialog,get_display_mode);
+    SE_BIND_METHOD(EditorFileDialog,set_disable_overwrite_warning);
+    SE_BIND_METHOD(EditorFileDialog,is_overwrite_warning_disabled);
 
-    BIND_METHOD(EditorFileDialog,invalidate);
+    SE_BIND_METHOD(EditorFileDialog,invalidate);
 
     ADD_SIGNAL(MethodInfo("file_selected", PropertyInfo(VariantType::STRING, "path")));
     ADD_SIGNAL(MethodInfo("files_selected", PropertyInfo(VariantType::POOL_STRING_ARRAY, "paths")));
@@ -1811,9 +1811,9 @@ void EditorLineEditFileChooser::_notification(int p_what) {
 
 void EditorLineEditFileChooser::_bind_methods() {
 
-    BIND_METHOD(EditorLineEditFileChooser,get_button);
-    BIND_METHOD(EditorLineEditFileChooser,get_line_edit);
-    BIND_METHOD(EditorLineEditFileChooser,get_file_dialog);
+    SE_BIND_METHOD(EditorLineEditFileChooser,get_button);
+    SE_BIND_METHOD(EditorLineEditFileChooser,get_line_edit);
+    SE_BIND_METHOD(EditorLineEditFileChooser,get_file_dialog);
 }
 
 void EditorLineEditFileChooser::_chosen(StringView p_text) {

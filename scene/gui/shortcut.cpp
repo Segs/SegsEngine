@@ -66,13 +66,13 @@ bool ShortCut::is_valid() const {
 
 void ShortCut::_bind_methods() {
 
-    BIND_METHOD(ShortCut,set_shortcut);
-    BIND_METHOD(ShortCut,get_shortcut);
+    SE_BIND_METHOD(ShortCut,set_shortcut);
+    SE_BIND_METHOD(ShortCut,get_shortcut);
 
-    BIND_METHOD(ShortCut,is_valid);
+    SE_BIND_METHOD(ShortCut,is_valid);
 
-    BIND_METHOD(ShortCut,is_shortcut);
-    BIND_METHOD(ShortCut,get_as_text);
+    SE_BIND_METHOD(ShortCut,is_shortcut);
+    SE_BIND_METHOD(ShortCut,get_as_text);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shortcut", PropertyHint::ResourceType, "InputEvent"), "set_shortcut", "get_shortcut");
 }

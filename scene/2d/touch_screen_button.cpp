@@ -373,36 +373,36 @@ bool TouchScreenButton::is_passby_press_enabled() const {
 
 void TouchScreenButton::_bind_methods() {
 
-    BIND_METHOD(TouchScreenButton,set_texture);
-    BIND_METHOD(TouchScreenButton,get_texture);
+    SE_BIND_METHOD(TouchScreenButton,set_texture);
+    SE_BIND_METHOD(TouchScreenButton,get_texture);
 
-    BIND_METHOD(TouchScreenButton,set_texture_pressed);
-    BIND_METHOD(TouchScreenButton,get_texture_pressed);
+    SE_BIND_METHOD(TouchScreenButton,set_texture_pressed);
+    SE_BIND_METHOD(TouchScreenButton,get_texture_pressed);
 
-    BIND_METHOD(TouchScreenButton,set_bitmask);
-    BIND_METHOD(TouchScreenButton,get_bitmask);
+    SE_BIND_METHOD(TouchScreenButton,set_bitmask);
+    SE_BIND_METHOD(TouchScreenButton,get_bitmask);
 
-    BIND_METHOD(TouchScreenButton,set_shape);
-    BIND_METHOD(TouchScreenButton,get_shape);
+    SE_BIND_METHOD(TouchScreenButton,set_shape);
+    SE_BIND_METHOD(TouchScreenButton,get_shape);
 
-    BIND_METHOD(TouchScreenButton,set_shape_centered);
-    BIND_METHOD(TouchScreenButton,is_shape_centered);
+    SE_BIND_METHOD(TouchScreenButton,set_shape_centered);
+    SE_BIND_METHOD(TouchScreenButton,is_shape_centered);
 
-    BIND_METHOD(TouchScreenButton,set_shape_visible);
-    BIND_METHOD(TouchScreenButton,is_shape_visible);
+    SE_BIND_METHOD(TouchScreenButton,set_shape_visible);
+    SE_BIND_METHOD(TouchScreenButton,is_shape_visible);
 
-    BIND_METHOD(TouchScreenButton,set_action);
-    BIND_METHOD(TouchScreenButton,get_action);
+    SE_BIND_METHOD(TouchScreenButton,set_action);
+    SE_BIND_METHOD(TouchScreenButton,get_action);
 
-    BIND_METHOD(TouchScreenButton,set_visibility_mode);
-    BIND_METHOD(TouchScreenButton,get_visibility_mode);
+    SE_BIND_METHOD(TouchScreenButton,set_visibility_mode);
+    SE_BIND_METHOD(TouchScreenButton,get_visibility_mode);
 
-    BIND_METHOD(TouchScreenButton,set_passby_press);
-    BIND_METHOD(TouchScreenButton,is_passby_press_enabled);
+    SE_BIND_METHOD(TouchScreenButton,set_passby_press);
+    SE_BIND_METHOD(TouchScreenButton,is_passby_press_enabled);
 
-    BIND_METHOD(TouchScreenButton,is_pressed);
+    SE_BIND_METHOD(TouchScreenButton,is_pressed);
 
-    BIND_METHOD(TouchScreenButton,_input);
+    SE_BIND_METHOD(TouchScreenButton,_input);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "pressed", PropertyHint::ResourceType, "Texture"), "set_texture_pressed", "get_texture_pressed");

@@ -582,15 +582,15 @@ void DynamicFontData::set_override_oversampling(float p_oversampling) {
 }
 
 void DynamicFontData::_bind_methods() {
-    BIND_METHOD(DynamicFontData,set_antialiased);
-    BIND_METHOD(DynamicFontData,is_antialiased);
-    BIND_METHOD(DynamicFontData,set_font_path);
-    BIND_METHOD(DynamicFontData,get_font_path);
-    BIND_METHOD(DynamicFontData,set_hinting);
-    BIND_METHOD(DynamicFontData,get_hinting);
+    SE_BIND_METHOD(DynamicFontData,set_antialiased);
+    SE_BIND_METHOD(DynamicFontData,is_antialiased);
+    SE_BIND_METHOD(DynamicFontData,set_font_path);
+    SE_BIND_METHOD(DynamicFontData,get_font_path);
+    SE_BIND_METHOD(DynamicFontData,set_hinting);
+    SE_BIND_METHOD(DynamicFontData,get_hinting);
 
-    BIND_METHOD(DynamicFontData,get_override_oversampling);
-    BIND_METHOD(DynamicFontData,set_override_oversampling);
+    SE_BIND_METHOD(DynamicFontData,get_override_oversampling);
+    SE_BIND_METHOD(DynamicFontData,set_override_oversampling);
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "antialiased"), "set_antialiased", "is_antialiased");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "hinting", PropertyHint::Enum, "None,Light,Normal"), "set_hinting", "get_hinting");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "override_oversampling"), "set_override_oversampling", "get_override_oversampling");
@@ -1388,32 +1388,32 @@ void DynamicFont::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
 void DynamicFont::_bind_methods() {
 
-    BIND_METHOD(DynamicFont,set_font_data);
-    BIND_METHOD(DynamicFont,get_font_data);
+    SE_BIND_METHOD(DynamicFont,set_font_data);
+    SE_BIND_METHOD(DynamicFont,get_font_data);
 
-    BIND_METHOD(DynamicFont,get_available_chars);
+    SE_BIND_METHOD(DynamicFont,get_available_chars);
 
-    BIND_METHOD(DynamicFont,set_size);
-    BIND_METHOD(DynamicFont,get_size);
+    SE_BIND_METHOD(DynamicFont,set_size);
+    SE_BIND_METHOD(DynamicFont,get_size);
 
-    BIND_METHOD(DynamicFont,set_outline_size);
-    BIND_METHOD(DynamicFont,get_outline_size);
+    SE_BIND_METHOD(DynamicFont,set_outline_size);
+    SE_BIND_METHOD(DynamicFont,get_outline_size);
 
-    BIND_METHOD(DynamicFont,set_outline_color);
-    BIND_METHOD(DynamicFont,get_outline_color);
+    SE_BIND_METHOD(DynamicFont,set_outline_color);
+    SE_BIND_METHOD(DynamicFont,get_outline_color);
 
-    BIND_METHOD(DynamicFont,set_use_mipmaps);
-    BIND_METHOD(DynamicFont,get_use_mipmaps);
-    BIND_METHOD(DynamicFont,set_use_filter);
-    BIND_METHOD(DynamicFont,get_use_filter);
-    BIND_METHOD(DynamicFont,set_spacing);
-    BIND_METHOD(DynamicFont,get_spacing);
+    SE_BIND_METHOD(DynamicFont,set_use_mipmaps);
+    SE_BIND_METHOD(DynamicFont,get_use_mipmaps);
+    SE_BIND_METHOD(DynamicFont,set_use_filter);
+    SE_BIND_METHOD(DynamicFont,get_use_filter);
+    SE_BIND_METHOD(DynamicFont,set_spacing);
+    SE_BIND_METHOD(DynamicFont,get_spacing);
 
-    BIND_METHOD(DynamicFont,add_fallback);
-    BIND_METHOD(DynamicFont,set_fallback);
-    BIND_METHOD(DynamicFont,get_fallback);
-    BIND_METHOD(DynamicFont,remove_fallback);
-    BIND_METHOD(DynamicFont,get_fallback_count);
+    SE_BIND_METHOD(DynamicFont,add_fallback);
+    SE_BIND_METHOD(DynamicFont,set_fallback);
+    SE_BIND_METHOD(DynamicFont,get_fallback);
+    SE_BIND_METHOD(DynamicFont,remove_fallback);
+    SE_BIND_METHOD(DynamicFont,get_fallback_count);
 
     ADD_GROUP("Settings", "stng_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "stng_size", PropertyHint::Range, "1,1024,1"), "set_size", "get_size");

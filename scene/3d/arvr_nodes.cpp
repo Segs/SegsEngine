@@ -250,25 +250,25 @@ void ARVRController::_notification(int p_what) {
 }
 
 void ARVRController::_bind_methods() {
-    BIND_METHOD(ARVRController,set_controller_id);
-    BIND_METHOD(ARVRController,get_controller_id);
+    SE_BIND_METHOD(ARVRController,set_controller_id);
+    SE_BIND_METHOD(ARVRController,get_controller_id);
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "controller_id", PropertyHint::Range, "0,32,1"), "set_controller_id", "get_controller_id");
-    BIND_METHOD(ARVRController,get_controller_name);
+    SE_BIND_METHOD(ARVRController,get_controller_name);
 
     // passthroughs to information about our related joystick
-    BIND_METHOD(ARVRController,get_joystick_id);
-    BIND_METHOD(ARVRController,is_button_pressed);
-    BIND_METHOD(ARVRController,get_joystick_axis);
+    SE_BIND_METHOD(ARVRController,get_joystick_id);
+    SE_BIND_METHOD(ARVRController,is_button_pressed);
+    SE_BIND_METHOD(ARVRController,get_joystick_axis);
 
-    BIND_METHOD(ARVRController,get_is_active);
-    BIND_METHOD(ARVRController,get_hand);
+    SE_BIND_METHOD(ARVRController,get_is_active);
+    SE_BIND_METHOD(ARVRController,get_hand);
 
-    BIND_METHOD(ARVRController,get_rumble);
-    BIND_METHOD(ARVRController,set_rumble);
+    SE_BIND_METHOD(ARVRController,get_rumble);
+    SE_BIND_METHOD(ARVRController,set_rumble);
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rumble", PropertyHint::Range, "0.0,1.0,0.01"), "set_rumble", "get_rumble");
     ADD_PROPERTY_DEFAULT("rumble", 0.0);
 
-    BIND_METHOD(ARVRController,get_mesh);
+    SE_BIND_METHOD(ARVRController,get_mesh);
 
     ADD_SIGNAL(MethodInfo("button_pressed", PropertyInfo(VariantType::INT, "button")));
     ADD_SIGNAL(MethodInfo("button_release", PropertyInfo(VariantType::INT, "button")));
@@ -464,17 +464,17 @@ void ARVRAnchor::_notification(int p_what) {
 
 void ARVRAnchor::_bind_methods() {
 
-    BIND_METHOD(ARVRAnchor,set_anchor_id);
-    BIND_METHOD(ARVRAnchor,get_anchor_id);
+    SE_BIND_METHOD(ARVRAnchor,set_anchor_id);
+    SE_BIND_METHOD(ARVRAnchor,get_anchor_id);
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "anchor_id", PropertyHint::Range, "0,32,1"), "set_anchor_id", "get_anchor_id");
-    BIND_METHOD(ARVRAnchor,get_anchor_name);
+    SE_BIND_METHOD(ARVRAnchor,get_anchor_name);
 
-    BIND_METHOD(ARVRAnchor,get_is_active);
-    BIND_METHOD(ARVRAnchor,get_size);
+    SE_BIND_METHOD(ARVRAnchor,get_is_active);
+    SE_BIND_METHOD(ARVRAnchor,get_size);
 
-    BIND_METHOD(ARVRAnchor,get_plane);
+    SE_BIND_METHOD(ARVRAnchor,get_plane);
 
-    BIND_METHOD(ARVRAnchor,get_mesh);
+    SE_BIND_METHOD(ARVRAnchor,get_mesh);
     ADD_SIGNAL(MethodInfo("mesh_updated", PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh")));
 }
 
@@ -574,8 +574,8 @@ String ARVROrigin::get_configuration_warning() const {
 }
 
 void ARVROrigin::_bind_methods() {
-    BIND_METHOD(ARVROrigin,set_world_scale);
-    BIND_METHOD(ARVROrigin,get_world_scale);
+    SE_BIND_METHOD(ARVROrigin,set_world_scale);
+    SE_BIND_METHOD(ARVROrigin,get_world_scale);
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "world_scale"), "set_world_scale", "get_world_scale");
 }
 

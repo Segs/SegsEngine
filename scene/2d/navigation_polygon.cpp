@@ -332,28 +332,28 @@ void NavigationPolygon::make_polygons_from_outlines() {
 
 void NavigationPolygon::_bind_methods() {
 
-    BIND_METHOD(NavigationPolygon,set_vertices);
-    BIND_METHOD(NavigationPolygon,get_vertices);
+    SE_BIND_METHOD(NavigationPolygon,set_vertices);
+    SE_BIND_METHOD(NavigationPolygon,get_vertices);
 
-    BIND_METHOD(NavigationPolygon,add_polygon);
-    BIND_METHOD(NavigationPolygon,get_polygon_count);
-    BIND_METHOD(NavigationPolygon,get_polygon);
-    BIND_METHOD(NavigationPolygon,clear_polygons);
+    SE_BIND_METHOD(NavigationPolygon,add_polygon);
+    SE_BIND_METHOD(NavigationPolygon,get_polygon_count);
+    SE_BIND_METHOD(NavigationPolygon,get_polygon);
+    SE_BIND_METHOD(NavigationPolygon,clear_polygons);
 
-    BIND_METHOD(NavigationPolygon,add_outline);
-    BIND_METHOD(NavigationPolygon,add_outline_at_index);
-    BIND_METHOD(NavigationPolygon,get_outline_count);
-    BIND_METHOD(NavigationPolygon,set_outline);
-    BIND_METHOD(NavigationPolygon,get_outline);
-    BIND_METHOD(NavigationPolygon,remove_outline);
-    BIND_METHOD(NavigationPolygon,clear_outlines);
-    BIND_METHOD(NavigationPolygon,make_polygons_from_outlines);
+    SE_BIND_METHOD(NavigationPolygon,add_outline);
+    SE_BIND_METHOD(NavigationPolygon,add_outline_at_index);
+    SE_BIND_METHOD(NavigationPolygon,get_outline_count);
+    SE_BIND_METHOD(NavigationPolygon,set_outline);
+    SE_BIND_METHOD(NavigationPolygon,get_outline);
+    SE_BIND_METHOD(NavigationPolygon,remove_outline);
+    SE_BIND_METHOD(NavigationPolygon,clear_outlines);
+    SE_BIND_METHOD(NavigationPolygon,make_polygons_from_outlines);
 
-    BIND_METHOD(NavigationPolygon,_set_polygons);
-    BIND_METHOD(NavigationPolygon,_get_polygons);
+    SE_BIND_METHOD(NavigationPolygon,_set_polygons);
+    SE_BIND_METHOD(NavigationPolygon,_get_polygons);
 
-    BIND_METHOD(NavigationPolygon,_set_outlines);
-    BIND_METHOD(NavigationPolygon,_get_outlines);
+    SE_BIND_METHOD(NavigationPolygon,_set_outlines);
+    SE_BIND_METHOD(NavigationPolygon,_get_outlines);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "vertices", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_vertices", "get_vertices");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "polygons", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_polygons", "_get_polygons");
@@ -545,13 +545,13 @@ String NavigationPolygonInstance::get_configuration_warning() const {
 
 void NavigationPolygonInstance::_bind_methods() {
 
-    BIND_METHOD(NavigationPolygonInstance,set_navigation_polygon);
-    BIND_METHOD(NavigationPolygonInstance,get_navigation_polygon);
+    SE_BIND_METHOD(NavigationPolygonInstance,set_navigation_polygon);
+    SE_BIND_METHOD(NavigationPolygonInstance,get_navigation_polygon);
 
-    BIND_METHOD(NavigationPolygonInstance,set_enabled);
-    BIND_METHOD(NavigationPolygonInstance,is_enabled);
+    SE_BIND_METHOD(NavigationPolygonInstance,set_enabled);
+    SE_BIND_METHOD(NavigationPolygonInstance,is_enabled);
 
-    BIND_METHOD(NavigationPolygonInstance,_navpoly_changed);
+    SE_BIND_METHOD(NavigationPolygonInstance,_navpoly_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "navpoly", PropertyHint::ResourceType, "NavigationPolygon"), "set_navigation_polygon", "get_navigation_polygon");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enabled"), "set_enabled", "is_enabled");

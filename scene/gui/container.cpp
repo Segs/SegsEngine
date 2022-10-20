@@ -187,11 +187,11 @@ String Container::get_configuration_warning() const {
 
 void Container::_bind_methods() {
 
-    BIND_METHOD(Container,_sort_children);
-    BIND_METHOD(Container,_child_minsize_changed);
+    SE_BIND_METHOD(Container,_sort_children);
+    SE_BIND_METHOD(Container,_child_minsize_changed);
 
-    BIND_METHOD(Container,queue_sort);
-    BIND_METHOD(Container,fit_child_in_rect);
+    SE_BIND_METHOD(Container,queue_sort);
+    SE_BIND_METHOD(Container,fit_child_in_rect);
 
     BIND_CONSTANT(NOTIFICATION_SORT_CHILDREN)
     ADD_SIGNAL(MethodInfo("sort_children"));

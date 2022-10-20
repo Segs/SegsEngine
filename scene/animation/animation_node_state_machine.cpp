@@ -109,23 +109,23 @@ int AnimationNodeStateMachineTransition::get_priority() const {
 }
 
 void AnimationNodeStateMachineTransition::_bind_methods() {
-    BIND_METHOD(AnimationNodeStateMachineTransition,set_switch_mode);
-    BIND_METHOD(AnimationNodeStateMachineTransition,get_switch_mode);
+    SE_BIND_METHOD(AnimationNodeStateMachineTransition,set_switch_mode);
+    SE_BIND_METHOD(AnimationNodeStateMachineTransition,get_switch_mode);
 
-    BIND_METHOD(AnimationNodeStateMachineTransition,set_auto_advance);
-    BIND_METHOD(AnimationNodeStateMachineTransition,has_auto_advance);
+    SE_BIND_METHOD(AnimationNodeStateMachineTransition,set_auto_advance);
+    SE_BIND_METHOD(AnimationNodeStateMachineTransition,has_auto_advance);
 
-    BIND_METHOD(AnimationNodeStateMachineTransition,set_advance_condition);
-    BIND_METHOD(AnimationNodeStateMachineTransition,get_advance_condition);
+    SE_BIND_METHOD(AnimationNodeStateMachineTransition,set_advance_condition);
+    SE_BIND_METHOD(AnimationNodeStateMachineTransition,get_advance_condition);
 
-    BIND_METHOD(AnimationNodeStateMachineTransition,set_xfade_time);
-    BIND_METHOD(AnimationNodeStateMachineTransition,get_xfade_time);
+    SE_BIND_METHOD(AnimationNodeStateMachineTransition,set_xfade_time);
+    SE_BIND_METHOD(AnimationNodeStateMachineTransition,get_xfade_time);
 
-    BIND_METHOD(AnimationNodeStateMachineTransition,set_disabled);
-    BIND_METHOD(AnimationNodeStateMachineTransition,is_disabled);
+    SE_BIND_METHOD(AnimationNodeStateMachineTransition,set_disabled);
+    SE_BIND_METHOD(AnimationNodeStateMachineTransition,is_disabled);
 
-    BIND_METHOD(AnimationNodeStateMachineTransition,set_priority);
-    BIND_METHOD(AnimationNodeStateMachineTransition,get_priority);
+    SE_BIND_METHOD(AnimationNodeStateMachineTransition,set_priority);
+    SE_BIND_METHOD(AnimationNodeStateMachineTransition,get_priority);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "switch_mode", PropertyHint::Enum, "Immediate,Sync,AtEnd"), "set_switch_mode", "get_switch_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "auto_advance"), "set_auto_advance", "has_auto_advance");
@@ -517,14 +517,14 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *p_st
 
 void AnimationNodeStateMachinePlayback::_bind_methods() {
 
-    BIND_METHOD(AnimationNodeStateMachinePlayback,travel);
-    BIND_METHOD(AnimationNodeStateMachinePlayback,start);
-    BIND_METHOD(AnimationNodeStateMachinePlayback,stop);
-    BIND_METHOD(AnimationNodeStateMachinePlayback,is_playing);
-    BIND_METHOD(AnimationNodeStateMachinePlayback,get_current_node);
-    BIND_METHOD(AnimationNodeStateMachinePlayback,get_current_play_position);
-    BIND_METHOD(AnimationNodeStateMachinePlayback,get_current_length);
-    BIND_METHOD(AnimationNodeStateMachinePlayback,get_travel_path);
+    SE_BIND_METHOD(AnimationNodeStateMachinePlayback,travel);
+    SE_BIND_METHOD(AnimationNodeStateMachinePlayback,start);
+    SE_BIND_METHOD(AnimationNodeStateMachinePlayback,stop);
+    SE_BIND_METHOD(AnimationNodeStateMachinePlayback,is_playing);
+    SE_BIND_METHOD(AnimationNodeStateMachinePlayback,get_current_node);
+    SE_BIND_METHOD(AnimationNodeStateMachinePlayback,get_current_play_position);
+    SE_BIND_METHOD(AnimationNodeStateMachinePlayback,get_current_length);
+    SE_BIND_METHOD(AnimationNodeStateMachinePlayback,get_travel_path);
 }
 
 AnimationNodeStateMachinePlayback::AnimationNodeStateMachinePlayback() {
@@ -981,33 +981,33 @@ void AnimationNodeStateMachine::_tree_changed() {
 void AnimationNodeStateMachine::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_node", {"name", "node", "position"}), &AnimationNodeStateMachine::add_node, {DEFVAL(Vector2())});
-    BIND_METHOD(AnimationNodeStateMachine,replace_node);
-    BIND_METHOD(AnimationNodeStateMachine,get_node);
-    BIND_METHOD(AnimationNodeStateMachine,remove_node);
-    BIND_METHOD(AnimationNodeStateMachine,rename_node);
-    BIND_METHOD(AnimationNodeStateMachine,has_node);
-    BIND_METHOD(AnimationNodeStateMachine,get_node_name);
+    SE_BIND_METHOD(AnimationNodeStateMachine,replace_node);
+    SE_BIND_METHOD(AnimationNodeStateMachine,get_node);
+    SE_BIND_METHOD(AnimationNodeStateMachine,remove_node);
+    SE_BIND_METHOD(AnimationNodeStateMachine,rename_node);
+    SE_BIND_METHOD(AnimationNodeStateMachine,has_node);
+    SE_BIND_METHOD(AnimationNodeStateMachine,get_node_name);
 
-    BIND_METHOD(AnimationNodeStateMachine,set_node_position);
-    BIND_METHOD(AnimationNodeStateMachine,get_node_position);
+    SE_BIND_METHOD(AnimationNodeStateMachine,set_node_position);
+    SE_BIND_METHOD(AnimationNodeStateMachine,get_node_position);
 
-    BIND_METHOD(AnimationNodeStateMachine,has_transition);
-    BIND_METHOD(AnimationNodeStateMachine,add_transition);
-    BIND_METHOD(AnimationNodeStateMachine,get_transition);
-    BIND_METHOD(AnimationNodeStateMachine,get_transition_from);
-    BIND_METHOD(AnimationNodeStateMachine,get_transition_to);
-    BIND_METHOD(AnimationNodeStateMachine,get_transition_count);
-    BIND_METHOD(AnimationNodeStateMachine,remove_transition_by_index);
-    BIND_METHOD(AnimationNodeStateMachine,remove_transition);
+    SE_BIND_METHOD(AnimationNodeStateMachine,has_transition);
+    SE_BIND_METHOD(AnimationNodeStateMachine,add_transition);
+    SE_BIND_METHOD(AnimationNodeStateMachine,get_transition);
+    SE_BIND_METHOD(AnimationNodeStateMachine,get_transition_from);
+    SE_BIND_METHOD(AnimationNodeStateMachine,get_transition_to);
+    SE_BIND_METHOD(AnimationNodeStateMachine,get_transition_count);
+    SE_BIND_METHOD(AnimationNodeStateMachine,remove_transition_by_index);
+    SE_BIND_METHOD(AnimationNodeStateMachine,remove_transition);
 
-    BIND_METHOD(AnimationNodeStateMachine,set_start_node);
-    BIND_METHOD(AnimationNodeStateMachine,get_start_node);
+    SE_BIND_METHOD(AnimationNodeStateMachine,set_start_node);
+    SE_BIND_METHOD(AnimationNodeStateMachine,get_start_node);
 
-    BIND_METHOD(AnimationNodeStateMachine,set_end_node);
-    BIND_METHOD(AnimationNodeStateMachine,get_end_node);
+    SE_BIND_METHOD(AnimationNodeStateMachine,set_end_node);
+    SE_BIND_METHOD(AnimationNodeStateMachine,get_end_node);
 
-    BIND_METHOD(AnimationNodeStateMachine,set_graph_offset);
-    BIND_METHOD(AnimationNodeStateMachine,get_graph_offset);
+    SE_BIND_METHOD(AnimationNodeStateMachine,set_graph_offset);
+    SE_BIND_METHOD(AnimationNodeStateMachine,get_graph_offset);
 
 }
 

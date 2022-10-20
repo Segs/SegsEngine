@@ -288,17 +288,17 @@ bool Slider::is_scrollable() const {
 
 void Slider::_bind_methods() {
 
-    BIND_METHOD(Slider,_gui_input);
-    BIND_METHOD(Slider,set_ticks);
-    BIND_METHOD(Slider,get_ticks);
+    SE_BIND_METHOD(Slider,_gui_input);
+    SE_BIND_METHOD(Slider,set_ticks);
+    SE_BIND_METHOD(Slider,get_ticks);
 
-    BIND_METHOD(Slider,get_ticks_on_borders);
-    BIND_METHOD(Slider,set_ticks_on_borders);
+    SE_BIND_METHOD(Slider,get_ticks_on_borders);
+    SE_BIND_METHOD(Slider,set_ticks_on_borders);
 
-    BIND_METHOD(Slider,set_editable);
-    BIND_METHOD(Slider,is_editable);
-    BIND_METHOD(Slider,set_scrollable);
-    BIND_METHOD(Slider,is_scrollable);
+    SE_BIND_METHOD(Slider,set_editable);
+    SE_BIND_METHOD(Slider,is_editable);
+    SE_BIND_METHOD(Slider,set_scrollable);
+    SE_BIND_METHOD(Slider,is_scrollable);
     ADD_SIGNAL(MethodInfo("drag_started"));
     ADD_SIGNAL(MethodInfo("drag_ended", PropertyInfo(VariantType::BOOL, "value_changed")));
 

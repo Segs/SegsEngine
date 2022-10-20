@@ -143,9 +143,9 @@ bool VisibilityNotifier2D::is_on_screen() const {
 
 void VisibilityNotifier2D::_bind_methods() {
 
-    BIND_METHOD(VisibilityNotifier2D,set_rect);
-    BIND_METHOD(VisibilityNotifier2D,get_rect);
-    BIND_METHOD(VisibilityNotifier2D,is_on_screen);
+    SE_BIND_METHOD(VisibilityNotifier2D,set_rect);
+    SE_BIND_METHOD(VisibilityNotifier2D,get_rect);
+    SE_BIND_METHOD(VisibilityNotifier2D,is_on_screen);
 
     ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "rect"), "set_rect", "get_rect");
 
@@ -364,8 +364,8 @@ String VisibilityEnabler2D::get_configuration_warning() const {
 
 void VisibilityEnabler2D::_bind_methods() {
 
-    BIND_METHOD(VisibilityEnabler2D,set_enabler);
-    BIND_METHOD(VisibilityEnabler2D,is_enabler_enabled);
+    SE_BIND_METHOD(VisibilityEnabler2D,set_enabler);
+    SE_BIND_METHOD(VisibilityEnabler2D,is_enabler_enabled);
 
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "pause_animations"), "set_enabler", "is_enabler_enabled", ENABLER_PAUSE_ANIMATIONS);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "freeze_bodies"), "set_enabler", "is_enabler_enabled", ENABLER_FREEZE_BODIES);

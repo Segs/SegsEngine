@@ -237,36 +237,36 @@ RenderingEntity BakedLightmapData::get_rid() const {
 }
 void BakedLightmapData::_bind_methods() {
 
-    BIND_METHOD(BakedLightmapData,_set_user_data);
-    BIND_METHOD(BakedLightmapData,_get_user_data);
+    SE_BIND_METHOD(BakedLightmapData,_set_user_data);
+    SE_BIND_METHOD(BakedLightmapData,_get_user_data);
 
-    BIND_METHOD(BakedLightmapData,set_bounds);
-    BIND_METHOD(BakedLightmapData,get_bounds);
+    SE_BIND_METHOD(BakedLightmapData,set_bounds);
+    SE_BIND_METHOD(BakedLightmapData,get_bounds);
 
     MethodBinder::bind_method(
             D_METHOD("set_cell_space_transform", { "xform" }), &BakedLightmapData::set_cell_space_transform);
-    BIND_METHOD(BakedLightmapData,get_cell_space_transform);
+    SE_BIND_METHOD(BakedLightmapData,get_cell_space_transform);
 
-    BIND_METHOD(BakedLightmapData,set_cell_subdiv);
-    BIND_METHOD(BakedLightmapData,get_cell_subdiv);
+    SE_BIND_METHOD(BakedLightmapData,set_cell_subdiv);
+    SE_BIND_METHOD(BakedLightmapData,get_cell_subdiv);
 
-    BIND_METHOD(BakedLightmapData,set_octree);
-    BIND_METHOD(BakedLightmapData,get_octree);
+    SE_BIND_METHOD(BakedLightmapData,set_octree);
+    SE_BIND_METHOD(BakedLightmapData,get_octree);
 
-    BIND_METHOD(BakedLightmapData,set_energy);
-    BIND_METHOD(BakedLightmapData,get_energy);
+    SE_BIND_METHOD(BakedLightmapData,set_energy);
+    SE_BIND_METHOD(BakedLightmapData,get_energy);
 
-    BIND_METHOD(BakedLightmapData,set_interior);
-    BIND_METHOD(BakedLightmapData,is_interior);
+    SE_BIND_METHOD(BakedLightmapData,set_interior);
+    SE_BIND_METHOD(BakedLightmapData,is_interior);
 
     MethodBinder::bind_method(
             D_METHOD("add_user", { "path", "lightmap", "lightmap_slice", "lightmap_uv_rect", "instance" }),
             &BakedLightmapData::add_user);
-    BIND_METHOD(BakedLightmapData,get_user_count);
-    BIND_METHOD(BakedLightmapData,get_user_path);
-    BIND_METHOD(BakedLightmapData,get_user_lightmap);
-    BIND_METHOD(BakedLightmapData,clear_users);
-    BIND_METHOD(BakedLightmapData,clear_data);
+    SE_BIND_METHOD(BakedLightmapData,get_user_count);
+    SE_BIND_METHOD(BakedLightmapData,get_user_path);
+    SE_BIND_METHOD(BakedLightmapData,get_user_lightmap);
+    SE_BIND_METHOD(BakedLightmapData,clear_users);
+    SE_BIND_METHOD(BakedLightmapData,clear_data);
 
     ADD_PROPERTY(PropertyInfo(VariantType::AABB, "bounds", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR),
             "set_bounds", "get_bounds");
@@ -1525,75 +1525,75 @@ void BakedLightmap::_validate_property(PropertyInfo &property) const {
 }
 void BakedLightmap::_bind_methods() {
 
-    BIND_METHOD(BakedLightmap,set_light_data);
-    BIND_METHOD(BakedLightmap,get_light_data);
+    SE_BIND_METHOD(BakedLightmap,set_light_data);
+    SE_BIND_METHOD(BakedLightmap,get_light_data);
 
-    BIND_METHOD(BakedLightmap,set_bake_quality);
-    BIND_METHOD(BakedLightmap,get_bake_quality);
+    SE_BIND_METHOD(BakedLightmap,set_bake_quality);
+    SE_BIND_METHOD(BakedLightmap,get_bake_quality);
 
-    BIND_METHOD(BakedLightmap,set_bounces);
-    BIND_METHOD(BakedLightmap,get_bounces);
+    SE_BIND_METHOD(BakedLightmap,set_bounces);
+    SE_BIND_METHOD(BakedLightmap,get_bounces);
 
-    BIND_METHOD(BakedLightmap,set_bounce_indirect_energy);
-    BIND_METHOD(BakedLightmap,get_bounce_indirect_energy);
+    SE_BIND_METHOD(BakedLightmap,set_bounce_indirect_energy);
+    SE_BIND_METHOD(BakedLightmap,get_bounce_indirect_energy);
 
-    BIND_METHOD(BakedLightmap,set_bias);
-    BIND_METHOD(BakedLightmap,get_bias);
+    SE_BIND_METHOD(BakedLightmap,set_bias);
+    SE_BIND_METHOD(BakedLightmap,get_bias);
 
-    BIND_METHOD(BakedLightmap,set_environment_mode);
-    BIND_METHOD(BakedLightmap,get_environment_mode);
+    SE_BIND_METHOD(BakedLightmap,set_environment_mode);
+    SE_BIND_METHOD(BakedLightmap,get_environment_mode);
 
-    BIND_METHOD(BakedLightmap,set_environment_custom_sky);
-    BIND_METHOD(BakedLightmap,get_environment_custom_sky);
+    SE_BIND_METHOD(BakedLightmap,set_environment_custom_sky);
+    SE_BIND_METHOD(BakedLightmap,get_environment_custom_sky);
 
-    BIND_METHOD(BakedLightmap,set_environment_custom_sky_rotation_degrees);
-    BIND_METHOD(BakedLightmap,get_environment_custom_sky_rotation_degrees);
+    SE_BIND_METHOD(BakedLightmap,set_environment_custom_sky_rotation_degrees);
+    SE_BIND_METHOD(BakedLightmap,get_environment_custom_sky_rotation_degrees);
 
-    BIND_METHOD(BakedLightmap,set_environment_custom_color);
-    BIND_METHOD(BakedLightmap,get_environment_custom_color);
+    SE_BIND_METHOD(BakedLightmap,set_environment_custom_color);
+    SE_BIND_METHOD(BakedLightmap,get_environment_custom_color);
 
-    BIND_METHOD(BakedLightmap,set_environment_custom_energy);
-    BIND_METHOD(BakedLightmap,get_environment_custom_energy);
+    SE_BIND_METHOD(BakedLightmap,set_environment_custom_energy);
+    SE_BIND_METHOD(BakedLightmap,get_environment_custom_energy);
 
-    BIND_METHOD(BakedLightmap,set_environment_min_light);
-    BIND_METHOD(BakedLightmap,get_environment_min_light);
+    SE_BIND_METHOD(BakedLightmap,set_environment_min_light);
+    SE_BIND_METHOD(BakedLightmap,get_environment_min_light);
 
-    BIND_METHOD(BakedLightmap,set_use_denoiser);
-    BIND_METHOD(BakedLightmap,is_using_denoiser);
+    SE_BIND_METHOD(BakedLightmap,set_use_denoiser);
+    SE_BIND_METHOD(BakedLightmap,is_using_denoiser);
 
-    BIND_METHOD(BakedLightmap,set_use_hdr);
-    BIND_METHOD(BakedLightmap,is_using_hdr);
+    SE_BIND_METHOD(BakedLightmap,set_use_hdr);
+    SE_BIND_METHOD(BakedLightmap,is_using_hdr);
 
-    BIND_METHOD(BakedLightmap,set_use_color);
-    BIND_METHOD(BakedLightmap,is_using_color);
+    SE_BIND_METHOD(BakedLightmap,set_use_color);
+    SE_BIND_METHOD(BakedLightmap,is_using_color);
 
-    BIND_METHOD(BakedLightmap,set_generate_atlas);
-    BIND_METHOD(BakedLightmap,is_generate_atlas_enabled);
+    SE_BIND_METHOD(BakedLightmap,set_generate_atlas);
+    SE_BIND_METHOD(BakedLightmap,is_generate_atlas_enabled);
 
-    BIND_METHOD(BakedLightmap,set_max_atlas_size);
-    BIND_METHOD(BakedLightmap,get_max_atlas_size);
+    SE_BIND_METHOD(BakedLightmap,set_max_atlas_size);
+    SE_BIND_METHOD(BakedLightmap,get_max_atlas_size);
 
-    BIND_METHOD(BakedLightmap,set_capture_quality);
-    BIND_METHOD(BakedLightmap,get_capture_quality);
+    SE_BIND_METHOD(BakedLightmap,set_capture_quality);
+    SE_BIND_METHOD(BakedLightmap,get_capture_quality);
 
-    BIND_METHOD(BakedLightmap,set_extents);
-    BIND_METHOD(BakedLightmap,get_extents);
+    SE_BIND_METHOD(BakedLightmap,set_extents);
+    SE_BIND_METHOD(BakedLightmap,get_extents);
 
-    BIND_METHOD(BakedLightmap,set_default_texels_per_unit);
-    BIND_METHOD(BakedLightmap,get_default_texels_per_unit);
+    SE_BIND_METHOD(BakedLightmap,set_default_texels_per_unit);
+    SE_BIND_METHOD(BakedLightmap,get_default_texels_per_unit);
 
-    BIND_METHOD(BakedLightmap,set_capture_propagation);
-    BIND_METHOD(BakedLightmap,get_capture_propagation);
+    SE_BIND_METHOD(BakedLightmap,set_capture_propagation);
+    SE_BIND_METHOD(BakedLightmap,get_capture_propagation);
 
-    BIND_METHOD(BakedLightmap,set_capture_enabled);
-    BIND_METHOD(BakedLightmap,get_capture_enabled);
+    SE_BIND_METHOD(BakedLightmap,set_capture_enabled);
+    SE_BIND_METHOD(BakedLightmap,get_capture_enabled);
 
-    BIND_METHOD(BakedLightmap,set_capture_cell_size);
-    BIND_METHOD(BakedLightmap,get_capture_cell_size);
+    SE_BIND_METHOD(BakedLightmap,set_capture_cell_size);
+    SE_BIND_METHOD(BakedLightmap,get_capture_cell_size);
 #ifndef DISABLE_DEPRECATED
 
-    BIND_METHOD(BakedLightmap,set_image_path);
-    BIND_METHOD(BakedLightmap,get_image_path);
+    SE_BIND_METHOD(BakedLightmap,set_image_path);
+    SE_BIND_METHOD(BakedLightmap,get_image_path);
 #endif
     MethodBinder::bind_method(D_METHOD("bake", {"from_node", "data_save_path"}), &BakedLightmap::bake, {DEFVAL(Variant()), DEFVAL("")});
 

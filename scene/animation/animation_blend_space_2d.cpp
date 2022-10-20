@@ -610,45 +610,45 @@ AnimationNodeBlendSpace2D::BlendMode AnimationNodeBlendSpace2D::get_blend_mode()
 void AnimationNodeBlendSpace2D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_blend_point", {"node", "pos", "at_index"}), &AnimationNodeBlendSpace2D::add_blend_point, {DEFVAL(-1)});
-    BIND_METHOD(AnimationNodeBlendSpace2D,set_blend_point_position);
-    BIND_METHOD(AnimationNodeBlendSpace2D,get_blend_point_position);
-    BIND_METHOD(AnimationNodeBlendSpace2D,set_blend_point_node);
-    BIND_METHOD(AnimationNodeBlendSpace2D,get_blend_point_node);
-    BIND_METHOD(AnimationNodeBlendSpace2D,remove_blend_point);
-    BIND_METHOD(AnimationNodeBlendSpace2D,get_blend_point_count);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,set_blend_point_position);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,get_blend_point_position);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,set_blend_point_node);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,get_blend_point_node);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,remove_blend_point);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,get_blend_point_count);
 
     MethodBinder::bind_method(D_METHOD("add_triangle", {"x", "y", "z", "at_index"}), &AnimationNodeBlendSpace2D::add_triangle, {DEFVAL(-1)});
-    BIND_METHOD(AnimationNodeBlendSpace2D,get_triangle_point);
-    BIND_METHOD(AnimationNodeBlendSpace2D,remove_triangle);
-    BIND_METHOD(AnimationNodeBlendSpace2D,get_triangle_count);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,get_triangle_point);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,remove_triangle);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,get_triangle_count);
 
-    BIND_METHOD(AnimationNodeBlendSpace2D,set_min_space);
-    BIND_METHOD(AnimationNodeBlendSpace2D,get_min_space);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,set_min_space);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,get_min_space);
 
-    BIND_METHOD(AnimationNodeBlendSpace2D,set_max_space);
-    BIND_METHOD(AnimationNodeBlendSpace2D,get_max_space);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,set_max_space);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,get_max_space);
 
-    BIND_METHOD(AnimationNodeBlendSpace2D,set_snap);
-    BIND_METHOD(AnimationNodeBlendSpace2D,get_snap);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,set_snap);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,get_snap);
 
-    BIND_METHOD(AnimationNodeBlendSpace2D,set_x_label);
-    BIND_METHOD(AnimationNodeBlendSpace2D,get_x_label);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,set_x_label);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,get_x_label);
 
-    BIND_METHOD(AnimationNodeBlendSpace2D,set_y_label);
-    BIND_METHOD(AnimationNodeBlendSpace2D,get_y_label);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,set_y_label);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,get_y_label);
 
-    BIND_METHOD(AnimationNodeBlendSpace2D,_add_blend_point);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,_add_blend_point);
 
-    BIND_METHOD(AnimationNodeBlendSpace2D,_set_triangles);
-    BIND_METHOD(AnimationNodeBlendSpace2D,_get_triangles);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,_set_triangles);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,_get_triangles);
 
-    BIND_METHOD(AnimationNodeBlendSpace2D,set_auto_triangles);
-    BIND_METHOD(AnimationNodeBlendSpace2D,get_auto_triangles);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,set_auto_triangles);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,get_auto_triangles);
 
-    BIND_METHOD(AnimationNodeBlendSpace2D,set_blend_mode);
-    BIND_METHOD(AnimationNodeBlendSpace2D,get_blend_mode);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,set_blend_mode);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,get_blend_mode);
 
-    BIND_METHOD(AnimationNodeBlendSpace2D,_update_triangles);
+    SE_BIND_METHOD(AnimationNodeBlendSpace2D,_update_triangles);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "auto_triangles", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_auto_triangles", "get_auto_triangles");
 

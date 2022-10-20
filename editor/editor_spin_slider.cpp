@@ -572,16 +572,16 @@ void EditorSpinSlider::_focus_entered() {
 }
 
 void EditorSpinSlider::_bind_methods() {
-    BIND_METHOD(EditorSpinSlider,set_label);
-    BIND_METHOD(EditorSpinSlider,get_label);
+    SE_BIND_METHOD(EditorSpinSlider,set_label);
+    SE_BIND_METHOD(EditorSpinSlider,get_label);
 
-    BIND_METHOD(EditorSpinSlider,set_read_only);
-    BIND_METHOD(EditorSpinSlider,is_read_only);
+    SE_BIND_METHOD(EditorSpinSlider,set_read_only);
+    SE_BIND_METHOD(EditorSpinSlider,is_read_only);
 
-    BIND_METHOD(EditorSpinSlider,set_flat);
-    BIND_METHOD(EditorSpinSlider,is_flat);
+    SE_BIND_METHOD(EditorSpinSlider,set_flat);
+    SE_BIND_METHOD(EditorSpinSlider,is_flat);
 
-    BIND_METHOD(EditorSpinSlider,_gui_input);
+    SE_BIND_METHOD(EditorSpinSlider,_gui_input);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "label"), "set_label", "get_label");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "read_only"), "set_read_only", "is_read_only");

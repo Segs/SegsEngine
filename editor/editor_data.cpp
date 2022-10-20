@@ -1148,10 +1148,10 @@ Array EditorSelection::get_selected_nodes() {
 
 void EditorSelection::_bind_methods() {
 
-    BIND_METHOD(EditorSelection,clear);
-    BIND_METHOD(EditorSelection,add_node);
-    BIND_METHOD(EditorSelection,remove_node);
-    BIND_METHOD(EditorSelection,get_selected_nodes);
+    SE_BIND_METHOD(EditorSelection,clear);
+    SE_BIND_METHOD(EditorSelection,add_node);
+    SE_BIND_METHOD(EditorSelection,remove_node);
+    SE_BIND_METHOD(EditorSelection,get_selected_nodes);
     MethodBinder::bind_method(D_METHOD("get_transformable_selected_nodes"), &EditorSelection::_get_transformable_selected_nodes);
     ADD_SIGNAL(MethodInfo("selection_changed"));
 }

@@ -51,16 +51,16 @@ WebRTCPeerConnection *WebRTCPeerConnection::create() {
 }
 
 void WebRTCPeerConnection::_bind_methods() {
-    BIND_METHOD(WebRTCPeerConnection,initialize);
-    BIND_METHOD(WebRTCPeerConnection,create_data_channel);
-    BIND_METHOD(WebRTCPeerConnection,create_offer);
-    BIND_METHOD(WebRTCPeerConnection,set_local_description);
-    BIND_METHOD(WebRTCPeerConnection,set_remote_description);
-    BIND_METHOD(WebRTCPeerConnection,add_ice_candidate);
-    BIND_METHOD(WebRTCPeerConnection,poll);
-    BIND_METHOD(WebRTCPeerConnection,close);
+    SE_BIND_METHOD(WebRTCPeerConnection,initialize);
+    SE_BIND_METHOD(WebRTCPeerConnection,create_data_channel);
+    SE_BIND_METHOD(WebRTCPeerConnection,create_offer);
+    SE_BIND_METHOD(WebRTCPeerConnection,set_local_description);
+    SE_BIND_METHOD(WebRTCPeerConnection,set_remote_description);
+    SE_BIND_METHOD(WebRTCPeerConnection,add_ice_candidate);
+    SE_BIND_METHOD(WebRTCPeerConnection,poll);
+    SE_BIND_METHOD(WebRTCPeerConnection,close);
 
-    BIND_METHOD(WebRTCPeerConnection,get_connection_state);
+    SE_BIND_METHOD(WebRTCPeerConnection,get_connection_state);
 
     ADD_SIGNAL(MethodInfo("session_description_created", PropertyInfo(VariantType::STRING, "type"), PropertyInfo(VariantType::STRING, "sdp")));
     ADD_SIGNAL(MethodInfo("ice_candidate_created", PropertyInfo(VariantType::STRING, "media"), PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::STRING, "name")));

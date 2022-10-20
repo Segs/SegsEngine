@@ -75,9 +75,9 @@ Span<const Vector2> ConvexPolygonShape2D::get_points() const {
 
 void ConvexPolygonShape2D::_bind_methods() {
 
-    BIND_METHOD(ConvexPolygonShape2D,set_point_cloud);
-    BIND_METHOD(ConvexPolygonShape2D,set_points);
-    BIND_METHOD(ConvexPolygonShape2D,get_points);
+    SE_BIND_METHOD(ConvexPolygonShape2D,set_point_cloud);
+    SE_BIND_METHOD(ConvexPolygonShape2D,set_points);
+    SE_BIND_METHOD(ConvexPolygonShape2D,get_points);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "points"), "set_points", "get_points");
 }

@@ -53,8 +53,8 @@ void ColorRect::_notification(int p_what) {
 
 void ColorRect::_bind_methods() {
 
-    BIND_METHOD(ColorRect,set_frame_color);
-    BIND_METHOD(ColorRect,get_frame_color);
+    SE_BIND_METHOD(ColorRect,set_frame_color);
+    SE_BIND_METHOD(ColorRect,get_frame_color);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_frame_color", "get_frame_color");
 }

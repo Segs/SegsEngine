@@ -138,15 +138,15 @@ real_t InterpolatedCamera::get_speed() const {
 
 void InterpolatedCamera::_bind_methods() {
 
-    BIND_METHOD(InterpolatedCamera,set_target_path);
-    BIND_METHOD(InterpolatedCamera,get_target_path);
+    SE_BIND_METHOD(InterpolatedCamera,set_target_path);
+    SE_BIND_METHOD(InterpolatedCamera,get_target_path);
     MethodBinder::bind_method(D_METHOD("set_target", {"target"}), &InterpolatedCamera::_set_target);
 
-    BIND_METHOD(InterpolatedCamera,set_speed);
-    BIND_METHOD(InterpolatedCamera,get_speed);
+    SE_BIND_METHOD(InterpolatedCamera,set_speed);
+    SE_BIND_METHOD(InterpolatedCamera,get_speed);
 
-    BIND_METHOD(InterpolatedCamera,set_interpolation_enabled);
-    BIND_METHOD(InterpolatedCamera,is_interpolation_enabled);
+    SE_BIND_METHOD(InterpolatedCamera,set_interpolation_enabled);
+    SE_BIND_METHOD(InterpolatedCamera,is_interpolation_enabled);
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "target"), "set_target_path", "get_target_path");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "speed"), "set_speed", "get_speed");

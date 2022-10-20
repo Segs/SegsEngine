@@ -271,14 +271,14 @@ float AudioStreamOGGVorbis::get_length() const {
 
 void AudioStreamOGGVorbis::_bind_methods() {
 
-    BIND_METHOD(AudioStreamOGGVorbis,set_data);
-    BIND_METHOD(AudioStreamOGGVorbis,get_data);
+    SE_BIND_METHOD(AudioStreamOGGVorbis,set_data);
+    SE_BIND_METHOD(AudioStreamOGGVorbis,get_data);
 
-    BIND_METHOD(AudioStreamOGGVorbis,set_loop);
-    BIND_METHOD(AudioStreamOGGVorbis,has_loop);
+    SE_BIND_METHOD(AudioStreamOGGVorbis,set_loop);
+    SE_BIND_METHOD(AudioStreamOGGVorbis,has_loop);
 
-    BIND_METHOD(AudioStreamOGGVorbis,set_loop_offset);
-    BIND_METHOD(AudioStreamOGGVorbis,get_loop_offset);
+    SE_BIND_METHOD(AudioStreamOGGVorbis,set_loop_offset);
+    SE_BIND_METHOD(AudioStreamOGGVorbis,get_loop_offset);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");

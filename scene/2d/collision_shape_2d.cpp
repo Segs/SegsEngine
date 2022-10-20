@@ -259,15 +259,15 @@ float CollisionShape2D::get_one_way_collision_margin() const {
 
 void CollisionShape2D::_bind_methods() {
 
-    BIND_METHOD(CollisionShape2D,set_shape);
-    BIND_METHOD(CollisionShape2D,get_shape);
-    BIND_METHOD(CollisionShape2D,set_disabled);
-    BIND_METHOD(CollisionShape2D,is_disabled);
-    BIND_METHOD(CollisionShape2D,set_one_way_collision);
-    BIND_METHOD(CollisionShape2D,is_one_way_collision_enabled);
-    BIND_METHOD(CollisionShape2D,set_one_way_collision_margin);
-    BIND_METHOD(CollisionShape2D,get_one_way_collision_margin);
-    BIND_METHOD(CollisionShape2D,_shape_changed);
+    SE_BIND_METHOD(CollisionShape2D,set_shape);
+    SE_BIND_METHOD(CollisionShape2D,get_shape);
+    SE_BIND_METHOD(CollisionShape2D,set_disabled);
+    SE_BIND_METHOD(CollisionShape2D,is_disabled);
+    SE_BIND_METHOD(CollisionShape2D,set_one_way_collision);
+    SE_BIND_METHOD(CollisionShape2D,is_one_way_collision_enabled);
+    SE_BIND_METHOD(CollisionShape2D,set_one_way_collision_margin);
+    SE_BIND_METHOD(CollisionShape2D,get_one_way_collision_margin);
+    SE_BIND_METHOD(CollisionShape2D,_shape_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PropertyHint::ResourceType, "Shape2D"), "set_shape", "get_shape");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");

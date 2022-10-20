@@ -158,11 +158,11 @@ String CollisionShape3D::get_configuration_warning() const {
 void CollisionShape3D::_bind_methods() {
 
     //not sure if this should do anything
-    BIND_METHOD(CollisionShape3D,resource_changed);
-    BIND_METHOD(CollisionShape3D,set_shape);
-    BIND_METHOD(CollisionShape3D,get_shape);
-    BIND_METHOD(CollisionShape3D,set_disabled);
-    BIND_METHOD(CollisionShape3D,is_disabled);
+    SE_BIND_METHOD(CollisionShape3D,resource_changed);
+    SE_BIND_METHOD(CollisionShape3D,set_shape);
+    SE_BIND_METHOD(CollisionShape3D,get_shape);
+    SE_BIND_METHOD(CollisionShape3D,set_disabled);
+    SE_BIND_METHOD(CollisionShape3D,is_disabled);
     MethodBinder::bind_method(D_METHOD("make_convex_from_brothers"), &CollisionShape3D::make_convex_from_brothers,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
 

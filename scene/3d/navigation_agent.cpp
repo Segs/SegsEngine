@@ -43,49 +43,49 @@ IMPL_GDCLASS(NavigationAgent)
 
 void NavigationAgent::_bind_methods() {
 
-    BIND_METHOD(NavigationAgent,set_target_desired_distance);
-    BIND_METHOD(NavigationAgent,get_target_desired_distance);
+    SE_BIND_METHOD(NavigationAgent,set_target_desired_distance);
+    SE_BIND_METHOD(NavigationAgent,get_target_desired_distance);
 
-    BIND_METHOD(NavigationAgent,set_radius);
-    BIND_METHOD(NavigationAgent,get_radius);
+    SE_BIND_METHOD(NavigationAgent,set_radius);
+    SE_BIND_METHOD(NavigationAgent,get_radius);
 
-    BIND_METHOD(NavigationAgent,set_agent_height_offset);
-    BIND_METHOD(NavigationAgent,get_agent_height_offset);
+    SE_BIND_METHOD(NavigationAgent,set_agent_height_offset);
+    SE_BIND_METHOD(NavigationAgent,get_agent_height_offset);
 
-    BIND_METHOD(NavigationAgent,set_ignore_y);
-    BIND_METHOD(NavigationAgent,get_ignore_y);
+    SE_BIND_METHOD(NavigationAgent,set_ignore_y);
+    SE_BIND_METHOD(NavigationAgent,get_ignore_y);
 
     MethodBinder::bind_method(D_METHOD("set_navigation", {"navigation"}),&NavigationAgent::set_navigation_node);
     MethodBinder::bind_method(D_METHOD("get_navigation"), &NavigationAgent::get_navigation_node);
 
-    BIND_METHOD(NavigationAgent,set_neighbor_dist);
-    BIND_METHOD(NavigationAgent,get_neighbor_dist);
+    SE_BIND_METHOD(NavigationAgent,set_neighbor_dist);
+    SE_BIND_METHOD(NavigationAgent,get_neighbor_dist);
 
-    BIND_METHOD(NavigationAgent,set_max_neighbors);
-    BIND_METHOD(NavigationAgent,get_max_neighbors);
+    SE_BIND_METHOD(NavigationAgent,set_max_neighbors);
+    SE_BIND_METHOD(NavigationAgent,get_max_neighbors);
 
-    BIND_METHOD(NavigationAgent,set_time_horizon);
-    BIND_METHOD(NavigationAgent,get_time_horizon);
+    SE_BIND_METHOD(NavigationAgent,set_time_horizon);
+    SE_BIND_METHOD(NavigationAgent,get_time_horizon);
 
-    BIND_METHOD(NavigationAgent,set_max_speed);
-    BIND_METHOD(NavigationAgent,get_max_speed);
+    SE_BIND_METHOD(NavigationAgent,set_max_speed);
+    SE_BIND_METHOD(NavigationAgent,get_max_speed);
 
-    BIND_METHOD(NavigationAgent,set_path_max_distance);
-    BIND_METHOD(NavigationAgent,get_path_max_distance);
+    SE_BIND_METHOD(NavigationAgent,set_path_max_distance);
+    SE_BIND_METHOD(NavigationAgent,get_path_max_distance);
 
-    BIND_METHOD(NavigationAgent,set_target_location);
-    BIND_METHOD(NavigationAgent,get_target_location);
-    BIND_METHOD(NavigationAgent,get_next_location);
-    BIND_METHOD(NavigationAgent,distance_to_target);
-    BIND_METHOD(NavigationAgent,set_velocity);
-    BIND_METHOD(NavigationAgent,get_nav_path);
-    BIND_METHOD(NavigationAgent,get_nav_path_index);
-    BIND_METHOD(NavigationAgent,is_target_reached);
-    BIND_METHOD(NavigationAgent,is_target_reachable);
-    BIND_METHOD(NavigationAgent,is_navigation_finished);
-    BIND_METHOD(NavigationAgent,get_final_location);
+    SE_BIND_METHOD(NavigationAgent,set_target_location);
+    SE_BIND_METHOD(NavigationAgent,get_target_location);
+    SE_BIND_METHOD(NavigationAgent,get_next_location);
+    SE_BIND_METHOD(NavigationAgent,distance_to_target);
+    SE_BIND_METHOD(NavigationAgent,set_velocity);
+    SE_BIND_METHOD(NavigationAgent,get_nav_path);
+    SE_BIND_METHOD(NavigationAgent,get_nav_path_index);
+    SE_BIND_METHOD(NavigationAgent,is_target_reached);
+    SE_BIND_METHOD(NavigationAgent,is_target_reachable);
+    SE_BIND_METHOD(NavigationAgent,is_navigation_finished);
+    SE_BIND_METHOD(NavigationAgent,get_final_location);
 
-    BIND_METHOD(NavigationAgent,_avoidance_done);
+    SE_BIND_METHOD(NavigationAgent,_avoidance_done);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "target_desired_distance", PropertyHint::Range, "0.1,100,0.01"), "set_target_desired_distance", "get_target_desired_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.1,100,0.01"), "set_radius", "get_radius");

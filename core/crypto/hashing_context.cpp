@@ -125,9 +125,9 @@ void HashingContext::_delete_ctx() {
 }
 
 void HashingContext::_bind_methods() {
-    BIND_METHOD(HashingContext,start);
-    BIND_METHOD(HashingContext,update);
-    BIND_METHOD(HashingContext,finish);
+    SE_BIND_METHOD(HashingContext,start);
+    SE_BIND_METHOD(HashingContext,update);
+    SE_BIND_METHOD(HashingContext,finish);
     BIND_ENUM_CONSTANT(HASH_MD5);
     BIND_ENUM_CONSTANT(HASH_SHA1);
     BIND_ENUM_CONSTANT(HASH_SHA256);

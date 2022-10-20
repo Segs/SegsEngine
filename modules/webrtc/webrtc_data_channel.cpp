@@ -37,20 +37,20 @@ VARIANT_ENUM_CAST(WebRTCDataChannel::WriteMode);
 VARIANT_ENUM_CAST(WebRTCDataChannel::ChannelState);
 
 void WebRTCDataChannel::_bind_methods() {
-    BIND_METHOD(WebRTCDataChannel,poll);
-    BIND_METHOD(WebRTCDataChannel,close);
+    SE_BIND_METHOD(WebRTCDataChannel,poll);
+    SE_BIND_METHOD(WebRTCDataChannel,close);
 
-    BIND_METHOD(WebRTCDataChannel,was_string_packet);
-    BIND_METHOD(WebRTCDataChannel,set_write_mode);
-    BIND_METHOD(WebRTCDataChannel,get_write_mode);
-    BIND_METHOD(WebRTCDataChannel,get_ready_state);
-    BIND_METHOD(WebRTCDataChannel,get_label);
-    BIND_METHOD(WebRTCDataChannel,is_ordered);
-    BIND_METHOD(WebRTCDataChannel,get_id);
-    BIND_METHOD(WebRTCDataChannel,get_max_packet_life_time);
-    BIND_METHOD(WebRTCDataChannel,get_max_retransmits);
-    BIND_METHOD(WebRTCDataChannel,get_protocol);
-    BIND_METHOD(WebRTCDataChannel,is_negotiated);
+    SE_BIND_METHOD(WebRTCDataChannel,was_string_packet);
+    SE_BIND_METHOD(WebRTCDataChannel,set_write_mode);
+    SE_BIND_METHOD(WebRTCDataChannel,get_write_mode);
+    SE_BIND_METHOD(WebRTCDataChannel,get_ready_state);
+    SE_BIND_METHOD(WebRTCDataChannel,get_label);
+    SE_BIND_METHOD(WebRTCDataChannel,is_ordered);
+    SE_BIND_METHOD(WebRTCDataChannel,get_id);
+    SE_BIND_METHOD(WebRTCDataChannel,get_max_packet_life_time);
+    SE_BIND_METHOD(WebRTCDataChannel,get_max_retransmits);
+    SE_BIND_METHOD(WebRTCDataChannel,get_protocol);
+    SE_BIND_METHOD(WebRTCDataChannel,is_negotiated);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "write_mode", PropertyHint::Enum), "set_write_mode", "get_write_mode");
 

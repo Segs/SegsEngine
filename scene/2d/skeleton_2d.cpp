@@ -87,14 +87,14 @@ void Bone2D::_notification(int p_what) {
 }
 void Bone2D::_bind_methods() {
 
-    BIND_METHOD(Bone2D,set_rest);
-    BIND_METHOD(Bone2D,get_rest);
-    BIND_METHOD(Bone2D,apply_rest);
-    BIND_METHOD(Bone2D,get_skeleton_rest);
-    BIND_METHOD(Bone2D,get_index_in_skeleton);
+    SE_BIND_METHOD(Bone2D,set_rest);
+    SE_BIND_METHOD(Bone2D,get_rest);
+    SE_BIND_METHOD(Bone2D,apply_rest);
+    SE_BIND_METHOD(Bone2D,get_skeleton_rest);
+    SE_BIND_METHOD(Bone2D,get_index_in_skeleton);
 
-    BIND_METHOD(Bone2D,set_default_length);
-    BIND_METHOD(Bone2D,get_default_length);
+    SE_BIND_METHOD(Bone2D,set_default_length);
+    SE_BIND_METHOD(Bone2D,get_default_length);
 
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "rest"), "set_rest", "get_rest");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "default_length", PropertyHint::Range, "1,1024,1"), "set_default_length", "get_default_length");
@@ -291,13 +291,13 @@ RenderingEntity Skeleton2D::get_skeleton() const {
 }
 void Skeleton2D::_bind_methods() {
 
-    BIND_METHOD(Skeleton2D,_update_bone_setup);
-    BIND_METHOD(Skeleton2D,_update_transform);
+    SE_BIND_METHOD(Skeleton2D,_update_bone_setup);
+    SE_BIND_METHOD(Skeleton2D,_update_transform);
 
-    BIND_METHOD(Skeleton2D,get_bone_count);
-    BIND_METHOD(Skeleton2D,get_bone);
+    SE_BIND_METHOD(Skeleton2D,get_bone_count);
+    SE_BIND_METHOD(Skeleton2D,get_bone);
 
-    BIND_METHOD(Skeleton2D,get_skeleton);
+    SE_BIND_METHOD(Skeleton2D,get_skeleton);
 
     ADD_SIGNAL(MethodInfo("bone_setup_changed"));
 }

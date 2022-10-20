@@ -35,18 +35,18 @@ IMPL_GDCLASS(RandomNumberGenerator)
 
 
 void RandomNumberGenerator::_bind_methods() {
-    BIND_METHOD(RandomNumberGenerator,set_seed);
-    BIND_METHOD(RandomNumberGenerator,get_seed);
+    SE_BIND_METHOD(RandomNumberGenerator,set_seed);
+    SE_BIND_METHOD(RandomNumberGenerator,get_seed);
 
-    BIND_METHOD(RandomNumberGenerator,set_state);
-    BIND_METHOD(RandomNumberGenerator,get_state);
+    SE_BIND_METHOD(RandomNumberGenerator,set_state);
+    SE_BIND_METHOD(RandomNumberGenerator,get_state);
 
-    BIND_METHOD(RandomNumberGenerator,randi);
-    BIND_METHOD(RandomNumberGenerator,randf);
+    SE_BIND_METHOD(RandomNumberGenerator,randi);
+    SE_BIND_METHOD(RandomNumberGenerator,randf);
     MethodBinder::bind_method(D_METHOD("randfn", {"mean", "deviation"}), &RandomNumberGenerator::randfn, {DEFVAL(0.0), DEFVAL(1.0)});
-    BIND_METHOD(RandomNumberGenerator,randf_range);
-    BIND_METHOD(RandomNumberGenerator,randi_range);
-    BIND_METHOD(RandomNumberGenerator,randomize);
+    SE_BIND_METHOD(RandomNumberGenerator,randf_range);
+    SE_BIND_METHOD(RandomNumberGenerator,randi_range);
+    SE_BIND_METHOD(RandomNumberGenerator,randomize);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "seed"), "set_seed", "get_seed");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "state"), "set_state", "get_state");

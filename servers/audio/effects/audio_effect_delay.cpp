@@ -269,44 +269,44 @@ float AudioEffectDelay::get_feedback_lowpass() const {
 
 void AudioEffectDelay::_bind_methods() {
 
-    BIND_METHOD(AudioEffectDelay,set_dry);
-    BIND_METHOD(AudioEffectDelay,get_dry);
+    SE_BIND_METHOD(AudioEffectDelay,set_dry);
+    SE_BIND_METHOD(AudioEffectDelay,get_dry);
 
-    BIND_METHOD(AudioEffectDelay,set_tap1_active);
-    BIND_METHOD(AudioEffectDelay,is_tap1_active);
+    SE_BIND_METHOD(AudioEffectDelay,set_tap1_active);
+    SE_BIND_METHOD(AudioEffectDelay,is_tap1_active);
 
-    BIND_METHOD(AudioEffectDelay,set_tap1_delay_ms);
-    BIND_METHOD(AudioEffectDelay,get_tap1_delay_ms);
+    SE_BIND_METHOD(AudioEffectDelay,set_tap1_delay_ms);
+    SE_BIND_METHOD(AudioEffectDelay,get_tap1_delay_ms);
 
-    BIND_METHOD(AudioEffectDelay,set_tap1_level_db);
-    BIND_METHOD(AudioEffectDelay,get_tap1_level_db);
+    SE_BIND_METHOD(AudioEffectDelay,set_tap1_level_db);
+    SE_BIND_METHOD(AudioEffectDelay,get_tap1_level_db);
 
-    BIND_METHOD(AudioEffectDelay,set_tap1_pan);
-    BIND_METHOD(AudioEffectDelay,get_tap1_pan);
+    SE_BIND_METHOD(AudioEffectDelay,set_tap1_pan);
+    SE_BIND_METHOD(AudioEffectDelay,get_tap1_pan);
 
-    BIND_METHOD(AudioEffectDelay,set_tap2_active);
-    BIND_METHOD(AudioEffectDelay,is_tap2_active);
+    SE_BIND_METHOD(AudioEffectDelay,set_tap2_active);
+    SE_BIND_METHOD(AudioEffectDelay,is_tap2_active);
 
-    BIND_METHOD(AudioEffectDelay,set_tap2_delay_ms);
-    BIND_METHOD(AudioEffectDelay,get_tap2_delay_ms);
+    SE_BIND_METHOD(AudioEffectDelay,set_tap2_delay_ms);
+    SE_BIND_METHOD(AudioEffectDelay,get_tap2_delay_ms);
 
-    BIND_METHOD(AudioEffectDelay,set_tap2_level_db);
-    BIND_METHOD(AudioEffectDelay,get_tap2_level_db);
+    SE_BIND_METHOD(AudioEffectDelay,set_tap2_level_db);
+    SE_BIND_METHOD(AudioEffectDelay,get_tap2_level_db);
 
-    BIND_METHOD(AudioEffectDelay,set_tap2_pan);
-    BIND_METHOD(AudioEffectDelay,get_tap2_pan);
+    SE_BIND_METHOD(AudioEffectDelay,set_tap2_pan);
+    SE_BIND_METHOD(AudioEffectDelay,get_tap2_pan);
 
-    BIND_METHOD(AudioEffectDelay,set_feedback_active);
-    BIND_METHOD(AudioEffectDelay,is_feedback_active);
+    SE_BIND_METHOD(AudioEffectDelay,set_feedback_active);
+    SE_BIND_METHOD(AudioEffectDelay,is_feedback_active);
 
-    BIND_METHOD(AudioEffectDelay,set_feedback_delay_ms);
-    BIND_METHOD(AudioEffectDelay,get_feedback_delay_ms);
+    SE_BIND_METHOD(AudioEffectDelay,set_feedback_delay_ms);
+    SE_BIND_METHOD(AudioEffectDelay,get_feedback_delay_ms);
 
-    BIND_METHOD(AudioEffectDelay,set_feedback_level_db);
-    BIND_METHOD(AudioEffectDelay,get_feedback_level_db);
+    SE_BIND_METHOD(AudioEffectDelay,set_feedback_level_db);
+    SE_BIND_METHOD(AudioEffectDelay,get_feedback_level_db);
 
-    BIND_METHOD(AudioEffectDelay,set_feedback_lowpass);
-    BIND_METHOD(AudioEffectDelay,get_feedback_lowpass);
+    SE_BIND_METHOD(AudioEffectDelay,set_feedback_lowpass);
+    SE_BIND_METHOD(AudioEffectDelay,get_feedback_lowpass);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "dry", PropertyHint::Range, "0,1,0.01"), "set_dry", "get_dry");
 

@@ -47,65 +47,65 @@ VARIANT_ENUM_CAST(SpatialMaterial::BillboardMode);
 IMPL_GDCLASS(Label3D)
 
 void Label3D::_bind_methods() {
-    BIND_METHOD(Label3D,set_horizontal_alignment);
-    BIND_METHOD(Label3D,get_horizontal_alignment);
+    SE_BIND_METHOD(Label3D,set_horizontal_alignment);
+    SE_BIND_METHOD(Label3D,get_horizontal_alignment);
 
-    BIND_METHOD(Label3D,set_vertical_alignment);
-    BIND_METHOD(Label3D,get_vertical_alignment);
+    SE_BIND_METHOD(Label3D,set_vertical_alignment);
+    SE_BIND_METHOD(Label3D,get_vertical_alignment);
 
-    BIND_METHOD(Label3D,set_modulate);
-    BIND_METHOD(Label3D,get_modulate);
+    SE_BIND_METHOD(Label3D,set_modulate);
+    SE_BIND_METHOD(Label3D,get_modulate);
 
-    BIND_METHOD(Label3D,set_outline_modulate);
-    BIND_METHOD(Label3D,get_outline_modulate);
+    SE_BIND_METHOD(Label3D,set_outline_modulate);
+    SE_BIND_METHOD(Label3D,get_outline_modulate);
 
-    BIND_METHOD(Label3D,set_text);
-    BIND_METHOD(Label3D,get_text);
+    SE_BIND_METHOD(Label3D,set_text);
+    SE_BIND_METHOD(Label3D,get_text);
 
-    BIND_METHOD(Label3D,set_uppercase);
-    BIND_METHOD(Label3D,is_uppercase);
+    SE_BIND_METHOD(Label3D,set_uppercase);
+    SE_BIND_METHOD(Label3D,is_uppercase);
 
-    BIND_METHOD(Label3D,set_render_priority);
-    BIND_METHOD(Label3D,get_render_priority);
+    SE_BIND_METHOD(Label3D,set_render_priority);
+    SE_BIND_METHOD(Label3D,get_render_priority);
 
-    BIND_METHOD(Label3D,set_outline_render_priority);
-    BIND_METHOD(Label3D,get_outline_render_priority);
+    SE_BIND_METHOD(Label3D,set_outline_render_priority);
+    SE_BIND_METHOD(Label3D,get_outline_render_priority);
 
-    BIND_METHOD(Label3D,set_font);
-    BIND_METHOD(Label3D,get_font);
+    SE_BIND_METHOD(Label3D,set_font);
+    SE_BIND_METHOD(Label3D,get_font);
 
-    BIND_METHOD(Label3D,set_line_spacing);
-    BIND_METHOD(Label3D,get_line_spacing);
+    SE_BIND_METHOD(Label3D,set_line_spacing);
+    SE_BIND_METHOD(Label3D,get_line_spacing);
 
-    BIND_METHOD(Label3D,set_autowrap);
-    BIND_METHOD(Label3D,get_autowrap);
+    SE_BIND_METHOD(Label3D,set_autowrap);
+    SE_BIND_METHOD(Label3D,get_autowrap);
 
-    BIND_METHOD(Label3D,set_width);
-    BIND_METHOD(Label3D,get_width);
+    SE_BIND_METHOD(Label3D,set_width);
+    SE_BIND_METHOD(Label3D,get_width);
 
-    BIND_METHOD(Label3D,set_pixel_size);
-    BIND_METHOD(Label3D,get_pixel_size);
+    SE_BIND_METHOD(Label3D,set_pixel_size);
+    SE_BIND_METHOD(Label3D,get_pixel_size);
 
-    BIND_METHOD(Label3D,set_offset);
-    BIND_METHOD(Label3D,get_offset);
+    SE_BIND_METHOD(Label3D,set_offset);
+    SE_BIND_METHOD(Label3D,get_offset);
 
-    BIND_METHOD(Label3D,set_draw_flag);
-    BIND_METHOD(Label3D,get_draw_flag);
+    SE_BIND_METHOD(Label3D,set_draw_flag);
+    SE_BIND_METHOD(Label3D,get_draw_flag);
 
-    BIND_METHOD(Label3D,set_billboard_mode);
-    BIND_METHOD(Label3D,get_billboard_mode);
+    SE_BIND_METHOD(Label3D,set_billboard_mode);
+    SE_BIND_METHOD(Label3D,get_billboard_mode);
 
-    BIND_METHOD(Label3D,set_alpha_cut_mode);
-    BIND_METHOD(Label3D,get_alpha_cut_mode);
+    SE_BIND_METHOD(Label3D,set_alpha_cut_mode);
+    SE_BIND_METHOD(Label3D,get_alpha_cut_mode);
 
-    BIND_METHOD(Label3D,set_alpha_scissor_threshold);
-    BIND_METHOD(Label3D,get_alpha_scissor_threshold);
+    SE_BIND_METHOD(Label3D,set_alpha_scissor_threshold);
+    SE_BIND_METHOD(Label3D,get_alpha_scissor_threshold);
 
-    BIND_METHOD(Label3D,generate_triangle_mesh);
+    SE_BIND_METHOD(Label3D,generate_triangle_mesh);
 
-    BIND_METHOD(Label3D,_queue_update);
-    BIND_METHOD(Label3D,_font_changed);
-    BIND_METHOD(Label3D,_im_update);
+    SE_BIND_METHOD(Label3D,_queue_update);
+    SE_BIND_METHOD(Label3D,_font_changed);
+    SE_BIND_METHOD(Label3D,_im_update);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pixel_size", PropertyHint::Range, "0.0001,128,0.0001"), "set_pixel_size", "get_pixel_size");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");

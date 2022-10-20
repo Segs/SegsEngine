@@ -293,23 +293,23 @@ RenderingServerEnums::ShaderMode CanvasItemMaterial::get_shader_mode() const {
 
 void CanvasItemMaterial::_bind_methods() {
 
-    BIND_METHOD(CanvasItemMaterial,set_blend_mode);
-    BIND_METHOD(CanvasItemMaterial,get_blend_mode);
+    SE_BIND_METHOD(CanvasItemMaterial,set_blend_mode);
+    SE_BIND_METHOD(CanvasItemMaterial,get_blend_mode);
 
-    BIND_METHOD(CanvasItemMaterial,set_light_mode);
-    BIND_METHOD(CanvasItemMaterial,get_light_mode);
+    SE_BIND_METHOD(CanvasItemMaterial,set_light_mode);
+    SE_BIND_METHOD(CanvasItemMaterial,get_light_mode);
 
-    BIND_METHOD(CanvasItemMaterial,set_particles_animation);
-    BIND_METHOD(CanvasItemMaterial,get_particles_animation);
+    SE_BIND_METHOD(CanvasItemMaterial,set_particles_animation);
+    SE_BIND_METHOD(CanvasItemMaterial,get_particles_animation);
 
-    BIND_METHOD(CanvasItemMaterial,set_particles_anim_h_frames);
-    BIND_METHOD(CanvasItemMaterial,get_particles_anim_h_frames);
+    SE_BIND_METHOD(CanvasItemMaterial,set_particles_anim_h_frames);
+    SE_BIND_METHOD(CanvasItemMaterial,get_particles_anim_h_frames);
 
-    BIND_METHOD(CanvasItemMaterial,set_particles_anim_v_frames);
-    BIND_METHOD(CanvasItemMaterial,get_particles_anim_v_frames);
+    SE_BIND_METHOD(CanvasItemMaterial,set_particles_anim_v_frames);
+    SE_BIND_METHOD(CanvasItemMaterial,get_particles_anim_v_frames);
 
-    BIND_METHOD(CanvasItemMaterial,set_particles_anim_loop);
-    BIND_METHOD(CanvasItemMaterial,get_particles_anim_loop);
+    SE_BIND_METHOD(CanvasItemMaterial,set_particles_anim_loop);
+    SE_BIND_METHOD(CanvasItemMaterial,get_particles_anim_loop);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "blend_mode", PropertyHint::Enum, "Mix,Add,Sub,Mul,Premult Alpha"), "set_blend_mode", "get_blend_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "light_mode", PropertyHint::Enum, "Normal,Unshaded,Light Only"), "set_light_mode", "get_light_mode");

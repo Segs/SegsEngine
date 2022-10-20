@@ -1958,100 +1958,100 @@ String AnimationTreePlayer::get_configuration_warning() const {
 
 void AnimationTreePlayer::_bind_methods() {
 
-    BIND_METHOD(AnimationTreePlayer,add_node);
+    SE_BIND_METHOD(AnimationTreePlayer,add_node);
 
-    BIND_METHOD(AnimationTreePlayer,node_exists);
-    BIND_METHOD(AnimationTreePlayer,node_rename);
+    SE_BIND_METHOD(AnimationTreePlayer,node_exists);
+    SE_BIND_METHOD(AnimationTreePlayer,node_rename);
 
-    BIND_METHOD(AnimationTreePlayer,node_get_type);
-    BIND_METHOD(AnimationTreePlayer,node_get_input_count);
-    BIND_METHOD(AnimationTreePlayer,node_get_input_source);
+    SE_BIND_METHOD(AnimationTreePlayer,node_get_type);
+    SE_BIND_METHOD(AnimationTreePlayer,node_get_input_count);
+    SE_BIND_METHOD(AnimationTreePlayer,node_get_input_source);
 
-    BIND_METHOD(AnimationTreePlayer,animation_node_set_animation);
-    BIND_METHOD(AnimationTreePlayer,animation_node_get_animation);
+    SE_BIND_METHOD(AnimationTreePlayer,animation_node_set_animation);
+    SE_BIND_METHOD(AnimationTreePlayer,animation_node_get_animation);
 
-    BIND_METHOD(AnimationTreePlayer,animation_node_set_master_animation);
-    BIND_METHOD(AnimationTreePlayer,animation_node_get_master_animation);
-    BIND_METHOD(AnimationTreePlayer,animation_node_get_position);
-    BIND_METHOD(AnimationTreePlayer,animation_node_set_filter_path);
+    SE_BIND_METHOD(AnimationTreePlayer,animation_node_set_master_animation);
+    SE_BIND_METHOD(AnimationTreePlayer,animation_node_get_master_animation);
+    SE_BIND_METHOD(AnimationTreePlayer,animation_node_get_position);
+    SE_BIND_METHOD(AnimationTreePlayer,animation_node_set_filter_path);
 
-    BIND_METHOD(AnimationTreePlayer,oneshot_node_set_fadein_time);
-    BIND_METHOD(AnimationTreePlayer,oneshot_node_get_fadein_time);
+    SE_BIND_METHOD(AnimationTreePlayer,oneshot_node_set_fadein_time);
+    SE_BIND_METHOD(AnimationTreePlayer,oneshot_node_get_fadein_time);
 
-    BIND_METHOD(AnimationTreePlayer,oneshot_node_set_fadeout_time);
-    BIND_METHOD(AnimationTreePlayer,oneshot_node_get_fadeout_time);
+    SE_BIND_METHOD(AnimationTreePlayer,oneshot_node_set_fadeout_time);
+    SE_BIND_METHOD(AnimationTreePlayer,oneshot_node_get_fadeout_time);
 
-    BIND_METHOD(AnimationTreePlayer,oneshot_node_set_autorestart);
-    BIND_METHOD(AnimationTreePlayer,oneshot_node_set_autorestart_delay);
-    BIND_METHOD(AnimationTreePlayer,oneshot_node_set_autorestart_random_delay);
+    SE_BIND_METHOD(AnimationTreePlayer,oneshot_node_set_autorestart);
+    SE_BIND_METHOD(AnimationTreePlayer,oneshot_node_set_autorestart_delay);
+    SE_BIND_METHOD(AnimationTreePlayer,oneshot_node_set_autorestart_random_delay);
 
-    BIND_METHOD(AnimationTreePlayer,oneshot_node_has_autorestart);
-    BIND_METHOD(AnimationTreePlayer,oneshot_node_get_autorestart_delay);
-    BIND_METHOD(AnimationTreePlayer,oneshot_node_get_autorestart_random_delay);
+    SE_BIND_METHOD(AnimationTreePlayer,oneshot_node_has_autorestart);
+    SE_BIND_METHOD(AnimationTreePlayer,oneshot_node_get_autorestart_delay);
+    SE_BIND_METHOD(AnimationTreePlayer,oneshot_node_get_autorestart_random_delay);
 
-    BIND_METHOD(AnimationTreePlayer,oneshot_node_start);
-    BIND_METHOD(AnimationTreePlayer,oneshot_node_stop);
-    BIND_METHOD(AnimationTreePlayer,oneshot_node_is_active);
-    BIND_METHOD(AnimationTreePlayer,oneshot_node_set_filter_path);
+    SE_BIND_METHOD(AnimationTreePlayer,oneshot_node_start);
+    SE_BIND_METHOD(AnimationTreePlayer,oneshot_node_stop);
+    SE_BIND_METHOD(AnimationTreePlayer,oneshot_node_is_active);
+    SE_BIND_METHOD(AnimationTreePlayer,oneshot_node_set_filter_path);
 
-    BIND_METHOD(AnimationTreePlayer,mix_node_set_amount);
-    BIND_METHOD(AnimationTreePlayer,mix_node_get_amount);
+    SE_BIND_METHOD(AnimationTreePlayer,mix_node_set_amount);
+    SE_BIND_METHOD(AnimationTreePlayer,mix_node_get_amount);
 
-    BIND_METHOD(AnimationTreePlayer,blend2_node_set_amount);
-    BIND_METHOD(AnimationTreePlayer,blend2_node_get_amount);
-    BIND_METHOD(AnimationTreePlayer,blend2_node_set_filter_path);
+    SE_BIND_METHOD(AnimationTreePlayer,blend2_node_set_amount);
+    SE_BIND_METHOD(AnimationTreePlayer,blend2_node_get_amount);
+    SE_BIND_METHOD(AnimationTreePlayer,blend2_node_set_filter_path);
 
-    BIND_METHOD(AnimationTreePlayer,blend3_node_set_amount);
-    BIND_METHOD(AnimationTreePlayer,blend3_node_get_amount);
+    SE_BIND_METHOD(AnimationTreePlayer,blend3_node_set_amount);
+    SE_BIND_METHOD(AnimationTreePlayer,blend3_node_get_amount);
 
-    BIND_METHOD(AnimationTreePlayer,blend4_node_set_amount);
-    BIND_METHOD(AnimationTreePlayer,blend4_node_get_amount);
+    SE_BIND_METHOD(AnimationTreePlayer,blend4_node_set_amount);
+    SE_BIND_METHOD(AnimationTreePlayer,blend4_node_get_amount);
 
-    BIND_METHOD(AnimationTreePlayer,timescale_node_set_scale);
-    BIND_METHOD(AnimationTreePlayer,timescale_node_get_scale);
+    SE_BIND_METHOD(AnimationTreePlayer,timescale_node_set_scale);
+    SE_BIND_METHOD(AnimationTreePlayer,timescale_node_get_scale);
 
-    BIND_METHOD(AnimationTreePlayer,timeseek_node_seek);
+    SE_BIND_METHOD(AnimationTreePlayer,timeseek_node_seek);
 
-    BIND_METHOD(AnimationTreePlayer,transition_node_set_input_count);
-    BIND_METHOD(AnimationTreePlayer,transition_node_get_input_count);
-    BIND_METHOD(AnimationTreePlayer,transition_node_delete_input);
+    SE_BIND_METHOD(AnimationTreePlayer,transition_node_set_input_count);
+    SE_BIND_METHOD(AnimationTreePlayer,transition_node_get_input_count);
+    SE_BIND_METHOD(AnimationTreePlayer,transition_node_delete_input);
 
-    BIND_METHOD(AnimationTreePlayer,transition_node_set_input_auto_advance);
-    BIND_METHOD(AnimationTreePlayer,transition_node_has_input_auto_advance);
+    SE_BIND_METHOD(AnimationTreePlayer,transition_node_set_input_auto_advance);
+    SE_BIND_METHOD(AnimationTreePlayer,transition_node_has_input_auto_advance);
 
-    BIND_METHOD(AnimationTreePlayer,transition_node_set_xfade_time);
-    BIND_METHOD(AnimationTreePlayer,transition_node_get_xfade_time);
+    SE_BIND_METHOD(AnimationTreePlayer,transition_node_set_xfade_time);
+    SE_BIND_METHOD(AnimationTreePlayer,transition_node_get_xfade_time);
 
-    BIND_METHOD(AnimationTreePlayer,transition_node_set_current);
-    BIND_METHOD(AnimationTreePlayer,transition_node_get_current);
+    SE_BIND_METHOD(AnimationTreePlayer,transition_node_set_current);
+    SE_BIND_METHOD(AnimationTreePlayer,transition_node_get_current);
 
-    BIND_METHOD(AnimationTreePlayer,node_set_position);
-    BIND_METHOD(AnimationTreePlayer,node_get_position);
+    SE_BIND_METHOD(AnimationTreePlayer,node_set_position);
+    SE_BIND_METHOD(AnimationTreePlayer,node_get_position);
 
-    BIND_METHOD(AnimationTreePlayer,remove_node);
-    BIND_METHOD(AnimationTreePlayer,connect_nodes);
-    BIND_METHOD(AnimationTreePlayer,are_nodes_connected);
-    BIND_METHOD(AnimationTreePlayer,disconnect_nodes);
+    SE_BIND_METHOD(AnimationTreePlayer,remove_node);
+    SE_BIND_METHOD(AnimationTreePlayer,connect_nodes);
+    SE_BIND_METHOD(AnimationTreePlayer,are_nodes_connected);
+    SE_BIND_METHOD(AnimationTreePlayer,disconnect_nodes);
 
-    BIND_METHOD(AnimationTreePlayer,set_active);
-    BIND_METHOD(AnimationTreePlayer,is_active);
+    SE_BIND_METHOD(AnimationTreePlayer,set_active);
+    SE_BIND_METHOD(AnimationTreePlayer,is_active);
 
-    BIND_METHOD(AnimationTreePlayer,set_base_path);
-    BIND_METHOD(AnimationTreePlayer,get_base_path);
+    SE_BIND_METHOD(AnimationTreePlayer,set_base_path);
+    SE_BIND_METHOD(AnimationTreePlayer,get_base_path);
 
-    BIND_METHOD(AnimationTreePlayer,set_master_player);
-    BIND_METHOD(AnimationTreePlayer,get_master_player);
+    SE_BIND_METHOD(AnimationTreePlayer,set_master_player);
+    SE_BIND_METHOD(AnimationTreePlayer,get_master_player);
 
-    BIND_METHOD(AnimationTreePlayer,get_node_vector);
+    SE_BIND_METHOD(AnimationTreePlayer,get_node_vector);
 
-    BIND_METHOD(AnimationTreePlayer,set_animation_process_mode);
-    BIND_METHOD(AnimationTreePlayer,get_animation_process_mode);
+    SE_BIND_METHOD(AnimationTreePlayer,set_animation_process_mode);
+    SE_BIND_METHOD(AnimationTreePlayer,get_animation_process_mode);
 
-    BIND_METHOD(AnimationTreePlayer,advance);
+    SE_BIND_METHOD(AnimationTreePlayer,advance);
 
-    BIND_METHOD(AnimationTreePlayer,reset);
+    SE_BIND_METHOD(AnimationTreePlayer,reset);
 
-    BIND_METHOD(AnimationTreePlayer,recompute_caches);
+    SE_BIND_METHOD(AnimationTreePlayer,recompute_caches);
 
     ADD_GROUP("Playback", "playback_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "playback_process_mode", PropertyHint::Enum, "Physics,Idle"), "set_animation_process_mode", "get_animation_process_mode");

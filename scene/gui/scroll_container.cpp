@@ -577,25 +577,25 @@ VScrollBar *ScrollContainer::get_v_scrollbar() {
 
 void ScrollContainer::_bind_methods() {
 
-    BIND_METHOD(ScrollContainer,_gui_input);
-    BIND_METHOD(ScrollContainer,set_enable_h_scroll);
-    BIND_METHOD(ScrollContainer,is_h_scroll_enabled);
-    BIND_METHOD(ScrollContainer,set_enable_v_scroll);
-    BIND_METHOD(ScrollContainer,is_v_scroll_enabled);
+    SE_BIND_METHOD(ScrollContainer,_gui_input);
+    SE_BIND_METHOD(ScrollContainer,set_enable_h_scroll);
+    SE_BIND_METHOD(ScrollContainer,is_h_scroll_enabled);
+    SE_BIND_METHOD(ScrollContainer,set_enable_v_scroll);
+    SE_BIND_METHOD(ScrollContainer,is_v_scroll_enabled);
 
-    BIND_METHOD(ScrollContainer,set_h_scroll);
-    BIND_METHOD(ScrollContainer,get_h_scroll);
-    BIND_METHOD(ScrollContainer,set_v_scroll);
-    BIND_METHOD(ScrollContainer,get_v_scroll);
-    BIND_METHOD(ScrollContainer,set_deadzone);
-    BIND_METHOD(ScrollContainer,get_deadzone);
-    BIND_METHOD(ScrollContainer,set_follow_focus);
-    BIND_METHOD(ScrollContainer,is_following_focus);
+    SE_BIND_METHOD(ScrollContainer,set_h_scroll);
+    SE_BIND_METHOD(ScrollContainer,get_h_scroll);
+    SE_BIND_METHOD(ScrollContainer,set_v_scroll);
+    SE_BIND_METHOD(ScrollContainer,get_v_scroll);
+    SE_BIND_METHOD(ScrollContainer,set_deadzone);
+    SE_BIND_METHOD(ScrollContainer,get_deadzone);
+    SE_BIND_METHOD(ScrollContainer,set_follow_focus);
+    SE_BIND_METHOD(ScrollContainer,is_following_focus);
 
 
-    BIND_METHOD(ScrollContainer,get_h_scrollbar);
-    BIND_METHOD(ScrollContainer,get_v_scrollbar);
-    BIND_METHOD(ScrollContainer,ensure_control_visible);
+    SE_BIND_METHOD(ScrollContainer,get_h_scrollbar);
+    SE_BIND_METHOD(ScrollContainer,get_v_scrollbar);
+    SE_BIND_METHOD(ScrollContainer,ensure_control_visible);
 
     ADD_SIGNAL(MethodInfo("scroll_started"));
     ADD_SIGNAL(MethodInfo("scroll_ended"));

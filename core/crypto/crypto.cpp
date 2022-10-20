@@ -57,7 +57,7 @@ CryptoKey *CryptoKey::create() {
 void CryptoKey::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("save", { "path", "public_only" }), &CryptoKey::save,{DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("load", { "path", "public_only" }), &CryptoKey::load,{DEFVAL(false)});
-    BIND_METHOD(CryptoKey,is_public_only);
+    SE_BIND_METHOD(CryptoKey,is_public_only);
     MethodBinder::bind_method(D_METHOD("save_to_string", {"public_only"}), &CryptoKey::save_to_string, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("load_from_string", {"string_key", "public_only"}), &CryptoKey::load_from_string, {DEFVAL(false)});
 }
@@ -71,16 +71,16 @@ X509Certificate *X509Certificate::create() {
 }
 
 void X509Certificate::_bind_methods() {
-    BIND_METHOD(X509Certificate,save);
-    BIND_METHOD(X509Certificate,load);
+    SE_BIND_METHOD(X509Certificate,save);
+    SE_BIND_METHOD(X509Certificate,load);
 }
 
 /// HMACContext
 
 void HMACContext::_bind_methods() {
-    BIND_METHOD(HMACContext,start);
-    BIND_METHOD(HMACContext,update);
-    BIND_METHOD(HMACContext,finish);
+    SE_BIND_METHOD(HMACContext,start);
+    SE_BIND_METHOD(HMACContext,update);
+    SE_BIND_METHOD(HMACContext,finish);
 }
 
 HMACContext *(*HMACContext::_create)() = nullptr;
@@ -138,18 +138,18 @@ bool Crypto::constant_time_compare(PoolByteArray p_trusted, PoolByteArray p_rece
 }
 
 void Crypto::_bind_methods() {
-    BIND_METHOD(Crypto,generate_random_bytes);
-    BIND_METHOD(Crypto,generate_rsa);
+    SE_BIND_METHOD(Crypto,generate_random_bytes);
+    SE_BIND_METHOD(Crypto,generate_rsa);
     MethodBinder::bind_method(
             D_METHOD("generate_self_signed_certificate", { "key", "issuer_name", "not_before", "not_after" }),
             &Crypto::generate_self_signed_certificate,
             { Variant("CN=myserver,O=myorganisation,C=IT"), Variant("20140101000000"), Variant("20340101000000") });
-    BIND_METHOD(Crypto,sign);
-    BIND_METHOD(Crypto,verify);
-    BIND_METHOD(Crypto,encrypt);
-    BIND_METHOD(Crypto,decrypt);
-    BIND_METHOD(Crypto,hmac_digest);
-    BIND_METHOD(Crypto,constant_time_compare);
+    SE_BIND_METHOD(Crypto,sign);
+    SE_BIND_METHOD(Crypto,verify);
+    SE_BIND_METHOD(Crypto,encrypt);
+    SE_BIND_METHOD(Crypto,decrypt);
+    SE_BIND_METHOD(Crypto,hmac_digest);
+    SE_BIND_METHOD(Crypto,constant_time_compare);
 }
 
 PoolByteArray Crypto::generate_random_bytes(int p_bytes) {

@@ -1006,21 +1006,21 @@ bool ProjectSettings::has_custom_feature(StringView p_feature) const {
 }
 
 void ProjectSettings::_bind_methods() {
-    BIND_METHOD(ProjectSettings,has_setting);
-    BIND_METHOD(ProjectSettings,set_setting);
-    BIND_METHOD(ProjectSettings,get_setting);
-    BIND_METHOD(ProjectSettings,set_order);
-    BIND_METHOD(ProjectSettings,get_order);
-    BIND_METHOD(ProjectSettings,set_initial_value);
+    SE_BIND_METHOD(ProjectSettings,has_setting);
+    SE_BIND_METHOD(ProjectSettings,set_setting);
+    SE_BIND_METHOD(ProjectSettings,get_setting);
+    SE_BIND_METHOD(ProjectSettings,set_order);
+    SE_BIND_METHOD(ProjectSettings,get_order);
+    SE_BIND_METHOD(ProjectSettings,set_initial_value);
     MethodBinder::bind_method(D_METHOD("add_property_info", { "hint" }), &ProjectSettings::_add_property_info_bind);
-    BIND_METHOD(ProjectSettings,clear);
-    BIND_METHOD(ProjectSettings,localize_path);
-    BIND_METHOD(ProjectSettings,globalize_path);
-    BIND_METHOD(ProjectSettings,save);
+    SE_BIND_METHOD(ProjectSettings,clear);
+    SE_BIND_METHOD(ProjectSettings,localize_path);
+    SE_BIND_METHOD(ProjectSettings,globalize_path);
+    SE_BIND_METHOD(ProjectSettings,save);
     MethodBinder::bind_method(D_METHOD("load_resource_pack", { "pack", "replace_files" }),
             &ProjectSettings::_load_resource_pack, { Variant(true) });
-    BIND_METHOD(ProjectSettings,property_can_revert);
-    BIND_METHOD(ProjectSettings,property_get_revert);
+    SE_BIND_METHOD(ProjectSettings,property_can_revert);
+    SE_BIND_METHOD(ProjectSettings,property_get_revert);
 
     MethodBinder::bind_method(D_METHOD("save_custom", { "file" }), &ProjectSettings::_save_custom_bnd);
     ADD_SIGNAL(MethodInfo("project_settings_changed"));

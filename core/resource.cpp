@@ -390,15 +390,15 @@ void Resource::changed() {}
 void Resource::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_path", {"path"}), &Resource::_set_path);
     MethodBinder::bind_method(D_METHOD("take_over_path", {"path"}), &Resource::_take_over_path);
-    BIND_METHOD(Resource,get_path);
-    BIND_METHOD(Resource,set_name);
-    BIND_METHOD(Resource,get_name);
-    BIND_METHOD(Resource,get_rid);
-    BIND_METHOD(Resource,get_phys_rid);
-    BIND_METHOD(Resource,set_local_to_scene);
-    BIND_METHOD(Resource,is_local_to_scene);
-    BIND_METHOD(Resource,get_local_scene);
-    BIND_METHOD(Resource,setup_local_to_scene);
+    SE_BIND_METHOD(Resource,get_path);
+    SE_BIND_METHOD(Resource,set_name);
+    SE_BIND_METHOD(Resource,get_name);
+    SE_BIND_METHOD(Resource,get_rid);
+    SE_BIND_METHOD(Resource,get_phys_rid);
+    SE_BIND_METHOD(Resource,set_local_to_scene);
+    SE_BIND_METHOD(Resource,is_local_to_scene);
+    SE_BIND_METHOD(Resource,get_local_scene);
+    SE_BIND_METHOD(Resource,setup_local_to_scene);
 
     MethodBinder::bind_method(D_METHOD("duplicate", {"subresources"}), &Resource::duplicate, {DEFVAL(false)});
 //    const auto &mo = Resource::staticMetaObject;

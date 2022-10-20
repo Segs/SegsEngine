@@ -1491,7 +1491,7 @@ void PopupMenu::clear_autohide_areas() {
 
 void PopupMenu::_bind_methods() {
 
-    BIND_METHOD(PopupMenu,_gui_input);
+    SE_BIND_METHOD(PopupMenu,_gui_input);
 
     MethodBinder::bind_method(D_METHOD("add_item", {"label", "id", "accel"}), &PopupMenu::add_item, {DEFVAL(-1), DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("add_icon_item", {"texture", "label", "id", "accel"}), &PopupMenu::add_icon_item, {DEFVAL(-1), DEFVAL(0)});
@@ -1511,72 +1511,72 @@ void PopupMenu::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_submenu_item", {"label", "submenu", "id"}), &PopupMenu::add_submenu_item, {DEFVAL(-1)});
 
-    BIND_METHOD(PopupMenu,set_item_text);
-    BIND_METHOD(PopupMenu,set_item_icon);
-    BIND_METHOD(PopupMenu,set_item_checked);
-    BIND_METHOD(PopupMenu,set_item_id);
-    BIND_METHOD(PopupMenu,set_item_accelerator);
-    BIND_METHOD(PopupMenu,set_item_metadata);
-    BIND_METHOD(PopupMenu,set_item_disabled);
-    BIND_METHOD(PopupMenu,set_item_submenu);
-    BIND_METHOD(PopupMenu,set_item_as_separator);
-    BIND_METHOD(PopupMenu,set_item_as_checkable);
-    BIND_METHOD(PopupMenu,set_item_as_radio_checkable);
-    BIND_METHOD(PopupMenu,set_item_tooltip);
+    SE_BIND_METHOD(PopupMenu,set_item_text);
+    SE_BIND_METHOD(PopupMenu,set_item_icon);
+    SE_BIND_METHOD(PopupMenu,set_item_checked);
+    SE_BIND_METHOD(PopupMenu,set_item_id);
+    SE_BIND_METHOD(PopupMenu,set_item_accelerator);
+    SE_BIND_METHOD(PopupMenu,set_item_metadata);
+    SE_BIND_METHOD(PopupMenu,set_item_disabled);
+    SE_BIND_METHOD(PopupMenu,set_item_submenu);
+    SE_BIND_METHOD(PopupMenu,set_item_as_separator);
+    SE_BIND_METHOD(PopupMenu,set_item_as_checkable);
+    SE_BIND_METHOD(PopupMenu,set_item_as_radio_checkable);
+    SE_BIND_METHOD(PopupMenu,set_item_tooltip);
     MethodBinder::bind_method(D_METHOD("set_item_shortcut", {"idx", "shortcut", "global"}), &PopupMenu::set_item_shortcut, {DEFVAL(false)});
-    BIND_METHOD(PopupMenu,set_item_multistate);
-    BIND_METHOD(PopupMenu,set_item_shortcut_disabled);
+    SE_BIND_METHOD(PopupMenu,set_item_multistate);
+    SE_BIND_METHOD(PopupMenu,set_item_shortcut_disabled);
 
-    BIND_METHOD(PopupMenu,toggle_item_checked);
-    BIND_METHOD(PopupMenu,toggle_item_multistate);
+    SE_BIND_METHOD(PopupMenu,toggle_item_checked);
+    SE_BIND_METHOD(PopupMenu,toggle_item_multistate);
 
-    BIND_METHOD(PopupMenu,get_item_text);
-    BIND_METHOD(PopupMenu,get_item_icon);
-    BIND_METHOD(PopupMenu,is_item_checked);
-    BIND_METHOD(PopupMenu,get_item_id);
-    BIND_METHOD(PopupMenu,get_item_index);
-    BIND_METHOD(PopupMenu,get_item_accelerator);
-    BIND_METHOD(PopupMenu,get_item_metadata);
-    BIND_METHOD(PopupMenu,is_item_disabled);
-    BIND_METHOD(PopupMenu,get_item_submenu);
-    BIND_METHOD(PopupMenu,is_item_separator);
-    BIND_METHOD(PopupMenu,is_item_checkable);
-    BIND_METHOD(PopupMenu,is_item_radio_checkable);
-    BIND_METHOD(PopupMenu,is_item_shortcut_disabled);
-    BIND_METHOD(PopupMenu,get_item_tooltip);
-    BIND_METHOD(PopupMenu,get_item_shortcut);
+    SE_BIND_METHOD(PopupMenu,get_item_text);
+    SE_BIND_METHOD(PopupMenu,get_item_icon);
+    SE_BIND_METHOD(PopupMenu,is_item_checked);
+    SE_BIND_METHOD(PopupMenu,get_item_id);
+    SE_BIND_METHOD(PopupMenu,get_item_index);
+    SE_BIND_METHOD(PopupMenu,get_item_accelerator);
+    SE_BIND_METHOD(PopupMenu,get_item_metadata);
+    SE_BIND_METHOD(PopupMenu,is_item_disabled);
+    SE_BIND_METHOD(PopupMenu,get_item_submenu);
+    SE_BIND_METHOD(PopupMenu,is_item_separator);
+    SE_BIND_METHOD(PopupMenu,is_item_checkable);
+    SE_BIND_METHOD(PopupMenu,is_item_radio_checkable);
+    SE_BIND_METHOD(PopupMenu,is_item_shortcut_disabled);
+    SE_BIND_METHOD(PopupMenu,get_item_tooltip);
+    SE_BIND_METHOD(PopupMenu,get_item_shortcut);
 
-    BIND_METHOD(PopupMenu,set_current_index);
-    BIND_METHOD(PopupMenu,get_current_index);
-    BIND_METHOD(PopupMenu,get_item_count);
+    SE_BIND_METHOD(PopupMenu,set_current_index);
+    SE_BIND_METHOD(PopupMenu,get_current_index);
+    SE_BIND_METHOD(PopupMenu,get_item_count);
 
-    BIND_METHOD(PopupMenu,remove_item);
+    SE_BIND_METHOD(PopupMenu,remove_item);
 
     MethodBinder::bind_method(D_METHOD("add_separator", {"label","id"}), &PopupMenu::add_separator, {DEFVAL(StringView("")),DEFVAL(int(-1))});
-    BIND_METHOD(PopupMenu,clear);
+    SE_BIND_METHOD(PopupMenu,clear);
 
-    BIND_METHOD(PopupMenu,_set_items);
-    BIND_METHOD(PopupMenu,_get_items);
+    SE_BIND_METHOD(PopupMenu,_set_items);
+    SE_BIND_METHOD(PopupMenu,_get_items);
 
-    BIND_METHOD(PopupMenu,set_hide_on_item_selection);
-    BIND_METHOD(PopupMenu,is_hide_on_item_selection);
+    SE_BIND_METHOD(PopupMenu,set_hide_on_item_selection);
+    SE_BIND_METHOD(PopupMenu,is_hide_on_item_selection);
 
-    BIND_METHOD(PopupMenu,set_hide_on_checkable_item_selection);
-    BIND_METHOD(PopupMenu,is_hide_on_checkable_item_selection);
+    SE_BIND_METHOD(PopupMenu,set_hide_on_checkable_item_selection);
+    SE_BIND_METHOD(PopupMenu,is_hide_on_checkable_item_selection);
 
     MethodBinder::bind_method(D_METHOD("set_hide_on_state_item_selection", {"enable"}), &PopupMenu::set_hide_on_multistate_item_selection);
     MethodBinder::bind_method(D_METHOD("is_hide_on_state_item_selection"), &PopupMenu::is_hide_on_multistate_item_selection);
 
-    BIND_METHOD(PopupMenu,set_submenu_popup_delay);
-    BIND_METHOD(PopupMenu,get_submenu_popup_delay);
+    SE_BIND_METHOD(PopupMenu,set_submenu_popup_delay);
+    SE_BIND_METHOD(PopupMenu,get_submenu_popup_delay);
 
-    BIND_METHOD(PopupMenu,set_hide_on_window_lose_focus);
-    BIND_METHOD(PopupMenu,is_hide_on_window_lose_focus);
+    SE_BIND_METHOD(PopupMenu,set_hide_on_window_lose_focus);
+    SE_BIND_METHOD(PopupMenu,is_hide_on_window_lose_focus);
 
-    BIND_METHOD(PopupMenu,set_allow_search);
-    BIND_METHOD(PopupMenu,get_allow_search);
+    SE_BIND_METHOD(PopupMenu,set_allow_search);
+    SE_BIND_METHOD(PopupMenu,get_allow_search);
 
-    BIND_METHOD(PopupMenu,_submenu_timeout);
+    SE_BIND_METHOD(PopupMenu,_submenu_timeout);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "hide_on_item_selection"), "set_hide_on_item_selection", "is_hide_on_item_selection");

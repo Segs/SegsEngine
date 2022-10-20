@@ -809,7 +809,7 @@ void TextureRegionEditor::_node_removed(Object *p_obj) {
 }
 
 void TextureRegionEditor::_bind_methods() {
-    BIND_METHOD(TextureRegionEditor,_update_rect);
+    SE_BIND_METHOD(TextureRegionEditor,_update_rect);
 }
 
 bool TextureRegionEditor::is_stylebox() {
@@ -1135,7 +1135,7 @@ void TextureRegionEditorPlugin::set_state(const Dictionary &p_state) {
 }
 
 void TextureRegionEditorPlugin::_bind_methods() {
-    BIND_METHOD(TextureRegionEditorPlugin,_editor_visiblity_changed);
+    SE_BIND_METHOD(TextureRegionEditorPlugin,_editor_visiblity_changed);
 }
 
 TextureRegionEditorPlugin::TextureRegionEditorPlugin(EditorNode *p_node) {

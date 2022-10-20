@@ -153,15 +153,15 @@ bool VisualInstance3D::get_layer_mask_bit(int p_layer) const {
 void VisualInstance3D::_bind_methods() {
 
     //MethodBinder::bind_method(D_METHOD("_get_visual_instance_rid"), &VisualInstance3D::get_instance);
-    BIND_METHOD(VisualInstance3D,set_base);
-    BIND_METHOD(VisualInstance3D,get_base);
-    BIND_METHOD(VisualInstance3D,get_instance);
-    BIND_METHOD(VisualInstance3D,set_layer_mask);
-    BIND_METHOD(VisualInstance3D,get_layer_mask);
-    BIND_METHOD(VisualInstance3D,set_layer_mask_bit);
-    BIND_METHOD(VisualInstance3D,get_layer_mask_bit);
+    SE_BIND_METHOD(VisualInstance3D,set_base);
+    SE_BIND_METHOD(VisualInstance3D,get_base);
+    SE_BIND_METHOD(VisualInstance3D,get_instance);
+    SE_BIND_METHOD(VisualInstance3D,set_layer_mask);
+    SE_BIND_METHOD(VisualInstance3D,get_layer_mask);
+    SE_BIND_METHOD(VisualInstance3D,set_layer_mask_bit);
+    SE_BIND_METHOD(VisualInstance3D,get_layer_mask_bit);
 
-    BIND_METHOD(VisualInstance3D,get_transformed_aabb);
+    SE_BIND_METHOD(VisualInstance3D,get_transformed_aabb);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "layers", PropertyHint::Layers3DRenderer), "set_layer_mask", "get_layer_mask");
 }
@@ -309,40 +309,40 @@ void GeometryInstance::set_custom_aabb(AABB aabb) {
 
 void GeometryInstance::_bind_methods() {
 
-    BIND_METHOD(GeometryInstance,set_material_override);
-    BIND_METHOD(GeometryInstance,get_material_override);
+    SE_BIND_METHOD(GeometryInstance,set_material_override);
+    SE_BIND_METHOD(GeometryInstance,get_material_override);
 
-    BIND_METHOD(GeometryInstance,set_material_overlay);
-    BIND_METHOD(GeometryInstance,get_material_overlay);
-    BIND_METHOD(GeometryInstance,set_flag);
-    BIND_METHOD(GeometryInstance,get_flag);
+    SE_BIND_METHOD(GeometryInstance,set_material_overlay);
+    SE_BIND_METHOD(GeometryInstance,get_material_overlay);
+    SE_BIND_METHOD(GeometryInstance,set_flag);
+    SE_BIND_METHOD(GeometryInstance,get_flag);
 
-    BIND_METHOD(GeometryInstance,set_cast_shadows_setting);
-    BIND_METHOD(GeometryInstance,get_cast_shadows_setting);
+    SE_BIND_METHOD(GeometryInstance,set_cast_shadows_setting);
+    SE_BIND_METHOD(GeometryInstance,get_cast_shadows_setting);
 
-    BIND_METHOD(GeometryInstance,set_generate_lightmap);
-    BIND_METHOD(GeometryInstance,get_generate_lightmap);
+    SE_BIND_METHOD(GeometryInstance,set_generate_lightmap);
+    SE_BIND_METHOD(GeometryInstance,get_generate_lightmap);
 
-    BIND_METHOD(GeometryInstance,set_lightmap_scale);
-    BIND_METHOD(GeometryInstance,get_lightmap_scale);
-    BIND_METHOD(GeometryInstance,set_lod_max_hysteresis);
-    BIND_METHOD(GeometryInstance,get_lod_max_hysteresis);
+    SE_BIND_METHOD(GeometryInstance,set_lightmap_scale);
+    SE_BIND_METHOD(GeometryInstance,get_lightmap_scale);
+    SE_BIND_METHOD(GeometryInstance,set_lod_max_hysteresis);
+    SE_BIND_METHOD(GeometryInstance,get_lod_max_hysteresis);
 
-    BIND_METHOD(GeometryInstance,set_lod_max_distance);
-    BIND_METHOD(GeometryInstance,get_lod_max_distance);
+    SE_BIND_METHOD(GeometryInstance,set_lod_max_distance);
+    SE_BIND_METHOD(GeometryInstance,get_lod_max_distance);
 
-    BIND_METHOD(GeometryInstance,set_lod_min_hysteresis);
-    BIND_METHOD(GeometryInstance,get_lod_min_hysteresis);
+    SE_BIND_METHOD(GeometryInstance,set_lod_min_hysteresis);
+    SE_BIND_METHOD(GeometryInstance,get_lod_min_hysteresis);
 
-    BIND_METHOD(GeometryInstance,set_lod_min_distance);
-    BIND_METHOD(GeometryInstance,get_lod_min_distance);
+    SE_BIND_METHOD(GeometryInstance,set_lod_min_distance);
+    SE_BIND_METHOD(GeometryInstance,get_lod_min_distance);
 
-    BIND_METHOD(GeometryInstance,set_extra_cull_margin);
-    BIND_METHOD(GeometryInstance,get_extra_cull_margin);
+    SE_BIND_METHOD(GeometryInstance,set_extra_cull_margin);
+    SE_BIND_METHOD(GeometryInstance,get_extra_cull_margin);
 
-    BIND_METHOD(GeometryInstance,set_custom_aabb);
+    SE_BIND_METHOD(GeometryInstance,set_custom_aabb);
 
-    BIND_METHOD(GeometryInstance,get_aabb);
+    SE_BIND_METHOD(GeometryInstance,get_aabb);
 
     ADD_GROUP("Geometry", "");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material_override", PropertyHint::ResourceType, "ShaderMaterial,SpatialMaterial"), "set_material_override", "get_material_override");

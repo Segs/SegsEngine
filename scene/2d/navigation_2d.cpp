@@ -41,17 +41,17 @@ IMPL_GDCLASS(Navigation2D)
 
 void Navigation2D::_bind_methods() {
 
-    BIND_METHOD(Navigation2D,get_rid);
+    SE_BIND_METHOD(Navigation2D,get_rid);
 
     MethodBinder::bind_method(D_METHOD("get_simple_path", {"start", "end", "optimize"}),&Navigation2D::get_simple_path, {DEFVAL(true)});
-    BIND_METHOD(Navigation2D,get_closest_point);
-    BIND_METHOD(Navigation2D,get_closest_point_owner);
+    SE_BIND_METHOD(Navigation2D,get_closest_point);
+    SE_BIND_METHOD(Navigation2D,get_closest_point_owner);
 
-    BIND_METHOD(Navigation2D,set_cell_size);
-    BIND_METHOD(Navigation2D,get_cell_size);
+    SE_BIND_METHOD(Navigation2D,set_cell_size);
+    SE_BIND_METHOD(Navigation2D,get_cell_size);
 
-    BIND_METHOD(Navigation2D,set_edge_connection_margin);
-    BIND_METHOD(Navigation2D,get_edge_connection_margin);
+    SE_BIND_METHOD(Navigation2D,set_edge_connection_margin);
+    SE_BIND_METHOD(Navigation2D,get_edge_connection_margin);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "cell_size"), "set_cell_size", "get_cell_size");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "edge_connection_margin"), "set_edge_connection_margin", "get_edge_connection_margin");

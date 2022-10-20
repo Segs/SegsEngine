@@ -2724,10 +2724,10 @@ MenuButton *FileSystemDock::_create_file_menu_button() {
 
 void FileSystemDock::_bind_methods() {
 
-    BIND_METHOD(FileSystemDock,get_drag_data_fw);
-    BIND_METHOD(FileSystemDock,can_drop_data_fw);
-    BIND_METHOD(FileSystemDock,drop_data_fw);
-    BIND_METHOD(FileSystemDock,navigate_to_path);
+    SE_BIND_METHOD(FileSystemDock,get_drag_data_fw);
+    SE_BIND_METHOD(FileSystemDock,can_drop_data_fw);
+    SE_BIND_METHOD(FileSystemDock,drop_data_fw);
+    SE_BIND_METHOD(FileSystemDock,navigate_to_path);
 
     ADD_SIGNAL(MethodInfo("inherit", PropertyInfo(VariantType::STRING, "file")));
     ADD_SIGNAL(MethodInfo("instance", PropertyInfo(VariantType::POOL_STRING_ARRAY, "files")));

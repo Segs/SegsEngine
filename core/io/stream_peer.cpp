@@ -304,32 +304,32 @@ void StreamPeer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_data", {"bytes"}), &StreamPeer::_get_data);
     MethodBinder::bind_method(D_METHOD("get_partial_data", {"bytes"}), &StreamPeer::_get_partial_data);
 
-    BIND_METHOD(StreamPeer,get_available_bytes);
+    SE_BIND_METHOD(StreamPeer,get_available_bytes);
 
-    BIND_METHOD(StreamPeer,put_8);
-    BIND_METHOD(StreamPeer,put_u8);
-    BIND_METHOD(StreamPeer,put_16);
-    BIND_METHOD(StreamPeer,put_u16);
-    BIND_METHOD(StreamPeer,put_32);
-    BIND_METHOD(StreamPeer,put_u32);
-    BIND_METHOD(StreamPeer,put_64);
-    BIND_METHOD(StreamPeer,put_u64);
-    BIND_METHOD(StreamPeer,put_float);
-    BIND_METHOD(StreamPeer,put_double);
-    BIND_METHOD(StreamPeer,put_string);
-    BIND_METHOD(StreamPeer,put_utf8_string);
+    SE_BIND_METHOD(StreamPeer,put_8);
+    SE_BIND_METHOD(StreamPeer,put_u8);
+    SE_BIND_METHOD(StreamPeer,put_16);
+    SE_BIND_METHOD(StreamPeer,put_u16);
+    SE_BIND_METHOD(StreamPeer,put_32);
+    SE_BIND_METHOD(StreamPeer,put_u32);
+    SE_BIND_METHOD(StreamPeer,put_64);
+    SE_BIND_METHOD(StreamPeer,put_u64);
+    SE_BIND_METHOD(StreamPeer,put_float);
+    SE_BIND_METHOD(StreamPeer,put_double);
+    SE_BIND_METHOD(StreamPeer,put_string);
+    SE_BIND_METHOD(StreamPeer,put_utf8_string);
     MethodBinder::bind_method(D_METHOD("put_var", {"value", "full_objects"}), &StreamPeer::put_var, {DEFVAL(false)});
 
-    BIND_METHOD(StreamPeer,get_8);
-    BIND_METHOD(StreamPeer,get_u8);
-    BIND_METHOD(StreamPeer,get_16);
-    BIND_METHOD(StreamPeer,get_u16);
-    BIND_METHOD(StreamPeer,get_32);
-    BIND_METHOD(StreamPeer,get_u32);
-    BIND_METHOD(StreamPeer,get_64);
-    BIND_METHOD(StreamPeer,get_u64);
-    BIND_METHOD(StreamPeer,get_float);
-    BIND_METHOD(StreamPeer,get_double);
+    SE_BIND_METHOD(StreamPeer,get_8);
+    SE_BIND_METHOD(StreamPeer,get_u8);
+    SE_BIND_METHOD(StreamPeer,get_16);
+    SE_BIND_METHOD(StreamPeer,get_u16);
+    SE_BIND_METHOD(StreamPeer,get_32);
+    SE_BIND_METHOD(StreamPeer,get_u32);
+    SE_BIND_METHOD(StreamPeer,get_64);
+    SE_BIND_METHOD(StreamPeer,get_u64);
+    SE_BIND_METHOD(StreamPeer,get_float);
+    SE_BIND_METHOD(StreamPeer,get_double);
     MethodBinder::bind_method(D_METHOD("get_string", {"bytes"}), &StreamPeer::get_string, {DEFVAL(-1)});
     //MethodBinder::bind_method(D_METHOD("get_utf8_string", {"bytes"}), &StreamPeer::get_utf8_string, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("get_var", {"allow_objects"}), &StreamPeer::get_var, {DEFVAL(false)});
@@ -339,14 +339,14 @@ void StreamPeer::_bind_methods() {
 
 void StreamPeerBuffer::_bind_methods() {
 
-    BIND_METHOD(StreamPeerBuffer,seek);
-    BIND_METHOD(StreamPeerBuffer,get_size);
-    BIND_METHOD(StreamPeerBuffer,get_position);
-    BIND_METHOD(StreamPeerBuffer,resize);
-    BIND_METHOD(StreamPeerBuffer,set_data_array);
-    BIND_METHOD(StreamPeerBuffer,get_data_array);
-    BIND_METHOD(StreamPeerBuffer,clear);
-    BIND_METHOD(StreamPeerBuffer,duplicate);
+    SE_BIND_METHOD(StreamPeerBuffer,seek);
+    SE_BIND_METHOD(StreamPeerBuffer,get_size);
+    SE_BIND_METHOD(StreamPeerBuffer,get_position);
+    SE_BIND_METHOD(StreamPeerBuffer,resize);
+    SE_BIND_METHOD(StreamPeerBuffer,set_data_array);
+    SE_BIND_METHOD(StreamPeerBuffer,get_data_array);
+    SE_BIND_METHOD(StreamPeerBuffer,clear);
+    SE_BIND_METHOD(StreamPeerBuffer,duplicate);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data_array"), "set_data_array", "get_data_array");
 }

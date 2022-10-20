@@ -141,14 +141,14 @@ float AudioEffectStereoEnhance::get_surround() const {
 
 void AudioEffectStereoEnhance::_bind_methods() {
 
-    BIND_METHOD(AudioEffectStereoEnhance,set_pan_pullout);
-    BIND_METHOD(AudioEffectStereoEnhance,get_pan_pullout);
+    SE_BIND_METHOD(AudioEffectStereoEnhance,set_pan_pullout);
+    SE_BIND_METHOD(AudioEffectStereoEnhance,get_pan_pullout);
 
-    BIND_METHOD(AudioEffectStereoEnhance,set_time_pullout);
-    BIND_METHOD(AudioEffectStereoEnhance,get_time_pullout);
+    SE_BIND_METHOD(AudioEffectStereoEnhance,set_time_pullout);
+    SE_BIND_METHOD(AudioEffectStereoEnhance,get_time_pullout);
 
-    BIND_METHOD(AudioEffectStereoEnhance,set_surround);
-    BIND_METHOD(AudioEffectStereoEnhance,get_surround);
+    SE_BIND_METHOD(AudioEffectStereoEnhance,set_surround);
+    SE_BIND_METHOD(AudioEffectStereoEnhance,get_surround);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pan_pullout", PropertyHint::Range, "0,4,0.01"), "set_pan_pullout", "get_pan_pullout");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "time_pullout_ms", PropertyHint::Range, "0,50,0.01"), "set_time_pullout", "get_time_pullout");
