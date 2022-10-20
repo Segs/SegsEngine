@@ -1,4 +1,4 @@
-[![Godot Engine logo](/logo.png)](https://godotengine.org)
+![SEGS Engine logo](main/splash.png)
 
 # This is a heavily modified stand-alone fork of the Godot engine
 
