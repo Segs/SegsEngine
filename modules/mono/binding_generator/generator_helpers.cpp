@@ -2,17 +2,9 @@
 #include "type_system.h"
 
 #include "core/string_utils.h"
-#include "core/string_utils.inl"
 #include "core/string_builder.h"
-#include "core/deque.h"
 
-#include "core/hash_map.h"
-#include "core/hash_set.h"
-#include "EASTL/unordered_set.h"
 #include "EASTL/vector_set.h"
-#include "EASTL/deque.h"
-#include "EASTL/algorithm.h"
-#include "EASTL/sort.h"
 
 #include <QDebug>
 #include <QFile>

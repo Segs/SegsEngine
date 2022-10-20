@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "thread_posix.h"
-#include "core/script_language.h"
+#include "core/fixed_string.h"
 
 #if (defined(UNIX_ENABLED) || defined(PTHREAD_ENABLED))
 

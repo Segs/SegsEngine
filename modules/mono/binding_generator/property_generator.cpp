@@ -7,20 +7,12 @@
 #include "type_mapper.h"
 #include "docs_helpers.h"
 
-#include "core/string_utils.h"
-#include "core/string_utils.inl"
 #include "core/string_builder.h"
-#include "core/deque.h"
 
-#include "core/hash_map.h"
-#include "core/hash_set.h"
-#include "EASTL/unordered_set.h"
-#include "EASTL/vector_set.h"
-#include "EASTL/deque.h"
-#include "EASTL/algorithm.h"
-#include "EASTL/sort.h"
+#include "core/reflection_support/reflection_data.h"
 
-#include <core/reflection_support/reflection_data.h>
+#include "EASTL/fixed_hash_set.h"
+
 static String func_return_type(const TS_Function &finfo) {
     String res=finfo.return_type.type->relative_path(TargetCode::CS_INTERFACE,finfo.enclosing_type);
     if(res.empty())

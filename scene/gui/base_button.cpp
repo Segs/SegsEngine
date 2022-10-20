@@ -150,7 +150,7 @@ void BaseButton::_toggled(bool p_pressed) {
         get_script_instance()->call(SceneStringNames::_toggled, p_pressed);
     }
     toggled(p_pressed);
-    sig_toggled(p_pressed);
+
     emit_signal("toggled", p_pressed);
 }
 

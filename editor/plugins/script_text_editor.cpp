@@ -32,6 +32,7 @@
 
 //#include "core/math/expression.h"
 #include "core/callable_method_pointer.h"
+#include "core/fixed_string.h"
 #include "core/method_bind.h"
 #include "core/resource/resource_tools.h"
 #include "core/os/file_access.h"

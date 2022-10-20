@@ -36,7 +36,6 @@
 #include "core/os/os.h"
 #include "core/os/mutex.h"
 #include "core/pool_vector.h"
-#include "core/set.h"
 #include "servers/audio/audio_effect.h"
 
 class AudioDriverDummy;
@@ -205,17 +204,15 @@ private:
     void _mix_step();
 
     struct CallbackItem {
-
         AudioCallback callback;
         void *userdata;
-
-        bool operator<(const CallbackItem &p_item) const {
-            return (callback == p_item.callback ? userdata < p_item.userdata : callback < p_item.callback);
+        constexpr bool operator==(CallbackItem oth) const {
+            return callback==oth.callback && userdata==oth.userdata;
         }
     };
-
-    Set<CallbackItem> callbacks;
-    Set<CallbackItem> update_callbacks;
+    //NOTE: callbacks are unordered and can be called out-of-order
+    Vector<CallbackItem> callbacks;
+    Vector<CallbackItem> update_callbacks;
 
     friend class AudioDriver;
     void _driver_process(int p_frames, int32_t *p_buffer);

@@ -34,9 +34,8 @@
 #include "core/class_db.h"
 #include "core/core_string_names.h"
 #include "core/hash_map.h"
-#include "core/io/resource_loader.h"
+#include "core/fixed_string.h"
 #include "core/map.h"
-#include "core/object_db.h"
 #include "core/os/file_access.h"
 #include "core/script_language.h"
 #include "core/object_tooling.h"
@@ -388,8 +387,8 @@ VariantType fromQVariantType(QVariant::Type t) {
 void Resource::changed() {}
 
 void Resource::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_path", {"path"}), &Resource::_set_path);
-    MethodBinder::bind_method(D_METHOD("take_over_path", {"path"}), &Resource::_take_over_path);
+    SE_BIND_METHOD_WRAPPER(Resource,set_path,_set_path);
+    SE_BIND_METHOD_WRAPPER(Resource,take_over_path,_take_over_path);
     SE_BIND_METHOD(Resource,get_path);
     SE_BIND_METHOD(Resource,set_name);
     SE_BIND_METHOD(Resource,get_name);
@@ -400,7 +399,8 @@ void Resource::_bind_methods() {
     SE_BIND_METHOD(Resource,get_local_scene);
     SE_BIND_METHOD(Resource,setup_local_to_scene);
 
-    MethodBinder::bind_method(D_METHOD("duplicate", {"subresources"}), &Resource::duplicate, {DEFVAL(false)});
+    SE_BIND_METHOD_WITH_DEFAULTS(Resource,duplicate,DEFVAL(false));
+
 //    const auto &mo = Resource::staticMetaObject;
 //    for(int i=0; i<mo.methodCount(); ++i) {
 //        const auto &method(mo.method(i));

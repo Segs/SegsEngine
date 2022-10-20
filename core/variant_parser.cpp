@@ -33,6 +33,7 @@
 #include "core/dictionary.h"
 #include "core/class_db.h"
 #include "core/color.h"
+#include "core/fixed_string.h"
 #include "core/io/resource_loader.h"
 #include "core/list.h"
 #include "core/map.h"
@@ -149,7 +150,7 @@ static double stor_fix(const String &p_str) {
     return -1;
 }
 Error VariantParser::get_token(VariantParserStream *p_stream, Token &r_token, int &line, String &r_err_str) {
-    eastl::fixed_string<char, 128, true> tmp_str_buf; // static variable to prevent constat alloc/dealloc
+    TmpString<128> tmp_str_buf; // static variable to prevent constat alloc/dealloc
 
     while (true) {
 

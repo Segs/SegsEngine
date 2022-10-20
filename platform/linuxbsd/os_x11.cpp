@@ -30,6 +30,7 @@
 
 #include "os_x11.h"
 
+#include "core/fixed_string.h"
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "core/print_string.h"
@@ -39,8 +40,15 @@
 #include "detect_prime.h"
 
 #include "drivers/gles3/rasterizer_gles3.h"
+#include "drivers/alsa/audio_driver_alsa.h"
+#include "drivers/alsamidi/midi_driver_alsamidi.h"
+#include "drivers/pulseaudio/audio_driver_pulseaudio.h"
+
 #include "key_mapping_x11.h"
 #include "main/main_class.h"
+#include "servers/audio_server.h"
+#include "servers/rendering_server.h"
+#include "servers/rendering/rasterizer.h"
 #include "servers/rendering/rendering_server_raster.h"
 #include "servers/rendering/rendering_server_wrap_mt.h"
 
@@ -733,8 +741,17 @@ void OS_X11::finalize() {
     }
     */
 #ifdef ALSAMIDI_ENABLED
-    driver_alsamidi.close();
+    driver_alsamidi->close();
+    delete driver_alsamidi;
 #endif
+    //TODO: add assert here to verify that all drivers are finalized ?
+#ifdef PULSEAUDIO_ENABLED
+    delete driver_pulseaudio;
+#endif
+#ifdef ALSA_ENABLED
+    delete driver_alsa;
+#endif
+
 
 #ifdef JOYDEV_ENABLED
     memdelete(joypad);
@@ -3708,11 +3725,13 @@ void OS_X11::update_real_mouse_position() {
 
 OS_X11::OS_X11(void *) {
 #ifdef PULSEAUDIO_ENABLED
-    AudioDriverManager::add_driver(&driver_pulseaudio);
+    driver_pulseaudio = new AudioDriverPulseAudio;
+    AudioDriverManager::add_driver(driver_pulseaudio);
 #endif
 
 #ifdef ALSA_ENABLED
-    AudioDriverManager::add_driver(&driver_alsa);
+    driver_alsa = new AudioDriverALSA;
+    AudioDriverManager::add_driver(driver_alsa);
 #endif
 
     xi.opcode = 0;

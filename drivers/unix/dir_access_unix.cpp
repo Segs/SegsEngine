@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "dir_access_unix.h"
+#include "core/fixed_string.h"
 
 #if defined(UNIX_ENABLED) || defined(LIBC_FILEIO_ENABLED)
 
@@ -135,12 +136,12 @@ bool DirAccessUnix::is_hidden(StringView p_name) {
 
 bool DirAccessUnix::has_next() const {
     if (!dir_stream) {
-		return false;
-	}
-	auto offset=telldir(dir_stream);
+        return false;
+    }
+    auto offset=telldir(dir_stream);
     bool has_entry = readdir(dir_stream)!=nullptr;
-	seekdir(dir_stream,offset); //reset scan position
-	return has_entry;
+    seekdir(dir_stream,offset); //reset scan position
+    return has_entry;
 }
 
 String DirAccessUnix::get_next() {
@@ -428,7 +429,7 @@ Error DirAccessUnix::remove(StringView _path) {
 
 bool DirAccessUnix::is_link(StringView p_file_view) {
     using namespace PathUtils;
-    eastl::fixed_string<char,1024,true> p_file(p_file_view);
+    TmpString<1024> p_file(p_file_view);
     if (is_rel_path(p_file))
         p_file.assign(plus_file(get_current_dir(),p_file).c_str());
 

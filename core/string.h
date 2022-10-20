@@ -5,12 +5,8 @@
 #include "core/hashfuncs.h"
 
 #include "EASTL/string.h"
-#include "EASTL/fixed_string.h"
 
 using String = eastl::basic_string<char,wrap_allocator>;
-
-template<int node_count, bool bEnableOverflow = true>
-using TmpString = eastl::fixed_string<char,node_count,bEnableOverflow,wrap_allocator>;
 
 using StringView = eastl::basic_string_view<char>;
 SE_OPAQUE_TYPE(String)

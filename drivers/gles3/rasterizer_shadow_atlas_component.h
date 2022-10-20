@@ -4,6 +4,7 @@
 #include "servers/rendering/render_entity_helpers.h"
 #include "core/engine_entities.h"
 #include "core/hash_map.h"
+#include "core/vector.h"
 
 #include "EASTL/array.h"
 

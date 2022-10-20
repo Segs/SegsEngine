@@ -233,6 +233,20 @@ set(editor_core_sources
     reflection_support/reflection_data.h
 )
 configure_file(configuration.h.cmake configuration.h)
+set(jlsignal_sources
+    jlsignal/DoublyLinkedList.h
+    jlsignal/FastFunc.h
+    jlsignal/ObjectPool.cpp
+    jlsignal/ObjectPool.h
+    jlsignal/ObjectPoolScopedAllocator.h
+    jlsignal/ScopedAllocator.h
+    jlsignal/SignalBase.cpp
+    jlsignal/SignalBase.h
+    jlsignal/SignalDefinitions.h
+    jlsignal/Signal.h
+    #jlsignal/StaticSignalConnectionAllocators.h
+    jlsignal/Utils.h
+)
 #those files are common to all modes editor/projectmanager/client/server/etc.
 set(generic_core_sources
     io/compression.cpp
@@ -287,19 +301,6 @@ set(generic_core_sources
     math/vector3.h
     math/vector3i.cpp
     math/vector3i.h
-
-    jlsignal/DoublyLinkedList.h
-    jlsignal/FastFunc.h
-    jlsignal/ObjectPool.cpp
-    jlsignal/ObjectPool.h
-    jlsignal/ObjectPoolScopedAllocator.h
-    jlsignal/ScopedAllocator.h
-    jlsignal/SignalBase.cpp
-    jlsignal/SignalBase.h
-    jlsignal/SignalDefinitions.h
-    jlsignal/Signal.h
-    #jlsignal/StaticSignalConnectionAllocators.h
-    jlsignal/Utils.h
 
     os/memory.cpp
     os/memory.h
@@ -398,10 +399,10 @@ add_subdirectory(service_interfaces)
 add_subdirectory(crypto)
 add_subdirectory(debugger)
 
-#######################################################################################################################################################################
-# Add 'input' entries, cmake failes to generate proper list of sources when core_sources is extended by ${CMAKE_CURRENT_BINARY_DIR}/default_controller_mappings.gen.cpp
-# in subdirectory :|
-#######################################################################################################################################################################
+########################################################################################################################
+# Add 'input' entries, cmake failes to generate proper list of sources when core_sources is extended by
+# ${CMAKE_CURRENT_BINARY_DIR}/default_controller_mappings.gen.cpp in subdirectory :|
+########################################################################################################################
 file(GLOB controller_databases "${CMAKE_CURRENT_SOURCE_DIR}/input/gamecontroller_db/*.txt" )
 
 add_custom_command(
@@ -415,9 +416,7 @@ file(GLOB source_files "input/*.cpp")
 file(GLOB headers_files "input/*.h")
 list(APPEND core_sources ${source_files} ${headers_files} ${CMAKE_CURRENT_BINARY_DIR}/input/default_controller_mappings.gen.cpp)
 
-
-
-add_library(se_core STATIC ${generic_core_sources})
+add_library(se_core STATIC ${generic_core_sources} ${jlsignal_sources})
 set_target_properties(se_core PROPERTIES AUTOMOC TRUE)
 
 if(USE_UNITY_BUILDS)

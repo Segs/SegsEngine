@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "core/engine_entities.h"
+#include "core/vector.h"
 #include "rasterizer_gl_unique_handle.h"
 
 struct RasterizerReflectionAtlasComponent  {
