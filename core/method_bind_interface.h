@@ -285,7 +285,7 @@ struct MethodBinder {
 #define SE_BIND_METHOD_WITH_DEFAULTS(class_name, method_name, ...) \
     MethodBinder::bind_methodA(StaticCString(#method_name), &class_name::method_name, { __VA_ARGS__ })
 
-#define BIND_METHOD_WRAPPER_DEFAULTS(class_name, method_name, wrapper,...) \
+#define SE_BIND_METHOD_WRAPPER_DEFAULTS(class_name, method_name, wrapper,...) \
     MethodBinder::bind_methodA(StaticCString(#method_name), &class_name::wrapper, { __VA_ARGS__ })
 
 #else
@@ -298,7 +298,7 @@ struct MethodBinder {
 #define SE_BIND_METHOD_WITH_DEFAULTS(class_name, method_name, ...) \
     MethodBinder::bind_methodA(#method_name, &class_name::method_name, { __VA_ARGS__ })
 
-#define BIND_METHOD_WRAPPER_DEFAULTS(class_name, method_name, wrapper,...) \
+#define SE_BIND_METHOD_WRAPPER_DEFAULTS(class_name, method_name, wrapper, ...) \
     MethodBinder::bind_methodA(#method_name, &class_name::wrapper, { __VA_ARGS__ })
 
 #endif

@@ -1563,7 +1563,7 @@ Array RenderingServer::_mesh_surface_get_skeleton_aabb_bind(RenderingEntity p_me
 
 void RenderingServer::_bind_methods() {
     SE_BIND_METHOD(RenderingServer, force_sync);
-    BIND_METHOD_WRAPPER_DEFAULTS(RenderingServer, force_draw, draw, DEFVAL(true), DEFVAL(0.0) );
+    SE_BIND_METHOD_WRAPPER_DEFAULTS(RenderingServer, force_draw, draw, DEFVAL(true), DEFVAL(0.0) );
 
     SE_BIND_METHOD(RenderingServer, texture_create);
     SE_BIND_METHOD_WITH_DEFAULTS(RenderingServer, texture_create_from_image, DEFVAL(RS::TEXTURE_FLAGS_DEFAULT));
@@ -1613,7 +1613,7 @@ void RenderingServer::_bind_methods() {
     SE_BIND_METHOD(RenderingServer, mesh_create);
     SE_BIND_METHOD(RenderingServer, mesh_surface_get_format_offset);
     SE_BIND_METHOD(RenderingServer, mesh_surface_get_format_stride);
-    BIND_METHOD_WRAPPER_DEFAULTS(RenderingServer, mesh_add_surface_from_arrays, _mesh_add_surface_from_arrays, DEFVAL(Array()), DEFVAL(RS::ARRAY_COMPRESS_DEFAULT) );
+    SE_BIND_METHOD_WRAPPER_DEFAULTS(RenderingServer, mesh_add_surface_from_arrays, _mesh_add_surface_from_arrays, DEFVAL(Array()), DEFVAL(RS::ARRAY_COMPRESS_DEFAULT) );
     SE_BIND_METHOD(RenderingServer, mesh_set_blend_shape_count);
     SE_BIND_METHOD(RenderingServer, mesh_get_blend_shape_count);
     SE_BIND_METHOD(RenderingServer, mesh_set_blend_shape_mode);
