@@ -1,6 +1,6 @@
-![SEGS Engine logo](main/splash.png)
+<img src="main/splash.png" alt="SEGS Engine Logo" width="600"/>
 
-# This is a heavily modified stand-alone fork of the Godot engine
+# A heavily modified stand-alone fork of the Godot engine
 
 Synced with upstream up to godotengine/godot@42f04cbc1a59772a5f7eca9c6847fa349b23a70e
 
