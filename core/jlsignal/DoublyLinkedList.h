@@ -3,10 +3,8 @@
 #include "core/jlsignal/Utils.h"
 #include "core/jlsignal/ObjectPool.h"
 
-#include "core/deque.h"
-#include "core/os/mutex.h"
-
-#include "EASTL/bitset.h"
+#include "core/os/memory.h"
+#include "core/memory/pool_allocator.h"
 
 #include <thread> // for thread id and this_thread::get_id
 
@@ -16,10 +14,10 @@ template<size_t _Stride,size_t _Capacity=1024, size_t Watermark=1024>
 struct BlockAllocator {
     // right now there is no memory pooling here, since thread-safe pool is non-trivial, and didn't seem to pri
     static void *Alloc() {
-        return malloc(_Stride);
+        return Memory::alloc(_Stride);
     }
     static void Free(void *obj) {
-        free(obj);
+        Memory::free(obj);
     }
 };
 

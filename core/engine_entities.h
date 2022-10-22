@@ -2,8 +2,6 @@
 
 #include "entt/core/fwd.hpp"
 #include "entt/entity/entity.hpp"
-#include "core/vector.h"
-#include "core/os/memory.h"
 
 //enum class GameEntity : entt::id_type {};
 //enum class RenderingEntity : entt::id_type {};
@@ -12,9 +10,9 @@ struct RenderingEntity {
     static constexpr auto null = entt::null;
 
     constexpr RenderingEntity(const RenderingEntity &other) noexcept
-        : entt{other.entt} {}
+        : entt(other.entt) {}
     explicit constexpr RenderingEntity(RenderingEntity &&other) noexcept
-            : entt{other.entt} { other.entt = entt::null; }
+            : entt(other.entt) { other.entt = entt::null; }
 
     constexpr RenderingEntity & operator=(const RenderingEntity &other) noexcept = default;
     constexpr RenderingEntity & operator=(RenderingEntity &&other) noexcept  {
@@ -23,17 +21,16 @@ struct RenderingEntity {
         return *this;
     }
 
-//    constexpr operator entity_type() const noexcept {
-//        return entt;
-//    }
     constexpr static RenderingEntity c(entity_type value = null) noexcept {
         return RenderingEntity(value);
     }
-    constexpr RenderingEntity(entt::null_t v) noexcept  : entt{v}{
+    explicit constexpr RenderingEntity(entity_type value) noexcept : entt(value) {}
+
+    constexpr RenderingEntity(entt::null_t v) noexcept  : entt(v) {
     }
     explicit constexpr RenderingEntity(entt::tombstone_t v) noexcept : entt{ v } {
     }
-    constexpr RenderingEntity() noexcept  : entt{entt::null}{
+    constexpr RenderingEntity() noexcept  : entt(entt::null) {
     }
     constexpr bool is_null() const {
         return entt == entt::null;
@@ -48,19 +45,6 @@ struct RenderingEntity {
     constexpr bool operator!=(entt::null_t s) const { return s != entt; }
     constexpr entity_type v() const { return entt; }
 private:
-    friend constexpr RenderingEntity RE(entity_type value) noexcept;
-    friend class entt::basic_sparse_set<RenderingEntity, wrap_allocator>;
-    friend struct entt::tombstone_t;
-    friend struct entt::null_t;
-    //friend uint32_t std::exchange<uint32_t,RenderingEntity>(uint32_t &,RenderingEntity &&);
-    friend class entt::basic_registry<RenderingEntity, wrap_allocator>;
-    friend class eastl::vector<RenderingEntity, wrap_allocator>;
-    constexpr RenderingEntity(entity_type value) noexcept : entt{ value } {}
-#ifdef _MSC_VER
-    friend RenderingEntity std::exchange<RenderingEntity,uint32_t>(RenderingEntity &,uint32_t &&);
-#else
-    friend RenderingEntity std::__exchange<RenderingEntity,uint32_t>(RenderingEntity &,uint32_t &&);
-#endif
     entity_type entt;
 };
 constexpr RenderingEntity RE(RenderingEntity::entity_type value) noexcept {
@@ -68,20 +52,38 @@ constexpr RenderingEntity RE(RenderingEntity::entity_type value) noexcept {
 }
 
 template<>
-class entt::entt_traits<RenderingEntity> : public entt::entt_traits<RenderingEntity::entity_type> {
-    using super_class = entt::entt_traits<RenderingEntity::entity_type>;
+class entt::entt_traits<RenderingEntity> : public entt::internal::entt_traits<RenderingEntity::entity_type> {
+    using base_type = internal::entt_traits<RenderingEntity>;
+
 public:
-    [[nodiscard]] static constexpr entity_type to_integral(const RenderingEntity value) ENTT_NOEXCEPT {
+    using value_type = RenderingEntity;
+    using entity_type = typename base_type::entity_type;
+    using version_type = typename base_type::version_type;
+    static constexpr entity_type reserved = base_type::entity_mask | (base_type::version_mask << base_type::entity_shift);
+    static constexpr auto page_size = ENTT_SPARSE_PAGE;
+
+    [[nodiscard]] static constexpr entity_type to_integral(const value_type value) ENTT_NOEXCEPT {
         return static_cast<entity_type>(value.v());
     }
-    [[nodiscard]] static constexpr entity_type to_entity(const RenderingEntity value) ENTT_NOEXCEPT {
-        return super_class::to_entity(value.v());
+    [[nodiscard]] static constexpr entity_type to_entity(const value_type value) ENTT_NOEXCEPT {
+        return (to_integral(value) & base_type::entity_mask);
     }
-    [[nodiscard]] static constexpr entity_type to_version(const RenderingEntity value) ENTT_NOEXCEPT {
-        return super_class::to_version(value.v());
+    [[nodiscard]] static constexpr version_type to_version(const value_type value) ENTT_NOEXCEPT {
+        return (to_integral(value) >> base_type::entity_shift);
     }
-
+    [[nodiscard]] static constexpr value_type construct(const entity_type entity, const version_type version) ENTT_NOEXCEPT {
+        return value_type{(entity & base_type::entity_mask) | (static_cast<entity_type>(version) << base_type::entity_shift)};
+    }
+    [[nodiscard]] static constexpr value_type combine(const entity_type lhs, const entity_type rhs) ENTT_NOEXCEPT {
+        constexpr auto mask = (base_type::version_mask << base_type::entity_shift);
+        return value_type{(lhs & base_type::entity_mask) | (rhs & mask)};
+    }
+    [[nodiscard]] static constexpr value_type combine(const entity_type lhs, const tombstone_t rhs) ENTT_NOEXCEPT {
+        constexpr auto mask = (base_type::version_mask << base_type::entity_shift);
+        return value_type{(lhs & base_type::entity_mask) | (entity_type(rhs) & mask)};
+    }
 };
+
 
 struct GameEntity {
     using entity_type = std::uint32_t;
@@ -89,17 +91,17 @@ struct GameEntity {
 
 
     constexpr GameEntity(const GameEntity &other) noexcept
-        : entt{other.entt} {}
+        : entt(other.entt) {}
 
-//    constexpr operator entity_type() const noexcept {
-//        return entt;
-//    }
     constexpr static GameEntity c(entity_type value = null) noexcept {
         return GameEntity(value);
     }
-    constexpr GameEntity(entt::null_t v) noexcept  : entt{v}{
+    explicit constexpr GameEntity(entity_type value) noexcept : entt( value ) {}
+    constexpr GameEntity(entt::null_t v) noexcept  : entt(v){
     }
-    constexpr GameEntity() noexcept  : entt{entt::null}{
+    constexpr GameEntity(entt::tombstone_t v) noexcept : entt( v ) {
+    }
+    constexpr GameEntity() noexcept  : entt(entt::null){
     }
     constexpr bool is_null() const {
         return entt == entt::null;
@@ -114,18 +116,6 @@ struct GameEntity {
     constexpr bool operator!=(entt::null_t s) const { return s != entt; }
     constexpr entity_type v() const { return entt; }
 private:
-    friend constexpr GameEntity GE(entity_type value) noexcept;
-    friend class entt::basic_sparse_set<GameEntity, wrap_allocator>;
-    friend struct entt::tombstone_t;
-    //friend uint32_t std::exchange<uint32_t,GameEntity>(uint32_t &,GameEntity &&);
-    friend class entt::basic_registry<GameEntity, wrap_allocator>;
-    friend class eastl::vector<GameEntity, wrap_allocator>;
-    constexpr GameEntity(entity_type value) noexcept : entt{ value } {}
-#ifdef _MSC_VER
-    friend GameEntity std::exchange<GameEntity, uint32_t>(GameEntity&, uint32_t&&);
-#else
-    friend GameEntity std::__exchange<GameEntity,uint32_t>(GameEntity &,uint32_t &&);
-#endif
     entity_type entt;
 };
 constexpr GameEntity GE(GameEntity::entity_type value) noexcept {
@@ -133,20 +123,38 @@ constexpr GameEntity GE(GameEntity::entity_type value) noexcept {
 }
 
 template<>
-class entt::entt_traits<GameEntity> : public entt::entt_traits<GameEntity::entity_type> {
-    using super_class = entt::entt_traits<GameEntity::entity_type>;
+class entt::entt_traits<GameEntity> : public entt::internal::entt_traits<GameEntity::entity_type> {
+    using base_type = internal::entt_traits<GameEntity>;
+
 public:
-    [[nodiscard]] static constexpr entity_type to_integral(const GameEntity value) ENTT_NOEXCEPT {
+    using value_type = GameEntity;
+    using entity_type = typename base_type::entity_type;
+    using version_type = typename base_type::version_type;
+    static constexpr entity_type reserved = base_type::entity_mask | (base_type::version_mask << base_type::entity_shift);
+    static constexpr auto page_size = ENTT_SPARSE_PAGE;
+
+    [[nodiscard]] static constexpr entity_type to_integral(const value_type value) ENTT_NOEXCEPT {
         return static_cast<entity_type>(value.v());
     }
-    [[nodiscard]] static constexpr entity_type to_entity(const GameEntity value) ENTT_NOEXCEPT {
-        return super_class::to_entity(value.v());
+    [[nodiscard]] static constexpr entity_type to_entity(const value_type value) ENTT_NOEXCEPT {
+        return (to_integral(value) & base_type::entity_mask);
     }
-    [[nodiscard]] static constexpr entity_type to_version(const GameEntity value) ENTT_NOEXCEPT {
-        return super_class::to_version(value.v());
+    [[nodiscard]] static constexpr version_type to_version(const value_type value) ENTT_NOEXCEPT {
+        return (to_integral(value) >> base_type::entity_shift);
     }
-
+    [[nodiscard]] static constexpr value_type construct(const entity_type entity, const version_type version) ENTT_NOEXCEPT {
+        return value_type{(entity & base_type::entity_mask) | (static_cast<entity_type>(version) << base_type::entity_shift)};
+    }
+    [[nodiscard]] static constexpr value_type combine(const entity_type lhs, const entity_type rhs) ENTT_NOEXCEPT {
+        constexpr auto mask = (base_type::version_mask << base_type::entity_shift);
+        return value_type{(lhs & base_type::entity_mask) | (rhs & mask)};
+    }
+    [[nodiscard]] static constexpr value_type combine(const entity_type lhs, const tombstone_t rhs) ENTT_NOEXCEPT {
+        constexpr auto mask = (base_type::version_mask << base_type::entity_shift);
+        return value_type{(lhs & base_type::entity_mask) | (entity_type(rhs) & mask)};
+    }
 };
+
 namespace eastl {
 template<>
 struct hash<GameEntity> {

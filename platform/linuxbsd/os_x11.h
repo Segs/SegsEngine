@@ -29,27 +29,26 @@
 /*************************************************************************/
 
 #pragma once
+
 #include "context_gl_x11.h"
 #include "core/input/input_default.h"
-#include "core/object.h"
 #include "core/os/input.h"
 #include "core/os/thread.h"
 #include "crash_handler_x11.h"
-#include "drivers/alsa/audio_driver_alsa.h"
-#include "drivers/alsamidi/midi_driver_alsamidi.h"
-#include "drivers/pulseaudio/audio_driver_pulseaudio.h"
 #include "drivers/unix/os_unix.h"
 #include "joypad_linux.h"
-
-#include "servers/audio_server.h"
-#include "servers/rendering/rasterizer.h"
-#include "servers/rendering_server.h"
 
 #include <X11/Xcursor/Xcursor.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/XInput2.h>
 #include <X11/extensions/Xrandr.h>
 #include <X11/keysym.h>
+
+class AudioDriverALSA;
+class MIDIDriverALSAMidi;
+class AudioDriverPulseAudio;
+class ContextGL_X11;
+class RenderingServer;
 
 // Hints for X11 fullscreen
 typedef struct {
@@ -182,15 +181,15 @@ class OS_X11 : public OS_Unix {
 #endif
 
 #ifdef ALSA_ENABLED
-    AudioDriverALSA driver_alsa;
+    AudioDriverALSA *driver_alsa;
 #endif
 
 #ifdef ALSAMIDI_ENABLED
-    MIDIDriverALSAMidi driver_alsamidi;
+    MIDIDriverALSAMidi *driver_alsamidi;
 #endif
 
 #ifdef PULSEAUDIO_ENABLED
-    AudioDriverPulseAudio driver_pulseaudio;
+    AudioDriverPulseAudio *driver_pulseaudio;
 #endif
 
     bool layered_window;

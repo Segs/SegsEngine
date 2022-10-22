@@ -4,6 +4,7 @@
 #include "servers/rendering_server_enums.h"
 #include "servers/rendering/render_entity_helpers.h"
 #include "core/engine_entities.h"
+#include "core/vector.h"
 
 
 struct RasterizerRenderTargetComponent  {

@@ -418,7 +418,6 @@ void Time::_bind_methods() {
     SE_BIND_METHOD_WITH_DEFAULTS(Time, get_date_dict_from_system,DEFVAL(false));
     SE_BIND_METHOD_WITH_DEFAULTS(Time, get_time_dict_from_system,DEFVAL(false));
     SE_BIND_METHOD_WITH_DEFAULTS(Time, get_datetime_string_from_system,DEFVAL(false),DEFVAL(false));
-    SE_BIND_METHOD_WITH_DEFAULTS(Time, get_datetime_dict_from_system,DEFVAL(false));
     SE_BIND_METHOD_WITH_DEFAULTS(Time, get_date_string_from_system,DEFVAL(false));
     SE_BIND_METHOD_WITH_DEFAULTS(Time, get_time_string_from_system,DEFVAL(false));
 

@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "audio_driver_pulseaudio.h"
+#include "core/fixed_string.h"
 
 #ifdef PULSEAUDIO_ENABLED
 
@@ -470,7 +471,7 @@ void AudioDriverPulseAudio::thread_func(void *p_udata) {
 
             uint64_t msec = OS::get_singleton()->get_ticks_msec();
             if (msec > (default_device_msec + 1000)) {
-                eastl::fixed_string<char,256,true> old_default_device(ad->default_device);
+                TmpString<256> old_default_device(ad->default_device);
                 default_device_msec = msec;
 
                 ad->pa_status = 0;

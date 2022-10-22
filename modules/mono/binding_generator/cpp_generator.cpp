@@ -39,6 +39,7 @@ bool %plugin_name%::register_methods() {
 const char *helper_classes=
 R"(
 
+#include "core/fixed_string.h"
 #include "core/math/camera_matrix.h"
 #include "modules/mono/glue/glue_header.h"
 #include "modules/mono/mono_gd/gd_mono.h"

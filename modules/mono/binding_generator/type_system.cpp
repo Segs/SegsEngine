@@ -9,10 +9,8 @@
 #include "core/string_builder.h"
 #include "core/deque.h"
 #include "core/hash_map.h"
-#include "core/hash_set.h"
 
-#include "EASTL/unordered_set.h"
-#include "EASTL/vector_set.h"
+#include "EASTL/fixed_hash_set.h"
 #include "EASTL/deque.h"
 #include "EASTL/algorithm.h"
 #include "EASTL/sort.h"
@@ -451,8 +449,11 @@ TS_Property *TS_Type::find_property_by_exact_name(StringView name) const {
     auto iter = eastl::find_if(m_properties.begin(), m_properties.end(),[csname](const TS_Property *p) {
         return p->cs_name==csname;
     });
-    if(iter!=m_properties.end())
+
+    if(iter!=m_properties.end()) {
         return *iter;
+    }
+
     if(iter==m_properties.end()) { // try to search for non-converted name in indexed parts.
         for(auto prop : m_properties) {
             for(const auto &sub : prop->indexed_entries) {

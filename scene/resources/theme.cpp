@@ -31,6 +31,7 @@
 #include "theme.h"
 
 #include "core/callable_method_pointer.h"
+#include "core/fixed_string.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/os/file_access.h"

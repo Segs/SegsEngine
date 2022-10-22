@@ -31,10 +31,10 @@
 #include "asset_library_editor_plugin.h"
 
 #include "core/callable_method_pointer.h"
+#include "core/fixed_string.h"
 #include "core/io/json.h"
 #include "core/io/image_loader.h"
 #include "core/method_bind.h"
-#include "core/object_db.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "core/version.h"

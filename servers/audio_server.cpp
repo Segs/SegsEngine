@@ -1259,7 +1259,9 @@ void AudioServer::add_callback(AudioCallback p_callback, void *p_userdata) {
     ci.callback = p_callback;
     ci.userdata = p_userdata;
     lock();
-    callbacks.insert(ci);
+    if(!update_callbacks.contains(ci)) {
+        update_callbacks.emplace_back(ci);
+    }
     unlock();
 }
 
@@ -1269,7 +1271,7 @@ void AudioServer::remove_callback(AudioCallback p_callback, void *p_userdata) {
     ci.callback = p_callback;
     ci.userdata = p_userdata;
     lock();
-    callbacks.erase(ci);
+    callbacks.erase_first_unsorted(ci);
     unlock();
 }
 
@@ -1278,7 +1280,9 @@ void AudioServer::add_update_callback(AudioCallback p_callback, void *p_userdata
     ci.callback = p_callback;
     ci.userdata = p_userdata;
     lock();
-    update_callbacks.insert(ci);
+    if(!update_callbacks.contains(ci)) {
+        update_callbacks.emplace_back(ci);
+    }
     unlock();
 }
 
@@ -1288,7 +1292,7 @@ void AudioServer::remove_update_callback(AudioCallback p_callback, void *p_userd
     ci.callback = p_callback;
     ci.userdata = p_userdata;
     lock();
-    update_callbacks.erase(ci);
+    update_callbacks.erase_first_unsorted(ci);
     unlock();
 }
 
