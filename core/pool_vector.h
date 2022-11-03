@@ -382,7 +382,6 @@ public:
 
         return OK;
     }
-    bool is_locked() const { return alloc && alloc->lock.get() > 0; }
 
     const T & operator[](int p_index) const;
 
@@ -403,7 +402,7 @@ public:
         alloc = from.alloc;
         from.alloc = nullptr;
     }
-    constexpr PoolVector() : alloc(nullptr) {}
+    PoolVector() : alloc(nullptr) {}
     explicit PoolVector(Vector<T> &from) : PoolVector() {
         resize(from.size());
         auto wr(write());
@@ -556,8 +555,10 @@ void invert(PoolVector<T> &v) {
         w[s - i - 1] = temp;
     }
 }
+
 #ifndef __MINGW32__
-GODOT_TEMPLATE_EXT_DECLARE(PoolVector<unsigned char>)
-GODOT_TEMPLATE_EXT_DECLARE(PoolVector<struct Vector2>)
-GODOT_TEMPLATE_EXT_DECLARE(PoolVector<struct Vector3>)
+extern template class EXPORT_TEMPLATE_DECL PoolVector<unsigned char>;
+extern template class EXPORT_TEMPLATE_DECL PoolVector<struct Vector2>;
+extern template class EXPORT_TEMPLATE_DECL PoolVector<struct Vector3>;
+extern template class EXPORT_TEMPLATE_DECL PoolVector<String>;
 #endif

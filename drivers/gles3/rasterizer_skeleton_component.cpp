@@ -1,4 +1,4 @@
-﻿#include "rasterizer_skeleton_component.h"
+#include "rasterizer_skeleton_component.h"
 
 #include "rasterizer_storage_gles3.h"
 #include "servers/rendering/render_entity_getter.h"

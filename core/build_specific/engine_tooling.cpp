@@ -1,4 +1,4 @@
-﻿#include "core/engine_tooling.h"
+#include "core/engine_tooling.h"
 
 namespace EngineTooling {
 #ifdef TOOLS_ENABLED

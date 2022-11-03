@@ -1,4 +1,4 @@
-﻿# Third party libraries
+# Third party libraries
 
 
 ## assimp

@@ -1,4 +1,4 @@
-﻿#include "rasterizer_canvas_batcher.h"
+#include "rasterizer_canvas_batcher.h"
 
 #include "core/ecs_registry.h"
 #include "servers/rendering/rendering_server_globals.h"

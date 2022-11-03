@@ -1,4 +1,4 @@
-﻿
+
 file(GLOB source_files "*.cpp" )
 file(GLOB header_files "*.h" )
 set(resource_files texture_atlas.qrc )

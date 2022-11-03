@@ -1,4 +1,4 @@
-﻿void _debug_write_garbage() {
+void _debug_write_garbage() {
     // extremely slow, writes garbage over arrays to detect using
     // uninitialized in graphical output. Do not enable in normal use!!
 #ifdef RASTERIZER_EXTRA_CHECKS

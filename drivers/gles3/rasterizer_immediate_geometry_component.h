@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "core/math/aabb.h"
 #include "servers/rendering_server_enums.h"

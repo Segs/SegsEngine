@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "servers/rendering_server_enums.h"
 #include "servers/rendering/render_entity_helpers.h"

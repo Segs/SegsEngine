@@ -1,4 +1,4 @@
-﻿#include "rasterizer_canvas_light_shadow_component.h"
+#include "rasterizer_canvas_light_shadow_component.h"
 
 #include "rasterizer_canvas_base_gles3.h"
 #include "rasterizer_canvas_occluder_component.h"

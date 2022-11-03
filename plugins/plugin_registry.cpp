@@ -1,4 +1,4 @@
-﻿#include "plugin_registry.h"
+#include "plugin_registry.h"
 #include "plugin_registry_interface.h"
 
 #include "core/os/os.h"

@@ -1,4 +1,4 @@
-﻿#include "type_mapper.h"
+#include "type_mapper.h"
 
 #include "generator_helpers.h"
 #include "type_system.h"

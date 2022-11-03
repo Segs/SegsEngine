@@ -1,4 +1,4 @@
-﻿# SegsEngine: removed docs , testing code and conan
+# SegsEngine: removed docs , testing code and conan
 
 #
 # EnTT

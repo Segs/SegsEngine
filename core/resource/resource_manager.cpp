@@ -1,4 +1,4 @@
-﻿#include "resource_manager.h"
+#include "resource_manager.h"
 
 #include "core/io/resource_saver.h"
 #include "core/io/resource_loader.h"

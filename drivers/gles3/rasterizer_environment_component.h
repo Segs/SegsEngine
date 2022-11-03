@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "core/color.h"
 #include "core/engine_entities.h"

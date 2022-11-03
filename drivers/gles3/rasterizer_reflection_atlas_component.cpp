@@ -1,4 +1,4 @@
-﻿#include "rasterizer_reflection_atlas_component.h"
+#include "rasterizer_reflection_atlas_component.h"
 #include "drivers/gles3/rasterizer_reflection_probe_component.h"
 #include "rasterizer_scene_gles3.h"
 

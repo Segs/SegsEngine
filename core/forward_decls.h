@@ -25,8 +25,7 @@ namespace eastl {
     class basic_string_view;
     template <typename T, size_t Extent>
     class span;
-    template <typename Allocator, typename Element,
-        typename Container >
+    template <typename Allocator, typename Element, typename Container >
     class bitvector;
     template <class TKey, class TData, class HashFunc, class CompareFunc,typename Allocator, bool bCacheHashCode>
     class hash_map;

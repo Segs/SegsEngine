@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "core/ecs_registry.h"
 #include "core/engine_entities.h"

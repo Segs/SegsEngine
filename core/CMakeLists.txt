@@ -1,4 +1,4 @@
-﻿# Generate AES256 script encryption key
+# Generate AES256 script encryption key
 add_custom_command(
     COMMAND editor_to_header encryption ${CMAKE_CURRENT_BINARY_DIR}
     OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/script_encryption_key.gen.cpp

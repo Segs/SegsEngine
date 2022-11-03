@@ -1,2 +1,2 @@
-﻿#include "ecs_registry.h"
+#include "ecs_registry.h"
 

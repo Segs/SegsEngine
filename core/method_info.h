@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "core/variant.h"
 #include "core/vector.h"
 #include "core/property_info.h"

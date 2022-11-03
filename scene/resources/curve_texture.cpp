@@ -1,4 +1,4 @@
-﻿#include "curve_texture.h"
+#include "curve_texture.h"
 
 #include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"

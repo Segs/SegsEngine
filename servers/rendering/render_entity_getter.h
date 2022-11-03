@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "core/ecs_registry.h"
 #include "servers/rendering/rendering_server_globals.h"

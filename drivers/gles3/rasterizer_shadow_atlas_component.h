@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "rasterizer_gl_unique_handle.h"
 #include "servers/rendering/render_entity_helpers.h"

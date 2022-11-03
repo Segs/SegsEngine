@@ -1,4 +1,4 @@
-﻿#include "object_db.h"
+#include "object_db.h"
 
 #include "object.h"
 #include "core/ecs_registry.h"

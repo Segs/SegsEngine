@@ -1,4 +1,4 @@
-﻿#include "rasterizer_multimesh_component.h"
+#include "rasterizer_multimesh_component.h"
 
 #include "rasterizer_mesh_component.h"
 #include "rasterizer_dependent_entities_component.h"
