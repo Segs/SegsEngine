@@ -1821,7 +1821,7 @@ void VisualServerScene::_update_instance(RenderingInstanceComponent *p_instance)
         }
     }
 
-    p_instance->mirror = instance_xform.basis.determinant() < 0.0;
+    p_instance->mirror = instance_xform.basis.determinant() < 0.0f;
 
     AABB new_aabb = instance_xform.xform(bounds.aabb);
 
