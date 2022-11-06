@@ -1,4 +1,4 @@
-﻿#include "rasterizer_material_component.h"
+#include "rasterizer_material_component.h"
 
 #include "drivers/gles3/rasterizer_common_geometry_component.h"
 #include "rasterizer_material_component.h"

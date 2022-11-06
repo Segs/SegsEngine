@@ -1,4 +1,4 @@
-﻿#include "rasterizer_shadow_atlas_component.h"
+#include "rasterizer_shadow_atlas_component.h"
 
 #include "core/os/os.h"
 #include "drivers/gles3/rasterizer_light_instance_component.h"

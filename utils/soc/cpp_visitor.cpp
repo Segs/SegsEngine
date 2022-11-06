@@ -1,4 +1,4 @@
-﻿#include "cpp_visitor.h"
+#include "cpp_visitor.h"
 
 #include "type_system.h"
 #include <QSet>

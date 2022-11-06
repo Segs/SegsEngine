@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "core/vector.h"
 #include "core/math/transform.h"

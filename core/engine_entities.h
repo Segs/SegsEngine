@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "entt/core/fwd.hpp"
 #include "entt/entity/entity.hpp"

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "core/color.h"
 #include "core/math/vector3.h"

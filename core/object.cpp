@@ -1,4 +1,4 @@
-﻿/*************************************************************************/
+/*************************************************************************/
 /*  object.cpp                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -51,6 +51,7 @@
 #include "core/translation.h"
 #include "core/jlsignal/Signal.h"
 #include "core/ecs_registry.h"
+#include "EASTL/sort.h"
 
 #include <EASTL/vector_map.h>
 #include "entt/entity/registry.hpp"
@@ -1581,12 +1582,45 @@ void Object::set_script_instance_binding(int p_script_language_index, void *p_da
 }
 const auto autolink=entt::meta<ObjectLink>().type();
 
+static void report_objects() {
+    game_object_registry.lock_registry();
+    HashMap<StringName, int> counts;
+    game_object_registry.registry.each([&](GameEntity e) {
+        counts[object_for_entity(e)->get_class_name()]++;
+    });
+    game_object_registry.unlock_registry();
+
+    Vector<StringName> keys = counts.keys();
+    eastl::sort(keys.begin(), keys.end(), WrapAlphaCompare());
+    printf("Object counts =========================================\n");
+    for (const StringName &k : keys) {
+        if (counts[k]<5)
+            continue;
+        printf("%32s : %d\n", k.asCString(), counts[k]);
+    }
+    printf("done          =========================================\n");
+}
+
 Object::Object() : _block_signals(false)
                  , _can_translate(true)
                  , _emitting(false)
                  , _is_queued_for_deletion(false) {
     private_data = memnew_args_basic(ObjectPrivate,this);
     {
+#if REPORT_INSTANCES
+        if (game_object_registry.registry.size() == 10000)
+            report_objects();
+        if (game_object_registry.registry.size() == 50000)
+            report_objects();
+        if (game_object_registry.registry.size() == 100000)
+            report_objects();
+        if (game_object_registry.registry.size() == 400000)
+            report_objects();
+#endif
+        if (game_object_registry.registry.size() > 1500000) {
+            report_objects();
+            abort();
+        }
         game_object_registry.lock_registry();
         entity_id = game_object_registry.create();
         game_object_registry.registry.emplace<ObjectLink>(entity_id,this);

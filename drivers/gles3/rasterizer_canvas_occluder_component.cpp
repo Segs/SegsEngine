@@ -1,4 +1,4 @@
-﻿#include "rasterizer_canvas_occluder_component.h"
+#include "rasterizer_canvas_occluder_component.h"
 #include "rasterizer_storage_gles3.h"
 
 /* LIGHT SHADOW MAPPING */

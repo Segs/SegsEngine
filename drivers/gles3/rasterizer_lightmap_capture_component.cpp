@@ -1,4 +1,4 @@
-﻿#include "rasterizer_lightmap_capture_component.h"
+#include "rasterizer_lightmap_capture_component.h"
 
 #include "drivers/gles3/rasterizer_dependent_entities_component.h"
 #include "rasterizer_storage_gles3.h"

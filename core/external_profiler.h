@@ -1,4 +1,4 @@
-﻿#ifdef TRACY_ENABLE
+#ifdef TRACY_ENABLE
 #include "thirdparty/tracy/Tracy.hpp"
 
 #define SCOPE_PROFILE(name) ZoneScopedN(#name)

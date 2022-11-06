@@ -1,4 +1,4 @@
-﻿#include "rasterizer_immediate_geometry_component.h"
+#include "rasterizer_immediate_geometry_component.h"
 
 #include "rasterizer_dependent_entities_component.h"
 #include "rasterizer_shader_component.h"

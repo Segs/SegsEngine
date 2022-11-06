@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "core/pool_vector.h"
 #include "servers/rendering/rasterizer.h"

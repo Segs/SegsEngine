@@ -22,7 +22,6 @@ protected:
     // bind helpers
     static void _bind_methods();
     bool instantiate();
-    void queue_instantiation();
 
 public:
     void set_library(const Ref<SceneLibrary> &lib);
@@ -33,6 +32,8 @@ public:
 
     void set_entry(StringView name);
     const String &get_entry() const { return entry_name; }
+
+    Node *instantiate_resolved();
 
     LibraryEntryInstance();
     ~LibraryEntryInstance() override;

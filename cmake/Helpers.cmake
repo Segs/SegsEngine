@@ -1,4 +1,4 @@
-﻿# This defines target properties common to all engine components
+# This defines target properties common to all engine components
 macro(set_common_target_properties TARGET)
     set_target_properties(${TARGET} PROPERTIES
         CXX_VISIBILITY_PRESET hidden # -fvisibility=hidden

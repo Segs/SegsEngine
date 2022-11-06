@@ -1,4 +1,4 @@
-﻿/*************************************************************************/
+/*************************************************************************/
 /*  pool_vector.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -33,10 +33,13 @@
 #include "core/math/vector3.h"
 #include "core/os/mutex.h"
 #include "core/os/mutex.h"
+#include "core/string.h"
 
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) PoolVector<Vector2>;
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) PoolVector<Vector3>;
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) PoolVector<unsigned char>;
+template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) PoolVector<String>;
+PoolVector<unsigned char> ccqa;
 
 
 MemoryPool::Alloc *MemoryPool::allocs = nullptr;

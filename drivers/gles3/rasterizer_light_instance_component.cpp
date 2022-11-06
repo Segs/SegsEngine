@@ -1,4 +1,4 @@
-﻿#include "rasterizer_light_instance_component.h"
+#include "rasterizer_light_instance_component.h"
 
 
 #include "drivers/gles3/rasterizer_canvas_gles3.h"

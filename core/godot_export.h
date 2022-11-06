@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #if _WIN32
 /* We are building this library */

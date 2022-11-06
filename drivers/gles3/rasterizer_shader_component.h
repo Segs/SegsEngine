@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "core/hash_map.h"
 #include "core/vector.h"
 #include "core/image.h"

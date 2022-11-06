@@ -1,4 +1,4 @@
-﻿#include "rasterizer_gi_probe_component.h"
+#include "rasterizer_gi_probe_component.h"
 
 #include "rasterizer_dependent_entities_component.h"
 #include "rasterizer_storage_gles3.h"

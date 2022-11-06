@@ -1,4 +1,4 @@
-﻿#include "rasterizer_particle_component.h"
+#include "rasterizer_particle_component.h"
 
 #include "rasterizer_material_component.h"
 #include "rasterizer_shader_component.h"

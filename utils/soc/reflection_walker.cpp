@@ -1,4 +1,4 @@
-﻿#include "reflection_walker.h"
+#include "reflection_walker.h"
 
 #include "json_visitor.h"
 #include "cpp_visitor.h"

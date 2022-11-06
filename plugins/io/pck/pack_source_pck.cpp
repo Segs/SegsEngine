@@ -1,4 +1,4 @@
-﻿#include "pack_source_pck.h"
+#include "pack_source_pck.h"
 
 #include "core/print_string.h"
 #include "core/os/file_access.h"

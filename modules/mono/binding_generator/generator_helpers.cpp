@@ -1,4 +1,4 @@
-﻿#include "generator_helpers.h"
+#include "generator_helpers.h"
 #include "type_system.h"
 
 #include "core/string_utils.h"

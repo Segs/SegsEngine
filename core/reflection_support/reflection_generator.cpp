@@ -1,4 +1,4 @@
-﻿#include "reflection_generator.h"
+#include "reflection_generator.h"
 
 #if defined(DEBUG_METHODS_ENABLED) && defined(TOOLS_ENABLED)
 

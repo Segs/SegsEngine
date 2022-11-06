@@ -1,4 +1,4 @@
-﻿#include "resource_manager.h"
+#include "resource_manager.h"
 
 #include "core/io/resource_saver.h"
 #include "core/io/resource_loader.h"
@@ -356,8 +356,8 @@ void ResourceManager::set_save_callback_pause(bool v) {
         for(const auto &path_and_resource : queued_save_updates) {
             if (StringUtils::begins_with(path_and_resource.path, "res://"))
                 D()->save_callback(path_and_resource.res, path_and_resource.path);
-
         }
+        queued_save_updates.clear();
     }
 }
 

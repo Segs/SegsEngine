@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "scene/resources/texture.h"
 #include "servers/camera_server.h"
 

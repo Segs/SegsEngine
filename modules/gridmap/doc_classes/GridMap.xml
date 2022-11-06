@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <class name="GridMap" inherits="Node3D" version="3.2">
     <brief_description>
         Node for 3D tile-based maps.

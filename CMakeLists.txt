@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20)
 project(SegsEngine)
 
 # Tell cmake to use new policies upto our required version
@@ -38,7 +38,9 @@ if(MSVC)
       #add_compile_options (/arch:AVX2)
     endif()
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    add_compile_options(-Wall -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wno-sign-compare)
+    add_compile_options(-Wall -Wextra -Wno-unused-parameter -Wno-sign-compare
+        $<$<COMPILE_LANGUAGE:CXX>:-Wno-deprecated-copy>
+    )
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     add_compile_options(-Wall -Wextra -Wno-unused-parameter -Wno-sign-compare
         $<$<COMPILE_LANGUAGE:CXX>:-Wno-deprecated-copy>

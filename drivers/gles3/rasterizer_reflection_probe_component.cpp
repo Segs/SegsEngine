@@ -1,4 +1,4 @@
-﻿#include "rasterizer_reflection_probe_component.h"
+#include "rasterizer_reflection_probe_component.h"
 
 #include "rasterizer_reflection_atlas_component.h"
 #include "rasterizer_dependent_entities_component.h"

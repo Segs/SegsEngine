@@ -1,4 +1,4 @@
-﻿#include "rasterizer_mesh_component.h"
+#include "rasterizer_mesh_component.h"
 
 #include "core/project_settings.h"
 #include "rasterizer_common_geometry_component.h"

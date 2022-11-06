@@ -1,4 +1,4 @@
-﻿/*************************************************************************/
+/*************************************************************************/
 /*  resource_format_binary.cpp                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -52,7 +52,7 @@
 #include "EASTL/sort.h"
 #include "core/resource/resource_manager.h"
 //#define print_bl(m_what) print_line(m_what)
-#define print_bl(m_what) (void)(m_what)
+#define print_bl(m_what) 
 
 struct Property {
     int name_idx;

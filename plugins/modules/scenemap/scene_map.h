@@ -9,7 +9,7 @@
 #include "scene/3d/node_3d.h"
 #include "scene/resources/scene_library.h"
 
-class SceneMap : public Node3D {
+class GODOT_EXPORT SceneMap : public Node3D {
 
     GDCLASS(SceneMap, Node3D)
     struct MapEntry {

@@ -1,4 +1,4 @@
-﻿/*************************************************************************/
+/*************************************************************************/
 /*  editor_node.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -6482,7 +6482,9 @@ EditorNode::EditorNode() {
     Input::get_singleton()->set_use_accumulated_input(true);
     Resource::_get_local_scene_func = _resource_get_edited_scene;
 
-    RenderingServer::get_singleton()->textures_keep_original(true);
+    //NOTE: code below was disabled since in a case a project with very large amount of preview-able entries
+    // the amount of images being kept around was ridiculous
+    //RenderingServer::get_singleton()->textures_keep_original(true);
     RenderingServer::get_singleton()->set_debug_generate_wireframes(true);
 
     NavigationServer::get_singleton()->set_active(false); // no nav by default if editor

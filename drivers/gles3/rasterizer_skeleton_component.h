@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "core/hash_set.h"
 #include "core/math/transform_2d.h"

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "core/forward_decls.h"
 

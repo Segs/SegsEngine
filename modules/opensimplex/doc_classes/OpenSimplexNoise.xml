@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <class name="OpenSimplexNoise" inherits="Resource" version="3.2">
     <brief_description>
         Noise generator based on Open Simplex.

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "core/hash_map.h"
 #include "core/method_info.h"
 #include "core/object_tooling.h"

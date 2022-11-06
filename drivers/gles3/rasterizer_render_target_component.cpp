@@ -1,4 +1,4 @@
-﻿#include "rasterizer_render_target_component.h"
+#include "rasterizer_render_target_component.h"
 
 #include "rasterizer_storage_gles3.h"
 #include "rasterizer_texture_component.h"

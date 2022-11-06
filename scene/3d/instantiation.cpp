@@ -1,4 +1,4 @@
-﻿/*************************************************************************/
+/*************************************************************************/
 /*  multimesh_instance_3d.cpp                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -93,6 +93,51 @@ static void set_owner_deep(Node *owner, Node *start) {
         set_owner_deep(owner, n);
     }
 }
+// recursively replace all LibraryEntryInstance by their associated packed scene instances
+// when no library is found, the node is removed and nullptr is returned
+static Node *replace_all_instances(Node *n) {
+    if (!n) {
+        return n;
+    }
+
+    auto lib_inst = object_cast<LibraryEntryInstance>(n);
+    if (lib_inst) {
+        // this is lib instance, replace ourselves with the instance of packed scene
+        return replace_all_instances(lib_inst->instantiate_resolved());
+    }
+    for (int idx = 0; idx < n->get_child_count(); ++idx) {
+        Node *child = n->get_child(idx);
+        
+        Node *new_child = replace_all_instances(child);
+        if (new_child == child) {
+            continue;
+        }
+
+        n->remove_child(child);
+        if (new_child) {
+            Node3D *as3d_child = object_cast<Node3D>(child);
+            if (as3d_child) {
+                Node3D *as3d_new_child = object_cast<Node3D>(new_child);
+                as3d_new_child->set_transform(as3d_child->get_transform());
+            }
+            n->add_child(new_child);
+        }
+        memdelete(child);
+    }
+    return n;
+}
+
+Node *LibraryEntryInstance::instantiate_resolved() {
+    if (!lib_name.empty() && !entry_name.empty()) {
+        resolved_library = dynamic_ref_cast<SceneLibrary>(gResourceManager().load(lib_name));
+    }
+    ERR_FAIL_COND_V_MSG(!resolved_library, nullptr, "Library cannot be resolved:" + lib_name);
+    LibraryItemHandle h = resolved_library->find_item_by_name(entry_name);
+    ERR_FAIL_COND_V_MSG(h == LibraryItemHandle(-1), nullptr, "Library does not contain selected entry:" + entry_name);
+    Ref<PackedScene> resolved_scene = resolved_library->get_item_scene(h);
+    return resolved_scene->instance(GEN_EDIT_STATE_MAIN);
+}
+
 bool LibraryEntryInstance::instantiate() {
     if (!resolved_library || entry_name.empty()) {
         ERR_FAIL_COND_V_MSG(!resolved_library || entry_name.empty(), false, "Library does not contain selected entry:" + entry_name);
@@ -108,7 +153,13 @@ bool LibraryEntryInstance::instantiate() {
     set_filename(lib_name + "::" + StringUtils::num(h));
     ERR_FAIL_COND_V_MSG(h == LibraryItemHandle(-1), false, "Library does not contain selected entry:" + entry_name);
     Ref<PackedScene> resolved_scene = resolved_library->get_item_scene(h);
-    auto *scene = (Node3D *)resolved_scene->instance(GEN_EDIT_STATE_MAIN);
+
+    auto *src_scene = resolved_scene->instance(GEN_EDIT_STATE_MAIN);
+    auto *scene = (Node3D *)replace_all_instances(src_scene);
+    if (scene != src_scene) {
+        memdelete(src_scene);
+    }
+
     // replace ourselves in our parent with the instance.
     call_deferred([=] {
         // create the target scene instance
@@ -126,17 +177,6 @@ bool LibraryEntryInstance::instantiate() {
     return true;
 }
 
-void LibraryEntryInstance::queue_instantiation() {
-    if (instantiation_pending) {
-        return;
-    }
-
-    instantiation_pending = true;
-    call_deferred([this]() {
-        instantiate();
-    });
-}
-
 void LibraryEntryInstance::set_library(const Ref<SceneLibrary> &p_lib) {
     if(resolved_library==p_lib) {
         return;
@@ -144,7 +184,6 @@ void LibraryEntryInstance::set_library(const Ref<SceneLibrary> &p_lib) {
     resolved_library = p_lib;
     if(p_lib) {
         lib_name = p_lib->get_path();
-        queue_instantiation();
     }
 }
 
@@ -161,13 +200,6 @@ void LibraryEntryInstance::set_library_path(const String &lib)
     }
     if (!lib_name.empty() && !entry_name.empty()) {
         resolved_library = dynamic_ref_cast<SceneLibrary>(gResourceManager().load(lib_name));
-        if (!resolved_library) {
-            return;
-        }
-        // we have library and entry name, we're in a tree: try to replace ourselves.
-        if (is_inside_tree()) {
-            queue_instantiation();
-        }
     }
 }
 
@@ -176,9 +208,6 @@ void LibraryEntryInstance::set_entry(StringView name)
     if (entry_name == name)
         return;
     entry_name = name;
-    if (is_inside_tree()) {
-        queue_instantiation();
-    }
 }
 
 void LibraryEntryInstance::_notification(int p_what)

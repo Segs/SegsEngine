@@ -1,4 +1,4 @@
-﻿#include "camera_texture.h"
+#include "camera_texture.h"
 
 #include "core/method_bind.h"
 #include "core/object_tooling.h"

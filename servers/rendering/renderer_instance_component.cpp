@@ -1,4 +1,4 @@
-﻿#include "renderer_instance_component.h"
+#include "renderer_instance_component.h"
 
 #include "core/os/os.h"
 #include "core/os/memory.h"
