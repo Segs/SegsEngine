@@ -220,7 +220,7 @@ foreach(tgt ${global_targets})
                 editor/GodotTools/GodotTools.sln
                 OUTPUT_PATH ${OUTPUT_DIR}/csharp/assemblies
                 PLATFORM x64
-                ARGUMENTS -noWarn:CS1591
+                ARGUMENTS -noWarn:CS1591 /p:GodotAssembliesPath="${OUTPUT_DIR}"
             )
             add_dependencies(BUILD_GodotTools BUILD_GodotCore)
             add_dependencies(BUILD_GodotTools BUILD_GodotEditor)

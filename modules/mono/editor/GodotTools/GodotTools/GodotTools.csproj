@@ -18,10 +18,12 @@
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
       <Reference Include="GodotCoreAssembly">
         <HintPath>$(GodotSourceRootPath)/bin/csharp/assemblies/Debug/GodotCoreAssembly.dll</HintPath>
+        <HintPath>$(GodotAssembliesPath)/csharp/assemblies/Debug/GodotCoreAssembly.dll</HintPath>
         <Private>False</Private>
       </Reference>
       <Reference Include="GodotEditorAssembly">
         <HintPath>$(GodotSourceRootPath)/bin/csharp/assemblies/Debug/GodotEditorAssembly.dll</HintPath>
+          <HintPath>$(GodotAssembliesPath)/csharp/assemblies/Debug/GodotEditorAssembly.dll</HintPath>
         <Private>False</Private>
       </Reference>
     </ItemGroup>
