@@ -60,6 +60,7 @@ subject to the following restrictions:
 
 #include "core/error_macros.h"
 #include "core/math/aabb.h"
+#include "core/math/geometry.h"
 #include "core/math/math_defs.h"
 #include "core/math/vector3.h"
 #include "core/pool_vector.h"

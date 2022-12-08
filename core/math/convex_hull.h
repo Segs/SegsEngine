@@ -46,9 +46,9 @@ subject to the following restrictions:
 #include "core/error_list.h"      // for Error
 #include "core/math/math_defs.h"  // for real_t
 #include "core/vector.h"
-#include "core/math/geometry.h"
 
 struct Vector3;
+struct GeometryMeshData;
 
 /// Convex hull implementation based on Preparata and Hong
 /// See http://code.google.com/p/bullet/issues/detail?id=275

@@ -30,6 +30,7 @@
 
 #include "convex_polygon_shape_3d.h"
 #include "core/math/convex_hull.h"
+#include "core/math/geometry.h"
 #include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 

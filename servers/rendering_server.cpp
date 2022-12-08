@@ -2287,7 +2287,7 @@ void RenderingServer::mesh_add_surface_from_mesh_data(RenderingEntity p_mesh, co
 }
 
 void RenderingServer::mesh_add_surface_from_planes(RenderingEntity p_mesh, const PoolVector<Plane> &p_planes) {
-    GeometryMeshData mdata = Geometry::build_convex_mesh(p_planes);
+    GeometryMeshData mdata = Geometry::build_convex_mesh(p_planes.toSpan());
     mesh_add_surface_from_mesh_data(p_mesh, eastl::move(mdata));
 }
 
