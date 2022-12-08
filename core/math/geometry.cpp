@@ -512,7 +512,7 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
     }
 }
 
-static inline void _build_faces(uint8_t ***p_cell_status, int x, int y, int z, int len_x, int len_y, int len_z, PoolVector<Face3> &p_faces) {
+static inline void _build_faces(uint8_t ***p_cell_status, int x, int y, int z, int len_x, int len_y, int len_z, Vector<Face3> &p_faces) {
 
     ERR_FAIL_INDEX(x, len_x);
     ERR_FAIL_INDEX(y, len_y);
@@ -572,14 +572,13 @@ static inline void _build_faces(uint8_t ***p_cell_status, int x, int y, int z, i
     }
 }
 
-PoolVector<Face3> Geometry::wrap_geometry(const PoolVector<Face3>& p_array, real_t *p_error) {
+Vector<Face3> Geometry::wrap_geometry(Span<const Face3> p_array, real_t *p_error) {
 
 constexpr float _MIN_SIZE = 1.0f;
 constexpr int _MAX_LENGTH = 20;
 
     int face_count = p_array.size();
-    PoolVector<Face3>::Read facesr = p_array.read();
-    const Face3 *faces = facesr.ptr();
+    const Face3 *faces = p_array.data();
 
     AABB global_aabb;
 
@@ -680,7 +679,7 @@ constexpr int _MAX_LENGTH = 20;
 
     // Build faces for the inside-outside cell divisors.
 
-    PoolVector<Face3> wrapped_faces;
+    Vector<Face3> wrapped_faces;
 
     for (int i = 0; i < div_x; i++) {
 
@@ -696,8 +695,7 @@ constexpr int _MAX_LENGTH = 20;
     // Transform face vertices to global coords.
 
     int wrapped_faces_count = wrapped_faces.size();
-    PoolVector<Face3>::Write wrapped_facesw = wrapped_faces.write();
-    Face3 *wrapped_faces_ptr = wrapped_facesw.ptr();
+    Face3 *wrapped_faces_ptr = wrapped_faces.data();
 
     for (int i = 0; i < wrapped_faces_count; i++) {
 
@@ -788,7 +786,7 @@ Vector<Vector<Vector2> > Geometry::decompose_polygon_in_convex(Span<const Point2
     return decomp;
 }
 
-GeometryMeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes) {
+GeometryMeshData Geometry::build_convex_mesh(Span<const Plane> p_planes) {
 
     GeometryMeshData mesh;
 
@@ -1322,18 +1320,16 @@ bool Geometry::convex_hull_intersects_convex_hull(const Plane *p_planes_a, int p
     // faster... this may be faster with more complex hulls.
 
     // the usual silliness to get from one vector format to another...
-    PoolVector<Plane> planes_a;
-    PoolVector<Plane> planes_b;
+    Vector<Plane> planes_a;
+    Vector<Plane> planes_b;
 
     {
         planes_a.resize(p_plane_count_a);
-        PoolVector<Plane>::Write w = planes_a.write();
-        memcpy(w.ptr(), p_planes_a, p_plane_count_a * sizeof(Plane));
+        memcpy(planes_a.data(), p_planes_a, p_plane_count_a * sizeof(Plane));
     }
     {
         planes_b.resize(p_plane_count_b);
-        PoolVector<Plane>::Write w = planes_b.write();
-        memcpy(w.ptr(), p_planes_b, p_plane_count_b * sizeof(Plane));
+        memcpy(planes_b.data(), p_planes_b, p_plane_count_b * sizeof(Plane));
     }
 
     GeometryMeshData md_A = build_convex_mesh(planes_a);

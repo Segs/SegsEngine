@@ -62,6 +62,7 @@ subject to the following restrictions:
 #include "core/math/aabb.h"
 #include "core/math/math_defs.h"
 #include "core/math/vector3.h"
+#include "core/pool_vector.h"
 #include "core/os/memory.h"
 #include "core/paged_allocator.h"
 

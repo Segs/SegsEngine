@@ -30,6 +30,8 @@
 
 #include "quick_hull.h"
 
+#include "core/error_list.h"
+#include "core/list.h"
 #include "core/map.h"
 #include "core/set.h"
 #include "core/math/aabb.h"

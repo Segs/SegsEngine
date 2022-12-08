@@ -151,7 +151,7 @@ protected:
 
         PoolVector<Plane> box_planes = Geometry::build_box_planes(Vector3(0.5, 0.5, 0.5));
         RenderingEntity box_mesh = vs->mesh_create();
-        GeometryMeshData box_data = Geometry::build_convex_mesh(box_planes);
+        GeometryMeshData box_data = Geometry::build_convex_mesh(box_planes.toSpan());
         vs->mesh_add_surface_from_mesh_data(box_mesh, eastl::move(box_data));
         type_mesh_map[PhysicsServer3D::SHAPE_BOX] = box_mesh;
 
@@ -164,7 +164,7 @@ protected:
         PoolVector<Plane> capsule_planes = Geometry::build_capsule_planes(0.5, 0.7f, 12, Vector3::AXIS_Z);
 
         RenderingEntity capsule_mesh = vs->mesh_create();
-        GeometryMeshData capsule_data = Geometry::build_convex_mesh(capsule_planes);
+        GeometryMeshData capsule_data = Geometry::build_convex_mesh(capsule_planes.toSpan());
         vs->mesh_add_surface_from_mesh_data(capsule_mesh, eastl::move(capsule_data));
 
         type_mesh_map[PhysicsServer3D::SHAPE_CAPSULE] = capsule_mesh;
@@ -181,7 +181,7 @@ protected:
         PoolVector<Plane> convex_planes = Geometry::build_cylinder_planes(0.5, 0.7f, 5, Vector3::AXIS_Z);
 
         RenderingEntity convex_mesh = vs->mesh_create();
-        GeometryMeshData convex_data = Geometry::build_convex_mesh(convex_planes);
+        GeometryMeshData convex_data = Geometry::build_convex_mesh(convex_planes.toSpan());
         QuickHull::build(convex_data.vertices, convex_data);
         vs->mesh_add_surface_from_mesh_data(convex_mesh, eastl::move(convex_data));
 
@@ -371,7 +371,7 @@ public:
         PoolVector<Plane> capsule_planes = Geometry::build_capsule_planes(0.5, 1, 12, 5, Vector3::AXIS_Y);
 
         RenderingEntity capsule_mesh = vs->mesh_create();
-        GeometryMeshData capsule_data = Geometry::build_convex_mesh(capsule_planes);
+        GeometryMeshData capsule_data = Geometry::build_convex_mesh(capsule_planes.toSpan());
         vs->mesh_add_surface_from_mesh_data(capsule_mesh, eastl::move(capsule_data));
         type_mesh_map[PhysicsServer3D::SHAPE_CAPSULE] = capsule_mesh;
 

@@ -33,7 +33,9 @@
 #include "core/math/face3.h"
 #include "core/math/triangulate.h"
 #include "core/math/vector3.h"
-#include "core/pool_vector.h"
+template<typename T>
+class PoolVector;
+
 struct GeometryMeshData;
 
 class GODOT_EXPORT Geometry {
@@ -162,7 +164,7 @@ public:
     static bool is_point_in_polygon(Vector2 p_point, Span<const Vector2> p_polygon);
 
     /// Create a "wrap" that encloses the given geometry.
-    static PoolVector<Face3> wrap_geometry(const PoolVector<Face3>& p_array, real_t *p_error = nullptr);
+    static Vector<Face3> wrap_geometry(Span<const Face3> p_array, real_t *p_error = nullptr);
 
 
     static real_t vec2_cross(const Point2 &O, const Point2 &A, const Point2 &B) {
@@ -172,7 +174,7 @@ public:
     static Vector<Point2> convex_hull_2d(Span<const Point2> P);
     static Vector<Vector<Vector2> > decompose_polygon_in_convex(Span<const Point2> polygon);
 
-    static GeometryMeshData build_convex_mesh(const PoolVector<Plane> &p_planes);
+    static GeometryMeshData build_convex_mesh(Span<const Plane> p_planes);
     static PoolVector<Plane> build_sphere_planes(real_t p_radius, int p_lats, int p_lons, Vector3::Axis p_axis = Vector3::AXIS_Z);
     static PoolVector<Plane> build_box_planes(const Vector3 &p_extents);
     static PoolVector<Plane> build_cylinder_planes(real_t p_radius, real_t p_height, int p_sides, Vector3::Axis p_axis = Vector3::AXIS_Z);
