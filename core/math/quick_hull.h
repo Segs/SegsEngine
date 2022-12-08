@@ -37,5 +37,5 @@ class QuickHull {
 public:
 	static uint32_t debug_stop_after;
     static bool _flag_warnings;
-    static Error build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh, real_t p_over_tolerance_epsilon = 3.0 * UNIT_EPSILON);
+    static Error build(Span<const Vector3> p_points, GeometryMeshData &r_mesh, real_t p_over_tolerance_epsilon = 3.0 * UNIT_EPSILON);
 };

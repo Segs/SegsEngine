@@ -31,10 +31,8 @@
 #pragma once
 
 #include "core/vector.h"
-
-#include <cstdarg>
-
-class QChar;
+#include "core/forward_decls.h"
+#include "core/godot_export.h"
 
 class GODOT_EXPORT Logger {
 protected:

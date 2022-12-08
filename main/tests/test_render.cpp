@@ -33,7 +33,7 @@
 #include "core/math/math_funcs.h"
 #include "core/math/quick_hull.h"
 #include "core/input/input_event.h"
-#include "core/os/keyboard.h"
+#include "core/math/transform.h"
 #include "core/os/main_loop.h"
 #include "core/string_utils.h"
 #include "core/os/os.h"
@@ -207,7 +207,7 @@ public:
         vts.push_back(Vector3(-1, 1, -1));
         vts.push_back(Vector3(-1, -1, -1));
 
-        Geometry::MeshData md;
+        GeometryMeshData md;
         Error err = QuickHull::build(vts, md);
         print_line("ERR: " + itos(err));
         test_cube = vs->mesh_create();

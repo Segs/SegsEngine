@@ -189,7 +189,7 @@ public:
     void occluder_instance_destroy(OccluderInstanceHandle p_handle, bool p_free = true);
 
     // editor only .. slow
-    Geometry::MeshData occlusion_debug_get_current_polys() const {
+    GeometryMeshData occlusion_debug_get_current_polys() const {
         return _tracer.get_occlusion_culler().debug_get_current_polys();
     }
 

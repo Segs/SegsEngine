@@ -30,12 +30,13 @@
 
 #pragma once
 
+#include "core/math/transform.h"
 #include "core/math/transform_2d.h"
 #include "core/node_path.h"
 #include "scene/main/node.h"
 #include "scene/resources/texture.h"
 #include "scene/resources/world_2d.h"
-#include "servers/rendering_server.h"
+
 #include "core/deque.h"
 
 class Camera3D;

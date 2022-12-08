@@ -41,7 +41,7 @@ Vector<Vector3> ConvexPolygonShape3D::get_debug_mesh_lines() {
 
     if (points.size() > 3) {
 
-        Geometry::MeshData md;
+        GeometryMeshData md;
         Error err = ConvexHullComputer::convex_hull(points, md);
         if (err == OK) {
             Vector<Vector3> lines;

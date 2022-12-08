@@ -2258,11 +2258,11 @@ void RenderingServer::_camera_set_orthogonal(RenderingEntity p_camera, float p_s
     camera_set_orthogonal(p_camera, p_size, p_z_near, p_z_far);
 }
 
-void RenderingServer::mesh_add_surface_from_mesh_data(RenderingEntity p_mesh, const Geometry::MeshData &p_mesh_data) {
+void RenderingServer::mesh_add_surface_from_mesh_data(RenderingEntity p_mesh, const GeometryMeshData &p_mesh_data) {
     Vector<Vector3> vertices;
     Vector<Vector3> normals;
     size_t cnt = 0;
-    for (const Geometry::MeshData::Face &f : p_mesh_data.faces) {
+    for (const GeometryMeshData::Face &f : p_mesh_data.faces) {
         cnt += f.indices.size() - 2;
     }
     vertices.reserve(cnt * 3);
@@ -2272,7 +2272,7 @@ void RenderingServer::mesh_add_surface_from_mesh_data(RenderingEntity p_mesh, co
     vertices.emplace_back(p_mesh_data.vertices[f.indices[m_idx]]);                                                        \
     normals.emplace_back(f.plane.normal);
 
-    for (const Geometry::MeshData::Face &f : p_mesh_data.faces) {
+    for (const GeometryMeshData::Face &f : p_mesh_data.faces) {
         for (int j = 2; j < f.indices.size(); j++) {
             _ADD_VERTEX(0);
             _ADD_VERTEX(j - 1);
@@ -2287,7 +2287,7 @@ void RenderingServer::mesh_add_surface_from_mesh_data(RenderingEntity p_mesh, co
 }
 
 void RenderingServer::mesh_add_surface_from_planes(RenderingEntity p_mesh, const PoolVector<Plane> &p_planes) {
-    Geometry::MeshData mdata = Geometry::build_convex_mesh(p_planes);
+    GeometryMeshData mdata = Geometry::build_convex_mesh(p_planes);
     mesh_add_surface_from_mesh_data(p_mesh, eastl::move(mdata));
 }
 

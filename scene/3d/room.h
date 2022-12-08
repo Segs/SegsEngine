@@ -101,7 +101,7 @@ private:
     // linkage of rooms by portals
     Vector<Plane> _preliminary_planes;
 
-    Geometry::MeshData _bound_mesh_data;
+    GeometryMeshData _bound_mesh_data;
     AABB _aabb;
 
     // editable points making up the bound
@@ -112,7 +112,7 @@ private:
     // that occur between rooms. Ideally these should not occur, as rooms
     // should be convex and non-overlapping. But if they do occur, they should
     // be minimized.
-    Vector<Geometry::MeshData> _gizmo_overlap_zones;
+    Vector<GeometryMeshData> _gizmo_overlap_zones;
 #endif
 
     // makes sure lrooms are not converted more than once per

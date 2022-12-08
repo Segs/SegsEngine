@@ -252,7 +252,7 @@ void NavigationMeshGenerator::_parse_geometry(const Transform &p_navmesh_xform, 
                     ConvexPolygonShape3D *convex_polygon = object_cast<ConvexPolygonShape3D>(s.get());
                     if (convex_polygon) {
                         const auto &varr = convex_polygon->get_points();
-                        Geometry::MeshData md;
+                        GeometryMeshData md;
 
                         Error err = ConvexHullComputer::convex_hull(varr, md);
 
@@ -260,7 +260,7 @@ void NavigationMeshGenerator::_parse_geometry(const Transform &p_navmesh_xform, 
                             PoolVector3Array faces;
 
                             for (int j = 0; j < md.faces.size(); ++j) {
-                                Geometry::MeshData::Face face = md.faces[j];
+                                GeometryMeshData::Face face = md.faces[j];
 
                                 for (int k = 2; k < face.indices.size(); ++k) {
                                     faces.push_back(md.vertices[face.indices[0]]);
@@ -324,7 +324,7 @@ void NavigationMeshGenerator::_parse_geometry(const Transform &p_navmesh_xform, 
                     } break;
                     case PhysicsServer3D::SHAPE_CONVEX_POLYGON: {
                         PoolVector3Array vertices = data.as<PoolVector3Array>();
-                        Geometry::MeshData md;
+                        GeometryMeshData md;
 
                         Error err = ConvexHullComputer::convex_hull(vertices, md);
 
@@ -332,7 +332,7 @@ void NavigationMeshGenerator::_parse_geometry(const Transform &p_navmesh_xform, 
                             PoolVector3Array faces;
 
                             for (int j = 0; j < md.faces.size(); ++j) {
-                                Geometry::MeshData::Face face = md.faces[j];
+                                GeometryMeshData::Face face = md.faces[j];
 
                                 for (int k = 2; k < face.indices.size(); ++k) {
                                     faces.push_back(md.vertices[face.indices[0]]);

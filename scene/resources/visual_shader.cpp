@@ -34,6 +34,7 @@
 #include "core/deque.h"
 #include "core/dictionary.h"
 #include "core/fixed_string.h"
+#include "core/math/transform.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/string_builder.h"

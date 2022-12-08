@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "surface_tool.h"
+#include "core/math/transform.h"
 #include "core/method_bind.h"
 #include "scene/resources/material.h"
 #include "scene/resources/mesh_enum_casters.h"

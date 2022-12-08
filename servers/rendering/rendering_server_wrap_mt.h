@@ -31,9 +31,11 @@
 #pragma once
 
 #include "core/command_queue_mt.h"
+#include "core/math/transform.h"
 #include "core/os/thread.h"
 #include "core/safe_refcount.h"
 #include "servers/rendering_server.h"
+
 
 class  RenderingServerWrapMT : public RenderingServer {
 
@@ -505,7 +507,7 @@ public:
     FUNC2(occluder_resource_mesh_update, RenderingEntity, const OccluderMeshData &)
 
     FUNC1(set_use_occlusion_culling, bool)
-    FUNC1RC(Geometry::MeshData, occlusion_debug_get_current_polys, RenderingEntity)
+    FUNC1RC(GeometryMeshData, occlusion_debug_get_current_polys, RenderingEntity)
 
     // Callbacks
     FUNC1(callbacks_register, RenderingServerCallbacks *)
@@ -655,7 +657,7 @@ public:
 
     FUNC4(set_boot_image, const Ref<Image> &, const Color &, bool, bool)
     FUNC1(set_default_clear_color, const Color &)
-	FUNC1(set_shader_time_scale, float)
+    FUNC1(set_shader_time_scale, float)
 
     FUNC1(set_debug_generate_wireframes, bool)
 

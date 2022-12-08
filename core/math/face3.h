@@ -32,8 +32,9 @@
 
 #include "core/math/aabb.h"
 #include "core/math/plane.h"
-#include "core/math/transform.h"
 #include "core/math/vector3.h"
+
+class Transform;
 
 class GODOT_EXPORT [[nodiscard]] Face3 {
 public:
@@ -113,9 +114,9 @@ bool Face3::intersects_aabb2(const AABB &p_aabb) const {
     real_t dist_a = perp.dot(ofs + sup) - d;
     real_t dist_b = perp.dot(ofs - sup) - d;
 
-	if (dist_a * dist_b > 0) {
+    if (dist_a * dist_b > 0) {
         return false; //does not intersect the plane
-	}
+    }
 
     for(int ax=0; ax<3; ++ax){
         real_t aabb_min = p_aabb.position[ax];
@@ -213,9 +214,9 @@ bool Face3::intersects_aabb2(const AABB &p_aabb) const {
 
             Vector3 axis = vec3_cross(e1, e2);
 
-			if (axis.length_squared() < 0.0001f) {
+            if (axis.length_squared() < 0.0001f) {
                 continue; // coplanar
-			}
+            }
             //axis.normalize();
 
             Vector3 sup2 = Vector3(
@@ -234,18 +235,18 @@ bool Face3::intersects_aabb2(const AABB &p_aabb) const {
 
                 real_t vert_d = axis.dot(vertex[k]);
 
-				if (vert_d > maxT) {
+                if (vert_d > maxT) {
                     maxT = vert_d;
-				}
+                }
 
-				if (vert_d < minT) {
+                if (vert_d < minT) {
                     minT = vert_d;
-				}
+                }
             }
 
-			if (maxB < minT || maxT < minB) {
+            if (maxB < minT || maxT < minB) {
                 return false;
-			}
+            }
         }
     }
     return true;

@@ -31,6 +31,7 @@
 #include "editor_preview_plugins.h"
 
 #include "core/io/file_access_memory.h"
+#include "core/math/transform.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/method_bind.h"

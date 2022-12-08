@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/math/basis.h"
 #include "core/set.h"
 #include "scene/3d/lightmapper.h"
 #include "scene/resources/mesh.h"

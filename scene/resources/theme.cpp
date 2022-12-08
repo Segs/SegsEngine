@@ -324,7 +324,6 @@ void Theme::remove_icon_type(const StringName &p_theme_type) {
 
     _freeze_change_propagation();
 
-    const StringName *L = nullptr;
     for (const auto & E : icon_map[p_theme_type]) {
         if (E.second) {
             E.second->disconnect("changed", callable_mp(this, &Theme::_emit_theme_changed));

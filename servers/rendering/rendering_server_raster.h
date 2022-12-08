@@ -585,7 +585,7 @@ public:
     BIND2(occluder_resource_spheres_update, RenderingEntity, const Vector<Plane> &)
     BIND2(occluder_resource_mesh_update, RenderingEntity, const OccluderMeshData &)
     BIND1(set_use_occlusion_culling, bool)
-    BIND1RC(Geometry::MeshData, occlusion_debug_get_current_polys, RenderingEntity)
+    BIND1RC(GeometryMeshData, occlusion_debug_get_current_polys, RenderingEntity)
 
     // Callbacks
     BIND1(callbacks_register, RenderingServerCallbacks *)

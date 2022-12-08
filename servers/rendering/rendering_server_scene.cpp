@@ -1488,7 +1488,7 @@ void VisualServerScene::set_use_occlusion_culling(bool p_enable) {
     PortalRenderer::use_occlusion_culling = p_enable;
 }
 
-Geometry::MeshData VisualServerScene::occlusion_debug_get_current_polys(RenderingEntity p_scenario) const {
+GeometryMeshData VisualServerScene::occlusion_debug_get_current_polys(RenderingEntity p_scenario) const {
     RenderingScenarioComponent *scenario = get<RenderingScenarioComponent>(p_scenario);
     if (!scenario) {
         return {};

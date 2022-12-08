@@ -168,7 +168,7 @@ private:
     void _third_pass_rooms(const Vector<Portal *> &p_portals);
 
     bool _convert_room_hull_final(Room *p_room, const Vector<Portal *> &p_portals);
-    void _build_simplified_bound(const Room *p_room, Geometry::MeshData &r_md, Vector<Plane> &r_planes,
+    void _build_simplified_bound(const Room *p_room, GeometryMeshData &r_md, Vector<Plane> &r_planes,
             int p_num_portal_planes);
 
     // AUTOPLACE - automatically place STATIC and DYNAMICs that are not within a room
@@ -181,7 +181,7 @@ private:
     void _update_portal_gizmos(Node3D *p_node);
     bool _check_roomlist_validity(Node *p_node);
     void _cleanup_after_conversion();
-    Error _build_room_convex_hull(const Room *p_room, const Vector<Vector3> &p_points, Geometry::MeshData &r_mesh);
+    Error _build_room_convex_hull(const Room *p_room, const Vector<Vector3> &p_points, GeometryMeshData &r_mesh);
 #ifdef TOOLS_ENABLED
     void _generate_room_overlap_zones();
 #endif
@@ -201,7 +201,7 @@ private:
     void _set_owner_recursive(Node *p_node, Node *p_owner);
     void _flip_portals_recursive(Node3D *p_node);
     Error _build_convex_hull(
-            const Vector<Vector3> &p_points, Geometry::MeshData &r_mesh, real_t p_epsilon = 3.0f * UNIT_EPSILON);
+            const Vector<Vector3> &p_points, GeometryMeshData &r_mesh, real_t p_epsilon = 3.0f * UNIT_EPSILON);
 
     // output strings during conversion process
     void convert_log(String p_string, int p_priority = 0) { debug_print_line(p_string, 1); }

@@ -1727,19 +1727,13 @@ Dictionary _Geometry::make_atlas(const Vector<Size2> &p_rects) {
     return ret;
 }
 
-int _Geometry::get_uv84_normal_bit(const Vector3 &p_vector) {
-    return Geometry::get_uv84_normal_bit(p_vector);
-}
-
 IMPL_GDCLASS(_Geometry)
 
 void _Geometry::_bind_methods() {
     SE_BIND_METHOD(_Geometry,build_box_planes);
     SE_BIND_METHOD_WITH_DEFAULTS(_Geometry, build_cylinder_planes, DEFVAL(Vector3::AXIS_Z) );
     SE_BIND_METHOD_WITH_DEFAULTS(_Geometry, build_capsule_planes, DEFVAL(Vector3::AXIS_Z) );
-    MethodBinder::bind_method(
-            D_METHOD("segment_intersects_circle", { "segment_from", "segment_to", "circle_position", "circle_radius" }),
-            &_Geometry::segment_intersects_circle);
+    SE_BIND_METHOD(_Geometry,segment_intersects_circle);
     MethodBinder::bind_method(D_METHOD("segment_intersects_segment_2d", { "from_a", "to_a", "from_b", "to_b" }),
             &_Geometry::segment_intersects_segment_2d);
     MethodBinder::bind_method(D_METHOD("line_intersects_line_2d", { "from_a", "dir_a", "from_b", "dir_b" }),
@@ -1759,8 +1753,6 @@ void _Geometry::_bind_methods() {
             &_Geometry::get_closest_point_to_segment_uncapped_2d);
     MethodBinder::bind_method(D_METHOD("get_closest_point_to_segment_uncapped", { "point", "s1", "s2" }),
             &_Geometry::get_closest_point_to_segment_uncapped);
-
-    SE_BIND_METHOD(_Geometry,get_uv84_normal_bit);
 
     MethodBinder::bind_method(
             D_METHOD("ray_intersects_triangle", { "from", "dir", "a", "b", "c" }), &_Geometry::ray_intersects_triangle);

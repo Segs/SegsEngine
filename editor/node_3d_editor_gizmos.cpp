@@ -3813,7 +3813,7 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 
         if (points.size() > 3) {
 
-            Geometry::MeshData md;
+            GeometryMeshData md;
             Error err = ConvexHullComputer::convex_hull(points, md);
             if (err == OK) {
                 Vector<Vector3> points2;
@@ -4818,7 +4818,7 @@ void RoomSpatialGizmo::redraw() {
         return;
     }
 
-    const Geometry::MeshData &md = _room->_bound_mesh_data;
+    const GeometryMeshData &md = _room->_bound_mesh_data;
     if (!md.edges.size())
         return;
 
@@ -4848,11 +4848,11 @@ void RoomSpatialGizmo::redraw() {
 
        // overlap zones
     for (int z = 0; z < _room->_gizmo_overlap_zones.size(); z++) {
-        const Geometry::MeshData &md_overlap = _room->_gizmo_overlap_zones[z];
+        const GeometryMeshData &md_overlap = _room->_gizmo_overlap_zones[z];
         Vector<Vector3> pts;
 
         for (int f = 0; f < md_overlap.faces.size(); f++) {
-            const Geometry::MeshData::Face &face = md_overlap.faces[f];
+            const GeometryMeshData::Face &face = md_overlap.faces[f];
 
             for (int c = 0; c < face.indices.size() - 2; c++) {
                 pts.push_back(tr_inv.xform(md_overlap.vertices[face.indices[0]]));
