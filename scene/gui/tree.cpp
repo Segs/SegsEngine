@@ -63,6 +63,26 @@ VARIANT_ENUM_CAST(Tree::DropModeFlags);
 VARIANT_ENUM_CAST(TreeItem::TreeCellMode);
 VARIANT_ENUM_CAST(TreeItem::TextAlign);
 
+TreeItem::Cell::Cell() {
+    custom_button = false;
+    mode = TreeItem::CELL_MODE_STRING;
+    min = 0;
+    max = 100;
+    step = 1;
+    val = 0;
+    checked = false;
+    editable = false;
+    selected = false;
+    selectable = true;
+    custom_color = false;
+    custom_bg_color = false;
+    expr = false;
+    icon_max_w = 0;
+    text_align = ALIGN_LEFT;
+    expand_right = false;
+    icon_color = Color(1, 1, 1);
+}
+
 
 void TreeItem::move_to_top() {
 
@@ -4327,3 +4347,4 @@ Tree::~Tree() {
         memdelete(root);
     }
 }
+

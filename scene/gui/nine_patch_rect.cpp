@@ -30,6 +30,7 @@
 
 #include "nine_patch_rect.h"
 
+#include "scene/resources/texture.h"
 #include "servers/rendering_server.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"

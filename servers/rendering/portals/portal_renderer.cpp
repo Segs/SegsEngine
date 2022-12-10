@@ -621,12 +621,16 @@ void PortalRenderer::occluder_instance_destroy(OccluderInstanceHandle p_handle, 
     }
 }
 
+GeometryMeshData PortalRenderer::occlusion_debug_get_current_polys() const {
+    return _tracer.get_occlusion_culler().debug_get_current_polys();
+}
+
 // Rooms
 RoomHandle PortalRenderer::room_create() {
     uint32_t pool_id = 0;
     VSRoom *room = _room_pool.request(pool_id);
 
-    // explicit constructor
+           // explicit constructor
     room->create();
 
     // keep our own internal list of rooms

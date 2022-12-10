@@ -32,6 +32,7 @@
 
 #include "core/engine.h"
 #include "core/method_bind.h"
+#include "scene/resources/texture.h"
 #include "servers/rendering_server.h"
 
 IMPL_GDCLASS(TextureProgress)
@@ -499,7 +500,7 @@ void TextureProgress::_notification(int p_what) {
                                     points.emplace_back(progress_offset + Point2(uv.x * s.x, uv.y * s.y));
                                 }
                                 Color colors[1]= {tint_progress};
-                                draw_polygon(points, colors, uvs, progress);
+                                draw_textured_polygon(points, colors, uvs, progress,Ref<Texture>(),false);
                             }
                             // Draw a reference cross.
                             if (Engine::get_singleton()->is_editor_hint()) {
@@ -510,7 +511,7 @@ void TextureProgress::_notification(int p_what) {
                                 else
                                     p = progress->get_size();
 
-								p *= get_relative_center();
+                                p *= get_relative_center();
                                 p += progress_offset;
                                 p = p.floor();
                                 draw_line(p - Point2(8, 0), p + Point2(8, 0), Color(0.9f, 0.5, 0.5), 2);

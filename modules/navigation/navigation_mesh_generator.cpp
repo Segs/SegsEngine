@@ -28,12 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "scene/resources/multimesh.h"
 #ifndef _3D_DISABLED
 
 #include "navigation_mesh_generator.h"
 
 #include "core/math/quick_hull.h"
 #include "core/os/thread.h"
+#include "core/math/geometry.h"
 #include "core/method_bind_interface.h"
 #include "core/method_bind.h"
 #include "core/math/convex_hull.h"

@@ -42,6 +42,7 @@
 #include "core/io/image_saver.h"
 #include "core/io/resource_saver.h"
 #include "core/io/resource_loader.h"
+#include "core/math/geometry.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/os/os.h"

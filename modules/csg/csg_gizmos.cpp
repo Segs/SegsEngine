@@ -31,6 +31,7 @@
 #include "csg_gizmos.h"
 
 #include "core/class_db.h"
+#include "core/math/geometry.h"
 #include "core/string.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_settings.h"

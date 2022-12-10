@@ -35,6 +35,7 @@
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/translation_helpers.h"
+#include "scene/resources/texture.h"
 #include "editor/editor_file_system.h"
 #include "editor/editor_settings.h"
 #include "editor_scale.h"

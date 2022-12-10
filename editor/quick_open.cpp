@@ -35,6 +35,7 @@
 #include "core/os/keyboard.h"
 #include "core/translation_helpers.h"
 #include "core/ustring.h"
+#include "scene/resources/texture.h"
 
 IMPL_GDCLASS(EditorQuickOpen)
 
@@ -279,4 +280,8 @@ EditorQuickOpen::EditorQuickOpen() {
     set_hide_on_ok(false);
     ei = "EditorIcons";
     ot = "Object";
+}
+
+EditorQuickOpen::~EditorQuickOpen()
+{
 }

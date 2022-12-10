@@ -40,7 +40,6 @@
 #include "core/external_profiler.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
-#include "core/map.h"
 #include <new>
 
 namespace {
@@ -84,7 +83,7 @@ struct InstanceBoundsComponent {
     AABB transformed_aabb;
     AABB custom_aabb; // <Zylann> would using aabb directly with a bool be better?
     float extra_margin = 0.0f;
-    float sorting_offset=0.0f; 
+    float sorting_offset=0.0f;
     bool use_aabb_center = false;
     bool use_custom_aabb = false;
 };

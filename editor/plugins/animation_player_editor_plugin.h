@@ -41,6 +41,7 @@ class AnimationPlayer;
 class AnimationTrackEditor;
 class AnimationPlayerEditorPlugin;
 class Animation;
+class ShaderMaterial;
 
 class GODOT_EXPORT AnimationPlayerEditor : public VBoxContainer {
 

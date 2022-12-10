@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "editor_layouts_dialog.h"
+
 #include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/class_db.h"
@@ -37,6 +38,7 @@
 #include "editor/editor_settings.h"
 #include "scene/gui/item_list.h"
 #include "scene/gui/line_edit.h"
+#include "scene/resources/texture.h"
 
 IMPL_GDCLASS(EditorLayoutsDialog)
 
@@ -104,7 +106,7 @@ void EditorLayoutsDialog::_post_popup() {
 
     for (const String &E : layouts) {
 
-        layout_names->add_item(StringName(E));
+        layout_names->add_item(StringName(E),Ref<Texture>());
     }
 }
 

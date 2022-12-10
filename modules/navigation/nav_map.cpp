@@ -33,6 +33,7 @@
 #include "nav_region.h"
 #include "rvo_agent.h"
 
+#include "core/math/geometry.h"
 #include "core/os/threaded_array_processor.h"
 #include "core/hash_map.h"
 #include "core/string_formatter.h"

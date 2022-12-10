@@ -30,6 +30,7 @@
 
 #include "test_render.h"
 
+#include "core/math/geometry.h"
 #include "core/math/math_funcs.h"
 #include "core/math/quick_hull.h"
 #include "core/input/input_event.h"

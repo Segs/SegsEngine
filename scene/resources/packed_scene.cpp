@@ -36,6 +36,7 @@
 #include "core/engine.h"
 #include "core/method_bind.h"
 #include "core/pair.h"
+#include "core/pool_vector.h"
 #include "core/project_settings.h"
 #include "core/script_language.h"
 #include "core/string_formatter.h"

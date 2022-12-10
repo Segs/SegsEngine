@@ -31,12 +31,14 @@
 #include "editor_profiler.h"
 
 #include "core/callable_method_pointer.h"
+#include "core/image.h"
 #include "core/method_bind.h"
 #include "core/os/os.h"
 #include "core/set.h"
 #include "core/translation_helpers.h"
 #include "editor_scale.h"
 #include "editor_settings.h"
+#include "scene/resources/texture.h"
 
 IMPL_GDCLASS(EditorProfiler)
 

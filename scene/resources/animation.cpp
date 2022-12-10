@@ -32,6 +32,7 @@
 #include "animation_enum_casters.h"
 
 #include "core/dictionary.h"
+#include "core/math/aabb.h"
 #include "core/math/rect2.h"
 #include "core/method_bind.h"
 #include "core/pool_vector.h"

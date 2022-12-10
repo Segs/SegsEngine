@@ -35,6 +35,7 @@
 #include "core/map.h"
 #include "core/set.h"
 #include "core/math/aabb.h"
+#include "core/math/geometry.h"
 
 #include "EASTL/sort.h"
 uint32_t QuickHull::debug_stop_after = 0xFFFFFFFF;

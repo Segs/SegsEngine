@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/hash_set.h"
 #include "scene/gui/control.h"
 #include "scene/gui/shortcut.h"
 

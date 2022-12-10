@@ -29,11 +29,14 @@
 /*************************************************************************/
 
 #include "multimesh_instance_2d.h"
+
 #include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
 #include "core/method_bind.h"
 #include "core/math/aabb.h"
 #include "core/object_tooling.h"
+#include "scene/resources/texture.h"
+
 
 IMPL_GDCLASS(MultiMeshInstance2D)
 

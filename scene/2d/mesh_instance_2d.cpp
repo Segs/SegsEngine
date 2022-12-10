@@ -32,6 +32,7 @@
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "scene/resources/mesh.h"
+#include "scene/resources/texture.h"
 
 IMPL_GDCLASS(MeshInstance2D)
 

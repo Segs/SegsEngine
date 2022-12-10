@@ -32,6 +32,7 @@
 
 #include "servers/physics_server_2d.h"
 #include "servers/rendering_server.h"
+#include "core/math/geometry.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(ConcavePolygonShape2D)

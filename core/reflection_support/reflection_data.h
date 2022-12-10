@@ -33,7 +33,6 @@
 #include "core/hash_map.h"
 #include "core/string.h"
 #include "core/typesystem_decls.h"
-#include "core/map.h"
 #include "core/doc_support/doc_data.h"
 
 class QJsonObject;

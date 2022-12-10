@@ -37,6 +37,7 @@
 #include "core/object_tooling.h"
 #include "core/script_language.h"
 #include "core/string_formatter.h"
+#include "scene/resources/material.h"
 
 IMPL_GDCLASS(TileSet)
 VARIANT_ENUM_CAST(TileSet::AutotileBindings);
@@ -1268,3 +1269,5 @@ void TileSet::_bind_methods() {
 
 TileSet::TileSet() {
 }
+
+TileSet::TileData::TileData() {}

@@ -28,13 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_QUICK_OPEN_H
-#define EDITOR_QUICK_OPEN_H
+#pragma once
 
 #include "core/pair.h"
 #include "editor_file_system.h"
 #include "scene/gui/dialogs.h"
 #include "scene/gui/tree.h"
+
 class EditorQuickOpen : public ConfirmationDialog {
 
     GDCLASS(EditorQuickOpen,ConfirmationDialog)
@@ -67,6 +67,5 @@ public:
 
     void popup_dialog(const StringName &p_base, bool p_enable_multi = false, bool p_dontclear = false);
     EditorQuickOpen();
+    ~EditorQuickOpen() override;
 };
-
-#endif // EDITOR_QUICK_OPEN_H

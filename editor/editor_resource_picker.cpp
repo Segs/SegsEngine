@@ -49,6 +49,7 @@
 #include "filesystem_dock.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/dynamic_font.h"
+#include "scene/resources/material.h"
 #include "scene/resources/shader.h"
 #include "scene/resources/texture.h"
 #include "scene/resources/style_box.h"

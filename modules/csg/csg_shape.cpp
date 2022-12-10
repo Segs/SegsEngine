@@ -32,6 +32,8 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/hashfuncs.h"
+#include "core/math/geometry.h"
+#include "core/math/triangulate.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "scene/3d/path_3d.h"

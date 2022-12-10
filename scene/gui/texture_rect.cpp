@@ -32,6 +32,7 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
+#include "scene/resources/texture.h"
 #include "servers/rendering_server.h"
 #include "core/method_bind.h"
 

@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "core/math/geometry.h"
 #include "core/math/face3.h"
 #include "core/math/triangle_mesh.h"
 #include "core/resource.h"

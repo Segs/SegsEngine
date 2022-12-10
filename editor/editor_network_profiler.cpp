@@ -40,6 +40,7 @@
 #include "editor_scale.h"
 #include "editor_settings.h"
 #include "scene/main/timer.h"
+#include "scene/resources/texture.h"
 
 IMPL_GDCLASS(EditorNetworkProfiler)
 

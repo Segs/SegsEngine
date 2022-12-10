@@ -30,6 +30,7 @@
 
 #include "line_builder.h"
 #include "scene/resources/curve.h"
+#include "scene/resources/texture.h"
 
 //----------------------------------------------------------------------------
 // Util

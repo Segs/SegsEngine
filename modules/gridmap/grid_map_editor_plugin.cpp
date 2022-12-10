@@ -966,7 +966,7 @@ void GridMapEditor::update_palette() {
         if (!filter.empty() && !StringUtils::is_subsequence_of(filter,name,StringUtils::CaseInsensitive))
             continue;
 
-        mesh_library_palette->add_item(StringName());
+        mesh_library_palette->add_item(StringName(),Ref<Texture>());
         if (preview) {
             mesh_library_palette->set_item_icon(item, preview);
             mesh_library_palette->set_item_tooltip(item, name);

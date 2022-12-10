@@ -33,7 +33,6 @@
 #include "scene/3d/navigation_3d.h"
 #include "scene/3d/node_3d.h"
 #include "scene/resources/mesh_library.h"
-#include "scene/resources/multimesh.h"
 
 //heh heh, godotsphir!! this shares no code and the design is completely different with previous projects i've done..
 //should scale better with hardware that supports instancing
@@ -186,9 +185,6 @@ class GODOT_EXPORT GridMap : public Node3D {
     bool awaiting_update;
 
     void _recreate_octant_data();
-
-
-
 
     _FORCE_INLINE_ Vector3 _octant_get_offset(const OctantKey &p_key) const {
 

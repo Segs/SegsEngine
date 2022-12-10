@@ -30,8 +30,10 @@
 
 #pragma once
 
+#include "core/rid.h"
 #include "scene/2d/node_2d.h"
 #include "core/os/mutex.h"
+#include "core/resource.h"
 
 class NavigationMesh;
 class GODOT_EXPORT NavigationPolygon : public Resource {

@@ -28,12 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GRADIENT_EDIT_H
-#define GRADIENT_EDIT_H
+#pragma once
 
 #include "scene/gui/color_picker.h"
 #include "scene/gui/popup.h"
 #include "scene/resources/gradient.h"
+
+class ImageTexture;
 
 class GradientEdit : public Control {
 
@@ -69,5 +70,3 @@ public:
     GradientEdit();
     ~GradientEdit() override;
 };
-
-#endif // GRADIENT_EDIT_H

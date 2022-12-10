@@ -32,12 +32,14 @@
 #include "line_builder.h"
 
 #include "core/callable_method_pointer.h"
+#include "core/ecs_registry.h"
+#include "core/math/geometry.h"
 #include "core/method_bind.h"
 #include "core/core_string_names.h"
 #include "scene/resources/curve.h"
 #include "servers/rendering_server.h"
+#include "scene/resources/texture.h"
 
-#include "core/ecs_registry.h"
 IMPL_GDCLASS(Line2D)
 
 // Needed so we can bind functions

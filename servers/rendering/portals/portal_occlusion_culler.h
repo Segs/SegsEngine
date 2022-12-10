@@ -34,7 +34,8 @@ class PortalRenderer;
 #include "portal_types.h"
 
 #include "core/math/camera_matrix.h"
-#include "core/math/geometry.h"
+
+struct GeometryMeshData;
 
 class PortalOcclusionCuller {
     enum {

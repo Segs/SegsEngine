@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/command_queue_mt.h"
+#include "core/math/geometry.h"
 #include "core/math/transform.h"
 #include "core/os/thread.h"
 #include "core/safe_refcount.h"

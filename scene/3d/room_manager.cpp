@@ -34,6 +34,7 @@
 #include "room_group.h"
 #include "mesh_instance_3d.h"
 #include "multimesh_instance_3d.h"
+#include "scene/resources/multimesh.h"
 #include "visibility_notifier_3d.h"
 #include "camera_3d.h"
 #include "light_3d.h"

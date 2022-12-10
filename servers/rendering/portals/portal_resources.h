@@ -30,9 +30,10 @@
 
 #pragma once
 
-#include "core/math/geometry.h"
 #include "core/pooled_list.h"
 #include "portal_types.h"
+
+struct OccluderMeshData;
 
 // Although the portal renderer is owned by a scenario,
 // resources are not associated with a scenario and can be shared

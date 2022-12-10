@@ -33,6 +33,7 @@
 #include "node_2d.h"
 
 class Curve;
+class Gradient;
 
 enum class Line2DJointMode : int8_t {
         LINE_JOINT_SHARP = 0,

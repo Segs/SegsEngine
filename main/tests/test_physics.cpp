@@ -34,6 +34,7 @@
 #include "core/callable_method_pointer.h"
 #include "core/map.h"
 #include "core/method_bind.h"
+#include "core/math/geometry.h"
 #include "core/math/math_funcs.h"
 #include "core/math/quick_hull.h"
 #include "core/input/input_event.h"

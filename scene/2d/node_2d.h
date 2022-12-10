@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef NODE2D_H
-#define NODE2D_H
+#pragma once
 
 #include "scene/2d/canvas_item.h"
 
@@ -125,5 +124,3 @@ public:
 #endif
     Node2D();
 };
-
-#endif // NODE2D_H

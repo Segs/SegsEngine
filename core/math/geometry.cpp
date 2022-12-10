@@ -30,8 +30,11 @@
 
 #include "geometry.h"
 
+#include "core/hash_map.h"
 #include "core/map.h"
 #include "core/math/delaunay.h"
+#include "core/math/face3.h"
+#include "core/math/triangulate.h"
 #include "core/pool_vector.h"
 
 #include "thirdparty/misc/clipper.hpp"
@@ -41,6 +44,10 @@
 #define STB_RECT_PACK_IMPLEMENTATION
 #include "thirdparty/stb_rect_pack/stb_rect_pack.h"
 #define SCALE_FACTOR 100000.0f // Based on CMP_EPSILON.
+
+static real_t vec2_cross(const Vector2 &O, const Vector2 &A, const Vector2 &B) {
+    return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
+}
 
 void Geometry::get_closest_points_between_segments(
         const Vector3 &p_p0, const Vector3 &p_p1, const Vector3 &p_q0, const Vector3 &p_q1, Vector3 &r_ps, Vector3 &r_qt) {
@@ -161,7 +168,7 @@ void GeometryMeshData::clear() {
 }
 void GeometryMeshData::optimize_vertices() {
 
-    Map<int, int> vtx_remap;
+    HashMap<int, int> vtx_remap;
 
     for (int i = 0; i < faces.size(); i++) {
         auto &idx_wr(faces[i].indices);
@@ -2352,4 +2359,51 @@ bool Geometry::is_polygon_clockwise(Span<const Vector2> p_polygon) {
     }
 
     return sum > 0.0f;
+}
+
+Vector<Vector<Point2> > Geometry::merge_polygons_2d(const Vector<Point2> &p_polygon_a, Span<const Vector2> p_polygon_b) {
+
+    return _polypaths_do_operation(OPERATION_UNION, p_polygon_a, p_polygon_b);
+}
+
+Vector<Vector<Point2>> Geometry::clip_polygons_2d(const Vector<Point2> &p_polygon_a, Span<const Vector2> p_polygon_b) {
+    return _polypaths_do_operation(OPERATION_DIFFERENCE, p_polygon_a, p_polygon_b);
+}
+
+Vector<Vector<Point2>> Geometry::intersect_polygons_2d(Span<const Vector2> p_polygon_a, Span<const Vector2> p_polygon_b) {
+    return _polypaths_do_operation(OPERATION_INTERSECTION, p_polygon_a, p_polygon_b);
+}
+
+Vector<Vector<Point2>> Geometry::exclude_polygons_2d(const Vector<Point2> &p_polygon_a, const Vector<Point2> &p_polygon_b) {
+    return _polypaths_do_operation(OPERATION_XOR, p_polygon_a, p_polygon_b);
+}
+
+Vector<Vector<Point2>> Geometry::clip_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
+    return _polypaths_do_operation(OPERATION_DIFFERENCE, p_polyline, p_polygon, true);
+}
+
+Vector<Vector<Point2>> Geometry::intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, Span<const Vector2> p_polygon) {
+    return _polypaths_do_operation(OPERATION_INTERSECTION, p_polyline, p_polygon, true);
+}
+
+Vector<Vector<Point2>> Geometry::offset_polygon_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type) {
+    return _polypath_offset(p_polygon, p_delta, p_join_type, END_POLYGON);
+}
+
+Vector<Vector<Point2>> Geometry::offset_polyline_2d(
+        const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
+    ERR_FAIL_COND_V_MSG(
+            p_end_type == END_POLYGON, Vector<Vector<Point2>>(), "Attempt to offset a polyline like a polygon (use offset_polygon_2d instead).");
+
+    return _polypath_offset(p_polygon, p_delta, p_join_type, p_end_type);
+}
+
+Vector<int> Geometry::triangulate_polygon(Span<const Vector2> p_polygon) {
+    Vector<int> triangles;
+    if (!Triangulate::triangulate(p_polygon, triangles))
+        return Vector<int>(); // fail
+    return triangles;
+}
+bool Geometry::is_point_in_circle(const Vector2 &p_point, const Vector2 &p_circle_pos, real_t p_circle_radius) {
+    return p_point.distance_squared_to(p_circle_pos) <= p_circle_radius * p_circle_radius;
 }

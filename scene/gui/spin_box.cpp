@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 
 #include "line_edit_enum_casters.h"
+#include "scene/resources/texture.h"
 
 IMPL_GDCLASS(SpinBox)
 

@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "core/math/transform_2d.h"
 #include "core/hash_map.h"
 #include "core/string.h"
 #include "core/node_path.h"
@@ -48,6 +47,7 @@ class OptionButton;
 class CheckBox;
 class CheckButton;
 class TabContainer;
+class Shader;
 
 enum class UiTextAlign {
     ALIGN_LEFT,

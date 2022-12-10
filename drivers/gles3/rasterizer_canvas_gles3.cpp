@@ -850,8 +850,8 @@ void RasterizerCanvasGLES3::render_batches(Item *p_current_clip, bool &r_reclip,
                     }
 #endif
 
-                            _draw_gui_primitive(primitive->points.size(), primitive->points.data(), colors,
-                                    primitive->uvs.read().ptr());
+                    _draw_gui_primitive(primitive->points.size(), primitive->points.data(), colors,
+                            primitive->uvs.read().ptr());
 
                 } break;
                 case Item::Command::TYPE_POLYGON: {

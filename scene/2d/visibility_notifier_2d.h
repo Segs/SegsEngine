@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/hash_set.h"
 #include "scene/2d/node_2d.h"
 
 class Viewport;

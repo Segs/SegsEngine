@@ -38,6 +38,7 @@
 #include "core/translation_helpers.h"
 #include "scene/gui/label.h"
 #include "scene/main/scene_tree.h"
+#include "scene/resources/texture.h"
 
 #include "EASTL/sort.h"
 

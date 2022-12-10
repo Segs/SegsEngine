@@ -32,7 +32,6 @@
 
 #include "servers/rendering/rasterizer.h"
 #include "core/hash_map.h"
-#include "core/math/geometry.h"
 #include "core/math/bvh.h"
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"

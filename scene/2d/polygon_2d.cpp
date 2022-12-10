@@ -30,6 +30,7 @@
 
 #include "polygon_2d.h"
 
+#include "scene/resources/texture.h"
 #include "skeleton_2d.h"
 
 #include "core/callable_method_pointer.h"

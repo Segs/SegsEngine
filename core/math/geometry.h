@@ -30,11 +30,19 @@
 
 #pragma once
 
-#include "core/math/face3.h"
-#include "core/math/triangulate.h"
+#include "core/math/plane.h"
 #include "core/math/vector3.h"
+#include "core/vector.h"
+
 template<typename T>
 class PoolVector;
+
+class Face3;
+struct Vector2;
+struct Vector2i;
+
+using Size2i = Vector2i;
+using Point2i = Vector2i;
 
 struct GeometryMeshData;
 
@@ -43,45 +51,25 @@ public:
     Geometry() = delete;
 
     static real_t get_closest_points_between_segments(Vector2 p1, Vector2 q1, Vector2 p2, Vector2 q2, Vector2 &c1, Vector2 &c2);
-
     static void get_closest_points_between_segments(
             const Vector3 &p_p0, const Vector3 &p_p1, const Vector3 &p_q0, const Vector3 &p_q1, Vector3 &r_ps, Vector3 &r_qt);
     static real_t get_closest_distance_between_segments(const Vector3 &p_p0, const Vector3 &p_p1, const Vector3 &p_q0, const Vector3 &p_q1);
-
     static bool ray_intersects_triangle(const Vector3 &p_from, const Vector3 &p_dir, const Vector3 &p_v0, const Vector3 &p_v1, const Vector3 &p_v2, Vector3 *r_res = nullptr);
-
     static bool segment_intersects_triangle(const Vector3 &p_from, const Vector3 &p_to, const Vector3 &p_v0, const Vector3 &p_v1, const Vector3 &p_v2, Vector3 *r_res = nullptr);
-
     static bool segment_intersects_sphere(const Vector3 &p_from, const Vector3 &p_to, const Vector3 &p_sphere_pos, real_t p_sphere_radius, Vector3 *r_res = nullptr, Vector3 *r_norm = nullptr);
-
     static bool segment_intersects_cylinder(const Vector3 &p_from, const Vector3 &p_to, real_t p_height, real_t p_radius, Vector3 *r_res = nullptr, Vector3 *r_norm = nullptr, int p_cylinder_axis = 2);
-
     static bool segment_intersects_convex(const Vector3 &p_from, const Vector3 &p_to, const Plane *p_planes, int p_plane_count, Vector3 *p_res, Vector3 *p_norm);
-
     static Vector3 get_closest_point_to_segment(const Vector3 &p_point, const Vector3 *p_segment);
-
     static Vector3 get_closest_point_to_segment_uncapped(const Vector3 &p_point, const Vector3 *p_segment);
-
     static Vector2 get_closest_point_to_segment_2d(const Vector2 &p_point, const Vector2 *p_segment);
-
     static bool is_point_in_triangle(const Vector2 &s, const Vector2 &a, const Vector2 &b, const Vector2 &c);
-
     static Vector3 barycentric_coordinates_2d(Vector2 s, Vector2 a, Vector2 b, Vector2 c);
-
     static Vector2 get_closest_point_to_segment_uncapped_2d(const Vector2 &p_point, const Vector2 *p_segment);
-
     static bool line_intersects_line_2d(const Vector2 &p_from_a, const Vector2 &p_dir_a, const Vector2 &p_from_b, const Vector2 &p_dir_b, Vector2 &r_result);
-
     static bool segment_intersects_segment_2d(const Vector2 &p_from_a, const Vector2 &p_to_a, const Vector2 &p_from_b, const Vector2 &p_to_b, Vector2 *r_result);
-
     static bool point_in_projected_triangle(const Vector3 &p_point, const Vector3 &p_v1, const Vector3 &p_v2, const Vector3 &p_v3);
-
     static bool triangle_sphere_intersection_test(const Vector3 *p_triangle, const Vector3 &p_normal, const Vector3 &p_sphere_pos, real_t p_sphere_radius, Vector3 &r_triangle_contact, Vector3 &r_sphere_contact);
-
-    static bool is_point_in_circle(const Vector2 &p_point, const Vector2 &p_circle_pos, real_t p_circle_radius) {
-
-        return p_point.distance_squared_to(p_circle_pos) <= p_circle_radius * p_circle_radius;
-    }
+    static bool is_point_in_circle(const Vector2 &p_point, const Vector2 &p_circle_pos, real_t p_circle_radius);
     static real_t segment_intersects_circle(const Vector2 &p_from, const Vector2 &p_to, const Vector2 &p_circle_pos, real_t p_circle_radius);
 
     static Vector<Vector3> clip_polygon(Span<const Vector3> &polygon, const Plane &p_plane);
@@ -105,58 +93,19 @@ public:
         END_ROUND
     };
 
-    static Vector<Vector<Point2> > merge_polygons_2d(const Vector<Point2> &p_polygon_a, Span<const Vector2> p_polygon_b) {
-
-        return _polypaths_do_operation(OPERATION_UNION, p_polygon_a, p_polygon_b);
-    }
-
-    static Vector<Vector<Point2> > clip_polygons_2d(const Vector<Point2> &p_polygon_a, Span<const Vector2> p_polygon_b) {
-
-        return _polypaths_do_operation(OPERATION_DIFFERENCE, p_polygon_a, p_polygon_b);
-    }
-
-    static Vector<Vector<Point2> > intersect_polygons_2d(Span<const Vector2> p_polygon_a, Span<const Vector2> p_polygon_b) {
-
-        return _polypaths_do_operation(OPERATION_INTERSECTION, p_polygon_a, p_polygon_b);
-    }
-
-    static Vector<Vector<Point2> > exclude_polygons_2d(const Vector<Point2> &p_polygon_a, const Vector<Point2> &p_polygon_b) {
-
-        return _polypaths_do_operation(OPERATION_XOR, p_polygon_a, p_polygon_b);
-    }
-
-    static Vector<Vector<Point2> > clip_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
-
-        return _polypaths_do_operation(OPERATION_DIFFERENCE, p_polyline, p_polygon, true);
-    }
-
-    static Vector<Vector<Point2> > intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, Span<const Vector2> p_polygon) {
-
-        return _polypaths_do_operation(OPERATION_INTERSECTION, p_polyline, p_polygon, true);
-    }
-
-    static Vector<Vector<Point2> > offset_polygon_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type) {
-
-        return _polypath_offset(p_polygon, p_delta, p_join_type, END_POLYGON);
-    }
-
-    static Vector<Vector<Point2> > offset_polyline_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
-
-        ERR_FAIL_COND_V_MSG(p_end_type == END_POLYGON, Vector<Vector<Point2> >(), "Attempt to offset a polyline like a polygon (use offset_polygon_2d instead).");
-
-        return _polypath_offset(p_polygon, p_delta, p_join_type, p_end_type);
-    }
-
+    static Vector<Vector<Vector2> > merge_polygons_2d(const Vector<Vector2> &p_polygon_a, Span<const Vector2> p_polygon_b);
+    static Vector<Vector<Vector2>> clip_polygons_2d(const Vector<Vector2> &p_polygon_a, Span<const Vector2> p_polygon_b);
+    static Vector<Vector<Vector2>> intersect_polygons_2d(Span<const Vector2> p_polygon_a, Span<const Vector2> p_polygon_b);
+    static Vector<Vector<Vector2>> exclude_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b);
+    static Vector<Vector<Vector2>> clip_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon);
+    static Vector<Vector<Vector2>> intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, Span<const Vector2> p_polygon);
+    static Vector<Vector<Vector2>> offset_polygon_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type);
+    static Vector<Vector<Vector2>> offset_polyline_2d(
+            const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type);
 
     static Vector<int> triangulate_delaunay_2d(Span<const Vector2> p_points);
 
-    static Vector<int> triangulate_polygon(Span<const Vector2> p_polygon) {
-
-        Vector<int> triangles;
-        if (!Triangulate::triangulate(p_polygon, triangles))
-            return Vector<int>(); //fail
-        return triangles;
-    }
+    static Vector<int> triangulate_polygon(Span<const Vector2> p_polygon);
 
     static bool is_polygon_clockwise(Span<const Vector2> p_polygon);
 
@@ -165,14 +114,8 @@ public:
 
     /// Create a "wrap" that encloses the given geometry.
     static Vector<Face3> wrap_geometry(Span<const Face3> p_array, real_t *p_error = nullptr);
-
-
-    static real_t vec2_cross(const Point2 &O, const Point2 &A, const Point2 &B) {
-        return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
-    }
-
-    static Vector<Point2> convex_hull_2d(Span<const Point2> P);
-    static Vector<Vector<Vector2> > decompose_polygon_in_convex(Span<const Point2> polygon);
+    static Vector<Vector2> convex_hull_2d(Span<const Vector2> P);
+    static Vector<Vector<Vector2> > decompose_polygon_in_convex(Span<const Vector2> polygon);
 
     static GeometryMeshData build_convex_mesh(Span<const Plane> p_planes);
     static PoolVector<Plane> build_sphere_planes(real_t p_radius, int p_lats, int p_lons, Vector3::Axis p_axis = Vector3::AXIS_Z);
@@ -182,7 +125,7 @@ public:
     static void sort_polygon_winding(Vector<Vector2> &r_verts, bool p_clockwise = true);
     static real_t find_polygon_area(Span<const Vector3> p_verts);
 
-    static void make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_result, Size2i &r_size);
+    static void make_atlas(const Vector<Size2i> &p_rects, Vector<Vector2i> &r_result, Size2i &r_size);
     struct PackRectsResult {
         int x;
         int y;
@@ -196,18 +139,19 @@ public:
             const Plane *p_planes_a, int p_plane_count_a, const Plane *p_planes_b, int p_plane_count_b);
     static real_t calculate_convex_hull_volume(const GeometryMeshData &p_md);
 private:
-    static Vector<Vector<Point2> > _polypaths_do_operation(PolyBooleanOperation p_op, Span<const Point2> p_polypath_a, Span<const Point2> p_polypath_b, bool is_a_open = false);
-    static Vector<Vector<Point2> > _polypath_offset(const Vector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type);
+    static Vector<Vector<Vector2> > _polypaths_do_operation(PolyBooleanOperation p_op, Span<const Vector2> p_polypath_a, Span<const Vector2> p_polypath_b, bool is_a_open = false);
+    static Vector<Vector<Vector2> > _polypath_offset(const Vector<Vector2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type);
 };
 
 struct GeometryMeshData {
 
     struct Face {
-        Plane plane;
         Vector<int> indices;
+        Plane plane;
     };
     struct Edge {
-        int a, b;
+        int a;
+        int b;
     };
 
     Vector<Face> faces;
@@ -225,10 +169,10 @@ struct OccluderMeshData {
         Vector<uint32_t> indices;
     };
     struct Face {
-        Plane plane;
-        bool two_way = false;
         Vector<uint32_t> indices;
         Vector<Hole> holes;
+        Plane plane;
+        bool two_way = false;
     };
     Vector<Face> faces;
     Vector<Vector3> vertices;

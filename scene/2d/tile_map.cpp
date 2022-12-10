@@ -41,6 +41,7 @@
 #include "core/translation_helpers.h"
 #include "scene/2d/area_2d.h"
 #include "scene/main/scene_tree.h"
+#include "scene/resources/material.h"
 #include "scene/resources/world_2d.h"
 #include "servers/navigation_2d_server.h"
 #include "servers/physics_server_2d.h"

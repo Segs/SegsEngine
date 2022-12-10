@@ -31,6 +31,7 @@
 #include "a_star.h"
 
 #include "core/math/geometry.h"
+#include "core/math/vector2.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/pool_vector.h"
