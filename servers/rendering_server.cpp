@@ -179,6 +179,16 @@ Array RenderingServer::_instances_cull_convex_bind(const Array &p_convex, Render
     return to_array(ids);
 }
 
+void RenderingServer::_request_frame_drawn_callback(Callable &&func) {
+    ERR_FAIL_COND(func.is_null());
+
+    request_frame_drawn_callback([ val = eastl::move(func)]() {
+        Variant res;
+        Callable::CallError ce;
+        val.call(nullptr,0,res,ce);
+    });
+}
+
 RenderingEntity RenderingServer::make_sphere_mesh(int p_lats, int p_lons, float p_radius) {
     Vector<Vector3> vertices;
     Vector<Vector3> normals;
@@ -1950,7 +1960,7 @@ void RenderingServer::_bind_methods() {
 
     SE_BIND_METHOD(RenderingServer, free_rid); // shouldn't conflict with Object::free()
 
-    SE_BIND_METHOD(RenderingServer, request_frame_drawn_callback);
+    SE_BIND_METHOD_WRAPPER(RenderingServer, request_frame_drawn_callback, _request_frame_drawn_callback);
     SE_BIND_METHOD_WITH_DEFAULTS(RenderingServer, has_changed, DEFVAL(RS::CHANGED_PRIORITY_ANY) );
     SE_BIND_METHOD(RenderingServer, init);
     SE_BIND_METHOD(RenderingServer, finish);

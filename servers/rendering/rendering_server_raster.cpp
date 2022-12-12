@@ -92,10 +92,7 @@ void RenderingServerRaster::free_rid(RenderingEntity p_rid) {
 
 /* EVENT QUEUING */
 
-void RenderingServerRaster::request_frame_drawn_callback(Callable&& cb) {
-
-    ERR_FAIL_COND(cb.is_null());
-
+void RenderingServerRaster::request_frame_drawn_callback(FrameDrawnCallback&& cb) {
     frame_drawn_callbacks.emplace_back(eastl::move(cb));
 }
 
@@ -125,17 +122,7 @@ void RenderingServerRaster::draw(bool p_swap_buffers, double frame_step) {
         SCOPE_PROFILE("frame_drawn_callbacks");
         while (!frame_drawn_callbacks.empty()) {
 
-            Object *obj = frame_drawn_callbacks.front().get_object();
-            if (obj) {
-                Callable::CallError ce;
-                Variant ret;
-                frame_drawn_callbacks.front().call(nullptr,0,ret,ce);
-                if (ce.error != Callable::CallError::CALL_OK) {
-                    String err = Variant::get_callable_error_text(frame_drawn_callbacks.front(), nullptr, 0, ce);
-                    ERR_PRINT("Error calling frame drawn function: " + err);
-                }
-            }
-
+            frame_drawn_callbacks[0]();
             frame_drawn_callbacks.pop_front();
         }
     }

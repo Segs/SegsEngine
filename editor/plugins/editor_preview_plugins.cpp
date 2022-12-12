@@ -346,7 +346,7 @@ Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size
         RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_ONCE); //once used for capture
 
         preview_done.clear();
-        RenderingServer::get_singleton()->request_frame_drawn_callback(callable_gen(this,[this]() {const_cast<EditorMaterialPreviewPlugin*>(this)->_preview_done(Variant());}));
+        RenderingServer::get_singleton()->request_frame_drawn_callback([this]() {const_cast<EditorMaterialPreviewPlugin*>(this)->_preview_done(Variant());});
 
         while (!preview_done.is_set()) {
             OS::get_singleton()->delay_usec(10);
@@ -768,7 +768,7 @@ Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p
 
     preview_done.clear();
     auto nonconst_self=const_cast<EditorMeshPreviewPlugin*>(this);
-    RenderingServer::get_singleton()->request_frame_drawn_callback(callable_gen(nonconst_self,[nonconst_self] {nonconst_self->_preview_done(Variant());}));
+    RenderingServer::get_singleton()->request_frame_drawn_callback([nonconst_self] {nonconst_self->_preview_done(Variant());});
 
     while (!preview_done.is_set()) {
         OS::get_singleton()->delay_usec(10);
@@ -895,7 +895,7 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(StringView p_path, cons
 
     preview_done.clear();
     RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_ONCE); //once used for capture
-    RenderingServer::get_singleton()->request_frame_drawn_callback(callable_gen(this,[this] { const_cast<EditorFontPreviewPlugin*>(this)->_preview_done(Variant());}));
+    RenderingServer::get_singleton()->request_frame_drawn_callback([this] { const_cast<EditorFontPreviewPlugin*>(this)->_preview_done(Variant());});
 
     while (!preview_done.is_set()) {
         OS::get_singleton()->delay_usec(10);

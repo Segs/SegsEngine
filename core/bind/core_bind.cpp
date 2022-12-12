@@ -1248,10 +1248,8 @@ void _OS::_bind_methods() {
     SE_BIND_METHOD_WITH_DEFAULTS(_OS, get_time, DEFVAL(false) );
     SE_BIND_METHOD(_OS,get_time_zone_info);
     SE_BIND_METHOD(_OS,get_unix_time);
-    MethodBinder::bind_method(
-            D_METHOD("get_datetime_from_unix_time", { "unix_time_val" }), &_OS::get_datetime_from_unix_time);
-    MethodBinder::bind_method(
-            D_METHOD("get_unix_time_from_datetime", { "datetime" }), &_OS::get_unix_time_from_datetime);
+    SE_BIND_METHOD(_OS, get_datetime_from_unix_time);
+    SE_BIND_METHOD(_OS, get_unix_time_from_datetime);
     SE_BIND_METHOD(_OS,get_system_time_secs);
     SE_BIND_METHOD(_OS,get_system_time_msecs);
 

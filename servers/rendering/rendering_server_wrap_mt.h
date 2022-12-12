@@ -627,7 +627,7 @@ public:
 
     /* EVENT QUEUING */
 
-    void request_frame_drawn_callback(Callable &&p1) override {
+    void request_frame_drawn_callback(FrameDrawnCallback &&p1) override {
         assert (Thread::get_caller_id() != server_thread);
         command_queue.push([p1 = eastl::move(p1)]() mutable {
             submission_thread_singleton->request_frame_drawn_callback(eastl::move(p1));

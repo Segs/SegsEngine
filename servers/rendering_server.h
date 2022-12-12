@@ -41,7 +41,7 @@
 
 struct GeometryMeshData;
 struct OccluderMeshData;
-
+using FrameDrawnCallback = eastl::function<void()>;  
 //SEGS: In the future this is meant to replace passing Surface data in Array
 class GODOT_EXPORT SurfaceArrays {
 public:
@@ -881,7 +881,8 @@ public: // scripting glue helpers
 
     virtual void free_rid(RenderingEntity p_rid) = 0; ///< free RIDs associated with the visual server
 
-    virtual void request_frame_drawn_callback(Callable &&) = 0;
+    virtual void request_frame_drawn_callback(FrameDrawnCallback &&) = 0;
+    void _request_frame_drawn_callback(Callable &&);
 
     /* EVENT QUEUING */
 

@@ -1091,7 +1091,7 @@ PREAMBLE(bool)::_light_scissor_begin(const Rect2 &p_item_rect, const Transform2D
     // possibly due to pixel snap. For this reason we will boost
     // the scissor area by 1 pixel, this will take care of any rounding
     // issues, and shouldn't significantly negatively impact performance.
-    int y = rh - (cliprect.position.y + cliprect.size.y);
+    int y = int(rh - (cliprect.position.y + cliprect.size.y));
     y += 1; // off by 1 boost before flipping
 
     if (current_rt->flags[RS::RENDER_TARGET_VFLIP]) {

@@ -316,6 +316,7 @@ StringView replaceFunctionName(const TS_Function *finfo, bool in_godot_ns) {
         {"put_data","_put_data"},
         {"put_packet","_put_packet"},
         {"put_partial_data","_put_partial_data"},
+        {"request_frame_drawn_callback", "_request_frame_drawn_callback" },
         {"set_dest_address","_set_dest_address"},
         {"set_expand_margin","set_expand_margin_size"},
         {"set_expand_margin_all","set_expand_margin_size_all"},
