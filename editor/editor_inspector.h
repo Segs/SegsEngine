@@ -224,6 +224,7 @@ public:
     Control *make_custom_tooltip(StringView p_text) const override;
 
     EditorInspectorCategory();
+    ~EditorInspectorCategory() override;
 };
 class VBoxContainer;
 

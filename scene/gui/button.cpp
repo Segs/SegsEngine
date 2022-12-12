@@ -39,6 +39,19 @@
 #include "servers/rendering_server.h"
 
 IMPL_GDCLASS(Button)
+
+struct ButtonDrawableComponent {
+    String text;
+    String xl_text;
+    Ref<Texture> icon;
+    float _internal_margin[4];
+    bool flat;
+    bool expand_icon;
+    bool clip_text;
+    UiTextAlign align;
+    UiTextAlign icon_align;
+};
+
 namespace  {
     ButtonDrawableComponent &data(GameEntity ent) {
         return game_object_registry.registry.get<ButtonDrawableComponent>(ent);

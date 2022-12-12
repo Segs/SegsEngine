@@ -190,9 +190,19 @@ public:
     void draw_rect_stroke(const Rect2 &p_rect, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
     void draw_rect_filled(const Rect2 &p_rect, const Color &p_color);
     void draw_circle(const Point2 &p_pos, float p_radius, const Color &p_color);
-    void draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1, 1), const Ref<Texture> &p_normal_map = Ref<Texture>());
-    void draw_texture_rect(const Ref<Texture> &p_texture, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>());
-    void draw_texture_rect_region(const Ref<Texture> &p_texture, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = false);
+    void draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1, 1));
+    void draw_texture_with_normalmap(
+            const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1, 1)
+            );
+    void draw_texture_rect(const Ref<Texture> &p_texture, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1),
+            bool p_transpose = false);
+    void draw_texture_rect_with_normalmap(const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Rect2 &p_rect, bool p_tile = false,
+            const Color &p_modulate = Color(1, 1, 1),
+            bool p_transpose = false);
+
+    void draw_texture_rect_region(const Ref<Texture> &p_texture, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, bool p_clip_uv = false);
+    void draw_texture_with_normalmap_rect_region(const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Rect2 &p_rect,
+            const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, bool p_clip_uv = false);
     void draw_style_box(const Ref<StyleBox> &p_style_box, const Rect2 &p_rect);
     void draw_primitive(Span<const Vector2> p_points, Span<const Color> p_colors, const PoolVector<Point2> &p_uvs);
     void draw_textured_primitive(Span<const Vector2> p_points, Span<const Color> p_colors, const PoolVector<Point2> &p_uvs, const Ref<Texture> &p_texture, float p_width, const Ref<Texture> &p_normal_map);

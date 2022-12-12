@@ -363,8 +363,6 @@
             </argument>
             <argument index="2" name="modulate" type="Color" default="Color( 1, 1, 1, 1 )">
             </argument>
-            <argument index="3" name="normal_map" type="Texture" default="null">
-            </argument>
             <description>
                 Draws a texture at a given position.
             </description>
@@ -382,8 +380,6 @@
             </argument>
             <argument index="4" name="transpose" type="bool" default="false">
             </argument>
-            <argument index="5" name="normal_map" type="Texture" default="null">
-            </argument>
             <description>
                 Draws a textured rectangle at a given position, optionally modulated by a color. If [code]transpose[/code] is [code]true[/code], the texture will have its X and Y coordinates swapped.
             </description>
@@ -400,8 +396,6 @@
             <argument index="3" name="modulate" type="Color" default="Color( 1, 1, 1, 1 )">
             </argument>
             <argument index="4" name="transpose" type="bool" default="false">
-            </argument>
-            <argument index="5" name="normal_map" type="Texture" default="null">
             </argument>
             <argument index="6" name="clip_uv" type="bool" default="true">
             </argument>

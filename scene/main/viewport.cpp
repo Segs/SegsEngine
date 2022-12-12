@@ -60,6 +60,7 @@
 #include "scene/resources/mesh.h"
 #include "scene/resources/style_box.h"
 #include "scene/scene_string_names.h"
+#include "scene/gui/control_data.h"
 #include "servers/physics_server_2d.h"
 
 IMPL_GDCLASS(ViewportTexture)

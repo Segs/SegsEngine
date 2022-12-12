@@ -400,3 +400,6 @@ TextureButton::TextureButton() {
     _position_rect = Rect2();
     _tile = false;
 }
+
+TextureButton::~TextureButton() {
+}

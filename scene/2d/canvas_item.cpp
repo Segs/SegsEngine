@@ -541,8 +541,17 @@ void CanvasItem::draw_circle(const Point2 &p_pos, float p_radius, const Color &p
     RenderingServer::get_singleton()->canvas_item_add_circle(canvas_item, p_pos, p_radius, p_color);
 }
 
-void CanvasItem::draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos, const Color &p_modulate, const Ref<Texture> &p_normal_map) {
+void CanvasItem::draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos, const Color &p_modulate) {
 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+
+    ERR_FAIL_COND(not p_texture);
+
+    p_texture->draw(canvas_item, p_pos, p_modulate, false, Ref<Texture>());
+}
+
+void CanvasItem::draw_texture_with_normalmap(
+        const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Point2 &p_pos, const Color &p_modulate) {
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     ERR_FAIL_COND(not p_texture);
@@ -550,15 +559,31 @@ void CanvasItem::draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos
     p_texture->draw(canvas_item, p_pos, p_modulate, false, p_normal_map);
 }
 
-void CanvasItem::draw_texture_rect(const Ref<Texture> &p_texture, const Rect2 &p_rect, bool p_tile, const Color &p_modulate, bool p_transpose, const Ref<Texture> &p_normal_map) {
+void CanvasItem::draw_texture_rect(const Ref<Texture> &p_texture, const Rect2 &p_rect, bool p_tile, const Color &p_modulate, bool p_transpose) {
 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+
+    ERR_FAIL_COND(not p_texture);
+    p_texture->draw_rect(canvas_item, p_rect, p_tile, p_modulate, p_transpose);
+}
+
+void CanvasItem::draw_texture_rect_with_normalmap(const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Rect2 &p_rect, bool p_tile,
+        const Color &p_modulate, bool p_transpose) {
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     ERR_FAIL_COND(not p_texture);
     p_texture->draw_rect(canvas_item, p_rect, p_tile, p_modulate, p_transpose, p_normal_map);
 }
-void CanvasItem::draw_texture_rect_region(const Ref<Texture> &p_texture, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate, bool p_transpose, const Ref<Texture> &p_normal_map, bool p_clip_uv) {
 
+void CanvasItem::draw_texture_rect_region(const Ref<Texture> &p_texture, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate, bool p_transpose, bool p_clip_uv) {
+
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND(not p_texture);
+    p_texture->draw_rect_region(canvas_item, p_rect, p_src_rect, p_modulate, p_transpose, Ref<Texture>(), p_clip_uv);
+}
+
+void CanvasItem::draw_texture_with_normalmap_rect_region(const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Rect2 &p_rect,
+        const Rect2 &p_src_rect, const Color &p_modulate, bool p_transpose, bool p_clip_uv) {
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
     ERR_FAIL_COND(not p_texture);
     p_texture->draw_rect_region(canvas_item, p_rect, p_src_rect, p_modulate, p_transpose, p_normal_map, p_clip_uv);
@@ -907,9 +932,9 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("draw_rect_stroke", {"rect", "color", "width", "antialiased"}), &CanvasItem::draw_rect_stroke, {DEFVAL(1.0f), DEFVAL(false)});
     SE_BIND_METHOD(CanvasItem,draw_rect_filled);
     SE_BIND_METHOD(CanvasItem,draw_circle);
-    MethodBinder::bind_method(D_METHOD("draw_texture", {"texture", "position", "modulate", "normal_map"}), &CanvasItem::draw_texture, {DEFVAL(Color(1, 1, 1, 1)), DEFVAL(Variant())});
-    MethodBinder::bind_method(D_METHOD("draw_texture_rect", {"texture", "rect", "tile", "modulate", "transpose", "normal_map"}), &CanvasItem::draw_texture_rect, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant())});
-    MethodBinder::bind_method(D_METHOD("draw_texture_rect_region", {"texture", "rect", "src_rect", "modulate", "transpose", "normal_map", "clip_uv"}), &CanvasItem::draw_texture_rect_region, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant()), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("draw_texture", {"texture", "position", "modulate"}), &CanvasItem::draw_texture, {DEFVAL(Color(1, 1, 1, 1))});
+    MethodBinder::bind_method(D_METHOD("draw_texture_rect", {"texture", "rect", "tile", "modulate", "transpose"}), &CanvasItem::draw_texture_rect, {DEFVAL(Color(1, 1, 1)), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("draw_texture_rect_region", {"texture", "rect", "src_rect", "modulate", "transpose", "clip_uv"}), &CanvasItem::draw_texture_rect_region, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(true)});
     SE_BIND_METHOD(CanvasItem,draw_style_box);
     SE_BIND_METHOD(CanvasItem,draw_primitive);
     SE_BIND_METHOD(CanvasItem,draw_textured_primitive);

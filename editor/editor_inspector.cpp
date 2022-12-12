@@ -998,6 +998,9 @@ void EditorInspectorCategory::_bind_methods() {
 
 EditorInspectorCategory::EditorInspectorCategory() = default;
 
+EditorInspectorCategory::~EditorInspectorCategory() {
+}
+
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 

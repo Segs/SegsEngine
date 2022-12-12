@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TEXTURE_BUTTON_H
-#define TEXTURE_BUTTON_H
+#pragma once
 
 #include "scene/gui/base_button.h"
 #include "scene/resources/bit_map.h"
@@ -97,6 +96,5 @@ public:
     bool is_flipped_v() const;
 
 	TextureButton();
+    ~TextureButton() override;
 };
-
-#endif // TEXTURE_BUTTON_H
