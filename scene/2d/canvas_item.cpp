@@ -66,9 +66,8 @@ struct CanvasItemPendingUpdateComponent {};
 bool CanvasItem::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
     if (_edit_use_rect()) {
         return _edit_get_rect().has_point(p_point);
-    } else {
-        return p_point.length() < p_tolerance;
     }
+    return p_point.length() < p_tolerance;
 }
 Transform2D CanvasItem::_edit_get_transform() const {
     return Transform2D(_edit_get_rotation(), _edit_get_position() + _edit_get_pivot());

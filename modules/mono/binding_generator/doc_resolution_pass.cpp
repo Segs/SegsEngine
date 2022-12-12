@@ -14,11 +14,12 @@ void DocResolutionPass::resolveTypeDocs(TS_TypeLike *tgt) const {
     auto res = m_ctx.m_rd.doc->class_list.find_as(type_name);
     if (m_ctx.m_rd.doc->class_list.end() == res)
         res = m_ctx.m_rd.doc->class_list.find(tgt->relative_path(CPP_IMPL));
-    if (m_ctx.m_rd.doc->class_list.end() != res)
+    if (m_ctx.m_rd.doc->class_list.end() != res) {
         tgt->m_docs = &res->second;
-    else {
-        if(tgt->kind()!=TS_TypeLike::ENUM)
-            qDebug() << "Failed to find docs for" << tgt->relative_path(CPP_IMPL).c_str();
+        return;
+    }
+    if(tgt->kind()!=TS_TypeLike::ENUM) {
+        qDebug() << "Failed to find docs for" << tgt->relative_path(CPP_IMPL).c_str();
     }
 }
 

@@ -31,9 +31,7 @@
 #pragma once
 
 #include "scene/gui/base_button.h"
-#include "core/string.h"
-
-
+#include "core/string_name.h"
 
 class GODOT_EXPORT Button : public BaseButton {
 

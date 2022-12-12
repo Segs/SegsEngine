@@ -3576,7 +3576,7 @@ void RasterizerSceneGLES3::render_shadow(RenderingEntity p_light, RenderingEntit
     }
 
     glEnable(GL_SCISSOR_TEST);
-    glClearDepth(1.0f);
+    glClearDepth(1.0);
     glClear(GL_DEPTH_BUFFER_BIT);
     glDisable(GL_SCISSOR_TEST);
 

@@ -32,9 +32,9 @@
 
 #include "core/hash_set.h"
 #include "scene/gui/control.h"
-#include "scene/gui/shortcut.h"
 
 class ButtonGroup;
+class ShortCut;
 
 class GODOT_EXPORT BaseButton : public Control {
 
@@ -75,8 +75,8 @@ private:
     void on_action_event(Ref<InputEvent> p_event);
 
 protected:
-    virtual void pressed();
-    virtual void toggled(bool p_pressed);
+    virtual void pressed() {}
+    virtual void toggled(bool p_pressed) {}
     static void _bind_methods();
     virtual void _gui_input(Ref<InputEvent> p_event);
     virtual void _unhandled_input(Ref<InputEvent> p_event);
@@ -134,6 +134,8 @@ public:
     ~BaseButton() override;
 };
 
+
+#include "core/resource.h"
 
 class GODOT_EXPORT ButtonGroup : public Resource {
 

@@ -538,7 +538,7 @@ void RasterizerCanvasGLES3::_legacy_canvas_render_item(Item *p_ci, RenderItemSta
         int y = current_rt->height -
                 (r_ris.current_clip->final_clip_rect.position.y + r_ris.current_clip->final_clip_rect.size.y);
         if (current_rt->flags[RS::RENDER_TARGET_VFLIP])
-            y = r_ris.current_clip->final_clip_rect.position.y;
+            y = (int)r_ris.current_clip->final_clip_rect.position.y;
         glScissor(r_ris.current_clip->final_clip_rect.position.x, y, r_ris.current_clip->final_clip_rect.size.width,
                 r_ris.current_clip->final_clip_rect.size.height);
     }

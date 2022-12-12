@@ -913,7 +913,9 @@ struct _OSCoreBindImg {
     int fmt;
     GameEntity id;
     int vram;
-    bool operator<(const _OSCoreBindImg &p_img) const { return vram == p_img.vram ? entt::to_integral(id) < entt::to_integral(p_img.id) : vram > p_img.vram; }
+    bool operator<(const _OSCoreBindImg &p_img) const {
+        return vram == p_img.vram ? entt::to_integral(id) < entt::to_integral(p_img.id) : vram > p_img.vram;
+    }
 };
 
 void _OS::print_all_textures_by_size() {

@@ -32,6 +32,7 @@
 
 #include "scene/gui/base_button.h"
 #include "scene/resources/bit_map.h"
+
 class GODOT_EXPORT TextureButton : public BaseButton {
 
 	GDCLASS(TextureButton,BaseButton)

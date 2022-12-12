@@ -32,6 +32,7 @@
 #include "core/forward_decls.h"
 #include "core/object.h"
 #include "core/os/main_loop.h"
+#include "core/reference.h"
 
 #include "core/hash_map.h"
 

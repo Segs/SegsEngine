@@ -413,8 +413,8 @@ public:
 
             Transform t;
 
-            t.origin = Vector3(0.0 * i, 3.5 + 1.1 * i, 0.7 + 0.0 * i);
-            t.basis.rotate(Vector3(0.2, -1, 0), Math_PI / 2 * 0.6);
+            t.origin = Vector3(0.0f * i, 3.5f + 1.1f * i, 0.7f + 0.0f * i);
+            t.basis.rotate(Vector3(0.2f, -1, 0), Math_PI / 2 * 0.6f);
 
             create_body(type, PhysicsServer3D::BODY_MODE_RIGID, t);
         }
