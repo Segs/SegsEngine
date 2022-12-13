@@ -212,8 +212,8 @@ private:
     JoyEvent _get_mapped_button_event(const JoyDeviceMapping &mapping, int p_button);
     JoyEvent _get_mapped_axis_event(const JoyDeviceMapping &mapping, int p_axis, float p_value);
     void _get_mapped_hat_events(const JoyDeviceMapping &mapping, int p_hat, JoyEvent r_events[HAT_MAX]);
-    JoystickList _get_output_button(String output);
-    JoystickList _get_output_axis(String output);
+    JoystickList _get_output_button(StringView output);
+    JoystickList _get_output_axis(StringView output);
     void _button_event(int p_device, int p_index, bool p_pressed);
     void _axis_event(int p_device, int p_axis, float p_value);
 

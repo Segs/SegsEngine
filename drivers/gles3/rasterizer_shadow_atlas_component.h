@@ -46,7 +46,7 @@ struct RasterizerShadowAtlasComponent {
     RasterizerShadowAtlasComponent &operator=(const RasterizerShadowAtlasComponent &) = delete;
 
     RasterizerShadowAtlasComponent(RasterizerShadowAtlasComponent&&) = default;
-    RasterizerShadowAtlasComponent &operator=(RasterizerShadowAtlasComponent &&from) {
+    RasterizerShadowAtlasComponent &operator=(RasterizerShadowAtlasComponent &&from) noexcept {
         unregister_from_lights();
         if(this==&from) {
             quadrants = {}; //.fill({{0,0,entt::null}});

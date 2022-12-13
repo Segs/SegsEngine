@@ -807,7 +807,7 @@ void ScriptEditor::_update_modified_scripts_for_external_editor(const Ref<Script
         _find_changed_scripts_for_external_editor(base, base, scripts);
     }
 
-    for (Ref<Script> script : scripts) {
+    for (const Ref<Script> &script : scripts) {
 
         if (p_for_script && p_for_script != script)
             continue;
@@ -1929,7 +1929,7 @@ ScriptTextEditor::ScriptTextEditor() {
     warnings_panel->set_focus_mode(FOCUS_CLICK);
     warnings_panel->hide();
 
-    update_settings();
+    ScriptTextEditor::update_settings();
 
     code_editor->get_text_edit()->set_callhint_settings(
             EditorSettings::get_singleton()->getT<bool>("text_editor/completion/put_callhint_tooltip_below_current_line"),

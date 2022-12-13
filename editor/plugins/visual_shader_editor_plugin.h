@@ -233,8 +233,8 @@ private:
 
 public:
     // made public for call_deferred lambda
-    void _input_select_item(Ref<VisualShaderNodeInput> input, const StringName &name);
-    void _uniform_select_item(Ref<VisualShaderNodeUniformRef> p_uniform_ref, const StringName & p_name);
+    void _input_select_item(const Ref<VisualShaderNodeInput>& input, const StringName &name);
+    void _uniform_select_item(const Ref<VisualShaderNodeUniformRef>& p_uniform_ref, const StringName & p_name);
 private:
     void _add_input_port(int p_node, int p_port, int p_port_type, StringView p_name);
     void _remove_input_port(int p_node, int p_port);

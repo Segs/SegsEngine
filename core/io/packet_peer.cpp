@@ -243,7 +243,7 @@ Error PacketPeerStream::get_packet(const uint8_t **r_buffer, int &r_buffer_size)
 
     int remaining = ring_buffer.data_left();
     ERR_FAIL_COND_V(remaining < 4, ERR_UNAVAILABLE);
-    uint8_t lbuf[4];
+    uint8_t lbuf[4]={0};
     ring_buffer.copy(lbuf, 0, 4);
     remaining -= 4;
     uint32_t len = decode_uint32(lbuf);

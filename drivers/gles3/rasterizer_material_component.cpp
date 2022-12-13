@@ -897,8 +897,8 @@ void RasterizerMaterialComponent::release_resources() {
     // remove from owners
     for (eastl::pair<RenderingEntity,int> E : geometry_owners) {
 
-            assert(VSG::ecs->registry.all_of<RasterizerCommonGeometryComponent>(E.first));
-        auto &g = VSG::ecs->registry.get<RasterizerCommonGeometryComponent>(E.first);
+            assert(geom_view.contains(E.first));
+        auto &g = geom_view.get<RasterizerCommonGeometryComponent>(E.first);
         g.material = entt::null;
         }
         geometry_owners.clear();

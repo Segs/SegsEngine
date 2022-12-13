@@ -659,7 +659,7 @@ inline bool RasterizerStorageGLES3::safe_buffer_sub_data(unsigned int p_total_bu
 inline void RasterizerStorageGLES3::buffer_orphan_and_upload(unsigned int p_buffer_size, unsigned int p_offset, unsigned int p_data_size, const void *p_data, GLenum p_target, GLenum p_usage, bool p_optional_orphan) const {
     // Orphan the buffer to avoid CPU/GPU sync points caused by glBufferSubData
     // Was previously #ifndef GLES_OVER_GL however this causes stalls on desktop mac also (and possibly other)
-    glBufferData(p_target, p_buffer_size, NULL, p_usage);
+    glBufferData(p_target, p_buffer_size, nullptr, p_usage);
 #ifdef RASTERIZER_EXTRA_CHECKS
     // fill with garbage off the end of the array
     if (p_buffer_size) {

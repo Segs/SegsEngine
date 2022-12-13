@@ -3131,7 +3131,7 @@ void TileSetEditor::add_texture(Ref<Texture> p_texture) {
     texture_list->set_item_metadata(texture_list->get_item_count() - 1, p_texture->get_path());
 }
 
-void TileSetEditor::remove_texture(Ref<Texture> p_texture) {
+void TileSetEditor::remove_texture(const Ref<Texture>& p_texture) {
     texture_list->remove_item(texture_list->find_metadata(p_texture->get_path()));
     texture_map.erase(p_texture->get_path());
 
