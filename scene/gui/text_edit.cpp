@@ -1116,7 +1116,7 @@ struct PrivateData {
             return;
         }
 
-        //	Disallow inserting duplicated quotes while already in string
+        //    Disallow inserting duplicated quotes while already in string
         if ((in_single_quote || in_double_quote) && (ch == '"' || ch == '\'')) {
             insert_text_at_cursor(ch_single);
             cursor_set_column(cursor_position_to_move);

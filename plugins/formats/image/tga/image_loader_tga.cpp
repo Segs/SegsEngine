@@ -131,8 +131,8 @@ Error ImageLoaderTGA::convert_to_image(ImageData &p_image, const uint8_t *p_buff
         x_end = -1;
     }
 
-	p_image.data.resize(width * height * sizeof(uint32_t));
-	PoolVector<uint8_t>::Write image_data_w = p_image.data.write();
+    p_image.data.resize(width * height * sizeof(uint32_t));
+    PoolVector<uint8_t>::Write image_data_w = p_image.data.write();
 
     size_t i = 0;
     uint32_t x = x_start;
@@ -226,10 +226,10 @@ Error ImageLoaderTGA::convert_to_image(ImageData &p_image, const uint8_t *p_buff
     }
 
     image_data_w.release();
-	p_image.width = width;
-	p_image.height = height;
-	p_image.mipmaps = false;
-	p_image.format=ImageData::FORMAT_RGBA8;
+    p_image.width = width;
+    p_image.height = height;
+    p_image.mipmaps = false;
+    p_image.format=ImageData::FORMAT_RGBA8;
     return OK;
 }
 
@@ -237,7 +237,7 @@ Error ImageLoaderTGA::load_image(ImageData &tgt_image, FileAccess *f, LoadParams
 
     PoolVector<uint8_t> src_image;
     uint64_t src_image_len = f->get_len();
-	ERR_FAIL_COND_V(src_image_len == 0, ERR_FILE_CORRUPT);
+    ERR_FAIL_COND_V(src_image_len == 0, ERR_FILE_CORRUPT);
     ERR_FAIL_COND_V(src_image_len < (uint64_t)sizeof(tga_header_s), ERR_FILE_CORRUPT);
     src_image.resize(src_image_len);
 

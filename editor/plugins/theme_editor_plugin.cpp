@@ -1393,7 +1393,7 @@ struct AddThemeTypeAction final : public UndoableAction {
     Ref<Theme> m_edited_theme;
     GameEntity m_owner;
     AddThemeTypeAction(GameEntity owner, Ref<Theme> edited_theme, StringName new_type) :
-    m_owner(owner), m_edited_theme(edited_theme), m_new_type(new_type) {
+        m_new_type(new_type), m_edited_theme(edited_theme), m_owner(owner) {
 
     }
     StringName name() const override { return TTR("Add Theme Type"); }
@@ -1420,7 +1420,7 @@ struct RemoveThemeTypeAction final : public UndoableAction {
     Ref<Theme> m_old_snapshot;
     Ref<Theme> m_new_snapshot;
     RemoveThemeTypeAction(GameEntity owner, Ref<Theme> edited_theme, StringName new_type) :
-            m_owner(owner), m_edited_theme(edited_theme), m_new_type(new_type) {
+        m_new_type(new_type), m_edited_theme(edited_theme), m_owner(owner) {
         m_old_snapshot = static_ref_cast<Theme>(edited_theme->duplicate());
         m_new_snapshot = static_ref_cast<Theme>(edited_theme->duplicate());
         m_new_snapshot->remove_type(new_type);
@@ -1448,7 +1448,8 @@ struct RemoveThemeTypeAction final : public UndoableAction {
 
 
 void ThemeItemEditorDialog::_add_theme_type(const String &p_new_text) {
-    const StringName new_type(StringUtils::strip_edges(edit_add_type_value->get_text()));
+    assert(p_new_text==edit_add_type_value->get_text());
+    const StringName new_type(StringUtils::strip_edges(p_new_text));
     edit_add_type_value->clear();
 
     UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
@@ -2685,7 +2686,7 @@ void ThemeTypeEditor::_item_rename_cbk(int p_data_type, String p_item_name, Cont
     // LineEdit buttons
     object_cast<Button>(p_control->get_child(4))->show();
     object_cast<Button>(p_control->get_child(5))->show();
-        }
+}
 
 void ThemeTypeEditor::_item_rename_confirmed(int p_data_type, StringName p_item_name, Control *p_control) {
     LineEdit *le = object_cast<LineEdit>(p_control->get_child(1));
@@ -2724,7 +2725,7 @@ void ThemeTypeEditor::_item_rename_confirmed(int p_data_type, StringName p_item_
 
 void ThemeTypeEditor::_item_rename_entered(String p_value, int p_data_type, StringName p_item_name, Control *p_control) {
     _item_rename_confirmed(p_data_type, p_item_name, p_control);
-                }
+}
 
 void ThemeTypeEditor::_item_rename_canceled(int p_data_type, StringName p_item_name, Control *p_control) {
     // LineEdit

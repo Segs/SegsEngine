@@ -637,12 +637,12 @@ void GodotNavigationServer::flush_queries() {
 }
 
 void GodotNavigationServer::map_force_update(RID p_map) {
-	NavMap *map = map_owner.getornull(p_map);
-	ERR_FAIL_COND(map == nullptr);
+    NavMap *map = map_owner.getornull(p_map);
+    ERR_FAIL_COND(map == nullptr);
 
-	flush_queries();
+    flush_queries();
 
-	map->sync();
+    map->sync();
 }
 
 void GodotNavigationServer::process(real_t p_delta_time) {
@@ -655,15 +655,15 @@ void GodotNavigationServer::process(real_t p_delta_time) {
 
     // With c++ we can't be 100% sure this is called in single thread so use the mutex.
     MutexLock lock(operations_mutex);
-	for (uint32_t i(0); i < active_maps.size(); i++) {
+    for (uint32_t i(0); i < active_maps.size(); i++) {
         active_maps[i]->sync();
         active_maps[i]->step(p_delta_time);
         active_maps[i]->dispatch_callbacks();
-		const uint32_t new_map_update_id = active_maps[i]->get_map_update_id();
-		if (new_map_update_id != active_maps_update_id[i]) {
-			emit_signal("map_changed", active_maps[i]->get_self());
-			active_maps_update_id[i] = new_map_update_id;
-		}
+        const uint32_t new_map_update_id = active_maps[i]->get_map_update_id();
+        if (new_map_update_id != active_maps_update_id[i]) {
+            emit_signal("map_changed", active_maps[i]->get_self());
+            active_maps_update_id[i] = new_map_update_id;
+        }
     }
 }
 

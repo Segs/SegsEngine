@@ -37,16 +37,16 @@
 */
 class CheckButton : public Button {
 
-	GDCLASS(CheckButton,Button)
+    GDCLASS(CheckButton,Button)
 
 protected:
-	Size2 get_icon_size() const;
-	Size2 get_minimum_size() const override;
-	void _notification(int p_what);
+    Size2 get_icon_size() const;
+    Size2 get_minimum_size() const override;
+    void _notification(int p_what);
 
 public:
-	CheckButton();
-	~CheckButton() override;
+    CheckButton();
+    ~CheckButton() override;
 };
 
 #endif

@@ -47,23 +47,23 @@
 
 void register_webrtc_types() {
 #define _SET_HINT(NAME, _VAL_, _MAX_) \
-	GLOBAL_DEF(NAME, _VAL_);          \
+    GLOBAL_DEF(NAME, _VAL_);          \
     ProjectSettings::get_singleton()->set_custom_property_info(NAME, PropertyInfo(VariantType::INT, NAME, PropertyHint::Range, "2," #_MAX_ ",1,or_greater"));
 
-	_SET_HINT(WRTC_IN_BUF, 64, 4096);
+    _SET_HINT(WRTC_IN_BUF, 64, 4096);
 #ifdef JAVASCRIPT_ENABLED
-	WebRTCPeerConnectionJS::make_default();
+    WebRTCPeerConnectionJS::make_default();
 #elif defined(WEBRTC_GDNATIVE_ENABLED)
-	WebRTCPeerConnectionGDNative::make_default();
+    WebRTCPeerConnectionGDNative::make_default();
 #endif
 
-	ClassDB::register_custom_instance_class<WebRTCPeerConnection>();
+    ClassDB::register_custom_instance_class<WebRTCPeerConnection>();
 #ifdef WEBRTC_GDNATIVE_ENABLED
-	ClassDB::register_class<WebRTCPeerConnectionGDNative>();
-	ClassDB::register_class<WebRTCDataChannelGDNative>();
+    ClassDB::register_class<WebRTCPeerConnectionGDNative>();
+    ClassDB::register_class<WebRTCDataChannelGDNative>();
 #endif
-	ClassDB::register_virtual_class<WebRTCDataChannel>();
-	ClassDB::register_class<WebRTCMultiplayer>();
+    ClassDB::register_virtual_class<WebRTCDataChannel>();
+    ClassDB::register_class<WebRTCMultiplayer>();
 }
 
 void unregister_webrtc_types() {}

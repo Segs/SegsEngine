@@ -34,33 +34,33 @@
 #include "scene/gui/control.h"
 class Separator : public Control {
 
-	GDCLASS(Separator,Control)
+    GDCLASS(Separator,Control)
 
 protected:
-	Orientation orientation;
-	void _notification(int p_what);
+    Orientation orientation;
+    void _notification(int p_what);
 
 public:
-	Size2 get_minimum_size() const override;
+    Size2 get_minimum_size() const override;
 
-	Separator();
-	~Separator() override;
+    Separator();
+    ~Separator() override;
 };
 
 class VSeparator : public Separator {
 
-	GDCLASS(VSeparator,Separator)
+    GDCLASS(VSeparator,Separator)
 
 public:
-	VSeparator();
+    VSeparator();
 };
 
 class HSeparator : public Separator {
 
-	GDCLASS(HSeparator,Separator)
+    GDCLASS(HSeparator,Separator)
 
 public:
-	HSeparator();
+    HSeparator();
 };
 
 #endif

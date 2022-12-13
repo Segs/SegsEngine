@@ -36,24 +36,24 @@
 class GODOT_EXPORT VelocityTracker3D : public RefCounted {
     GDCLASS(VelocityTracker3D,RefCounted)
 
-	struct PositionHistory {
+    struct PositionHistory {
         Vector3 position;
         uint64_t frame;
-	};
+    };
 
     Vector<PositionHistory> position_history;
     int position_history_len;
     bool physics_step;
-	
+
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void reset(const Vector3 &p_new_pos);
-	void set_track_physics_step(bool p_track_physics_step);
-	bool is_tracking_physics_step() const;
-	void update_position(const Vector3 &p_position);
-	Vector3 get_tracked_linear_velocity() const;
+    void reset(const Vector3 &p_new_pos);
+    void set_track_physics_step(bool p_track_physics_step);
+    bool is_tracking_physics_step() const;
+    void update_position(const Vector3 &p_position);
+    Vector3 get_tracked_linear_velocity() const;
 
     VelocityTracker3D();
 };

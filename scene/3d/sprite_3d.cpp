@@ -639,7 +639,7 @@ void Sprite3D::_draw() {
     Point2 frame_offset = Point2(frame % hframes, frame / hframes);
     frame_offset *= frame_size;
 
-	Point2 dst_offset = get_offset();
+    Point2 dst_offset = get_offset();
     if (is_centered()) {
         dst_offset -= frame_size / 2;
     }
@@ -867,7 +867,7 @@ void AnimatedSprite3D::_draw() {
     }
 
     Rect2 dst_rect(ofs, tsize);
-    
+
     draw_texture_rect(texture, dst_rect, src_rect);
 }
 

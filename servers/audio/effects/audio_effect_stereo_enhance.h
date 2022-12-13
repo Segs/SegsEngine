@@ -36,52 +36,52 @@
 class AudioEffectStereoEnhance;
 
 class AudioEffectStereoEnhanceInstance : public AudioEffectInstance {
-	GDCLASS(AudioEffectStereoEnhanceInstance,AudioEffectInstance)
+    GDCLASS(AudioEffectStereoEnhanceInstance,AudioEffectInstance)
 
     friend class AudioEffectStereoEnhance;
-	Ref<AudioEffectStereoEnhance> base;
+    Ref<AudioEffectStereoEnhance> base;
 
-	enum {
+    enum {
 
-		MAX_DELAY_MS = 50
-	};
+        MAX_DELAY_MS = 50
+    };
 
-	float *delay_ringbuff;
-	unsigned int ringbuff_pos;
-	unsigned int ringbuff_mask;
+    float *delay_ringbuff;
+    unsigned int ringbuff_pos;
+    unsigned int ringbuff_mask;
 
 public:
-	void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
+    void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
 
-	~AudioEffectStereoEnhanceInstance() override;
+    ~AudioEffectStereoEnhanceInstance() override;
 };
 
 class GODOT_EXPORT AudioEffectStereoEnhance : public AudioEffect {
-	GDCLASS(AudioEffectStereoEnhance,AudioEffect)
+    GDCLASS(AudioEffectStereoEnhance,AudioEffect)
 
-	friend class AudioEffectStereoEnhanceInstance;
-	float volume_db;
+    friend class AudioEffectStereoEnhanceInstance;
+    float volume_db;
 
-	float pan_pullout;
-	float time_pullout;
-	float surround;
+    float pan_pullout;
+    float time_pullout;
+    float surround;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	Ref<AudioEffectInstance> instance() override;
+    Ref<AudioEffectInstance> instance() override;
 
-	void set_pan_pullout(float p_amount);
-	float get_pan_pullout() const;
+    void set_pan_pullout(float p_amount);
+    float get_pan_pullout() const;
 
-	void set_time_pullout(float p_amount);
-	float get_time_pullout() const;
+    void set_time_pullout(float p_amount);
+    float get_time_pullout() const;
 
-	void set_surround(float p_amount);
-	float get_surround() const;
+    void set_surround(float p_amount);
+    float get_surround() const;
 
-	AudioEffectStereoEnhance();
+    AudioEffectStereoEnhance();
 };
 
 #endif // AUDIOEFFECTSTEREOENHANCE_H

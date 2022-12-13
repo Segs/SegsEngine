@@ -33,7 +33,7 @@
 #include "lightmap_raycaster.h"
 
 void register_raycast_types() {
-	LightmapRaycasterEmbree::make_default_raycaster();
+    LightmapRaycasterEmbree::make_default_raycaster();
 }
 
 void unregister_raycast_types() {

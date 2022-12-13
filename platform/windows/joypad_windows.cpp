@@ -105,7 +105,7 @@ bool JoypadWindows::is_xinput_device(const GUID *p_guid) {
     static GUID IID_X360WiredGamepad = { MAKELONG(0x045E, 0x02A1), 0x0000, 0x0000, { 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 } };
     static GUID IID_X360WirelessGamepad = { MAKELONG(0x045E, 0x028E), 0x0000, 0x0000, { 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 } };
 
-	if (memcmp(p_guid, &IID_ValveStreamingGamepad, sizeof(*p_guid)) == 0 ||
+    if (memcmp(p_guid, &IID_ValveStreamingGamepad, sizeof(*p_guid)) == 0 ||
             memcmp(p_guid, &IID_X360WiredGamepad, sizeof(*p_guid)) == 0 ||
             memcmp(p_guid, &IID_X360WirelessGamepad, sizeof(*p_guid)) == 0)
         return true;

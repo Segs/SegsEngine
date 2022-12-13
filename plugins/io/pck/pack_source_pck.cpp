@@ -184,9 +184,10 @@ FileAccessPack::~FileAccessPack() {
 bool PackedSourcePCK::try_open_pack(StringView p_path, bool p_replace_files, StringView p_destination, uint64_t p_offset) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    if (!f)
+    if (!f) {
         return false;
-	bool pck_header_found = false;
+    }
+    bool pck_header_found = false;
 
     // Search for the header at the start offset - standalone PCK file.
     f->seek(p_offset);
@@ -213,7 +214,7 @@ bool PackedSourcePCK::try_open_pack(StringView p_path, bool p_replace_files, Str
         magic = f->get_32();
                 if (magic == PACK_HEADER_MAGIC) {
 #ifdef DEBUG_ENABLED
-                    print_verbose(FormatVE("PCK header found in executable pck section, loading from offset 0x%x",pck_off - 4));
+                    print_verbose(FormatVE("PCK header found in executable pck section, loading from offset 0x%lx",pck_off - 4));
 #endif
                     pck_header_found = true;
                     break;

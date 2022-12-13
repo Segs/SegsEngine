@@ -42,7 +42,7 @@ extern "C" {
 #ifndef GODOT_CORE_API_GODOT_PLANE_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_PLANE_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_PLANE_SIZE];
+    uint8_t _dont_touch_that[GODOT_PLANE_SIZE];
 } godot_plane;
 #endif
 

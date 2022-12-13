@@ -214,7 +214,7 @@ protected:
 public:
     enum {
 
-        /*		NOTIFICATION_DRAW=30,
+        /*  NOTIFICATION_DRAW=30,
         NOTIFICATION_VISIBILITY_CHANGED=38*/
         NOTIFICATION_RESIZED = 40,
         NOTIFICATION_MOUSE_ENTER = 41,

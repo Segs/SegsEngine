@@ -81,7 +81,7 @@ private:
 
     bool sync;
 
-    /*	bool active;
+    /*    bool active;
     bool do_start;
     float time;
     float remaining;*/

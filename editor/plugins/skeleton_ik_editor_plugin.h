@@ -37,27 +37,27 @@ class SkeletonIK3D;
 
 class SkeletonIKEditorPlugin : public EditorPlugin {
 
-	GDCLASS(SkeletonIKEditorPlugin,EditorPlugin)
+    GDCLASS(SkeletonIKEditorPlugin,EditorPlugin)
 
-	SkeletonIK3D *skeleton_ik;
+    SkeletonIK3D *skeleton_ik;
 
-	Button *play_btn;
-	EditorNode *editor;
-	Vector<Transform> initial_bone_poses;
+    Button *play_btn;
+    EditorNode *editor;
+    Vector<Transform> initial_bone_poses;
 
-	void _play();
+    void _play();
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
     StringView get_name() const override { return "SkeletonIK3D"; }
-	bool has_main_screen() const override { return false; }
-	void edit(Object *p_object) override;
-	bool handles(Object *p_object) const override;
-	void make_visible(bool p_visible) override;
+    bool has_main_screen() const override { return false; }
+    void edit(Object *p_object) override;
+    bool handles(Object *p_object) const override;
+    void make_visible(bool p_visible) override;
 
-	SkeletonIKEditorPlugin(EditorNode *p_node);
-	~SkeletonIKEditorPlugin() override;
+    SkeletonIKEditorPlugin(EditorNode *p_node);
+    ~SkeletonIKEditorPlugin() override;
 };
 

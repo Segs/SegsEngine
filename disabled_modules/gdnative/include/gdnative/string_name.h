@@ -43,7 +43,7 @@ extern "C" {
 #ifndef GODOT_CORE_API_GODOT_STRING_NAME_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_STRING_NAME_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_STRING_NAME_SIZE];
+    uint8_t _dont_touch_that[GODOT_STRING_NAME_SIZE];
 } godot_string_name;
 #endif
 

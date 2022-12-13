@@ -36,24 +36,24 @@
 
 class GODOT_EXPORT RoomBounds : public Resource {
 
-	GDCLASS(RoomBounds,Resource)
+    GDCLASS(RoomBounds,Resource)
 IMPL_GDCLASS(RoomBounds)
-	RES_BASE_EXTENSION("room");
+    RES_BASE_EXTENSION("room");
 
-	RID area;
-	PoolVector<Face3> geometry_hint;
+    RID area;
+    PoolVector<Face3> geometry_hint;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	virtual RenderingEntity get_rid() const;
+    virtual RenderingEntity get_rid() const;
 
-	void set_geometry_hint(const PoolVector<Face3> &p_geometry_hint);
-	PoolVector<Face3> get_geometry_hint() const;
+    void set_geometry_hint(const PoolVector<Face3> &p_geometry_hint);
+    PoolVector<Face3> get_geometry_hint() const;
 
-	RoomBounds();
-	~RoomBounds();
+    RoomBounds();
+    ~RoomBounds();
 };
 
 #endif

@@ -34,18 +34,18 @@
 #include "core/resource.h"
 
 class GODOT_EXPORT AudioEffectInstance : public RefCounted {
-	GDCLASS(AudioEffectInstance,RefCounted)
+    GDCLASS(AudioEffectInstance,RefCounted)
 
 public:
-	virtual void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) = 0;
-	virtual bool process_silence() const { return false; }
+    virtual void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) = 0;
+    virtual bool process_silence() const { return false; }
 };
 
 class GODOT_EXPORT AudioEffect : public Resource {
-	GDCLASS(AudioEffect,Resource)
+    GDCLASS(AudioEffect,Resource)
 
 public:
-	virtual Ref<AudioEffectInstance> instance() = 0;
-	AudioEffect();
+    virtual Ref<AudioEffectInstance> instance() = 0;
+    AudioEffect();
 };
 

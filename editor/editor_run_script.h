@@ -36,21 +36,21 @@
 class EditorNode;
 class GODOT_EXPORT EditorScript : public RefCounted {
 
-	GDCLASS(EditorScript,RefCounted)
+    GDCLASS(EditorScript,RefCounted)
 
-	EditorNode *editor;
+    EditorNode *editor;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void add_root_node(Node *p_node);
-	Node *get_scene();
-	EditorInterface *get_editor_interface();
-	virtual void _run();
+    void add_root_node(Node *p_node);
+    Node *get_scene();
+    EditorInterface *get_editor_interface();
+    virtual void _run();
 
-	void set_editor(EditorNode *p_editor);
-	EditorScript();
+    void set_editor(EditorNode *p_editor);
+    EditorScript();
 };
 
 #endif // EDITOR_RUN_SCRIPT_H

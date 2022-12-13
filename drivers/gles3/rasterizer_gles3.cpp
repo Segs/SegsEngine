@@ -304,7 +304,7 @@ void RasterizerGLES3::set_boot_image(const Ref<Image> &p_image, const Color &p_c
 }
 
 void RasterizerGLES3::set_shader_time_scale(float p_scale) {
-	time_scale = p_scale;
+    time_scale = p_scale;
 }
 
 void RasterizerGLES3::blit_render_target_to_screen(

@@ -36,10 +36,10 @@ template <class T>
 class PacketBuffer {
 
 private:
-	struct _Packet {
+    struct _Packet {
         uint32_t size;
         T info;
-	} ;
+    } ;
 
     RingBuffer<_Packet> _packets;
     RingBuffer<uint8_t> _payload;

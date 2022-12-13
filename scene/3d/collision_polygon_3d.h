@@ -43,34 +43,34 @@ class GODOT_EXPORT CollisionPolygon3D : public Node3D {
 protected:
     AABB aabb;
     Vector<Vector2> polygon;
-	float depth;
+    float depth;
 
-	uint32_t owner_id;
-	CollisionObject3D *parent;
+    uint32_t owner_id;
+    CollisionObject3D *parent;
 
-	bool disabled;
+    bool disabled;
 
-	void _build_polygon();
+    void _build_polygon();
 
-	void _update_in_shape_owner(bool p_xform_only = false);
+    void _update_in_shape_owner(bool p_xform_only = false);
 
-	bool _is_editable_3d_polygon() const;
+    bool _is_editable_3d_polygon() const;
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_depth(float p_depth);
-	float get_depth() const;
+    void set_depth(float p_depth);
+    float get_depth() const;
 
     void set_polygon(const Vector<Vector2> &p_polygon);
     const Vector<Vector2> &get_polygon() const;
 
-	void set_disabled(bool p_disabled);
-	bool is_disabled() const;
+    void set_disabled(bool p_disabled);
+    bool is_disabled() const;
 
-	virtual AABB get_item_rect() const;
+    virtual AABB get_item_rect() const;
     float get_margin() const;
     void set_margin(float p_margin);
 

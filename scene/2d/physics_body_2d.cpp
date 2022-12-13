@@ -1224,7 +1224,7 @@ Vector2 KinematicBody2D::_move_and_slide_internal(const Vector2 &p_linear_veloci
         }
     }
 
-	if (moving_platform_apply_velocity_on_leave != PLATFORM_VEL_ON_LEAVE_NEVER) {
+    if (moving_platform_apply_velocity_on_leave != PLATFORM_VEL_ON_LEAVE_NEVER) {
         // Add last platform velocity when just left a moving platform.
         if (!on_floor) {
             if (moving_platform_apply_velocity_on_leave == PLATFORM_VEL_ON_LEAVE_UPWARD_ONLY &&
@@ -1305,7 +1305,7 @@ bool KinematicBody2D::test_move(const Transform2D &p_from, const Vector2 &p_moti
 
     ERR_FAIL_COND_V(!is_inside_tree(), false);
 
-    	PhysicsServer2D::MotionResult result;
+        PhysicsServer2D::MotionResult result;
     bool colliding = PhysicsServer2D::get_singleton()->body_test_motion(
             get_rid(), p_from, p_motion, p_infinite_inertia, margin, &result);
 

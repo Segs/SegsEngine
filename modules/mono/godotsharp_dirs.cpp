@@ -168,7 +168,7 @@ private:
             appname_safe = "UnnamedProject";
         }
 
-		project_assembly_name = settings->getT<String>("mono/project/assembly_name");
+        project_assembly_name = settings->getT<String>("mono/project/assembly_name");
         if (project_assembly_name.empty()) {
             project_assembly_name = appname_safe;
             settings->set("mono/project/assembly_name", project_assembly_name);

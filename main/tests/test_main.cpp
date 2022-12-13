@@ -47,7 +47,7 @@
 const char **tests_get_names() {
 
     static const char *test_names[] = {
-//		"string",
+//        "string",
         "math",
         "physics",
         "physics_2d",
@@ -71,7 +71,7 @@ MainLoop *test_main(const String& p_test, const Vector<String> &p_args) {
 
     if (p_test == "string") {
 
-//		return TestString::test();
+//        return TestString::test();
     }
 
     if (p_test == "math") {

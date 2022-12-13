@@ -471,13 +471,13 @@ bool PList::load_string(StringView p_string) {
         } else {
             int end_token_s = p_string.find("</", pos);
             if (end_token_s == -1) {
-                ERR_FAIL_V_MSG(false, FormatVE("PList: Mismatched <%.*s> tag.", token.size(),token.data()));
+                ERR_FAIL_V_MSG(false, FormatVE("PList: Mismatched <%.*s> tag.", (int)token.size(),token.data()));
             }
             int end_token_e = p_string.find(">", end_token_s);
             pos = end_token_e;
             StringView end_token = p_string.substr(end_token_s + 2, end_token_e - end_token_s - 2);
             if (end_token != token) {
-                ERR_FAIL_V_MSG(false, FormatVE("PList: Mismatched <%.*s> and <%.*s> tag pair.", token.size(),token.data(), end_token.size(),end_token.data()));
+                ERR_FAIL_V_MSG(false, FormatVE("PList: Mismatched <%.*s> and <%.*s> tag pair.", (int)token.size(),token.data(), (int)end_token.size(),end_token.data()));
             }
             value = p_string.substr(open_token_e + 1, end_token_s - open_token_e - 1);
         }

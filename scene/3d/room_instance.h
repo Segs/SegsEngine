@@ -46,37 +46,37 @@
 
 class GODOT_EXPORT Room : public VisualInstance3D {
 
-	GDCLASS(Room,VisualInstance3D)
+    GDCLASS(Room,VisualInstance3D)
 IMPL_GDCLASS(Room)
 
 public:
 private:
-	Ref<RoomBounds> room;
+    Ref<RoomBounds> room;
 
-	int level;
-	void _parse_node_faces(PoolVector<Face3> &all_faces, const Node *p_node) const;
+    int level;
+    void _parse_node_faces(PoolVector<Face3> &all_faces, const Node *p_node) const;
 
-	void _bounds_changed();
+    void _bounds_changed();
 
 protected:
-	void _notification(int p_what);
+    void _notification(int p_what);
 
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	enum {
-		// used to notify portals that the room in which they are has changed.
-		NOTIFICATION_AREA_CHANGED = 60
-	};
+    enum {
+        // used to notify portals that the room in which they are has changed.
+        NOTIFICATION_AREA_CHANGED = 60
+    };
 
-	virtual AABB get_aabb() const;
-	virtual PoolVector<Face3> get_faces(uint32_t p_usage_flags) const;
+    virtual AABB get_aabb() const;
+    virtual PoolVector<Face3> get_faces(uint32_t p_usage_flags) const;
 
-	void set_room(const Ref<RoomBounds> &p_room);
-	Ref<RoomBounds> get_room() const;
+    void set_room(const Ref<RoomBounds> &p_room);
+    Ref<RoomBounds> get_room() const;
 
-	Room();
-	~Room();
+    Room();
+    ~Room();
 };
 #endif
 #endif // ROOM_INSTANCE_H

@@ -118,7 +118,7 @@ void Path2D::_notification(int p_what) {
 #endif
         const Color color = Color(1.0, 1.0, 1.0, 1.0);
 
-	_cached_draw_pts.reserve(curve->get_point_count() * 8);
+    _cached_draw_pts.reserve(curve->get_point_count() * 8);
         for (int i = 0; i < curve->get_point_count(); i++) {
 
         for (int j = 0; j < 8; j++) {

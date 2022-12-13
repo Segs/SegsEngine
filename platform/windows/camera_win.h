@@ -35,9 +35,9 @@
 
 class GODOT_EXPORT CameraWindows : public CameraServer {
 private:
-	void add_active_cameras();
+    void add_active_cameras();
 
 public:
-	CameraWindows();
-	~CameraWindows() override;
+    CameraWindows();
+    ~CameraWindows() override;
 };

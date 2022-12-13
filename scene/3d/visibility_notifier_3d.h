@@ -58,20 +58,20 @@ class GODOT_EXPORT VisibilityNotifier3D : public Node3D {
     uint32_t _max_distance_leadin_counter=1;
 
 protected:
-	virtual void _screen_enter() {}
-	virtual void _screen_exit() {}
+    virtual void _screen_enter() {}
+    virtual void _screen_exit() {}
 
-	void _notification(int p_what);
-	static void _bind_methods();
-	friend struct SpatialIndexer;	
+    void _notification(int p_what);
+    static void _bind_methods();
+    friend struct SpatialIndexer;
 
-	void _enter_camera(Camera3D *p_camera);
-	void _exit_camera(Camera3D *p_camera);
+    void _enter_camera(Camera3D *p_camera);
+    void _exit_camera(Camera3D *p_camera);
 
 public:
-	void set_aabb(const AABB &p_aabb);
-	AABB get_aabb() const;
-	bool is_on_screen() const;
+    void set_aabb(const AABB &p_aabb);
+    AABB get_aabb() const;
+    bool is_on_screen() const;
     // This is only currently kept up to date if max_distance is active
     const Vector3 &get_world_aabb_center() const { return _world_aabb_center; }
 
@@ -96,32 +96,32 @@ class GODOT_EXPORT VisibilityEnabler3D : public VisibilityNotifier3D {
     GDCLASS(VisibilityEnabler3D,VisibilityNotifier3D)
 
 public:
-	enum Enabler {
-		ENABLER_PAUSE_ANIMATIONS,
-		ENABLER_FREEZE_BODIES,
-		ENABLER_MAX
-	};
+    enum Enabler {
+        ENABLER_PAUSE_ANIMATIONS,
+        ENABLER_FREEZE_BODIES,
+        ENABLER_MAX
+    };
 
 protected:
-	void _screen_enter() override;
-	void _screen_exit() override;
+    void _screen_enter() override;
+    void _screen_exit() override;
 
-	bool visible;
+    bool visible;
 
-	void _find_nodes(Node *p_node);
+    void _find_nodes(Node *p_node);
 
     HashMap<Node *, Variant> nodes;
-	void _node_removed(Node *p_node);
-	bool enabler[ENABLER_MAX];
+    void _node_removed(Node *p_node);
+    bool enabler[ENABLER_MAX];
 
-	void _change_node_state(Node *p_node, bool p_enabled);
+    void _change_node_state(Node *p_node, bool p_enabled);
 
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_enabler(Enabler p_enabler, bool p_enable);
-	bool is_enabler_enabled(Enabler p_enabler) const;
+    void set_enabler(Enabler p_enabler, bool p_enable);
+    bool is_enabler_enabled(Enabler p_enabler) const;
 
     VisibilityEnabler3D();
 };

@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "shader_compiler_gles3.h" 
+#include "shader_compiler_gles3.h"
 
 #include "core/os/os.h"
 #include "core/project_settings.h"
@@ -210,7 +210,7 @@ static StringView _interpstr(SL::DataInterpolation p_interp) {
 
     switch (p_interp) {
         case SL::INTERPOLATION_FLAT: return "flat "_sv;
-        case SL::INTERPOLATION_SMOOTH: 	return "";
+        case SL::INTERPOLATION_SMOOTH:  return "";
     }
     return "";
 }

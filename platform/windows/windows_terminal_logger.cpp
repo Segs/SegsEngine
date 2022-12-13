@@ -39,48 +39,48 @@
 #include <windows.h>
 
 void WindowsTerminalLogger::logv(StringView p_format , bool p_err) {
-	if (!should_log(p_err)) {
-		return;
-	}
-	int wlen = MultiByteToWideChar(CP_UTF8, 0, p_format.data(), p_format.size(), nullptr, 0);
-	if (wlen < 0)
-		return;
+    if (!should_log(p_err)) {
+        return;
+    }
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, p_format.data(), p_format.size(), nullptr, 0);
+    if (wlen < 0)
+        return;
 
     wchar_t *wbuf = (wchar_t *)memalloc((p_format.size() + 1) * sizeof(wchar_t));
     ERR_FAIL_NULL_MSG(wbuf, "Out of memory.");
-	MultiByteToWideChar(CP_UTF8, 0, p_format.data(), p_format.size(), wbuf, wlen);
-	wbuf[wlen] = 0;
+    MultiByteToWideChar(CP_UTF8, 0, p_format.data(), p_format.size(), wbuf, wlen);
+    wbuf[wlen] = 0;
 
-	if (p_err)
-		fwprintf(stderr, L"%ls", wbuf);
-	else
-		wprintf(L"%ls", wbuf);
+    if (p_err)
+        fwprintf(stderr, L"%ls", wbuf);
+    else
+        wprintf(L"%ls", wbuf);
 
     memfree(wbuf);
 
 #ifdef DEBUG_ENABLED
-	fflush(stdout);
+    fflush(stdout);
 #endif
 }
 
 void WindowsTerminalLogger::log_error(StringView p_function, StringView p_file, int p_line, StringView p_code, StringView p_rationale, ErrorType p_type) {
-	if (!should_log(true)) {
-		return;
-	}
-
-	HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
-	if (!hCon || hCon == INVALID_HANDLE_VALUE) {
-		StdLogger::log_error(p_function, p_file, p_line, p_code, p_rationale, p_type);
+    if (!should_log(true)) {
         return;
-	} else {
+    }
 
-		CONSOLE_SCREEN_BUFFER_INFO sbi; //original
-		GetConsoleScreenBufferInfo(hCon, &sbi);
+    HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (!hCon || hCon == INVALID_HANDLE_VALUE) {
+        StdLogger::log_error(p_function, p_file, p_line, p_code, p_rationale, p_type);
+        return;
+    } else {
 
-		WORD current_bg = sbi.wAttributes & (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY);
+        CONSOLE_SCREEN_BUFFER_INFO sbi; //original
+        GetConsoleScreenBufferInfo(hCon, &sbi);
 
-		uint32_t basecol = 0;
-		switch (p_type) {
+        WORD current_bg = sbi.wAttributes & (BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY);
+
+        uint32_t basecol = 0;
+        switch (p_type) {
             case ERR_ERROR:
                 basecol = FOREGROUND_RED;
                 break;
@@ -93,13 +93,13 @@ void WindowsTerminalLogger::log_error(StringView p_function, StringView p_file, 
             case ERR_SHADER:
                 basecol = FOREGROUND_GREEN | FOREGROUND_BLUE;
                 break;
-		}
+        }
 
-		basecol |= current_bg;  
+        basecol |= current_bg;
 
 
-			SetConsoleTextAttribute(hCon, basecol | FOREGROUND_INTENSITY);
-			switch (p_type) {
+            SetConsoleTextAttribute(hCon, basecol | FOREGROUND_INTENSITY);
+            switch (p_type) {
             case ERR_ERROR:
                 logf_error("ERROR:");
                 break;
@@ -112,21 +112,21 @@ void WindowsTerminalLogger::log_error(StringView p_function, StringView p_file, 
             case ERR_SHADER:
                 logf_error("SHADER ERROR:");
                 break;
-			}
+            }
 
 
-			SetConsoleTextAttribute(hCon, basecol);
+            SetConsoleTextAttribute(hCon, basecol);
         if (!p_rationale.empty()) {
             logf_error(FormatVE(" %.*s\n", p_rationale.size(),p_rationale.data()));
 
-		} else {
+        } else {
 
             logf_error(FormatVE(" %.*s\n", p_code.size(),p_code.data()));
-			}
+            }
 
         // `FOREGROUND_INTENSITY` alone results in gray text.
         SetConsoleTextAttribute(hCon, FOREGROUND_INTENSITY);
-			switch (p_type) {
+            switch (p_type) {
             case ERR_ERROR:
                 logf_error("   at: ");
                 break;
@@ -139,16 +139,16 @@ void WindowsTerminalLogger::log_error(StringView p_function, StringView p_file, 
             case ERR_SHADER:
                 logf_error("          at: ");
                 break;
-			}
+            }
 
         if (!p_rationale.empty()) {
             logf_error(FormatVE("(%.*s:%i)\n", p_file.size(),p_file.data(), p_line));
         } else {
             logf_error(FormatVE("%.*s (%.*s:%i)\n", p_function.size(),p_function.data(),p_file.size(),p_file.data(), p_line));
-		}
+        }
 
-		SetConsoleTextAttribute(hCon, sbi.wAttributes);
-	}
+        SetConsoleTextAttribute(hCon, sbi.wAttributes);
+    }
 }
 
 WindowsTerminalLogger::~WindowsTerminalLogger() {}

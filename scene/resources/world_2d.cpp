@@ -371,7 +371,7 @@ World2D::World2D() {
     ProjectSettings::get_singleton()->set_custom_property_info(
             "physics/2d/default_angular_damp", PropertyInfo(VariantType::FLOAT, "physics/2d/default_angular_damp",
                                                        PropertyHint::Range, "-1,100,0.001,or_greater"));
-    	// Create default navigation map
+        // Create default navigation map
     navigation_map = Navigation2DServer::get_singleton()->map_create();
     Navigation2DServer::get_singleton()->map_set_active(navigation_map, true);
     Navigation2DServer::get_singleton()->map_set_cell_size(navigation_map, T_GLOBAL_DEF("navigation/2d/default_cell_size", 1.0f));

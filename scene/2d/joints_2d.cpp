@@ -182,7 +182,7 @@ void Joint2D::_notification(int p_what) {
 
     switch (p_what) {
 
-		case NOTIFICATION_POST_ENTER_TREE: {
+        case NOTIFICATION_POST_ENTER_TREE: {
             if (joint.is_valid()) {
                 _disconnect_signals();
             }

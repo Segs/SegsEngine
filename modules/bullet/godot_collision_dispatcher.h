@@ -35,16 +35,16 @@
 #include <btBulletDynamicsCommon.h>
 
 /**
-	@author AndreaCatania
+    @author AndreaCatania
 */
 
 /// This class is required to implement custom collision behaviour in the narrowphase
 class GodotCollisionDispatcher : public btCollisionDispatcher {
 private:
-	static const int CASTED_TYPE_AREA;
+    static const int CASTED_TYPE_AREA;
 
 public:
-	GodotCollisionDispatcher(btCollisionConfiguration *collisionConfiguration);
-	bool needsCollision(const btCollisionObject *body0, const btCollisionObject *body1) override;
-	bool needsResponse(const btCollisionObject *body0, const btCollisionObject *body1) override;
+    GodotCollisionDispatcher(btCollisionConfiguration *collisionConfiguration);
+    bool needsCollision(const btCollisionObject *body0, const btCollisionObject *body1) override;
+    bool needsResponse(const btCollisionObject *body0, const btCollisionObject *body1) override;
 };

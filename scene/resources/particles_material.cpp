@@ -333,35 +333,35 @@ void ParticlesMaterial::_update_shader() {
     //need a random function
     code += "\n\n";
     code += "float rand_from_seed(inout uint seed) {\n";
-    code += "	int k;\n";
-    code += "	int s = int(seed);\n";
-    code += "	if (s == 0)\n";
-    code += "	s = 305420679;\n";
-    code += "	k = s / 127773;\n";
-    code += "	s = 16807 * (s - k * 127773) - 2836 * k;\n";
-    code += "	if (s < 0)\n";
-    code += "		s += 2147483647;\n";
-    code += "	seed = uint(s);\n";
-    code += "	return float(seed % uint(65536)) / 65535.0;\n";
+    code += "    int k;\n";
+    code += "    int s = int(seed);\n";
+    code += "    if (s == 0)\n";
+    code += "    s = 305420679;\n";
+    code += "    k = s / 127773;\n";
+    code += "    s = 16807 * (s - k * 127773) - 2836 * k;\n";
+    code += "    if (s < 0)\n";
+    code += "        s += 2147483647;\n";
+    code += "    seed = uint(s);\n";
+    code += "    return float(seed % uint(65536)) / 65535.0;\n";
     code += "}\n";
     code += "\n";
 
     code += "float rand_from_seed_m1_p1(inout uint seed) {\n";
-    code += "	return rand_from_seed(seed) * 2.0 - 1.0;\n";
+    code += "    return rand_from_seed(seed) * 2.0 - 1.0;\n";
     code += "}\n";
     code += "\n";
 
     //improve seed quality
     code += "uint hash(uint x) {\n";
-    code += "	x = ((x >> uint(16)) ^ x) * uint(73244475);\n";
-    code += "	x = ((x >> uint(16)) ^ x) * uint(73244475);\n";
-    code += "	x = (x >> uint(16)) ^ x;\n";
-    code += "	return x;\n";
+    code += "    x = ((x >> uint(16)) ^ x) * uint(73244475);\n";
+    code += "    x = ((x >> uint(16)) ^ x) * uint(73244475);\n";
+    code += "    x = (x >> uint(16)) ^ x;\n";
+    code += "    return x;\n";
     code += "}\n";
     code += "\n";
 
     code += R"(void vertex() {
-	uint base_number = NUMBER / uint(trail_divisor);
+    uint base_number = NUMBER / uint(trail_divisor);
     uint alt_seed = hash(base_number + uint(1) + RANDOM_SEED);
     float angle_rand = rand_from_seed(alt_seed);
     float scale_rand = rand_from_seed(alt_seed);
@@ -369,16 +369,16 @@ void ParticlesMaterial::_update_shader() {
     float anim_offset_rand = rand_from_seed(alt_seed);
 )";
     if (color_initial_ramp) {
-        code += "	float color_initial_rand = rand_from_seed(alt_seed);\n";
+        code += "    float color_initial_rand = rand_from_seed(alt_seed);\n";
     }
-    code += "	float pi = 3.14159;\n";
-    code += "	float degree_to_rad = pi / 180.0;\n";
+    code += "    float pi = 3.14159;\n";
+    code += "    float degree_to_rad = pi / 180.0;\n";
     code += "\n";
 
     if (emission_shape == EMISSION_SHAPE_POINTS || emission_shape == EMISSION_SHAPE_DIRECTED_POINTS) {
-        code += "	int point = min(emission_texture_point_count - 1, int(rand_from_seed(alt_seed) * float(emission_texture_point_count)));\n";
-        code += "	ivec2 emission_tex_size = textureSize(emission_texture_points, 0);\n";
-        code += "	ivec2 emission_tex_ofs = ivec2(point % emission_tex_size.x, point / emission_tex_size.x);\n";
+        code += "    int point = min(emission_texture_point_count - 1, int(rand_from_seed(alt_seed) * float(emission_texture_point_count)));\n";
+        code += "    ivec2 emission_tex_size = textureSize(emission_texture_points, 0);\n";
+        code += "    ivec2 emission_tex_ofs = ivec2(point % emission_tex_size.x, point / emission_tex_size.x);\n";
     }
     code +=
 R"raw(
@@ -394,26 +394,26 @@ R"raw(
 )raw";
 
     if (tex_parameters[PARAM_INITIAL_LINEAR_VELOCITY])
-        code += "		float tex_linear_velocity = textureLod(linear_velocity_texture, vec2(0.0, 0.0), 0.0).r;\n";
+        code += "        float tex_linear_velocity = textureLod(linear_velocity_texture, vec2(0.0, 0.0), 0.0).r;\n";
     else
-        code += "		float tex_linear_velocity = 0.0;\n";
+        code += "        float tex_linear_velocity = 0.0;\n";
 
     if (tex_parameters[PARAM_ANGLE])
-        code += "		float tex_angle = textureLod(angle_texture, vec2(0.0, 0.0), 0.0).r;\n";
+        code += "        float tex_angle = textureLod(angle_texture, vec2(0.0, 0.0), 0.0).r;\n";
     else
-        code += "		float tex_angle = 0.0;\n";
+        code += "        float tex_angle = 0.0;\n";
 
     if (tex_parameters[PARAM_ANIM_OFFSET])
-        code += "		float tex_anim_offset = textureLod(anim_offset_texture, vec2(0.0, 0.0), 0.0).r;\n";
+        code += "        float tex_anim_offset = textureLod(anim_offset_texture, vec2(0.0, 0.0), 0.0).r;\n";
     else
-        code += "		float tex_anim_offset = 0.0;\n";
+        code += "        float tex_anim_offset = 0.0;\n";
 
-    code += "		float spread_rad = spread * degree_to_rad;\n";
+    code += "        float spread_rad = spread * degree_to_rad;\n";
 
     if (flags[FLAG_DISABLE_Z]) {
-        code += 
-R"(		{
-			float angle1_rad = rand_from_seed_m1_p1(alt_restart_seed) * spread_rad;
+        code +=
+R"(        {
+            float angle1_rad = rand_from_seed_m1_p1(alt_restart_seed) * spread_rad;
             angle1_rad += direction.x != 0.0 ? atan(direction.y, direction.x) : sign(direction.y) * (pi / 2.0);
             vec3 rot = vec3(cos(angle1_rad), sin(angle1_rad), 0.0);
             VELOCITY = rot * initial_linear_velocity * mix(1.0, rand_from_seed(alt_restart_seed), initial_linear_velocity_random);
@@ -422,161 +422,161 @@ R"(		{
 
     } else {
         //initiate velocity spread in 3D
-        code += "		{\n";
-        code += "			float angle1_rad = rand_from_seed_m1_p1(alt_restart_seed) * spread_rad;\n";
-        code += "			float angle2_rad = rand_from_seed_m1_p1(alt_restart_seed) * spread_rad * (1.0 - flatness);\n";
-        code += "		vec3 direction_xz = vec3(sin(angle1_rad), 0.0, cos(angle1_rad));\n";
-        code += "		vec3 direction_yz = vec3(0.0, sin(angle2_rad), cos(angle2_rad));\n";
-        code += "		direction_yz.z = direction_yz.z / max(0.0001,sqrt(abs(direction_yz.z))); // better uniform distribution\n";
-        code += "			vec3 spread_direction = vec3(direction_xz.x * direction_yz.z, direction_yz.y, direction_xz.z * direction_yz.z);\n";
-        code += "			vec3 direction_nrm = length(direction) > 0.0 ? normalize(direction) : vec3(0.0, 0.0, 1.0);\n";
-        code += "			// rotate spread to direction\n";
-        code += "			vec3 binormal = cross(vec3(0.0, 1.0, 0.0), direction_nrm);\n";
-        code += "			if (length(binormal) < 0.0001) {\n";
-        code += "				// direction is parallel to Y. Choose Z as the binormal.\n";
-        code += "				binormal = vec3(0.0, 0.0, 1.0);\n";
-        code += "			}\n";
-        code += "			binormal = normalize(binormal);\n";
-        code += "			vec3 normal = cross(binormal, direction_nrm);\n";
-        code += "			spread_direction = binormal * spread_direction.x + normal * spread_direction.y + direction_nrm * spread_direction.z;\n";
-        code += "			VELOCITY = spread_direction * initial_linear_velocity * mix(1.0, rand_from_seed(alt_restart_seed), initial_linear_velocity_random);\n";
-        code += "		}\n";    }
+        code += "        {\n";
+        code += "            float angle1_rad = rand_from_seed_m1_p1(alt_restart_seed) * spread_rad;\n";
+        code += "            float angle2_rad = rand_from_seed_m1_p1(alt_restart_seed) * spread_rad * (1.0 - flatness);\n";
+        code += "        vec3 direction_xz = vec3(sin(angle1_rad), 0.0, cos(angle1_rad));\n";
+        code += "        vec3 direction_yz = vec3(0.0, sin(angle2_rad), cos(angle2_rad));\n";
+        code += "        direction_yz.z = direction_yz.z / max(0.0001,sqrt(abs(direction_yz.z))); // better uniform distribution\n";
+        code += "            vec3 spread_direction = vec3(direction_xz.x * direction_yz.z, direction_yz.y, direction_xz.z * direction_yz.z);\n";
+        code += "            vec3 direction_nrm = length(direction) > 0.0 ? normalize(direction) : vec3(0.0, 0.0, 1.0);\n";
+        code += "            // rotate spread to direction\n";
+        code += "            vec3 binormal = cross(vec3(0.0, 1.0, 0.0), direction_nrm);\n";
+        code += "            if (length(binormal) < 0.0001) {\n";
+        code += "                // direction is parallel to Y. Choose Z as the binormal.\n";
+        code += "                binormal = vec3(0.0, 0.0, 1.0);\n";
+        code += "            }\n";
+        code += "            binormal = normalize(binormal);\n";
+        code += "            vec3 normal = cross(binormal, direction_nrm);\n";
+        code += "            spread_direction = binormal * spread_direction.x + normal * spread_direction.y + direction_nrm * spread_direction.z;\n";
+        code += "            VELOCITY = spread_direction * initial_linear_velocity * mix(1.0, rand_from_seed(alt_restart_seed), initial_linear_velocity_random);\n";
+        code += "        }\n";    }
 
-    code += "		float base_angle = (initial_angle + tex_angle) * mix(1.0, angle_rand, initial_angle_random);\n";
-    code += "		CUSTOM.x = base_angle * degree_to_rad;\n"; // angle
-    code += "		CUSTOM.y = 0.0;\n"; // phase
-    code += "		CUSTOM.w = (1.0 - lifetime_randomness * rand_from_seed(alt_restart_seed));\n";
-    code += "		CUSTOM.z = (anim_offset + tex_anim_offset) * mix(1.0, anim_offset_rand, anim_offset_random);\n"; // animation offset (0-1)
+    code += "        float base_angle = (initial_angle + tex_angle) * mix(1.0, angle_rand, initial_angle_random);\n";
+    code += "        CUSTOM.x = base_angle * degree_to_rad;\n"; // angle
+    code += "        CUSTOM.y = 0.0;\n"; // phase
+    code += "        CUSTOM.w = (1.0 - lifetime_randomness * rand_from_seed(alt_restart_seed));\n";
+    code += "        CUSTOM.z = (anim_offset + tex_anim_offset) * mix(1.0, anim_offset_rand, anim_offset_random);\n"; // animation offset (0-1)
 
     switch (emission_shape) {
         case EMISSION_SHAPE_POINT: {
             //do none
         } break;
         case EMISSION_SHAPE_SPHERE: {
-            code += "		float s = rand_from_seed(alt_restart_seed) * 2.0 - 1.0;\n";
-            code += "		float t = rand_from_seed(alt_restart_seed) * 2.0 * pi;\n";
-            code += "		float radius = emission_sphere_radius * sqrt(1.0 - s * s);\n";
-            code += "		TRANSFORM[3].xyz = vec3(radius * cos(t), radius * sin(t), emission_sphere_radius * s);\n";
+            code += "        float s = rand_from_seed(alt_restart_seed) * 2.0 - 1.0;\n";
+            code += "        float t = rand_from_seed(alt_restart_seed) * 2.0 * pi;\n";
+            code += "        float radius = emission_sphere_radius * sqrt(1.0 - s * s);\n";
+            code += "        TRANSFORM[3].xyz = vec3(radius * cos(t), radius * sin(t), emission_sphere_radius * s);\n";
         } break;
         case EMISSION_SHAPE_BOX: {
-            code += "		TRANSFORM[3].xyz = vec3(rand_from_seed(alt_restart_seed) * 2.0 - 1.0, rand_from_seed(alt_restart_seed) * 2.0 - 1.0, rand_from_seed(alt_restart_seed) * 2.0 - 1.0) * emission_box_extents;\n";
+            code += "        TRANSFORM[3].xyz = vec3(rand_from_seed(alt_restart_seed) * 2.0 - 1.0, rand_from_seed(alt_restart_seed) * 2.0 - 1.0, rand_from_seed(alt_restart_seed) * 2.0 - 1.0) * emission_box_extents;\n";
         } break;
         case EMISSION_SHAPE_POINTS:
         case EMISSION_SHAPE_DIRECTED_POINTS: {
-            code += "		TRANSFORM[3].xyz = texelFetch(emission_texture_points, emission_tex_ofs, 0).xyz;\n";
+            code += "        TRANSFORM[3].xyz = texelFetch(emission_texture_points, emission_tex_ofs, 0).xyz;\n";
 
             if (emission_shape == EMISSION_SHAPE_DIRECTED_POINTS) {
-                code += "		{\n";
+                code += "        {\n";
                 if (flags[FLAG_DISABLE_Z]) {
 
-                    code += "		mat2 rotm;";
-                    code += "		rotm[0] = texelFetch(emission_texture_normal, emission_tex_ofs, 0).xy;\n";
-                    code += "		rotm[1] = rotm[0].yx * vec2(1.0, -1.0);\n";
-                    code += "		VELOCITY.xy = rotm * VELOCITY.xy;\n";
+                    code += "        mat2 rotm;";
+                    code += "        rotm[0] = texelFetch(emission_texture_normal, emission_tex_ofs, 0).xy;\n";
+                    code += "        rotm[1] = rotm[0].yx * vec2(1.0, -1.0);\n";
+                    code += "        VELOCITY.xy = rotm * VELOCITY.xy;\n";
                 } else {
-                    code += "		vec3 normal = texelFetch(emission_texture_normal, emission_tex_ofs, 0).xyz;\n";
-                    code += "		vec3 v0 = abs(normal.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(0.0, 1.0, 0.0);\n";
-                    code += "		vec3 tangent = normalize(cross(v0, normal));\n";
-                    code += "		vec3 bitangent = normalize(cross(tangent, normal));\n";
-                    code += "		VELOCITY = mat3(tangent, bitangent, normal) * VELOCITY;\n";
+                    code += "        vec3 normal = texelFetch(emission_texture_normal, emission_tex_ofs, 0).xyz;\n";
+                    code += "        vec3 v0 = abs(normal.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(0.0, 1.0, 0.0);\n";
+                    code += "        vec3 tangent = normalize(cross(v0, normal));\n";
+                    code += "        vec3 bitangent = normalize(cross(tangent, normal));\n";
+                    code += "        VELOCITY = mat3(tangent, bitangent, normal) * VELOCITY;\n";
                 }
-                code += "		}\n";
+                code += "        }\n";
             }
         } break;
         case EMISSION_SHAPE_RING: {
-            code += "		float ring_spawn_angle = rand_from_seed(alt_restart_seed) * 2.0 * pi;\n";
-            code += "		float ring_random_radius = rand_from_seed(alt_restart_seed) * (ring_radius - ring_inner_radius) + ring_inner_radius;\n";
-            code += "		vec3 axis = normalize(ring_axis);\n";
-            code += "		vec3 ortho_axis = vec3(0.0);\n";
-            code += "		if (axis == vec3(1.0, 0.0, 0.0)) {\n";
-            code += "			ortho_axis = cross(axis, vec3(0.0, 1.0, 0.0));\n";
-            code += "		} else {\n";
-            code += " 			ortho_axis = cross(axis, vec3(1.0, 0.0, 0.0));\n";
-            code += "		}\n";
-            code += "		ortho_axis = normalize(ortho_axis);\n";
-            code += "		float s = sin(ring_spawn_angle);\n";
-            code += "		float c = cos(ring_spawn_angle);\n";
-            code += "		float oc = 1.0 - c;\n";
-            code += "		ortho_axis = mat3(\n";
-            code += "			vec3(c + axis.x * axis.x * oc, axis.x * axis.y * oc - axis.z * s, axis.x * axis.z *oc + axis.y * s),\n";
-            code += "			vec3(axis.x * axis.y * oc + s * axis.z, c + axis.y * axis.y * oc, axis.y * axis.z * oc - axis.x * s),\n";
-            code += "			vec3(axis.z * axis.x * oc - axis.y * s, axis.z * axis.y * oc + axis.x * s, c + axis.z * axis.z * oc)\n";
-            code += "			) * ortho_axis;\n";
-            code += "		ortho_axis = normalize(ortho_axis);\n";
-            code += "		TRANSFORM[3].xyz = ortho_axis * ring_random_radius + (rand_from_seed(alt_restart_seed) * ring_height - ring_height / 2.0) * axis;\n";
+            code += "        float ring_spawn_angle = rand_from_seed(alt_restart_seed) * 2.0 * pi;\n";
+            code += "        float ring_random_radius = rand_from_seed(alt_restart_seed) * (ring_radius - ring_inner_radius) + ring_inner_radius;\n";
+            code += "        vec3 axis = normalize(ring_axis);\n";
+            code += "        vec3 ortho_axis = vec3(0.0);\n";
+            code += "        if (axis == vec3(1.0, 0.0, 0.0)) {\n";
+            code += "            ortho_axis = cross(axis, vec3(0.0, 1.0, 0.0));\n";
+            code += "        } else {\n";
+            code += "             ortho_axis = cross(axis, vec3(1.0, 0.0, 0.0));\n";
+            code += "        }\n";
+            code += "        ortho_axis = normalize(ortho_axis);\n";
+            code += "        float s = sin(ring_spawn_angle);\n";
+            code += "        float c = cos(ring_spawn_angle);\n";
+            code += "        float oc = 1.0 - c;\n";
+            code += "        ortho_axis = mat3(\n";
+            code += "            vec3(c + axis.x * axis.x * oc, axis.x * axis.y * oc - axis.z * s, axis.x * axis.z *oc + axis.y * s),\n";
+            code += "            vec3(axis.x * axis.y * oc + s * axis.z, c + axis.y * axis.y * oc, axis.y * axis.z * oc - axis.x * s),\n";
+            code += "            vec3(axis.z * axis.x * oc - axis.y * s, axis.z * axis.y * oc + axis.x * s, c + axis.z * axis.z * oc)\n";
+            code += "            ) * ortho_axis;\n";
+            code += "        ortho_axis = normalize(ortho_axis);\n";
+            code += "        TRANSFORM[3].xyz = ortho_axis * ring_random_radius + (rand_from_seed(alt_restart_seed) * ring_height - ring_height / 2.0) * axis;\n";
         } break;
         case EMISSION_SHAPE_MAX: { // Max value for validity check.
             break;
         }
     }
-    code += "		VELOCITY = (EMISSION_TRANSFORM * vec4(VELOCITY, 0.0)).xyz;\n";
-    code += "		TRANSFORM = EMISSION_TRANSFORM * TRANSFORM;\n";
+    code += "        VELOCITY = (EMISSION_TRANSFORM * vec4(VELOCITY, 0.0)).xyz;\n";
+    code += "        TRANSFORM = EMISSION_TRANSFORM * TRANSFORM;\n";
     if (flags[FLAG_DISABLE_Z]) {
-        code += "		VELOCITY.z = 0.0;\n";
-        code += "		TRANSFORM[3].z = 0.0;\n";
+        code += "        VELOCITY.z = 0.0;\n";
+        code += "        TRANSFORM[3].z = 0.0;\n";
     }
 
-    code += "	} else {\n";
+    code += "    } else {\n";
 
-    code += "		CUSTOM.y += DELTA / LIFETIME;\n";
-    code += "		tv = CUSTOM.y / CUSTOM.w;\n";
+    code += "        CUSTOM.y += DELTA / LIFETIME;\n";
+    code += "        tv = CUSTOM.y / CUSTOM.w;\n";
     if (tex_parameters[PARAM_INITIAL_LINEAR_VELOCITY])
-        code += "		float tex_linear_velocity = textureLod(linear_velocity_texture, vec2(tv, 0.0), 0.0).r;\n";
+        code += "        float tex_linear_velocity = textureLod(linear_velocity_texture, vec2(tv, 0.0), 0.0).r;\n";
     else
-        code += "		float tex_linear_velocity = 0.0;\n";
+        code += "        float tex_linear_velocity = 0.0;\n";
 
     if (flags[FLAG_DISABLE_Z]) {
 
         if (tex_parameters[PARAM_ORBIT_VELOCITY])
-            code += "		float tex_orbit_velocity = textureLod(orbit_velocity_texture, vec2(tv, 0.0), 0.0).r;\n";
+            code += "        float tex_orbit_velocity = textureLod(orbit_velocity_texture, vec2(tv, 0.0), 0.0).r;\n";
         else
-            code += "		float tex_orbit_velocity = 0.0;\n";
+            code += "        float tex_orbit_velocity = 0.0;\n";
     }
 
     if (tex_parameters[PARAM_ANGULAR_VELOCITY])
-        code += "		float tex_angular_velocity = textureLod(angular_velocity_texture, vec2(tv, 0.0), 0.0).r;\n";
+        code += "        float tex_angular_velocity = textureLod(angular_velocity_texture, vec2(tv, 0.0), 0.0).r;\n";
     else
-        code += "		float tex_angular_velocity = 0.0;\n";
+        code += "        float tex_angular_velocity = 0.0;\n";
 
     if (tex_parameters[PARAM_LINEAR_ACCEL])
-        code += "		float tex_linear_accel = textureLod(linear_accel_texture, vec2(tv, 0.0), 0.0).r;\n";
+        code += "        float tex_linear_accel = textureLod(linear_accel_texture, vec2(tv, 0.0), 0.0).r;\n";
     else
-        code += "		float tex_linear_accel = 0.0;\n";
+        code += "        float tex_linear_accel = 0.0;\n";
 
     if (tex_parameters[PARAM_RADIAL_ACCEL])
-        code += "		float tex_radial_accel = textureLod(radial_accel_texture, vec2(tv, 0.0), 0.0).r;\n";
+        code += "        float tex_radial_accel = textureLod(radial_accel_texture, vec2(tv, 0.0), 0.0).r;\n";
     else
-        code += "		float tex_radial_accel = 0.0;\n";
+        code += "        float tex_radial_accel = 0.0;\n";
 
     if (tex_parameters[PARAM_TANGENTIAL_ACCEL])
-        code += "		float tex_tangent_accel = textureLod(tangent_accel_texture, vec2(tv, 0.0), 0.0).r;\n";
+        code += "        float tex_tangent_accel = textureLod(tangent_accel_texture, vec2(tv, 0.0), 0.0).r;\n";
     else
-        code += "		float tex_tangent_accel = 0.0;\n";
+        code += "        float tex_tangent_accel = 0.0;\n";
 
     if (tex_parameters[PARAM_DAMPING])
-        code += "		float tex_damping = textureLod(damping_texture, vec2(tv, 0.0), 0.0).r;\n";
+        code += "        float tex_damping = textureLod(damping_texture, vec2(tv, 0.0), 0.0).r;\n";
     else
-        code += "		float tex_damping = 0.0;\n";
+        code += "        float tex_damping = 0.0;\n";
 
     if (tex_parameters[PARAM_ANGLE])
-        code += "		float tex_angle = textureLod(angle_texture, vec2(tv, 0.0), 0.0).r;\n";
+        code += "        float tex_angle = textureLod(angle_texture, vec2(tv, 0.0), 0.0).r;\n";
     else
-        code += "		float tex_angle = 0.0;\n";
+        code += "        float tex_angle = 0.0;\n";
 
     if (tex_parameters[PARAM_ANIM_SPEED])
-        code += "		float tex_anim_speed = textureLod(anim_speed_texture, vec2(tv, 0.0), 0.0).r;\n";
+        code += "        float tex_anim_speed = textureLod(anim_speed_texture, vec2(tv, 0.0), 0.0).r;\n";
     else
-        code += "		float tex_anim_speed = 0.0;\n";
+        code += "        float tex_anim_speed = 0.0;\n";
 
     if (tex_parameters[PARAM_ANIM_OFFSET])
-        code += "		float tex_anim_offset = textureLod(anim_offset_texture, vec2(tv, 0.0), 0.0).r;\n";
+        code += "        float tex_anim_offset = textureLod(anim_offset_texture, vec2(tv, 0.0), 0.0).r;\n";
     else
-        code += "		float tex_anim_offset = 0.0;\n";
+        code += "        float tex_anim_offset = 0.0;\n";
 
-    code += "		vec3 force = gravity;\n";
-    code += "		vec3 pos = TRANSFORM[3].xyz;";
+    code += "        vec3 force = gravity;\n";
+    code += "        vec3 pos = TRANSFORM[3].xyz;";
     if (flags[FLAG_DISABLE_Z]) {
-        code += "		pos.z = 0.0;";
+        code += "        pos.z = 0.0;";
     }
     code += R"(
         // apply linear acceleration
@@ -588,11 +588,11 @@ R"(		{
         // apply tangential acceleration;
     )";
     if (flags[FLAG_DISABLE_Z]) {
-        code += "		force += length(diff.yx) > 0.0 ? vec3(normalize(diff.yx * vec2(-1.0, 1.0)), 0.0) * ((tangent_accel + tex_tangent_accel) * mix(1.0, rand_from_seed(alt_seed), tangent_accel_random)) : vec3(0.0);\n";
+        code += "        force += length(diff.yx) > 0.0 ? vec3(normalize(diff.yx * vec2(-1.0, 1.0)), 0.0) * ((tangent_accel + tex_tangent_accel) * mix(1.0, rand_from_seed(alt_seed), tangent_accel_random)) : vec3(0.0);\n";
 
     } else {
-        code += "		vec3 crossDiff = cross(normalize(diff), normalize(gravity));\n";
-        code += "		force += length(crossDiff) > 0.0 ? normalize(crossDiff) * ((tangent_accel + tex_tangent_accel) * mix(1.0, rand_from_seed(alt_seed), tangent_accel_random)) : vec3(0.0);\n";
+        code += "        vec3 crossDiff = cross(normalize(diff), normalize(gravity));\n";
+        code += "        force += length(crossDiff) > 0.0 ? normalize(crossDiff) * ((tangent_accel + tex_tangent_accel) * mix(1.0, rand_from_seed(alt_seed), tangent_accel_random)) : vec3(0.0);\n";
     }
     code += R"(
         // apply attractor forces
@@ -612,131 +612,131 @@ R"(		{
     }
 
     if (tex_parameters[PARAM_INITIAL_LINEAR_VELOCITY]) {
-        code += "		VELOCITY = normalize(VELOCITY) * tex_linear_velocity;\n";
+        code += "        VELOCITY = normalize(VELOCITY) * tex_linear_velocity;\n";
     }
-    code += "		if (damping + tex_damping > 0.0) {\n";
-    code += "			float v = length(VELOCITY);\n";
-    code += "			float damp = (damping + tex_damping) * mix(1.0, rand_from_seed(alt_seed), damping_random);\n";
-    code += "			v -= damp * DELTA;\n";
-    code += "			if (v < 0.0) {\n";
-    code += "				VELOCITY = vec3(0.0);\n";
-    code += "			} else {\n";
-    code += "				VELOCITY = normalize(VELOCITY) * v;\n";
-    code += "			}\n";
-    code += "		}\n";
-    code += "		float base_angle = (initial_angle + tex_angle) * mix(1.0, angle_rand, initial_angle_random);\n";
-    code += "		base_angle += CUSTOM.y * LIFETIME * (angular_velocity + tex_angular_velocity) * mix(1.0, rand_from_seed(alt_seed) * 2.0 - 1.0, angular_velocity_random);\n";
-    code += "		CUSTOM.x = base_angle * degree_to_rad;\n"; // angle
-    code += "		CUSTOM.z = (anim_offset + tex_anim_offset) * mix(1.0, anim_offset_rand, anim_offset_random) + tv * (anim_speed + tex_anim_speed) * mix(1.0, rand_from_seed(alt_seed), anim_speed_random);\n"; // angle
-    code += "	}\n";
+    code += "        if (damping + tex_damping > 0.0) {\n";
+    code += "            float v = length(VELOCITY);\n";
+    code += "            float damp = (damping + tex_damping) * mix(1.0, rand_from_seed(alt_seed), damping_random);\n";
+    code += "            v -= damp * DELTA;\n";
+    code += "            if (v < 0.0) {\n";
+    code += "                VELOCITY = vec3(0.0);\n";
+    code += "            } else {\n";
+    code += "                VELOCITY = normalize(VELOCITY) * v;\n";
+    code += "            }\n";
+    code += "        }\n";
+    code += "        float base_angle = (initial_angle + tex_angle) * mix(1.0, angle_rand, initial_angle_random);\n";
+    code += "        base_angle += CUSTOM.y * LIFETIME * (angular_velocity + tex_angular_velocity) * mix(1.0, rand_from_seed(alt_seed) * 2.0 - 1.0, angular_velocity_random);\n";
+    code += "        CUSTOM.x = base_angle * degree_to_rad;\n"; // angle
+    code += "        CUSTOM.z = (anim_offset + tex_anim_offset) * mix(1.0, anim_offset_rand, anim_offset_random) + tv * (anim_speed + tex_anim_speed) * mix(1.0, rand_from_seed(alt_seed), anim_speed_random);\n"; // angle
+    code += "    }\n";
     // apply color
     // apply hue rotation
     if (tex_parameters[PARAM_SCALE])
-        code += "	float tex_scale = textureLod(scale_texture, vec2(tv, 0.0), 0.0).r;\n";
+        code += "    float tex_scale = textureLod(scale_texture, vec2(tv, 0.0), 0.0).r;\n";
     else
-        code += "	float tex_scale = 1.0;\n";
+        code += "    float tex_scale = 1.0;\n";
 
     if (tex_parameters[PARAM_HUE_VARIATION])
-        code += "	float tex_hue_variation = textureLod(hue_variation_texture, vec2(tv, 0.0), 0.0).r;\n";
+        code += "    float tex_hue_variation = textureLod(hue_variation_texture, vec2(tv, 0.0), 0.0).r;\n";
     else
-        code += "	float tex_hue_variation = 0.0;\n";
+        code += "    float tex_hue_variation = 0.0;\n";
 
-    code += "	float hue_rot_angle = (hue_variation + tex_hue_variation) * pi * 2.0 * mix(1.0, hue_rot_rand * 2.0 - 1.0, hue_variation_random);\n";
-    code += "	float hue_rot_c = cos(hue_rot_angle);\n";
-    code += "	float hue_rot_s = sin(hue_rot_angle);\n";
-    code += "	mat4 hue_rot_mat = mat4(vec4(0.299, 0.587, 0.114, 0.0),\n";
-    code += "			vec4(0.299, 0.587, 0.114, 0.0),\n";
-    code += "			vec4(0.299, 0.587, 0.114, 0.0),\n";
-    code += "			vec4(0.000, 0.000, 0.000, 1.0)) +\n";
-    code += "		mat4(vec4(0.701, -0.587, -0.114, 0.0),\n";
-    code += "			vec4(-0.299, 0.413, -0.114, 0.0),\n";
-    code += "			vec4(-0.300, -0.588, 0.886, 0.0),\n";
-    code += "			vec4(0.000, 0.000, 0.000, 0.0)) * hue_rot_c +\n";
-    code += "		mat4(vec4(0.168, 0.330, -0.497, 0.0),\n";
-    code += "			vec4(-0.328, 0.035,  0.292, 0.0),\n";
-    code += "			vec4(1.250, -1.050, -0.203, 0.0),\n";
-    code += "			vec4(0.000, 0.000, 0.000, 0.0)) * hue_rot_s;\n";
+    code += "    float hue_rot_angle = (hue_variation + tex_hue_variation) * pi * 2.0 * mix(1.0, hue_rot_rand * 2.0 - 1.0, hue_variation_random);\n";
+    code += "    float hue_rot_c = cos(hue_rot_angle);\n";
+    code += "    float hue_rot_s = sin(hue_rot_angle);\n";
+    code += "    mat4 hue_rot_mat = mat4(vec4(0.299, 0.587, 0.114, 0.0),\n";
+    code += "            vec4(0.299, 0.587, 0.114, 0.0),\n";
+    code += "            vec4(0.299, 0.587, 0.114, 0.0),\n";
+    code += "            vec4(0.000, 0.000, 0.000, 1.0)) +\n";
+    code += "        mat4(vec4(0.701, -0.587, -0.114, 0.0),\n";
+    code += "            vec4(-0.299, 0.413, -0.114, 0.0),\n";
+    code += "            vec4(-0.300, -0.588, 0.886, 0.0),\n";
+    code += "            vec4(0.000, 0.000, 0.000, 0.0)) * hue_rot_c +\n";
+    code += "        mat4(vec4(0.168, 0.330, -0.497, 0.0),\n";
+    code += "            vec4(-0.328, 0.035,  0.292, 0.0),\n";
+    code += "            vec4(1.250, -1.050, -0.203, 0.0),\n";
+    code += "            vec4(0.000, 0.000, 0.000, 0.0)) * hue_rot_s;\n";
     if (color_ramp) {
-        code += "	COLOR = hue_rot_mat * textureLod(color_ramp, vec2(tv, 0.0), 0.0) * color_value;\n";
+        code += "    COLOR = hue_rot_mat * textureLod(color_ramp, vec2(tv, 0.0), 0.0) * color_value;\n";
     } else {
-        code += "	COLOR = hue_rot_mat * color_value;\n";
+        code += "    COLOR = hue_rot_mat * color_value;\n";
     }
     if (color_initial_ramp) {
-        code += "	vec4 start_color = textureLod(color_initial_ramp, vec2(color_initial_rand, 0.0), 0.0);\n";
-        code += "	COLOR *= start_color;\n";
+        code += "    vec4 start_color = textureLod(color_initial_ramp, vec2(color_initial_rand, 0.0), 0.0);\n";
+        code += "    COLOR *= start_color;\n";
     }
     if (emission_color_texture && (emission_shape == EMISSION_SHAPE_POINTS || emission_shape == EMISSION_SHAPE_DIRECTED_POINTS)) {
-        code += "	COLOR *= texelFetch(emission_texture_color, emission_tex_ofs, 0);\n";
+        code += "    COLOR *= texelFetch(emission_texture_color, emission_tex_ofs, 0);\n";
     }
     if (trail_color_modifier) {
-        code += "	if (trail_divisor > 1) {\n";
-        code += "		COLOR *= textureLod(trail_color_modifier, vec2(float(int(NUMBER) % trail_divisor) / float(trail_divisor - 1), 0.0), 0.0);\n";
-        code += "	}\n";
+        code += "    if (trail_divisor > 1) {\n";
+        code += "        COLOR *= textureLod(trail_color_modifier, vec2(float(int(NUMBER) % trail_divisor) / float(trail_divisor - 1), 0.0), 0.0);\n";
+        code += "    }\n";
     }
     code += "\n";
 
     if (flags[FLAG_DISABLE_Z]) {
 
         if (flags[FLAG_ALIGN_Y_TO_VELOCITY]) {
-            code += "	if (length(VELOCITY) > 0.0) {\n";
-            code += "		TRANSFORM[1].xyz = normalize(VELOCITY);\n";
-            code += "	} else {\n";
-            code += "		TRANSFORM[1].xyz = normalize(TRANSFORM[1].xyz);\n";
-            code += "	}\n";
-            code += "	TRANSFORM[0].xyz = normalize(cross(TRANSFORM[1].xyz, TRANSFORM[2].xyz));\n";
-            code += "	TRANSFORM[2] = vec4(0.0, 0.0, 1.0, 0.0);\n";
+            code += "    if (length(VELOCITY) > 0.0) {\n";
+            code += "        TRANSFORM[1].xyz = normalize(VELOCITY);\n";
+            code += "    } else {\n";
+            code += "        TRANSFORM[1].xyz = normalize(TRANSFORM[1].xyz);\n";
+            code += "    }\n";
+            code += "    TRANSFORM[0].xyz = normalize(cross(TRANSFORM[1].xyz, TRANSFORM[2].xyz));\n";
+            code += "    TRANSFORM[2] = vec4(0.0, 0.0, 1.0, 0.0);\n";
         } else {
-            code += "	TRANSFORM[0] = vec4(cos(CUSTOM.x), -sin(CUSTOM.x), 0.0, 0.0);\n";
-            code += "	TRANSFORM[1] = vec4(sin(CUSTOM.x), cos(CUSTOM.x), 0.0, 0.0);\n";
-            code += "	TRANSFORM[2] = vec4(0.0, 0.0, 1.0, 0.0);\n";
+            code += "    TRANSFORM[0] = vec4(cos(CUSTOM.x), -sin(CUSTOM.x), 0.0, 0.0);\n";
+            code += "    TRANSFORM[1] = vec4(sin(CUSTOM.x), cos(CUSTOM.x), 0.0, 0.0);\n";
+            code += "    TRANSFORM[2] = vec4(0.0, 0.0, 1.0, 0.0);\n";
         }
 
     } else {
         // orient particle Y towards velocity
         if (flags[FLAG_ALIGN_Y_TO_VELOCITY]) {
-            code += "	if (length(VELOCITY) > 0.0) {\n";
-            code += "		TRANSFORM[1].xyz = normalize(VELOCITY);\n";
-            code += "	} else {\n";
-            code += "		TRANSFORM[1].xyz = normalize(TRANSFORM[1].xyz);\n";
-            code += "	}\n";
-            code += "	if (TRANSFORM[1].xyz == normalize(TRANSFORM[0].xyz)) {\n";
-            code += "		TRANSFORM[0].xyz = normalize(cross(normalize(TRANSFORM[1].xyz), normalize(TRANSFORM[2].xyz)));\n";
-            code += "		TRANSFORM[2].xyz = normalize(cross(normalize(TRANSFORM[0].xyz), normalize(TRANSFORM[1].xyz)));\n";
-            code += "	} else {\n";
-            code += "		TRANSFORM[2].xyz = normalize(cross(normalize(TRANSFORM[0].xyz), normalize(TRANSFORM[1].xyz)));\n";
-            code += "		TRANSFORM[0].xyz = normalize(cross(normalize(TRANSFORM[1].xyz), normalize(TRANSFORM[2].xyz)));\n";
-            code += "	}\n";
+            code += "    if (length(VELOCITY) > 0.0) {\n";
+            code += "        TRANSFORM[1].xyz = normalize(VELOCITY);\n";
+            code += "    } else {\n";
+            code += "        TRANSFORM[1].xyz = normalize(TRANSFORM[1].xyz);\n";
+            code += "    }\n";
+            code += "    if (TRANSFORM[1].xyz == normalize(TRANSFORM[0].xyz)) {\n";
+            code += "        TRANSFORM[0].xyz = normalize(cross(normalize(TRANSFORM[1].xyz), normalize(TRANSFORM[2].xyz)));\n";
+            code += "        TRANSFORM[2].xyz = normalize(cross(normalize(TRANSFORM[0].xyz), normalize(TRANSFORM[1].xyz)));\n";
+            code += "    } else {\n";
+            code += "        TRANSFORM[2].xyz = normalize(cross(normalize(TRANSFORM[0].xyz), normalize(TRANSFORM[1].xyz)));\n";
+            code += "        TRANSFORM[0].xyz = normalize(cross(normalize(TRANSFORM[1].xyz), normalize(TRANSFORM[2].xyz)));\n";
+            code += "    }\n";
         } else {
-            code += "	TRANSFORM[0].xyz = normalize(TRANSFORM[0].xyz);\n";
-            code += "	TRANSFORM[1].xyz = normalize(TRANSFORM[1].xyz);\n";
-            code += "	TRANSFORM[2].xyz = normalize(TRANSFORM[2].xyz);\n";
+            code += "    TRANSFORM[0].xyz = normalize(TRANSFORM[0].xyz);\n";
+            code += "    TRANSFORM[1].xyz = normalize(TRANSFORM[1].xyz);\n";
+            code += "    TRANSFORM[2].xyz = normalize(TRANSFORM[2].xyz);\n";
         }
         // turn particle by rotation in Y
         if (flags[FLAG_ROTATE_Y]) {
-            code += "	TRANSFORM = mat4(vec4(cos(CUSTOM.x), 0.0, -sin(CUSTOM.x), 0.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(sin(CUSTOM.x), 0.0, cos(CUSTOM.x), 0.0), TRANSFORM[3]);\n";
+            code += "    TRANSFORM = mat4(vec4(cos(CUSTOM.x), 0.0, -sin(CUSTOM.x), 0.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(sin(CUSTOM.x), 0.0, cos(CUSTOM.x), 0.0), TRANSFORM[3]);\n";
         }
     }
     //scale by scale
-    code += "	float base_scale = tex_scale * mix(scale, 1.0, scale_random * scale_rand);\n";
-    code += "	if (base_scale < 0.000001) {\n";
-    code += "		base_scale = 0.000001;\n";
-    code += "	}\n";
+    code += "    float base_scale = tex_scale * mix(scale, 1.0, scale_random * scale_rand);\n";
+    code += "    if (base_scale < 0.000001) {\n";
+    code += "        base_scale = 0.000001;\n";
+    code += "    }\n";
     if (trail_size_modifier) {
-        code += "	if (trail_divisor > 1) {\n";
-        code += "		base_scale *= textureLod(trail_size_modifier, vec2(float(int(NUMBER) % trail_divisor) / float(trail_divisor - 1), 0.0), 0.0).r;\n";
-        code += "	}\n";
+        code += "    if (trail_divisor > 1) {\n";
+        code += "        base_scale *= textureLod(trail_size_modifier, vec2(float(int(NUMBER) % trail_divisor) / float(trail_divisor - 1), 0.0), 0.0).r;\n";
+        code += "    }\n";
     }
 
-    code += "	TRANSFORM[0].xyz *= base_scale;\n";
-    code += "	TRANSFORM[1].xyz *= base_scale;\n";
-    code += "	TRANSFORM[2].xyz *= base_scale;\n";
+    code += "    TRANSFORM[0].xyz *= base_scale;\n";
+    code += "    TRANSFORM[1].xyz *= base_scale;\n";
+    code += "    TRANSFORM[2].xyz *= base_scale;\n";
     if (flags[FLAG_DISABLE_Z]) {
-        code += "	VELOCITY.z = 0.0;\n";
-        code += "	TRANSFORM[3].z = 0.0;\n";
+        code += "    VELOCITY.z = 0.0;\n";
+        code += "    TRANSFORM[3].z = 0.0;\n";
     }
-    code += "	if (CUSTOM.y > CUSTOM.w) {";
-    code += "		ACTIVE = false;\n";
-    code += "	}\n";
+    code += "    if (CUSTOM.y > CUSTOM.w) {";
+    code += "        ACTIVE = false;\n";
+    code += "    }\n";
     code += "}\n";
     code += "\n";
 

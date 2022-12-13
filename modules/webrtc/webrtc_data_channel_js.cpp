@@ -203,14 +203,14 @@ String WebRTCDataChannelJS::get_label() const {
 }
 
 /* clang-format off */
-#define _JS_GET(PROP, DEF)			\
-EM_ASM_INT({					\
-    var dict = Module.IDHandler.get($0);	\
-    if (!dict || !dict["channel"]) {	\
-        return DEF;			\
-    }					\
-    var out = dict["channel"].PROP;		\
-    return out === null ? DEF : out;	\
+#define _JS_GET(PROP, DEF)            \
+EM_ASM_INT({                    \
+    var dict = Module.IDHandler.get($0);    \
+    if (!dict || !dict["channel"]) {    \
+        return DEF;            \
+    }                    \
+    var out = dict["channel"].PROP;        \
+    return out === null ? DEF : out;    \
 }, _js_id)
 /* clang-format on */
 

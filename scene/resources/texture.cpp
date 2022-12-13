@@ -1752,7 +1752,7 @@ CubeMap::~CubeMap() {
     RenderingServer::get_singleton()->free_rid(cubemap);
 }
 
-/*	BIND_ENUM(CubeMapSize);
+/*  BIND_ENUM(CubeMapSize);
     BIND_ENUM_CONSTANT( FLAG_CUBEMAP )
     BIND_ENUM_CONSTANT( CUBEMAP_LEFT )
     BIND_ENUM_CONSTANT( CUBEMAP_RIGHT )

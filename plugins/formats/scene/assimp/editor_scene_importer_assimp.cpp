@@ -162,9 +162,9 @@ Node *EditorSceneImporterAssimp::import_scene(StringView p_path, uint32_t p_flag
     importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
     int32_t max_bone_weights = 4;
     //if (p_flags & IMPORT_ANIMATION_EIGHT_WEIGHTS) {
-    //	const int eight_bones = 8;
-    //	importer.SetPropertyBool(AI_CONFIG_PP_LBW_MAX_WEIGHTS, eight_bones);
-    //	max_bone_weights = eight_bones;
+    //  const int eight_bones = 8;
+    //  importer.SetPropertyBool(AI_CONFIG_PP_LBW_MAX_WEIGHTS, eight_bones);
+    //  max_bone_weights = eight_bones;
     //}
 
     importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);
@@ -758,7 +758,7 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
 
     //?
     //if ((StringUtils::to_lower(PathUtils::get_extension(PathUtils::get_file(p_path))) == "glb" || StringUtils::to_lower(PathUtils::get_extension(PathUtils::get_file(p_path))) == "gltf") && Math::is_equal_approx(ticks_per_second, 0.0f)) {
-    //	ticks_per_second = 1000.0f;
+    //  ticks_per_second = 1000.0f;
     //}
 
     if (Math::is_equal_approx(ticks_per_second, 0.0f)) {

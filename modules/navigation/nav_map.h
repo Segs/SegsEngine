@@ -49,14 +49,14 @@ class NavMap : public NavRid {
 
     /// To find the polygons edges the vertices are displaced in a grid where
     /// each cell has the following cell_size and cell_height.
-	real_t cell_size = 0.25;
-	real_t cell_height = 0.25;
+    real_t cell_size = 0.25;
+    real_t cell_height = 0.25;
 
     /// This value is used to detect the near edges to connect.
-	real_t edge_connection_margin = 0.25;
+    real_t edge_connection_margin = 0.25;
 
-	bool regenerate_polygons = true;
-	bool regenerate_links = true;
+    bool regenerate_polygons = true;
+    bool regenerate_links = true;
 
     Vector<NavRegion *> regions;
 
@@ -67,7 +67,7 @@ class NavMap : public NavRid {
     RVO::KdTree rvo;
 
     /// Is agent array modified?
-	bool agents_dirty = false;
+    bool agents_dirty = false;
 
     /// All the Agents (even the controlled one)
     Vector<RvoAgent *> agents;
@@ -76,17 +76,17 @@ class NavMap : public NavRid {
     Vector<RvoAgent *> controlled_agents;
 
     /// Physics delta time
-	real_t deltatime = 0.0;
+    real_t deltatime = 0.0;
 
     /// Change the id each time the map is updated.
-	uint32_t map_update_id = 0;
+    uint32_t map_update_id = 0;
 
-	/// Pooled threads for computing steps
-	ThreadWorkPool step_work_pool;
+    /// Pooled threads for computing steps
+    ThreadWorkPool step_work_pool;
 
 public:
     NavMap();
-	~NavMap();
+    ~NavMap();
 
     void set_up(Vector3 p_up);
     Vector3 get_up() const {
@@ -109,7 +109,7 @@ public:
 
     gd::PointKey get_point_key(const Vector3 &p_pos) const;
 
-	Vector<Vector3> get_path(Vector3 p_origin, Vector3 p_destination, bool p_optimize, uint32_t p_navigation_layers = 1) const;
+    Vector<Vector3> get_path(Vector3 p_origin, Vector3 p_destination, bool p_optimize, uint32_t p_navigation_layers = 1) const;
     Vector3 get_closest_point_to_segment(const Vector3 &p_from, const Vector3 &p_to, const bool p_use_collision) const;
     Vector3 get_closest_point(const Vector3 &p_point) const;
     Vector3 get_closest_point_normal(const Vector3 &p_point) const;

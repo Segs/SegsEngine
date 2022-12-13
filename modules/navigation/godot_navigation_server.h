@@ -144,9 +144,9 @@ public:
     COMMAND_2(agent_set_target_velocity, RID, p_agent, Vector3, p_velocity);
     COMMAND_2(agent_set_position, RID, p_agent, Vector3, p_position);
     COMMAND_2(agent_set_ignore_y, RID, p_agent, bool, p_ignore);
-    virtual bool agent_is_map_changed(RID p_agent) const;
+    bool agent_is_map_changed(RID p_agent) const override;
 
-    virtual void agent_set_callback(RID p_agent, Callable && cb) const;
+    void agent_set_callback(RID p_agent, Callable && cb) const override;
     void _cmd_agent_set_callback(RID p_agent, Callable&& cb);
 
     COMMAND_1(free_rid, RID, p_object);

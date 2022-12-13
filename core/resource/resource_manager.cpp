@@ -179,7 +179,7 @@ String _path_remap(StringView p_path, bool* r_translation_remapped=nullptr) {
 
         Vector<String>& res_remaps = translation_remaps[new_path];
 
-		int best_score = 0;
+        int best_score = 0;
         for (int i = 0; i < res_remaps.size(); i++) {
             int split = res_remaps[i].rfind(":");
             if (split == -1) {

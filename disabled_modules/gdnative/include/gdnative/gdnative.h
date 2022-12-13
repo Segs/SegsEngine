@@ -67,55 +67,55 @@ extern "C" {
 ////// Error
 
 typedef enum {
-	GODOT_OK, // (0)
-	GODOT_FAILED, ///< Generic fail error
-	GODOT_ERR_UNAVAILABLE, ///< What is requested is unsupported/unavailable
-	GODOT_ERR_UNCONFIGURED, ///< The object being used hasn't been properly set up yet
-	GODOT_ERR_UNAUTHORIZED, ///< Missing credentials for requested resource
-	GODOT_ERR_PARAMETER_RANGE_ERROR, ///< Parameter given out of range (5)
-	GODOT_ERR_OUT_OF_MEMORY, ///< Out of memory
-	GODOT_ERR_FILE_NOT_FOUND,
-	GODOT_ERR_FILE_BAD_DRIVE,
-	GODOT_ERR_FILE_BAD_PATH,
-	GODOT_ERR_FILE_NO_PERMISSION, // (10)
-	GODOT_ERR_FILE_ALREADY_IN_USE,
-	GODOT_ERR_FILE_CANT_OPEN,
-	GODOT_ERR_FILE_CANT_WRITE,
-	GODOT_ERR_FILE_CANT_READ,
-	GODOT_ERR_FILE_UNRECOGNIZED, // (15)
-	GODOT_ERR_FILE_CORRUPT,
-	GODOT_ERR_FILE_MISSING_DEPENDENCIES,
-	GODOT_ERR_FILE_EOF,
-	GODOT_ERR_CANT_OPEN, ///< Can't open a resource/socket/file
-	GODOT_ERR_CANT_CREATE, // (20)
-	GODOT_ERR_QUERY_FAILED,
-	GODOT_ERR_ALREADY_IN_USE,
-	GODOT_ERR_LOCKED, ///< resource is locked
-	GODOT_ERR_TIMEOUT,
-	GODOT_ERR_CANT_CONNECT, // (25)
-	GODOT_ERR_CANT_RESOLVE,
-	GODOT_ERR_CONNECTION_ERROR,
-	GODOT_ERR_CANT_ACQUIRE_RESOURCE,
-	GODOT_ERR_CANT_FORK,
-	GODOT_ERR_INVALID_DATA, ///< Data passed is invalid (30)
-	GODOT_ERR_INVALID_PARAMETER, ///< Parameter passed is invalid
-	GODOT_ERR_ALREADY_EXISTS, ///< When adding, item already exists
-	GODOT_ERR_DOES_NOT_EXIST, ///< When retrieving/erasing, it item does not exist
-	GODOT_ERR_DATABASE_CANT_READ, ///< database is full
-	GODOT_ERR_DATABASE_CANT_WRITE, ///< database is full (35)
-	GODOT_ERR_COMPILATION_FAILED,
-	GODOT_ERR_METHOD_NOT_FOUND,
-	GODOT_ERR_LINK_FAILED,
-	GODOT_ERR_SCRIPT_FAILED,
-	GODOT_ERR_CYCLIC_LINK, // (40)
-	GODOT_ERR_INVALID_DECLARATION,
-	GODOT_ERR_DUPLICATE_SYMBOL,
-	GODOT_ERR_PARSE_ERROR,
-	GODOT_ERR_BUSY,
-	GODOT_ERR_SKIP, // (45)
-	GODOT_ERR_HELP, ///< user requested help!!
-	GODOT_ERR_BUG, ///< a bug in the software certainly happened, due to a double check failing or unexpected behavior.
-	GODOT_ERR_PRINTER_ON_FIRE, /// the parallel port printer is engulfed in flames
+    GODOT_OK, // (0)
+    GODOT_FAILED, ///< Generic fail error
+    GODOT_ERR_UNAVAILABLE, ///< What is requested is unsupported/unavailable
+    GODOT_ERR_UNCONFIGURED, ///< The object being used hasn't been properly set up yet
+    GODOT_ERR_UNAUTHORIZED, ///< Missing credentials for requested resource
+    GODOT_ERR_PARAMETER_RANGE_ERROR, ///< Parameter given out of range (5)
+    GODOT_ERR_OUT_OF_MEMORY, ///< Out of memory
+    GODOT_ERR_FILE_NOT_FOUND,
+    GODOT_ERR_FILE_BAD_DRIVE,
+    GODOT_ERR_FILE_BAD_PATH,
+    GODOT_ERR_FILE_NO_PERMISSION, // (10)
+    GODOT_ERR_FILE_ALREADY_IN_USE,
+    GODOT_ERR_FILE_CANT_OPEN,
+    GODOT_ERR_FILE_CANT_WRITE,
+    GODOT_ERR_FILE_CANT_READ,
+    GODOT_ERR_FILE_UNRECOGNIZED, // (15)
+    GODOT_ERR_FILE_CORRUPT,
+    GODOT_ERR_FILE_MISSING_DEPENDENCIES,
+    GODOT_ERR_FILE_EOF,
+    GODOT_ERR_CANT_OPEN, ///< Can't open a resource/socket/file
+    GODOT_ERR_CANT_CREATE, // (20)
+    GODOT_ERR_QUERY_FAILED,
+    GODOT_ERR_ALREADY_IN_USE,
+    GODOT_ERR_LOCKED, ///< resource is locked
+    GODOT_ERR_TIMEOUT,
+    GODOT_ERR_CANT_CONNECT, // (25)
+    GODOT_ERR_CANT_RESOLVE,
+    GODOT_ERR_CONNECTION_ERROR,
+    GODOT_ERR_CANT_ACQUIRE_RESOURCE,
+    GODOT_ERR_CANT_FORK,
+    GODOT_ERR_INVALID_DATA, ///< Data passed is invalid (30)
+    GODOT_ERR_INVALID_PARAMETER, ///< Parameter passed is invalid
+    GODOT_ERR_ALREADY_EXISTS, ///< When adding, item already exists
+    GODOT_ERR_DOES_NOT_EXIST, ///< When retrieving/erasing, it item does not exist
+    GODOT_ERR_DATABASE_CANT_READ, ///< database is full
+    GODOT_ERR_DATABASE_CANT_WRITE, ///< database is full (35)
+    GODOT_ERR_COMPILATION_FAILED,
+    GODOT_ERR_METHOD_NOT_FOUND,
+    GODOT_ERR_LINK_FAILED,
+    GODOT_ERR_SCRIPT_FAILED,
+    GODOT_ERR_CYCLIC_LINK, // (40)
+    GODOT_ERR_INVALID_DECLARATION,
+    GODOT_ERR_DUPLICATE_SYMBOL,
+    GODOT_ERR_PARSE_ERROR,
+    GODOT_ERR_BUSY,
+    GODOT_ERR_SKIP, // (45)
+    GODOT_ERR_HELP, ///< user requested help!!
+    GODOT_ERR_BUG, ///< a bug in the software certainly happened, due to a double check failing or unexpected behavior.
+    GODOT_ERR_PRINTER_ON_FIRE, /// the parallel port printer is engulfed in flames
 } godot_error;
 
 ////// bool
@@ -216,7 +216,7 @@ godot_object GDAPI *godot_global_get_singleton(char *p_name); // result shouldn'
 ////// MethodBind API
 
 typedef struct {
-	uint8_t _dont_touch_that[1]; // TODO
+    uint8_t _dont_touch_that[1]; // TODO
 } godot_method_bind;
 
 godot_method_bind GDAPI *godot_method_bind_get_method(const char *p_classname, const char *p_methodname);
@@ -225,34 +225,34 @@ godot_variant GDAPI godot_method_bind_call(godot_method_bind *p_method_bind, god
 ////// Script API
 
 typedef struct godot_gdnative_api_version {
-	unsigned int major;
-	unsigned int minor;
+    unsigned int major;
+    unsigned int minor;
 } godot_gdnative_api_version;
 
 typedef struct godot_gdnative_api_struct godot_gdnative_api_struct;
 
 struct godot_gdnative_api_struct {
-	unsigned int type;
-	godot_gdnative_api_version version;
-	const godot_gdnative_api_struct *next;
+    unsigned int type;
+    godot_gdnative_api_version version;
+    const godot_gdnative_api_struct *next;
 };
 
 #define GDNATIVE_VERSION_COMPATIBLE(want, have) (want.major == have.major && want.minor <= have.minor)
 
 typedef struct {
-	godot_bool in_editor;
-	uint64_t core_api_hash;
-	uint64_t editor_api_hash;
-	uint64_t no_api_hash;
-	void (*report_version_mismatch)(const godot_object *p_library, const char *p_what, godot_gdnative_api_version p_want, godot_gdnative_api_version p_have);
-	void (*report_loading_error)(const godot_object *p_library, const char *p_what);
-	godot_object *gd_native_library; // pointer to GDNativeLibrary that is being initialized
-	const struct godot_gdnative_core_api_struct *api_struct;
-	const godot_string *active_library_path;
+    godot_bool in_editor;
+    uint64_t core_api_hash;
+    uint64_t editor_api_hash;
+    uint64_t no_api_hash;
+    void (*report_version_mismatch)(const godot_object *p_library, const char *p_what, godot_gdnative_api_version p_want, godot_gdnative_api_version p_have);
+    void (*report_loading_error)(const godot_object *p_library, const char *p_what);
+    godot_object *gd_native_library; // pointer to GDNativeLibrary that is being initialized
+    const struct godot_gdnative_core_api_struct *api_struct;
+    const godot_string *active_library_path;
 } godot_gdnative_init_options;
 
 typedef struct {
-	godot_bool in_editor;
+    godot_bool in_editor;
 } godot_gdnative_terminate_options;
 
 // Calling convention?

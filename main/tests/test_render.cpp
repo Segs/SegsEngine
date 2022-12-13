@@ -248,7 +248,7 @@ public:
 
         camera = vs->camera_create();
 
-        // 		vs->camera_set_perspective( camera, 60.0,0.1, 100.0 );
+        //vs->camera_set_perspective( camera, 60.0,0.1, 100.0 );
 
         viewport = vs->viewport_create();
         Size2i screen_size = OS::get_singleton()->get_window_size();

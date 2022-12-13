@@ -38,23 +38,23 @@ class ItemList;
 
 class EditorLayoutsDialog : public ConfirmationDialog {
 
-	GDCLASS(EditorLayoutsDialog,ConfirmationDialog)
+    GDCLASS(EditorLayoutsDialog,ConfirmationDialog)
 
-	LineEdit *name;
-	ItemList *layout_names;
-	VBoxContainer *makevb;
+    LineEdit *name;
+    ItemList *layout_names;
+    VBoxContainer *makevb;
 
-	void _line_gui_input(const Ref<InputEvent> &p_event);
+    void _line_gui_input(const Ref<InputEvent> &p_event);
 
 protected:
-	static void _bind_methods();
-	void ok_pressed() override;
-	void _post_popup() override;
+    static void _bind_methods();
+    void ok_pressed() override;
+    void _post_popup() override;
 
 public:
-	EditorLayoutsDialog();
+    EditorLayoutsDialog();
 
-	void set_name_line_enabled(bool p_enabled);
+    void set_name_line_enabled(bool p_enabled);
 };
 
 #endif // EDITOR_LAYOUTS_DIALOG_H

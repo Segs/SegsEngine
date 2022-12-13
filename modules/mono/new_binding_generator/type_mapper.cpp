@@ -470,34 +470,34 @@ Callable::CallError vcall_error;
 
     });
     // Callable
-//	itype.c_in = "\t%0 %1_in = " C_METHOD_MANAGED_TO_CALLABLE "(*%1);\n";
-//	itype.c_out = "\t*%3 = " C_METHOD_MANAGED_FROM_CALLABLE "(%1);\n";
-//	itype.c_arg_in = "&%s_in";
-//	itype.cs_in = "ref %s";
-//	/* in cs_out, im_type_out (%3) includes the 'out ' part */
-//	itype.cs_out = "%0(%1, %3 argRet); return argRet;";
-//	itype.im_type_out = "out " + itype.cs_type;
-//	itype.ret_as_byref_arg = true;
-//	builtin_types.insert(itype.cname, itype);
+//    itype.c_in = "\t%0 %1_in = " C_METHOD_MANAGED_TO_CALLABLE "(*%1);\n";
+//    itype.c_out = "\t*%3 = " C_METHOD_MANAGED_FROM_CALLABLE "(%1);\n";
+//    itype.c_arg_in = "&%s_in";
+//    itype.cs_in = "ref %s";
+//    /* in cs_out, im_type_out (%3) includes the 'out ' part */
+//    itype.cs_out = "%0(%1, %3 argRet); return argRet;";
+//    itype.im_type_out = "out " + itype.cs_type;
+//    itype.ret_as_byref_arg = true;
+//    builtin_types.insert(itype.cname, itype);
 
-//	// Signal
-//	itype = TypeInterface();
-//	itype.name = "Signal";
-//	itype.cname = itype.name;
-//	itype.proxy_name = "SignalInfo";
-//	itype.c_in = "\t%0 %1_in = " C_METHOD_MANAGED_TO_SIGNAL "(*%1);\n";
-//	itype.c_out = "\t*%3 = " C_METHOD_MANAGED_FROM_SIGNAL "(%1);\n";
-//	itype.c_arg_in = "&%s_in";
-//	itype.c_type = itype.name;
-//	itype.c_type_in = "GDMonoMarshal::M_SignalInfo*";
-//	itype.c_type_out = "GDMonoMarshal::M_SignalInfo";
-//	itype.cs_in = "ref %s";
-//	/* in cs_out, im_type_out (%3) includes the 'out ' part */
-//	itype.cs_out = "%0(%1, %3 argRet); return argRet;";
-//	itype.cs_type = itype.proxy_name;
-//	itype.im_type_in = "ref " + itype.cs_type;
-//	itype.im_type_out = "out " + itype.cs_type;
-//	itype.ret_as_byref_arg = true;
+//    // Signal
+//    itype = TypeInterface();
+//    itype.name = "Signal";
+//    itype.cname = itype.name;
+//    itype.proxy_name = "SignalInfo";
+//    itype.c_in = "\t%0 %1_in = " C_METHOD_MANAGED_TO_SIGNAL "(*%1);\n";
+//    itype.c_out = "\t*%3 = " C_METHOD_MANAGED_FROM_SIGNAL "(%1);\n";
+//    itype.c_arg_in = "&%s_in";
+//    itype.c_type = itype.name;
+//    itype.c_type_in = "GDMonoMarshal::M_SignalInfo*";
+//    itype.c_type_out = "GDMonoMarshal::M_SignalInfo";
+//    itype.cs_in = "ref %s";
+//    /* in cs_out, im_type_out (%3) includes the 'out ' part */
+//    itype.cs_out = "%0(%1, %3 argRet); return argRet;";
+//    itype.cs_type = itype.proxy_name;
+//    itype.im_type_in = "ref " + itype.cs_type;
+//    itype.im_type_out = "out " + itype.cs_type;
+//    itype.ret_as_byref_arg = true;
 
     // StringView
     registerTypeMaps(getGodotOpaqueType("StringView","string"), {

@@ -1251,7 +1251,7 @@ bool GDMono::_load_project_assembly() {
         return true;
     }
 
-	String assembly_name = ProjectSettings::get_singleton()->getT<String>("mono/project/assembly_name");
+    String assembly_name = ProjectSettings::get_singleton()->getT<String>("mono/project/assembly_name");
 
     if (assembly_name.empty()) {
         String appname = ProjectSettings::get_singleton()->getT<String>("application/config/name");

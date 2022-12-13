@@ -309,7 +309,7 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
             lang_hint += ",";
             lang_hint += locale;
 
-			int score = TranslationServer::get_singleton()->compare_locales(host_lang, locale);
+            int score = TranslationServer::get_singleton()->compare_locales(host_lang, locale);
             if (score > 0 && score >= best_score) {
                 best = locale;
                 best_score = score;

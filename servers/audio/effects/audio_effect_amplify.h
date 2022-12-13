@@ -36,32 +36,32 @@
 class AudioEffectAmplify;
 
 class AudioEffectAmplifyInstance : public AudioEffectInstance {
-	GDCLASS(AudioEffectAmplifyInstance,AudioEffectInstance)
+    GDCLASS(AudioEffectAmplifyInstance,AudioEffectInstance)
 
-	friend class AudioEffectAmplify;
-	Ref<AudioEffectAmplify> base;
+    friend class AudioEffectAmplify;
+    Ref<AudioEffectAmplify> base;
 
-	float mix_volume_db;
+    float mix_volume_db;
 
 public:
-	void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
+    void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
 };
 
 class GODOT_EXPORT AudioEffectAmplify : public AudioEffect {
-	GDCLASS(AudioEffectAmplify,AudioEffect)
+    GDCLASS(AudioEffectAmplify,AudioEffect)
 
-	friend class AudioEffectAmplifyInstance;
-	float volume_db;
+    friend class AudioEffectAmplifyInstance;
+    float volume_db;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	Ref<AudioEffectInstance> instance() override;
-	void set_volume_db(float p_volume);
-	float get_volume_db() const;
+    Ref<AudioEffectInstance> instance() override;
+    void set_volume_db(float p_volume);
+    float get_volume_db() const;
 
-	AudioEffectAmplify();
+    AudioEffectAmplify();
 };
 
 #endif // AUDIOEFFECTAMPLIFY_H

@@ -162,7 +162,7 @@ public:
         uint32_t active_list_id = _active_list.size();
         _active_list.push_back(r_id);
 
-		// expand the active map (this should be in sync with the pool list
+        // expand the active map (this should be in sync with the pool list
         if (_pool.used_size() > _active_map.size()) {
             _active_map.resize(_pool.used_size());
         }

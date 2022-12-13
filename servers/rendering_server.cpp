@@ -1966,7 +1966,7 @@ void RenderingServer::_bind_methods() {
     SE_BIND_METHOD(RenderingServer, finish);
     SE_BIND_METHOD(RenderingServer, get_render_info);
     //    BIND_METHOD(RenderingServer, get_video_adapter_name);
-    //	BIND_METHOD(RenderingServer, get_video_adapter_vendor);
+    //    BIND_METHOD(RenderingServer, get_video_adapter_vendor);
 
 #ifndef _3D_DISABLED
 

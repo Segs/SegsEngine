@@ -1002,7 +1002,7 @@ void PortalRenderer::sprawl_roaming(uint32_t p_mover_pool_id, MovingBase &r_movi
         room.add_rghost(p_mover_pool_id);
     }
 
-    // add the room	to the mover
+    // add the room to the mover
     r_moving._rooms.push_back(p_room_id);
 
     // go through portals

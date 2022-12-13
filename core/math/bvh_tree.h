@@ -1440,7 +1440,7 @@ public:
     // It is MODIFIED from qu3e version.
     // This is the only function used (and _logic_abb_merge helper function).
     int32_t _logic_balance(int32_t iA, uint32_t p_tree_id) {
-        //	return iA; // uncomment this to bypass balance
+        //return iA; // uncomment this to bypass balance
 
         TNode *A = &_nodes[iA];
 

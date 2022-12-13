@@ -36,5 +36,5 @@
 IMPL_GDCLASS(ToolButton)
 
 ToolButton::ToolButton() {
-	set_flat(true);
+    set_flat(true);
 }

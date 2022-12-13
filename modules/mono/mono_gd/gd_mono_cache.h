@@ -83,7 +83,7 @@ struct GODOT_EXPORT CachedData {
     GDMonoClass *class_AABB;
     GDMonoClass *class_Color;
     GDMonoClass *class_Plane;
-	GDMonoClass *class_StringName;
+    GDMonoClass *class_StringName;
     GDMonoClass *class_NodePath;
     GDMonoClass *class_RID;
     GDMonoClass *class_GodotObject;
@@ -92,8 +92,8 @@ struct GODOT_EXPORT CachedData {
     GDMonoClass *class_Control;
     GDMonoClass *class_Node3D;
     GDMonoClass *class_WeakRef;
-	GDMonoClass *class_Callable;
-	GDMonoClass *class_SignalInfo;
+    GDMonoClass *class_Callable;
+    GDMonoClass *class_SignalInfo;
     GDMonoClass *class_Array;
     GDMonoClass *class_Dictionary;
     GDMonoClass *class_MarshalUtils;
@@ -110,8 +110,8 @@ struct GODOT_EXPORT CachedData {
     GDMonoClass *class_SignalAttribute;
     GDMonoClass *class_ToolAttribute;
     GDMonoClass *class_RemoteAttribute;
-	GDMonoClass *class_MasterAttribute;
-	GDMonoClass *class_PuppetAttribute;
+    GDMonoClass *class_MasterAttribute;
+    GDMonoClass *class_PuppetAttribute;
     GDMonoClass *class_RemoteSyncAttribute;
     GDMonoClass *class_MasterSyncAttribute;
     GDMonoClass *class_PuppetSyncAttribute;
@@ -119,7 +119,7 @@ struct GODOT_EXPORT CachedData {
     GDMonoField *field_GodotMethodAttribute_methodName;
 
     GDMonoField *field_GodotObject_ptr;
-	GDMonoField *field_StringName_ptr;
+    GDMonoField *field_StringName_ptr;
     GDMonoField *field_NodePath_ptr;
     GDMonoField *field_Image_ptr;
     GDMonoField *field_RID_ptr;
@@ -130,10 +130,10 @@ struct GODOT_EXPORT CachedData {
     GDMonoMethodThunk<MonoObject *, MonoArray *> methodthunk_SignalAwaiter_SignalCallback;
     GDMonoMethodThunk<MonoObject *> methodthunk_GodotTaskScheduler_Activate;
 
-	GDMonoMethodThunkR<MonoBoolean, MonoObject *, MonoObject *> methodthunk_Delegate_Equals;
+    GDMonoMethodThunkR<MonoBoolean, MonoObject *, MonoObject *> methodthunk_Delegate_Equals;
 
-	GDMonoMethodThunkR<MonoBoolean, MonoDelegate *, MonoObject *> methodthunk_DelegateUtils_TrySerializeDelegate;
-	GDMonoMethodThunkR<MonoBoolean, MonoObject *, MonoDelegate **> methodthunk_DelegateUtils_TryDeserializeDelegate;
+    GDMonoMethodThunkR<MonoBoolean, MonoDelegate *, MonoObject *> methodthunk_DelegateUtils_TrySerializeDelegate;
+    GDMonoMethodThunkR<MonoBoolean, MonoObject *, MonoDelegate **> methodthunk_DelegateUtils_TryDeserializeDelegate;
     // Start of MarshalUtils methods
 
     GDMonoMethodThunkR<MonoBoolean, MonoReflectionType *> methodthunk_MarshalUtils_TypeIsGenericArray;
@@ -155,7 +155,7 @@ struct GODOT_EXPORT CachedData {
 
     // End of MarshalUtils methods
 
-	Ref<MonoGCHandleRef> task_scheduler_handle;
+    Ref<MonoGCHandleRef> task_scheduler_handle;
 
     bool corlib_cache_updated;
     bool godot_api_cache_updated;

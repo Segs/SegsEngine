@@ -488,7 +488,7 @@ CapsuleMesh::CapsuleMesh() {
   CubeMesh
 */
 void CubeMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
-	create_mesh_array(p_arr, size, subdivide_w, subdivide_h, subdivide_d);
+    create_mesh_array(p_arr, size, subdivide_w, subdivide_h, subdivide_d);
 }
 
 void CubeMesh::create_mesh_array(

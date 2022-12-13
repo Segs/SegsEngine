@@ -75,9 +75,9 @@ void GDMonoMethod::_update_signature(MonoMethodSignature *p_method_sig) {
     // clear the cache
     method_info_fetched = false;
     method_info = MethodInfo();
-	for (int i = 0; i < params_count; i++) {
-		params_buffer_size += GDMonoMarshal::variant_get_managed_unboxed_size(param_types[i]);
-	}
+    for (int i = 0; i < params_count; i++) {
+        params_buffer_size += GDMonoMarshal::variant_get_managed_unboxed_size(param_types[i]);
+    }
 }
 
 GDMonoClass *GDMonoMethod::get_enclosing_class() const {
@@ -119,7 +119,7 @@ MonoObject* GDMonoMethod::invoke(MonoObject* p_object, const Variant** p_params,
         }
 
         ret = GDMonoUtils::runtime_invoke(mono_method, p_object, params, &exc);
-	} else {
+    } else {
         ret = GDMonoUtils::runtime_invoke(mono_method, p_object, nullptr, &exc);
     }
 
@@ -247,7 +247,7 @@ void GDMonoMethod::get_parameter_names(Vector<StringName> &names) const {
 }
 
 void GDMonoMethod::get_parameter_types(Vector<ManagedType> &types) const {
-	for (int i = 0; i < params_count; ++i) {
+    for (int i = 0; i < params_count; ++i) {
         types.push_back(param_types[i]);
     }
 }

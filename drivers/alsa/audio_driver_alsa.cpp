@@ -150,7 +150,7 @@ Error AudioDriverALSA::init_device() {
 
 Error AudioDriverALSA::init() {
 
-	active.clear();
+    active.clear();
     exit_thread.clear();
 
     Error err = init_device();

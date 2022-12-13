@@ -394,16 +394,16 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
             }
         }
 
-		if (import_loop_mode == 0 && chunkID[0] == 's' && chunkID[1] == 'm' && chunkID[2] == 'p' && chunkID[3] == 'l') {
+        if (import_loop_mode == 0 && chunkID[0] == 's' && chunkID[1] == 'm' && chunkID[2] == 'p' && chunkID[3] == 'l') {
             // Loop point info!
 
             /**
-            *	Consider exploring next document:
-            *		http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/Docs/RIFFNEW.pdf
-            *	Especially on page:
-            *		16 - 17
-            *	Timestamp:
-            *		22:38 06.07.2017 GMT
+            *    Consider exploring next document:
+            *        http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/Docs/RIFFNEW.pdf
+            *    Especially on page:
+            *        16 - 17
+            *    Timestamp:
+            *        22:38 06.07.2017 GMT
             **/
 
             for (int i = 0; i < 10; i++)

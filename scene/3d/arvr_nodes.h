@@ -37,140 +37,140 @@
 #include "servers/arvr/arvr_positional_tracker.h"
 
 /**
-	@author Bastiaan Olij <mux213@gmail.com>
+    @author Bastiaan Olij <mux213@gmail.com>
 **/
 
 /*
-	ARVRCamera is a subclass of camera which will register itself with its parent ARVROrigin and as a result is automatically positioned
+    ARVRCamera is a subclass of camera which will register itself with its parent ARVROrigin and as a result is automatically positioned
 */
 class ARVRCamera : public Camera3D {
 
-	GDCLASS(ARVRCamera,Camera3D)
+    GDCLASS(ARVRCamera,Camera3D)
 
 protected:
-	void _notification(int p_what);
+    void _notification(int p_what);
 
 public:
     String get_configuration_warning() const override;
 
-	Vector3 project_local_ray_normal(const Point2 &p_pos) const override;
-	Point2 unproject_position(const Vector3 &p_pos) const override;
+    Vector3 project_local_ray_normal(const Point2 &p_pos) const override;
+    Point2 unproject_position(const Vector3 &p_pos) const override;
     Vector3 project_position(const Point2 &p_point, float p_z_depth) const override;
-	Frustum get_frustum() const override;
+    Frustum get_frustum() const override;
 
-	ARVRCamera();
-	~ARVRCamera() override;
+    ARVRCamera();
+    ~ARVRCamera() override;
 };
 
 /*
-	ARVRController is a helper node that automatically updates its position based on tracker data.
+    ARVRController is a helper node that automatically updates its position based on tracker data.
 
-	It must be a child node of our ARVROrigin node
+    It must be a child node of our ARVROrigin node
 */
 
 class GODOT_EXPORT ARVRController : public Node3D {
 
-	GDCLASS(ARVRController,Node3D)
+    GDCLASS(ARVRController,Node3D)
 
 private:
-	int controller_id;
-	bool is_active;
-	int button_states;
-	Ref<Mesh> mesh;
+    int controller_id;
+    bool is_active;
+    int button_states;
+    Ref<Mesh> mesh;
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_controller_id(int p_controller_id);
-	int get_controller_id() const;
-	StringName get_controller_name() const;
+    void set_controller_id(int p_controller_id);
+    int get_controller_id() const;
+    StringName get_controller_name() const;
 
-	int get_joystick_id() const;
-	int is_button_pressed(int p_button) const;
-	float get_joystick_axis(int p_axis) const;
+    int get_joystick_id() const;
+    int is_button_pressed(int p_button) const;
+    float get_joystick_axis(int p_axis) const;
 
-	real_t get_rumble() const;
-	void set_rumble(float p_rumble);
+    real_t get_rumble() const;
+    void set_rumble(float p_rumble);
 
-	bool get_is_active() const;
-	ARVRPositionalTracker::TrackerHand get_hand() const;
+    bool get_is_active() const;
+    ARVRPositionalTracker::TrackerHand get_hand() const;
 
-	Ref<Mesh> get_mesh() const;
+    Ref<Mesh> get_mesh() const;
 
     String get_configuration_warning() const override;
 
-	ARVRController();
-	~ARVRController() override;
+    ARVRController();
+    ~ARVRController() override;
 };
 
 /*
-	ARVRAnchor is a helper node that automatically updates its position based on anchor data, it represents a real world location.
-	It must be a child node of our ARVROrigin node
+    ARVRAnchor is a helper node that automatically updates its position based on anchor data, it represents a real world location.
+    It must be a child node of our ARVROrigin node
 */
 
 class GODOT_EXPORT ARVRAnchor : public Node3D {
-	GDCLASS(ARVRAnchor,Node3D)
+    GDCLASS(ARVRAnchor,Node3D)
 
 private:
-	int anchor_id;
-	bool is_active;
-	Vector3 size;
-	Ref<Mesh> mesh;
+    int anchor_id;
+    bool is_active;
+    Vector3 size;
+    Ref<Mesh> mesh;
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_anchor_id(int p_anchor_id);
-	int get_anchor_id() const;
-	StringName get_anchor_name() const;
+    void set_anchor_id(int p_anchor_id);
+    int get_anchor_id() const;
+    StringName get_anchor_name() const;
 
-	bool get_is_active() const;
-	Vector3 get_size() const;
+    bool get_is_active() const;
+    Vector3 get_size() const;
 
-	Plane get_plane() const;
+    Plane get_plane() const;
 
-	Ref<Mesh> get_mesh() const;
+    Ref<Mesh> get_mesh() const;
 
     String get_configuration_warning() const override;
 
-	ARVRAnchor();
-	~ARVRAnchor() override;
+    ARVRAnchor();
+    ~ARVRAnchor() override;
 };
 
 /*
-	ARVROrigin is special spatial node that acts as our origin point mapping our real world center of our tracking volume into our virtual world.
+    ARVROrigin is special spatial node that acts as our origin point mapping our real world center of our tracking volume into our virtual world.
 
-	It is this point that you will move around the world as the player 'moves while standing still', i.e. the player moves through teleporting or controller inputs as opposed to physically moving.
+    It is this point that you will move around the world as the player 'moves while standing still', i.e. the player moves through teleporting or controller inputs as opposed to physically moving.
 
-	Our camera and controllers will always be child nodes and thus place relative to this origin point.
-	This node will automatically locate any camera child nodes and update its position while our ARVRController node will handle tracked controllers.
+    Our camera and controllers will always be child nodes and thus place relative to this origin point.
+    This node will automatically locate any camera child nodes and update its position while our ARVRController node will handle tracked controllers.
 */
 class GODOT_EXPORT ARVROrigin : public Node3D {
 
-	GDCLASS(ARVROrigin,Node3D)
+    GDCLASS(ARVROrigin,Node3D)
 
 private:
-	ARVRCamera *tracked_camera;
+    ARVRCamera *tracked_camera;
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
     String get_configuration_warning() const override;
 
-	void set_tracked_camera(ARVRCamera *p_tracked_camera);
-	void clear_tracked_camera_if(ARVRCamera *p_tracked_camera);
+    void set_tracked_camera(ARVRCamera *p_tracked_camera);
+    void clear_tracked_camera_if(ARVRCamera *p_tracked_camera);
 
-	float get_world_scale() const;
-	void set_world_scale(float p_world_scale);
+    float get_world_scale() const;
+    void set_world_scale(float p_world_scale);
 
-	ARVROrigin();
-	~ARVROrigin() override;
+    ARVROrigin();
+    ~ARVROrigin() override;
 };
 
 #endif /* ARVR_NODES_H */

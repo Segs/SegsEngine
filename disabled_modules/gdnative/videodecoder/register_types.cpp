@@ -41,12 +41,12 @@ void register_videodecoder_types() {
     ClassDB::register_class<VideoStreamGDNative>();
 
     resource_loader_vsgdnative = make_ref_counted<ResourceFormatLoaderVideoStreamGDNative>();
-	ResourceLoader::add_resource_format_loader(resource_loader_vsgdnative, true);
+    ResourceLoader::add_resource_format_loader(resource_loader_vsgdnative, true);
 
 }
 
 void unregister_videodecoder_types() {
 
-	ResourceLoader::remove_resource_format_loader(resource_loader_vsgdnative);
-	resource_loader_vsgdnative.unref();
+    ResourceLoader::remove_resource_format_loader(resource_loader_vsgdnative);
+    resource_loader_vsgdnative.unref();
 }

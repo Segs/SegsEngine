@@ -42,7 +42,7 @@ extern "C" {
 #ifndef GODOT_CORE_API_GODOT_NODE_PATH_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_NODE_PATH_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_NODE_PATH_SIZE];
+    uint8_t _dont_touch_that[GODOT_NODE_PATH_SIZE];
 } godot_node_path;
 #endif
 

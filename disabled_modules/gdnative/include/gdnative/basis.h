@@ -42,7 +42,7 @@ extern "C" {
 #ifndef GODOT_CORE_API_GODOT_BASIS_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_BASIS_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_BASIS_SIZE];
+    uint8_t _dont_touch_that[GODOT_BASIS_SIZE];
 } godot_basis;
 #endif
 

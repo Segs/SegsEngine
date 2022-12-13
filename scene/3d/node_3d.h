@@ -102,7 +102,7 @@ private:
         int children_lock;
         mutable uint8_t dirty;
 
-		bool toplevel_active : 1;
+        bool toplevel_active : 1;
         bool toplevel : 1;
         bool inside_world : 1;
 
@@ -131,7 +131,7 @@ protected:
 
     _FORCE_INLINE_ void _update_local_transform() const;
 
-	void _set_vi_visible(bool p_visible);
+    void _set_vi_visible(bool p_visible);
     bool _is_vi_visible() const { return data.vi_visible; }
 
     void _notification(int p_what);

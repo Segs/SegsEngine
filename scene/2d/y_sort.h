@@ -33,14 +33,14 @@
 #include "scene/2d/node_2d.h"
 
 class GODOT_EXPORT YSort : public Node2D {
-	GDCLASS(YSort,Node2D)
+    GDCLASS(YSort,Node2D)
 
     bool sort_enabled=true;
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void set_sort_enabled(bool p_enabled);
-	bool is_sort_enabled() const;
-	YSort();
+    void set_sort_enabled(bool p_enabled);
+    bool is_sort_enabled() const;
+    YSort();
 };
 

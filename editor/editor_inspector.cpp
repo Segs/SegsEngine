@@ -1481,7 +1481,7 @@ void EditorInspector::update_tree() {
         }
     }
 
-    //	TreeItem *current_category = NULL;
+    //  TreeItem *current_category = NULL;
 
     String filter(search_box ? search_box->get_text() : "");
     String group;

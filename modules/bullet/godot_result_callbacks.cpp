@@ -107,7 +107,7 @@ btScalar GodotAllConvexResultCallback::addSingleResult(btCollisionWorld::LocalCo
 
     PhysicsDirectSpaceState3D::ShapeResult &result = m_results[count];
 
-    	// Triangle index is an odd name but contains the compound shape ID.
+    // Triangle index is an odd name but contains the compound shape ID.
     // A shape part of -1 indicates the index is a shape index and not a triangle index.
     if (convexResult.m_localShapeInfo && convexResult.m_localShapeInfo->m_shapePart == -1) {
         result.shape = convexResult.m_localShapeInfo->m_triangleIndex;

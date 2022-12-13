@@ -42,14 +42,14 @@ class SSLContextMbedTLS;
 class CryptoKeyMbedTLS : public CryptoKey {
 
 private:
-	mbedtls_pk_context pkey;
+    mbedtls_pk_context pkey;
     int locks = 0;
     bool public_only = true;
 
 public:
-	static CryptoKey *create();
-	static void make_default() { CryptoKey::_create = create; }
-	static void finalize() { CryptoKey::_create = nullptr; }
+    static CryptoKey *create();
+    static void make_default() { CryptoKey::_create = create; }
+    static void finalize() { CryptoKey::_create = nullptr; }
 
     Error load(StringView p_path, bool p_public_only = false) override;
     Error save(StringView p_path, bool p_public_only = false) override;
@@ -57,49 +57,49 @@ public:
     Error load_from_string(StringView p_string_key, bool p_public_only) override;
     bool is_public_only() const override { return public_only; };
 
-	CryptoKeyMbedTLS() {
-		mbedtls_pk_init(&pkey);
-		locks = 0;
-	}
-	~CryptoKeyMbedTLS() override {
-		mbedtls_pk_free(&pkey);
-	}
+    CryptoKeyMbedTLS() {
+        mbedtls_pk_init(&pkey);
+        locks = 0;
+    }
+    ~CryptoKeyMbedTLS() override {
+        mbedtls_pk_free(&pkey);
+    }
 
-	_FORCE_INLINE_ void lock() { locks++; }
-	_FORCE_INLINE_ void unlock() { locks--; }
+    _FORCE_INLINE_ void lock() { locks++; }
+    _FORCE_INLINE_ void unlock() { locks--; }
 
-	friend class CryptoMbedTLS;
-	friend class SSLContextMbedTLS;
+    friend class CryptoMbedTLS;
+    friend class SSLContextMbedTLS;
 };
 
 class X509CertificateMbedTLS : public X509Certificate {
 
 private:
-	mbedtls_x509_crt cert;
-	int locks;
+    mbedtls_x509_crt cert;
+    int locks;
 
 public:
-	static X509Certificate *create();
-	static void make_default() { X509Certificate::_create = create; }
-	static void finalize() { X509Certificate::_create = nullptr; }
+    static X509Certificate *create();
+    static void make_default() { X509Certificate::_create = create; }
+    static void finalize() { X509Certificate::_create = nullptr; }
 
     Error load(StringView p_path) override;
-	Error load_from_memory(const uint8_t *p_buffer, int p_len) override;
+    Error load_from_memory(const uint8_t *p_buffer, int p_len) override;
     Error save(StringView p_path) override;
 
-	X509CertificateMbedTLS() {
-		mbedtls_x509_crt_init(&cert);
-		locks = 0;
-	}
-	~X509CertificateMbedTLS() override {
-		mbedtls_x509_crt_free(&cert);
-	}
+    X509CertificateMbedTLS() {
+        mbedtls_x509_crt_init(&cert);
+        locks = 0;
+    }
+    ~X509CertificateMbedTLS() override {
+        mbedtls_x509_crt_free(&cert);
+    }
 
-	_FORCE_INLINE_ void lock() { locks++; }
-	_FORCE_INLINE_ void unlock() { locks--; }
+    _FORCE_INLINE_ void lock() { locks++; }
+    _FORCE_INLINE_ void unlock() { locks--; }
 
-	friend class CryptoMbedTLS;
-	friend class SSLContextMbedTLS;
+    friend class CryptoMbedTLS;
+    friend class SSLContextMbedTLS;
 };
 
 class HMACContextMbedTLS : public HMACContext {
@@ -126,26 +126,26 @@ public:
 class CryptoMbedTLS : public Crypto {
 
 private:
-	mbedtls_entropy_context entropy;
-	mbedtls_ctr_drbg_context ctr_drbg;
-	static X509CertificateMbedTLS *default_certs;
+    mbedtls_entropy_context entropy;
+    mbedtls_ctr_drbg_context ctr_drbg;
+    static X509CertificateMbedTLS *default_certs;
 
 public:
-	static Crypto *create();
-	static void initialize_crypto();
-	static void finalize_crypto();
-	static X509CertificateMbedTLS *get_default_certificates();
+    static Crypto *create();
+    static void initialize_crypto();
+    static void finalize_crypto();
+    static X509CertificateMbedTLS *get_default_certificates();
     static void load_default_certificates(StringView p_path);
     static mbedtls_md_type_t md_type_from_hashtype(HashingContext::HashType p_hash_type, int &r_size);
 
-	PoolByteArray generate_random_bytes(int p_bytes) override;
-	Ref<CryptoKey> generate_rsa(int p_bytes) override;
+    PoolByteArray generate_random_bytes(int p_bytes) override;
+    Ref<CryptoKey> generate_rsa(int p_bytes) override;
     Ref<X509Certificate> generate_self_signed_certificate(Ref<CryptoKey> p_key, StringView p_issuer_name, StringView p_not_before, StringView p_not_after) override;
     Vector<uint8_t> sign(HashingContext::HashType p_hash_type, Vector<uint8_t> p_hash, const Ref<CryptoKey> &p_key) override;
     bool verify(HashingContext::HashType p_hash_type, Vector<uint8_t> p_hash, Vector<uint8_t> p_signature, const Ref<CryptoKey> &p_key) override;
     Vector<uint8_t> encrypt(const Ref<CryptoKey> &p_key, Vector<uint8_t> p_plaintext) override;
     Vector<uint8_t> decrypt(const Ref<CryptoKey> &p_key, Vector<uint8_t> p_ciphertext) override;
 
-	CryptoMbedTLS();
-	~CryptoMbedTLS() override;
+    CryptoMbedTLS();
+    ~CryptoMbedTLS() override;
 };

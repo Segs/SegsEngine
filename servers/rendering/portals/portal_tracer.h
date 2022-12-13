@@ -110,7 +110,7 @@ public:
     void set_depth_limit(int p_limit) { _depth_limit = p_limit; }
     int get_depth_limit() const { return _depth_limit; }
 
-	// special function for occlusion culling only that does not use portals / rooms,
+    // special function for occlusion culling only that does not use portals / rooms,
     // but allows using occluders with the main scene
     int occlusion_cull(PortalRenderer &p_portal_renderer, const Vector3 &p_point, const Vector3 &p_cam_dir,
             const CameraMatrix &p_cam_matrix, Span<const Plane> p_convex, Span<RenderingEntity> p_result_array,

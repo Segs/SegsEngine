@@ -40,7 +40,7 @@ extern "C" {
 #ifndef GODOT_CORE_API_GODOT_RECT2_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_RECT2_TYPE_DEFINED
 typedef struct godot_rect2 {
-	uint8_t _dont_touch_that[16];
+    uint8_t _dont_touch_that[16];
 } godot_rect2;
 #endif
 

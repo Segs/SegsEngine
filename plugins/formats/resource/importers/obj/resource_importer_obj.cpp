@@ -328,7 +328,7 @@ static Error _parse_obj(StringView p_path, Vector<Ref<Mesh>> &r_meshes, bool p_s
 
                     Vector3 vertex = vertices[vtx];
                     //if (weld_vertices)
-                    //	vertex.snap(Vector3(weld_tolerance, weld_tolerance, weld_tolerance));
+                    //  vertex.snap(Vector3(weld_tolerance, weld_tolerance, weld_tolerance));
                     surf_tool->add_vertex(vertex);
                 }
 

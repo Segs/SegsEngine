@@ -1232,7 +1232,7 @@ Vector3 KinematicBody3D::_move_and_slide_internal(const Vector3 &p_linear_veloci
         }
     }
 
-	if (moving_platform_apply_velocity_on_leave != PLATFORM_VEL_ON_LEAVE_NEVER) {
+    if (moving_platform_apply_velocity_on_leave != PLATFORM_VEL_ON_LEAVE_NEVER) {
         // Add last platform velocity when just left a moving platform.
         if (!on_floor) {
             if (moving_platform_apply_velocity_on_leave == PLATFORM_VEL_ON_LEAVE_UPWARD_ONLY &&

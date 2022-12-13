@@ -34,7 +34,7 @@
 #include "core/color.h"
 class GODOT_EXPORT MeshDataTool : public RefCounted {
 
-	GDCLASS(MeshDataTool,RefCounted)
+    GDCLASS(MeshDataTool,RefCounted)
 
     struct Vertex {
         Vector3 vertex;
@@ -62,70 +62,70 @@ class GODOT_EXPORT MeshDataTool : public RefCounted {
         Variant meta;
     };
 
-	int format;
+    int format;
 
-	Vector<Vertex> vertices;
+    Vector<Vertex> vertices;
     Vector<Edge> edges;
     Vector<Face> faces;
-	Ref<Material> material;
+    Ref<Material> material;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void clear();
-	Error create_from_surface(const Ref<ArrayMesh> &p_mesh, int p_surface);
-	Error commit_to_surface(const Ref<ArrayMesh> &p_mesh);
+    void clear();
+    Error create_from_surface(const Ref<ArrayMesh> &p_mesh, int p_surface);
+    Error commit_to_surface(const Ref<ArrayMesh> &p_mesh);
 
-	int get_format() const;
+    int get_format() const;
 
-	int get_vertex_count() const;
-	int get_edge_count() const;
-	int get_face_count() const;
+    int get_vertex_count() const;
+    int get_edge_count() const;
+    int get_face_count() const;
 
-	Vector3 get_vertex(int p_idx) const;
-	void set_vertex(int p_idx, const Vector3 &p_vertex);
+    Vector3 get_vertex(int p_idx) const;
+    void set_vertex(int p_idx, const Vector3 &p_vertex);
 
-	Vector3 get_vertex_normal(int p_idx) const;
-	void set_vertex_normal(int p_idx, const Vector3 &p_normal);
+    Vector3 get_vertex_normal(int p_idx) const;
+    void set_vertex_normal(int p_idx, const Vector3 &p_normal);
 
-	Plane get_vertex_tangent(int p_idx) const;
-	void set_vertex_tangent(int p_idx, const Plane &p_tangent);
+    Plane get_vertex_tangent(int p_idx) const;
+    void set_vertex_tangent(int p_idx, const Plane &p_tangent);
 
-	Vector2 get_vertex_uv(int p_idx) const;
-	void set_vertex_uv(int p_idx, const Vector2 &p_uv);
+    Vector2 get_vertex_uv(int p_idx) const;
+    void set_vertex_uv(int p_idx, const Vector2 &p_uv);
 
-	Vector2 get_vertex_uv2(int p_idx) const;
-	void set_vertex_uv2(int p_idx, const Vector2 &p_uv2);
+    Vector2 get_vertex_uv2(int p_idx) const;
+    void set_vertex_uv2(int p_idx, const Vector2 &p_uv2);
 
-	Color get_vertex_color(int p_idx) const;
-	void set_vertex_color(int p_idx, const Color &p_color);
+    Color get_vertex_color(int p_idx) const;
+    void set_vertex_color(int p_idx, const Color &p_color);
 
     const Vector<int> &get_vertex_bones(int p_idx) const;
-	void set_vertex_bones(int p_idx, Vector<int> &&p_bones);
+    void set_vertex_bones(int p_idx, Vector<int> &&p_bones);
 
     const Vector<float> &get_vertex_weights(int p_idx) const;
-	void set_vertex_weights(int p_idx, Vector<float> &&p_weights);
+    void set_vertex_weights(int p_idx, Vector<float> &&p_weights);
 
-	Variant get_vertex_meta(int p_idx) const;
-	void set_vertex_meta(int p_idx, const Variant &p_meta);
+    Variant get_vertex_meta(int p_idx) const;
+    void set_vertex_meta(int p_idx, const Variant &p_meta);
 
     const Vector<int> &get_vertex_edges(int p_idx) const;
     const Vector<int> &get_vertex_faces(int p_idx) const;
 
-	int get_edge_vertex(int p_edge, int p_vertex) const;
+    int get_edge_vertex(int p_edge, int p_vertex) const;
     const Vector<int> &get_edge_faces(int p_edge) const;
-	Variant get_edge_meta(int p_idx) const;
-	void set_edge_meta(int p_idx, const Variant &p_meta);
+    Variant get_edge_meta(int p_idx) const;
+    void set_edge_meta(int p_idx, const Variant &p_meta);
 
-	int get_face_vertex(int p_face, int p_vertex) const;
-	int get_face_edge(int p_face, int p_vertex) const;
-	Variant get_face_meta(int p_face) const;
-	void set_face_meta(int p_face, const Variant &p_meta);
-	Vector3 get_face_normal(int p_face) const;
+    int get_face_vertex(int p_face, int p_vertex) const;
+    int get_face_edge(int p_face, int p_vertex) const;
+    Variant get_face_meta(int p_face) const;
+    void set_face_meta(int p_face, const Variant &p_meta);
+    Vector3 get_face_normal(int p_face) const;
 
-	Ref<Material> get_material() const;
-	void set_material(const Ref<Material> &p_material);
+    Ref<Material> get_material() const;
+    void set_material(const Ref<Material> &p_material);
 
-	MeshDataTool();
+    MeshDataTool();
 };
