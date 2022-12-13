@@ -34,6 +34,7 @@
 
 #include "core/io/image_loader.h"
 #include "core/io/resource_saver.h"
+#include "core/math/geometry.h"
 #include "core/os/file_access.h"
 #include "core/resource/resource_manager.h"
 #include "scene/resources/mesh.h"

@@ -40,6 +40,9 @@
 #include "scene/resources/shape_2d.h"
 #include "scene/resources/texture.h"
 #include "core/hashfuncs.h"
+
+class ShaderMaterial;
+
 namespace eastl {
 template<>
 struct hash<Vector2> {
@@ -136,16 +139,13 @@ private:
         Vector2 navigation_polygon_offset;
         Ref<NavigationPolygon> navigation_polygon;
         Ref<ShaderMaterial> material;
-        TileMode tile_mode;
-        Color modulate;
+        TileMode tile_mode = SINGLE_TILE;
+        Color modulate = Color(1,1,1);
         AutotileData autotile_data;
-        int z_index;
+        int z_index = 0;
 
         // Default modulate for back-compat
-        explicit TileData() :
-                tile_mode(SINGLE_TILE),
-                modulate(1, 1, 1),
-                z_index(0) {}
+        explicit TileData();
     };
 
     Map<int, TileData> tile_map;

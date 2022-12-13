@@ -314,7 +314,7 @@ uint64_t FileAccessCompressed::get_buffer(uint8_t *p_dst, uint64_t p_length) con
         return 0;
     }
 
-    for (int i = 0; i < p_length; i++) {
+    for (uint64_t i = 0; i < p_length; i++) {
 
         p_dst[i] = read_ptr[read_pos];
         read_pos++;

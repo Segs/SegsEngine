@@ -31,7 +31,6 @@
 #pragma once
 
 #include "core/forward_decls.h"
-#include "core/safe_refcount.h"
 #include "core/error_macros.h"
 #include <cstddef>
 

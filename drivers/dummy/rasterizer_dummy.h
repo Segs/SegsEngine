@@ -255,7 +255,7 @@ public:
     RenderingEntity shader_create() { return entt::null; }
 
     void shader_set_code(RenderingEntity p_shader, const String &p_code) {}
-    String shader_get_code(RenderingEntity p_shader) const { 	return String(); }
+    String shader_get_code(RenderingEntity p_shader) const { return String(); }
     void shader_get_param_list(RenderingEntity p_shader, Vector<PropertyInfo> *p_param_list) const {}
 
     void shader_set_default_texture_param(RenderingEntity p_shader, const StringName &p_name, RenderingEntity p_texture) {}

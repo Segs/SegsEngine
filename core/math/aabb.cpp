@@ -82,14 +82,12 @@ bool AABB::create_from_points(Span<const Vector3> p_points) {
 
 void AABB::merge_with(const AABB &p_aabb) {
 
-    Vector3 beg_1, beg_2;
-    Vector3 end_1, end_2;
     Vector3 min, max;
 
-    beg_1 = position;
-    beg_2 = p_aabb.position;
-    end_1 = Vector3(size.x, size.y, size.z) + beg_1;
-    end_2 = Vector3(p_aabb.size.x, p_aabb.size.y, p_aabb.size.z) + beg_2;
+    Vector3 beg_1 = position;
+    Vector3 beg_2 = p_aabb.position;
+    Vector3 end_1 = Vector3(size.x, size.y, size.z) + beg_1;
+    Vector3 end_2 = Vector3(p_aabb.size.x, p_aabb.size.y, p_aabb.size.z) + beg_2;
 
     min.x = (beg_1.x < beg_2.x) ? beg_1.x : beg_2.x;
     min.y = (beg_1.y < beg_2.y) ? beg_1.y : beg_2.y;
@@ -112,29 +110,24 @@ AABB AABB::intersection(const AABB &p_aabb) const {
 
     Vector3 min, max;
 
-    if (src_min.x > dst_max.x || src_max.x < dst_min.x)
+    if (src_min.x > dst_max.x || src_max.x < dst_min.x) {
         return AABB();
-    else {
-
-        min.x = (src_min.x > dst_min.x) ? src_min.x : dst_min.x;
-        max.x = (src_max.x < dst_max.x) ? src_max.x : dst_max.x;
+    }
+    if (src_min.y > dst_max.y || src_max.y < dst_min.y) {
+        return AABB();
+    }
+    if (src_min.z > dst_max.z || src_max.z < dst_min.z) {
+        return AABB();
     }
 
-    if (src_min.y > dst_max.y || src_max.y < dst_min.y)
-        return AABB();
-    else {
+    min.x = (src_min.x > dst_min.x) ? src_min.x : dst_min.x;
+    max.x = (src_max.x < dst_max.x) ? src_max.x : dst_max.x;
 
-        min.y = (src_min.y > dst_min.y) ? src_min.y : dst_min.y;
-        max.y = (src_max.y < dst_max.y) ? src_max.y : dst_max.y;
-    }
+    min.y = (src_min.y > dst_min.y) ? src_min.y : dst_min.y;
+    max.y = (src_max.y < dst_max.y) ? src_max.y : dst_max.y;
 
-    if (src_min.z > dst_max.z || src_max.z < dst_min.z)
-        return AABB();
-    else {
-
-        min.z = (src_min.z > dst_min.z) ? src_min.z : dst_min.z;
-        max.z = (src_max.z < dst_max.z) ? src_max.z : dst_max.z;
-    }
+    min.z = (src_min.z > dst_min.z) ? src_min.z : dst_min.z;
+    max.z = (src_max.z < dst_max.z) ? src_max.z : dst_max.z;
 
     return AABB(min, max - min);
 }
@@ -176,7 +169,7 @@ bool AABB::intersects_ray(const Vector3 &p_from, const Vector3 &p_dir, Vector3 *
         *r_clip = c1;
     if (r_normal) {
         *r_normal = Vector3();
-        (*r_normal)[axis] = p_dir[axis] ? -1 : 1;
+        (*r_normal)[axis] = p_dir[axis]!=0.0f ? -1 : 1;
     }
 
     return true;

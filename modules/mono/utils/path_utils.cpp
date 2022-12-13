@@ -56,29 +56,29 @@ namespace path {
 //String find_executable(StringView p_name) {
 //#ifdef WINDOWS_ENABLED
 //    String path_ext= OS::get_singleton()->get_environment("PATHEXT");
-//	Vector<StringView> exts = StringUtils::split(path_ext,ENV_PATH_SEP, false);
+//    Vector<StringView> exts = StringUtils::split(path_ext,ENV_PATH_SEP, false);
 //#endif
 //    String path=OS::get_singleton()->get_environment("PATH");
 //    Vector<StringView> env_path = StringUtils::split(path,ENV_PATH_SEP, false);
 
-//	if (env_path.empty())
+//    if (env_path.empty())
 //        return String();
 
-//	for (auto & env_p : env_path) {
+//    for (auto & env_p : env_path) {
 //        String p = path::join(env_p, p_name);
 
 //#ifdef WINDOWS_ENABLED
-//		for (auto ext : exts) {
-//			String p2 = p + StringUtils::to_lower(ext); // lowercase to reduce risk of case mismatch warning
+//        for (auto ext : exts) {
+//            String p2 = p + StringUtils::to_lower(ext); // lowercase to reduce risk of case mismatch warning
 
-//			if (FileAccess::exists(p2))
-//				return p2;
-//		}
+//            if (FileAccess::exists(p2))
+//                return p2;
+//        }
 //#else
-//		if (FileAccess::exists(p))
-//			return p;
+//        if (FileAccess::exists(p))
+//            return p;
 //#endif
-//	}
+//    }
 
 //    return String();
 //}

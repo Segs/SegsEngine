@@ -849,7 +849,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
             undo_redo_sys.commit_action();
 
-			if (dupsingle) {
+            if (dupsingle) {
                 _push_item(dupsingle);
             }
 

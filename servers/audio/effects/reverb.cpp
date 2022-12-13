@@ -135,13 +135,13 @@ void Reverb::process(float *p_src, float *p_dst, int p_frames) {
         float aux,in;
         float AllPass*ap;
 
-#define PROCESS_ALLPASS(m_ap) 	\
-    ap=&allpass[m_ap];	\
-    if (ap->pos>=ap_size_limit[m_ap])	\
-        ap->pos=0;	\
-    aux=undenormalise(ap->buffer[ap->pos]);	\
-    in=sample;	\
-    sample=-in+aux;	\
+#define PROCESS_ALLPASS(m_ap)     \
+    ap=&allpass[m_ap];    \
+    if (ap->pos>=ap_size_limit[m_ap])    \
+        ap->pos=0;    \
+    aux=undenormalise(ap->buffer[ap->pos]);    \
+    in=sample;    \
+    sample=-in+aux;    \
     ap->pos++;
 
 

@@ -246,6 +246,7 @@ StringView replaceFunctionName(const TS_Function *finfo, bool in_godot_ns) {
         { "new", "_new" },
         { "open_encrypted_with_pass", "open_encrypted_pass" },
         { "queue_free", "queue_delete" },
+        { "request_frame_drawn_callback", "_request_frame_drawn_callback" },
         { "rpc", "_rpc_bind" },
         { "rpc_id", "_rpc_id_bind" },
         { "rpc_unreliable", "_rpc_unreliable_bind" },

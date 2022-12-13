@@ -31,6 +31,7 @@
 #pragma once
 
 #include "scene/gui/container.h"
+#include "scene/resources/texture.h"
 #include "core/string.h"
 
 class GODOT_EXPORT GraphNode : public Container {

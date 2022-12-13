@@ -46,6 +46,7 @@
 #include "scene/gui/separator.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/font.h"
+#include "scene/resources/material.h"
 
 #include "EASTL/sort.h"
 
@@ -531,9 +532,9 @@ void TileMapEditor::_update_palette() {
     for (size_t i = 0; i < entries.size(); i++) {
 
         if (show_tile_names) {
-            palette->add_item(StringName(entries[i].name));
+            palette->add_item(StringName(entries[i].name),Ref<Texture>());
         } else {
-            palette->add_item(StringName());
+            palette->add_item(StringName(),Ref<Texture>());
         }
 
         Ref<Texture> tex = tileset->tile_get_texture(entries[i].id);
@@ -601,7 +602,7 @@ void TileMapEditor::_update_palette() {
         Color modulate = tileset->tile_get_modulate(sel_tile);
 
         for (size_t i = 0; i < entries2.size(); i++) {
-            manual_palette->add_item(StringName());
+            manual_palette->add_item(StringName(),Ref<Texture>());
 
             if (tex) {
                 Rect2 region = tileset->tile_get_region(sel_tile);

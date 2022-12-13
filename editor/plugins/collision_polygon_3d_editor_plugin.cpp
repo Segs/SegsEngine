@@ -33,6 +33,7 @@
 #include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "canvas_item_editor_plugin.h"
+#include "core/math/geometry.h"
 #include "core/os/file_access.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"

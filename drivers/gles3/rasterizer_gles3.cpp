@@ -269,7 +269,7 @@ void RasterizerGLES3::set_boot_image(const Ref<Image> &p_image, const Color &p_c
             RS::TEXTURE_TYPE_2D, p_use_filter ? (uint32_t)RS::TEXTURE_FLAG_FILTER : 0);
     storage->texture_set_data(texture, p_image);
 
-    const Rect2 img_rect(0, 0, p_image->get_width(), p_image->get_height());
+    const Rect2 img_rect(0, 0, (float)p_image->get_width(), (float)p_image->get_height());
     Rect2 screen_rect;
     if (p_scale) {
 
@@ -304,7 +304,7 @@ void RasterizerGLES3::set_boot_image(const Ref<Image> &p_image, const Color &p_c
 }
 
 void RasterizerGLES3::set_shader_time_scale(float p_scale) {
-	time_scale = p_scale;
+    time_scale = p_scale;
 }
 
 void RasterizerGLES3::blit_render_target_to_screen(

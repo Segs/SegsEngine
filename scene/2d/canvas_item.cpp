@@ -44,6 +44,7 @@
 #include "scene/main/viewport.h"
 #include "scene/resources/font.h"
 #include "scene/resources/mesh.h"
+#include "scene/resources/multimesh.h"
 #include "scene/resources/shader.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/texture.h"
@@ -65,9 +66,8 @@ struct CanvasItemPendingUpdateComponent {};
 bool CanvasItem::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
     if (_edit_use_rect()) {
         return _edit_get_rect().has_point(p_point);
-    } else {
-        return p_point.length() < p_tolerance;
     }
+    return p_point.length() < p_tolerance;
 }
 Transform2D CanvasItem::_edit_get_transform() const {
     return Transform2D(_edit_get_rotation(), _edit_get_position() + _edit_get_pivot());
@@ -540,8 +540,17 @@ void CanvasItem::draw_circle(const Point2 &p_pos, float p_radius, const Color &p
     RenderingServer::get_singleton()->canvas_item_add_circle(canvas_item, p_pos, p_radius, p_color);
 }
 
-void CanvasItem::draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos, const Color &p_modulate, const Ref<Texture> &p_normal_map) {
+void CanvasItem::draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos, const Color &p_modulate) {
 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+
+    ERR_FAIL_COND(not p_texture);
+
+    p_texture->draw(canvas_item, p_pos, p_modulate, false, Ref<Texture>());
+}
+
+void CanvasItem::draw_texture_with_normalmap(
+        const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Point2 &p_pos, const Color &p_modulate) {
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     ERR_FAIL_COND(not p_texture);
@@ -549,15 +558,31 @@ void CanvasItem::draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos
     p_texture->draw(canvas_item, p_pos, p_modulate, false, p_normal_map);
 }
 
-void CanvasItem::draw_texture_rect(const Ref<Texture> &p_texture, const Rect2 &p_rect, bool p_tile, const Color &p_modulate, bool p_transpose, const Ref<Texture> &p_normal_map) {
+void CanvasItem::draw_texture_rect(const Ref<Texture> &p_texture, const Rect2 &p_rect, bool p_tile, const Color &p_modulate, bool p_transpose) {
 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+
+    ERR_FAIL_COND(not p_texture);
+    p_texture->draw_rect(canvas_item, p_rect, p_tile, p_modulate, p_transpose);
+}
+
+void CanvasItem::draw_texture_rect_with_normalmap(const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Rect2 &p_rect, bool p_tile,
+        const Color &p_modulate, bool p_transpose) {
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     ERR_FAIL_COND(not p_texture);
     p_texture->draw_rect(canvas_item, p_rect, p_tile, p_modulate, p_transpose, p_normal_map);
 }
-void CanvasItem::draw_texture_rect_region(const Ref<Texture> &p_texture, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate, bool p_transpose, const Ref<Texture> &p_normal_map, bool p_clip_uv) {
 
+void CanvasItem::draw_texture_rect_region(const Ref<Texture> &p_texture, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate, bool p_transpose, bool p_clip_uv) {
+
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND(not p_texture);
+    p_texture->draw_rect_region(canvas_item, p_rect, p_src_rect, p_modulate, p_transpose, Ref<Texture>(), p_clip_uv);
+}
+
+void CanvasItem::draw_texture_with_normalmap_rect_region(const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Rect2 &p_rect,
+        const Rect2 &p_src_rect, const Color &p_modulate, bool p_transpose, bool p_clip_uv) {
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
     ERR_FAIL_COND(not p_texture);
     p_texture->draw_rect_region(canvas_item, p_rect, p_src_rect, p_modulate, p_transpose, p_normal_map, p_clip_uv);
@@ -570,7 +595,15 @@ void CanvasItem::draw_style_box(const Ref<StyleBox> &p_style_box, const Rect2 &p
 
     p_style_box->draw(canvas_item, p_rect);
 }
-void CanvasItem::draw_primitive(Span<const Vector2> p_points, Span<const Color> p_colors, const PoolVector<Point2> &p_uvs, Ref<Texture> p_texture, float p_width, const Ref<Texture> &p_normal_map) {
+void CanvasItem::draw_primitive(Span<const Vector2> p_points, Span<const Color> p_colors, const PoolVector<Point2> &p_uvs) {
+
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+
+    RenderingServer::get_singleton()->canvas_item_add_primitive(canvas_item, p_points, p_colors, p_uvs, entt::null, 1.0f, entt::null);
+}
+
+void CanvasItem::draw_textured_primitive(Span<const Vector2> p_points, Span<const Color> p_colors, const PoolVector<Point2> &p_uvs,
+        const Ref<Texture> &p_texture, float p_width, const Ref<Texture> &p_normal_map) {
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
@@ -579,6 +612,7 @@ void CanvasItem::draw_primitive(Span<const Vector2> p_points, Span<const Color> 
 
     RenderingServer::get_singleton()->canvas_item_add_primitive(canvas_item, p_points, p_colors, p_uvs, rid, p_width, rid_normal);
 }
+
 void CanvasItem::draw_set_transform(const Point2 &p_offset, float p_rot, const Size2 &p_scale) {
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
@@ -595,7 +629,14 @@ void CanvasItem::draw_set_transform_matrix(const Transform2D &p_matrix) {
     RenderingServer::get_singleton()->canvas_item_add_set_transform(canvas_item, p_matrix);
 }
 
-void CanvasItem::draw_polygon(Span<const Point2> p_points, Span<const Color> p_colors, Span<const Point2> p_uvs, Ref<Texture> p_texture, const Ref<Texture> &p_normal_map, bool p_antialiased) {
+void CanvasItem::draw_polygon(Span<const Point2> p_points, Span<const Color> p_colors) {
+
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+
+    RenderingServer::get_singleton()->canvas_item_add_polygon(canvas_item, p_points, p_colors, {}, entt::null, entt::null, false);
+}
+
+void CanvasItem::draw_textured_polygon(Span<const Point2> p_points, Span<const Color> p_colors, Span<const Point2> p_uvs, Ref<Texture> p_texture, const Ref<Texture> &p_normal_map, bool p_antialiased) {
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
@@ -605,8 +646,20 @@ void CanvasItem::draw_polygon(Span<const Point2> p_points, Span<const Color> p_c
     RenderingServer::get_singleton()->canvas_item_add_polygon(canvas_item, p_points, p_colors, p_uvs, rid, rid_normal, p_antialiased);
 }
 
-void CanvasItem::draw_colored_polygon(Span<const Point2> p_points, const Color &p_color, Span<const Point2> p_uvs, Ref<Texture> p_texture, const Ref<Texture> &p_normal_map, bool p_antialiased) {
 
+void CanvasItem::draw_colored_polygon(Span<const Point2> p_points, const Color &p_color) {
+
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+
+    Color colors[1]={p_color};
+    RenderingEntity rid = entt::null;
+    RenderingEntity rid_normal = entt::null;
+
+    RenderingServer::get_singleton()->canvas_item_add_polygon(canvas_item, p_points, colors, {}, rid, rid_normal, false);
+}
+
+void CanvasItem::draw_colored_textured_polygon(Span<const Point2> p_points, const Color &p_color, Span<const Point2> p_uvs, Ref<Texture> p_texture,
+        const Ref<Texture> &p_normal_map, bool p_antialiased) {
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     Color colors[1]={p_color};
@@ -614,6 +667,7 @@ void CanvasItem::draw_colored_polygon(Span<const Point2> p_points, const Color &
     RenderingEntity rid_normal = p_normal_map ? p_normal_map->get_rid() : entt::null;
 
     RenderingServer::get_singleton()->canvas_item_add_polygon(canvas_item, p_points, colors, p_uvs, rid, rid_normal, p_antialiased);
+
 }
 
 void CanvasItem::draw_mesh(const Ref<Mesh> &p_mesh, const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Transform2D &p_transform, const Color &p_modulate) {
@@ -877,13 +931,16 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("draw_rect_stroke", {"rect", "color", "width", "antialiased"}), &CanvasItem::draw_rect_stroke, {DEFVAL(1.0f), DEFVAL(false)});
     SE_BIND_METHOD(CanvasItem,draw_rect_filled);
     SE_BIND_METHOD(CanvasItem,draw_circle);
-    MethodBinder::bind_method(D_METHOD("draw_texture", {"texture", "position", "modulate", "normal_map"}), &CanvasItem::draw_texture, {DEFVAL(Color(1, 1, 1, 1)), DEFVAL(Variant())});
-    MethodBinder::bind_method(D_METHOD("draw_texture_rect", {"texture", "rect", "tile", "modulate", "transpose", "normal_map"}), &CanvasItem::draw_texture_rect, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant())});
-    MethodBinder::bind_method(D_METHOD("draw_texture_rect_region", {"texture", "rect", "src_rect", "modulate", "transpose", "normal_map", "clip_uv"}), &CanvasItem::draw_texture_rect_region, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant()), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("draw_texture", {"texture", "position", "modulate"}), &CanvasItem::draw_texture, {DEFVAL(Color(1, 1, 1, 1))});
+    MethodBinder::bind_method(D_METHOD("draw_texture_rect", {"texture", "rect", "tile", "modulate", "transpose"}), &CanvasItem::draw_texture_rect, {DEFVAL(Color(1, 1, 1)), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("draw_texture_rect_region", {"texture", "rect", "src_rect", "modulate", "transpose", "clip_uv"}), &CanvasItem::draw_texture_rect_region, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(true)});
     SE_BIND_METHOD(CanvasItem,draw_style_box);
-    MethodBinder::bind_method(D_METHOD("draw_primitive", {"points", "colors", "uvs", "texture", "width", "normal_map"}), &CanvasItem::draw_primitive, {DEFVAL(Variant()), DEFVAL(1.0), DEFVAL(Variant())});
-    MethodBinder::bind_method(D_METHOD("draw_polygon", {"points", "colors", "uvs", "texture", "normal_map", "antialiased"}), &CanvasItem::draw_polygon, {DEFVAL(Variant(PoolVector2Array())), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("draw_colored_polygon", {"points", "color", "uvs", "texture", "normal_map", "antialiased"}), &CanvasItem::draw_colored_polygon, {DEFVAL(Variant(PoolVector2Array())), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(false)});
+    SE_BIND_METHOD(CanvasItem,draw_primitive);
+    SE_BIND_METHOD(CanvasItem,draw_textured_primitive);
+    SE_BIND_METHOD(CanvasItem,draw_polygon);
+    SE_BIND_METHOD(CanvasItem,draw_textured_polygon);
+    SE_BIND_METHOD(CanvasItem,draw_colored_polygon);
+    SE_BIND_METHOD(CanvasItem,draw_colored_textured_polygon);
     MethodBinder::bind_method(D_METHOD("draw_string", {"font", "position", "text", "modulate", "clip_w"}), &CanvasItem::draw_string, {DEFVAL(Color(1, 1, 1)), DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("draw_char", {"font", "position", "char", "next", "modulate"}), &CanvasItem::draw_char, {DEFVAL(Color(1, 1, 1))});
     MethodBinder::bind_method(D_METHOD("draw_mesh", {"mesh", "texture", "normal_map", "transform", "modulate"}), &CanvasItem::draw_mesh, {DEFVAL(Ref<Texture>()), DEFVAL(Transform2D()), DEFVAL(Color(1, 1, 1))});
@@ -1023,3 +1080,4 @@ CanvasItem::CanvasItem() {
 CanvasItem::~CanvasItem() {
     RenderingServer::get_singleton()->free_rid(canvas_item);
 }
+

@@ -52,7 +52,7 @@ RenderingEntity RasterizerStorageGLES3::gi_probe_create() {
     VSG::ecs->registry.emplace<RasterizerInstantiableComponent>(res);
 
     gip.bounds = AABB(Vector3(), Vector3(1, 1, 1));
-    gip.dynamic_range = 1.0f;
+    gip.dynamic_range = 1;
     gip.energy = 1.0f;
     gip.propagation = 1.0f;
     gip.bias = 0.4f;

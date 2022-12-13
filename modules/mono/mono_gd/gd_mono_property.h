@@ -37,14 +37,14 @@
 
 class GDMonoProperty : public IMonoClassMember {
 
-	GDMonoClass *owner;
-	MonoProperty *mono_property;
+    GDMonoClass *owner;
+    MonoProperty *mono_property;
 
-	StringName name;
-	ManagedType type;
+    StringName name;
+    ManagedType type;
 
-	bool attrs_fetched;
-	MonoCustomAttrInfo *attributes;
+    bool attrs_fetched;
+    MonoCustomAttrInfo *attributes;
     unsigned int param_buffer_size;
 
 public:
@@ -59,22 +59,22 @@ public:
 
     bool has_attribute(GDMonoClass *p_attr_class) final;
     MonoObject *get_attribute(GDMonoClass *p_attr_class) final;
-	void fetch_attributes();
+    void fetch_attributes();
 
-	bool has_getter();
-	bool has_setter();
+    bool has_getter();
+    bool has_setter();
 
-	_FORCE_INLINE_ ManagedType get_type() const { return type; }
+    _FORCE_INLINE_ ManagedType get_type() const { return type; }
 
-	void set_value_from_variant(MonoObject *p_object, const Variant &p_value, MonoException **r_exc = nullptr);
-	MonoObject *get_value(MonoObject *p_object, MonoException **r_exc = nullptr);
+    void set_value_from_variant(MonoObject *p_object, const Variant &p_value, MonoException **r_exc = nullptr);
+    MonoObject *get_value(MonoObject *p_object, MonoException **r_exc = nullptr);
 
-	bool get_bool_value(MonoObject *p_object);
-	int get_int_value(MonoObject *p_object);
+    bool get_bool_value(MonoObject *p_object);
+    int get_int_value(MonoObject *p_object);
     String get_string_value(MonoObject *p_object);
 
-	GDMonoProperty(MonoProperty *p_mono_property, GDMonoClass *p_owner);
-	~GDMonoProperty();
+    GDMonoProperty(MonoProperty *p_mono_property, GDMonoClass *p_owner);
+    ~GDMonoProperty();
 };
 
 #endif // GD_MONO_PROPERTY_H

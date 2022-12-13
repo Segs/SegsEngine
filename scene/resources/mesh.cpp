@@ -30,16 +30,17 @@
 
 #include "mesh.h"
 
+#include "core/math/transform.h"
 #include "surface_tool.h"
 
 #include "core/dictionary.h"
 #include "core/crypto/crypto_core.h"
 #include "core/map.h"
+#include "core/math/geometry.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/pair.h"
 #include "core/print_string.h"
-#include "core/set.h"
 #include "core/math/convex_hull.h"
 #include "scene/resources/concave_polygon_shape_3d.h"
 #include "scene/resources/convex_polygon_shape_3d.h"
@@ -254,7 +255,7 @@ Ref<Shape> Mesh::create_convex_shape(bool p_clean, bool p_simplify) const {
     Ref<ConvexPolygonShape3D> shape(make_ref_counted<ConvexPolygonShape3D>());
 
     if (p_clean) {
-        Geometry::MeshData md;
+        GeometryMeshData md;
         Error err = ConvexHullComputer::convex_hull(vertices, md);
         if (err == OK) {
             vertices = eastl::move(md.vertices);
@@ -1039,7 +1040,7 @@ Ref<Material> ArrayMesh::surface_get_material(int p_idx) const {
     return surfaces[p_idx].material;
 }
 
-void ArrayMesh::add_surface_from_mesh_data(Geometry::MeshData &&p_mesh_data) {
+void ArrayMesh::add_surface_from_mesh_data(GeometryMeshData &&p_mesh_data) {
 
     AABB aabb;
     for (int i = 0; i < p_mesh_data.vertices.size(); i++) {

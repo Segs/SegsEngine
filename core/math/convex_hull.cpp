@@ -60,7 +60,10 @@ subject to the following restrictions:
 
 #include "core/error_macros.h"
 #include "core/math/aabb.h"
+#include "core/math/geometry.h"
 #include "core/math/math_defs.h"
+#include "core/math/vector3.h"
+#include "core/pool_vector.h"
 #include "core/os/memory.h"
 #include "core/paged_allocator.h"
 
@@ -2233,16 +2236,16 @@ real_t ConvexHullComputer::compute(const Vector3 *p_coords, int32_t p_count, rea
     return shift;
 }
 
-Error ConvexHullComputer::convex_hull(const Vector<Vector3> &p_points, Geometry::MeshData &r_mesh) {
+Error ConvexHullComputer::convex_hull(const Vector<Vector3> &p_points, GeometryMeshData &r_mesh) {
     return convex_hull(p_points.data(), p_points.size(), r_mesh);
 }
 
-Error ConvexHullComputer::convex_hull(const PoolVector<Vector3> &p_points, Geometry::MeshData &r_mesh) {
+Error ConvexHullComputer::convex_hull(const PoolVector<Vector3> &p_points, GeometryMeshData &r_mesh) {
     return convex_hull(p_points.read().ptr(), p_points.size(), r_mesh);
 }
 
-Error ConvexHullComputer::convex_hull(const Vector3 *p_points, int32_t p_point_count, Geometry::MeshData &r_mesh) {
-    r_mesh = Geometry::MeshData(); // clear
+Error ConvexHullComputer::convex_hull(const Vector3 *p_points, int32_t p_point_count, GeometryMeshData &r_mesh) {
+    r_mesh = GeometryMeshData(); // clear
 
     if (p_point_count == 0) {
         return FAILED; // matches QuickHull
@@ -2274,7 +2277,7 @@ Error ConvexHullComputer::convex_hull(const Vector3 *p_points, int32_t p_point_c
     for (uint32_t i = 0; i < ch.faces.size(); i++) {
         const Edge *e_start = &ch.edges[ch.faces[i]];
         const Edge *e = e_start;
-        Geometry::MeshData::Face &face = r_mesh.faces[i];
+        GeometryMeshData::Face &face = r_mesh.faces[i];
 
         do {
             face.indices.push_back(e->get_target_vertex());

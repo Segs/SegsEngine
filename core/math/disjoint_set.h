@@ -110,9 +110,9 @@ void DisjointSet<T, C, AL>::create_union(T a, T b) {
     Element *y_root = get_parent(y);
 
     // Already in the same set
-	if (x_root == y_root) {
+    if (x_root == y_root) {
         return;
-	}
+    }
 
     // Not in the same set, merge
     if (x_root->elem_rank < y_root->elem_rank) {

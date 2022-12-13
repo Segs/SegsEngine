@@ -28,12 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "scene/resources/multimesh.h"
 #ifndef _3D_DISABLED
 
 #include "navigation_mesh_generator.h"
 
 #include "core/math/quick_hull.h"
 #include "core/os/thread.h"
+#include "core/math/geometry.h"
 #include "core/method_bind_interface.h"
 #include "core/method_bind.h"
 #include "core/math/convex_hull.h"
@@ -252,7 +254,7 @@ void NavigationMeshGenerator::_parse_geometry(const Transform &p_navmesh_xform, 
                     ConvexPolygonShape3D *convex_polygon = object_cast<ConvexPolygonShape3D>(s.get());
                     if (convex_polygon) {
                         const auto &varr = convex_polygon->get_points();
-                        Geometry::MeshData md;
+                        GeometryMeshData md;
 
                         Error err = ConvexHullComputer::convex_hull(varr, md);
 
@@ -260,7 +262,7 @@ void NavigationMeshGenerator::_parse_geometry(const Transform &p_navmesh_xform, 
                             PoolVector3Array faces;
 
                             for (int j = 0; j < md.faces.size(); ++j) {
-                                Geometry::MeshData::Face face = md.faces[j];
+                                GeometryMeshData::Face face = md.faces[j];
 
                                 for (int k = 2; k < face.indices.size(); ++k) {
                                     faces.push_back(md.vertices[face.indices[0]]);
@@ -324,7 +326,7 @@ void NavigationMeshGenerator::_parse_geometry(const Transform &p_navmesh_xform, 
                     } break;
                     case PhysicsServer3D::SHAPE_CONVEX_POLYGON: {
                         PoolVector3Array vertices = data.as<PoolVector3Array>();
-                        Geometry::MeshData md;
+                        GeometryMeshData md;
 
                         Error err = ConvexHullComputer::convex_hull(vertices, md);
 
@@ -332,7 +334,7 @@ void NavigationMeshGenerator::_parse_geometry(const Transform &p_navmesh_xform, 
                             PoolVector3Array faces;
 
                             for (int j = 0; j < md.faces.size(); ++j) {
-                                Geometry::MeshData::Face face = md.faces[j];
+                                GeometryMeshData::Face face = md.faces[j];
 
                                 for (int k = 2; k < face.indices.size(); ++k) {
                                     faces.push_back(md.vertices[face.indices[0]]);

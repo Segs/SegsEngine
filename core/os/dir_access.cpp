@@ -342,7 +342,7 @@ Error DirAccess::copy(StringView p_from, StringView p_to, int p_chmod_flags) {
             break;
         }
 
-		int bytes_read = fsrc->get_buffer(buffer.data(), buffer_size);
+        int bytes_read = fsrc->get_buffer(buffer.data(), buffer_size);
         if (bytes_read <= 0) {
             err = FAILED;
             break;

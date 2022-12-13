@@ -30,9 +30,12 @@
 
 #include "quick_hull.h"
 
+#include "core/error_list.h"
+#include "core/list.h"
 #include "core/map.h"
 #include "core/set.h"
 #include "core/math/aabb.h"
+#include "core/math/geometry.h"
 
 #include "EASTL/sort.h"
 uint32_t QuickHull::debug_stop_after = 0xFFFFFFFF;
@@ -77,7 +80,7 @@ struct QHFaceConnect {
     QHFaceConnect(List<QHFace>::iterator end) : left(end),right(end) {}
 };
 struct QHRetFaceConnect {
-    List<Geometry::MeshData::Face>::iterator left, right;
+    List<GeometryMeshData::Face>::iterator left, right;
 };
 static int find_or_create_output_index(int p_old_index, Vector<int> &r_out_indices) {
     for (int n = 0; n < r_out_indices.size(); n++) {
@@ -91,7 +94,7 @@ static int find_or_create_output_index(int p_old_index, Vector<int> &r_out_indic
 
 } // end of anonymous namespace
 
-Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh, real_t p_over_tolerance_epsilon) {
+Error QuickHull::build(Span<const Vector3> p_points, GeometryMeshData &r_mesh, real_t p_over_tolerance_epsilon) {
 
     /* CREATE AABB VOLUME */
 
@@ -397,18 +400,18 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh,
 
     //make a map of edges again
     Map<QHEdge, QHRetFaceConnect> ret_edges;
-    List<Geometry::MeshData::Face> ret_faces;
+    List<GeometryMeshData::Face> ret_faces;
 
     for (const QHFace &E : faces) {
 
-        Geometry::MeshData::Face f;
+        GeometryMeshData::Face f;
         f.plane = E.plane;
 
         for (int i = 0; i < 3; i++) {
             f.indices.push_back(E.vertices[i]);
         }
 
-        List<Geometry::MeshData::Face>::iterator F = ret_faces.insert(ret_faces.end(),f);
+        List<GeometryMeshData::Face>::iterator F = ret_faces.insert(ret_faces.end(),f);
 
         for (int i = 0; i < 3; i++) {
 
@@ -436,9 +439,9 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh,
     bool warning_o = false;
     bool warning_not_f2 = false;
 
-    for (List<Geometry::MeshData::Face>::iterator E = ret_faces.begin(); E!= ret_faces.end(); ++E) {
+    for (List<GeometryMeshData::Face>::iterator E = ret_faces.begin(); E!= ret_faces.end(); ++E) {
 
-        Geometry::MeshData::Face &f = *E;
+        GeometryMeshData::Face &f = *E;
 
         for (int i = 0; i < f.indices.size(); i++) {
 
@@ -452,7 +455,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh,
                 warning_f = true;
                 continue;
             }
-            List<Geometry::MeshData::Face>::iterator O = F->second.left == E ? F->second.right : F->second.left;
+            List<GeometryMeshData::Face>::iterator O = F->second.left == E ? F->second.right : F->second.left;
             if (unlikely(O == E)) {
                 warning_o_equal_e = true;
                 continue;
@@ -539,7 +542,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh,
 
     for (eastl::pair<const QHEdge,QHRetFaceConnect> &E : ret_edges) {
 
-        Geometry::MeshData::Edge e;
+        GeometryMeshData::Edge e;
         e.a = E.first.vertices[0];
         e.b = E.first.vertices[1];
         r_mesh.edges.emplace_back(e);
@@ -548,12 +551,12 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh,
     // we are only interested in outputting the points that are used
     Vector<int> out_indices;
 
-    for (Geometry::MeshData::Face &face : r_mesh.faces) {
+    for (GeometryMeshData::Face &face : r_mesh.faces) {
         for (int i = 0; i < face.indices.size(); i++) {
             face.indices[i] = find_or_create_output_index(face.indices[i], out_indices);
         }
     }
-    for (Geometry::MeshData::Edge &e : r_mesh.edges) {
+    for (GeometryMeshData::Edge &e : r_mesh.edges) {
         e.a = find_or_create_output_index(e.a, out_indices);
         e.b = find_or_create_output_index(e.b, out_indices);
     }

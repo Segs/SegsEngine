@@ -376,12 +376,13 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent, bool p_scroll
         if (!warning.empty()) {
             item->add_button(0, get_theme_icon("NodeWarning", "EditorIcons"), BUTTON_WARNING, false, TTR("Node configuration warning:") + "\n" + p_node->get_configuration_warning());
         }
-  //       if (p_node->is_unique_name_in_owner()) {
-  //           item->add_button(0, get_theme_icon("SceneUniqueName", "EditorIcons"), BUTTON_UNIQUE, false,
-  //                   FormatVE(TTR("This node can be accessed from within anywhere in the scene by preceding it with the '%s' prefix in a node "
-  //                               "path.\nClick to disable this.").asCString(),
-  //                           UNIQUE_NODE_PREFIX));
-		// }
+//        if (p_node->is_unique_name_in_owner()) {
+//            item->add_button(0, get_theme_icon("SceneUniqueName", "EditorIcons"), BUTTON_UNIQUE, false,
+//                    FormatVE(TTR("This node can be accessed from within anywhere in the scene by preceding it with the '%s' prefix in a node "
+//                                 "path.\nClick to disable this.")
+//                                     .asCString(),
+//                            UNIQUE_NODE_PREFIX));
+//        }
 
         int num_connections = p_node->get_persistent_signal_connection_count();
         int num_groups = p_node->get_persistent_group_count();

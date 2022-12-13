@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "triangulate.h"
+#include "core/vector.h"
 
 real_t Triangulate::get_area(Span<const Vector2> contour) {
 

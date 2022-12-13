@@ -38,7 +38,10 @@
 #include "scene/gui/split_container.h"
 #include "scene/gui/texture_rect.h"
 #include "scene/gui/tree.h"
+#include "core/pool_vector.h"
 #include "core/string.h"
+
+class ImageTexture;
 
 class EditorProfiler : public VBoxContainer {
 

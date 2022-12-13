@@ -32,6 +32,7 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/ecs_registry.h"
+#include "core/math/geometry.h"
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
@@ -54,6 +55,7 @@
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #endif
 
+#include "control_data.h"
 #include "EASTL/sort.h"
 #include "entt/entity/registry.hpp"
 #include "entt/meta/factory.hpp"
@@ -218,6 +220,10 @@ Dictionary Control::_edit_get_state() const {
     s["margins"] = margins;
     return s;
 }
+
+ControlData::ControlData(ControlData &&) noexcept = default;
+ControlData & ControlData::operator=(ControlData &&) noexcept = default;
+
 ControlData &get_control_data(Control *self) {
     return game_object_registry.registry.get<ControlData>(self->get_instance_id());
 }
@@ -3167,4 +3173,7 @@ ControlData::ControlData() {
     for (int i = 0; i < 4; i++) {
         anchor[i] = Control::ANCHOR_BEGIN;
     }
+}
+
+ControlData::~ControlData() {
 }

@@ -84,16 +84,16 @@ Vector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const Vect
 }
 
 Vector2 Navigation2D::get_closest_point(const Vector2 &p_point) const {
-	return Navigation2DServer::get_singleton()->map_get_closest_point(map, p_point);
+    return Navigation2DServer::get_singleton()->map_get_closest_point(map, p_point);
 }
 
 RID Navigation2D::get_closest_point_owner(const Vector2 &p_point) const {
-	return Navigation2DServer::get_singleton()->map_get_closest_point_owner(map, p_point);
+    return Navigation2DServer::get_singleton()->map_get_closest_point_owner(map, p_point);
 }
 Navigation2D::Navigation2D() {
-	map = Navigation2DServer::get_singleton()->map_create();
-	set_cell_size(1); // One pixel
-	set_edge_connection_margin(1);
+    map = Navigation2DServer::get_singleton()->map_create();
+    set_cell_size(1); // One pixel
+    set_edge_connection_margin(1);
 }
 
 Navigation2D::~Navigation2D() {

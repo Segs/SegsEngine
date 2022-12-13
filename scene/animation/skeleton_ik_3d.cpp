@@ -128,9 +128,9 @@ bool FabrikInverseKinematic::build_chain(Task *p_task, bool p_force_simple_chain
 
         if (p_force_simple_chain) {
             // NOTE:
-            //	This is an "hack" that force to create only one tip per chain since the solver of multi tip (end effector)
-            //	is not yet created.
-            //	Remove this code when this is done
+            //    This is an "hack" that force to create only one tip per chain since the solver of multi tip (end effector)
+            //    is not yet created.
+            //    Remove this code when this is done
             break;
         }
     }

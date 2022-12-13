@@ -4427,7 +4427,7 @@ Ref<Script> EditorNode::get_object_custom_type_base(const Object *p_object) cons
     // Uncommenting would break things! Consider adding a parameter if you need it.
     // StringName name = EditorNode::get_editor_data().script_class_get_name(base_script->get_path());
     // if (name != StringName())
-    // 	return name;
+    //  return name;
 
     // should probably be deprecated in 4.x
     StringName base = script->get_instance_base_type();
@@ -4625,7 +4625,7 @@ bool EditorNode::progress_task_step(StringView p_task, StringView p_state, int p
 
     if (!singleton->cmdline_export_mode) {
         return singleton->progress_dialog->task_step(p_task, p_state, p_step, p_force_refresh);
-    } 
+    }
     print_line(UIString("\t%1: step %2: %3")
                        .arg(StringUtils::from_utf8(p_task))
                        .arg(p_step)

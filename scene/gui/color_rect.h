@@ -34,19 +34,19 @@
 #include "scene/gui/control.h"
 
 class GODOT_EXPORT ColorRect : public Control {
-	GDCLASS(ColorRect,Control)
+    GDCLASS(ColorRect,Control)
 
-	Color color;
+    Color color;
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_frame_color(const Color &p_color);
-	Color get_frame_color() const;
+    void set_frame_color(const Color &p_color);
+    Color get_frame_color() const;
 
-	ColorRect();
+    ColorRect();
 };
 
 #endif // COLOR_RECT_H

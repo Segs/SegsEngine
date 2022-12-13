@@ -102,7 +102,7 @@ private:
     bool selectable;
     bool selected;
 
-	void _update_popup();
+    void _update_popup();
     void _menu_option(int p_option);
     void _focusable_focused(int p_index);
     void _update_pin_flags();
@@ -224,6 +224,7 @@ public:
     Control *make_custom_tooltip(StringView p_text) const override;
 
     EditorInspectorCategory();
+    ~EditorInspectorCategory() override;
 };
 class VBoxContainer;
 
@@ -367,7 +368,7 @@ public:
     void set_keying(bool p_active);
     void set_read_only(bool p_read_only);
 
-	EditorPropertyNameStyle get_property_name_style() const;
+    EditorPropertyNameStyle get_property_name_style() const;
     void set_property_name_style(EditorPropertyNameStyle p_style);
     void set_autoclear(bool p_enable);
 

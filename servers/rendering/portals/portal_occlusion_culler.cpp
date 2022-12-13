@@ -213,8 +213,8 @@ bool PortalOcclusionCuller::Clipper::clip_to_plane(real_t a, real_t b, real_t c,
     return _pts_in.size() > 2;
 }
 
-Geometry::MeshData PortalOcclusionCuller::debug_get_current_polys() const {
-    Geometry::MeshData md;
+GeometryMeshData PortalOcclusionCuller::debug_get_current_polys() const {
+    GeometryMeshData md;
 
     for (int n = 0; n < _num_polys; n++) {
         const Occlusion::PolyPlane &p = _polys[n].poly;
@@ -229,7 +229,7 @@ Geometry::MeshData PortalOcclusionCuller::debug_get_current_polys() const {
         }
 
         // indices
-        Geometry::MeshData::Face face;
+        GeometryMeshData::Face face;
 
         // triangle fan
         face.indices.resize(p.num_verts);

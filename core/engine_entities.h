@@ -90,13 +90,9 @@ struct GameEntity {
     static constexpr auto null = entt::null;
 
 
-    constexpr GameEntity(const GameEntity &other) noexcept
-        : entt(other.entt) {}
-
-    constexpr static GameEntity c(entity_type value = null) noexcept {
-        return GameEntity(value);
-    }
+    constexpr GameEntity(const GameEntity &other) noexcept = default;
     explicit constexpr GameEntity(entity_type value) noexcept : entt( value ) {}
+
     constexpr GameEntity(entt::null_t v) noexcept  : entt(v){
     }
     constexpr GameEntity(entt::tombstone_t v) noexcept : entt( v ) {
@@ -110,11 +106,15 @@ struct GameEntity {
         return entt != entt::null;
         // TODO: in debug build, also check if the entity is registry-valid
     }
+    constexpr GameEntity operator=(GameEntity s) noexcept { entt = s.entt; return *this; }
     constexpr bool operator==(GameEntity s) const { return s.entt == entt; }
     constexpr bool operator!=(GameEntity s) const { return s.entt != entt; }
     constexpr bool operator==(entt::null_t s) const { return s == entt; }
     constexpr bool operator!=(entt::null_t s) const { return s != entt; }
     constexpr entity_type v() const { return entt; }
+    constexpr static GameEntity c(entity_type value = null) noexcept {
+        return GameEntity(value);
+    }
 private:
     entity_type entt;
 };

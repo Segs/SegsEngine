@@ -141,7 +141,7 @@
     }
 
 #define FUNC1(m_type, m_arg1)                                         \
-    void m_type(m_arg1 p1) override {								  \
+    void m_type(m_arg1 p1) override {                                  \
         assert(Thread::get_caller_id() != server_thread);               \
         command_queue.push( [p1]() { submission_thread_singleton->m_type(p1); }); \
     }
@@ -179,7 +179,7 @@
     }
 
 #define FUNC2(m_type, m_arg1, m_arg2)                                     \
-    void m_type(m_arg1 p1, m_arg2 p2) override {						  \
+    void m_type(m_arg1 p1, m_arg2 p2) override {                          \
         assert(Thread::get_caller_id() != server_thread);                   \
         command_queue.push([p1,p2]() {submission_thread_singleton->m_type(p1, p2);}); \
     }

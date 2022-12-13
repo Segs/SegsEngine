@@ -97,26 +97,7 @@ private:
         bool custom_button;
         bool expand_right;
 
-        Cell() {
-
-            custom_button = false;
-            mode = TreeItem::CELL_MODE_STRING;
-            min = 0;
-            max = 100;
-            step = 1;
-            val = 0;
-            checked = false;
-            editable = false;
-            selected = false;
-            selectable = true;
-            custom_color = false;
-            custom_bg_color = false;
-            expr = false;
-            icon_max_w = 0;
-            text_align = ALIGN_LEFT;
-            expand_right = false;
-            icon_color = Color(1, 1, 1);
-        }
+        Cell();
 
         Size2 get_icon_size() const;
         void draw_icon(RenderingEntity p_where, const Point2 &p_pos, const Size2 &p_size = Size2(), const Color &p_color = Color()) const;

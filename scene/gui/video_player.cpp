@@ -268,8 +268,8 @@ void VideoPlayer::play() {
     playback->stop();
     playback->play();
     set_process_internal(true);
-    //	AudioServer::get_singleton()->stream_set_active(stream_rid,true);
-    //	AudioServer::get_singleton()->stream_set_volume_scale(stream_rid,volume);
+    //    AudioServer::get_singleton()->stream_set_active(stream_rid,true);
+    //    AudioServer::get_singleton()->stream_set_volume_scale(stream_rid,volume);
     last_audio_time = 0;
 }
 
@@ -281,7 +281,7 @@ void VideoPlayer::stop() {
         return;
 
     playback->stop();
-    //	AudioServer::get_singleton()->stream_set_active(stream_rid,false);
+    //    AudioServer::get_singleton()->stream_set_active(stream_rid,false);
     resampler.flush();
     set_process_internal(false);
     last_audio_time = 0;
@@ -501,8 +501,8 @@ VideoPlayer::VideoPlayer() {
 
     buffering_ms = 500;
 
-    //	internal_stream.player=this;
-    //	stream_rid=AudioServer::get_singleton()->audio_stream_create(&internal_stream);
+    //    internal_stream.player=this;
+    //    stream_rid=AudioServer::get_singleton()->audio_stream_create(&internal_stream);
     last_audio_time = 0;
 
     wait_resampler = 0;
@@ -511,7 +511,7 @@ VideoPlayer::VideoPlayer() {
 
 VideoPlayer::~VideoPlayer() {
 
-    //	if (stream_rid.is_valid())
-    //		AudioServer::get_singleton()->free(stream_rid);
+    //    if (stream_rid.is_valid())
+    //        AudioServer::get_singleton()->free(stream_rid);
     resampler.clear(); //Not necessary here, but make in consistent with other "stream_player" classes
 }

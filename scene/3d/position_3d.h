@@ -35,10 +35,10 @@
 
 class Position3D : public Node3D {
 
-	GDCLASS(Position3D,Node3D)
+    GDCLASS(Position3D,Node3D)
 
 public:
-	Position3D();
+    Position3D();
 };
 
 #endif // POSITION_3D_H

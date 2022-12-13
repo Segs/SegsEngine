@@ -74,7 +74,7 @@ void RasterizerCanvasBaseGLES3::canvas_debug_viewport_shadows(Span<RasterizerCan
             RasterizerCanvasLightShadowComponent *sb = get<RasterizerCanvasLightShadowComponent>(light->shadow_buffer);
             if (sb) {
                 glBindTexture(GL_TEXTURE_2D, sb->distance);
-                draw_generic_textured_rect(Rect2(h, ofs, w - h * 2, h), Rect2(0, 0, 1, 1));
+                draw_generic_textured_rect(Rect2((float)h, (float)ofs, (float)(w - h * 2), (float)h), Rect2(0, 0, 1, 1));
                 ofs += h * 2;
             }
         }

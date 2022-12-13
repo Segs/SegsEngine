@@ -47,7 +47,7 @@
 #define GD_UNREACHABLE() \
     CRASH_NOW();         \
     do {                 \
-	} while (true)
+    } while (true)
 #endif
 namespace gdmono {
 
@@ -68,6 +68,6 @@ public:
 } // namespace gdmono
 
 #define SCOPE_EXIT \
-	auto GD_UNIQUE_NAME(gd_scope_exit) = gdmono::ScopeExitAux() + [=]() -> void
+    auto GD_UNIQUE_NAME(gd_scope_exit) = gdmono::ScopeExitAux() + [=]() -> void
 
 #endif // UTIL_MACROS_H

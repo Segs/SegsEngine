@@ -39,58 +39,58 @@ class PhysicalBone3D;
 class Joint3D;
 
 class SkeletonEditor : public Node {
-	GDCLASS(SkeletonEditor,Node)
+    GDCLASS(SkeletonEditor,Node)
 
-	enum Menu {
-		MENU_OPTION_CREATE_PHYSICAL_SKELETON
-	};
+    enum Menu {
+        MENU_OPTION_CREATE_PHYSICAL_SKELETON
+    };
 
-	struct BoneInfo {
-		PhysicalBone3D *physical_bone;
-		Transform relative_rest; // Relative to skeleton node
-		BoneInfo() :
-				physical_bone(nullptr) {}
-	};
+    struct BoneInfo {
+        PhysicalBone3D *physical_bone;
+        Transform relative_rest; // Relative to skeleton node
+        BoneInfo() :
+                physical_bone(nullptr) {}
+    };
 
-	Skeleton *skeleton;
+    Skeleton *skeleton;
 
-	MenuButton *options;
+    MenuButton *options;
 
-	void _on_click_option(int p_option);
+    void _on_click_option(int p_option);
 
-	friend class SkeletonEditorPlugin;
+    friend class SkeletonEditorPlugin;
 
 protected:
-	void _notification(int p_what);
-	void _node_removed(Node *p_node);
-	static void _bind_methods();
+    void _notification(int p_what);
+    void _node_removed(Node *p_node);
+    static void _bind_methods();
 
-	void create_physical_skeleton();
-	PhysicalBone3D *create_physical_bone(int bone_id, int bone_child_id, const Vector<BoneInfo> &bones_infos);
+    void create_physical_skeleton();
+    PhysicalBone3D *create_physical_bone(int bone_id, int bone_child_id, const Vector<BoneInfo> &bones_infos);
 
 public:
-	void edit(Skeleton *p_node);
+    void edit(Skeleton *p_node);
 
-	SkeletonEditor();
-	~SkeletonEditor() override;
+    SkeletonEditor();
+    ~SkeletonEditor() override;
 };
 
 class SkeletonEditorPlugin : public EditorPlugin {
 
-	GDCLASS(SkeletonEditorPlugin,EditorPlugin)
+    GDCLASS(SkeletonEditorPlugin,EditorPlugin)
 
-	EditorNode *editor;
-	SkeletonEditor *skeleton_editor;
+    EditorNode *editor;
+    SkeletonEditor *skeleton_editor;
 
 public:
     StringView get_name() const override { return "Skeleton"; }
-	bool has_main_screen() const override { return false; }
-	void edit(Object *p_object) override;
-	bool handles(Object *p_object) const override;
-	void make_visible(bool p_visible) override;
+    bool has_main_screen() const override { return false; }
+    void edit(Object *p_object) override;
+    bool handles(Object *p_object) const override;
+    void make_visible(bool p_visible) override;
 
-	SkeletonEditorPlugin(EditorNode *p_node);
-	~SkeletonEditorPlugin() override;
+    SkeletonEditorPlugin(EditorNode *p_node);
+    ~SkeletonEditorPlugin() override;
 };
 
 #endif // SKELETON_EDITOR_PLUGIN_H

@@ -43,7 +43,7 @@ struct ResourceToolingData {
 };
 
 namespace {
-    HashMap<String, HashMap<String, int>> resource_path_cache; // each tscn has a set of resource paths and IDs
+    HashMap<String, HashMap<String, int>> s_resource_path_cache; // each tscn has a set of resource paths and IDs
     HashMap<const Resource *, ResourceToolingData> s_tooling_data;
     RWLock path_cache_lock;
 
@@ -68,16 +68,16 @@ const String &get_import_path(const Resource *r) {
 void set_id_for_path(const Resource *r, StringView p_path, int p_id) {
     RWLockWrite wr(path_cache_lock);
     if (p_id == -1) {
-        resource_path_cache[String(p_path)].erase(r->get_path());
+        s_resource_path_cache[String(p_path)].erase(r->get_path());
     } else {
-        resource_path_cache[String(p_path)][r->get_path()] = p_id;
+        s_resource_path_cache[String(p_path)][r->get_path()] = p_id;
     }
 }
 
 int get_id_for_path(const Resource *r,StringView p_path) {
     RWLockRead rd_lock(path_cache_lock);
 
-    auto & res_path_cache(resource_path_cache[String(p_path)]);
+    auto & res_path_cache(s_resource_path_cache[String(p_path)]);
     const auto iter = res_path_cache.find(r->get_path());
     if (iter!=res_path_cache.end()) {
         return iter->second;

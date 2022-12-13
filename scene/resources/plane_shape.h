@@ -49,9 +49,9 @@ public:
     void set_plane(Plane p_plane);
     Plane get_plane() const;
 
-	real_t get_enclosing_radius() const override {
-		// Should be infinite?
-		return 0;
-	}
+    real_t get_enclosing_radius() const override {
+        // Should be infinite?
+        return 0;
+    }
     PlaneShape();
 };

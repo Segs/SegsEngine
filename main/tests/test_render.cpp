@@ -30,10 +30,11 @@
 
 #include "test_render.h"
 
+#include "core/math/geometry.h"
 #include "core/math/math_funcs.h"
 #include "core/math/quick_hull.h"
 #include "core/input/input_event.h"
-#include "core/os/keyboard.h"
+#include "core/math/transform.h"
 #include "core/os/main_loop.h"
 #include "core/string_utils.h"
 #include "core/os/os.h"
@@ -207,7 +208,7 @@ public:
         vts.push_back(Vector3(-1, 1, -1));
         vts.push_back(Vector3(-1, -1, -1));
 
-        Geometry::MeshData md;
+        GeometryMeshData md;
         Error err = QuickHull::build(vts, md);
         print_line("ERR: " + itos(err));
         test_cube = vs->mesh_create();
@@ -247,7 +248,7 @@ public:
 
         camera = vs->camera_create();
 
-        // 		vs->camera_set_perspective( camera, 60.0,0.1, 100.0 );
+        //vs->camera_set_perspective( camera, 60.0,0.1, 100.0 );
 
         viewport = vs->viewport_create();
         Size2i screen_size = OS::get_singleton()->get_window_size();

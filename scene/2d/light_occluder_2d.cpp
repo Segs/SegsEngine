@@ -32,6 +32,7 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/engine.h"
+#include "core/math/geometry.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "servers/rendering_server.h"
@@ -74,7 +75,7 @@ bool OccluderPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, float 
 
     if (closed) {
         return Geometry::is_point_in_polygon(p_point, polygon);
-    } 
+    }
     const real_t d = LINE_GRAB_WIDTH / 2.0f + p_tolerance;
     for (int i = 0; i < polygon.size() - 1; i++) {
         Vector2 p = Geometry::get_closest_point_to_segment_2d(p_point, &polygon[i]);

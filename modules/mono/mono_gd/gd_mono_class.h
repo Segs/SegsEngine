@@ -140,10 +140,10 @@ public:
     bool implements_interface(GDMonoClass *p_interface);
     bool has_public_parameterless_ctor();
 
-	GDMonoMethod *get_method(const StringName &p_name, uint16_t p_params_count = 0);
+    GDMonoMethod *get_method(const StringName &p_name, uint16_t p_params_count = 0);
     GDMonoMethod *get_method(MonoMethod *p_raw_method);
     GDMonoMethod *get_method(MonoMethod *p_raw_method, const StringName &p_name);
-	GDMonoMethod *get_method(MonoMethod *p_raw_method, const StringName &p_name, uint16_t p_params_count);
+    GDMonoMethod *get_method(MonoMethod *p_raw_method, const StringName &p_name, uint16_t p_params_count);
     GDMonoMethod *get_method_with_desc(const String &p_description, bool p_include_namespace);
 
     GDMonoField *get_field(const StringName &p_name);

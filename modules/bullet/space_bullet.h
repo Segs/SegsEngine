@@ -113,11 +113,11 @@ public:
     /// execute bullet physics commands:
     /// ```c++
     /// space->dynamicsWorld->convexSweepTest(
-    ///	p_shape,
-    ///	btTransform(btMatrix3x3::getIdentity(), p_position),
-    ///	btTransform(btMatrix3x3::getIdentity(), p_position + p_motion),
-    ///	result,
-    ///	p_margin);
+    ///    p_shape,
+    ///    btTransform(btMatrix3x3::getIdentity(), p_position),
+    ///    btTransform(btMatrix3x3::getIdentity(), p_position + p_motion),
+    ///    result,
+    ///    p_margin);
     /// ```
     btBroadphaseInterface *broadphase;
     btDefaultCollisionConfiguration *collisionConfiguration;

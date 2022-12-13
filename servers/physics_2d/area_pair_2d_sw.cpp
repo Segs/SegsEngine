@@ -33,37 +33,37 @@
 
 bool AreaPair2DSW::setup(real_t p_step) {
 
-	bool result = false;
+    bool result = false;
 
     if (area->test_collision_mask(body) &&
             CollisionSolver2DSW::solve(body->get_shape(body_shape),
                     body->get_transform() * body->get_shape_transform(body_shape), Vector2(),
                     area->get_shape(area_shape), area->get_transform() * area->get_shape_transform(area_shape),
                     Vector2(), nullptr, this)) {
-		result = true;
-	}
+        result = true;
+    }
 
-	if (result != colliding) {
+    if (result != colliding) {
 
-		if (result) {
+        if (result) {
 
-			if (area->get_space_override_mode() != PhysicsServer2D::AREA_SPACE_OVERRIDE_DISABLED)
-				body->add_area(area);
-			if (area->has_monitor_callback())
-				area->add_body_to_query(body, body_shape, area_shape);
+            if (area->get_space_override_mode() != PhysicsServer2D::AREA_SPACE_OVERRIDE_DISABLED)
+                body->add_area(area);
+            if (area->has_monitor_callback())
+                area->add_body_to_query(body, body_shape, area_shape);
 
-		} else {
+        } else {
 
-			if (area->get_space_override_mode() != PhysicsServer2D::AREA_SPACE_OVERRIDE_DISABLED)
-				body->remove_area(area);
-			if (area->has_monitor_callback())
-				area->remove_body_from_query(body, body_shape, area_shape);
-		}
+            if (area->get_space_override_mode() != PhysicsServer2D::AREA_SPACE_OVERRIDE_DISABLED)
+                body->remove_area(area);
+            if (area->has_monitor_callback())
+                area->remove_body_from_query(body, body_shape, area_shape);
+        }
 
-		colliding = result;
-	}
+        colliding = result;
+    }
 
-	return false; //never do any post solving
+    return false; //never do any post solving
 }
 
 void AreaPair2DSW::solve(real_t p_step) {
@@ -71,66 +71,66 @@ void AreaPair2DSW::solve(real_t p_step) {
 
 AreaPair2DSW::AreaPair2DSW(Body2DSW *p_body, int p_body_shape, Area2DSW *p_area, int p_area_shape) {
 
-	body = p_body;
-	area = p_area;
-	body_shape = p_body_shape;
-	area_shape = p_area_shape;
-	colliding = false;
-	body->add_constraint(this, 0);
-	area->add_constraint(this);
-	if (p_body->get_mode() == PhysicsServer2D::BODY_MODE_KINEMATIC) //need to be active to process pair
-		p_body->set_active(true);
+    body = p_body;
+    area = p_area;
+    body_shape = p_body_shape;
+    area_shape = p_area_shape;
+    colliding = false;
+    body->add_constraint(this, 0);
+    area->add_constraint(this);
+    if (p_body->get_mode() == PhysicsServer2D::BODY_MODE_KINEMATIC) //need to be active to process pair
+        p_body->set_active(true);
 }
 
 AreaPair2DSW::~AreaPair2DSW() {
 
-	if (colliding) {
+    if (colliding) {
 
-		if (area->get_space_override_mode() != PhysicsServer2D::AREA_SPACE_OVERRIDE_DISABLED)
-			body->remove_area(area);
-		if (area->has_monitor_callback())
-			area->remove_body_from_query(body, body_shape, area_shape);
-	}
-	body->remove_constraint(this);
-	area->remove_constraint(this);
+        if (area->get_space_override_mode() != PhysicsServer2D::AREA_SPACE_OVERRIDE_DISABLED)
+            body->remove_area(area);
+        if (area->has_monitor_callback())
+            area->remove_body_from_query(body, body_shape, area_shape);
+    }
+    body->remove_constraint(this);
+    area->remove_constraint(this);
 }
 
 //////////////////////////////////
 
 bool Area2Pair2DSW::setup(real_t p_step) {
 
-	bool result = false;
+    bool result = false;
     if (area_a->test_collision_mask(area_b) &&
             CollisionSolver2DSW::solve(area_a->get_shape(shape_a),
                     area_a->get_transform() * area_a->get_shape_transform(shape_a), Vector2(),
                     area_b->get_shape(shape_b), area_b->get_transform() * area_b->get_shape_transform(shape_b),
                     Vector2(), nullptr, this)) {
-		result = true;
-	}
+        result = true;
+    }
 
-	if (result != colliding) {
+    if (result != colliding) {
 
-		if (result) {
-
-            if (area_b->has_area_monitor_callback() && area_a_monitorable)
-				area_b->add_area_to_query(area_a, shape_a, shape_b);
-
-            if (area_a->has_area_monitor_callback() && area_b_monitorable)
-				area_a->add_area_to_query(area_b, shape_b, shape_a);
-
-		} else {
+        if (result) {
 
             if (area_b->has_area_monitor_callback() && area_a_monitorable)
-				area_b->remove_area_from_query(area_a, shape_a, shape_b);
+                area_b->add_area_to_query(area_a, shape_a, shape_b);
 
             if (area_a->has_area_monitor_callback() && area_b_monitorable)
-				area_a->remove_area_from_query(area_b, shape_b, shape_a);
-		}
+                area_a->add_area_to_query(area_b, shape_b, shape_a);
 
-		colliding = result;
-	}
+        } else {
 
-	return false; //never do any post solving
+            if (area_b->has_area_monitor_callback() && area_a_monitorable)
+                area_b->remove_area_from_query(area_a, shape_a, shape_b);
+
+            if (area_a->has_area_monitor_callback() && area_b_monitorable)
+                area_a->remove_area_from_query(area_b, shape_b, shape_a);
+        }
+
+        colliding = result;
+    }
+
+    return false; //never do any post solving
 }
 
 void Area2Pair2DSW::solve(real_t p_step) {
@@ -138,30 +138,30 @@ void Area2Pair2DSW::solve(real_t p_step) {
 
 Area2Pair2DSW::Area2Pair2DSW(Area2DSW *p_area_a, int p_shape_a, Area2DSW *p_area_b, int p_shape_b) {
 
-	area_a = p_area_a;
-	area_b = p_area_b;
-	shape_a = p_shape_a;
-	shape_b = p_shape_b;
-	colliding = false;
+    area_a = p_area_a;
+    area_b = p_area_b;
+    shape_a = p_shape_a;
+    shape_b = p_shape_b;
+    colliding = false;
     area_a_monitorable = area_a->is_monitorable();
     area_b_monitorable = area_b->is_monitorable();
-	area_a->add_constraint(this);
-	area_b->add_constraint(this);
+    area_a->add_constraint(this);
+    area_b->add_constraint(this);
 }
 
 Area2Pair2DSW::~Area2Pair2DSW() {
 
-	if (colliding) {
+    if (colliding) {
 
         if (area_b->has_area_monitor_callback() && area_a_monitorable) {
-			area_b->remove_area_from_query(area_a, shape_a, shape_b);
+            area_b->remove_area_from_query(area_a, shape_a, shape_b);
         }
 
        if (area_a->has_area_monitor_callback() && area_b_monitorable) {
-			area_a->remove_area_from_query(area_b, shape_b, shape_a);
+            area_a->remove_area_from_query(area_b, shape_b, shape_a);
        }
-	}
+    }
 
-	area_a->remove_constraint(this);
-	area_b->remove_constraint(this);
+    area_a->remove_constraint(this);
+    area_b->remove_constraint(this);
 }

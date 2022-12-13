@@ -30,12 +30,16 @@
 
 #pragma once
 
-#include "core/list.h"
-#include "core/math/geometry.h"
+#include "core/forward_decls.h"
+#include "core/math/math_defs.h"
+
+enum Error : int;
+struct GeometryMeshData;
+struct Vector3;
 
 class QuickHull {
 public:
-	static uint32_t debug_stop_after;
+    static uint32_t debug_stop_after;
     static bool _flag_warnings;
-    static Error build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh, real_t p_over_tolerance_epsilon = 3.0 * UNIT_EPSILON);
+    static Error build(Span<const Vector3> p_points, GeometryMeshData &r_mesh, float p_over_tolerance_epsilon = 3.0 * UNIT_EPSILON);
 };

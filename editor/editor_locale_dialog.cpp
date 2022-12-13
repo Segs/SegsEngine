@@ -44,527 +44,527 @@
 IMPL_GDCLASS(EditorLocaleDialog)
 
 static _FORCE_INLINE_ bool is_ascii_upper_case(char32_t c) {
-	return (c >= 'A' && c <= 'Z');
+    return (c >= 'A' && c <= 'Z');
 }
 
 static _FORCE_INLINE_ bool is_ascii_lower_case(char32_t c) {
-	return (c >= 'a' && c <= 'z');
+    return (c >= 'a' && c <= 'z');
 }
 
 void EditorLocaleDialog::_bind_methods() {
-	ADD_SIGNAL(MethodInfo("locale_selected", PropertyInfo(VariantType::STRING, "locale")));
+    ADD_SIGNAL(MethodInfo("locale_selected", PropertyInfo(VariantType::STRING, "locale")));
 }
 
 void EditorLocaleDialog::ok_pressed() {
-	if (edit_filters->is_pressed()) {
-		return; // Do not update, if in filter edit mode.
-	}
+    if (edit_filters->is_pressed()) {
+        return; // Do not update, if in filter edit mode.
+    }
 
-	String locale;
-	if (lang_code->get_text().empty()) {
-		return; // Language code is required.
-	}
-	locale = lang_code->get_text();
+    String locale;
+    if (lang_code->get_text().empty()) {
+        return; // Language code is required.
+    }
+    locale = lang_code->get_text();
 
-	if (!script_code->get_text().empty()) {
-		locale += "_" + script_code->get_text();
-	}
-	if (!country_code->get_text().empty()) {
-		locale += "_" + country_code->get_text();
-	}
-	if (!variant_code->get_text().empty()) {
-		locale += "_" + variant_code->get_text();
-	}
+    if (!script_code->get_text().empty()) {
+        locale += "_" + script_code->get_text();
+    }
+    if (!country_code->get_text().empty()) {
+        locale += "_" + country_code->get_text();
+    }
+    if (!variant_code->get_text().empty()) {
+        locale += "_" + variant_code->get_text();
+    }
 
-	emit_signal("locale_selected", TranslationServer::get_singleton()->standardize_locale(locale));
-	hide();
+    emit_signal("locale_selected", TranslationServer::get_singleton()->standardize_locale(locale));
+    hide();
 }
 
 void EditorLocaleDialog::_item_selected() {
-	if (updating_lists) {
-		return;
-	}
+    if (updating_lists) {
+        return;
+    }
 
-	if (edit_filters->is_pressed()) {
-		return; // Do not update, if in filter edit mode.
-	}
+    if (edit_filters->is_pressed()) {
+        return; // Do not update, if in filter edit mode.
+    }
 
-	TreeItem *l = lang_list->get_selected();
-	if (l) {
-		lang_code->set_text(l->get_metadata(0).operator String());
-	}
+    TreeItem *l = lang_list->get_selected();
+    if (l) {
+        lang_code->set_text(l->get_metadata(0).operator String());
+    }
 
-	TreeItem *s = script_list->get_selected();
-	if (s) {
-		script_code->set_text(s->get_metadata(0).operator String());
-	}
+    TreeItem *s = script_list->get_selected();
+    if (s) {
+        script_code->set_text(s->get_metadata(0).operator String());
+    }
 
-	TreeItem *c = cnt_list->get_selected();
-	if (c) {
-		country_code->set_text(c->get_metadata(0).operator String());
-	}
+    TreeItem *c = cnt_list->get_selected();
+    if (c) {
+        country_code->set_text(c->get_metadata(0).operator String());
+    }
 }
 
 void EditorLocaleDialog::_toggle_advanced(bool p_checked) {
-	if (!p_checked) {
-		script_code->set_text("");
-		variant_code->set_text("");
-	}
-	_update_tree();
+    if (!p_checked) {
+        script_code->set_text("");
+        variant_code->set_text("");
+    }
+    _update_tree();
 }
 
 void EditorLocaleDialog::_post_popup() {
-	ConfirmationDialog::_post_popup();
+    ConfirmationDialog::_post_popup();
 
-	if (!locale_set) {
-		lang_code->set_text("");
-		script_code->set_text("");
-		country_code->set_text("");
-		variant_code->set_text("");
-	}
-	edit_filters->set_pressed(false);
-	_update_tree();
+    if (!locale_set) {
+        lang_code->set_text("");
+        script_code->set_text("");
+        country_code->set_text("");
+        variant_code->set_text("");
+    }
+    edit_filters->set_pressed(false);
+    _update_tree();
 }
 
 void EditorLocaleDialog::_filter_lang_option_changed() {
-	TreeItem *t = lang_list->get_edited();
-	String lang = t->get_metadata(0).as<String>();
-	bool checked = t->is_checked(0);
+    TreeItem *t = lang_list->get_edited();
+    String lang = t->get_metadata(0).as<String>();
+    bool checked = t->is_checked(0);
 
-	Variant prev;
-	Array f_lang_all;
+    Variant prev;
+    Array f_lang_all;
 
-	if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/language_filter")) {
+    if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/language_filter")) {
         f_lang_all = ProjectSettings::get_singleton()->get("internationalization/locale/language_filter").as<Array>();
-		prev = f_lang_all;
-	}
+        prev = f_lang_all;
+    }
 
-	int l_idx = f_lang_all.find(lang);
+    int l_idx = f_lang_all.find(lang);
 
-	if (checked) {
-		if (l_idx == -1) {
-			f_lang_all.append(lang);
-		}
-	} else {
-		if (l_idx != -1) {
-			f_lang_all.remove(l_idx);
-		}
-	}
+    if (checked) {
+        if (l_idx == -1) {
+            f_lang_all.append(lang);
+        }
+    } else {
+        if (l_idx != -1) {
+            f_lang_all.remove(l_idx);
+        }
+    }
 
-	f_lang_all.sort();
+    f_lang_all.sort();
 
-	undo_redo->create_action(TTR("Changed Locale Language Filter"));
-	undo_redo->add_do_property(ProjectSettings::get_singleton(), "internationalization/locale/language_filter", f_lang_all);
-	undo_redo->add_undo_property(ProjectSettings::get_singleton(), "internationalization/locale/language_filter", prev);
-	undo_redo->commit_action();
+    undo_redo->create_action(TTR("Changed Locale Language Filter"));
+    undo_redo->add_do_property(ProjectSettings::get_singleton(), "internationalization/locale/language_filter", f_lang_all);
+    undo_redo->add_undo_property(ProjectSettings::get_singleton(), "internationalization/locale/language_filter", prev);
+    undo_redo->commit_action();
 }
 
 void EditorLocaleDialog::_filter_script_option_changed() {
-	TreeItem *t = script_list->get_edited();
+    TreeItem *t = script_list->get_edited();
     String script = t->get_metadata(0).as<String>();
-	bool checked = t->is_checked(0);
+    bool checked = t->is_checked(0);
 
-	Variant prev;
-	Array f_script_all;
+    Variant prev;
+    Array f_script_all;
 
-	if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/script_filter")) {
+    if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/script_filter")) {
         f_script_all = ProjectSettings::get_singleton()->get("internationalization/locale/script_filter").as<Array>();
-		prev = f_script_all;
-	}
+        prev = f_script_all;
+    }
 
-	int l_idx = f_script_all.find(script);
+    int l_idx = f_script_all.find(script);
 
-	if (checked) {
-		if (l_idx == -1) {
-			f_script_all.append(script);
-		}
-	} else {
-		if (l_idx != -1) {
-			f_script_all.remove(l_idx);
-		}
-	}
+    if (checked) {
+        if (l_idx == -1) {
+            f_script_all.append(script);
+        }
+    } else {
+        if (l_idx != -1) {
+            f_script_all.remove(l_idx);
+        }
+    }
 
-	f_script_all.sort();
+    f_script_all.sort();
 
-	undo_redo->create_action(TTR("Changed Locale Script Filter"));
-	undo_redo->add_do_property(ProjectSettings::get_singleton(), "internationalization/locale/script_filter", f_script_all);
-	undo_redo->add_undo_property(ProjectSettings::get_singleton(), "internationalization/locale/script_filter", prev);
-	undo_redo->commit_action();
+    undo_redo->create_action(TTR("Changed Locale Script Filter"));
+    undo_redo->add_do_property(ProjectSettings::get_singleton(), "internationalization/locale/script_filter", f_script_all);
+    undo_redo->add_undo_property(ProjectSettings::get_singleton(), "internationalization/locale/script_filter", prev);
+    undo_redo->commit_action();
 }
 
 void EditorLocaleDialog::_filter_cnt_option_changed() {
-	TreeItem *t = cnt_list->get_edited();
+    TreeItem *t = cnt_list->get_edited();
     String cnt = t->get_metadata(0).as<String>();
-	bool checked = t->is_checked(0);
+    bool checked = t->is_checked(0);
 
-	Variant prev;
-	Array f_cnt_all;
+    Variant prev;
+    Array f_cnt_all;
 
-	if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/country_filter")) {
+    if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/country_filter")) {
         f_cnt_all = ProjectSettings::get_singleton()->get("internationalization/locale/country_filter").as<Array>();
-		prev = f_cnt_all;
-	}
+        prev = f_cnt_all;
+    }
 
-	int l_idx = f_cnt_all.find(cnt);
+    int l_idx = f_cnt_all.find(cnt);
 
-	if (checked) {
-		if (l_idx == -1) {
-			f_cnt_all.append(cnt);
-		}
-	} else {
-		if (l_idx != -1) {
-			f_cnt_all.remove(l_idx);
-		}
-	}
+    if (checked) {
+        if (l_idx == -1) {
+            f_cnt_all.append(cnt);
+        }
+    } else {
+        if (l_idx != -1) {
+            f_cnt_all.remove(l_idx);
+        }
+    }
 
-	f_cnt_all.sort();
+    f_cnt_all.sort();
 
-	undo_redo->create_action(TTR("Changed Locale Country Filter"));
-	undo_redo->add_do_property(ProjectSettings::get_singleton(), "internationalization/locale/country_filter", f_cnt_all);
-	undo_redo->add_undo_property(ProjectSettings::get_singleton(), "internationalization/locale/country_filter", prev);
-	undo_redo->commit_action();
+    undo_redo->create_action(TTR("Changed Locale Country Filter"));
+    undo_redo->add_do_property(ProjectSettings::get_singleton(), "internationalization/locale/country_filter", f_cnt_all);
+    undo_redo->add_undo_property(ProjectSettings::get_singleton(), "internationalization/locale/country_filter", prev);
+    undo_redo->commit_action();
 }
 
 void EditorLocaleDialog::_filter_mode_changed(int p_mode) {
-	int f_mode = filter_mode->get_selected_id();
-	Variant prev;
+    int f_mode = filter_mode->get_selected_id();
+    Variant prev;
 
-	if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/locale_filter_mode")) {
-		prev = ProjectSettings::get_singleton()->get("internationalization/locale/locale_filter_mode");
-	}
+    if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/locale_filter_mode")) {
+        prev = ProjectSettings::get_singleton()->get("internationalization/locale/locale_filter_mode");
+    }
 
-	undo_redo->create_action(TTR("Changed Locale Filter Mode"));
-	undo_redo->add_do_property(ProjectSettings::get_singleton(), "internationalization/locale/locale_filter_mode", f_mode);
-	undo_redo->add_undo_property(ProjectSettings::get_singleton(), "internationalization/locale/locale_filter_mode", prev);
-	undo_redo->commit_action();
+    undo_redo->create_action(TTR("Changed Locale Filter Mode"));
+    undo_redo->add_do_property(ProjectSettings::get_singleton(), "internationalization/locale/locale_filter_mode", f_mode);
+    undo_redo->add_undo_property(ProjectSettings::get_singleton(), "internationalization/locale/locale_filter_mode", prev);
+    undo_redo->commit_action();
 
-	_update_tree();
+    _update_tree();
 }
 
 void EditorLocaleDialog::_edit_filters(bool p_checked) {
-	_update_tree();
+    _update_tree();
 }
 
 void EditorLocaleDialog::_update_tree() {
-	updating_lists = true;
+    updating_lists = true;
 
-	int filter = SHOW_ALL_LOCALES;
-	if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/locale_filter_mode")) {
+    int filter = SHOW_ALL_LOCALES;
+    if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/locale_filter_mode")) {
         filter = ProjectSettings::get_singleton()->get("internationalization/locale/locale_filter_mode").as<int>();
-	}
-	Array f_lang_all;
-	if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/language_filter")) {
-		f_lang_all = ProjectSettings::get_singleton()->get("internationalization/locale/language_filter").as<Array>();
-	}
-	Array f_cnt_all;
-	if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/country_filter")) {
+    }
+    Array f_lang_all;
+    if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/language_filter")) {
+        f_lang_all = ProjectSettings::get_singleton()->get("internationalization/locale/language_filter").as<Array>();
+    }
+    Array f_cnt_all;
+    if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/country_filter")) {
         f_cnt_all = ProjectSettings::get_singleton()->get("internationalization/locale/country_filter").as<Array>();
-	}
-	Array f_script_all;
-	if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/script_filter")) {
+    }
+    Array f_script_all;
+    if (ProjectSettings::get_singleton()->has_setting("internationalization/locale/script_filter")) {
         f_script_all = ProjectSettings::get_singleton()->get("internationalization/locale/script_filter").as<Array>();
-	}
-	bool is_edit_mode = edit_filters->is_pressed();
+    }
+    bool is_edit_mode = edit_filters->is_pressed();
 
-	filter_mode->select(filter);
+    filter_mode->select(filter);
 
-	// Hide text advanced edit and disable OK button if in filter edit mode.
-	advanced->set_visible(!is_edit_mode);
-	hb_locale->set_visible(!is_edit_mode && advanced->is_pressed());
-	vb_script_list->set_visible(advanced->is_pressed());
-	get_ok()->set_disabled(is_edit_mode);
+    // Hide text advanced edit and disable OK button if in filter edit mode.
+    advanced->set_visible(!is_edit_mode);
+    hb_locale->set_visible(!is_edit_mode && advanced->is_pressed());
+    vb_script_list->set_visible(advanced->is_pressed());
+    get_ok()->set_disabled(is_edit_mode);
 
-	// Update language list.
-	lang_list->clear();
-	TreeItem *l_root = lang_list->create_item(nullptr);
-	lang_list->set_hide_root(true);
+    // Update language list.
+    lang_list->clear();
+    TreeItem *l_root = lang_list->create_item(nullptr);
+    lang_list->set_hide_root(true);
 
-	Vector<String> languages = TranslationServer::get_singleton()->get_all_languages();
-	for (int i = 0; i < languages.size(); i++) {
-		if (is_edit_mode || (filter == SHOW_ALL_LOCALES) || f_lang_all.contains(languages[i]) || f_lang_all.empty()) {
-			const String &lang = TranslationServer::get_singleton()->get_language_name(languages[i]);
-			TreeItem *t = lang_list->create_item(l_root);
-			if (is_edit_mode) {
-				t->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
-				t->set_editable(0, true);
-				t->set_checked(0, f_lang_all.contains(languages[i]));
-			} else if (lang_code->get_text() == languages[i]) {
-				t->select(0);
-			}
-			t->set_text_utf8(0, FormatVE("%s [%s]", lang.c_str(), languages[i].c_str()));
-			t->set_metadata(0, languages[i]);
-		}
-	}
+    Vector<String> languages = TranslationServer::get_singleton()->get_all_languages();
+    for (int i = 0; i < languages.size(); i++) {
+        if (is_edit_mode || (filter == SHOW_ALL_LOCALES) || f_lang_all.contains(languages[i]) || f_lang_all.empty()) {
+            const String &lang = TranslationServer::get_singleton()->get_language_name(languages[i]);
+            TreeItem *t = lang_list->create_item(l_root);
+            if (is_edit_mode) {
+                t->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
+                t->set_editable(0, true);
+                t->set_checked(0, f_lang_all.contains(languages[i]));
+            } else if (lang_code->get_text() == languages[i]) {
+                t->select(0);
+            }
+            t->set_text_utf8(0, FormatVE("%s [%s]", lang.c_str(), languages[i].c_str()));
+            t->set_metadata(0, languages[i]);
+        }
+    }
 
-	// Update script list.
-	script_list->clear();
-	TreeItem *s_root = script_list->create_item(nullptr);
-	script_list->set_hide_root(true);
+    // Update script list.
+    script_list->clear();
+    TreeItem *s_root = script_list->create_item(nullptr);
+    script_list->set_hide_root(true);
 
-	if (!is_edit_mode) {
-		TreeItem *t = script_list->create_item(s_root);
-		t->set_text(0, "[Default]");
-		t->set_metadata(0, "");
-	}
+    if (!is_edit_mode) {
+        TreeItem *t = script_list->create_item(s_root);
+        t->set_text(0, "[Default]");
+        t->set_metadata(0, "");
+    }
 
-	Vector<String> scripts = TranslationServer::get_singleton()->get_all_scripts();
-	for (int i = 0; i < scripts.size(); i++) {
-		if (is_edit_mode || (filter == SHOW_ALL_LOCALES) || f_script_all.contains(scripts[i]) || f_script_all.empty()) {
-			const String &script = TranslationServer::get_singleton()->get_script_name(scripts[i]);
-			TreeItem *t = script_list->create_item(s_root);
-			if (is_edit_mode) {
-				t->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
-				t->set_editable(0, true);
-				t->set_checked(0, f_script_all.contains(scripts[i]));
-			} else if (script_code->get_text() == scripts[i]) {
-				t->select(0);
-			}
+    Vector<String> scripts = TranslationServer::get_singleton()->get_all_scripts();
+    for (int i = 0; i < scripts.size(); i++) {
+        if (is_edit_mode || (filter == SHOW_ALL_LOCALES) || f_script_all.contains(scripts[i]) || f_script_all.empty()) {
+            const String &script = TranslationServer::get_singleton()->get_script_name(scripts[i]);
+            TreeItem *t = script_list->create_item(s_root);
+            if (is_edit_mode) {
+                t->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
+                t->set_editable(0, true);
+                t->set_checked(0, f_script_all.contains(scripts[i]));
+            } else if (script_code->get_text() == scripts[i]) {
+                t->select(0);
+            }
             t->set_text_utf8(0, FormatVE("%s [%s]", script.c_str(), scripts[i].c_str()));
-			t->set_metadata(0, scripts[i]);
-		}
-	}
+            t->set_metadata(0, scripts[i]);
+        }
+    }
 
-	// Update country list.
-	cnt_list->clear();
-	TreeItem *c_root = cnt_list->create_item(nullptr);
-	cnt_list->set_hide_root(true);
+    // Update country list.
+    cnt_list->clear();
+    TreeItem *c_root = cnt_list->create_item(nullptr);
+    cnt_list->set_hide_root(true);
 
-	if (!is_edit_mode) {
-		TreeItem *t = cnt_list->create_item(c_root);
-		t->set_text(0, "[Default]");
-		t->set_metadata(0, "");
-	}
+    if (!is_edit_mode) {
+        TreeItem *t = cnt_list->create_item(c_root);
+        t->set_text(0, "[Default]");
+        t->set_metadata(0, "");
+    }
 
-	Vector<String> countries = TranslationServer::get_singleton()->get_all_countries();
-	for (int i = 0; i < countries.size(); i++) {
-		if (is_edit_mode || (filter == SHOW_ALL_LOCALES) || f_cnt_all.contains(countries[i]) || f_cnt_all.empty()) {
-			const String &cnt = TranslationServer::get_singleton()->get_country_name(countries[i]);
-			TreeItem *t = cnt_list->create_item(c_root);
-			if (is_edit_mode) {
-				t->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
-				t->set_editable(0, true);
+    Vector<String> countries = TranslationServer::get_singleton()->get_all_countries();
+    for (int i = 0; i < countries.size(); i++) {
+        if (is_edit_mode || (filter == SHOW_ALL_LOCALES) || f_cnt_all.contains(countries[i]) || f_cnt_all.empty()) {
+            const String &cnt = TranslationServer::get_singleton()->get_country_name(countries[i]);
+            TreeItem *t = cnt_list->create_item(c_root);
+            if (is_edit_mode) {
+                t->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
+                t->set_editable(0, true);
                 t->set_checked(0, f_cnt_all.contains(countries[i]));
-			} else if (country_code->get_text() == countries[i]) {
-				t->select(0);
-			}
+            } else if (country_code->get_text() == countries[i]) {
+                t->select(0);
+            }
             t->set_text_utf8(0, FormatVE("%s [%s]", cnt.c_str(), countries[i].c_str()));
-			t->set_metadata(0, countries[i]);
-		}
-	}
-	updating_lists = false;
+            t->set_metadata(0, countries[i]);
+        }
+    }
+    updating_lists = false;
 }
 
 void EditorLocaleDialog::set_locale(StringView p_locale) {
-	const String &locale = TranslationServer::get_singleton()->standardize_locale(p_locale);
-	if (locale.empty()) {
-		locale_set = false;
+    const String &locale = TranslationServer::get_singleton()->standardize_locale(p_locale);
+    if (locale.empty()) {
+        locale_set = false;
 
-		lang_code->set_text("");
-		script_code->set_text("");
-		country_code->set_text("");
-		variant_code->set_text("");
-	} else {
-		locale_set = true;
+        lang_code->set_text("");
+        script_code->set_text("");
+        country_code->set_text("");
+        variant_code->set_text("");
+    } else {
+        locale_set = true;
 
-		Vector<StringView> locale_elements;
+        Vector<StringView> locale_elements;
         String::split_ref(locale_elements, p_locale, "_");
-		lang_code->set_text(locale_elements[0]);
-		if (locale_elements.size() >= 2) {
-			if (locale_elements[1].length() == 4 && is_ascii_upper_case(locale_elements[1][0]) && is_ascii_lower_case(locale_elements[1][1]) && is_ascii_lower_case(locale_elements[1][2]) && is_ascii_lower_case(locale_elements[1][3])) {
-				script_code->set_text(locale_elements[1]);
-				advanced->set_pressed(true);
-			}
-			if (locale_elements[1].length() == 2 && is_ascii_upper_case(locale_elements[1][0]) && is_ascii_upper_case(locale_elements[1][1])) {
-				country_code->set_text(locale_elements[1]);
-			}
-		}
-		if (locale_elements.size() >= 3) {
-			if (locale_elements[2].length() == 2 && is_ascii_upper_case(locale_elements[2][0]) && is_ascii_upper_case(locale_elements[2][1])) {
-				country_code->set_text(locale_elements[2]);
-			} else {
-				variant_code->set_text(String(locale_elements[2]).to_lower());
-				advanced->set_pressed(true);
-			}
-		}
-		if (locale_elements.size() >= 4) {
+        lang_code->set_text(locale_elements[0]);
+        if (locale_elements.size() >= 2) {
+            if (locale_elements[1].length() == 4 && is_ascii_upper_case(locale_elements[1][0]) && is_ascii_lower_case(locale_elements[1][1]) && is_ascii_lower_case(locale_elements[1][2]) && is_ascii_lower_case(locale_elements[1][3])) {
+                script_code->set_text(locale_elements[1]);
+                advanced->set_pressed(true);
+            }
+            if (locale_elements[1].length() == 2 && is_ascii_upper_case(locale_elements[1][0]) && is_ascii_upper_case(locale_elements[1][1])) {
+                country_code->set_text(locale_elements[1]);
+            }
+        }
+        if (locale_elements.size() >= 3) {
+            if (locale_elements[2].length() == 2 && is_ascii_upper_case(locale_elements[2][0]) && is_ascii_upper_case(locale_elements[2][1])) {
+                country_code->set_text(locale_elements[2]);
+            } else {
+                variant_code->set_text(String(locale_elements[2]).to_lower());
+                advanced->set_pressed(true);
+            }
+        }
+        if (locale_elements.size() >= 4) {
             variant_code->set_text(String(locale_elements[3]).to_lower());
-			advanced->set_pressed(true);
-		}
-	}
+            advanced->set_pressed(true);
+        }
+    }
 }
 
 void EditorLocaleDialog::popup_locale_dialog() {
-	popup_centered_clamped(Size2(1050, 700) * EDSCALE, 0.8);
+    popup_centered_clamped(Size2(1050, 700) * EDSCALE, 0.8);
 }
 
 EditorLocaleDialog::EditorLocaleDialog() {
-	undo_redo = EditorNode::get_undo_redo();
+    undo_redo = EditorNode::get_undo_redo();
 
-	set_title(TTR("Select a Locale"));
+    set_title(TTR("Select a Locale"));
 
-	VBoxContainer *vb = memnew(VBoxContainer);
-	{
-		HBoxContainer *hb_filter = memnew(HBoxContainer);
-		{
-			filter_mode = memnew(OptionButton);
-			filter_mode->add_item(TTR("Show All Locales"), SHOW_ALL_LOCALES);
-			filter_mode->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-			filter_mode->add_item(TTR("Show Selected Locales Only"), SHOW_ONLY_SELECTED_LOCALES);
-			filter_mode->select(0);
+    VBoxContainer *vb = memnew(VBoxContainer);
+    {
+        HBoxContainer *hb_filter = memnew(HBoxContainer);
+        {
+            filter_mode = memnew(OptionButton);
+            filter_mode->add_item(TTR("Show All Locales"), SHOW_ALL_LOCALES);
+            filter_mode->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+            filter_mode->add_item(TTR("Show Selected Locales Only"), SHOW_ONLY_SELECTED_LOCALES);
+            filter_mode->select(0);
             filter_mode->connect("item_selected", callable_mp(this, &EditorLocaleDialog::_filter_mode_changed));
-			hb_filter->add_child(filter_mode);
-		}
-		{
-			edit_filters = memnew(CheckButton);
-			edit_filters->set_text("Edit Filters");
-			edit_filters->set_toggle_mode(true);
-			edit_filters->set_pressed(false);
+            hb_filter->add_child(filter_mode);
+        }
+        {
+            edit_filters = memnew(CheckButton);
+            edit_filters->set_text("Edit Filters");
+            edit_filters->set_toggle_mode(true);
+            edit_filters->set_pressed(false);
             edit_filters->connect("toggled", callable_mp(this, &EditorLocaleDialog::_edit_filters));
-			hb_filter->add_child(edit_filters);
-		}
-		{
-			advanced = memnew(CheckButton);
-			advanced->set_text("Advanced");
-			advanced->set_toggle_mode(true);
-			advanced->set_pressed(false);
+            hb_filter->add_child(edit_filters);
+        }
+        {
+            advanced = memnew(CheckButton);
+            advanced->set_text("Advanced");
+            advanced->set_toggle_mode(true);
+            advanced->set_pressed(false);
             advanced->connect("toggled", callable_mp(this, &EditorLocaleDialog::_toggle_advanced));
-			hb_filter->add_child(advanced);
-		}
-		vb->add_child(hb_filter);
-	}
-	{
-		HBoxContainer *hb_lists = memnew(HBoxContainer);
-		hb_lists->set_v_size_flags(Control::SIZE_EXPAND_FILL);
-		{
-			VBoxContainer *vb_lang_list = memnew(VBoxContainer);
-			vb_lang_list->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-			{
-				Label *lang_lbl = memnew(Label);
-				lang_lbl->set_text(TTR("Language:"));
-				vb_lang_list->add_child(lang_lbl);
-			}
-			{
-				lang_list = memnew(Tree);
-				lang_list->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+            hb_filter->add_child(advanced);
+        }
+        vb->add_child(hb_filter);
+    }
+    {
+        HBoxContainer *hb_lists = memnew(HBoxContainer);
+        hb_lists->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+        {
+            VBoxContainer *vb_lang_list = memnew(VBoxContainer);
+            vb_lang_list->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+            {
+                Label *lang_lbl = memnew(Label);
+                lang_lbl->set_text(TTR("Language:"));
+                vb_lang_list->add_child(lang_lbl);
+            }
+            {
+                lang_list = memnew(Tree);
+                lang_list->set_v_size_flags(Control::SIZE_EXPAND_FILL);
                 lang_list->connect("cell_selected", callable_mp(this, &EditorLocaleDialog::_item_selected));
-				lang_list->set_columns(1);
+                lang_list->set_columns(1);
                 lang_list->connect("item_edited", callable_mp(this, &EditorLocaleDialog::_filter_lang_option_changed));
-				vb_lang_list->add_child(lang_list);
-			}
-			hb_lists->add_child(vb_lang_list);
-		}
-		{
-			vb_script_list = memnew(VBoxContainer);
-			vb_script_list->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-			{
-				Label *script_lbl = memnew(Label);
-				script_lbl->set_text(TTR("Script:"));
-				vb_script_list->add_child(script_lbl);
-			}
-			{
-				script_list = memnew(Tree);
-				script_list->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+                vb_lang_list->add_child(lang_list);
+            }
+            hb_lists->add_child(vb_lang_list);
+        }
+        {
+            vb_script_list = memnew(VBoxContainer);
+            vb_script_list->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+            {
+                Label *script_lbl = memnew(Label);
+                script_lbl->set_text(TTR("Script:"));
+                vb_script_list->add_child(script_lbl);
+            }
+            {
+                script_list = memnew(Tree);
+                script_list->set_v_size_flags(Control::SIZE_EXPAND_FILL);
                 script_list->connect("cell_selected", callable_mp(this, &EditorLocaleDialog::_item_selected));
-				script_list->set_columns(1);
+                script_list->set_columns(1);
                 script_list->connect("item_edited", callable_mp(this, &EditorLocaleDialog::_filter_script_option_changed));
-				vb_script_list->add_child(script_list);
-			}
-			hb_lists->add_child(vb_script_list);
-		}
-		{
-			VBoxContainer *vb_cnt_list = memnew(VBoxContainer);
-			vb_cnt_list->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-			{
-				Label *cnt_lbl = memnew(Label);
-				cnt_lbl->set_text(TTR("Country:"));
-				vb_cnt_list->add_child(cnt_lbl);
-			}
-			{
-				cnt_list = memnew(Tree);
-				cnt_list->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+                vb_script_list->add_child(script_list);
+            }
+            hb_lists->add_child(vb_script_list);
+        }
+        {
+            VBoxContainer *vb_cnt_list = memnew(VBoxContainer);
+            vb_cnt_list->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+            {
+                Label *cnt_lbl = memnew(Label);
+                cnt_lbl->set_text(TTR("Country:"));
+                vb_cnt_list->add_child(cnt_lbl);
+            }
+            {
+                cnt_list = memnew(Tree);
+                cnt_list->set_v_size_flags(Control::SIZE_EXPAND_FILL);
                 cnt_list->connect("cell_selected", callable_mp(this, &EditorLocaleDialog::_item_selected));
-				cnt_list->set_columns(1);
+                cnt_list->set_columns(1);
                 cnt_list->connect("item_edited", callable_mp(this, &EditorLocaleDialog::_filter_cnt_option_changed));
-				vb_cnt_list->add_child(cnt_list);
-			}
-			hb_lists->add_child(vb_cnt_list);
-		}
-		vb->add_child(hb_lists);
-	}
-	{
-		hb_locale = memnew(HBoxContainer);
-		hb_locale->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-		{
-			{
-				VBoxContainer *vb_language = memnew(VBoxContainer);
-				vb_language->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-				{
-					Label *language_lbl = memnew(Label);
-					language_lbl->set_text(TTR("Language"));
-					vb_language->add_child(language_lbl);
-				}
-				{
-					lang_code = memnew(LineEdit);
-					lang_code->set_max_length(3);
-					lang_code->set_tooltip("Language");
-					vb_language->add_child(lang_code);
-				}
-				hb_locale->add_child(vb_language);
-			}
-			{
-				VBoxContainer *vb_script = memnew(VBoxContainer);
-				vb_script->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-				{
-					Label *script_lbl = memnew(Label);
-					script_lbl->set_text(TTR("Script"));
-					vb_script->add_child(script_lbl);
-				}
-				{
-					script_code = memnew(LineEdit);
-					script_code->set_max_length(4);
-					script_code->set_tooltip("Script");
-					vb_script->add_child(script_code);
-				}
-				hb_locale->add_child(vb_script);
-			}
-			{
-				VBoxContainer *vb_country = memnew(VBoxContainer);
-				vb_country->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-				{
-					Label *country_lbl = memnew(Label);
-					country_lbl->set_text(TTR("Country"));
-					vb_country->add_child(country_lbl);
-				}
-				{
-					country_code = memnew(LineEdit);
-					country_code->set_max_length(2);
-					country_code->set_tooltip("Country");
-					vb_country->add_child(country_code);
-				}
-				hb_locale->add_child(vb_country);
-			}
-			{
-				VBoxContainer *vb_variant = memnew(VBoxContainer);
-				vb_variant->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-				{
-					Label *variant_lbl = memnew(Label);
-					variant_lbl->set_text(TTR("Variant"));
-					vb_variant->add_child(variant_lbl);
-				}
-				{
-					variant_code = memnew(LineEdit);
-					variant_code->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-					variant_code->set_placeholder("Variant");
-					variant_code->set_tooltip("Variant");
-					vb_variant->add_child(variant_code);
-				}
-				hb_locale->add_child(vb_variant);
-			}
-		}
-		vb->add_child(hb_locale);
-	}
-	add_child(vb);
-	_update_tree();
+                vb_cnt_list->add_child(cnt_list);
+            }
+            hb_lists->add_child(vb_cnt_list);
+        }
+        vb->add_child(hb_lists);
+    }
+    {
+        hb_locale = memnew(HBoxContainer);
+        hb_locale->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+        {
+            {
+                VBoxContainer *vb_language = memnew(VBoxContainer);
+                vb_language->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+                {
+                    Label *language_lbl = memnew(Label);
+                    language_lbl->set_text(TTR("Language"));
+                    vb_language->add_child(language_lbl);
+                }
+                {
+                    lang_code = memnew(LineEdit);
+                    lang_code->set_max_length(3);
+                    lang_code->set_tooltip("Language");
+                    vb_language->add_child(lang_code);
+                }
+                hb_locale->add_child(vb_language);
+            }
+            {
+                VBoxContainer *vb_script = memnew(VBoxContainer);
+                vb_script->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+                {
+                    Label *script_lbl = memnew(Label);
+                    script_lbl->set_text(TTR("Script"));
+                    vb_script->add_child(script_lbl);
+                }
+                {
+                    script_code = memnew(LineEdit);
+                    script_code->set_max_length(4);
+                    script_code->set_tooltip("Script");
+                    vb_script->add_child(script_code);
+                }
+                hb_locale->add_child(vb_script);
+            }
+            {
+                VBoxContainer *vb_country = memnew(VBoxContainer);
+                vb_country->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+                {
+                    Label *country_lbl = memnew(Label);
+                    country_lbl->set_text(TTR("Country"));
+                    vb_country->add_child(country_lbl);
+                }
+                {
+                    country_code = memnew(LineEdit);
+                    country_code->set_max_length(2);
+                    country_code->set_tooltip("Country");
+                    vb_country->add_child(country_code);
+                }
+                hb_locale->add_child(vb_country);
+            }
+            {
+                VBoxContainer *vb_variant = memnew(VBoxContainer);
+                vb_variant->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+                {
+                    Label *variant_lbl = memnew(Label);
+                    variant_lbl->set_text(TTR("Variant"));
+                    vb_variant->add_child(variant_lbl);
+                }
+                {
+                    variant_code = memnew(LineEdit);
+                    variant_code->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+                    variant_code->set_placeholder("Variant");
+                    variant_code->set_tooltip("Variant");
+                    vb_variant->add_child(variant_code);
+                }
+                hb_locale->add_child(vb_variant);
+            }
+        }
+        vb->add_child(hb_locale);
+    }
+    add_child(vb);
+    _update_tree();
 
-	get_ok()->set_text(TTR("Select"));
+    get_ok()->set_text(TTR("Select"));
 }

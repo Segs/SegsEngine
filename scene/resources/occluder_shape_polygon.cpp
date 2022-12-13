@@ -31,6 +31,7 @@
 #include "occluder_shape_polygon.h"
 
 #include "core/callable_method_pointer.h"
+#include "core/math/transform.h"
 #include "core/method_bind.h"
 #include "core/math/geometry.h"
 #include "servers/rendering_server.h"
@@ -41,33 +42,35 @@ IMPL_GDCLASS(OccluderShapePolygon)
 void OccluderShapePolygon::_update_aabb() {
     _aabb_local = AABB();
 
-    if (_poly_pts_local.size()) {
-        Vector3 begin = _vec2to3(_poly_pts_local[0]);
-        Vector3 end = begin;
-
-        for (int n = 1; n < _poly_pts_local.size(); n++) {
-            Vector3 pt = _vec2to3(_poly_pts_local[n]);
-            begin.x = MIN(begin.x, pt.x);
-            begin.y = MIN(begin.y, pt.y);
-            begin.z = MIN(begin.z, pt.z);
-            end.x = M_MAX(end.x, pt.x);
-            end.y = M_MAX(end.y, pt.y);
-            end.z = M_MAX(end.z, pt.z);
-        }
-
-        for (int n = 0; n < _hole_pts_local.size(); n++) {
-            Vector3 pt = _vec2to3(_hole_pts_local[n]);
-            begin.x = MIN(begin.x, pt.x);
-            begin.y = MIN(begin.y, pt.y);
-            begin.z = MIN(begin.z, pt.z);
-            end.x = M_MAX(end.x, pt.x);
-            end.y = M_MAX(end.y, pt.y);
-            end.z = M_MAX(end.z, pt.z);
-        }
-
-        _aabb_local.position = begin;
-        _aabb_local.size = end - begin;
+    if (_poly_pts_local.empty())
+    {
+        return;
     }
+    Vector3 begin = _vec2to3(_poly_pts_local[0]);
+    Vector3 end = begin;
+
+    for (int n = 1; n < _poly_pts_local.size(); n++) {
+        Vector3 pt = _vec2to3(_poly_pts_local[n]);
+        begin.x = MIN(begin.x, pt.x);
+        begin.y = MIN(begin.y, pt.y);
+        begin.z = MIN(begin.z, pt.z);
+        end.x = M_MAX(end.x, pt.x);
+        end.y = M_MAX(end.y, pt.y);
+        end.z = M_MAX(end.z, pt.z);
+    }
+
+    for (int n = 0; n < _hole_pts_local.size(); n++) {
+        Vector3 pt = _vec2to3(_hole_pts_local[n]);
+        begin.x = MIN(begin.x, pt.x);
+        begin.y = MIN(begin.y, pt.y);
+        begin.z = MIN(begin.z, pt.z);
+        end.x = M_MAX(end.x, pt.x);
+        end.y = M_MAX(end.y, pt.y);
+        end.z = M_MAX(end.z, pt.z);
+    }
+
+    _aabb_local.position = begin;
+    _aabb_local.size = end - begin;
 }
 
 AABB OccluderShapePolygon::get_fallback_gizmo_aabb() const {

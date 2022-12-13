@@ -35,6 +35,7 @@
 #include "core/os/keyboard.h"
 #include "core/script_language.h"
 #include "scene/gui/control_enum_casters.h"
+#include "scene/gui/shortcut.h"
 #include "scene/main/viewport.h"
 #include "scene/scene_string_names.h"
 
@@ -185,7 +186,7 @@ void BaseButton::on_action_event(Ref<InputEvent> p_event) {
     }
 
     if (!p_event->is_pressed()) {
-        Ref<InputEventMouseButton> mouse_button(dynamic_ref_cast<InputEventMouseButton>(p_event));
+        Ref mouse_button(dynamic_ref_cast<InputEventMouseButton>(p_event));
         if (mouse_button) {
             if (!has_point(mouse_button->get_position())) {
                 status.hovering = false;
@@ -198,12 +199,6 @@ void BaseButton::on_action_event(Ref<InputEvent> p_event) {
     }
 
     update();
-}
-
-void BaseButton::pressed() {
-}
-
-void BaseButton::toggled(bool p_pressed) {
 }
 
 void BaseButton::set_disabled(bool p_disabled) {
@@ -229,10 +224,9 @@ bool BaseButton::is_disabled() const {
 
 void BaseButton::set_pressed(bool p_pressed) {
 
-    if (!toggle_mode)
+    if (!toggle_mode || status.pressed == p_pressed) {
         return;
-    if (status.pressed == p_pressed)
-        return;
+    }
     Object_change_notify(this,"pressed");
     status.pressed = p_pressed;
 
@@ -249,10 +243,7 @@ void BaseButton::set_pressed(bool p_pressed) {
 
 void BaseButton::set_pressed_no_signal(bool p_pressed)
 {
-    if (!toggle_mode) {
-        return;
-    }
-    if (status.pressed == p_pressed) {
+    if (!toggle_mode || status.pressed == p_pressed) {
         return;
     }
     status.pressed = p_pressed;
@@ -285,27 +276,20 @@ BaseButton::DrawMode BaseButton::get_draw_mode() const {
             return DRAW_HOVER_PRESSED;
 
         return DRAW_HOVER;
-    } else {
-        /* determine if pressed or not */
-
-        bool pressing;
-        if (status.press_attempt) {
-
-            pressing = (status.pressing_inside || keep_pressed_outside);
-            if (status.pressed)
-                pressing = !pressing;
-        } else {
-
-            pressing = status.pressed;
-        }
-
-        if (pressing)
-            return DRAW_PRESSED;
-        else
-            return DRAW_NORMAL;
     }
 
-    return DRAW_NORMAL;
+    /* determine if pressed or not */
+    bool pressing;
+    if (status.press_attempt) {
+        pressing = (status.pressing_inside || keep_pressed_outside);
+        if (status.pressed) {
+            pressing = !pressing;
+        }
+    } else {
+        pressing = status.pressed;
+    }
+
+    return pressing ? DRAW_PRESSED : DRAW_NORMAL;
 }
 
 void BaseButton::set_toggle_mode(bool p_on) {

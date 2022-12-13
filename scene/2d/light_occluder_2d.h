@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/resource.h"
 #include "scene/2d/node_2d.h"
 
 class GODOT_EXPORT OccluderPolygon2D : public Resource {

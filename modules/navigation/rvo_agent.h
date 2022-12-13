@@ -39,10 +39,10 @@ class NavMap;
 class RvoAgent : public NavRid {
     using AvoidanceComputedCallback = Callable;
 
-	NavMap *map = nullptr;
+    NavMap *map = nullptr;
     RVO::Agent agent;
     AvoidanceComputedCallback callback;
-	uint32_t map_update_id = 0;
+    uint32_t map_update_id = 0;
 
 public:
     RvoAgent();

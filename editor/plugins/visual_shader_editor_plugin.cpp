@@ -52,6 +52,7 @@
 #include "scene/gui/panel.h"
 #include "scene/gui/text_edit.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/material.h"
 #include "scene/resources/visual_shader_nodes.h"
 #include "servers/rendering/shader_types.h"
 #include "scene/resources/font.h"

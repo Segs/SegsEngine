@@ -10,6 +10,7 @@ cmake_policy(VERSION 3.20)
 #set(CMAKE_C_INCLUDE_WHAT_YOU_USE /usr/bin/include-what-you-use)
 #link_directories(/usr/lib/clang/10.0.1/lib/linux)
 
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -82,7 +83,7 @@ function(define_target )
     cmake_parse_arguments(target_args "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
     list(APPEND global_targets ${target_args_NAME})
     list(REMOVE_DUPLICATES global_targets)
-    # store value in global cache
+    # store value back in global cache
     set(global_targets ${global_targets} CACHE INTERNAL "")
 
     foreach(mod ${target_args_MODULES})
@@ -93,7 +94,9 @@ function(define_target )
     set(${target_args_NAME}_SOURCES ${${target_args_NAME}_SOURCES} PARENT_SCOPE)
 #    add_executable("${target_args_NAME}")
 endfunction()
+
 add_library(common_interface INTERFACE)
+
 target_include_directories(common_interface INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:include/SegsEngine>
@@ -378,8 +381,6 @@ foreach(tgt ${global_targets})
     #source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX all FILES ${all_src})
 endforeach()
 
-
-
 #
 # Install tree package config file
 #
@@ -401,10 +402,10 @@ write_basic_package_version_file(
 
 install(
     FILES
-
         ${CMAKE_CURRENT_BINARY_DIR}/${CUSTOM_INSTALL_CONFIGDIR}/SegsEngineConfig.cmake
         ${CMAKE_CURRENT_BINARY_DIR}/SegsEngineConfigVersion.cmake
-    DESTINATION ${CUSTOM_INSTALL_CONFIGDIR}
+    DESTINATION
+        ${CUSTOM_INSTALL_CONFIGDIR}
 )
 
 export(PACKAGE SegsEngine)

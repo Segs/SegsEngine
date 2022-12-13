@@ -30,8 +30,8 @@
 
 #include "face3.h"
 
+#include "core/math/transform.h"
 #include "core/string.h"
-#include "core/string_utils.h"
 #include "core/math/geometry.h"
 
 int Face3::split_by_plane(const Plane &p_plane, Face3 p_res[3], bool p_is_point_over[3]) const {

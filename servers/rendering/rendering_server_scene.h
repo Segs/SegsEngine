@@ -32,7 +32,6 @@
 
 #include "servers/rendering/rasterizer.h"
 #include "core/hash_map.h"
-#include "core/math/geometry.h"
 #include "core/math/bvh.h"
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
@@ -454,7 +453,7 @@ public:
     void set_use_occlusion_culling(bool p_enable);
 
     // editor only .. slow
-    Geometry::MeshData occlusion_debug_get_current_polys(RenderingEntity p_scenario) const;
+    GeometryMeshData occlusion_debug_get_current_polys(RenderingEntity p_scenario) const;
     const PortalResources &get_portal_resources() const { return _portal_resources; }
     PortalResources &get_portal_resources() { return _portal_resources; }
 

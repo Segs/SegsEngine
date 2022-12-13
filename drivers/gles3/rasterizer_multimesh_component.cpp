@@ -407,10 +407,10 @@ void RasterizerStorageGLES3::multimesh_instance_set_custom_data(RenderingEntity 
     if (multimesh->custom_data_format == RS::MULTIMESH_CUSTOM_DATA_8BIT) {
 
         uint8_t *data8 = (uint8_t *)dataptr;
-        data8[0] = CLAMP(p_custom_data.r * 255.0f, 0.0f, 255.0f);
-        data8[1] = CLAMP(p_custom_data.g * 255.0f, 0.0f, 255.0f);
-        data8[2] = CLAMP(p_custom_data.b * 255.0f, 0.0f, 255.0f);
-        data8[3] = CLAMP(p_custom_data.a * 255.0f, 0.0f, 255.0f);
+        data8[0] = (uint8_t)CLAMP(p_custom_data.r * 255.0f, 0.0f, 255.0f);
+        data8[1] = (uint8_t)CLAMP(p_custom_data.g * 255.0f, 0.0f, 255.0f);
+        data8[2] = (uint8_t)CLAMP(p_custom_data.b * 255.0f, 0.0f, 255.0f);
+        data8[3] = (uint8_t)CLAMP(p_custom_data.a * 255.0f, 0.0f, 255.0f);
 
     } else if (multimesh->custom_data_format == RS::MULTIMESH_CUSTOM_DATA_FLOAT) {
         dataptr[0] = p_custom_data.r;

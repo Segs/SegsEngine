@@ -62,6 +62,7 @@ struct LineEdit::PrivateData {
     UIString ime_text;
     int cached_width=0;
     int scroll_offset=0;
+    Ref<Texture> right_icon;
 
 
     struct TextOperation {
@@ -946,8 +947,8 @@ void LineEdit::_notification(int p_what) {
                 font_color.a *= placeholder_alpha;
 
             bool display_clear_icon = !using_placeholder && is_editable() && clear_button_enabled;
-            if (right_icon || display_clear_icon) {
-                Ref<Texture> r_icon = display_clear_icon ? Control::get_theme_icon("clear") : right_icon;
+            if (m_priv->right_icon || display_clear_icon) {
+                Ref<Texture> r_icon = display_clear_icon ? Control::get_theme_icon("clear") : m_priv->right_icon;
                 Color color_icon(1, 1, 1, !is_editable() ? .5f * .9f : .9f);
                 if (display_clear_icon) {
                     if (clear_button_status.press_attempt && clear_button_status.pressing_inside) {
@@ -1148,7 +1149,7 @@ void LineEdit::_notification(int p_what) {
                     if (is_editable() && !Input::get_singleton()->is_key_pressed(KEY_CONTROL)) {
                         selection_delete();
                         // } else if (deselect_on_focus_loss_enabled) {
-                        // 	deselect();
+                        //     deselect();
                     }
                 }
             } else {
@@ -1542,8 +1543,8 @@ void LineEdit::set_cursor_position(int p_pos) {
         // Adjust window if cursor goes too much to the right.
         int window_width = get_size().width - style->get_minimum_size().width;
         bool display_clear_icon = !m_priv->text.isEmpty() && is_editable() && clear_button_enabled;
-        if (right_icon || display_clear_icon) {
-            Ref<Texture> r_icon = display_clear_icon ? Control::get_theme_icon("clear") : right_icon;
+        if (m_priv->right_icon || display_clear_icon) {
+            Ref<Texture> r_icon = display_clear_icon ? Control::get_theme_icon("clear") : m_priv->right_icon;
             window_width -= r_icon->get_width();
         }
 
@@ -1653,9 +1654,9 @@ Size2 LineEdit::get_minimum_size() const {
         min_size.width = M_MAX(min_size.width, Control::get_theme_icon("clear")->get_width());
         min_size.height = M_MAX(min_size.height, Control::get_theme_icon("clear")->get_height());
     }
-    if (right_icon) {
-        min_size.width = M_MAX(min_size.width, right_icon->get_width());
-        min_size.height = M_MAX(min_size.height, right_icon->get_height());
+    if (m_priv->right_icon) {
+        min_size.width = M_MAX(min_size.width, m_priv->right_icon->get_width());
+        min_size.height = M_MAX(min_size.height, m_priv->right_icon->get_height());
     }
 
     return style->get_minimum_size() + min_size;
@@ -1935,17 +1936,17 @@ bool LineEdit::is_deselect_on_focus_loss_enabled() const {
     return deselect_on_focus_loss_enabled;
 }
 void LineEdit::set_right_icon(const Ref<Texture> &p_icon) {
-    if (right_icon == p_icon) {
+    if (m_priv->right_icon == p_icon) {
         return;
     }
-    right_icon = p_icon;
+    m_priv->right_icon = p_icon;
 
     minimum_size_changed();
     update();
 }
 
 Ref<Texture> LineEdit::get_right_icon() {
-    return right_icon;
+    return m_priv->right_icon;
 }
 
 void LineEdit::_text_changed() {

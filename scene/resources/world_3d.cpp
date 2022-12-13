@@ -361,7 +361,7 @@ World3D::World3D() {
     ProjectSettings::get_singleton()->set_custom_property_info("physics/3d/default_linear_damp", PropertyInfo(VariantType::FLOAT, "physics/3d/default_linear_damp", PropertyHint::Range, "-1,100,0.001,or_greater"));
     PhysicsServer3D::get_singleton()->area_set_param(physics_space, PhysicsServer3D::AREA_PARAM_ANGULAR_DAMP, GLOBAL_DEF("physics/3d/default_angular_damp", 0.1));
     ProjectSettings::get_singleton()->set_custom_property_info("physics/3d/default_angular_damp", PropertyInfo(VariantType::FLOAT, "physics/3d/default_angular_damp", PropertyHint::Range, "-1,100,0.001,or_greater"));
-    	// Create default navigation map
+    // Create default navigation map
     navigation_map = NavigationServer::get_singleton()->map_create();
     NavigationServer::get_singleton()->map_set_active(navigation_map, true);
     NavigationServer::get_singleton()->map_set_up(navigation_map, T_GLOBAL_DEF("navigation/3d/default_map_up", Vector3(0, 1, 0)));

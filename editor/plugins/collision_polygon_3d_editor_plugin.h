@@ -39,6 +39,7 @@ class CanvasItemEditor;
 class ImmediateGeometry3D;
 class MeshInstance3D;
 class ArrayMesh;
+class SpatialMaterial;
 
 class CollisionPolygon3DEditor : public HBoxContainer {
 

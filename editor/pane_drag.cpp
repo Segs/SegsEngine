@@ -32,6 +32,7 @@
 #include "core/method_bind.h"
 #include "core/input/input_event.h"
 #include "core/class_db.h"
+#include "scene/resources/texture.h"
 
 
 IMPL_GDCLASS(PaneDrag)

@@ -30,6 +30,7 @@
 
 #include "light_2d.h"
 
+#include "scene/resources/texture.h"
 #include "servers/rendering_server.h"
 #include "scene/main/scene_tree.h"
 #include "core/engine.h"

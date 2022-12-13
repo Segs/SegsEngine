@@ -32,6 +32,8 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/hashfuncs.h"
+#include "core/math/geometry.h"
+#include "core/math/triangulate.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "scene/3d/path_3d.h"
@@ -502,12 +504,11 @@ Vector<Vector3> CSGShape::get_brush_faces() {
     Vector<Vector3> faces;
     int fc = b->faces.size();
     faces.resize(fc * 3);
-    {
-        for (int i = 0; i < fc; i++) {
-            faces[i * 3 + 0] = b->faces[i].vertices[0];
-            faces[i * 3 + 1] = b->faces[i].vertices[1];
-            faces[i * 3 + 2] = b->faces[i].vertices[2];
-        }
+
+    for (int i = 0; i < fc; i++) {
+        faces[i * 3 + 0] = b->faces[i].vertices[0];
+        faces[i * 3 + 1] = b->faces[i].vertices[1];
+        faces[i * 3 + 2] = b->faces[i].vertices[2];
     }
 
     return faces;
@@ -569,14 +570,14 @@ void CSGShape::_notification(int p_what) {
             if (use_collision && is_root_shape()) {
                 root_collision_shape = make_ref_counted<ConcavePolygonShape3D>();
                 root_collision_instance = PhysicsServer3D::get_singleton()->body_create();
-                PhysicsServer3D::get_singleton()->body_set_mode(
+                phys_serv->body_set_mode(
                         root_collision_instance, PhysicsServer3D::BODY_MODE_STATIC);
-                PhysicsServer3D::get_singleton()->body_set_state(
+                phys_serv->body_set_state(
                         root_collision_instance, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
-                PhysicsServer3D::get_singleton()->body_add_shape(
+                phys_serv->body_add_shape(
                         root_collision_instance, root_collision_shape->get_phys_rid());
-                PhysicsServer3D::get_singleton()->body_set_space(root_collision_instance, get_world_3d()->get_space());
-                PhysicsServer3D::get_singleton()->body_attach_object_instance_id(
+                phys_serv->body_set_space(root_collision_instance, get_world_3d()->get_space());
+                phys_serv->body_attach_object_instance_id(
                         root_collision_instance, get_instance_id());
                 set_collision_layer(collision_layer);
                 set_collision_mask(collision_mask);
@@ -587,7 +588,7 @@ void CSGShape::_notification(int p_what) {
         case NOTIFICATION_EXIT_TREE: {
 
             if (use_collision && is_root_shape() && root_collision_instance.is_valid()) {
-                PhysicsServer3D::get_singleton()->free_rid(root_collision_instance);
+                phys_serv->free_rid(root_collision_instance);
                 root_collision_instance = RID();
                 root_collision_shape.unref();
             }
@@ -595,7 +596,7 @@ void CSGShape::_notification(int p_what) {
 
         case NOTIFICATION_TRANSFORM_CHANGED: {
             if (use_collision && is_root_shape() && root_collision_instance.is_valid()) {
-                PhysicsServer3D::get_singleton()->body_set_state(
+                phys_serv->body_set_state(
                         root_collision_instance, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
             }
         } break;

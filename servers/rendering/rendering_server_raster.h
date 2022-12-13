@@ -62,9 +62,7 @@ class  RenderingServerRaster : public RenderingServer {
     int black_margin[4];
     RenderingEntity black_image[4];
 
-    using FrameDrawnCallbacks = Callable;
-
-    Vector<FrameDrawnCallbacks> frame_drawn_callbacks;
+    Vector<FrameDrawnCallback> frame_drawn_callbacks;
 
     void _draw_margins();
     // This function is NOT dead code.
@@ -585,7 +583,7 @@ public:
     BIND2(occluder_resource_spheres_update, RenderingEntity, const Vector<Plane> &)
     BIND2(occluder_resource_mesh_update, RenderingEntity, const OccluderMeshData &)
     BIND1(set_use_occlusion_culling, bool)
-    BIND1RC(Geometry::MeshData, occlusion_debug_get_current_polys, RenderingEntity)
+    BIND1RC(GeometryMeshData, occlusion_debug_get_current_polys, RenderingEntity)
 
     // Callbacks
     BIND1(callbacks_register, RenderingServerCallbacks *)
@@ -709,7 +707,7 @@ public:
 
     /* EVENT QUEUING */
 
-    void request_frame_drawn_callback(Callable &&cb) override;
+    void request_frame_drawn_callback(FrameDrawnCallback &&cb) override;
 
     void draw(bool p_swap_buffers, double frame_step) override;
     bool has_changed(RS::ChangedPriority p_priority = RS::CHANGED_PRIORITY_ANY) const override;

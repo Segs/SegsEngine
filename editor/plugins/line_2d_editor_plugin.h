@@ -36,29 +36,29 @@
 
 class Line2DEditor : public AbstractPolygon2DEditor {
 
-	GDCLASS(Line2DEditor,AbstractPolygon2DEditor)
+    GDCLASS(Line2DEditor,AbstractPolygon2DEditor)
 
-	Line2D *node;
+    Line2D *node;
 
 protected:
-	Node2D *_get_node() const override;
-	void _set_node(Node *p_line) override;
+    Node2D *_get_node() const override;
+    void _set_node(Node *p_line) override;
 
-	bool _is_line() const override;
-	Variant _get_polygon(int p_idx) const override;
-	void _set_polygon(int p_idx, const PoolVector<Vector2> &p_polygon) const override;
-	void _action_set_polygon(int p_idx, const Variant &p_previous, const Variant &p_polygon) override;
+    bool _is_line() const override;
+    Variant _get_polygon(int p_idx) const override;
+    void _set_polygon(int p_idx, const PoolVector<Vector2> &p_polygon) const override;
+    void _action_set_polygon(int p_idx, const Variant &p_previous, const Variant &p_polygon) override;
 
 public:
-	Line2DEditor(EditorNode *p_editor);
+    Line2DEditor(EditorNode *p_editor);
 };
 
 class Line2DEditorPlugin : public AbstractPolygon2DEditorPlugin {
 
-	GDCLASS(Line2DEditorPlugin,AbstractPolygon2DEditorPlugin)
+    GDCLASS(Line2DEditorPlugin,AbstractPolygon2DEditorPlugin)
 
 public:
-	Line2DEditorPlugin(EditorNode *p_node);
+    Line2DEditorPlugin(EditorNode *p_node);
 };
 
 #endif // LINE_2D_EDITOR_PLUGIN_H

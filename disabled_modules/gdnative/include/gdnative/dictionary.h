@@ -42,7 +42,7 @@ extern "C" {
 #ifndef GODOT_CORE_API_GODOT_DICTIONARY_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_DICTIONARY_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_DICTIONARY_SIZE];
+    uint8_t _dont_touch_that[GODOT_DICTIONARY_SIZE];
 } godot_dictionary;
 #endif
 

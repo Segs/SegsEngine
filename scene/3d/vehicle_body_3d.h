@@ -63,7 +63,7 @@ class GODOT_EXPORT VehicleWheel3D : public Node3D {
 
     VehicleBody3D *body=nullptr;
 
-    //btVector3	m_wheelAxleCS; // const or modified by steering ?
+    //btVector3    m_wheelAxleCS; // const or modified by steering ?
 
     real_t m_steering=0;
     real_t m_rotation=0;

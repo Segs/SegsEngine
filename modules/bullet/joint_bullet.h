@@ -35,7 +35,7 @@
 #include "servers/physics_server_3d.h"
 
 /**
-	@author AndreaCatania
+    @author AndreaCatania
 */
 
 class RigidBodyBullet;
@@ -44,9 +44,9 @@ class btTypedConstraint;
 class JointBullet : public ConstraintBullet {
 
 public:
-	JointBullet();
+    JointBullet();
     ~JointBullet() override = default;
 
-	virtual PhysicsServer3D::JointType get_type() const = 0;
+    virtual PhysicsServer3D::JointType get_type() const = 0;
 };
 #endif

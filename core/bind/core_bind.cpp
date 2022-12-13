@@ -913,7 +913,9 @@ struct _OSCoreBindImg {
     int fmt;
     GameEntity id;
     int vram;
-    bool operator<(const _OSCoreBindImg &p_img) const { return vram == p_img.vram ? entt::to_integral(id) < entt::to_integral(p_img.id) : vram > p_img.vram; }
+    bool operator<(const _OSCoreBindImg &p_img) const {
+        return vram == p_img.vram ? entt::to_integral(id) < entt::to_integral(p_img.id) : vram > p_img.vram;
+    }
 };
 
 void _OS::print_all_textures_by_size() {
@@ -1246,10 +1248,8 @@ void _OS::_bind_methods() {
     SE_BIND_METHOD_WITH_DEFAULTS(_OS, get_time, DEFVAL(false) );
     SE_BIND_METHOD(_OS,get_time_zone_info);
     SE_BIND_METHOD(_OS,get_unix_time);
-    MethodBinder::bind_method(
-            D_METHOD("get_datetime_from_unix_time", { "unix_time_val" }), &_OS::get_datetime_from_unix_time);
-    MethodBinder::bind_method(
-            D_METHOD("get_unix_time_from_datetime", { "datetime" }), &_OS::get_unix_time_from_datetime);
+    SE_BIND_METHOD(_OS, get_datetime_from_unix_time);
+    SE_BIND_METHOD(_OS, get_unix_time_from_datetime);
     SE_BIND_METHOD(_OS,get_system_time_secs);
     SE_BIND_METHOD(_OS,get_system_time_msecs);
 
@@ -1727,19 +1727,13 @@ Dictionary _Geometry::make_atlas(const Vector<Size2> &p_rects) {
     return ret;
 }
 
-int _Geometry::get_uv84_normal_bit(const Vector3 &p_vector) {
-    return Geometry::get_uv84_normal_bit(p_vector);
-}
-
 IMPL_GDCLASS(_Geometry)
 
 void _Geometry::_bind_methods() {
     SE_BIND_METHOD(_Geometry,build_box_planes);
     SE_BIND_METHOD_WITH_DEFAULTS(_Geometry, build_cylinder_planes, DEFVAL(Vector3::AXIS_Z) );
     SE_BIND_METHOD_WITH_DEFAULTS(_Geometry, build_capsule_planes, DEFVAL(Vector3::AXIS_Z) );
-    MethodBinder::bind_method(
-            D_METHOD("segment_intersects_circle", { "segment_from", "segment_to", "circle_position", "circle_radius" }),
-            &_Geometry::segment_intersects_circle);
+    SE_BIND_METHOD(_Geometry,segment_intersects_circle);
     MethodBinder::bind_method(D_METHOD("segment_intersects_segment_2d", { "from_a", "to_a", "from_b", "to_b" }),
             &_Geometry::segment_intersects_segment_2d);
     MethodBinder::bind_method(D_METHOD("line_intersects_line_2d", { "from_a", "dir_a", "from_b", "dir_b" }),
@@ -1759,8 +1753,6 @@ void _Geometry::_bind_methods() {
             &_Geometry::get_closest_point_to_segment_uncapped_2d);
     MethodBinder::bind_method(D_METHOD("get_closest_point_to_segment_uncapped", { "point", "s1", "s2" }),
             &_Geometry::get_closest_point_to_segment_uncapped);
-
-    SE_BIND_METHOD(_Geometry,get_uv84_normal_bit);
 
     MethodBinder::bind_method(
             D_METHOD("ray_intersects_triangle", { "from", "dir", "a", "b", "c" }), &_Geometry::ray_intersects_triangle);

@@ -32,6 +32,7 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
+#include "core/math/geometry.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/os/mutex.h"

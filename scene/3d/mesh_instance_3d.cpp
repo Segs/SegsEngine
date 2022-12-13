@@ -937,20 +937,20 @@ bool MeshInstance3D::is_mergeable_with(const MeshInstance3D &p_other) const {
     // how conservative we need to be, so we can further enable this if testing
     // shows they are required.
 
-    //	if (get_surface_material_count() != p_other.get_surface_material_count()) {
-    //		return false;
-    //	}
+    //    if (get_surface_material_count() != p_other.get_surface_material_count()) {
+    //        return false;
+    //    }
 
-    //	for (int n = 0; n < get_surface_material_count(); n++) {
-    //		if (get_surface_material(n) != p_other.get_surface_material(n)) {
-    //			return false;
-    //		}
-    //	}
+    //    for (int n = 0; n < get_surface_material_count(); n++) {
+    //        if (get_surface_material(n) != p_other.get_surface_material(n)) {
+    //            return false;
+    //        }
+    //    }
 
     // test only allow identical meshes
-    //	if (get_mesh() != p_other.get_mesh()) {
-    //		return false;
-    //	}
+    //    if (get_mesh() != p_other.get_mesh()) {
+    //        return false;
+    //    }
 
     return true;
 }
@@ -978,7 +978,7 @@ void MeshInstance3D::_merge_into_mesh_data(const MeshInstance3D &p_mi, const Tra
     const Vector<Vector2> &uv2s = arrays.m_uv_2;
     Vector<int> indices = arrays.m_indices;
 
-	// The attributes present must match the first mesh for the attributes
+    // The attributes present must match the first mesh for the attributes
     // to remain in sync. Here we reject meshes with different attributes.
     // We could alternatively invent missing attributes.
     // This should hopefully be already caught by the mesh_format, but is included just in case here.

@@ -65,7 +65,7 @@ class GODOT_EXPORT AudioDriverALSA : public AudioDriver {
     snd_pcm_uframes_t period_size;
     int channels;
 
-	SafeFlag active;
+    SafeFlag active;
     SafeFlag exit_thread;
 
 public:

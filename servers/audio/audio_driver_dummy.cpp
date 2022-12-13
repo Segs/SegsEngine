@@ -36,7 +36,7 @@
 
 Error AudioDriverDummy::init() {
 
-	active.clear();
+    active.clear();
     exit_thread.clear();
     samples_in = nullptr;
 
@@ -60,7 +60,7 @@ void AudioDriverDummy::thread_func(void *p_udata) {
 
     uint64_t usdelay = (ad->buffer_frames / float(ad->mix_rate)) * 1000000;
 
-	while (!ad->exit_thread.is_set()) {
+    while (!ad->exit_thread.is_set()) {
         if (ad->active.is_set()) {
 
             ad->lock();

@@ -1808,7 +1808,7 @@ void ScriptEditor::_update_members_overview() {
         String filter = filter_methods->get_text();
         StringView name = StringUtils::get_slice(functions[i],":", 0);
         if (filter.empty() || StringUtils::is_subsequence_of(filter,name,StringUtils::CaseInsensitive)) {
-            members_overview->add_item(StringName(name));
+            members_overview->add_item(StringName(name),Ref<Texture>());
             members_overview->set_item_metadata(members_overview->get_item_count() - 1, StringUtils::to_int(StringUtils::get_slice(functions[i],":", 1)) - 1);
         }
     }
@@ -1860,7 +1860,7 @@ void ScriptEditor::_update_help_overview() {
 
     Vector<Pair<String, int> > sections = se->get_sections();
     for (int i = 0; i < sections.size(); i++) {
-        help_overview->add_item(StringName(sections[i].first));
+        help_overview->add_item(StringName(sections[i].first),Ref<Texture>());
         help_overview->set_item_metadata(i, sections[i].second);
     }
 }

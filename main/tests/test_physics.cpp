@@ -34,6 +34,7 @@
 #include "core/callable_method_pointer.h"
 #include "core/map.h"
 #include "core/method_bind.h"
+#include "core/math/geometry.h"
 #include "core/math/math_funcs.h"
 #include "core/math/quick_hull.h"
 #include "core/input/input_event.h"
@@ -151,7 +152,7 @@ protected:
 
         PoolVector<Plane> box_planes = Geometry::build_box_planes(Vector3(0.5, 0.5, 0.5));
         RenderingEntity box_mesh = vs->mesh_create();
-        Geometry::MeshData box_data = Geometry::build_convex_mesh(box_planes);
+        GeometryMeshData box_data = Geometry::build_convex_mesh(box_planes.toSpan());
         vs->mesh_add_surface_from_mesh_data(box_mesh, eastl::move(box_data));
         type_mesh_map[PhysicsServer3D::SHAPE_BOX] = box_mesh;
 
@@ -164,7 +165,7 @@ protected:
         PoolVector<Plane> capsule_planes = Geometry::build_capsule_planes(0.5, 0.7f, 12, Vector3::AXIS_Z);
 
         RenderingEntity capsule_mesh = vs->mesh_create();
-        Geometry::MeshData capsule_data = Geometry::build_convex_mesh(capsule_planes);
+        GeometryMeshData capsule_data = Geometry::build_convex_mesh(capsule_planes.toSpan());
         vs->mesh_add_surface_from_mesh_data(capsule_mesh, eastl::move(capsule_data));
 
         type_mesh_map[PhysicsServer3D::SHAPE_CAPSULE] = capsule_mesh;
@@ -181,7 +182,7 @@ protected:
         PoolVector<Plane> convex_planes = Geometry::build_cylinder_planes(0.5, 0.7f, 5, Vector3::AXIS_Z);
 
         RenderingEntity convex_mesh = vs->mesh_create();
-        Geometry::MeshData convex_data = Geometry::build_convex_mesh(convex_planes);
+        GeometryMeshData convex_data = Geometry::build_convex_mesh(convex_planes.toSpan());
         QuickHull::build(convex_data.vertices, convex_data);
         vs->mesh_add_surface_from_mesh_data(convex_mesh, eastl::move(convex_data));
 
@@ -371,7 +372,7 @@ public:
         PoolVector<Plane> capsule_planes = Geometry::build_capsule_planes(0.5, 1, 12, 5, Vector3::AXIS_Y);
 
         RenderingEntity capsule_mesh = vs->mesh_create();
-        Geometry::MeshData capsule_data = Geometry::build_convex_mesh(capsule_planes);
+        GeometryMeshData capsule_data = Geometry::build_convex_mesh(capsule_planes.toSpan());
         vs->mesh_add_surface_from_mesh_data(capsule_mesh, eastl::move(capsule_data));
         type_mesh_map[PhysicsServer3D::SHAPE_CAPSULE] = capsule_mesh;
 
@@ -412,8 +413,8 @@ public:
 
             Transform t;
 
-            t.origin = Vector3(0.0 * i, 3.5 + 1.1 * i, 0.7 + 0.0 * i);
-            t.basis.rotate(Vector3(0.2, -1, 0), Math_PI / 2 * 0.6);
+            t.origin = Vector3(0.0f * i, 3.5f + 1.1f * i, 0.7f + 0.0f * i);
+            t.basis.rotate(Vector3(0.2f, -1, 0), Math_PI / 2 * 0.6f);
 
             create_body(type, PhysicsServer3D::BODY_MODE_RIGID, t);
         }

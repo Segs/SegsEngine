@@ -266,9 +266,6 @@ private:
 #ifdef DEBUG_ENABLED
     friend struct _ObjectDebugLock;
 #endif
-    friend void predelete_handler(Object *);
-    friend void postinitialize_handler(Object *);
-
     struct SignalData;
     struct ObjectPrivate;
     std::atomic<ObjectRC *> _rc;
@@ -288,6 +285,7 @@ private:
     uint8_t _emitting : 1;
     uint8_t _is_queued_for_deletion : 1; // set to true by SceneTree::queue_delete()
 
+public: // made public since msvc complains about inconsistent dll linkage when using friend
     void _predelete();
     void _postinitialize();
 public:

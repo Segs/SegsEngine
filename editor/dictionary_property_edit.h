@@ -34,32 +34,32 @@
 #include "scene/main/node.h"
 
 class DictionaryPropertyEdit : public RefCounted {
-	GDCLASS(DictionaryPropertyEdit,RefCounted)
+    GDCLASS(DictionaryPropertyEdit,RefCounted)
 
-	GameEntity obj;
-	StringName property;
+    GameEntity obj;
+    StringName property;
 
-	void _notif_change();
-	void _notif_changev(const String &p_v);
+    void _notif_change();
+    void _notif_changev(const String &p_v);
     void _set_key(const StringName &p_old_key, const StringName &p_new_key);
     void _set_value(const StringName &p_key, const Variant &p_value);
 
-	Dictionary get_dictionary() const;
+    Dictionary get_dictionary() const;
 
-	bool _dont_undo_redo();
+    bool _dont_undo_redo();
 
 protected:
-	static void _bind_methods();
-	bool _set(const StringName &p_name, const Variant &p_value);
-	bool _get(const StringName &p_name, Variant &r_ret) const;
-	void _get_property_list(Vector<PropertyInfo> *p_list) const;
+    static void _bind_methods();
+    bool _set(const StringName &p_name, const Variant &p_value);
+    bool _get(const StringName &p_name, Variant &r_ret) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
 public:
-	void edit(Object *p_obj, const StringName &p_prop);
+    void edit(Object *p_obj, const StringName &p_prop);
 
-	Node *get_node();
+    Node *get_node();
 
-	DictionaryPropertyEdit();
+    DictionaryPropertyEdit();
 };
 
 #endif // DICTIONARY_PROPERTY_EDIT_H

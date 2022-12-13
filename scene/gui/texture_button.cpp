@@ -31,6 +31,7 @@
 #include "texture_button.h"
 #include "core/typedefs.h"
 #include "core/method_bind.h"
+#include "scene/resources/texture.h"
 #include <cstdlib>
 
 IMPL_GDCLASS(TextureButton)
@@ -229,7 +230,7 @@ void TextureButton::_notification(int p_what) {
                 size.width *= hflip ? -1.0f : 1.0f;
                 size.height *= vflip ? -1.0f : 1.0f;
 
-				if (draw_focus_only) {
+                if (draw_focus_only) {
                     // Do nothing, we only needed to calculate the rectangle.
                 } else if (_tile) {
                     draw_texture_rect(texdraw, Rect2(ofs, size), _tile);
@@ -398,4 +399,7 @@ TextureButton::TextureButton() {
     _texture_region = Rect2();
     _position_rect = Rect2();
     _tile = false;
+}
+
+TextureButton::~TextureButton() {
 }

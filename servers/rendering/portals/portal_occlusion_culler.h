@@ -34,7 +34,8 @@ class PortalRenderer;
 #include "portal_types.h"
 
 #include "core/math/camera_matrix.h"
-#include "core/math/geometry.h"
+
+struct GeometryMeshData;
 
 class PortalOcclusionCuller {
     enum {
@@ -95,7 +96,7 @@ public:
     bool cull_sphere(const Vector3 &p_occludee_center, real_t p_occludee_radius, int p_ignore_sphere = -1,
             bool p_cull_to_polys = true) const;
 
-    Geometry::MeshData debug_get_current_polys() const;
+    GeometryMeshData debug_get_current_polys() const;
 
     static bool _redraw_gizmo;
 

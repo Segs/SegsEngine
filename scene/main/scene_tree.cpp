@@ -832,11 +832,11 @@ void SceneTree::input_event(const Ref<InputEvent> &p_event) {
     if (!input_handled) {
         call_group_flags(GROUP_CALL_REALTIME, "_viewports", "_vp_unhandled_input", ev); //special one for GUI, as controls use their own process check
         _flush_ugc();
-        //		input_handled = true; - no reason to set this as handled
+//        input_handled = true; - no reason to set this as handled
         root_lock--;
-        //MessageQueue::get_singleton()->flush(); //flushing here causes UI and other places slowness
+//        MessageQueue::get_singleton()->flush(); //flushing here causes UI and other places slowness
     } else {
-        //		input_handled = true; - no reason to set this as handled
+//        input_handled = true; - no reason to set this as handled
         root_lock--;
     }
 

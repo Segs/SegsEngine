@@ -91,6 +91,10 @@ if(USE_UNITY_BUILDS)
 endif()
 
 
+if(USE_PRECOMPILED_HEADERS)
+    target_precompile_headers(edit_tools REUSE_FROM se_core)
+endif()
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${editor_sources})
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${editor_3rdparty})
 source_group(Generated FILES ${editor_sources_gen})

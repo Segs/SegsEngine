@@ -46,9 +46,9 @@ Size2 GradientEditor::get_minimum_size() const {
 }
 void GradientEditor::_gradient_changed() {
 
-	if (editing) {
+    if (editing) {
         return;
-	}
+    }
 
     editing = true;
     const Vector<Gradient::Point> &points = gradient->get_points();

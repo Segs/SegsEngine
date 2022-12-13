@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/math/vector2.h"
-#include "core/vector.h"
+#include "core/forward_decls.h"
 
 /*
 http://www.flipcode.com/archives/Efficient_Polygon_Triangulation.shtml

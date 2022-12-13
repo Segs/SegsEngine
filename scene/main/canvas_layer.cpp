@@ -35,6 +35,7 @@
 #include "core/object_db.h"
 #include "core/method_bind.h"
 #include "core/method_bind.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(CanvasLayer)
 

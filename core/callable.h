@@ -111,7 +111,7 @@ public:
     Callable(GameEntity p_object, const StringName &p_method);
     Callable(CallableCustom *p_custom);
     Callable(const Callable &p_callable);
-    Callable() { object = entt::null; }
+    Callable() : object(entt::null) { }
     ~Callable();
 };
 

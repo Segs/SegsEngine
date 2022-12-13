@@ -255,7 +255,7 @@ void ItemListItemListPlugin::set_item_enabled(int p_idx, int p_enabled) { pp->se
 bool ItemListItemListPlugin::is_item_enabled(int p_idx) const { return !pp->is_item_disabled(p_idx); }
 
 void ItemListItemListPlugin::add_item() {
-    pp->add_item(StringName(FormatVE(TTR("Item %d").asCString(), pp->get_item_count())));
+    pp->add_item(StringName(FormatVE(TTR("Item %d").asCString(), pp->get_item_count())),Ref<Texture>());
     Object_change_notify(this);
 }
 

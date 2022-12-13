@@ -30,6 +30,7 @@
 
 #include "convex_polygon_shape_3d.h"
 #include "core/math/convex_hull.h"
+#include "core/math/geometry.h"
 #include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 
@@ -41,7 +42,7 @@ Vector<Vector3> ConvexPolygonShape3D::get_debug_mesh_lines() {
 
     if (points.size() > 3) {
 
-        Geometry::MeshData md;
+        GeometryMeshData md;
         Error err = ConvexHullComputer::convex_hull(points, md);
         if (err == OK) {
             Vector<Vector3> lines;

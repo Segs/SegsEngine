@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/rid.h"
 #include "scene/2d/node_2d.h"
 #include "core/node_path.h"
 #include "core/string.h"

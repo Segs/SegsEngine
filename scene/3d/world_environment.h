@@ -36,19 +36,19 @@ class Environment;
 
 class GODOT_EXPORT WorldEnvironment : public Node {
 
-	GDCLASS(WorldEnvironment,Node)
+    GDCLASS(WorldEnvironment,Node)
 
-	Ref<Environment> environment;
+    Ref<Environment> environment;
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_environment(const Ref<Environment> &p_environment);
-	Ref<Environment> get_environment() const;
+    void set_environment(const Ref<Environment> &p_environment);
+    Ref<Environment> get_environment() const;
 
     String get_configuration_warning() const override;
 
-	WorldEnvironment();
+    WorldEnvironment();
 };

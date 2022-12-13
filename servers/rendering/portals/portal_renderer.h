@@ -41,7 +41,6 @@
 #include "portal_tracer.h"
 #include "portal_types.h"
 #include "core/math/camera_matrix.h"
-#include "core/math/geometry.h"
 
 class Transform;
 
@@ -189,9 +188,7 @@ public:
     void occluder_instance_destroy(OccluderInstanceHandle p_handle, bool p_free = true);
 
     // editor only .. slow
-    Geometry::MeshData occlusion_debug_get_current_polys() const {
-        return _tracer.get_occlusion_culler().debug_get_current_polys();
-    }
+    GeometryMeshData occlusion_debug_get_current_polys() const;
 
     // note that this relies on a 'frustum' type cull, from a point, and that the planes are specified as in
     // CameraMatrix, i.e.

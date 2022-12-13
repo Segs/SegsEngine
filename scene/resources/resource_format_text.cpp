@@ -1323,7 +1323,7 @@ void ResourceFormatLoaderText::get_recognized_extensions_for_type(StringView p_t
         return;
     }
 
-	if (ClassDB::is_parent_class("PackedScene", StringName(p_type))) {
+    if (ClassDB::is_parent_class("PackedScene", StringName(p_type))) {
         p_extensions.push_back("tscn");
     }
 

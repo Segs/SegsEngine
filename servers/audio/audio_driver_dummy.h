@@ -51,7 +51,7 @@ class AudioDriverDummy : public AudioDriver {
 
     int channels;
 
-	SafeFlag active;
+    SafeFlag active;
     SafeFlag exit_thread;
 
 public:

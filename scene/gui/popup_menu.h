@@ -37,50 +37,7 @@
 class GODOT_EXPORT PopupMenu : public Popup {
 
     GDCLASS(PopupMenu,Popup)
-
-    struct Item {
-        Ref<Texture> icon;
-        String text;
-        String xl_text;
-        enum {
-            CHECKABLE_TYPE_NONE,
-            CHECKABLE_TYPE_CHECK_BOX,
-            CHECKABLE_TYPE_RADIO_BUTTON,
-        } checkable_type;
-        int max_states;
-        int state;
-        int id;
-        Variant metadata;
-        StringName submenu;
-        String tooltip;
-        uint32_t accel;
-        int _ofs_cache;
-        int h_ofs;
-        Ref<ShortCut> shortcut;
-        bool checked;
-        bool separator;
-        bool disabled;
-        bool shortcut_is_global;
-        bool shortcut_is_disabled;
-
-        Item() {
-            checked = false;
-            checkable_type = CHECKABLE_TYPE_NONE;
-            separator = false;
-            max_states = 0;
-            state = 0;
-            accel = 0;
-            disabled = false;
-            _ofs_cache = 0;
-            h_ofs = 0;
-            shortcut_is_global = false;
-            shortcut_is_disabled = false;
-        }
-    };
-
-    Vector<Rect2> autohide_areas;
-    Vector<Item> items;
-    HashMap<Ref<ShortCut>, int> shortcut_refcount;
+    void *m_priv_data;
     Rect2 parent_rect;
     Vector2 moved;
     String search_string;

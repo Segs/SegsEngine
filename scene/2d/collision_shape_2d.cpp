@@ -34,6 +34,7 @@
 #include "core/callable_method_pointer.h"
 #include "core/engine.h"
 #include "core/method_bind.h"
+#include "core/pool_vector.h"
 #include "core/translation_helpers.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/capsule_shape_2d.h"
@@ -43,6 +44,7 @@
 #include "scene/resources/line_shape_2d.h"
 #include "scene/resources/rectangle_shape_2d.h"
 #include "scene/resources/segment_shape_2d.h"
+
 
 IMPL_GDCLASS(CollisionShape2D)
 

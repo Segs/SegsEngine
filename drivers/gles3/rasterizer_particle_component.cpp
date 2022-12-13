@@ -383,8 +383,8 @@ static void _particles_process(RasterizerGLES3ShadersStorage &shaders,Rasterizer
     glBindBuffer(GL_ARRAY_BUFFER, 0); // ensure this is unbound per WebGL2 spec
     glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, p_particles->particle_buffers[1]);
 
-         //		GLint size = 0;
-         //		glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+         //        GLint size = 0;
+         //        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 
     glBeginTransformFeedback(GL_POINTS);
     glDrawArrays(GL_POINTS, 0, p_particles->amount);

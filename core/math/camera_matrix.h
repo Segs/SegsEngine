@@ -30,8 +30,14 @@
 
 #pragma once
 
-#include "core/math/rect2.h"
+#include "core/math/math_defs.h"   // for real_t
+#include "core/math/math_funcs.h"  // for Math
+#include "core/math/plane.h"       // for Plane
+#include "core/math/vector2.h"     // for Vector2
+#include "core/math/vector3.h"     // for Vector3
 #include "core/math/transform.h"
+
+struct Rect2;
 
 struct GODOT_EXPORT Frustum {
     Plane planes[6];
@@ -40,7 +46,7 @@ struct GODOT_EXPORT Frustum {
     [[nodiscard]] Plane *begin() { return planes; }
     [[nodiscard]] Plane *end() { return planes+6; }
     Plane &operator[](int idx) { return planes[idx]; }
-    constexpr bool empty() const {
+    [[nodiscard]] constexpr bool empty() const {
         return *this == Frustum();
     }
     constexpr bool operator==(const Frustum &other) const {
@@ -72,7 +78,7 @@ struct GODOT_EXPORT CameraMatrix {
 
     real_t matrix[4][4];
 
-	float determinant() const;
+    float determinant() const;
     void set_identity();
     void set_zero();
     void set_light_bias();

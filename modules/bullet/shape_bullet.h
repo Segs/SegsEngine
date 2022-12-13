@@ -31,7 +31,6 @@
 #pragma once
 #include "rid_bullet.h"
 
-#include "core/math/geometry.h"
 #include "core/pool_vector.h"
 #include "core/hash_map.h"
 #include "core/variant.h"

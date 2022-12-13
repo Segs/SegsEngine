@@ -31,19 +31,7 @@
 #pragma once
 
 #include "scene/gui/base_button.h"
-#include "core/string.h"
-
-struct ButtonDrawableComponent {
-    String text;
-    String xl_text;
-    Ref<Texture> icon;
-    float _internal_margin[4];
-    bool flat;
-    bool expand_icon;
-    bool clip_text;
-    UiTextAlign align;
-    UiTextAlign icon_align;
-};
+#include "core/string_name.h"
 
 class GODOT_EXPORT Button : public BaseButton {
 

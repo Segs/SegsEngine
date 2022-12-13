@@ -81,7 +81,7 @@ class GODOT_EXPORT ScrollBar : public Range {
     bool click_handled;
     bool incr_active = false;
     bool decr_active = false;
-	bool drag_node_enabled;
+    bool drag_node_enabled;
 
     bool scrolling;
     float target_scroll;
@@ -103,7 +103,7 @@ public:
 
     void set_drag_node(const NodePath &p_path);
     NodePath get_drag_node() const;
-	void set_drag_node_enabled(bool p_enable);
+    void set_drag_node_enabled(bool p_enable);
 
     void set_smooth_scroll_enabled(bool p_enable);
     bool is_smooth_scroll_enabled() const;

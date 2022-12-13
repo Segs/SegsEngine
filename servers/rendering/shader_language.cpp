@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "shader_language.h"
- 
+
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/color.h"
@@ -5603,44 +5603,44 @@ String ShaderLanguage::_get_shader_type_list(const HashSet<StringName> &p_shader
     return valid_types;
 }
 //Error ShaderLanguage::_validate_datatype(DataType p_type) {
-//	if (RenderingServer::get_singleton()->is_low_end()) {
-//		bool invalid_type = false;
+//    if (RenderingServer::get_singleton()->is_low_end()) {
+//        bool invalid_type = false;
 
-//		switch (p_type) {
-//			case TYPE_ISAMPLER2D:
-//				invalid_type = true;
-//				break;
-//			case TYPE_USAMPLER2D:
-//				invalid_type = true;
-//				break;
-//			case TYPE_SAMPLER3D:
-//				invalid_type = true;
-//				break;
-//			case TYPE_ISAMPLER3D:
-//				invalid_type = true;
-//				break;
-//			case TYPE_USAMPLER3D:
-//				invalid_type = true;
-//				break;
-//			case TYPE_SAMPLER2DARRAY:
-//				invalid_type = true;
-//				break;
-//			case TYPE_USAMPLER2DARRAY:
-//				invalid_type = true;
-//				break;
-//			case TYPE_ISAMPLER2DARRAY:
-//				invalid_type = true;
-//				break;
-//			default:
-//				break;
-//		}
+//        switch (p_type) {
+//            case TYPE_ISAMPLER2D:
+//                invalid_type = true;
+//                break;
+//            case TYPE_USAMPLER2D:
+//                invalid_type = true;
+//                break;
+//            case TYPE_SAMPLER3D:
+//                invalid_type = true;
+//                break;
+//            case TYPE_ISAMPLER3D:
+//                invalid_type = true;
+//                break;
+//            case TYPE_USAMPLER3D:
+//                invalid_type = true;
+//                break;
+//            case TYPE_SAMPLER2DARRAY:
+//                invalid_type = true;
+//                break;
+//            case TYPE_USAMPLER2DARRAY:
+//                invalid_type = true;
+//                break;
+//            case TYPE_ISAMPLER2DARRAY:
+//                invalid_type = true;
+//                break;
+//            default:
+//                break;
+//        }
 
-//		if (invalid_type) {
-//			_set_error(vformat("\"%s\" type is supported only on high-end platform!", get_datatype_name(p_type)));
-//			return ERR_UNAVAILABLE;
-//		}
-//	}
-//	return OK;
+//        if (invalid_type) {
+//            _set_error(vformat("\"%s\" type is supported only on high-end platform!", get_datatype_name(p_type)));
+//            return ERR_UNAVAILABLE;
+//        }
+//    }
+//    return OK;
 //}
 Error ShaderLanguage::_parse_shader(const HashMap<StringName, FunctionInfo> &p_functions,
         const Vector<StringName> &p_render_modes, const HashSet<StringName> &p_shader_types) {

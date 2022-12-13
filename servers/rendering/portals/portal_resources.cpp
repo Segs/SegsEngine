@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "portal_resources.h"
+#include "core/math/geometry.h"
 
 OccluderResourceHandle PortalResources::occluder_resource_create() {
     uint32_t pool_id = 0;

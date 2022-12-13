@@ -968,7 +968,7 @@ PREAMBLE(void)::batch_initialize() {
     // frame diagnosis. print out the batches every nth frame
     bdata.settings_diagnose_frame = false;
     if (!Engine::get_singleton()->is_editor_hint() && bdata.settings_use_batching) {
-        //	{
+        //    {
         bdata.settings_diagnose_frame = T_GLOBAL_GET<bool>("rendering/batching/debug/diagnose_frame");
     }
 
@@ -1091,7 +1091,7 @@ PREAMBLE(bool)::_light_scissor_begin(const Rect2 &p_item_rect, const Transform2D
     // possibly due to pixel snap. For this reason we will boost
     // the scissor area by 1 pixel, this will take care of any rounding
     // issues, and shouldn't significantly negatively impact performance.
-    int y = rh - (cliprect.position.y + cliprect.size.y);
+    int y = int(rh - (cliprect.position.y + cliprect.size.y));
     y += 1; // off by 1 boost before flipping
 
     if (current_rt->flags[RS::RENDER_TARGET_VFLIP]) {
@@ -1255,47 +1255,47 @@ PREAMBLE(bool)::_prefill_line(RasterizerCanvas::Item::CommandLine *p_line, FillS
 }
 
 //unsigned int _ninepatch_apply_tiling_modes(RasterizerCanvas::Item::CommandNinePatch *p_np, Rect2 &r_source) {
-//	unsigned int rect_flags = 0;
+//    unsigned int rect_flags = 0;
 
-//	switch (p_np->axis_x) {
-//		default:
-//			break;
-//		case VisualServer::NINE_PATCH_TILE: {
-//			r_source.size.x = p_np->rect.size.x;
-//			rect_flags = RasterizerCanvas::CANVAS_RECT_TILE;
-//		} break;
-//		case VisualServer::NINE_PATCH_TILE_FIT: {
-//			// prevent divide by zero (may never happen)
-//			if (r_source.size.x) {
-//				int units = p_np->rect.size.x / r_source.size.x;
-//				if (!units)
-//					units++;
-//				r_source.size.x = r_source.size.x * units;
-//				rect_flags = RasterizerCanvas::CANVAS_RECT_TILE;
-//			}
-//		} break;
-//	}
+//    switch (p_np->axis_x) {
+//        default:
+//            break;
+//        case VisualServer::NINE_PATCH_TILE: {
+//            r_source.size.x = p_np->rect.size.x;
+//            rect_flags = RasterizerCanvas::CANVAS_RECT_TILE;
+//        } break;
+//        case VisualServer::NINE_PATCH_TILE_FIT: {
+//            // prevent divide by zero (may never happen)
+//            if (r_source.size.x) {
+//                int units = p_np->rect.size.x / r_source.size.x;
+//                if (!units)
+//                    units++;
+//                r_source.size.x = r_source.size.x * units;
+//                rect_flags = RasterizerCanvas::CANVAS_RECT_TILE;
+//            }
+//        } break;
+//    }
 
-//	switch (p_np->axis_y) {
-//		default:
-//			break;
-//		case VisualServer::NINE_PATCH_TILE: {
-//			r_source.size.y = p_np->rect.size.y;
-//			rect_flags = RasterizerCanvas::CANVAS_RECT_TILE;
-//		} break;
-//		case VisualServer::NINE_PATCH_TILE_FIT: {
-//			// prevent divide by zero (may never happen)
-//			if (r_source.size.y) {
-//				int units = p_np->rect.size.y / r_source.size.y;
-//				if (!units)
-//					units++;
-//				r_source.size.y = r_source.size.y * units;
-//				rect_flags = RasterizerCanvas::CANVAS_RECT_TILE;
-//			}
-//		} break;
-//	}
+//    switch (p_np->axis_y) {
+//        default:
+//            break;
+//        case VisualServer::NINE_PATCH_TILE: {
+//            r_source.size.y = p_np->rect.size.y;
+//            rect_flags = RasterizerCanvas::CANVAS_RECT_TILE;
+//        } break;
+//        case VisualServer::NINE_PATCH_TILE_FIT: {
+//            // prevent divide by zero (may never happen)
+//            if (r_source.size.y) {
+//                int units = p_np->rect.size.y / r_source.size.y;
+//                if (!units)
+//                    units++;
+//                r_source.size.y = r_source.size.y * units;
+//                rect_flags = RasterizerCanvas::CANVAS_RECT_TILE;
+//            }
+//        } break;
+//    }
 
-//	return rect_flags;
+//    return rect_flags;
 //}
 
 T_PREAMBLE
@@ -1402,7 +1402,7 @@ bool C_PREAMBLE::_prefill_ninepatch(RasterizerCanvas::Item::CommandNinePatch *p_
     // Some protection for the use of ninepatches with rect size smaller than margin size.
     // Note these cannot be produced by the UI, only programmatically, and the results
     // are somewhat undefined, because the margins overlap.
-    // Ninepatch get_minimum_size()	forces minimum size to be the sum of the margins.
+    // Ninepatch get_minimum_size()    forces minimum size to be the sum of the margins.
     // So this should occur very rarely if ever. Consider commenting these 4 lines out for higher speed
     // in ninepatches.
     x[1] = MIN(x[1], x[3]);
@@ -1537,10 +1537,10 @@ bool C_PREAMBLE::_prefill_polygon(RasterizerCanvas::Item::CommandPolygon *p_poly
 
     // N.B. polygons don't have color thus don't need a batch change with color
     // This code is left as reference in case of problems.
-    //	if (!r_fill_state.curr_batch->color.equals(modulate)) {
-    //		change_batch = true;
-    //		bdata.total_color_changes++;
-    //	}
+    //    if (!r_fill_state.curr_batch->color.equals(modulate)) {
+    //        change_batch = true;
+    //        bdata.total_color_changes++;
+    //    }
 
     if (change_batch) {
         // put the tex pixel size  in a local (less verbose and can be a register)
@@ -1562,7 +1562,7 @@ bool C_PREAMBLE::_prefill_polygon(RasterizerCanvas::Item::CommandPolygon *p_poly
         curr_batch->batch_texture_id = r_fill_state.batch_tex_id;
         curr_batch->first_command = command_num;
         curr_batch->num_commands = num_inds;
-        //		curr_batch->num_elements = num_inds;
+        //        curr_batch->num_elements = num_inds;
         curr_batch->first_vert = bdata.total_verts;
     } else {
         // we could alternatively do the count when closing a batch .. perhaps more efficient
@@ -1662,7 +1662,7 @@ bool C_PREAMBLE::_prefill_polygon(RasterizerCanvas::Item::CommandPolygon *p_poly
 
 PREAMBLE(bool)::_software_skin_poly(RasterizerCanvas::Item::CommandPolygon *p_poly, RasterizerCanvas::Item *p_item, BatchVertex *bvs, BatchColor *vertex_colors, const FillState &p_fill_state, const BatchColor *p_precalced_colors) {
 
-    //	alternatively could check get_this()->state.using_skeleton
+    //    alternatively could check get_this()->state.using_skeleton
     if (p_item->skeleton == entt::null)
         return false;
 
@@ -1683,8 +1683,8 @@ PREAMBLE(bool)::_software_skin_poly(RasterizerCanvas::Item::CommandPolygon *p_po
     // const Transform2D &skel_trans_inv = get_this()->state.skeleton_transform_inverse;
 
     // these are used in the shader but don't appear to be needed for software transform
-    //	const Transform2D &skel_trans = get_this()->state.skeleton_transform;
-    //	const Transform2D &skel_trans_inv = get_this()->state.skeleton_transform_inverse;
+    //    const Transform2D &skel_trans = get_this()->state.skeleton_transform;
+    //    const Transform2D &skel_trans_inv = get_this()->state.skeleton_transform_inverse;
 
     // get the bone transforms.
     // this is not ideal because we don't know in advance which bones are needed
@@ -2614,8 +2614,8 @@ PREAMBLE(bool)::_sort_items_match(const BSortItem &p_a, const BSortItem &p_b) co
         return false;
 
     // tested outside function
-    //	if (a->commands.size() != 1)
-    //		return false;
+    //    if (a->commands.size() != 1)
+    //        return false;
 
     const RasterizerCanvas::Item::Command &cb = *b->commands[0];
     if (cb.type != RasterizerCanvas::Item::Command::TYPE_RECT)
@@ -2623,8 +2623,8 @@ PREAMBLE(bool)::_sort_items_match(const BSortItem &p_a, const BSortItem &p_b) co
 
     const RasterizerCanvas::Item::Command &ca = *a->commands[0];
     // tested outside function
-    //	if (ca.type != Item::Command::TYPE_RECT)
-    //		return false;
+    //    if (ca.type != Item::Command::TYPE_RECT)
+    //        return false;
 
     const RasterizerCanvas::Item::CommandRect *rect_a = static_cast<const RasterizerCanvas::Item::CommandRect *>(&ca);
     const RasterizerCanvas::Item::CommandRect *rect_b = static_cast<const RasterizerCanvas::Item::CommandRect *>(&cb);

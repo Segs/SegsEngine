@@ -33,7 +33,9 @@
 #include "core/callable_method_pointer.h"
 #include "core/os/keyboard.h"
 #include "core/method_bind.h"
+#include "core/pool_vector.h"
 #include "EASTL/sort.h"
+#include "scene/resources/texture.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_scale.h"
@@ -443,7 +445,7 @@ void GradientEdit::_draw_checker(int x, int y, int w, int h) {
         Vector2(x + w * .5f / checker->get_width(), y + h * .5f / checker->get_height()),
         Vector2(x + w * .5f / checker->get_width(), y),
     };
-    draw_polygon(backPoints, colorPoints, uvPoints, checker);
+    draw_textured_polygon(backPoints, colorPoints, uvPoints, checker, Ref<Texture>(), false);
 }
 
 Size2 GradientEdit::get_minimum_size() const {

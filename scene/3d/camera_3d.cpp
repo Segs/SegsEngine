@@ -38,6 +38,7 @@
 #include "scene/main/scene_tree.h"
 #include "scene/resources/world_3d.h"
 #include "servers/physics_server_3d.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(Camera3D)
 IMPL_GDCLASS(ClippedCamera3D)

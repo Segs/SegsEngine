@@ -37,61 +37,61 @@
 class AudioEffectReverb;
 
 class AudioEffectReverbInstance : public AudioEffectInstance {
-	GDCLASS(AudioEffectReverbInstance,AudioEffectInstance)
+    GDCLASS(AudioEffectReverbInstance,AudioEffectInstance)
 
-	Ref<AudioEffectReverb> base;
+    Ref<AudioEffectReverb> base;
 
-	float tmp_src[Reverb::INPUT_BUFFER_MAX_SIZE];
-	float tmp_dst[Reverb::INPUT_BUFFER_MAX_SIZE];
+    float tmp_src[Reverb::INPUT_BUFFER_MAX_SIZE];
+    float tmp_dst[Reverb::INPUT_BUFFER_MAX_SIZE];
 
-	friend class AudioEffectReverb;
+    friend class AudioEffectReverb;
 
-	Reverb reverb[2];
+    Reverb reverb[2];
 
 public:
-	void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
-	AudioEffectReverbInstance();
+    void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
+    AudioEffectReverbInstance();
 };
 
 class GODOT_EXPORT AudioEffectReverb : public AudioEffect {
-	GDCLASS(AudioEffectReverb,AudioEffect)
+    GDCLASS(AudioEffectReverb,AudioEffect)
 
-	friend class AudioEffectReverbInstance;
+    friend class AudioEffectReverbInstance;
 
-	float predelay;
-	float predelay_fb;
-	float hpf;
-	float room_size;
-	float damping;
-	float spread;
-	float dry;
-	float wet;
+    float predelay;
+    float predelay_fb;
+    float hpf;
+    float room_size;
+    float damping;
+    float spread;
+    float dry;
+    float wet;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void set_predelay_msec(float p_msec);
-	void set_predelay_feedback(float p_feedback);
-	void set_room_size(float p_size);
-	void set_damping(float p_damping);
-	void set_spread(float p_spread);
-	void set_dry(float p_dry);
-	void set_wet(float p_wet);
-	void set_hpf(float p_hpf);
+    void set_predelay_msec(float p_msec);
+    void set_predelay_feedback(float p_feedback);
+    void set_room_size(float p_size);
+    void set_damping(float p_damping);
+    void set_spread(float p_spread);
+    void set_dry(float p_dry);
+    void set_wet(float p_wet);
+    void set_hpf(float p_hpf);
 
-	float get_predelay_msec() const;
-	float get_predelay_feedback() const;
-	float get_room_size() const;
-	float get_damping() const;
-	float get_spread() const;
-	float get_dry() const;
-	float get_wet() const;
-	float get_hpf() const;
+    float get_predelay_msec() const;
+    float get_predelay_feedback() const;
+    float get_room_size() const;
+    float get_damping() const;
+    float get_spread() const;
+    float get_dry() const;
+    float get_wet() const;
+    float get_hpf() const;
 
-	Ref<AudioEffectInstance> instance() override;
+    Ref<AudioEffectInstance> instance() override;
 
-	AudioEffectReverb();
+    AudioEffectReverb();
 };
 
 #endif // AUDIOEFFECTREVERB_H

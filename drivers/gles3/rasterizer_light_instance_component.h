@@ -3,6 +3,7 @@
 #include "core/engine_entities.h"
 #include "core/hash_set.h"
 #include "core/math/camera_matrix.h"
+#include "core/math/rect2.h"
 #include "servers/rendering/render_entity_helpers.h"
 
 class RasterizerSceneGLES3;

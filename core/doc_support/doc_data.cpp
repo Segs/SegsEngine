@@ -152,7 +152,7 @@ void DocData::remove_from(const DocData &p_data) {
     }
 }
 
-static Error _parse_methods(QXmlStreamReader &parser, Vector<DocContents::MethodDoc> &methods) {
+static Error _parse_methods(QXmlStreamReader &parser, Vector<MethodDoc> &methods) {
     auto section = parser.name();
     const auto element(parser.name().mid(0, parser.name().size() - 1));
 
@@ -169,7 +169,7 @@ static Error _parse_methods(QXmlStreamReader &parser, Vector<DocContents::Method
             return ERR_FILE_CORRUPT;
         }
         // In tag 'method' now.
-        DocContents::MethodDoc method;
+        MethodDoc method;
         const auto &attrs(parser.attributes());
         if (!attrs.hasAttribute("name")) {
             qCritical("missing 'name' attribute");
@@ -202,7 +202,7 @@ static Error _parse_methods(QXmlStreamReader &parser, Vector<DocContents::Method
                     method.return_enum = attrs.value("enum").toUtf8().data();
                 }
             } else if (name == "argument") {
-                DocContents::ArgumentDoc argument;
+                ArgumentDoc argument;
                 if (!attrs.hasAttribute("name") || !attrs.hasAttribute("type")) {
                     qCritical("missing 'name' or 'type' attribute");
                     return ERR_FILE_CORRUPT;
@@ -305,8 +305,8 @@ Error _load(QXmlStreamReader &parser, DocData &tgt) {
             return ERR_FILE_CORRUPT;
         }
         String name(class_attrs.value("name").toString().toUtf8().data());
-        tgt.class_list[name] = DocContents::ClassDoc();
-        DocContents::ClassDoc &c = tgt.class_list[name];
+        tgt.class_list[name] = ClassDoc();
+        ClassDoc &c = tgt.class_list[name];
 
         c.name = name;
         if (class_attrs.hasAttribute("inherits")) {
@@ -365,7 +365,7 @@ Error _load(QXmlStreamReader &parser, DocData &tgt) {
 
                             if (name3 == "member") {
                                 in_item = true;
-                                DocContents::PropertyDoc prop2;
+                                PropertyDoc prop2;
                                 const auto attrs(parser.attributes());
                                 ERR_FAIL_COND_V(!attrs.hasAttribute("name"), ERR_FILE_CORRUPT);
                                 prop2.name = attrs.value("name").toUtf8().data();
@@ -408,7 +408,7 @@ Error _load(QXmlStreamReader &parser, DocData &tgt) {
                             if (name3 == "theme_item") {
                                 in_theme_item = true;
 
-                                DocContents::ThemeItemDoc prop2;
+                                ThemeItemDoc prop2;
                                 const auto attrs(parser.attributes());
                                 ERR_FAIL_COND_V(!attrs.hasAttribute("name"), ERR_FILE_CORRUPT);
                                 prop2.name = attrs.value("name").toUtf8().data();
@@ -444,7 +444,7 @@ Error _load(QXmlStreamReader &parser, DocData &tgt) {
                                 in_item = true;
                                 const auto attrs(parser.attributes());
 
-                                DocContents::ConstantDoc constant2;
+                                ConstantDoc constant2;
                                 ERR_FAIL_COND_V(!attrs.hasAttribute("name"), ERR_FILE_CORRUPT);
                                 constant2.name = attrs.value("name").toUtf8().data();
                                 ERR_FAIL_COND_V(!attrs.hasAttribute("value"), ERR_FILE_CORRUPT);

@@ -217,19 +217,19 @@ String _capitalize_name(StringView p_name)  {
 EditorPropertyNameStyle EditorPropertyNameProcessor::get_default_inspector_style() {
     const EditorPropertyNameStyle style =
             EDITOR_GET_T<EditorPropertyNameStyle>("interface/inspector/default_property_name_style");
-	if (style == EditorPropertyNameStyle::LOCALIZED && !is_localization_available()) {
-		return EditorPropertyNameStyle::CAPITALIZED;
-	}
-	return style;
+    if (style == EditorPropertyNameStyle::LOCALIZED && !is_localization_available()) {
+        return EditorPropertyNameStyle::CAPITALIZED;
+    }
+    return style;
 }
 
 EditorPropertyNameStyle EditorPropertyNameProcessor::get_settings_style() {
     const bool translate = EDITOR_GET_T<bool>("interface/editor/localize_settings");
-	return translate ? EditorPropertyNameStyle::LOCALIZED : EditorPropertyNameStyle::CAPITALIZED;
+    return translate ? EditorPropertyNameStyle::LOCALIZED : EditorPropertyNameStyle::CAPITALIZED;
 }
 
 EditorPropertyNameStyle EditorPropertyNameProcessor::get_tooltip_style(EditorPropertyNameStyle p_style) {
-	return p_style == EditorPropertyNameStyle::LOCALIZED ? EditorPropertyNameStyle::CAPITALIZED : EditorPropertyNameStyle::LOCALIZED;
+    return p_style == EditorPropertyNameStyle::LOCALIZED ? EditorPropertyNameStyle::CAPITALIZED : EditorPropertyNameStyle::LOCALIZED;
 }
 
 bool EditorPropertyNameProcessor::is_localization_available() {
@@ -237,16 +237,16 @@ bool EditorPropertyNameProcessor::is_localization_available() {
 }
 
 String EditorPropertyNameProcessor::process_name(StringView p_name, EditorPropertyNameStyle p_style) {
-	switch (p_style) {
-	    case EditorPropertyNameStyle::RAW: {
+    switch (p_style) {
+        case EditorPropertyNameStyle::RAW: {
             return String(p_name);
-		}
+        }
         case EditorPropertyNameStyle::CAPITALIZED: {
-			return _capitalize_name(p_name);
-		}
+            return _capitalize_name(p_name);
+        }
         case EditorPropertyNameStyle::LOCALIZED: {
-			return TTRGET(_capitalize_name(p_name)).asCString();
-		}
-	}
-	ERR_FAIL_V_MSG(String(p_name), "Unexpected property name style.");
+            return TTRGET(_capitalize_name(p_name)).asCString();
+        }
+    }
+    ERR_FAIL_V_MSG(String(p_name), "Unexpected property name style.");
 }

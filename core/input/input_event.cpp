@@ -329,7 +329,7 @@ bool InputEventKey::action_match(const Ref<InputEvent> &p_event, bool p_exact_ma
         return false;
     }
 
-	bool match;
+    bool match;
     if (keycode != 0) {
         match = keycode == key->keycode;
     } else {
@@ -779,7 +779,7 @@ bool InputEventJoypadMotion::action_match(const Ref<InputEvent> &p_event, bool p
         return false;
     }
 
-	// Matches even if not in the same direction, but returns a "not pressed" event.
+    // Matches even if not in the same direction, but returns a "not pressed" event.
     bool match = (axis == jm->axis);
     if (p_exact_match) {
         match &= (axis_value < 0) == (jm->axis_value < 0);

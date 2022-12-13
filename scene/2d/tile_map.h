@@ -280,8 +280,8 @@ public:
 
     void update_dirty_quadrants();
 
-	void set_show_collision(bool p_value);
-	bool is_show_collision_enabled() const;
+    void set_show_collision(bool p_value);
+    bool is_show_collision_enabled() const;
 
     void set_collision_layer(uint32_t p_layer);
     uint32_t get_collision_layer() const;

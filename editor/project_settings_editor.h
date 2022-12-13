@@ -147,7 +147,7 @@ class ProjectSettingsEditor : public AcceptDialog {
     void _translation_res_option_changed();
     void _translation_res_option_delete(Object *p_item, int p_column, int p_button);
 
-	void _translation_res_option_popup(bool p_arrow_clicked);
+    void _translation_res_option_popup(bool p_arrow_clicked);
     void _translation_res_option_selected(const String &p_locale);
 
     void _toggle_search_bar(bool p_pressed);

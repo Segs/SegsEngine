@@ -34,12 +34,12 @@
 
 class Panel : public Control {
 
-	GDCLASS(Panel,Control)
+    GDCLASS(Panel,Control)
 
 protected:
-	void _notification(int p_what);
+    void _notification(int p_what);
 
 public:
-	Panel();
-	~Panel() override;
+    Panel();
+    ~Panel() override;
 };

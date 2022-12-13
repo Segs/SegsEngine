@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "core/math/geometry.h"
 #include "core/math/face3.h"
 #include "core/math/triangle_mesh.h"
 #include "core/resource.h"
@@ -237,7 +236,7 @@ public:
     void surface_set_name(int p_idx, StringView p_name);
     String surface_get_name(int p_idx) const;
 
-    void add_surface_from_mesh_data(Geometry::MeshData &&p_mesh_data);
+    void add_surface_from_mesh_data(GeometryMeshData &&p_mesh_data);
 
     void set_custom_aabb(const AABB &p_custom);
     AABB get_custom_aabb() const;
@@ -247,7 +246,7 @@ public:
 
     void regen_normalmaps();
 
-    Error lightmap_unwrap(const Transform &p_base_transform = Transform(), float p_texel_size = 0.05f);
+    Error lightmap_unwrap(const Transform &p_base_transform, float p_texel_size = 0.05f);
     Error lightmap_unwrap_cached(int *&r_cache_data, unsigned int &r_cache_size, bool &r_used_cache, const Transform &p_base_transform, float p_texel_size);
 
     void reload_from_file() override;

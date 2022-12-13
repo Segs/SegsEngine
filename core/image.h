@@ -38,7 +38,7 @@
 #include "core/plugin_interfaces/load_params.h"
 
 /**
- *	@author Juan Linietsky <reduzio@gmail.com>
+ * @author Juan Linietsky <reduzio@gmail.com>
  *
  * Image storage class. This is used to store an image in user memory, as well as
  * providing some basic methods for image manipulation.

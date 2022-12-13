@@ -31,6 +31,7 @@
 #include "sky.h"
 
 #include "core/io/image_loader.h"
+#include "core/math/basis.h"
 #include "core/method_bind.h"
 #include "core/os/thread.h"
 #include "servers/rendering_server.h"

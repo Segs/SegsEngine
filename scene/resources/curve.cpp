@@ -1026,7 +1026,7 @@ void Curve2D::_bind_methods() {
 Curve2D::Curve2D() {
     baked_cache_dirty = false;
     baked_max_ofs = 0;
-    /*	add_point(Vector2(-1,0,0));
+    /*    add_point(Vector2(-1,0,0));
     add_point(Vector2(0,2,0));
     add_point(Vector2(0,3,5));*/
     bake_interval = 5;
@@ -1715,7 +1715,7 @@ void Curve3D::_bind_methods() {
 Curve3D::Curve3D() {
     baked_cache_dirty = false;
     baked_max_ofs = 0;
-    /*	add_point(Vector3(-1,0,0));
+    /*    add_point(Vector3(-1,0,0));
     add_point(Vector3(0,2,0));
     add_point(Vector3(0,3,5));*/
     bake_interval = 0.2;

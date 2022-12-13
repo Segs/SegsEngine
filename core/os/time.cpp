@@ -238,7 +238,7 @@ String Time::get_datetime_string_from_unix_time(int64_t p_unix_time_val, bool p_
     UNIX_TIME_TO_HMS
     UNIX_TIME_TO_YMD
     // vformat only supports up to 6 arguments, so we need to split this up into 2 parts.
-    String timestamp = FormatVE("%04d-%02d-%02d", year, (uint8_t)month, day);
+    String timestamp = FormatVE("%04d-%02d-%02d", (int)year, (uint8_t)month, day);
     if (p_use_space) {
         timestamp = FormatVE("%s %02d:%02d:%02d", timestamp.c_str(), hour, minute, second);
     } else {
@@ -251,7 +251,7 @@ String Time::get_datetime_string_from_unix_time(int64_t p_unix_time_val, bool p_
 String Time::get_date_string_from_unix_time(int64_t p_unix_time_val) const {
     UNIX_TIME_TO_YMD
     // Android is picky about the types passed to make Variant, so we need a cast.
-    return FormatVE("%04d-%02d-%02d", year, (uint8_t)month, day);
+    return FormatVE("%04d-%02d-%02d", (int)year, (uint8_t)month, day);
 }
 
 String Time::get_time_string_from_unix_time(int64_t p_unix_time_val) const {
@@ -282,7 +282,7 @@ String Time::get_datetime_dict_from_datetime_string(const Dictionary &p_datetime
     EXTRACT_FROM_DICTIONARY
     VALIDATE_YMDHMS("")
     // vformat only supports up to 6 arguments, so we need to split this up into 2 parts.
-    String timestamp = FormatVE("%04d-%02d-%02d", year, (uint8_t)month, day);
+    String timestamp = FormatVE("%04d-%02d-%02d", (int)year, (uint8_t)month, day);
     if (p_use_space) {
         timestamp = FormatVE("%s %02d:%02d:%02d", timestamp.c_str(), hour, minute, second);
     } else {
@@ -318,7 +318,7 @@ String Time::get_offset_string_from_offset_minutes(int64_t p_offset_minutes) con
     // Note that % is acceptable here only because we ensure it's positive.
     int64_t offset_hours = p_offset_minutes / 60;
     int64_t offset_minutes = p_offset_minutes % 60;
-    return FormatVE("%s%02d:%02d", sign, offset_hours, offset_minutes);
+    return FormatVE("%s%02d:%02d", sign, (int)offset_hours, (int)offset_minutes);
 }
 
 Dictionary Time::get_datetime_dict_from_system(bool p_utc) const {

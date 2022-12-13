@@ -31,6 +31,7 @@
 #include "segment_shape_2d.h"
 
 #include "core/dictionary.h"
+#include "core/math/geometry.h"
 #include "core/method_bind.h"
 #include "servers/physics_server_2d.h"
 #include "servers/rendering_server.h"

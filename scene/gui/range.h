@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/hash_set.h"
 #include "scene/gui/control.h"
 
 class GODOT_EXPORT Range : public Control {
@@ -44,7 +45,7 @@ class GODOT_EXPORT Range : public Control {
         bool allow_lesser;
         HashSet<Range *> owners;
         void emit_value_changed();
-        void emit_changed(StringName p_what = "");
+        void emit_changed(StringName p_what = StringName());
     };
 
     Shared *shared;

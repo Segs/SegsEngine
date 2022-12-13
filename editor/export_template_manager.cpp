@@ -836,7 +836,7 @@ ExportTemplateManager::ExportTemplateManager() {
     download_progress_bar->set_min(0);
     download_progress_bar->set_max(1);
     download_progress_bar->set_value(0);
-    download_progress_bar->set_step(0.01);
+    download_progress_bar->set_step(0.01f);
     download_progress_hb->add_child(download_progress_bar);
 
     download_progress_label = memnew(Label);

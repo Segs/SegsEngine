@@ -33,6 +33,7 @@
 #include "scene/2d/node_2d.h"
 #include "scene/resources/shape_2d.h"
 #include "core/map.h"
+#include "core/rid.h"
 
 class GODOT_EXPORT CollisionObject2D : public Node2D {
 

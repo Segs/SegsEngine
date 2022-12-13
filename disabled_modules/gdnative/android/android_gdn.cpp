@@ -48,36 +48,36 @@ extern "C" {
 
 JNIEnv *GDAPI godot_android_get_env() {
 #ifdef __ANDROID__
-	return ThreadAndroid::get_env();
+    return ThreadAndroid::get_env();
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
 jobject GDAPI godot_android_get_activity() {
 #ifdef __ANDROID__
-	OS_Android *os_android = (OS_Android *)OS::get_singleton();
-	return os_android->get_godot_java()->get_activity();
+    OS_Android *os_android = (OS_Android *)OS::get_singleton();
+    return os_android->get_godot_java()->get_activity();
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
 jobject GDAPI godot_android_get_surface() {
 #ifdef __ANDROID__
-	OS_Android *os_android = (OS_Android *)OS::get_singleton();
-	return os_android->get_godot_java()->get_surface();
+    OS_Android *os_android = (OS_Android *)OS::get_singleton();
+    return os_android->get_godot_java()->get_surface();
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
 bool GDAPI godot_android_is_activity_resumed() {
 #ifdef __ANDROID__
-	OS_Android *os_android = (OS_Android *)OS::get_singleton();
-	return os_android->get_godot_java()->is_activity_resumed();
+    OS_Android *os_android = (OS_Android *)OS::get_singleton();
+    return os_android->get_godot_java()->is_activity_resumed();
 #else
-	return false;
+    return false;
 #endif
 }
 

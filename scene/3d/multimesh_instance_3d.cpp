@@ -32,6 +32,7 @@
 #include "core/method_bind.h"
 #include "core/pool_vector.h"
 #include "core/math/face3.h"
+#include "scene/resources/multimesh.h"
 
 IMPL_GDCLASS(MultiMeshInstance3D)
 

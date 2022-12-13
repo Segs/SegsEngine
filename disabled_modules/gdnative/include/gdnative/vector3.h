@@ -42,7 +42,7 @@ extern "C" {
 #ifndef GODOT_CORE_API_GODOT_VECTOR3_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_VECTOR3_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_VECTOR3_SIZE];
+    uint8_t _dont_touch_that[GODOT_VECTOR3_SIZE];
 } godot_vector3;
 #endif
 
@@ -59,9 +59,9 @@ extern "C" {
 #endif
 
 typedef enum {
-	GODOT_VECTOR3_AXIS_X,
-	GODOT_VECTOR3_AXIS_Y,
-	GODOT_VECTOR3_AXIS_Z,
+    GODOT_VECTOR3_AXIS_X,
+    GODOT_VECTOR3_AXIS_Y,
+    GODOT_VECTOR3_AXIS_Z,
 } godot_vector3_axis;
 
 void GDAPI godot_vector3_new(godot_vector3 *r_dest, const godot_real p_x, const godot_real p_y, const godot_real p_z);

@@ -30,6 +30,7 @@
 
 #include "polygon_2d.h"
 
+#include "scene/resources/texture.h"
 #include "skeleton_2d.h"
 
 #include "core/callable_method_pointer.h"
@@ -310,8 +311,8 @@ void Polygon2D::_notification(int p_what) {
                 colors = single_color;
             }
 
-            //			Vector<int> indices = Geometry::triangulate_polygon(points);
-            //			RenderingServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, texture ? texture->get_rid() : RID());
+//            Vector<int> indices = Geometry::triangulate_polygon(points);
+//            RenderingServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, texture ? texture->get_rid() : RID());
 
             if (invert || polygons.empty()) {
                 Vector<int> indices(Geometry::triangulate_polygon(points));

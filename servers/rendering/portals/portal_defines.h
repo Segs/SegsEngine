@@ -34,6 +34,6 @@
 // while keeping the dependencies to an absolute minimum.
 
 struct PortalDefines {
-	static const int OCCLUSION_POLY_MAX_VERTS = 8;
-	static const int OCCLUSION_POLY_MAX_HOLES = 4;
+    static const int OCCLUSION_POLY_MAX_VERTS = 8;
+    static const int OCCLUSION_POLY_MAX_HOLES = 4;
 };

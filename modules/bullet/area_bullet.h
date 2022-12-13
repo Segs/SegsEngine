@@ -142,7 +142,7 @@ public:
     void on_collision_checker_start() override {}
     void on_collision_checker_end() override { updated = false; }
 
-	void mark_all_overlaps_dirty();
+    void mark_all_overlaps_dirty();
     void mark_object_overlaps_inside(CollisionObjectBullet *p_other_object);
     void set_overlap(CollisionObjectBullet *p_other_object, uint32_t p_other_shape_id, uint32_t p_our_shape_id);
     void mark_all_dirty_overlaps_as_exit();

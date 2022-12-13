@@ -251,7 +251,7 @@ public:
     Size2 get_char_tx_size(CharType p_char, CharType p_next, bool p_outline) const override;
     Rect2 get_char_tx_uv_rect(CharType p_char, CharType p_next, bool p_outline) const override;
 
-    CharContour get_char_contours(CharType p_char, CharType p_next) const;
+    CharContour get_char_contours(CharType p_char, CharType p_next) const override;
 
     static Mutex dynamic_font_mutex;
 

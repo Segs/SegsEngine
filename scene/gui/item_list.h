@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ITEMLIST_H
-#define ITEMLIST_H
+#pragma once
 
 #include "scene/gui/control.h"
 #include "scene/gui/scroll_bar.h"
@@ -126,7 +125,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void add_item(const StringName &p_item, const Ref<Texture> &p_texture = Ref<Texture>(), bool p_selectable = true);
+    void add_item(const StringName &p_item, const Ref<Texture> &p_texture, bool p_selectable = true);
     void add_icon_item(const Ref<Texture> &p_item, bool p_selectable = true);
 
     void set_item_text(int p_idx, const StringName &p_text);
@@ -236,6 +235,3 @@ public:
     ItemList();
     ~ItemList() override;
 };
-
-
-#endif // ITEMLIST_H

@@ -868,7 +868,7 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 maximized = false;
                 minimized = false;
             }
-            //return 0;								// Jump Back
+            //return 0;                                // Jump Back
         } break;
 
         case WM_ENTERSIZEMOVE: {
@@ -1283,9 +1283,9 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
         /*  DEVMODE dmScreenSettings;
         memset(&dmScreenSettings,0,sizeof(dmScreenSettings));
         dmScreenSettings.dmSize=sizeof(dmScreenSettings);
-        dmScreenSettings.dmPelsWidth	= video_mode.width;
-        dmScreenSettings.dmPelsHeight	= video_mode.height;
-        dmScreenSettings.dmBitsPerPel	= current.dmBitsPerPel;
+        dmScreenSettings.dmPelsWidth    = video_mode.width;
+        dmScreenSettings.dmPelsHeight    = video_mode.height;
+        dmScreenSettings.dmBitsPerPel    = current.dmBitsPerPel;
         dmScreenSettings.dmFields=DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT;
 
         LONG err = ChangeDisplaySettings(&dmScreenSettings,CDS_FULLSCREEN);

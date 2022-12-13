@@ -41,16 +41,16 @@ class GDMonoMethod : public IMonoClassMember {
 
     StringName name;
 
-	uint16_t params_count;
-	unsigned int params_buffer_size = 0;
+    uint16_t params_count;
+    unsigned int params_buffer_size = 0;
     ManagedType return_type;
     Vector<ManagedType> param_types;
 
-	bool method_info_fetched = false;
+    bool method_info_fetched = false;
     MethodInfo method_info;
 
-	bool attrs_fetched = false;
-	MonoCustomAttrInfo *attributes = nullptr;
+    bool attrs_fetched = false;
+    MonoCustomAttrInfo *attributes = nullptr;
 
     void _update_signature();
     void _update_signature(MonoMethodSignature *p_method_sig);
@@ -77,7 +77,7 @@ public:
     _FORCE_INLINE_ MonoMethod *get_mono_ptr() const { return mono_method; }
 
     _FORCE_INLINE_ uint16_t get_parameters_count() const { return params_count; }
-	_FORCE_INLINE_ ManagedType get_return_type() const { return return_type; }
+    _FORCE_INLINE_ ManagedType get_return_type() const { return return_type; }
 
     MonoObject *invoke(MonoObject *p_object, const Variant **p_params, MonoException **r_exc = nullptr) const;
     MonoObject *invoke(MonoObject *p_object, MonoException **r_exc = nullptr) const;

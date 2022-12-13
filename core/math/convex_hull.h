@@ -43,9 +43,12 @@ subject to the following restrictions:
 */
 
 #pragma once
-#include "core/math/geometry.h"
-#include "core/math/vector3.h"
+#include "core/error_list.h"      // for Error
+#include "core/math/math_defs.h"  // for real_t
 #include "core/vector.h"
+
+struct Vector3;
+struct GeometryMeshData;
 
 /// Convex hull implementation based on Preparata and Hong
 /// See http://code.google.com/p/bullet/issues/detail?id=275
@@ -107,7 +110,7 @@ public:
         */
     real_t compute(const Vector3 *p_coords, int32_t p_count, real_t p_shrink, real_t p_shrink_clamp);
 
-    static Error convex_hull(const Vector<Vector3> &p_points, Geometry::MeshData &r_mesh);
-    static Error convex_hull(const PoolVector<Vector3> &p_points, Geometry::MeshData &r_mesh);
-    static Error convex_hull(const Vector3 *p_points, int32_t p_point_count, Geometry::MeshData &r_mesh);
+    static Error convex_hull(const Vector<Vector3> &p_points, GeometryMeshData &r_mesh);
+    static Error convex_hull(const PoolVector<Vector3> &p_points, GeometryMeshData &r_mesh);
+    static Error convex_hull(const Vector3 *p_points, int32_t p_point_count, GeometryMeshData &r_mesh);
 };

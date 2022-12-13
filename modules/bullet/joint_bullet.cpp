@@ -33,8 +33,8 @@
 #include "space_bullet.h"
 
 /**
-	@author AndreaCatania
+    @author AndreaCatania
 */
 
 JointBullet::JointBullet() :
-		ConstraintBullet() {}
+        ConstraintBullet() {}

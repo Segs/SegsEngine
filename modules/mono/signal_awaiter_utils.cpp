@@ -52,7 +52,7 @@ Error gd_mono_connect_signal_awaiter(Object *p_source, const StringName &p_signa
 }
 
 bool SignalAwaiterCallable::compare_equal(const CallableCustom *p_a, const CallableCustom *p_b) {
-	// Only called if both instances are of type SignalAwaiterCallable. Static cast is safe.
+    // Only called if both instances are of type SignalAwaiterCallable. Static cast is safe.
     const SignalAwaiterCallable *a = static_cast<const SignalAwaiterCallable *>(p_a);
     const SignalAwaiterCallable *b = static_cast<const SignalAwaiterCallable *>(p_b);
     assert(false);

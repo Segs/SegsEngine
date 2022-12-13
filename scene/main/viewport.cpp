@@ -60,6 +60,7 @@
 #include "scene/resources/mesh.h"
 #include "scene/resources/style_box.h"
 #include "scene/scene_string_names.h"
+#include "scene/gui/control_data.h"
 #include "servers/physics_server_2d.h"
 
 IMPL_GDCLASS(ViewportTexture)
@@ -397,7 +398,7 @@ void Viewport::_notification(int p_what) {
             }
 
             rs->viewport_set_scenario(viewport, entt::null);
-            //			SpatialSoundServer::get_singleton()->listener_set_space(internal_listener, entt::null);
+            // SpatialSoundServer::get_singleton()->listener_set_space(internal_listener, entt::null);
             rs->viewport_remove_canvas(viewport, current_canvas);
             if (contact_2d_debug!= entt::null) {
                 rs->free_rid(contact_2d_debug);
@@ -954,7 +955,7 @@ void Viewport::_listener_transform_changed_notify() {
 
 #ifndef _3D_DISABLED
 //if (listener)
-//		SpatialSoundServer::get_singleton()->listener_set_transform(internal_listener,
+//        SpatialSoundServer::get_singleton()->listener_set_transform(internal_listener,
 //listener->get_listener_transform());
 #endif
 }
@@ -1020,8 +1021,8 @@ void Viewport::_camera_transform_changed_notify() {
 
 #ifndef _3D_DISABLED
 // If there is an active listener in the scene, it takes priority over the camera
-//	if (camera && !listener)
-//		SpatialSoundServer::get_singleton()->listener_set_transform(internal_listener, camera->get_camera_transform());
+//    if (camera && !listener)
+//        SpatialSoundServer::get_singleton()->listener_set_transform(internal_listener, camera->get_camera_transform());
 #endif
 }
 

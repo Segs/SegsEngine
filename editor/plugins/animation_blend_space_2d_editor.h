@@ -42,107 +42,107 @@
 
 class GODOT_EXPORT AnimationNodeBlendSpace2DEditor : public AnimationTreeNodeEditorPlugin {
 
-	GDCLASS(AnimationNodeBlendSpace2DEditor,AnimationTreeNodeEditorPlugin)
+    GDCLASS(AnimationNodeBlendSpace2DEditor,AnimationTreeNodeEditorPlugin)
 
-	Ref<AnimationNodeBlendSpace2D> blend_space;
+    Ref<AnimationNodeBlendSpace2D> blend_space;
 
-	PanelContainer *panel;
-	ToolButton *tool_blend;
-	ToolButton *tool_select;
-	ToolButton *tool_create;
-	ToolButton *tool_triangle;
-	VSeparator *tool_erase_sep;
-	ToolButton *tool_erase;
-	ToolButton *snap;
-	SpinBox *snap_x;
-	SpinBox *snap_y;
-	OptionButton *interpolation;
+    PanelContainer *panel;
+    ToolButton *tool_blend;
+    ToolButton *tool_select;
+    ToolButton *tool_create;
+    ToolButton *tool_triangle;
+    VSeparator *tool_erase_sep;
+    ToolButton *tool_erase;
+    ToolButton *snap;
+    SpinBox *snap_x;
+    SpinBox *snap_y;
+    OptionButton *interpolation;
 
-	ToolButton *auto_triangles;
+    ToolButton *auto_triangles;
 
-	LineEdit *label_x;
-	LineEdit *label_y;
-	SpinBox *max_x_value;
-	SpinBox *min_x_value;
-	SpinBox *max_y_value;
-	SpinBox *min_y_value;
+    LineEdit *label_x;
+    LineEdit *label_y;
+    SpinBox *max_x_value;
+    SpinBox *min_x_value;
+    SpinBox *max_y_value;
+    SpinBox *min_y_value;
 
-	HBoxContainer *edit_hb;
-	SpinBox *edit_x;
-	SpinBox *edit_y;
-	Button *open_editor;
+    HBoxContainer *edit_hb;
+    SpinBox *edit_x;
+    SpinBox *edit_y;
+    Button *open_editor;
 
-	int selected_point;
-	int selected_triangle;
+    int selected_point;
+    int selected_triangle;
 
-	Control *blend_space_draw;
+    Control *blend_space_draw;
 
-	PanelContainer *error_panel;
-	Label *error_label;
+    PanelContainer *error_panel;
+    Label *error_label;
 
-	bool updating;
+    bool updating;
 
-	UndoRedo *undo_redo;
+    UndoRedo *undo_redo;
 
-	static AnimationNodeBlendSpace2DEditor *singleton;
+    static AnimationNodeBlendSpace2DEditor *singleton;
 
-	void _blend_space_gui_input(const Ref<InputEvent> &p_event);
-	void _blend_space_draw();
+    void _blend_space_gui_input(const Ref<InputEvent> &p_event);
+    void _blend_space_draw();
 
-	void _update_space();
+    void _update_space();
 
-	void _config_changed(double);
-	void _labels_changed(StringView);
-	void _snap_toggled();
+    void _config_changed(double);
+    void _labels_changed(StringView);
+    void _snap_toggled();
 
-	PopupMenu *menu;
-	PopupMenu *animations_menu;
+    PopupMenu *menu;
+    PopupMenu *animations_menu;
     Vector<String> animations_to_add;
-	Vector2 add_point_pos;
+    Vector2 add_point_pos;
     Vector<Vector2> points;
 
-	bool dragging_selected_attempt;
-	bool dragging_selected;
-	Vector2 drag_from;
-	Vector2 drag_ofs;
+    bool dragging_selected_attempt;
+    bool dragging_selected;
+    Vector2 drag_from;
+    Vector2 drag_ofs;
 
     FixedVector<int,3,true> making_triangle; //TODO: SEGS: consider making the FixedVector non-growing
 
-	void _add_menu_type(int p_index);
-	void _add_animation_type(int p_index);
+    void _add_menu_type(int p_index);
+    void _add_animation_type(int p_index);
 
-	void _tool_switch(int p_tool);
-	void _update_edited_point_pos();
-	void _update_tool_erase();
-	void _erase_selected();
-	void _edit_point_pos(double);
-	void _open_editor();
+    void _tool_switch(int p_tool);
+    void _update_edited_point_pos();
+    void _update_tool_erase();
+    void _erase_selected();
+    void _edit_point_pos(double);
+    void _open_editor();
 
-	void _removed_from_graph();
+    void _removed_from_graph();
 
-	void _auto_triangles_toggled();
+    void _auto_triangles_toggled();
 
-	StringName get_blend_position_path() const;
+    StringName get_blend_position_path() const;
 
-	EditorFileDialog *open_file;
-	Ref<AnimationNode> file_loaded;
+    EditorFileDialog *open_file;
+    Ref<AnimationNode> file_loaded;
     void _file_opened(StringView p_file);
 
-	enum {
-		MENU_LOAD_FILE = 1000,
-		MENU_PASTE = 1001,
-		MENU_LOAD_FILE_CONFIRM = 1002
-	};
+    enum {
+        MENU_LOAD_FILE = 1000,
+        MENU_PASTE = 1001,
+        MENU_LOAD_FILE_CONFIRM = 1002
+    };
 
-	void _blend_space_changed();
+    void _blend_space_changed();
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	static AnimationNodeBlendSpace2DEditor *get_singleton() { return singleton; }
-	bool can_edit(const Ref<AnimationNode> &p_node) override;
-	void edit(const Ref<AnimationNode> &p_node) override;
-	AnimationNodeBlendSpace2DEditor();
+    static AnimationNodeBlendSpace2DEditor *get_singleton() { return singleton; }
+    bool can_edit(const Ref<AnimationNode> &p_node) override;
+    void edit(const Ref<AnimationNode> &p_node) override;
+    AnimationNodeBlendSpace2DEditor();
 };

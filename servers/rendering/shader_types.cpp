@@ -162,7 +162,7 @@ ShaderTypes::ShaderTypes() {
     spatial_light_info.built_ins["ATTENUATION"] = constt(ShaderLanguage::TYPE_VEC3);
     spatial_light_info.built_ins["ALBEDO"] = constt(ShaderLanguage::TYPE_VEC3);
     spatial_light_info.built_ins["TRANSMISSION"] = constt(ShaderLanguage::TYPE_VEC3);
-	spatial_light_info.built_ins["METALLIC"] = constt(ShaderLanguage::TYPE_FLOAT);
+    spatial_light_info.built_ins["METALLIC"] = constt(ShaderLanguage::TYPE_FLOAT);
     spatial_light_info.built_ins["ROUGHNESS"] = constt(ShaderLanguage::TYPE_FLOAT);
     spatial_light_info.built_ins["DIFFUSE_LIGHT"] = ShaderLanguage::TYPE_VEC3;
     spatial_light_info.built_ins["SPECULAR_LIGHT"] = ShaderLanguage::TYPE_VEC3;

@@ -35,12 +35,12 @@
 
 void register_mbedtls_types() {
 
-	CryptoMbedTLS::initialize_crypto();
-	StreamPeerMbedTLS::initialize_ssl();
+    CryptoMbedTLS::initialize_crypto();
+    StreamPeerMbedTLS::initialize_ssl();
 }
 
 void unregister_mbedtls_types() {
 
-	StreamPeerMbedTLS::finalize_ssl();
-	CryptoMbedTLS::finalize_crypto();
+    StreamPeerMbedTLS::finalize_ssl();
+    CryptoMbedTLS::finalize_crypto();
 }

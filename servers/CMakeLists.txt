@@ -1,159 +1,159 @@
 # Godot's own sources
 set(SERVER_SOURCES
-arvr/arvr_interface.cpp
-arvr/arvr_interface.h
-arvr/arvr_positional_tracker.cpp
-arvr/arvr_positional_tracker.h
-arvr/arvr_enum_casters.h
-arvr_server.cpp
-arvr_server.h
+    arvr/arvr_interface.cpp
+    arvr/arvr_interface.h
+    arvr/arvr_positional_tracker.cpp
+    arvr/arvr_positional_tracker.h
+    arvr/arvr_enum_casters.h
+    arvr_server.cpp
+    arvr_server.h
 
-audio/audio_driver_dummy.cpp
-audio/audio_driver_dummy.h
-audio/audio_effect.cpp
-audio/audio_effect.h
-audio/audio_filter_sw.cpp
-audio/audio_filter_sw.h
-audio/audio_rb_resampler.cpp
-audio/audio_rb_resampler.h
-audio/audio_stream.cpp
-audio/audio_stream.h
-audio/effects/audio_effect_amplify.cpp
-audio/effects/audio_effect_amplify.h
-audio/effects/audio_effect_capture.cpp
-audio/effects/audio_effect_capture.h
-audio/effects/audio_effect_chorus.cpp
-audio/effects/audio_effect_chorus.h
-audio/effects/audio_effect_compressor.cpp
-audio/effects/audio_effect_compressor.h
-audio/effects/audio_effect_delay.cpp
-audio/effects/audio_effect_delay.h
-audio/effects/audio_effect_distortion.cpp
-audio/effects/audio_effect_distortion.h
-audio/effects/audio_effect_eq.cpp
-audio/effects/audio_effect_eq.h
-audio/effects/audio_effect_filter.cpp
-audio/effects/audio_effect_filter.h
-audio/effects/audio_effect_limiter.cpp
-audio/effects/audio_effect_limiter.h
-audio/effects/audio_effect_panner.cpp
-audio/effects/audio_effect_panner.h
-audio/effects/audio_effect_phaser.cpp
-audio/effects/audio_effect_phaser.h
-audio/effects/audio_effect_pitch_shift.cpp
-audio/effects/audio_effect_pitch_shift.h
-audio/effects/audio_effect_record.cpp
-audio/effects/audio_effect_record.h
-audio/effects/audio_effect_reverb.cpp
-audio/effects/audio_effect_reverb.h
-audio/effects/audio_effect_spectrum_analyzer.cpp
-audio/effects/audio_effect_spectrum_analyzer.h
-audio/effects/audio_effect_stereo_enhance.cpp
-audio/effects/audio_effect_stereo_enhance.h
-audio/effects/audio_stream_generator.cpp
-audio/effects/audio_stream_generator.h
-audio/effects/eq.cpp
-audio/effects/eq.h
-audio/effects/reverb.cpp
-audio/effects/reverb.h
-audio_server.cpp
-audio_server.h
-camera/camera_feed.cpp
-camera/camera_feed.h
-camera_server.cpp
-camera_server.h
-camera_server_enum_casters.h
-physics_2d/area_2d_sw.cpp
-physics_2d/area_2d_sw.h
-physics_2d/area_pair_2d_sw.cpp
-physics_2d/area_pair_2d_sw.h
-physics_2d/body_2d_sw.cpp
-physics_2d/body_2d_sw.h
-physics_2d/body_pair_2d_sw.cpp
-physics_2d/body_pair_2d_sw.h
-physics_2d/broad_phase_2d_basic.cpp
-physics_2d/broad_phase_2d_basic.h
-physics_2d/broad_phase_2d_hash_grid.cpp
-physics_2d/broad_phase_2d_hash_grid.h
-physics_2d/broad_phase_2d_sw.cpp
-physics_2d/broad_phase_2d_sw.h
-physics_2d/collision_object_2d_sw.cpp
-physics_2d/collision_object_2d_sw.h
-physics_2d/collision_solver_2d_sat.cpp
-physics_2d/collision_solver_2d_sat.h
-physics_2d/collision_solver_2d_sw.cpp
-physics_2d/collision_solver_2d_sw.h
-physics_2d/constraint_2d_sw.h
-physics_2d/joints_2d_sw.cpp
-physics_2d/joints_2d_sw.h
-physics_2d/physics_2d_server_sw.cpp
-physics_2d/physics_2d_server_sw.h
-physics_2d/physics_2d_server_wrap_mt.cpp
-physics_2d/physics_2d_server_wrap_mt.h
-physics_2d/shape_2d_sw.cpp
-physics_2d/shape_2d_sw.h
-physics_2d/sources.cmake
-physics_2d/space_2d_sw.cpp
-physics_2d/space_2d_sw.h
-physics_2d/step_2d_sw.cpp
-physics_2d/step_2d_sw.h
-physics_server_2d.cpp
-physics_server_2d.h
-physics_server_3d.cpp
-physics_server_3d.h
-register_server_types.cpp
-register_server_types.h
-server_wrap_mt_common.h
-rendering/rasterizer.cpp
-rendering/rasterizer.h
-rendering/shader_language.cpp
-rendering/shader_language.h
-rendering/shader_types.cpp
-rendering/shader_types.h
-rendering/sources.cmake
-rendering/renderer_instance_component.cpp
-rendering/renderer_instance_component.h
-rendering/rendering_server_canvas.cpp
-rendering/rendering_server_canvas.h
-rendering/rendering_server_globals.cpp
-rendering/rendering_server_globals.h
-rendering/rendering_server_raster.cpp
-rendering/rendering_server_raster.h
-rendering/rendering_server_scene.cpp
-rendering/rendering_server_scene.h
-rendering/rendering_server_viewport.cpp
-rendering/rendering_server_viewport.h
-rendering/rendering_server_wrap_mt.cpp
-rendering/rendering_server_wrap_mt.h
-rendering/portals/portal_gameplay_monitor.cpp
-rendering/portals/portal_occlusion_culler.cpp
-rendering/portals/portal_pvs_builder.cpp
-rendering/portals/portal_pvs.cpp
-rendering/portals/portal_renderer.cpp
-rendering/portals/portal_renderer.h
-rendering/portals/portal_resources.cpp
-rendering/portals/portal_resources.h
-rendering/portals/portal_rooms_bsp.cpp
-rendering/portals/portal_tracer.cpp
-rendering/portals/portal_types.cpp
-rendering/portals/portal_gameplay_monitor.h
-rendering/portals/portal_occlusion_culler.h
-rendering/portals/portal_pvs_builder.h
-rendering/portals/portal_pvs.h
-rendering/portals/portal_renderer.h
-rendering/portals/portal_rooms_bsp.h
-rendering/portals/portal_tracer.h
-rendering/portals/portal_types.h
-rendering_server.cpp
-rendering_server.h
-rendering_server_callbacks.cpp
-rendering_server_callbacks.h
-rendering_server_enum_casters.h
-rendering_server_enums.h
-navigation_2d_server.cpp
-navigation_2d_server.h
-navigation_server.cpp
-navigation_server.h
+    audio/audio_driver_dummy.cpp
+    audio/audio_driver_dummy.h
+    audio/audio_effect.cpp
+    audio/audio_effect.h
+    audio/audio_filter_sw.cpp
+    audio/audio_filter_sw.h
+    audio/audio_rb_resampler.cpp
+    audio/audio_rb_resampler.h
+    audio/audio_stream.cpp
+    audio/audio_stream.h
+    audio/effects/audio_effect_amplify.cpp
+    audio/effects/audio_effect_amplify.h
+    audio/effects/audio_effect_capture.cpp
+    audio/effects/audio_effect_capture.h
+    audio/effects/audio_effect_chorus.cpp
+    audio/effects/audio_effect_chorus.h
+    audio/effects/audio_effect_compressor.cpp
+    audio/effects/audio_effect_compressor.h
+    audio/effects/audio_effect_delay.cpp
+    audio/effects/audio_effect_delay.h
+    audio/effects/audio_effect_distortion.cpp
+    audio/effects/audio_effect_distortion.h
+    audio/effects/audio_effect_eq.cpp
+    audio/effects/audio_effect_eq.h
+    audio/effects/audio_effect_filter.cpp
+    audio/effects/audio_effect_filter.h
+    audio/effects/audio_effect_limiter.cpp
+    audio/effects/audio_effect_limiter.h
+    audio/effects/audio_effect_panner.cpp
+    audio/effects/audio_effect_panner.h
+    audio/effects/audio_effect_phaser.cpp
+    audio/effects/audio_effect_phaser.h
+    audio/effects/audio_effect_pitch_shift.cpp
+    audio/effects/audio_effect_pitch_shift.h
+    audio/effects/audio_effect_record.cpp
+    audio/effects/audio_effect_record.h
+    audio/effects/audio_effect_reverb.cpp
+    audio/effects/audio_effect_reverb.h
+    audio/effects/audio_effect_spectrum_analyzer.cpp
+    audio/effects/audio_effect_spectrum_analyzer.h
+    audio/effects/audio_effect_stereo_enhance.cpp
+    audio/effects/audio_effect_stereo_enhance.h
+    audio/effects/audio_stream_generator.cpp
+    audio/effects/audio_stream_generator.h
+    audio/effects/eq.cpp
+    audio/effects/eq.h
+    audio/effects/reverb.cpp
+    audio/effects/reverb.h
+    audio_server.cpp
+    audio_server.h
+    camera/camera_feed.cpp
+    camera/camera_feed.h
+    camera_server.cpp
+    camera_server.h
+    camera_server_enum_casters.h
+    physics_2d/area_2d_sw.cpp
+    physics_2d/area_2d_sw.h
+    physics_2d/area_pair_2d_sw.cpp
+    physics_2d/area_pair_2d_sw.h
+    physics_2d/body_2d_sw.cpp
+    physics_2d/body_2d_sw.h
+    physics_2d/body_pair_2d_sw.cpp
+    physics_2d/body_pair_2d_sw.h
+    physics_2d/broad_phase_2d_basic.cpp
+    physics_2d/broad_phase_2d_basic.h
+    physics_2d/broad_phase_2d_hash_grid.cpp
+    physics_2d/broad_phase_2d_hash_grid.h
+    physics_2d/broad_phase_2d_sw.cpp
+    physics_2d/broad_phase_2d_sw.h
+    physics_2d/collision_object_2d_sw.cpp
+    physics_2d/collision_object_2d_sw.h
+    physics_2d/collision_solver_2d_sat.cpp
+    physics_2d/collision_solver_2d_sat.h
+    physics_2d/collision_solver_2d_sw.cpp
+    physics_2d/collision_solver_2d_sw.h
+    physics_2d/constraint_2d_sw.h
+    physics_2d/joints_2d_sw.cpp
+    physics_2d/joints_2d_sw.h
+    physics_2d/physics_2d_server_sw.cpp
+    physics_2d/physics_2d_server_sw.h
+    physics_2d/physics_2d_server_wrap_mt.cpp
+    physics_2d/physics_2d_server_wrap_mt.h
+    physics_2d/shape_2d_sw.cpp
+    physics_2d/shape_2d_sw.h
+    physics_2d/sources.cmake
+    physics_2d/space_2d_sw.cpp
+    physics_2d/space_2d_sw.h
+    physics_2d/step_2d_sw.cpp
+    physics_2d/step_2d_sw.h
+    physics_server_2d.cpp
+    physics_server_2d.h
+    physics_server_3d.cpp
+    physics_server_3d.h
+    register_server_types.cpp
+    register_server_types.h
+    server_wrap_mt_common.h
+    rendering/rasterizer.cpp
+    rendering/rasterizer.h
+    rendering/shader_language.cpp
+    rendering/shader_language.h
+    rendering/shader_types.cpp
+    rendering/shader_types.h
+    rendering/sources.cmake
+    rendering/renderer_instance_component.cpp
+    rendering/renderer_instance_component.h
+    rendering/rendering_server_canvas.cpp
+    rendering/rendering_server_canvas.h
+    rendering/rendering_server_globals.cpp
+    rendering/rendering_server_globals.h
+    rendering/rendering_server_raster.cpp
+    rendering/rendering_server_raster.h
+    rendering/rendering_server_scene.cpp
+    rendering/rendering_server_scene.h
+    rendering/rendering_server_viewport.cpp
+    rendering/rendering_server_viewport.h
+    rendering/rendering_server_wrap_mt.cpp
+    rendering/rendering_server_wrap_mt.h
+    rendering/portals/portal_gameplay_monitor.cpp
+    rendering/portals/portal_occlusion_culler.cpp
+    rendering/portals/portal_pvs_builder.cpp
+    rendering/portals/portal_pvs.cpp
+    rendering/portals/portal_renderer.cpp
+    rendering/portals/portal_renderer.h
+    rendering/portals/portal_resources.cpp
+    rendering/portals/portal_resources.h
+    rendering/portals/portal_rooms_bsp.cpp
+    rendering/portals/portal_tracer.cpp
+    rendering/portals/portal_types.cpp
+    rendering/portals/portal_gameplay_monitor.h
+    rendering/portals/portal_occlusion_culler.h
+    rendering/portals/portal_pvs_builder.h
+    rendering/portals/portal_pvs.h
+    rendering/portals/portal_renderer.h
+    rendering/portals/portal_rooms_bsp.h
+    rendering/portals/portal_tracer.h
+    rendering/portals/portal_types.h
+    rendering_server.cpp
+    rendering_server.h
+    rendering_server_callbacks.cpp
+    rendering_server_callbacks.h
+    rendering_server_enum_casters.h
+    rendering_server_enums.h
+    navigation_2d_server.cpp
+    navigation_2d_server.h
+    navigation_server.cpp
+    navigation_server.h
 )
 
 foreach(tgt ${global_targets})
@@ -162,8 +162,9 @@ foreach(tgt ${global_targets})
         "${PROJECT_SOURCE_DIR}/thirdparty/misc/easing_equations.cpp"
     )
 endforeach()
+
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${source_files})
-INSTALL (
+install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     DESTINATION include/SegsEngine
     FILES_MATCHING PATTERN "*.h"

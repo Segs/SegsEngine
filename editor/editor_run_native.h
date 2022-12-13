@@ -37,9 +37,9 @@
 
 class EditorRunNative : public HBoxContainer {
 
-	GDCLASS(EditorRunNative,HBoxContainer)
+    GDCLASS(EditorRunNative,HBoxContainer)
 
-	Map<int, MenuButton *> menus;
+    Map<int, MenuButton *> menus;
     bool first = true;
     bool deploy_dumb=false;
     bool deploy_debug_remote=false;
@@ -50,31 +50,31 @@ class EditorRunNative : public HBoxContainer {
     int resume_idx=0;
     int resume_platform=0;
 
-	void _run_native(int p_idx, int p_platform);
+    void _run_native(int p_idx, int p_platform);
 
 protected:
-	static void _bind_methods();
-	void _notification(int p_what);
+    static void _bind_methods();
+    void _notification(int p_what);
 
 public:
-	void set_deploy_dumb(bool p_enabled);
-	bool is_deploy_dumb_enabled() const;
+    void set_deploy_dumb(bool p_enabled);
+    bool is_deploy_dumb_enabled() const;
 
-	void set_deploy_debug_remote(bool p_enabled);
-	bool is_deploy_debug_remote_enabled() const;
+    void set_deploy_debug_remote(bool p_enabled);
+    bool is_deploy_debug_remote_enabled() const;
 
-	void set_debug_collisions(bool p_debug);
-	bool get_debug_collisions() const;
+    void set_debug_collisions(bool p_debug);
+    bool get_debug_collisions() const;
 
-	void set_debug_navigation(bool p_debug);
-	bool get_debug_navigation() const;
+    void set_debug_navigation(bool p_debug);
+    bool get_debug_navigation() const;
 
     void set_debug_shader_fallbacks(bool p_debug);
     bool get_debug_shader_fallbacks() const;
 
-	void resume_run_native();
+    void resume_run_native();
 
-	EditorRunNative();
+    EditorRunNative();
 };
 
 #endif // EDITOR_RUN_NATIVE_H

@@ -33,6 +33,7 @@
 
 #include "core/resource/resource_manager.h"
 #include "core/math/delaunay.h"
+#include "core/math/geometry.h"
 #include "core/method_bind.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"

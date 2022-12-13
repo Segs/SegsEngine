@@ -52,6 +52,7 @@
 #include "scene/gui/tool_button.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/font.h"
+#include "scene/resources/material.h"
 #include "scene/resources/style_box.h"
 #include "EASTL/sort.h"
 
@@ -3125,7 +3126,7 @@ Vector2 TileSetEditor::snap_point(const Vector2 &point) {
 }
 
 void TileSetEditor::add_texture(Ref<Texture> p_texture) {
-    texture_list->add_item(StringName(PathUtils::get_file(p_texture->get_path())));
+    texture_list->add_item(StringName(PathUtils::get_file(p_texture->get_path())),Ref<Texture>());
     texture_map.emplace(p_texture->get_path(), p_texture);
     texture_list->set_item_metadata(texture_list->get_item_count() - 1, p_texture->get_path());
 }

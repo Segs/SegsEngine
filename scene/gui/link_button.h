@@ -36,33 +36,33 @@
 
 class GODOT_EXPORT LinkButton : public BaseButton {
 
-	GDCLASS(LinkButton,BaseButton)
+    GDCLASS(LinkButton,BaseButton)
 
 public:
-	enum UnderlineMode {
-		UNDERLINE_MODE_ALWAYS,
-		UNDERLINE_MODE_ON_HOVER,
-		UNDERLINE_MODE_NEVER
-	};
+    enum UnderlineMode {
+        UNDERLINE_MODE_ALWAYS,
+        UNDERLINE_MODE_ON_HOVER,
+        UNDERLINE_MODE_NEVER
+    };
 
 private:
     String text;
     String xl_text;
-	UnderlineMode underline_mode;
+    UnderlineMode underline_mode;
 
 protected:
-	Size2 get_minimum_size() const override;
-	void _notification(int p_what);
-	static void _bind_methods();
+    Size2 get_minimum_size() const override;
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
     void set_text(StringView p_text);
     const String &get_text() const;
 
-	void set_underline_mode(UnderlineMode p_underline_mode);
-	UnderlineMode get_underline_mode() const;
+    void set_underline_mode(UnderlineMode p_underline_mode);
+    UnderlineMode get_underline_mode() const;
 
-	LinkButton();
+    LinkButton();
 };
 
 

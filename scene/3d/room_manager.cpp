@@ -34,6 +34,7 @@
 #include "room_group.h"
 #include "mesh_instance_3d.h"
 #include "multimesh_instance_3d.h"
+#include "scene/resources/multimesh.h"
 #include "visibility_notifier_3d.h"
 #include "camera_3d.h"
 #include "light_3d.h"
@@ -807,7 +808,7 @@ void RoomManager::_generate_room_overlap_zones() {
             }
 
             // there is an overlap, create a mesh from the points
-            Geometry::MeshData md;
+            GeometryMeshData md;
             Error err = _build_convex_hull(overlap_pts, md);
 
             if (err != OK) {
@@ -1471,7 +1472,7 @@ bool RoomManager::_convert_room_hull_preliminary(Room *p_room, const Vector<Vect
         return false;
     }
 
-    Geometry::MeshData md;
+    GeometryMeshData md;
 
     Error err = OK;
 
@@ -1576,7 +1577,7 @@ bool RoomManager::_convert_room_hull_final(Room *p_room, const Vector<Portal *> 
     }
 
     // create new convex hull
-    Geometry::MeshData md;
+    GeometryMeshData md;
     Error err = _build_room_convex_hull(p_room, vertices_including_portals, md);
 
     if (err != OK) {
@@ -1592,7 +1593,7 @@ bool RoomManager::_convert_room_hull_final(Room *p_room, const Vector<Portal *> 
     // recreate the points within the new simplified bound, and then recreate the convex hull
     // by running quickhull a second time... (this enables the gizmo to accurately show the simplified hull)
     int num_planes_before_simplification = p_room->_planes.size();
-    Geometry::MeshData md_simplified;
+    GeometryMeshData md_simplified;
     _build_simplified_bound(p_room, md_simplified, p_room->_planes, num_portals_added);
 
     if (num_planes_before_simplification != p_room->_planes.size()) {
@@ -1631,7 +1632,7 @@ bool RoomManager::_room_regenerate_bound(Room *p_room) {
         pts[n] = tr.xform(p_room->_bound_pts[n]);
     }
 
-    Geometry::MeshData md;
+    GeometryMeshData md;
     Error err = _build_room_convex_hull(p_room, pts, md);
 
     if (err != OK) {
@@ -1645,7 +1646,7 @@ bool RoomManager::_room_regenerate_bound(Room *p_room) {
 }
 #endif
 
-void RoomManager::_build_simplified_bound(const Room *p_room, Geometry::MeshData &r_md, Vector<Plane> &r_planes, int p_num_portal_planes) {
+void RoomManager::_build_simplified_bound(const Room *p_room, GeometryMeshData &r_md, Vector<Plane> &r_planes, int p_num_portal_planes) {
     if (!r_planes.size()) {
         return;
     }
@@ -1669,7 +1670,7 @@ void RoomManager::_build_simplified_bound(const Room *p_room, Geometry::MeshData
     }
 }
 
-Error RoomManager::_build_room_convex_hull(const Room *p_room, const Vector<Vector3> &p_points, Geometry::MeshData &r_mesh) {
+Error RoomManager::_build_room_convex_hull(const Room *p_room, const Vector<Vector3> &p_points, GeometryMeshData &r_mesh) {
     // calculate an epsilon based on the simplify value, and use this to build the hull
     real_t s = 0.0;
 
@@ -1914,7 +1915,7 @@ void RoomManager::_cleanup_after_conversion() {
         // outside the editor, there's no need to keep the data for the convex hull
         // drawing, as it is only used for gizmos.
         if (!Engine::get_singleton()->is_editor_hint()) {
-            room->_bound_mesh_data = Geometry::MeshData();
+            room->_bound_mesh_data = GeometryMeshData();
         }
     }
 }
@@ -2008,7 +2009,7 @@ void RoomManager::_update_gizmos_recursive(Node *p_node) {
     }
 }
 
-Error RoomManager::_build_convex_hull(const Vector<Vector3> &p_points, Geometry::MeshData &r_mesh, real_t p_epsilon) {
+Error RoomManager::_build_convex_hull(const Vector<Vector3> &p_points, GeometryMeshData &r_mesh, real_t p_epsilon) {
 #ifdef GODOT_PORTALS_USE_BULLET_CONVEX_HULL
     return ConvexHullComputer::convex_hull(p_points, r_mesh);
 #if 0

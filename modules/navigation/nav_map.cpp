@@ -33,6 +33,7 @@
 #include "nav_region.h"
 #include "rvo_agent.h"
 
+#include "core/math/geometry.h"
 #include "core/os/threaded_array_processor.h"
 #include "core/hash_map.h"
 #include "core/string_formatter.h"
@@ -586,7 +587,7 @@ void NavMap::sync() {
                 c2.polygon->edges[c2.edge].connections.push_back(c1);
                 // Note: The pathway_start/end are full for those connection and do not need to be modified.
             } else {
-                CRASH_COND_MSG(E.second.size() != 1, FormatVE("Number of connection != 1. Found: %d", E.second.size()));
+                CRASH_COND_MSG(E.second.size() != 1, FormatVE("Number of connection != 1. Found: %d", (int)E.second.size()));
                 free_edges.push_back(E.second[0]);
             }
         }

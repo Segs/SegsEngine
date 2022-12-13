@@ -42,7 +42,7 @@ extern "C" {
 #define GODOT_POOL_ARRAY_READ_ACCESS_SIZE 1
 
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_POOL_ARRAY_READ_ACCESS_SIZE];
+    uint8_t _dont_touch_that[GODOT_POOL_ARRAY_READ_ACCESS_SIZE];
 } godot_pool_array_read_access;
 
 typedef godot_pool_array_read_access godot_pool_byte_array_read_access;
@@ -58,7 +58,7 @@ typedef godot_pool_array_read_access godot_pool_color_array_read_access;
 #define GODOT_POOL_ARRAY_WRITE_ACCESS_SIZE 1
 
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_POOL_ARRAY_WRITE_ACCESS_SIZE];
+    uint8_t _dont_touch_that[GODOT_POOL_ARRAY_WRITE_ACCESS_SIZE];
 } godot_pool_array_write_access;
 
 typedef godot_pool_array_write_access godot_pool_byte_array_write_access;
@@ -76,7 +76,7 @@ typedef godot_pool_array_write_access godot_pool_color_array_write_access;
 #ifndef GODOT_CORE_API_GODOT_POOL_BYTE_ARRAY_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_POOL_BYTE_ARRAY_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_POOL_BYTE_ARRAY_SIZE];
+    uint8_t _dont_touch_that[GODOT_POOL_BYTE_ARRAY_SIZE];
 } godot_pool_byte_array;
 #endif
 
@@ -87,7 +87,7 @@ typedef struct {
 #ifndef GODOT_CORE_API_GODOT_POOL_INT_ARRAY_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_POOL_INT_ARRAY_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_POOL_INT_ARRAY_SIZE];
+    uint8_t _dont_touch_that[GODOT_POOL_INT_ARRAY_SIZE];
 } godot_pool_int_array;
 #endif
 
@@ -98,7 +98,7 @@ typedef struct {
 #ifndef GODOT_CORE_API_GODOT_POOL_FLOAT32_ARRAY_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_POOL_FLOAT32_ARRAY_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_POOL_FLOAT32_ARRAY_SIZE];
+    uint8_t _dont_touch_that[GODOT_POOL_FLOAT32_ARRAY_SIZE];
 } godot_POOL_FLOAT32_ARRAY;
 #endif
 
@@ -109,7 +109,7 @@ typedef struct {
 #ifndef GODOT_CORE_API_GODOT_POOL_STRING_ARRAY_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_POOL_STRING_ARRAY_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_POOL_STRING_ARRAY_SIZE];
+    uint8_t _dont_touch_that[GODOT_POOL_STRING_ARRAY_SIZE];
 } godot_pool_string_array;
 #endif
 
@@ -120,7 +120,7 @@ typedef struct {
 #ifndef GODOT_CORE_API_GODOT_POOL_VECTOR2_ARRAY_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_POOL_VECTOR2_ARRAY_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_POOL_VECTOR2_ARRAY_SIZE];
+    uint8_t _dont_touch_that[GODOT_POOL_VECTOR2_ARRAY_SIZE];
 } godot_pool_vector2_array;
 #endif
 
@@ -131,7 +131,7 @@ typedef struct {
 #ifndef GODOT_CORE_API_GODOT_POOL_VECTOR3_ARRAY_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_POOL_VECTOR3_ARRAY_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_POOL_VECTOR3_ARRAY_SIZE];
+    uint8_t _dont_touch_that[GODOT_POOL_VECTOR3_ARRAY_SIZE];
 } godot_pool_vector3_array;
 #endif
 
@@ -142,7 +142,7 @@ typedef struct {
 #ifndef GODOT_CORE_API_GODOT_POOL_COLOR_ARRAY_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_POOL_COLOR_ARRAY_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_POOL_COLOR_ARRAY_SIZE];
+    uint8_t _dont_touch_that[GODOT_POOL_COLOR_ARRAY_SIZE];
 } godot_pool_color_array;
 #endif
 

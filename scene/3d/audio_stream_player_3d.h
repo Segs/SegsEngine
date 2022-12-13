@@ -40,80 +40,80 @@
 class Camera3D;
 class GODOT_EXPORT AudioStreamPlayer3D : public Node3D {
 
-	GDCLASS(AudioStreamPlayer3D,Node3D)
+    GDCLASS(AudioStreamPlayer3D,Node3D)
 
 public:
-	enum AttenuationModel {
-		ATTENUATION_INVERSE_DISTANCE,
-		ATTENUATION_INVERSE_SQUARE_DISTANCE,
-		ATTENUATION_LOGARITHMIC,
-		ATTENUATION_DISABLED,
-	};
+    enum AttenuationModel {
+        ATTENUATION_INVERSE_DISTANCE,
+        ATTENUATION_INVERSE_SQUARE_DISTANCE,
+        ATTENUATION_LOGARITHMIC,
+        ATTENUATION_DISABLED,
+    };
 
-	enum OutOfRangeMode {
-		OUT_OF_RANGE_MIX,
-		OUT_OF_RANGE_PAUSE,
-	};
+    enum OutOfRangeMode {
+        OUT_OF_RANGE_MIX,
+        OUT_OF_RANGE_PAUSE,
+    };
 
-	enum DopplerTracking {
-		DOPPLER_TRACKING_DISABLED,
-		DOPPLER_TRACKING_IDLE_STEP,
-		DOPPLER_TRACKING_PHYSICS_STEP
-	};
+    enum DopplerTracking {
+        DOPPLER_TRACKING_DISABLED,
+        DOPPLER_TRACKING_IDLE_STEP,
+        DOPPLER_TRACKING_PHYSICS_STEP
+    };
 
 private:
-	enum {
-		MAX_OUTPUTS = 8,
-		MAX_INTERSECT_AREAS = 32
+    enum {
+        MAX_OUTPUTS = 8,
+        MAX_INTERSECT_AREAS = 32
 
-	};
+    };
 
-	struct Output {
+    struct Output {
 
-		AudioFilterSW filter;
-		AudioFilterSW::Processor filter_process[8];
-		AudioFrame vol[4];
-		float filter_gain;
-		float pitch_scale;
-		int bus_index;
-		int reverb_bus_index;
-		AudioFrame reverb_vol[4];
-		Viewport *viewport; //pointer only used for reference to previous mix
+        AudioFilterSW filter;
+        AudioFilterSW::Processor filter_process[8];
+        AudioFrame vol[4];
+        float filter_gain;
+        float pitch_scale;
+        int bus_index;
+        int reverb_bus_index;
+        AudioFrame reverb_vol[4];
+        Viewport *viewport; //pointer only used for reference to previous mix
 
-		Output() {
-			filter_gain = 0;
-			viewport = nullptr;
-			reverb_bus_index = -1;
-			bus_index = -1;
-		}
-	};
+        Output() {
+            filter_gain = 0;
+            viewport = nullptr;
+            reverb_bus_index = -1;
+            bus_index = -1;
+        }
+    };
 
-	Output outputs[MAX_OUTPUTS];
+    Output outputs[MAX_OUTPUTS];
     SafeNumeric<int> output_count;
     SafeFlag output_ready;
 
-	//these are used by audio thread to have a reference of previous volumes (for ramping volume and avoiding clicks)
-	Output prev_outputs[MAX_OUTPUTS];
-	int prev_output_count;
+    //these are used by audio thread to have a reference of previous volumes (for ramping volume and avoiding clicks)
+    Output prev_outputs[MAX_OUTPUTS];
+    int prev_output_count;
 
-	Ref<AudioStreamPlayback> stream_playback;
-	Ref<AudioStream> stream;
-	Vector<AudioFrame> mix_buffer;
+    Ref<AudioStreamPlayback> stream_playback;
+    Ref<AudioStream> stream;
+    Vector<AudioFrame> mix_buffer;
 
     SafeNumeric<float> setseek;
     SafeFlag active;
     SafeNumeric<float> setplay;
 
-	AttenuationModel attenuation_model;
-	float unit_db;
-	float unit_size;
-	float max_db;
-	float pitch_scale;
-	bool autoplay;
-	bool stream_paused;
-	bool stream_paused_fade_in;
-	bool stream_paused_fade_out;
-	StringName bus;
+    AttenuationModel attenuation_model;
+    float unit_db;
+    float unit_size;
+    float max_db;
+    float pitch_scale;
+    bool autoplay;
+    bool stream_paused;
+    bool stream_paused_fade_in;
+    bool stream_paused_fade_out;
+    StringName bus;
     uint32_t area_mask;
 
     bool emission_angle_enabled;
@@ -130,88 +130,88 @@ private:
 
     OutOfRangeMode out_of_range_mode;
 
-	static void _calc_output_vol(const Vector3 &source_dir, real_t tightness, Output &output);
-	void _mix_audio();
-	static void _mix_audios(void *self) { reinterpret_cast<AudioStreamPlayer3D *>(self)->_mix_audio(); }
+    static void _calc_output_vol(const Vector3 &source_dir, real_t tightness, Output &output);
+    void _mix_audio();
+    static void _mix_audios(void *self) { reinterpret_cast<AudioStreamPlayer3D *>(self)->_mix_audio(); }
 public:
-	void _set_playing(bool p_enable);
-	bool _is_active() const;
+    void _set_playing(bool p_enable);
+    bool _is_active() const;
 
-	void _bus_layout_changed();
+    void _bus_layout_changed();
 
 
-	float _get_attenuation_db(float p_distance) const;
+    float _get_attenuation_db(float p_distance) const;
 
 protected:
-	void _validate_property(PropertyInfo &property) const override;
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _validate_property(PropertyInfo &property) const override;
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_stream(Ref<AudioStream> p_stream);
-	Ref<AudioStream> get_stream() const;
+    void set_stream(Ref<AudioStream> p_stream);
+    Ref<AudioStream> get_stream() const;
 
-	void set_unit_db(float p_volume);
-	float get_unit_db() const;
+    void set_unit_db(float p_volume);
+    float get_unit_db() const;
 
-	void set_unit_size(float p_volume);
-	float get_unit_size() const;
+    void set_unit_size(float p_volume);
+    float get_unit_size() const;
 
-	void set_max_db(float p_boost);
-	float get_max_db() const;
+    void set_max_db(float p_boost);
+    float get_max_db() const;
 
-	void set_pitch_scale(float p_pitch_scale);
-	float get_pitch_scale() const;
+    void set_pitch_scale(float p_pitch_scale);
+    float get_pitch_scale() const;
 
-	void play(float p_from_pos = 0.0);
-	void seek(float p_seconds);
-	void stop();
-	bool is_playing() const;
-	float get_playback_position();
+    void play(float p_from_pos = 0.0);
+    void seek(float p_seconds);
+    void stop();
+    bool is_playing() const;
+    float get_playback_position();
 
-	void set_bus(const StringName &p_bus);
-	StringName get_bus() const;
+    void set_bus(const StringName &p_bus);
+    StringName get_bus() const;
 
-	void set_autoplay(bool p_enable);
-	bool is_autoplay_enabled();
+    void set_autoplay(bool p_enable);
+    bool is_autoplay_enabled();
 
-	void set_max_distance(float p_metres);
-	float get_max_distance() const;
+    void set_max_distance(float p_metres);
+    float get_max_distance() const;
 
-	void set_area_mask(uint32_t p_mask);
-	uint32_t get_area_mask() const;
+    void set_area_mask(uint32_t p_mask);
+    uint32_t get_area_mask() const;
 
-	void set_emission_angle_enabled(bool p_enable);
-	bool is_emission_angle_enabled() const;
+    void set_emission_angle_enabled(bool p_enable);
+    bool is_emission_angle_enabled() const;
 
-	void set_emission_angle(float p_angle);
-	float get_emission_angle() const;
+    void set_emission_angle(float p_angle);
+    float get_emission_angle() const;
 
-	void set_emission_angle_filter_attenuation_db(float p_angle_attenuation_db);
-	float get_emission_angle_filter_attenuation_db() const;
+    void set_emission_angle_filter_attenuation_db(float p_angle_attenuation_db);
+    float get_emission_angle_filter_attenuation_db() const;
 
-	void set_attenuation_filter_cutoff_hz(float p_hz);
-	float get_attenuation_filter_cutoff_hz() const;
+    void set_attenuation_filter_cutoff_hz(float p_hz);
+    float get_attenuation_filter_cutoff_hz() const;
 
-	void set_attenuation_filter_db(float p_db);
-	float get_attenuation_filter_db() const;
+    void set_attenuation_filter_db(float p_db);
+    float get_attenuation_filter_db() const;
 
-	void set_attenuation_model(AttenuationModel p_model);
-	AttenuationModel get_attenuation_model() const;
+    void set_attenuation_model(AttenuationModel p_model);
+    AttenuationModel get_attenuation_model() const;
 
-	void set_out_of_range_mode(OutOfRangeMode p_mode);
-	OutOfRangeMode get_out_of_range_mode() const;
+    void set_out_of_range_mode(OutOfRangeMode p_mode);
+    OutOfRangeMode get_out_of_range_mode() const;
 
-	void set_doppler_tracking(DopplerTracking p_tracking);
-	DopplerTracking get_doppler_tracking() const;
+    void set_doppler_tracking(DopplerTracking p_tracking);
+    DopplerTracking get_doppler_tracking() const;
 
-	void set_stream_paused(bool p_pause);
-	bool get_stream_paused() const;
+    void set_stream_paused(bool p_pause);
+    bool get_stream_paused() const;
 
-	Ref<AudioStreamPlayback> get_stream_playback();
+    Ref<AudioStreamPlayback> get_stream_playback();
 
-	AudioStreamPlayer3D();
-	~AudioStreamPlayer3D() override;
+    AudioStreamPlayer3D();
+    ~AudioStreamPlayer3D() override;
 };
 
 #endif // AUDIO_STREAM_PLAYER_3D_H

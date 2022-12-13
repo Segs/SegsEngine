@@ -33,6 +33,7 @@
 #include "collision_object_2d.h"
 #include "core/engine.h"
 #include "core/object_db.h"
+#include "core/pool_vector.h"
 #include "core/method_bind.h"
 #include "physics_body_2d.h"
 #include "scene/main/scene_tree.h"

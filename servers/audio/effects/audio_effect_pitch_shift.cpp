@@ -70,7 +70,7 @@ VARIANT_ENUM_CAST(AudioEffectPitchShift::FFT_Size);
 *
 * COPYRIGHT 1999-2015 Stephan M. Bernsee <s.bernsee [AT] zynaptiq [DOT] com>
 *
-* 						The Wide Open License (WOL)
+*                         The Wide Open License (WOL)
 *
 * Permission to use, copy, modify, distribute and sell this software and its
 * documentation for any purpose is hereby granted without fee, provided that

@@ -60,8 +60,8 @@
 #define RAST_FAIL_COND(m_cond) ERR_FAIL_COND(m_cond)
 #else
 #define RAST_FAIL_COND(m_cond) \
-	if (m_cond) {              \
-	}
+    if (m_cond) {              \
+    }
 #endif
 
 #endif // RASTERIZER_ASSERTS_H

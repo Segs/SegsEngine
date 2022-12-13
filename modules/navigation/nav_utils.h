@@ -43,28 +43,28 @@ struct Polygon;
 
 union PointKey {
 
-	struct {
-		int64_t x : 21;
-		int64_t y : 22;
-		int64_t z : 21;
-	};
+    struct {
+        int64_t x : 21;
+        int64_t y : 22;
+        int64_t z : 21;
+    };
 
-	uint64_t key;
-	bool operator<(const PointKey &p_key) const { return key < p_key.key; }
+    uint64_t key;
+    bool operator<(const PointKey &p_key) const { return key < p_key.key; }
 };
 
 struct EdgeKey {
 
-	PointKey a;
-	PointKey b;
+    PointKey a;
+    PointKey b;
 
-	EdgeKey(const PointKey &p_a = PointKey(), const PointKey &p_b = PointKey()) :
-			a(p_a),
-			b(p_b) {
-		if (a.key > b.key) {
-			SWAP(a, b);
-		}
-	}
+    EdgeKey(const PointKey &p_a = PointKey(), const PointKey &p_b = PointKey()) :
+            a(p_a),
+            b(p_b) {
+        if (a.key > b.key) {
+            SWAP(a, b);
+        }
+    }
     bool operator==(const EdgeKey &other) const {
         return a.key==other.a.key && b.key==other.b.key;
     }
@@ -75,68 +75,68 @@ struct EdgeKey {
 };
 
 struct Point {
-	Vector3 pos;
-	PointKey key;
+    Vector3 pos;
+    PointKey key;
 };
 
 struct Edge {
-	/// This edge ID
-	int this_edge = -1;
+    /// This edge ID
+    int this_edge = -1;
 
-	/// Other Polygon
-	struct Connection {
-		Polygon *polygon = nullptr;
-		int edge = -1;
-		Vector3 pathway_start;
-		Vector3 pathway_end;
-	};
-	Vector<Connection> connections;
+    /// Other Polygon
+    struct Connection {
+        Polygon *polygon = nullptr;
+        int edge = -1;
+        Vector3 pathway_start;
+        Vector3 pathway_end;
+    };
+    Vector<Connection> connections;
 };
 
 struct Polygon {
-	NavRegion *owner = nullptr;
+    NavRegion *owner = nullptr;
 
-	/// The points of this `Polygon`
-	Vector<Point> points;
+    /// The points of this `Polygon`
+    Vector<Point> points;
 
-	/// Are the points clockwise ?
-	bool clockwise;
+    /// Are the points clockwise ?
+    bool clockwise;
 
-	/// The edges of this `Polygon`
-	Vector<Edge> edges;
+    /// The edges of this `Polygon`
+    Vector<Edge> edges;
 
-	/// The center of this `Polygon`
-	Vector3 center;
+    /// The center of this `Polygon`
+    Vector3 center;
 };
 
 
 struct NavigationPoly {
-	uint32_t self_id = 0;
-	/// This poly.
-	const Polygon *poly = nullptr;
+    uint32_t self_id = 0;
+    /// This poly.
+    const Polygon *poly = nullptr;
 
-	/// Those 4 variables are used to travel the path backwards.
-	int back_navigation_poly_id = -1;
-	uint32_t back_navigation_edge = UINT32_MAX;
-	Vector3 back_navigation_edge_pathway_start;
-	Vector3 back_navigation_edge_pathway_end;
-	/// The entry location of this poly.
-	Vector3 entry;
-	/// The distance to the destination.
-	float traveled_distance = 0.0;
+    /// Those 4 variables are used to travel the path backwards.
+    int back_navigation_poly_id = -1;
+    uint32_t back_navigation_edge = UINT32_MAX;
+    Vector3 back_navigation_edge_pathway_start;
+    Vector3 back_navigation_edge_pathway_end;
+    /// The entry location of this poly.
+    Vector3 entry;
+    /// The distance to the destination.
+    float traveled_distance = 0.0;
 
-	NavigationPoly() { }
+    NavigationPoly() { }
 
-	NavigationPoly(const Polygon *p_poly) :
-			poly(p_poly) {}
+    NavigationPoly(const Polygon *p_poly) :
+            poly(p_poly) {}
 
-	bool operator==(const NavigationPoly &other) const {
-		return this->poly == other.poly;
-	}
+    bool operator==(const NavigationPoly &other) const {
+        return this->poly == other.poly;
+    }
 
-	bool operator!=(const NavigationPoly &other) const {
-		return !operator==(other);
-	}
+    bool operator!=(const NavigationPoly &other) const {
+        return !operator==(other);
+    }
 };
 
 struct ClosestPointQueryResult {

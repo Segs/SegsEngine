@@ -835,7 +835,7 @@ void EditorFileDialog::update_file_list() {
     while (!dirs.empty()) {
         const String &dir_name = dirs.front();
 
-        item_list->add_item(StringName(dir_name));
+        item_list->add_item(StringName(dir_name),Ref<Texture>());
 
         if (display_mode == DISPLAY_THUMBNAILS) {
 
@@ -900,7 +900,7 @@ void EditorFileDialog::update_file_list() {
 
         if (match) {
 
-            item_list->add_item(StringName(files.front()));
+            item_list->add_item(StringName(files.front()),Ref<Texture>());
 
             if (get_icon_func) {
 

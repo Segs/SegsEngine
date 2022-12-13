@@ -1465,7 +1465,7 @@ bool ItemList::has_auto_height() const {
 
 void ItemList::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("add_item", {"text", "icon", "selectable"}), &ItemList::add_item, {DEFVAL(Variant()), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("add_item", {"text", "icon", "selectable"}), &ItemList::add_item, {DEFVAL(true)});
     MethodBinder::bind_method(D_METHOD("add_icon_item", {"icon", "selectable"}), &ItemList::add_icon_item, {DEFVAL(true)});
 
     SE_BIND_METHOD(ItemList,set_item_text);

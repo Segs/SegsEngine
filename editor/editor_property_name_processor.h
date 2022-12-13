@@ -41,10 +41,10 @@ enum class EditorPropertyNameStyle : uint8_t {
 };
 
 struct EditorPropertyNameProcessor{
-	static EditorPropertyNameStyle get_default_inspector_style();
+    static EditorPropertyNameStyle get_default_inspector_style();
     static EditorPropertyNameStyle get_settings_style();
     static EditorPropertyNameStyle get_tooltip_style(EditorPropertyNameStyle p_style);
-	static bool is_localization_available();
-	// Turns property path segment into the given style.
+    static bool is_localization_available();
+    // Turns property path segment into the given style.
     static String process_name(StringView p_name, EditorPropertyNameStyle p_style);
 };

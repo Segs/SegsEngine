@@ -32,6 +32,7 @@
 
 #include "scene/2d/node_2d.h"
 #include "core/node_path.h"
+#include "core/pool_vector.h"
 
 class GODOT_EXPORT Polygon2D : public Node2D {
 

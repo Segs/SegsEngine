@@ -58,7 +58,7 @@ public:
     RasterizerScene *get_scene() override;
 
     void set_boot_image(const Ref<Image> &p_image, const Color &p_color, bool p_scale, bool p_use_filter = true) override;
-	void set_shader_time_scale(float p_scale) override;
+    void set_shader_time_scale(float p_scale) override;
 
     void initialize() override;
     void begin_frame(double frame_step) override;

@@ -538,7 +538,7 @@ void RasterizerCanvasGLES3::_legacy_canvas_render_item(Item *p_ci, RenderItemSta
         int y = current_rt->height -
                 (r_ris.current_clip->final_clip_rect.position.y + r_ris.current_clip->final_clip_rect.size.y);
         if (current_rt->flags[RS::RENDER_TARGET_VFLIP])
-            y = r_ris.current_clip->final_clip_rect.position.y;
+            y = (int)r_ris.current_clip->final_clip_rect.position.y;
         glScissor(r_ris.current_clip->final_clip_rect.position.x, y, r_ris.current_clip->final_clip_rect.size.width,
                 r_ris.current_clip->final_clip_rect.size.height);
     }
@@ -546,8 +546,8 @@ void RasterizerCanvasGLES3::_legacy_canvas_render_item(Item *p_ci, RenderItemSta
 
 void RasterizerCanvasGLES3::render_batches(Item *p_current_clip, bool &r_reclip,
         RasterizerMaterialComponent *p_material) {
-    //	bdata.reset_flush();
-    //	return;
+    //    bdata.reset_flush();
+    //    return;
     auto *current_rt = get<RasterizerRenderTargetComponent>(storage->frame.current_rt);
 
     int num_batches = bdata.batches.size();
@@ -850,8 +850,8 @@ void RasterizerCanvasGLES3::render_batches(Item *p_current_clip, bool &r_reclip,
                     }
 #endif
 
-                            _draw_gui_primitive(primitive->points.size(), primitive->points.data(), colors,
-                                    primitive->uvs.read().ptr());
+                    _draw_gui_primitive(primitive->points.size(), primitive->points.data(), colors,
+                            primitive->uvs.read().ptr());
 
                 } break;
                 case Item::Command::TYPE_POLYGON: {
@@ -1539,8 +1539,8 @@ void RasterizerCanvasGLES3::render_joined_item(const BItemJoined &p_bij, RenderI
     // r_ris.item_group_modulate.r, p_ci->final_modulate.g * r_ris.item_group_modulate.g, p_ci->final_modulate.b *
     // r_ris.item_group_modulate.b, p_ci->final_modulate.a * r_ris.item_group_modulate.a);
 
-    //	state.final_transform = p_ci->final_transform;
-    //	state.extra_matrix = Transform2D();
+    //    state.final_transform = p_ci->final_transform;
+    //    state.extra_matrix = Transform2D();
 
     // using software transform?
     // (i.e. don't send the transform matrix, send identity, and either use baked verts,
@@ -1785,10 +1785,10 @@ bool RasterizerCanvasGLES3::try_join_item(Item *p_ci, RenderItemState &r_ris, bo
 
     // we will now allow joining even if final modulate is different
     // we will instead bake the final modulate into the vertex colors
-    //	if (p_ci->final_modulate != r_ris.final_modulate) {
-    //		join = false;
-    //		r_ris.final_modulate = p_ci->final_modulate;
-    //	}
+    //    if (p_ci->final_modulate != r_ris.final_modulate) {
+    //        join = false;
+    //        r_ris.final_modulate = p_ci->final_modulate;
+    //    }
 
     if (r_ris.current_clip != p_ci->final_clip_owner) {
         r_ris.current_clip = p_ci->final_clip_owner;
@@ -1819,12 +1819,12 @@ bool RasterizerCanvasGLES3::try_join_item(Item *p_ci, RenderItemState &r_ris, bo
             }
 
             r_ris.prev_use_skeleton = use_skeleton;
-            //			join = false;
+            //            join = false;
             skeleton_prevent_join = true;
         }
 
         if (skeleton) {
-            //			join = false;
+            //            join = false;
             skeleton_prevent_join = true;
             state.using_skeleton = true;
         } else {
@@ -2073,13 +2073,13 @@ void RasterizerCanvasGLES3::canvas_render_items_implementation(const Dequeue<Ras
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, storage->resources.white_tex);
 
-    //	state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_SKELETON, false);
-    //	state.current_tex = entt::null;
-    //	state.current_tex_ptr = nullptr;
-    //	state.current_normal = entt::null;
-    //	state.canvas_texscreen_used = false;
-    //	glActiveTexture(GL_TEXTURE0);
-    //	glBindTexture(GL_TEXTURE_2D, storage->resources.white_tex);
+    //    state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_SKELETON, false);
+    //    state.current_tex = entt::null;
+    //    state.current_tex_ptr = nullptr;
+    //    state.current_normal = entt::null;
+    //    state.canvas_texscreen_used = false;
+    //    glActiveTexture(GL_TEXTURE0);
+    //    glBindTexture(GL_TEXTURE_2D, storage->resources.white_tex);
 
     if (bdata.settings_use_batching) {
         for (int j = 0; j < bdata.items_joined.size(); j++) {
@@ -2185,7 +2185,7 @@ void RasterizerCanvasGLES3::_batch_render_prepare() {
 
     _set_texture_rect_mode(false, false, use_light_angles, use_modulate, use_large_verts);
 
-    //	state.canvas_shader.set_uniform(CanvasShaderGLES3::CLIP_RECT_UV, p_rect->flags & CANVAS_RECT_CLIP_UV);
+    //    state.canvas_shader.set_uniform(CanvasShaderGLES3::CLIP_RECT_UV, p_rect->flags & CANVAS_RECT_CLIP_UV);
     state.canvas_shader.set_uniform(CanvasShaderGLES3::CLIP_RECT_UV, false);
 
     switch (bdata.fvf) {
@@ -2220,7 +2220,7 @@ void RasterizerCanvasGLES3::_batch_render_generic(const Batch &p_batch, Rasteriz
 
     _set_texture_rect_mode(false, false, use_light_angles, use_modulate, use_large_verts);
 
-    //	state.canvas_shader.set_uniform(CanvasShaderGLES3::CLIP_RECT_UV, p_rect->flags & CANVAS_RECT_CLIP_UV);
+    //    state.canvas_shader.set_uniform(CanvasShaderGLES3::CLIP_RECT_UV, p_rect->flags & CANVAS_RECT_CLIP_UV);
     state.canvas_shader.set_uniform(CanvasShaderGLES3::CLIP_RECT_UV, false);
 
     switch (bdata.fvf) {

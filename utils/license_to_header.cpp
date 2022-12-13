@@ -1089,10 +1089,11 @@ QString _build_gdnative_api_struct_source(QJsonDocument &api)
 
     return out.join("\n");
 }
+
 bool build_gdnative_api_struct(QStringList args)
 {
-//	gensource = gdn_env.Command(['include/gdnative_api_struct.gen.h', 'gdnative_api_struct.gen.cpp'],
-//							   'gdnative_api.json', build_gdnative_api_struct)
+//    gensource = gdn_env.Command(['include/gdnative_api_struct.gen.h', 'gdnative_api_struct.gen.cpp'],
+//                               'gdnative_api.json', build_gdnative_api_struct)
     QString src_json = args.takeFirst();
     QFile json_doc(src_json);
     if(!json_doc.open(QFile::ReadOnly))

@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "core/typedefs.h"
+#include "core/godot_export.h"
 #include "core/forward_decls.h"
 
 class GODOT_EXPORT Compression {

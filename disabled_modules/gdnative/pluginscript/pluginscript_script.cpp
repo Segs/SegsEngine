@@ -197,7 +197,7 @@ ScriptInstance *PluginScript::instance_create(Object *p_this) {
             String msg = "Script inherits from native type '" + String(base_type) + "', so it can't be instanced in object of type: '" + p_this->get_class() + "'";
             // TODO: implement PluginscriptLanguage::debug_break_parse
             // if (ScriptDebugger::get_singleton()) {
-            // 	_language->debug_break_parse(get_path(), 0, msg);
+            //     _language->debug_break_parse(get_path(), 0, msg);
             // }
             ERR_FAIL_V_MSG(nullptr, msg);
         }
@@ -409,7 +409,7 @@ Error PluginScript::load_source_code(const String &p_path) {
     PoolVector<uint8_t> sourcef;
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
-	ERR_FAIL_COND_V_MSG(err, err, "Cannot open file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(err, err, "Cannot open file '" + p_path + "'.")
 
     int len = f->get_len();
     sourcef.resize(len + 1);

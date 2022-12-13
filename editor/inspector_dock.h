@@ -42,6 +42,8 @@ class Button;
 class AcceptDialog;
 enum class EditorPropertyNameStyle : uint8_t;
 
+using RES = Ref<Resource>;
+
 class InspectorDock : public VBoxContainer {
 
     GDCLASS(InspectorDock,VBoxContainer)

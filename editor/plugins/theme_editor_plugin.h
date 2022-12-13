@@ -283,7 +283,7 @@ class ThemeTypeDialog : public ConfirmationDialog {
     ConfirmationDialog *add_type_confirmation;
 
     void _dialog_about_to_show();
-    void ok_pressed();
+    void ok_pressed() override;
 
     void _update_add_type_options(StringView p_filter);
 

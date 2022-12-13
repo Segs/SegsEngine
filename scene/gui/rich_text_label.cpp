@@ -450,13 +450,13 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
     RenderingEntity ci = entt::null;
     if (r_outside) {
         *r_outside = false;
-    }    	
+    }
     if (p_mode == PROCESS_DRAW) {
         ci = get_canvas_item();
 
         if (r_click_item) {
             *r_click_item = nullptr;
-        }    		
+        }
     }
     Line &l = p_frame->lines[p_line];
     ctx.it = l.from;
@@ -490,14 +490,14 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
 
     if (p_mode != PROCESS_CACHE && align != ALIGN_FILL) {
         ctx.wofs += line_ofs;
-    }    
+    }
 
     float begin = margin;
 
     Ref<Font> cfont = _find_font(ctx.it);
     if (not cfont) {
         cfont = p_base_font;
-    }    	
+    }
 
     //line height should be the font height for the first time, this ensures that an empty line will never have zero height and successive newlines are displayed
     int line_height = cfont->get_height();
@@ -741,8 +741,8 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
 
                         end++;
                     }
-					CHECK_HEIGHT(fh);
-					ENSURE_WIDTH(w);
+                    CHECK_HEIGHT(fh);
+                    ENSURE_WIDTH(w);
 
                     line_ascent = M_MAX(line_ascent, ascent);
                     line_descent = M_MAX(line_descent, descent);
@@ -957,8 +957,8 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
                         }
                     }
 
-					ADVANCE(fw);
-					CHECK_HEIGHT(fh); //must be done somewhere
+                    ADVANCE(fw);
+                    CHECK_HEIGHT(fh); //must be done somewhere
                     c = &c[end];
                 }
 
@@ -1016,7 +1016,7 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
             } break;
             case ITEM_NEWLINE: {
                 ctx.lh = 0;
-                
+
                 if (p_mode != PROCESS_CACHE) {
                     ctx.lh = line < l.height_caches.size() ? l.height_caches[line] : 1;
                     line_is_blank = true;
@@ -1216,7 +1216,7 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
             if (p_mode == PROCESS_POINTER && r_click_item && p_click_pos.y >= p_ofs.y + y && p_click_pos.y <= p_ofs.y + y + ctx.lh) {
                 //went to next line, but pointer was on the previous one
                 if (r_outside) {
-                	*r_outside = true;
+                    *r_outside = true;
                 }
                 *r_click_item = itp;
                 *r_click_char = ctx.rchar;
@@ -1297,7 +1297,7 @@ void RichTextLabel::_update_fx(RichTextItemFrame *p_frame, float p_delta_time) {
         if (it->type == ITEM_SHAKE) {
             shake = static_cast<ItemShake *>(it);
         }
-        
+
         if (shake) {
             bool cycle = (shake->elapsed_time > (1.0f / shake->rate));
             if (cycle) {
@@ -1456,7 +1456,7 @@ Control::CursorShape RichTextLabel::get_cursor_shape(const Point2 &p_pos) const 
     }
 
     int line = 0;
-    
+
     RichTextItem *item = nullptr;
     bool outside;
     const_cast<RichTextLabel *>(this)->_find_click(main, p_pos, &item, &line, &outside);
@@ -1480,9 +1480,9 @@ bool RichTextLabel::handle_mouse_button(const InputEventMouseButton *b) {
                 RichTextItem *item = nullptr;
 
                 bool outside;
-                
+
                 selection.drag_attempt = false;
-                
+
                 _find_click(main, b->get_position(), &item, &line, &outside);
 
                 if (item) {
@@ -1943,9 +1943,9 @@ void RichTextLabel::_validate_line_caches(RichTextItemFrame *p_frame) {
 
     updating_scroll = false;
 
-	if (fit_content_height) {
-		minimum_size_changed();
-	}
+    if (fit_content_height) {
+        minimum_size_changed();
+    }
 }
 
 void RichTextLabel::_invalidate_current_line(RichTextItemFrame *p_frame) {
@@ -2360,9 +2360,9 @@ void RichTextLabel::clear() {
     selection.click = nullptr;
     deselect();
     current_idx = 1;
-	if (scroll_follow) {
-		scroll_following = true;
-	}
+    if (scroll_follow) {
+        scroll_following = true;
+    }
 }
 
 void RichTextLabel::set_tab_size(int p_spaces) {
@@ -3332,16 +3332,16 @@ void RichTextLabel::set_fixed_size_to_width(int p_width) {
 }
 
 Size2 RichTextLabel::get_minimum_size() const {
-	Size2 size(0, 0);
-	if (fixed_width != -1) {
-		size.x = fixed_width;
-	}
-
-	if (fixed_width != -1 || fit_content_height) {
-		size.y = const_cast<RichTextLabel *>(this)->get_content_height();
+    Size2 size(0, 0);
+    if (fixed_width != -1) {
+        size.x = fixed_width;
     }
 
-	return size;
+    if (fixed_width != -1 || fit_content_height) {
+        size.y = const_cast<RichTextLabel *>(this)->get_content_height();
+    }
+
+    return size;
 }
 
 Ref<RichTextEffect> RichTextLabel::_get_custom_effect_by_code(StringView p_bbcode_identifier) {

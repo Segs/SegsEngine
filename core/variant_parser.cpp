@@ -532,7 +532,7 @@ Error VariantParser::_parse_construct(VariantParserStream *p_stream, Vector<T> &
 
 Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser) {
     using namespace eastl; // for _sv suffix
-    /*	{
+    /*  {
         Error err = get_token(p_stream,token,line,r_err_str);
         if (err)
             return err;

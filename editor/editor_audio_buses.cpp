@@ -109,7 +109,7 @@ void EditorAudioBus::_notification(int p_what) {
             audio_value_preview_label->add_theme_color_override("font_color_shadow", get_theme_color("font_color_shadow", "TooltipLabel"));
             audio_value_preview_box->add_theme_style_override("panel", get_theme_stylebox("panel", "TooltipPanel"));
 
-        	for (int i = 0; i < effect_options->get_item_count(); i++) {
+            for (int i = 0; i < effect_options->get_item_count(); i++) {
                 StringName class_name = effect_options->get_item_metadata(i).as<StringName>();
                 Ref<Texture> icon = EditorNode::get_singleton()->get_class_icon(class_name);
                 effect_options->set_item_icon(i, icon);

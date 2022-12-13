@@ -40,6 +40,7 @@
 #include "node_3d_editor_plugin.h"
 #include "scene/gui/menu_button.h"
 #include "scene/gui/option_button.h"
+#include "scene/resources/multimesh.h"
 
 IMPL_GDCLASS(MultiMeshEditor)
 IMPL_GDCLASS(MultiMeshEditorPlugin)

@@ -32,16 +32,16 @@
 
 #include "core/image.h"
 #include "core/math/bsp_tree.h"
-#include "core/math/geometry.h"
 #include "core/math/transform_2d.h"
 #include "core/object.h"
-#include "core/rid.h"
 #include "core/string.h"
 #include "core/variant.h"
 #include "core/os/thread.h"
 #include "servers/rendering_server_enums.h"
 
-
+struct GeometryMeshData;
+struct OccluderMeshData;
+using FrameDrawnCallback = eastl::function<void()>;  
 //SEGS: In the future this is meant to replace passing Surface data in Array
 class GODOT_EXPORT SurfaceArrays {
 public:
@@ -712,7 +712,7 @@ public: // scripting glue helpers
     virtual void instance_set_surface_material(RenderingEntity p_instance, int p_surface, RenderingEntity p_material) = 0;
     virtual void instance_set_visible(RenderingEntity p_instance, bool p_visible) = 0;
 
-	virtual void instance_set_use_lightmap(RenderingEntity p_instance, RenderingEntity p_lightmap_instance, RenderingEntity p_lightmap, int p_lightmap_slice, const Rect2 &p_lightmap_uv_rect) = 0;
+    virtual void instance_set_use_lightmap(RenderingEntity p_instance, RenderingEntity p_lightmap_instance, RenderingEntity p_lightmap, int p_lightmap_slice, const Rect2 &p_lightmap_uv_rect) = 0;
 
     virtual void instance_set_custom_aabb(RenderingEntity p_instance, AABB aabb) = 0;
 
@@ -733,9 +733,9 @@ public: // scripting glue helpers
     virtual void occluder_resource_prepare(RenderingEntity p_occluder_resource, RS::OccluderType p_type) = 0;
     virtual void occluder_resource_spheres_update(RenderingEntity p_occluder_resource, const Vector<Plane> &p_spheres) = 0;
     virtual void occluder_resource_mesh_update(RenderingEntity p_occluder_resource, const OccluderMeshData &p_mesh_data) = 0;
- 
+
    virtual void set_use_occlusion_culling(bool p_enable) = 0;
-    virtual Geometry::MeshData occlusion_debug_get_current_polys(RenderingEntity p_scenario) const = 0;
+    virtual GeometryMeshData occlusion_debug_get_current_polys(RenderingEntity p_scenario) const = 0;
 
     // callbacks are used to send messages back from the visual server to scene tree in thread friendly manner
     virtual void callbacks_register(RenderingServerCallbacks *p_callbacks) = 0;
@@ -881,7 +881,8 @@ public: // scripting glue helpers
 
     virtual void free_rid(RenderingEntity p_rid) = 0; ///< free RIDs associated with the visual server
 
-    virtual void request_frame_drawn_callback(Callable &&) = 0;
+    virtual void request_frame_drawn_callback(FrameDrawnCallback &&) = 0;
+    void _request_frame_drawn_callback(Callable &&);
 
     /* EVENT QUEUING */
 
@@ -900,12 +901,12 @@ public: // scripting glue helpers
 
     virtual RenderingEntity make_sphere_mesh(int p_lats, int p_lons, float p_radius);
 
-    virtual void mesh_add_surface_from_mesh_data(RenderingEntity p_mesh, const Geometry::MeshData &p_mesh_data);
+    virtual void mesh_add_surface_from_mesh_data(RenderingEntity p_mesh, const GeometryMeshData &p_mesh_data);
     virtual void mesh_add_surface_from_planes(RenderingEntity p_mesh, const PoolVector<Plane> &p_planes);
 
     virtual void set_boot_image(const Ref<Image> &p_image, const Color &p_color, bool p_scale, bool p_use_filter = true) = 0;
     virtual void set_default_clear_color(const Color &p_color) = 0;
-	virtual void set_shader_time_scale(float p_scale) = 0;
+    virtual void set_shader_time_scale(float p_scale) = 0;
 
     virtual bool has_feature(RS::Features p_feature) const = 0;
 

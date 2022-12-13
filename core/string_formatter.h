@@ -9,14 +9,14 @@
 ////}
 //QT_BEGIN_NAMESPACE
 //inline fmt::basic_string_view<char16_t> to_string_view(const QString & String) noexcept {
-//	return { reinterpret_cast<const char16_t *>(String.data()), static_cast<size_t>(String.length()) };
+//  return { reinterpret_cast<const char16_t *>(String.data()), static_cast<size_t>(String.length()) };
 //}
 //inline fmt::basic_string_view<char> to_string_view(const QByteArray & String) noexcept {
-//	return { reinterpret_cast<const char *>(String.data()), static_cast<size_t>(String.length()) };
+//    return { reinterpret_cast<const char *>(String.data()), static_cast<size_t>(String.length()) };
 //}
 //QT_END_NAMESPACE
 //inline fmt::basic_string_view<char16_t> to_string_view(const String & str) noexcept {
-//	return { reinterpret_cast<const char16_t *>(str.ptr()), static_cast<size_t>(str.length()) };
+//    return { reinterpret_cast<const char16_t *>(str.ptr()), static_cast<size_t>(str.length()) };
 //}
 
 //template <>
@@ -26,7 +26,7 @@
 
 //  template <typename FormatContext>
 //  auto format(const QString &v, FormatContext &ctx) {
-//	return format_to(ctx.begin(), u"{}", v.utf16());
+//    return format_to(ctx.begin(), u"{}", v.utf16());
 //  }
 //};
 
@@ -37,7 +37,7 @@
 
 //  template <typename FormatContext>
 //  auto format(const String &v, FormatContext &ctx) {
-//	return format_to(ctx.begin(), u"{}", v.ptr());
+//    return format_to(ctx.begin(), u"{}", v.ptr());
 //  }
 //};
 

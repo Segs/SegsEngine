@@ -8,17 +8,18 @@
 
 void DocResolutionPass::resolveTypeDocs(TS_TypeLike *tgt) const {
     StringView type_name(tgt->c_name());
-    if (type_name.starts_with(
-                '_')) // types starting with '_' are assumed to wrap the non-prefixed class for script acces.
+    // types starting with '_' are assumed to wrap the non-prefixed class for script acces.
+    if (type_name.starts_with('_')) 
         type_name = type_name.substr(1);
     auto res = m_ctx.m_rd.doc->class_list.find_as(type_name);
     if (m_ctx.m_rd.doc->class_list.end() == res)
         res = m_ctx.m_rd.doc->class_list.find(tgt->relative_path(CPP_IMPL));
-    if (m_ctx.m_rd.doc->class_list.end() != res)
+    if (m_ctx.m_rd.doc->class_list.end() != res) {
         tgt->m_docs = &res->second;
-    else {
-        if(tgt->kind()!=TS_TypeLike::ENUM)
-            qDebug() << "Failed to find docs for" << tgt->relative_path(CPP_IMPL).c_str();
+        return;
+    }
+    if(tgt->kind()!=TS_TypeLike::ENUM) {
+        qDebug() << "Failed to find docs for" << tgt->relative_path(CPP_IMPL).c_str();
     }
 }
 
@@ -124,15 +125,16 @@ void DocResolutionPass::visitFunction(TS_Function *func) {
 void DocResolutionPass::visitSignal(TS_Signal *func) {
     _resolveFuncDocs(func);
 
-    if (func->m_resolved_doc) {
-        int idx = 0;
-        // Replace generic names with those from documentation.
-        for (const auto &doc : func->m_resolved_doc->arguments) {
-            if (!doc.name.empty() && func->arg_values[idx].starts_with("arg")) {
-                func->arg_values[idx] = escape_csharp_keyword(doc.name);
-            }
-            ++idx;
+    if (!func->m_resolved_doc) {
+        return;
+    }
+    int idx = 0;
+    // Replace generic names with those from documentation.
+    for (const auto &doc : func->m_resolved_doc->arguments) {
+        if (!doc.name.empty() && func->arg_values[idx].starts_with("arg")) {
+            func->arg_values[idx] = escape_csharp_keyword(doc.name);
         }
+        ++idx;
     }
 }
 void DocResolutionPass::visitTypeProperty(TS_Property *prop) {

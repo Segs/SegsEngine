@@ -23,10 +23,10 @@ public:
 };
 GODOT_EXPORT CoreInterface *getCoreInterface();
 
-#define PLUG_FAIL_V_MSG(m_value, m_msg)															\
-    {																							\
-        getCoreInterface()->reportError(m_msg,__STR(m_value),FUNCTION_STR, __FILE__, __LINE__); \
-        return m_value;                                                                         \
+#define PLUG_FAIL_V_MSG(m_value, m_msg)                                                                                                              \
+    {                                                                                                                                                \
+        getCoreInterface()->reportError(m_msg, __STR(m_value), FUNCTION_STR, __FILE__, __LINE__);                                                    \
+        return m_value;                                                                                                                              \
     }
 #define PLUG_FAIL_V(m_value)                                                                                       \
     {                                                                                                             \

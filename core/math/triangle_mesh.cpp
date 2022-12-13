@@ -32,6 +32,7 @@
 
 #include "core/map.h"
 #include "core/class_db.h"
+#include "core/math/transform.h"
 #include "core/sort_array.h"
 #include "core/property_info.h"
 #include "core/list.h"
@@ -631,7 +632,7 @@ bool TriangleMesh::intersect_convex_shape(Span<const Plane> p_planes,Span<const 
     return false;
 }
 
-bool TriangleMesh::inside_convex_shape(Span<const Plane> p_planes,Span<const Vector3> p_points, Vector3 p_scale) const {
+bool TriangleMesh::inside_convex_shape(Span<const Plane> p_planes, Span<const Vector3> p_points, Vector3 p_scale) const {
     uint32_t *stack = (uint32_t *)alloca(sizeof(int) * max_depth);
 
     enum {
@@ -642,7 +643,6 @@ bool TriangleMesh::inside_convex_shape(Span<const Plane> p_planes,Span<const Vec
         VISITED_BIT_SHIFT = 29,
         NODE_IDX_MASK = (1 << VISITED_BIT_SHIFT) - 1,
         VISITED_BIT_MASK = ~NODE_IDX_MASK,
-
     };
 
     int level = 0;
@@ -657,23 +657,20 @@ bool TriangleMesh::inside_convex_shape(Span<const Plane> p_planes,Span<const Vec
 
     stack[0] = pos;
     while (!done) {
-
         uint32_t node = stack[level] & NODE_IDX_MASK;
         const BVH &b = bvhptr[node];
 
         switch (stack[level] >> VISITED_BIT_SHIFT) {
             case TEST_AABB_BIT: {
-
-                bool intersects = scale.xform(b.aabb).intersects_convex_shape(p_planes,p_points);
-                if (!intersects) return false;
+                bool intersects = scale.xform(b.aabb).intersects_convex_shape(p_planes, p_points);
+                if (!intersects)
+                    return false;
 
                 bool inside = scale.xform(b.aabb).inside_convex_shape(p_planes);
                 if (inside) {
-
                     stack[level] = (VISIT_DONE_BIT << VISITED_BIT_SHIFT) | node;
 
                 } else {
-
                     if (b.face_index >= 0) {
                         const Triangle &s = triangleptr[b.face_index];
                         for (int j = 0; j < 3; ++j) {
@@ -687,35 +684,31 @@ bool TriangleMesh::inside_convex_shape(Span<const Plane> p_planes,Span<const Vec
                         stack[level] = (VISIT_DONE_BIT << VISITED_BIT_SHIFT) | node;
 
                     } else {
-
                         stack[level] = (VISIT_LEFT_BIT << VISITED_BIT_SHIFT) | node;
                     }
                 }
                 continue;
             }
             case VISIT_LEFT_BIT: {
-
                 stack[level] = (VISIT_RIGHT_BIT << VISITED_BIT_SHIFT) | node;
                 stack[level + 1] = b.left | TEST_AABB_BIT;
                 level++;
                 continue;
             }
             case VISIT_RIGHT_BIT: {
-
                 stack[level] = (VISIT_DONE_BIT << VISITED_BIT_SHIFT) | node;
                 stack[level + 1] = b.right | TEST_AABB_BIT;
                 level++;
                 continue;
             }
             case VISIT_DONE_BIT: {
-
                 if (level == 0) {
                     done = true;
                 } else {
                     level--;
+                }
+                break;
             }
-            break;
-    }
         }
     }
 
