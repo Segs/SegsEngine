@@ -41,7 +41,7 @@
 
 struct GeometryMeshData;
 struct OccluderMeshData;
-using FrameDrawnCallback = eastl::function<void()>;  
+using FrameDrawnCallback = eastl::function<void()>;
 //SEGS: In the future this is meant to replace passing Surface data in Array
 class GODOT_EXPORT SurfaceArrays {
 public:
@@ -214,7 +214,6 @@ class GODOT_EXPORT RenderingServer : public Object {
 #endif
 
     void _camera_set_orthogonal(RenderingEntity p_camera, float p_size, float p_z_near, float p_z_far);
-    void _canvas_item_add_style_box(RenderingEntity p_item, const Rect2 &p_rect, const Rect2 &p_source, RenderingEntity p_texture, const Vector<float> &p_margins, const Color &p_modulate = Color(1, 1, 1));
 
 protected:
 

@@ -1659,7 +1659,7 @@ PopupMenu::PopupMenu() {
 }
 
 PopupMenu::~PopupMenu() {
-    memdelete(m_priv_data);
+    memdelete(D());
 }
 
 PopupMenuPriv::Item::Item() {
@@ -1678,4 +1678,4 @@ PopupMenuPriv::Item::Item() {
 
 PopupMenuPriv::Item::~Item() {
 }
-#undef D()
+#undef D
