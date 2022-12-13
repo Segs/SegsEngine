@@ -164,9 +164,9 @@ public:
             set_active(true);
     }
 
-    _FORCE_INLINE_ int get_max_contacts_reported() const { return contacts.size(); }
+    int get_max_contacts_reported() const { return contacts.size(); }
 
-    _FORCE_INLINE_ bool can_report_contacts() const { return !contacts.empty(); }
+    bool can_report_contacts() const { return !contacts.empty(); }
     _FORCE_INLINE_ void add_contact(const Vector2 &p_local_pos, const Vector2 &p_local_normal, float p_depth,
             int p_local_shape, const Vector2 &p_collider_pos, int p_collider_shape, GameEntity p_collider_instance_id,
             const RID &p_collider, const Vector2 &p_collider_velocity_at_pos);

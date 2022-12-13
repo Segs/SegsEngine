@@ -1566,10 +1566,6 @@ Array RenderingServer::_mesh_surface_get_skeleton_aabb_bind(RenderingEntity p_me
     }
     return arr;
 }
-// WRAP : MethodBinder::bind_method\(D_METHOD\("(\w+)"\), \&(\w+)::_(\w+)\)
-// BIND_METHOD_WRAPPER($2, $1, _$3)
-// MethodBinder::bind_method\s*\(\s*D_METHOD\("(\w+)".*\)\s*,\s*\&(\w+)::\1[\s\n]*,[\s\n]*\{(.+)\}\)
-// BIND_METHOD_DEFAULTS\(\2, \1,\3\)
 
 void RenderingServer::_bind_methods() {
     SE_BIND_METHOD(RenderingServer, force_sync);
@@ -2258,12 +2254,6 @@ void RenderingServer::_bind_methods() {
     ADD_SIGNAL(MethodInfo("frame_post_draw"));
 }
 
-void RenderingServer::_canvas_item_add_style_box(RenderingEntity p_item, const Rect2 &p_rect, const Rect2 &p_source,
-        RenderingEntity p_texture, const Vector<float> &p_margins, const Color &p_modulate) {
-    ERR_FAIL_COND(p_margins.size() != 4);
-    // canvas_item_add_style_box(p_item,p_rect,p_source,p_texture,Vector2(p_margins[0],p_margins[1]),Vector2(p_margins[2],p_margins[3]),true,p_modulate);
-}
-
 void RenderingServer::_camera_set_orthogonal(RenderingEntity p_camera, float p_size, float p_z_near, float p_z_far) {
     camera_set_orthogonal(p_camera, p_size, p_z_near, p_z_far);
 }
@@ -2278,8 +2268,8 @@ void RenderingServer::mesh_add_surface_from_mesh_data(RenderingEntity p_mesh, co
     vertices.reserve(cnt * 3);
     normals.reserve(cnt * 3);
 
-#define _ADD_VERTEX(m_idx)                                                                                             \
-    vertices.emplace_back(p_mesh_data.vertices[f.indices[m_idx]]);                                                        \
+#define _ADD_VERTEX(m_idx)                                                                                                                           \
+    vertices.emplace_back(p_mesh_data.vertices[f.indices[m_idx]]);                                                                                   \
     normals.emplace_back(f.plane.normal);
 
     for (const GeometryMeshData::Face &f : p_mesh_data.faces) {

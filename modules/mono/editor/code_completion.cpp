@@ -36,6 +36,7 @@
 #include "core/project_settings.h"
 #include "core/script_language.h"
 #include "core/resource/resource_manager.h"
+#include "core/string_utils.h"
 #include "editor/editor_file_system.h"
 #include "editor/editor_settings.h"
 #include "scene/gui/control.h"

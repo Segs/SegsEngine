@@ -1550,13 +1550,18 @@ Error Main::setup2() {
     register_server_singletons();
 
     register_driver_types();
-
-    // This loads global classes, so it must happen before custom loaders and savers are registered
-    ScriptServer::init_languages();
-#ifdef DEBUG_METHODS_ENABLED
     const Vector<String> & args(OS::get_singleton()->get_cmdline_args());
-    const int refl_idx = args.index_of("--gen-reflection");
-    if ((refl_idx+1)<args.size()) {
+    const auto refl_idx = args.index_of("--gen-reflection");
+    bool reflection_requested = refl_idx != args.size();
+    // This loads global classes, so it must happen before custom loaders and savers are registered
+    // but if we're generating reflection data, we encounter chicken&egg problem:
+    //   script language assemblies/libraries need reflected data to be built
+    //   initializing scripting language needs the assemblies/libraries
+    if(!reflection_requested) {
+        ScriptServer::init_languages();
+    }
+#ifdef DEBUG_METHODS_ENABLED
+    if (reflection_requested) {
         String tgt_dir = (refl_idx+1)<args.size() ? args[refl_idx+1] : ".";
         ReflectionData core_rd;
         _initialize_reflection_data(core_rd,ReflectionSource::Core);
