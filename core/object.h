@@ -333,7 +333,7 @@ public: // made public since it's exposed to scripting language side.
 public:
     jl::SignalObserver &observer();
 
-    virtual void _changed_callback(Object *p_changed, StringName p_prop);
+    virtual void _changed_callback(Object *p_changed, const StringName &p_prop);
     Variant _call_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
     Variant _call_deferred_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
 

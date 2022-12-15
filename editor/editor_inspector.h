@@ -328,7 +328,7 @@ class GODOT_EXPORT EditorInspector : public ScrollContainer {
 
     void _node_removed(Node *p_node);
 
-    void _changed_callback(Object *p_changed, StringName p_prop) override;
+    void _changed_callback(Object *p_changed, const StringName & p_prop) override;
     void _edit_request_change(Object *p_object, StringView p_prop);
 
     void _filter_changed(StringView /*p_text*/);

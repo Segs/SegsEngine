@@ -33,7 +33,7 @@ GODOT_EXPORT bool check_resource_manager_load(StringView p_path);
 
 // Internal tooling helpers.
 #ifdef TOOLS_ENABLED
-    GODOT_EXPORT void Object_change_notify(Object *self,StringName p_property = StringName());
+    GODOT_EXPORT void Object_change_notify(Object *self,const StringName &p_property = StringName());
     GODOT_EXPORT void Object_add_change_receptor(Object *self,Object *p_receptor);
     GODOT_EXPORT void Object_remove_change_receptor(Object *self,Object *p_receptor);
     GODOT_EXPORT void Object_set_edited(Object *self,bool p_edited,bool increment_version=true);

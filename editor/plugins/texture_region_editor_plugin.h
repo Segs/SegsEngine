@@ -125,7 +125,7 @@ protected:
 
     Vector2 snap_point(Vector2 p_target) const;
 
-    void _changed_callback(Object *p_changed, StringName p_prop) override;
+    void _changed_callback(Object *p_changed, const StringName &p_prop) override;
 
 public:
     void _edit_region();

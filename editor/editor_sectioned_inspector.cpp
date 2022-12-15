@@ -246,7 +246,6 @@ void SectionedInspector::update_category_list() {
     const EditorPropertyNameStyle name_style = EditorPropertyNameProcessor::get_settings_style();
     const EditorPropertyNameStyle tooltip_style = EditorPropertyNameProcessor::get_tooltip_style(name_style);
 
-    UIString filter_ui(from_utf8(filter));
     for (const PropertyInfo &pi : pinfo) {
 
         if (pi.usage & PROPERTY_USAGE_CATEGORY || !(pi.usage & PROPERTY_USAGE_EDITOR))

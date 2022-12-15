@@ -1911,7 +1911,7 @@ GradientTexture2D::~GradientTexture2D() {
     RenderingServer::get_singleton()->free_rid(texture);
 }
 
-void GradientTexture2D::set_gradient(Ref<Gradient> p_gradient) {
+void GradientTexture2D::set_gradient(const Ref<Gradient>& p_gradient) {
     if (gradient == p_gradient) {
         return;
     }

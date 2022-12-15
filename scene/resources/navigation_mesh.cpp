@@ -30,6 +30,8 @@
 
 #include "navigation_mesh.h"
 
+#include <utility>
+
 #include "core/class_db.h"
 #include "core/method_bind_interface.h"
 #include "core/method_bind.h"
@@ -127,7 +129,7 @@ NavigationMesh::SourceGeometryMode NavigationMesh::get_source_geometry_mode() co
 }
 
 void NavigationMesh::set_source_group_name(StringName p_group_name) {
-    source_group_name = p_group_name;
+    source_group_name = eastl::move(p_group_name);
 }
 
 StringName NavigationMesh::get_source_group_name() const {

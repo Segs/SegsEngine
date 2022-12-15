@@ -115,7 +115,7 @@ protected:
     bool _set_property_pinned_points_attachment(int p_item, StringView p_what, const Variant &p_value);
     bool _get_property_pinned_points(int p_item, StringView p_what, Variant &r_ret) const;
 
-    void _changed_callback(Object *p_changed, StringName p_prop) override;
+    void _changed_callback(Object *p_changed, const StringName &p_prop) override;
 
     void _notification(int p_what);
     static void _bind_methods();

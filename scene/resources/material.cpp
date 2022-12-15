@@ -311,17 +311,19 @@ void ShaderMaterial::_get_property_list(Vector<PropertyInfo> *p_list) const {
 }
 
 bool ShaderMaterial::property_can_revert(StringName p_name) {
-    if (shader) {
-
-        StringName pr = shader->remap_param(p_name);
-        if (pr) {
-            Variant default_value = RenderingServer::get_singleton()->material_get_param_default(_get_material(), pr);
-            Variant current_value;
-            _get(p_name, current_value);
-            return default_value.get_type() != VariantType::NIL && default_value != current_value;
-        }
+    if (!shader) {
+        return false;
     }
-    return false;
+
+    StringName pr = shader->remap_param(p_name);
+    if (pr.empty()) {
+        return false;
+    }
+
+    Variant default_value = RenderingServer::get_singleton()->material_get_param_default(_get_material(), pr);
+    Variant current_value;
+    _get(p_name, current_value);
+    return default_value.get_type() != VariantType::NIL && default_value != current_value;
 }
 
 Variant ShaderMaterial::property_get_revert(StringName p_name) {

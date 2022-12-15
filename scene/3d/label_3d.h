@@ -235,7 +235,7 @@ public:
     void set_billboard_mode(SpatialMaterial::BillboardMode p_mode);
     SpatialMaterial::BillboardMode get_billboard_mode() const;
 
-    virtual AABB get_aabb() const;
+    AABB get_aabb() const override;
     Ref<TriangleMesh> generate_triangle_mesh() const;
 
     Vector<Face3> get_faces(uint32_t p_usage_flags) const override;

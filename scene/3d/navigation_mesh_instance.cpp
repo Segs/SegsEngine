@@ -263,7 +263,7 @@ void NavigationMeshInstance::_bind_methods() {
     ADD_SIGNAL(MethodInfo("bake_finished"));
 }
 
-void NavigationMeshInstance::_changed_callback(Object *p_changed, StringName p_prop) {
+void NavigationMeshInstance::_changed_callback(Object *p_changed, const StringName & p_prop) {
     update_gizmo();
     update_configuration_warning();
 }

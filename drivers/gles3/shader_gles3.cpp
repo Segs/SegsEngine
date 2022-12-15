@@ -599,7 +599,6 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version(bool &r_async_forbidden) 
         for (int i = 0; i < conditional_count; i++) {
             auto trim_prefix = StringUtils::trim_prefix(StringUtils::strip_edges(StringView(conditional_defines[i])),"#define ");
             String s = FormatVE("#define FLAG_%.*s (1u << %du)\n", (int)trim_prefix.size(),trim_prefix.data(), i);
-            String cs = s;
             flag_macros.push_back(s);
             strings_common.push_back(s);
     }

@@ -690,7 +690,7 @@ String Object::to_string() {
     return FormatVE("[%s:%zd]",get_class(),(uint64_t)entt::to_integral(get_instance_id()));
 }
 
-void Object::_changed_callback(Object * /*p_changed*/, StringName /*p_prop*/) {
+void Object::_changed_callback(Object * /*p_changed*/, const StringName & /*p_prop*/) {
 }
 
 void Object::property_list_changed_notify() {

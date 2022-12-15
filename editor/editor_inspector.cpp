@@ -2291,7 +2291,7 @@ void EditorInspector::_notification(int p_what) {
     }
 }
 
-void EditorInspector::_changed_callback(Object *p_changed, StringName p_prop) {
+void EditorInspector::_changed_callback(Object *p_changed, const StringName & p_prop) {
     // this is called when property change is notified via _change_notify()
     _edit_request_change(p_changed, p_prop);
 }

@@ -266,7 +266,7 @@ bool SoftBody3D::_get_property_pinned_points(int p_item, StringView p_what, Vari
     return true;
 }
 
-void SoftBody3D::_changed_callback(Object *p_changed, StringName p_prop) {
+void SoftBody3D::_changed_callback(Object *p_changed, const StringName & p_prop) {
     _prepare_physics_server();
     _reset_points_offsets();
 #ifdef TOOLS_ENABLED

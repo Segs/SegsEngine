@@ -220,7 +220,7 @@ void EditorSpinSlider::_value_input_gui_input(const Ref<InputEvent> &p_event) {
         if (step < 1) {
             float divisor = 1.0f / get_step();
 
-            if (trunc(divisor) == divisor) {
+            if (truncf(divisor) == divisor) {
                 step = 1.0f;
         }
     }

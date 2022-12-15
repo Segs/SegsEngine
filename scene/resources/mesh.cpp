@@ -1467,7 +1467,7 @@ void ArrayMesh::_bind_methods() {
     SE_BIND_METHOD(ArrayMesh,surface_set_name);
     SE_BIND_METHOD(ArrayMesh,surface_get_name);
     SE_BIND_METHOD(ArrayMesh,create_trimesh_shape);
-    MethodBinder::bind_method(D_METHOD("create_convex_shape", {"clean", "simplify"}), &ArrayMesh::create_convex_shape,{DEFVAL(true), DEFVAL(false)});
+    SE_BIND_METHOD_WITH_DEFAULTS(ArrayMesh,create_convex_shape,DEFVAL(true), DEFVAL(false));
     SE_BIND_METHOD(ArrayMesh,create_outline);
     MethodBinder::bind_method(D_METHOD("regen_normalmaps"), &ArrayMesh::regen_normalmaps,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
     MethodBinder::bind_method(D_METHOD("lightmap_unwrap", {"transform", "texel_size"}), &ArrayMesh::lightmap_unwrap,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);

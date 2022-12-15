@@ -240,7 +240,7 @@ Vector<float> Collada::AnimationTrack::get_value_at_time(float p_time) const {
 
                 Vector<float> ret;
                 ret.resize(16);
-                Transform tr;
+
                 // i wonder why collada matrices are transposed, given that's opposed to opengl..
                 ret[0] = interp.basis.elements[0][0];
                 ret[1] = interp.basis.elements[0][1];
