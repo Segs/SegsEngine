@@ -99,37 +99,6 @@ Error MessageQueue::push_call(GameEntity p_id, const StringName &p_method, VARIA
     return push_call(p_id, p_method, argptr, argc, false);
 }
 
-Error MessageQueue::push_set(GameEntity p_id, const StringName &p_prop, const Variant &p_value) {
-
-    _THREAD_SAFE_METHOD_;
-
-    constexpr uint8_t room_needed = sizeof(Message) + sizeof(Variant);
-
-    if ((buffer_end + room_needed) >= buffer_size) {
-        String type;
-        if (object_for_entity(p_id)) {
-            type = object_for_entity(p_id)->get_class();
-        }
-        print_line("Failed set: " + type + ":" + p_prop + " target ID: " + ::to_string(entt::to_integral(p_id)));
-        statistics();
-        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
-    }
-    TRACE_ALLOC_NS(&buffer[buffer_end],room_needed,STACK_DEPTH,"MessageQueueAlloc");
-
-    Message *msg = memnew_placement(&buffer[buffer_end], Message);
-    msg->args = 1;
-    msg->callable = Callable(p_id, p_prop);
-    msg->type = TYPE_SET;
-
-    buffer_end += sizeof(Message);
-
-    Variant *v = memnew_placement(&buffer[buffer_end], Variant);
-    buffer_end += sizeof(Variant);
-    *v = p_value;
-
-    return OK;
-}
-
 Error MessageQueue::push_notification(GameEntity p_id, int p_notification) {
 
     _THREAD_SAFE_METHOD_;
@@ -156,18 +125,9 @@ Error MessageQueue::push_notification(GameEntity p_id, int p_notification) {
     return OK;
 }
 
-Error MessageQueue::push_call(Object *p_object, const StringName &p_method, VARIANT_ARG_DECLARE) {
-
-    return push_call(p_object->get_instance_id(), p_method, VARIANT_ARG_PASS);
-}
-
 Error MessageQueue::push_notification(Object *p_object, int p_notification) {
 
     return push_notification(p_object->get_instance_id(), p_notification);
-}
-Error MessageQueue::push_set(Object *p_object, const StringName &p_prop, const Variant &p_value) {
-
-    return push_set(p_object->get_instance_id(), p_prop, p_value);
 }
 Error MessageQueue::push_callable(const Callable& p_callable, const Variant** p_args, int p_argcount, bool p_show_error) {
     _THREAD_SAFE_METHOD_;
@@ -217,7 +177,6 @@ Error MessageQueue::push_callable(const Callable& p_callable, VARIANT_ARG_DECLAR
 
 void MessageQueue::statistics() const {
 
-    HashMap<StringName, int> set_count;
     HashMap<int, int> notify_count;
     HashMap<Callable, int> call_count;
     int func_count = 0;
@@ -239,10 +198,6 @@ void MessageQueue::statistics() const {
                 case TYPE_NOTIFICATION: {
                     notify_count[message->notification]++;
                 } break;
-                case TYPE_SET: {
-                    StringName t = message->callable.get_method();
-                    set_count[t]++;
-                } break;
             }
 
         } else {
@@ -260,10 +215,6 @@ void MessageQueue::statistics() const {
     print_line("TOTAL BYTES: " + itos(buffer_end));
     print_line("NULL count: " + itos(null_count+null_object_calls.get()));
     print_line("FUNC count: " + itos(func_count));
-
-    for (const eastl::pair<const StringName,int> &E : set_count) {
-        print_line("SET " + String(E.first) + ": " + ::to_string(E.second));
-    }
 
     for (const eastl::pair<const Callable,int> &E : call_count) {
         print_line("CALL " + String(E.first) + ": " + ::to_string(E.second));
@@ -352,13 +303,6 @@ void MessageQueue::flush()
                 {
                     // messages don't expect a return value
                     target->notification(message->notification);
-                }
-                break;
-            case TYPE_SET:
-                {
-                    Variant *arg = (Variant*)(message + 1);
-                    // messages don't expect a return value
-                    target->set(message->callable.get_method(), *arg);
                 }
                 break;
             }

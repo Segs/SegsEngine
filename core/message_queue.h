@@ -46,7 +46,6 @@ class GODOT_EXPORT MessageQueue
     {
         TYPE_CALL=0,
         TYPE_NOTIFICATION,
-        TYPE_SET,
         FLAG_SHOW_ERROR = 1 << 14,
         FLAG_MASK = FLAG_SHOW_ERROR - 1
     };
@@ -83,13 +82,10 @@ public:
     Error push_call(GameEntity p_id, const StringName &p_method, const Variant **p_args, int p_argcount,
                     bool p_show_error = false);
     Error push_call(GameEntity p_id, const StringName &p_method, VARIANT_ARG_LIST);
-    Error push_call(Object *p_object, const StringName &p_method, VARIANT_ARG_LIST);
 
     Error push_notification(GameEntity p_id, int p_notification);
     Error push_notification(Object *p_object, int p_notification);
 
-    Error push_set(GameEntity p_id, const StringName &p_prop, const Variant &p_value);
-    Error push_set(Object *p_object, const StringName &p_prop, const Variant &p_value);
     Error push_callable(const Callable& p_callable, const Variant** p_args, int p_argcount, bool p_show_error = false);
     Error push_callable(const Callable& p_callable, VARIANT_ARG_LIST);
 
