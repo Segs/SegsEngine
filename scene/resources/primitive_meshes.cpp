@@ -304,15 +304,15 @@ void CapsuleMesh::create_mesh_array(
         v = j;
 
         v /= (rings + 1);
-        w = sin(0.5 * Math_PI * v);
-        z = radius * cos(0.5 * Math_PI * v);
+        w = std::sin(0.5f * Math_PI * v);
+        z = radius * std::cos(0.5f * Math_PI * v);
 
         for (i = 0; i <= radial_segments; i++) {
             u = i;
             u /= radial_segments;
 
-            x = sin(u * (Math_PI * 2.0f));
-            y = -cos(u * (Math_PI * 2.0f));
+            x = std::sin(u * (Math_PI * 2.0f));
+            y = -std::cos(u * (Math_PI * 2.0f));
 
             Vector3 p = Vector3(x * radius * w, y * radius * w, z);
             points.push_back(p + Vector3(0.0, 0.0, 0.5f * mid_height));

@@ -333,7 +333,7 @@ public: // made public since it's exposed to scripting language side.
 public:
     jl::SignalObserver &observer();
 
-    virtual void _changed_callback(Object *p_changed, StringName p_prop);
+    virtual void _changed_callback(Object *p_changed, const StringName &p_prop);
     Variant _call_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
     Variant _call_deferred_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
 
@@ -471,8 +471,6 @@ public:
 
     void call_deferred(const StringName &p_method, VARIANT_ARG_LIST);
     void call_deferred(eastl::function<void()> func);
-
-    void set_deferred(const StringName &p_property, const Variant &p_value);
 
     void set_block_signals(bool p_block);
     bool is_blocking_signals() const;

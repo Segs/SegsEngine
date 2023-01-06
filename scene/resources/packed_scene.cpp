@@ -64,7 +64,7 @@ Node* nodeFromId(const Vector<NodePath>& node_paths, Span<Node*> ret_nodes, int 
 
     Node* p_name;
     if (p_id & SceneState::FLAG_ID_IS_PATH) {
-        NodePath np = node_paths[p_id & SceneState::FLAG_MASK];
+        const NodePath &np = node_paths[p_id & SceneState::FLAG_MASK];
         p_name = ret_nodes[0]->get_node_or_null(np);
     }
     else {

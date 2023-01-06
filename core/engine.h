@@ -92,6 +92,13 @@ public:
     uint64_t get_physics_frames() const { return _physics_frames; }
     uint64_t get_idle_frames() const { return _idle_frames; }
     bool is_in_physics_frame() const { return _in_physics; }
+    void start_physics_frame() { _in_physics = true; }
+    void end_physics_frame() {
+        _in_physics = false;
+        _physics_frames++;
+    }
+    
+    void set_in_physics(bool state) { _in_physics = state; }
     uint64_t get_idle_frame_ticks() const { return _frame_ticks; }
     float get_idle_frame_step() const { return _frame_step; }
     float get_physics_interpolation_fraction() const { return _physics_interpolation_fraction; }

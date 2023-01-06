@@ -62,7 +62,7 @@ public:
 };
 } // namespace
 
-void Object_change_notify(Object *self, StringName p_property) {
+void Object_change_notify(Object *self, const StringName &p_property) {
     auto tooling_iface = (ObjectToolingImpl *)self->get_tooling_interface();
     tooling_iface->set_edited(true, false);
     for (Object *E : tooling_iface->change_receptors) {

@@ -245,7 +245,7 @@ bool PackedSourcePCK::try_open_pack(StringView p_path, bool p_replace_files, Str
         magic = f->get_32();
             if (magic == PACK_HEADER_MAGIC) {
 #ifdef DEBUG_ENABLED
-                print_verbose(FormatVE("PCK header found at the end of executable, loading from offset 0x%x",f->get_position() - 4));
+                print_verbose(FormatVE("PCK header found at the end of executable, loading from offset 0x%lx",f->get_position() - 4));
 #endif
                 pck_header_found = true;
             }

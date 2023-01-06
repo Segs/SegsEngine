@@ -109,7 +109,7 @@ void AudioStreamEditor::_preview_changed(GameEntity p_which) {
     }
 }
 
-void AudioStreamEditor::_changed_callback(Object *p_changed, StringName p_prop) {
+void AudioStreamEditor::_changed_callback(Object *p_changed, const StringName & p_prop) {
 
     if (!is_visible())
         return;

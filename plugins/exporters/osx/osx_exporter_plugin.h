@@ -20,6 +20,6 @@ public:
     ~OsxProjectExportPlugin() override {}
     bool is_supported() override;
     bool create_and_register_exporter(EditorExportPlatform*) override;
-    EditorExportPlatform* platform() { return m_platform; }
+    EditorExportPlatform* platform() override { return m_platform; }
     void unregister_exporter(EditorExportPlatform*) override;
 };

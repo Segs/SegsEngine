@@ -690,7 +690,7 @@ String Object::to_string() {
     return FormatVE("[%s:%zd]",get_class(),(uint64_t)entt::to_integral(get_instance_id()));
 }
 
-void Object::_changed_callback(Object * /*p_changed*/, StringName /*p_prop*/) {
+void Object::_changed_callback(Object * /*p_changed*/, const StringName & /*p_prop*/) {
 }
 
 void Object::property_list_changed_notify() {
@@ -1377,8 +1377,6 @@ void Object::_bind_methods() {
         MethodBinder::bind_vararg_method("call_deferred", &Object::_call_deferred_bind, eastl::move(mi), null_variant_pvec, false);
     }
 
-    SE_BIND_METHOD(Object,set_deferred);
-
     SE_BIND_METHOD(Object,callv);
 
     SE_BIND_METHOD(Object,has_method);
@@ -1431,15 +1429,11 @@ void Object::_bind_methods() {
 
 void Object::call_deferred(const StringName &p_method, VARIANT_ARG_DECLARE) {
 
-    MessageQueue::get_singleton()->push_call(this, p_method, VARIANT_ARG_PASS);
+    MessageQueue::get_singleton()->push_call(get_instance_id(), p_method, VARIANT_ARG_PASS);
 }
 void Object::call_deferred(eastl::function<void()> func) {
 
-    MessageQueue::get_singleton()->push_call(this->get_instance_id(), func);
-}
-
-void Object::set_deferred(const StringName &p_property, const Variant &p_value) {
-    MessageQueue::get_singleton()->push_set(this, p_property, p_value);
+    MessageQueue::get_singleton()->push_call(get_instance_id(), func);
 }
 
 void Object::set_block_signals(bool p_block) {

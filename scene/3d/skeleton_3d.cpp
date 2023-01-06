@@ -637,10 +637,11 @@ Transform Skeleton::get_bone_custom_pose(int p_bone) const {
 
 void Skeleton::_make_dirty() {
 
-    if (dirty)
+    if (dirty) {
         return;
+    }
 
-    MessageQueue::get_singleton()->push_notification(this, NOTIFICATION_UPDATE_SKELETON);
+    call_deferred([this] { notification(NOTIFICATION_UPDATE_SKELETON);   });
     dirty = true;
 }
 

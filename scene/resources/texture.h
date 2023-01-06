@@ -667,7 +667,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void set_gradient(Ref<Gradient> p_gradient);
+    void set_gradient(const Ref<Gradient>& p_gradient);
     Ref<Gradient> get_gradient() const;
 
     void set_width(int p_width);

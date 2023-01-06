@@ -3219,13 +3219,13 @@ void CanvasItemEditor::_draw_rulers() {
             viewport->draw_set_transform_matrix(viewport->get_transform());
 
         } else {
+            Point2 start = Point2(0, position.y);
             if (i % minor_subdivision == 0) {
-                viewport->draw_line(Point2(RULER_WIDTH * 0.33f, position.y), Point2(RULER_WIDTH, position.y),
-                        graduation_color, Math::round(EDSCALE));
+                start.x = RULER_WIDTH * 0.33f;
             } else {
-                viewport->draw_line(Point2(RULER_WIDTH * 0.75f, position.y), Point2(RULER_WIDTH, position.y),
-                        graduation_color, Math::round(EDSCALE));
+                start.x = RULER_WIDTH * 0.75f;
             }
+            viewport->draw_line(start, Point2(RULER_WIDTH, position.y), graduation_color, Math::round(EDSCALE));
         }
     }
     // Draw the top left corner

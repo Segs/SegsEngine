@@ -92,6 +92,8 @@
 #endif
 
 #include <QCoreApplication>
+#include <QtCore/QCommandLineOption>
+#include <QtCore/QCommandLineParser>
 #include <QDir>
 #include <entt/meta/resolve.hpp>
 /* Static members */
@@ -99,15 +101,37 @@
 // Singletons
 
 // Initialized in setup()
-static Engine *engine = nullptr;
+struct MainState {
+    PackedData *packed_data = nullptr;
+    FileAccessNetworkClient *file_access_network_client = nullptr;
+    Performance *performance = nullptr;
+    InputMap *input_map = nullptr;
+    Time *time_singleton = nullptr;
+    TranslationServer *translation_server = nullptr;
 
-static ProjectSettings *globals = nullptr;
+    ProjectSettings *globals = nullptr;
+    Engine *engine = nullptr;
+
+    void free_state() {
+        memdelete(packed_data);
+        memdelete(file_access_network_client);
+        memdelete(performance);
+
+        memdelete(input_map);
+        memdelete(time_singleton);
+        memdelete(translation_server);
+        memdelete(globals);
+        memdelete(engine);
+
+        unregister_core_driver_types();
+        unregister_core_types();
+
+    }
+};
+static MainState s_state;
+
 static InputMap *input_map = nullptr;
-static TranslationServer *translation_server = nullptr;
-static Performance *performance = nullptr;
 
-static PackedData *packed_data = nullptr;
-static Time *time_singleton = nullptr;
 static FileAccessNetworkClient *file_access_network_client = nullptr;
 static ScriptDebugger *script_debugger = nullptr;
 static MessageQueue *message_queue = nullptr;
@@ -246,7 +270,7 @@ void finalize_navigation_server() {
 #define MAIN_PRINT(m_txt)
 #endif
 
-void print_help(const String &p_binary) {
+static void print_help(const String &p_binary) {
 
     print_line(String(VERSION_NAME) + " v" + get_full_version_string() + " - " + String(VERSION_WEBSITE));
     OS::get_singleton()->print("Free and open source software under the terms of the MIT license.\n");
@@ -439,6 +463,48 @@ void Main::dumpReflectedTypes() {
 
     }
 }
+
+static int get_audio_driver_index(StringName audio_driver) {
+    OS *os = OS::get_singleton();
+
+    int selected_audio_driver_idx = -1;
+
+    if (audio_driver.empty()) { // not provided, look for it in project.godot, or default to first one.
+        audio_driver = T_GLOBAL_DEF<StringName>("audio/driver", StringName(OS::get_singleton()->get_audio_driver_name(0)),true,true);
+    }
+
+    for (int i = 0; i < os->get_audio_driver_count(); i++) {
+
+        if (audio_driver == os->get_audio_driver_name(i)) {
+
+            selected_audio_driver_idx = i;
+            break;
+        }
+    }
+
+    if (selected_audio_driver_idx < 0) {
+        selected_audio_driver_idx = 0;
+    }
+    return selected_audio_driver_idx;
+}
+
+static int get_video_driver_index(StringName video_driver) {
+    OS *os = OS::get_singleton();
+    int selected_video_driver_idx = -1;
+
+    for (int i = 0; i < os->get_video_driver_count(); i++) {
+        if (video_driver == os->get_video_driver_name(i)) {
+            selected_video_driver_idx = i;
+            break;
+        }
+    }
+
+    if (selected_video_driver_idx < 0) {
+        selected_video_driver_idx = 0;
+    }
+    return selected_video_driver_idx;
+}
+
 /* Engine initialization
  *
  * Consists of several methods that are called by each platform's specific main(argc, argv).
@@ -488,7 +554,7 @@ Error Main::setup(bool p_second_phase) {
 #endif
     OS *os = OS::get_singleton();
     os->initialize_core();
-    engine = memnew(Engine);
+    s_state.engine = memnew(Engine);
 
     MAIN_PRINT("Main: Initialize CORE");
 
@@ -505,16 +571,16 @@ Error Main::setup(bool p_second_phase) {
     Performance::initialize_class();
     Time::initialize_class();
 
-    globals = memnew(ProjectSettings);
-    input_map = memnew(InputMap);
-    time_singleton = memnew(Time);
+    s_state.globals = memnew(ProjectSettings);
+    s_state.input_map = memnew(InputMap);
+    s_state.time_singleton = memnew(Time);
 
     register_core_settings(); //here globals is present
 
-    translation_server = memnew(TranslationServer);
-    performance = memnew(Performance);
+    s_state.translation_server = memnew(TranslationServer);
+    s_state.performance = memnew(Performance);
     ClassDB::register_class<Performance>();
-    engine->add_singleton(Engine::Singleton("Performance", performance));
+    s_state.engine->add_singleton(Engine::Singleton("Performance", s_state.performance));
 
     GLOBAL_DEF(StringName("debug/settings/crash_handler/message"), String("Please include this when reporting the bug on https://github.com/godotengine/godot/issues"));
 
@@ -561,11 +627,11 @@ Error Main::setup(bool p_second_phase) {
     bool found_project = false;
 #endif
 
-    packed_data = PackedData::get_singleton();
-    if (!packed_data)
-        packed_data = memnew(PackedData);
+    s_state.packed_data = PackedData::get_singleton();
+    if (!s_state.packed_data)
+        s_state.packed_data = memnew(PackedData);
 
-    add_plugin_resolver(new ArchivePluginResolver(packed_data));
+    add_plugin_resolver(new ArchivePluginResolver(s_state.packed_data));
 
 
     I = args.begin();
@@ -973,7 +1039,7 @@ Error Main::setup(bool p_second_phase) {
     FileAccessNetwork::configure();
     if (!remotefs.empty()) {
 
-        file_access_network_client = memnew(FileAccessNetworkClient);
+        s_state.file_access_network_client = memnew(FileAccessNetworkClient);
         int port;
         if (StringUtils::contains(remotefs,':')) {
             port = StringUtils::to_int(StringUtils::get_slice(remotefs,':', 1));
@@ -982,7 +1048,7 @@ Error Main::setup(bool p_second_phase) {
             port = 6010;
         }
 
-        Error err = file_access_network_client->connect(remotefs, port, remotefs_pass);
+        Error err = s_state.file_access_network_client->connect(remotefs, port, remotefs_pass);
         if (err) {
             os->printerr(("Could not connect to remotefs: "+remotefs+":"+::to_string(port)+".\n").c_str());
             goto error;
@@ -990,7 +1056,7 @@ Error Main::setup(bool p_second_phase) {
 
         FileAccess::make_default<FileAccessNetwork>(FileAccess::ACCESS_RESOURCES);
     }
-    if (globals->setup(project_path, main_pack, upwards) == OK) {
+    if (s_state.globals->setup(project_path, main_pack, upwards) == OK) {
 #ifdef TOOLS_ENABLED
         found_project = true;
 #endif
@@ -1036,7 +1102,7 @@ Error Main::setup(bool p_second_phase) {
         ScriptDebuggerRemote *sdr = memnew(ScriptDebuggerRemote);
         uint16_t debug_port = 6007;
         if (StringUtils::contains(debug_host,':')) {
-            int sep_pos = StringUtils::rfind(debug_host,":");
+            auto sep_pos = StringUtils::rfind(debug_host,":");
             debug_port = StringUtils::to_int(StringUtils::substr(debug_host,sep_pos + 1, debug_host.length()));
             debug_host = StringUtils::substr(debug_host,0, sep_pos);
         }
@@ -1070,8 +1136,8 @@ Error Main::setup(bool p_second_phase) {
 
 #ifdef TOOLS_ENABLED
     if (editor) {
-        packed_data->set_disabled(true);
-        globals->set_disable_feature_overrides(true);
+        s_state.packed_data->set_disabled(true);
+        s_state.globals->set_disable_feature_overrides(true);
     }
 
 #endif
@@ -1130,9 +1196,9 @@ Error Main::setup(bool p_second_phase) {
     if (editor || project_manager) {
         Engine::get_singleton()->set_editor_hint(true);
         use_custom_res = false;
-        input_map->load_default(); //keys for editor
+        s_state.input_map->load_default(); // keys for editor
     } else {
-        input_map->load_from_globals(); //keys for game
+        s_state.input_map->load_from_globals(); // keys for game
     }
 
     if ((project_settings->getT<bool>("application/run/disable_stdout"))) {
@@ -1161,6 +1227,7 @@ Error Main::setup(bool p_second_phase) {
 
     // Assigning here even though it's GLES2-specific, to be sure that it appears in docs
     GLOBAL_DEF("rendering/2d/options/use_nvidia_rect_flicker_workaround", false);
+
     GLOBAL_DEF("display/window/size/width", 1024);
     project_settings->set_custom_property_info(
             "display/window/size/width", PropertyInfo(VariantType::INT, "display/window/size/width", PropertyHint::Range,
@@ -1188,12 +1255,12 @@ Error Main::setup(bool p_second_phase) {
             video_mode.width = T_GLOBAL_GET<int>("display/window/size/width");
             video_mode.height = T_GLOBAL_GET<int>("display/window/size/height");
 
-            if (globals->has_setting("display/window/size/test_width") && globals->has_setting("display/window/size/test_height")) {
-                int tw = globals->getT<int>("display/window/size/test_width");
+            if (s_state.globals->has_setting("display/window/size/test_width") && s_state.globals->has_setting("display/window/size/test_height")) {
+                int tw = s_state.globals->getT<int>("display/window/size/test_width");
                 if (tw > 0) {
                     video_mode.width = tw;
                 }
-                int th = globals->getT<int>("display/window/size/test_height");
+                int th = s_state.globals->getT<int>("display/window/size/test_height");
                 if (th > 0) {
                     video_mode.height = th;
                 }
@@ -1251,36 +1318,8 @@ Error Main::setup(bool p_second_phase) {
     }
 
     /* Determine audio and video drivers */
-
-    for (int i = 0; i < os->get_video_driver_count(); i++) {
-
-        if (video_driver == os->get_video_driver_name(i)) {
-
-            video_driver_idx = i;
-            break;
-        }
-    }
-
-    if (video_driver_idx < 0) {
-        video_driver_idx = 0;
-    }
-
-    if (audio_driver.empty()) { // specified in project.godot
-        audio_driver = T_GLOBAL_DEF<StringName>("audio/driver", StringName(OS::get_singleton()->get_audio_driver_name(0)),true,true);
-    }
-
-    for (int i = 0; i < os->get_audio_driver_count(); i++) {
-
-        if (audio_driver == os->get_audio_driver_name(i)) {
-
-            audio_driver_idx = i;
-            break;
-        }
-    }
-
-    if (audio_driver_idx < 0) {
-        audio_driver_idx = 0;
-    }
+    video_driver_idx = get_video_driver_index(video_driver);
+    audio_driver_idx = get_audio_driver_index(audio_driver);
 
     //String orientation = T_GLOBAL_DEF<String>("display/window/handheld/orientation", "landscape");
     os->set_screen_orientation(OS::SCREEN_LANDSCAPE);
@@ -1335,19 +1374,8 @@ error:
     if (show_help)
         print_help(execpath);
 
-    memdelete(performance);
-    memdelete(input_map);
-    memdelete(time_singleton);
-    memdelete(translation_server);
-    memdelete(globals);
-    memdelete(engine);
+    s_state.free_state();
     memdelete(script_debugger);
-    memdelete(packed_data);
-    memdelete(file_access_network_client);
-
-
-    unregister_core_driver_types();
-    unregister_core_types();
 
     os->_cmdline.clear();
 
@@ -1495,11 +1523,12 @@ Error Main::setup2() {
     }
     MAIN_PRINT("Main: Load Translations and Remaps");
 
-    translation_server->setup(); //register translations, load them, etc.
+    s_state.translation_server->setup(); // register translations, load them, etc.
     if (!locale.empty()) {
-        translation_server->set_locale(locale);
+        s_state.translation_server->set_locale(locale);
     }
-    translation_server->load_translations();
+    s_state.translation_server->load_translations();
+
     gResourceRemapper().load_translation_remaps(); //load remaps for resources
 
     gResourceRemapper().load_path_remaps();
@@ -2046,15 +2075,13 @@ bool Main::start() {
                         auto sep = StringUtils::rfind(local_game_path,'/');
 
                         if (sep == String::npos) {
-                            DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
+                            DirAccessRef da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
                             local_game_path = PathUtils::plus_file(da->get_current_dir(),local_game_path);
-                            memdelete(da);
                         } else {
 
-                            DirAccess *da = DirAccess::open(StringUtils::substr(local_game_path,0, sep));
+                            DirAccessRef da = DirAccess::open(StringUtils::substr(local_game_path,0, sep));
                             if (da) {
                                 local_game_path = PathUtils::plus_file(da->get_current_dir(),StringUtils::substr(local_game_path,sep + 1, local_game_path.length()));
-                                memdelete(da);
                             }
                         }
                     }
@@ -2176,6 +2203,46 @@ static uint64_t idle_process_max = 0;
 static uint64_t frame_delta_sync_time = 0;
 #endif
 
+bool perform_physic_steps(float scaled_frame_slice, MainFrameTime advance, uint64_t &physics_process_ticks, bool agile_input_event_flushing) {
+    PhysicsServer2D *physicsServer2D = PhysicsServer2D::get_singleton();
+    PhysicsServer3D *physicsServer3D = PhysicsServer3D::get_singleton();
+
+    for (int iters = 0; iters < advance.physics_steps; ++iters) {
+        if (InputDefault::get_singleton()->is_using_input_buffering() && agile_input_event_flushing) {
+            InputDefault::get_singleton()->flush_buffered_events();
+        }
+
+        Engine::get_singleton()->start_physics_frame();
+
+        uint64_t physics_begin = OS::get_singleton()->get_ticks_usec();
+
+        physicsServer3D->flush_queries();
+
+        physicsServer2D->sync();
+        physicsServer2D->flush_queries();
+
+        if (OS::get_singleton()->get_main_loop()->iteration(scaled_frame_slice)) {
+            Engine::get_singleton()->end_physics_frame();
+            return true;
+        }
+
+        message_queue->flush();
+
+        physicsServer3D->step(scaled_frame_slice);
+        NavigationServer::get_singleton_mut()->process(scaled_frame_slice);
+
+        physicsServer2D->end_sync();
+        physicsServer2D->step(scaled_frame_slice);
+
+        message_queue->flush();
+
+        physics_process_ticks = M_MAX(physics_process_ticks, OS::get_singleton()->get_ticks_usec() - physics_begin); // keep the largest one for reference
+        physics_process_max = M_MAX(OS::get_singleton()->get_ticks_usec() - physics_begin, physics_process_max);
+        Engine::get_singleton()->end_physics_frame();
+    }
+    return false;
+}
+
 bool Main::iteration() {
     SCOPE_AUTONAMED;
     //for now do not error on this
@@ -2206,12 +2273,12 @@ bool Main::iteration() {
     uint64_t ticks_elapsed = ticks - last_ticks;
 
     int physics_fps = Engine::get_singleton()->get_iterations_per_second();
-    float frame_slice = 1.0f / physics_fps;
+    float frame_slice = 1.0f / (float)physics_fps;
 
     float time_scale = Engine::get_singleton()->get_time_scale();
     MainFrameTime advance = main_timer_sync.advance(frame_slice, physics_fps);
-    double step = advance.idle_step;
-    double scaled_step = step * time_scale;
+    float step = advance.idle_step;
+    float scaled_step = step * time_scale;
 
     Engine::get_singleton()->_frame_step = step;
     Engine::get_singleton()->_physics_interpolation_fraction = advance.interpolation_fraction;
@@ -2228,52 +2295,13 @@ bool Main::iteration() {
         step -= (advance.physics_steps - max_physics_steps) * frame_slice;
         advance.physics_steps = max_physics_steps;
     }
-    PhysicsServer2D *physicsServer2D = PhysicsServer2D::get_singleton();
-    PhysicsServer3D *physicsServer3D = PhysicsServer3D::get_singleton();
 
 
-    bool exit = false;
-    for (int iters = 0; iters < advance.physics_steps; ++iters) {
-        if (InputDefault::get_singleton()->is_using_input_buffering() && agile_input_event_flushing) {
-            InputDefault::get_singleton()->flush_buffered_events();
-        }
-
-        Engine::get_singleton()->_in_physics = true;
-
-        uint64_t physics_begin = OS::get_singleton()->get_ticks_usec();
-
-        physicsServer3D->flush_queries();
-
-        physicsServer2D->sync();
-        physicsServer2D->flush_queries();
-
-        if (OS::get_singleton()->get_main_loop()->iteration(frame_slice * time_scale)) {
-            exit = true;
-            Engine::get_singleton()->_in_physics = false;
-            break;
-        }
-
-        message_queue->flush();
-
-        physicsServer3D->step(frame_slice * time_scale);
-        NavigationServer::get_singleton_mut()->process(frame_slice * time_scale);
-
-        physicsServer2D->end_sync();
-        physicsServer2D->step(frame_slice * time_scale);
-
-        message_queue->flush();
-
-        physics_process_ticks = M_MAX(physics_process_ticks, OS::get_singleton()->get_ticks_usec() - physics_begin); // keep the largest one for reference
-        physics_process_max = M_MAX(OS::get_singleton()->get_ticks_usec() - physics_begin, physics_process_max);
-        Engine::get_singleton()->_physics_frames++;
-        Engine::get_singleton()->_in_physics = false;
-    }
+    bool exit = perform_physic_steps(frame_slice * time_scale, advance, physics_process_ticks, agile_input_event_flushing);
 
     if (InputDefault::get_singleton()->is_using_input_buffering() && agile_input_event_flushing) {
         InputDefault::get_singleton()->flush_buffered_events();
     }
-
-    Engine::get_singleton()->_in_physics = false;
 
     {
         SCOPE_PROFILE("canvas updates");
@@ -2338,18 +2366,18 @@ bool Main::iteration() {
     if (frame > 1000000) {
 
         const char *exe_type = (editor || project_manager) ? "Editor" : "Project";
-        bool should_show_fps = false;
+        bool should_show_fps;
         if (editor || project_manager) {
             should_show_fps = print_fps;
         } else {
             should_show_fps = T_GLOBAL_GET<bool>("debug/settings/stdout/print_fps") || print_fps;
-            }
+        }
         if(should_show_fps)
             print_line(FormatVE("%s FPS: %d (%s mspf)", exe_type, frames, StringUtils::pad_decimals(rtos(1000.0f / frames),1).c_str()));
 
         Engine::get_singleton()->_fps = frames;
-        performance->set_process_time(USEC_TO_SEC(idle_process_max));
-        performance->set_physics_process_time(USEC_TO_SEC(physics_process_max));
+        s_state.performance->set_process_time(USEC_TO_SEC(idle_process_max));
+        s_state.performance->set_physics_process_time(USEC_TO_SEC(physics_process_max));
         idle_process_max = 0;
         physics_process_max = 0;
 
@@ -2398,7 +2426,7 @@ void Main::force_redraw() {
 void Main::cleanup(bool p_force) {
 
     if (!p_force) {
-    ERR_FAIL_COND(!_start_success);
+        ERR_FAIL_COND(!_start_success);
     }
     if (script_debugger) {
         // Flush any remaining messages
@@ -2439,10 +2467,8 @@ void Main::cleanup(bool p_force) {
     EditorNode::unregister_editor_types();
 #endif
 
-    if (arvr_server) {
-        // cleanup now before we pull the rug from underneath...
-        memdelete(arvr_server);
-    }
+    // cleanup now before we pull the rug from underneath...
+    memdelete(arvr_server);
 
     ImageLoader::cleanup();
 
@@ -2459,22 +2485,13 @@ void Main::cleanup(bool p_force) {
         memdelete(audio_server);
     }
 
-    if (camera_server) {
-        memdelete(camera_server);
-    }
+    memdelete(camera_server);
 
     OS::get_singleton()->finalize();
     finalize_physics();
     finalize_navigation_server();
 
-    memdelete(packed_data);
-    memdelete(file_access_network_client);
-    memdelete(performance);
-    memdelete(input_map);
-    memdelete(time_singleton);
-    memdelete(translation_server);
-    memdelete(globals);
-    memdelete(engine);
+    s_state.free_state();
 
     if (OS::get_singleton()->is_restart_on_exit_set()) {
         //attempt to restart with arguments
@@ -2485,8 +2502,6 @@ void Main::cleanup(bool p_force) {
         OS::get_singleton()->set_restart_on_exit(false, Vector<String>()); //clear list (uses memory)
     }
 
-    unregister_core_driver_types();
-    unregister_core_types();
 
     OS::get_singleton()->finalize_core();
 }

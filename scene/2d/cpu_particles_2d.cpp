@@ -38,6 +38,7 @@
 #include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/translation_helpers.h"
+#include "EASTL/sort.h"
 #include "scene/2d/canvas_item.h"
 #include "scene/2d/canvas_item_material.h"
 #include "scene/2d/gpu_particles_2d.h"
@@ -909,105 +910,98 @@ void CPUParticles2D::_update_particle_data_buffer() {
 
     MutexGuard guard(update_mutex);
 
-        int pc = particles.size();
+    int pc = particles.size();
 
-        PoolVector<int>::Write ow;
-        int *order = nullptr;
+    PoolVector<int>::Write ow;
+    int *order = nullptr;
 
     auto &w = particle_data;
-        PoolVector<Particle>::Read r = particles.read();
+    PoolVector<Particle>::Read r = particles.read();
     float *ptr = w.data();
 
-        if (draw_order != DRAW_ORDER_INDEX) {
-            ow = particle_order.write();
-            order = ow.ptr();
-
-            for (int i = 0; i < pc; i++) {
-                order[i] = i;
-            }
-            if (draw_order == DRAW_ORDER_LIFETIME) {
-                SortArray<int, SortLifetime> sorter;
-                sorter.compare.particles = r.ptr();
-                sorter.sort(order, pc);
-            }
-        }
+    if (draw_order != DRAW_ORDER_INDEX) {
+        ow = particle_order.write();
+        order = ow.ptr();
 
         for (int i = 0; i < pc; i++) {
-
-            int idx = order ? order[i] : i;
-
-            Transform2D t = r[idx].transform;
-
-            if (!local_coords) {
-                t = inv_emission_transform * t;
-            }
-
-            if (r[idx].active) {
-
-                ptr[0] = t.elements[0][0];
-                ptr[1] = t.elements[1][0];
-                ptr[2] = 0;
-                ptr[3] = t.elements[2][0];
-                ptr[4] = t.elements[0][1];
-                ptr[5] = t.elements[1][1];
-                ptr[6] = 0;
-                ptr[7] = t.elements[2][1];
-
-                Color c = r[idx].color;
-                uint8_t *data8 = (uint8_t *)&ptr[8];
-                data8[0] = CLAMP<uint8_t>(c.r * 255.0f, 0, 255);
-                data8[1] = CLAMP<uint8_t>(c.g * 255.0f, 0, 255);
-                data8[2] = CLAMP<uint8_t>(c.b * 255.0f, 0, 255);
-                data8[3] = CLAMP<uint8_t>(c.a * 255.0f, 0, 255);
-
-                ptr[9] = r[idx].custom[0];
-                ptr[10] = r[idx].custom[1];
-                ptr[11] = r[idx].custom[2];
-                ptr[12] = r[idx].custom[3];
-
-            } else {
-                memset(ptr, 0, sizeof(float) * 13);
-            }
-            ptr += 13;
+            order[i] = i;
         }
+        if (draw_order == DRAW_ORDER_LIFETIME) {
+            eastl::sort(order, order + pc, SortLifetime());
+        }
+    }
+
+    for (int i = 0; i < pc; i++, ptr += 13) {
+
+        int idx = order ? order[i] : i;
+        if (!r[idx].active) {
+            memset(ptr, 0, sizeof(float) * 13);
+            continue;
+        }
+
+        Transform2D t = r[idx].transform;
+
+        if (!local_coords) {
+            t = inv_emission_transform * t;
+        }
+
+        ptr[0] = t.elements[0][0];
+        ptr[1] = t.elements[1][0];
+        ptr[2] = 0;
+        ptr[3] = t.elements[2][0];
+        ptr[4] = t.elements[0][1];
+        ptr[5] = t.elements[1][1];
+        ptr[6] = 0;
+        ptr[7] = t.elements[2][1];
+
+        Color c = r[idx].color;
+        uint8_t *data8 = (uint8_t *)&ptr[8];
+        data8[0] = CLAMP<uint8_t>(c.r * 255.0f, 0, 255);
+        data8[1] = CLAMP<uint8_t>(c.g * 255.0f, 0, 255);
+        data8[2] = CLAMP<uint8_t>(c.b * 255.0f, 0, 255);
+        data8[3] = CLAMP<uint8_t>(c.a * 255.0f, 0, 255);
+
+        ptr[9] = r[idx].custom[0];
+        ptr[10] = r[idx].custom[1];
+        ptr[11] = r[idx].custom[2];
+        ptr[12] = r[idx].custom[3];
+    }
 
 }
 
 void CPUParticles2D::_set_redraw(bool p_redraw) {
-    if (redraw == p_redraw)
+    if (redraw == p_redraw) {
         return;
+    }
     redraw = p_redraw;
 
     {
         MutexGuard guard(update_mutex);
 
-    auto RS = RenderingServer::get_singleton();
-    if (redraw) {
-        RS->connect("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread));
-        RS->canvas_item_set_update_when_visible(get_canvas_item(), true);
+        auto RS = RenderingServer::get_singleton();
+        if (redraw) {
+            RS->connect("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread));
+            RS->canvas_item_set_update_when_visible(get_canvas_item(), true);
 
-        RS->multimesh_set_visible_instances(multimesh, -1);
-    } else {
-        if(RS->is_connected("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread))) {
-            RS->disconnect("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread));
+            RS->multimesh_set_visible_instances(multimesh, -1);
+        } else {
+            if (RS->is_connected("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread))) {
+                RS->disconnect("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread));
+            }
+            RS->canvas_item_set_update_when_visible(get_canvas_item(), false);
+
+            RS->multimesh_set_visible_instances(multimesh, 0);
         }
-        RS->canvas_item_set_update_when_visible(get_canvas_item(), false);
-
-        RS->multimesh_set_visible_instances(multimesh, 0);
-    }
-
     }
 
     update(); // redraw to update render list
 }
 
 void CPUParticles2D::_update_render_thread() {
-
     if (OS::get_singleton()->is_update_pending(true)) {
         MutexGuard guard(update_mutex);
 
-    RenderingServer::get_singleton()->multimesh_set_as_bulk_array(multimesh, particle_data);
-
+        RenderingServer::get_singleton()->multimesh_set_as_bulk_array(multimesh, particle_data);
     }
 }
 

@@ -65,7 +65,7 @@ protected:
     void _draw_indicator();
     void _on_input_indicator(const Ref<InputEvent>& p_event);
     void _seek_to(real_t p_x);
-    void _changed_callback(Object *p_changed, StringName p_prop) override;
+    void _changed_callback(Object *p_changed, const StringName & p_prop) override;
     static void _bind_methods();
 
 public:

@@ -417,18 +417,6 @@
                 If set to [code]true[/code], signal emission is blocked.
             </description>
         </method>
-        <method name="set_deferred">
-            <return type="void">
-            </return>
-            <argument index="0" name="property" type="StringName">
-            </argument>
-            <argument index="1" name="value" type="Variant">
-            </argument>
-            <description>
-                Assigns a new value to the given property, after the current frame's physics step. This is equivalent to calling [method set] via [method call_deferred], i.e. [code]call_deferred("set", property, value)[/code].
-                [b]Note:[/b] In C#, the property name must be specified as snake_case if it is defined by a built-in Godot node. This doesn't apply to user-defined properties where you should use the same convention as in the C# source (typically PascalCase).
-            </description>
-        </method>
         <method name="set_indexed">
             <return type="void">
             </return>

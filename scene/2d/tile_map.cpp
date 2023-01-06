@@ -1979,7 +1979,7 @@ void TileMap::_bind_methods() {
     BIND_ENUM_CONSTANT(TILE_ORIGIN_BOTTOM_LEFT);
 }
 
-void TileMap::_changed_callback(Object *p_changed, StringName p_prop) {
+void TileMap::_changed_callback(Object *p_changed, const StringName & p_prop) {
     if (tile_set && tile_set.get() == p_changed) {
         emit_signal("settings_changed");
     }

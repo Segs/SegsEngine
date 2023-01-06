@@ -647,7 +647,7 @@ Control *Control::get_parent_control() const {
     return cdata.parent;
 }
 
-void Control::_resize(const Size2 &p_size) {
+void Control::_resize(const Size2 &/*p_size*/) {
     _size_changed();
 }
 
@@ -667,13 +667,14 @@ void Control::add_child_notify(Node *p_child) {
 }
 
 void Control::remove_child_notify(Node *p_child) {
-    auto &cdata(get_control_data(this));
 
     Control *child_c = object_cast<Control>(p_child);
-    if (!child_c)
+    if (!child_c) {
         return;
+    }
+    auto &cdata(get_control_data(child_c));
 
-    if (get_control_data(child_c).theme_owner && not get_control_data(child_c).theme) {
+    if (cdata.theme_owner && not cdata.theme) {
         _propagate_theme_changed(child_c, nullptr);
     }
 }
@@ -684,7 +685,7 @@ void Control::_update_canvas_item_transform() {
     Transform2D xform = _get_internal_transform();
     xform[2] += get_position();
     // We use a little workaround to avoid flickering when moving the pivot with _edit_set_pivot()
-    if (is_inside_tree() && Math::abs(Math::sin(get_control_data(this).rotation * 4.0f)) < 0.00001f &&
+    if (is_inside_tree() && Math::abs(Math::sin(cdata.rotation * 4.0f)) < 0.00001f &&
             get_viewport()->is_snap_controls_to_pixels_enabled()) {
         xform[2] = xform[2].round();
     }
@@ -980,8 +981,6 @@ void Control::drop_data(const Point2 &p_point, const Variant &p_data) {
 }
 
 void Control::force_drag(const Variant &p_data, Control *p_control) {
-    auto &cdata(get_control_data(this));
-
     ERR_FAIL_COND(!is_inside_tree());
     ERR_FAIL_COND(p_data.get_type() == VariantType::NIL);
 
@@ -2251,10 +2250,11 @@ void Control::_modal_stack_remove() {
 
 void Control::_propagate_theme_changed(CanvasItem *p_at, Control *p_owner, bool p_assign) {
     Control *c = object_cast<Control>(p_at);
-    auto &cdata(get_control_data(this));
 
-    if (c && c != p_owner && get_control_data(c).theme) // has a theme, this can't be propagated
+    if (c && c != p_owner && get_control_data(c).theme) {
+        // has a theme, this can't be propagated
         return;
+    }
 
     for (int i = 0; i < p_at->get_child_count(); i++) {
         CanvasItem *child = object_cast<CanvasItem>(p_at->get_child(i));
@@ -2264,8 +2264,9 @@ void Control::_propagate_theme_changed(CanvasItem *p_at, Control *p_owner, bool 
     }
 
     if (c) {
+        auto &cdata(get_control_data(c));
         if (p_assign) {
-            get_control_data(c).theme_owner = p_owner;
+            cdata.theme_owner = p_owner;
         }
         c->notification(NOTIFICATION_THEME_CHANGED);
     }
@@ -2324,7 +2325,7 @@ void Control::accept_event() {
     }
 }
 
-const String &Control::get_tooltip(const Point2 &p_pos) const {
+const String &Control::get_tooltip(const Point2 &/*p_pos*/) const {
     auto &cdata(get_control_data(this));
 
     return cdata.tooltip;

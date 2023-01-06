@@ -1111,7 +1111,7 @@ static const char *_joy_buttons[] = { "a", "b", "x", "y", "leftshoulder", "right
     "paddle1", "paddle2", "paddle3", "paddle4", "touchpad", nullptr };
 static const char *_joy_axes[] = { "leftx", "lefty", "rightx", "righty", nullptr };
 
-JoystickList InputDefault::_get_output_button(String output) {
+JoystickList InputDefault::_get_output_button(StringView output) {
     for (int i = 0; _joy_buttons[i]; i++) {
         if (output == _joy_buttons[i]) {
             return JoystickList(i);
@@ -1120,7 +1120,7 @@ JoystickList InputDefault::_get_output_button(String output) {
     return JoystickList::JOY_INVALID_OPTION;
 }
 
-JoystickList InputDefault::_get_output_axis(String output) {
+JoystickList InputDefault::_get_output_axis(StringView output) {
     for (int i = 0; _joy_axes[i]; i++) {
         if (output == _joy_axes[i]) {
             return JoystickList(i);
@@ -1350,7 +1350,7 @@ int InputDefault::get_joy_button_index_from_string(StringView p_button) {
             return i;
         }
     }
-    ERR_FAIL_V_MSG(-1, FormatVE("Could not find a button index matching the string \"%.*s\".", p_button.size(),p_button.data()));
+    ERR_FAIL_V_MSG(-1, FormatVE("Could not find a button index matching the string \"%.*s\".", (int)p_button.size(), p_button.data()));
 }
 
 int InputDefault::get_unused_joy_id() {
@@ -1377,6 +1377,5 @@ int InputDefault::get_joy_axis_index_from_string(StringView p_axis) {
             return i;
         }
     }
-    ERR_FAIL_V_MSG(
-            -1, FormatVE("Could not find an axis index matching the string \"%.*s\".", p_axis.size(), p_axis.data()));
+    ERR_FAIL_V_MSG(-1, FormatVE("Could not find an axis index matching the string \"%.*s\".", (int)p_axis.size(), p_axis.data()));
 }

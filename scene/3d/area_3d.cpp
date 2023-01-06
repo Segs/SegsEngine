@@ -300,7 +300,7 @@ void Area3D::_notification(int p_what) {
 
 void Area3D::set_monitoring(bool p_enable) {
 
-    ERR_FAIL_COND_MSG(locked, "Function blocked during in/out signal. Use set_deferred(\"monitoring\", true/false).");
+    ERR_FAIL_COND_MSG(locked, "Function blocked during in/out signal. Use call_deferred([this] {set_monitoring(true/false);}).");
 
     if (p_enable == monitoring)
         return;
@@ -450,7 +450,7 @@ Array Area3D::get_overlapping_bodies() const {
 void Area3D::set_monitorable(bool p_enable) {
 
     ERR_FAIL_COND_MSG(locked || (is_inside_tree() && PhysicsServer3D::get_singleton()->is_flushing_queries()),
-            "Function blocked during in/out signal. Use set_deferred(\"monitorable\", true/false).");
+            "Function blocked during in/out signal. Use call_deferred([this] {set_monitorable(true/false);}).");
 
     if (p_enable == monitorable)
         return;

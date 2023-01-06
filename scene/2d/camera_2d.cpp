@@ -44,30 +44,29 @@ VARIANT_ENUM_CAST(Camera2D::Camera2DProcessMode);
 
 void Camera2D::_update_scroll() {
 
-    if (!is_inside_tree())
+    if (!is_inside_tree()) {
         return;
+    }
 
     if (Engine::get_singleton()->is_editor_hint()) {
         update(); //will just be drawn
         return;
     }
 
-    if (!viewport)
+    if (!viewport || !current) {
         return;
+    }
 
-    if (current) {
+    ERR_FAIL_COND(custom_viewport && !object_for_entity(custom_viewport_id));
 
-        ERR_FAIL_COND(custom_viewport && !object_for_entity(custom_viewport_id));
+    Transform2D xform = get_camera_transform();
 
-        Transform2D xform = get_camera_transform();
+    viewport->set_canvas_transform(xform);
 
-        viewport->set_canvas_transform(xform);
+    Size2 screen_size = viewport->get_visible_rect().size;
+    Point2 screen_offset = (anchor_mode == ANCHOR_MODE_DRAG_CENTER ? (screen_size * 0.5) : Point2());
 
-        Size2 screen_size = viewport->get_visible_rect().size;
-        Point2 screen_offset = (anchor_mode == ANCHOR_MODE_DRAG_CENTER ? (screen_size * 0.5) : Point2());
-
-        get_tree()->call_group_flags(SceneTree::GROUP_CALL_REALTIME, group_name, "_camera_moved", xform, screen_offset);
-    };
+    get_tree()->call_group_flags(SceneTree::GROUP_CALL_REALTIME, group_name, "_camera_moved", xform, screen_offset);
 }
 
 void Camera2D::_update_process_mode() {
@@ -527,14 +526,14 @@ void Camera2D::align() {
     Point2 current_camera_pos = get_global_transform().get_origin();
     if (anchor_mode == ANCHOR_MODE_DRAG_CENTER) {
         if (h_ofs < 0) {
-            camera_pos.x = current_camera_pos.x + screen_size.x * 0.5 * drag_margin[(int8_t)Margin::Right] * h_ofs;
+            camera_pos.x = current_camera_pos.x + screen_size.x * 0.5f * drag_margin[(int8_t)Margin::Right] * h_ofs;
         } else {
-            camera_pos.x = current_camera_pos.x + screen_size.x * 0.5 * drag_margin[(int8_t)Margin::Left] * h_ofs;
+            camera_pos.x = current_camera_pos.x + screen_size.x * 0.5f * drag_margin[(int8_t)Margin::Left] * h_ofs;
         }
         if (v_ofs < 0) {
-            camera_pos.y = current_camera_pos.y + screen_size.y * 0.5 * drag_margin[(int8_t)Margin::Top] * v_ofs;
+            camera_pos.y = current_camera_pos.y + screen_size.y * 0.5f * drag_margin[(int8_t)Margin::Top] * v_ofs;
         } else {
-            camera_pos.y = current_camera_pos.y + screen_size.y * 0.5 * drag_margin[(int8_t)Margin::Bottom] * v_ofs;
+            camera_pos.y = current_camera_pos.y + screen_size.y * 0.5f * drag_margin[(int8_t)Margin::Bottom] * v_ofs;
         }
     } else if (anchor_mode == ANCHOR_MODE_FIXED_TOP_LEFT) {
 

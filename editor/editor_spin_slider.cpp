@@ -54,9 +54,6 @@ const String &EditorSpinSlider::get_tooltip(const Point2 &p_pos) const {
         tooltip_contents = StringUtils::num(get_value()) + "\n\n" +
                 FormatVE(TTR("Hold %s to round to integers. Hold Shift for more precise changes.").asCString(),
                         find_keycode_name(key));
-    }
-    else if (grabber->is_visible()) {
-        tooltip_contents = FormatVE("%f\n\n%s", get_value(), TTR("Hold Ctrl to round to integers. Hold Shift for more precise changes.").asCString());
     } else {
         tooltip_contents = StringUtils::num(get_value());
     }
@@ -220,7 +217,7 @@ void EditorSpinSlider::_value_input_gui_input(const Ref<InputEvent> &p_event) {
         if (step < 1) {
             float divisor = 1.0f / get_step();
 
-            if (trunc(divisor) == divisor) {
+            if (truncf(divisor) == divisor) {
                 step = 1.0f;
         }
     }
@@ -230,15 +227,15 @@ void EditorSpinSlider::_value_input_gui_input(const Ref<InputEvent> &p_event) {
 #else
         if (k->get_control()) {
 #endif
-            step *= 100.0;
+            step *= 100.0f;
         } else if (k->get_shift()) {
-            step *= 10.0;
+            step *= 10.0f;
 #ifdef APPLE_STYLE_KEYS
         } else if (k->get_metakey()) {
 #else
         } else if (k->get_alt()) {
 #endif
-            step *= 0.1;
+            step *= 0.1f;
     }
 
         uint32_t code = k->get_keycode();

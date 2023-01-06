@@ -517,23 +517,23 @@ void UnixTerminalLogger::log_error(StringView p_function, StringView p_file, int
 
     switch (p_type) {
         case ERR_WARNING:
-            logf_error(FormatVE("%sWARNING:%s %.*s\n", yellow_bold, yellow, err_details.size(),err_details.data()));
+            logf_error(FormatVE("%sWARNING:%s %.*s\n", yellow_bold, yellow, (int)err_details.size(),err_details.data()));
             break;
         case ERR_SCRIPT:
-            logf_error(FormatVE("%sSCRIPT ERROR:%s %.*s\n", magenta_bold, magenta, err_details.size(),err_details.data()));
+            logf_error(FormatVE("%sSCRIPT ERROR:%s %.*s\n", magenta_bold, magenta, (int)err_details.size(),err_details.data()));
             break;
         case ERR_SHADER:
-            logf_error(FormatVE("%sSHADER ERROR:%s %.*s\n", cyan_bold, cyan, err_details.size(),err_details.data()));
+            logf_error(FormatVE("%sSHADER ERROR:%s %.*s\n", cyan_bold, cyan, (int)err_details.size(),err_details.data()));
             break;
         case ERR_ERROR:
         default:
-            logf_error(FormatVE("%sERROR:%s %.*s\n", red_bold, red, err_details.size(),err_details.data()));
+            logf_error(FormatVE("%sERROR:%s %.*s\n", red_bold, red, (int)err_details.size(),err_details.data()));
             break;
     }
     logf_error(FormatVE("%s     at: %.*s (%.*s:%i)%s\n",
                         gray,
-                        p_function.size(),p_function.data(),
-                        p_file.size(), p_file.data(),
+                        (int)p_function.size(),p_function.data(),
+                        (int)p_file.size(), p_file.data(),
                         p_line, reset));
 }
 

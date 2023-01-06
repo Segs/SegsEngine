@@ -1205,7 +1205,7 @@ void CodeSignSuperBlob::write_to_file(FileAccess *p_file) const {
 Vector<uint8_t> CodeSign::file_hash_sha1(StringView p_path) {
     Vector<uint8_t> file_hash;
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, Vector<uint8_t>(), FormatVE("CodeSign: Can't open file: \"%.*s\".", p_path.size(), p_path.data()));
+    ERR_FAIL_COND_V_MSG(!f, Vector<uint8_t>(), FormatVE("CodeSign: Can't open file: \"%.*s\".", (int)p_path.size(), p_path.data()));
 
     CryptoCore::SHA1Context ctx;
     ctx.start();
@@ -1229,7 +1229,7 @@ Vector<uint8_t> CodeSign::file_hash_sha1(StringView p_path) {
 Vector<uint8_t> CodeSign::file_hash_sha256(StringView p_path) {
     Vector<uint8_t> file_hash;
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, Vector<uint8_t>(), FormatVE("CodeSign: Can't open file: \"%.*s\".", p_path.size(), p_path.data()));
+    ERR_FAIL_COND_V_MSG(!f, Vector<uint8_t>(), FormatVE("CodeSign: Can't open file: \"%.*s\".", (int)p_path.size(), p_path.data()));
 
     CryptoCore::SHA256Context ctx;
     ctx.start();
@@ -1262,8 +1262,8 @@ Error CodeSign::_codesign_file(bool p_use_hardened_runtime, bool p_force, String
     String id;
     String main_exe(p_exe_path);
 
-    print_verbose(FormatVE("CodeSign: Signing executable: %s, bundle: %.*s with entitlements %.*s", main_exe.c_str(), p_bundle_path.size(),
-            p_bundle_path.data(), p_ent_path.size(), p_ent_path.data()));
+    print_verbose(FormatVE("CodeSign: Signing executable: %s, bundle: %.*s with entitlements %.*s", main_exe.c_str(), (int)p_bundle_path.size(),
+            p_bundle_path.data(), (int)p_ent_path.size(), p_ent_path.data()));
 
     DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     if (!da) {

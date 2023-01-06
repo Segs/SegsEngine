@@ -266,7 +266,7 @@ bool SoftBody3D::_get_property_pinned_points(int p_item, StringView p_what, Vari
     return true;
 }
 
-void SoftBody3D::_changed_callback(Object *p_changed, StringName p_prop) {
+void SoftBody3D::_changed_callback(Object *p_changed, const StringName & p_prop) {
     _prepare_physics_server();
     _reset_points_offsets();
 #ifdef TOOLS_ENABLED
@@ -826,24 +826,23 @@ void SoftBody3D::_add_pinned_point(int p_point_index, const NodePath &p_spatial_
 }
 
 void SoftBody3D::_reset_points_offsets() {
-
     if (!Engine::get_singleton()->is_editor_hint())
         return;
 
     PoolVector<PinnedPoint>::Read r = pinned_points.read();
     PoolVector<PinnedPoint>::Write w = pinned_points.write();
     for (int i = pinned_points.size() - 1; 0 <= i; --i) {
-
         if (!r[i].spatial_attachment) {
             if (!r[i].spatial_attachment_path.is_empty() && has_node(r[i].spatial_attachment_path)) {
-            w[i].spatial_attachment = object_cast<Node3D>(get_node(r[i].spatial_attachment_path));
+                w[i].spatial_attachment = object_cast<Node3D>(get_node(r[i].spatial_attachment_path));
             }
         }
 
         if (!r[i].spatial_attachment)
             continue;
 
-        w[i].offset = (r[i].spatial_attachment->get_global_transform().affine_inverse() * get_global_transform()).xform(PhysicsServer3D::get_singleton()->soft_body_get_point_global_position(physics_rid, r[i].point_index));
+        w[i].offset = (r[i].spatial_attachment->get_global_transform().affine_inverse() * get_global_transform())
+                              .xform(PhysicsServer3D::get_singleton()->soft_body_get_point_global_position(physics_rid, r[i].point_index));
     }
 }
 

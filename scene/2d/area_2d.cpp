@@ -396,7 +396,7 @@ void Area2D::set_monitoring(bool p_enable) {
 
     if (p_enable == monitoring)
         return;
-    ERR_FAIL_COND_MSG(locked, "Function blocked during in/out signal. Use set_deferred(\"monitoring\", true/false).");
+    ERR_FAIL_COND_MSG(locked, "Function blocked during in/out signal. Use call_deferred([this] {set_monitoring(true/false);}).");
 
     monitoring = p_enable;
 
@@ -419,7 +419,8 @@ bool Area2D::is_monitoring() const {
 
 void Area2D::set_monitorable(bool p_enable) {
 
-    ERR_FAIL_COND_MSG(locked || (is_inside_tree() && PhysicsServer2D::get_singleton()->is_flushing_queries()), "Function blocked during in/out signal. Use set_deferred(\"monitorable\", true/false).");
+    ERR_FAIL_COND_MSG(locked || (is_inside_tree() && PhysicsServer2D::get_singleton()->is_flushing_queries()),
+            "Function blocked during in/out signal. Use call_deferred([this] {set_monitorable(true/false);}).");
 
     if (p_enable == monitorable)
         return;

@@ -2064,7 +2064,7 @@ void VisualShaderEditor::_mode_selected(int p_id) {
     _update_graph();
 }
 
-void VisualShaderEditor::_input_select_item(Ref<VisualShaderNodeInput> input, const StringName &name) {
+void VisualShaderEditor::_input_select_item(const Ref<VisualShaderNodeInput>& input, const StringName &name) {
     StringName prev_name = input->get_input_name();
 
     if (name == prev_name)
@@ -2097,7 +2097,7 @@ void VisualShaderEditor::_input_select_item(Ref<VisualShaderNodeInput> input, co
     undo_redo->commit_action();
 }
 
-void VisualShaderEditor::_uniform_select_item(Ref<VisualShaderNodeUniformRef> p_uniform_ref, const StringName &p_name) {
+void VisualShaderEditor::_uniform_select_item(const Ref<VisualShaderNodeUniformRef>& p_uniform_ref, const StringName &p_name) {
     StringName prev_name = p_uniform_ref->get_uniform_name();
 
     if (p_name == prev_name) {
@@ -3120,7 +3120,7 @@ public:
         _open_inspector(p_resource);
     }
 
-    void _open_inspector(RES p_resource) {
+    void _open_inspector(const RES& p_resource) {
         EditorNode::get_singleton()->get_inspector()->edit(p_resource.get());
     }
 

@@ -260,7 +260,7 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
     theme->set_color("font_color_pressed", "LinkButton", control_font_color_pressed);
     theme->set_color("font_color_hover", "LinkButton", control_font_color_hover);
 
-    theme->set_constant("underline_spacing", "LinkButton", 2 * scale);
+    theme->set_constant("underline_spacing", "LinkButton", int(2 * scale));
 
     // ColorPickerButton
 
@@ -275,9 +275,9 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
     theme->set_color("font_color", "ColorPickerButton", Color(1, 1, 1, 1));
     theme->set_color("font_color_pressed", "ColorPickerButton", Color(0.8f, 0.8f, 0.8f, 1));
     theme->set_color("font_color_hover", "ColorPickerButton", Color(1, 1, 1, 1));
-    theme->set_color("font_color_disabled", "ColorPickerButton", Color(0.9f, 0.9f, 0.9f, 0.3));
+    theme->set_color("font_color_disabled", "ColorPickerButton", Color(0.9f, 0.9f, 0.9f, 0.3f));
 
-    theme->set_constant("hseparation", "ColorPickerButton", 2 * scale);
+    theme->set_constant("hseparation", "ColorPickerButton", int(2 * scale));
 
     // ToolButton
 
@@ -291,7 +291,7 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
     theme->set_color("font_color", "ToolButton", control_font_color);
     theme->set_color("font_color_pressed", "ToolButton", control_font_color_pressed);
     theme->set_color("font_color_hover", "ToolButton", control_font_color_hover);
-    theme->set_color("font_color_disabled", "ToolButton", Color(0.9, 0.95, 1, 0.3));
+    theme->set_color("font_color_disabled", "ToolButton", Color(0.9f, 0.95f, 1, 0.3f));
 
     theme->set_constant("hseparation", "ToolButton", 3);
 

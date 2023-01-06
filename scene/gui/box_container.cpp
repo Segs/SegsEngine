@@ -58,7 +58,6 @@ static void _resort(BoxContainer *self) {
 
     int sep = self->get_theme_constant("separation"); //,vertical?"VBoxContainer":"HBoxContainer");
 
-    bool first = true;
     int children_count = 0;
     int stretch_min = 0;
     int stretch_avail = 0;
@@ -174,7 +173,7 @@ static void _resort(BoxContainer *self) {
         }
     }
 
-    first = true;
+    bool first = true;
     int idx = 0;
 
     for (int i = 0; i < self->get_child_count(); i++) {

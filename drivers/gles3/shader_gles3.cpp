@@ -479,7 +479,7 @@ static void _display_error_with_code(const String &p_error, GLuint p_shader_id) 
     glGetShaderiv(p_shader_id, GL_SHADER_SOURCE_LENGTH, &source_len);
     FixedVector<GLchar,4096,true> source_buffer;
     source_buffer.resize(source_len);
-    glGetShaderSource(p_shader_id, source_len, NULL, source_buffer.data());
+    glGetShaderSource(p_shader_id, source_len, nullptr, source_buffer.data());
 
     String total_code(source_buffer.data());
     Vector<StringView> lines;
@@ -598,10 +598,9 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version(bool &r_async_forbidden) 
         strings_common.push_back("#define IS_UBERSHADER\n");
         for (int i = 0; i < conditional_count; i++) {
             auto trim_prefix = StringUtils::trim_prefix(StringUtils::strip_edges(StringView(conditional_defines[i])),"#define ");
-            String s = FormatVE("#define FLAG_%.*s (1u << %du)\n", trim_prefix.size(),trim_prefix.data(), i);
-            String cs = s;
-            flag_macros.push_back(cs);
-            strings_common.push_back(cs);
+            String s = FormatVE("#define FLAG_%.*s (1u << %du)\n", (int)trim_prefix.size(),trim_prefix.data(), i);
+            flag_macros.push_back(s);
+            strings_common.push_back(s);
     }
 
         strings_common.push_back("\n");

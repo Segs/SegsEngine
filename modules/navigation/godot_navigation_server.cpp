@@ -155,7 +155,7 @@ COMMAND_2(map_set_active, RID, p_map, bool, p_active) {
         }
     } else {
         auto map_index = active_maps.index_of(map);
-        ERR_FAIL_COND(map_index<0);
+        ERR_FAIL_COND(map_index<active_maps.size());
         active_maps.erase_at(map_index);
         active_maps_update_id.erase_at(map_index);
     }

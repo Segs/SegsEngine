@@ -823,8 +823,9 @@ struct PrivateData {
         r_end_column = text[r_end_line].length() - postinsert_text.length();
 
         if (!text_changed_dirty && !setting_text) {
-            if (m_owner->is_inside_tree())
-                MessageQueue::get_singleton()->push_call(m_owner, "_text_changed_emit");
+            if (m_owner->is_inside_tree()) {
+                m_owner->call_deferred([owner=m_owner] { owner->_text_changed_emit(); });
+            }
             text_changed_dirty = true;
         }
         _line_edited_from(p_line);
@@ -885,8 +886,9 @@ struct PrivateData {
         text.set_line_wrap_amount(p_from_line, -1);
 
         if (!text_changed_dirty && !setting_text) {
-            if (m_owner->is_inside_tree())
-                MessageQueue::get_singleton()->push_call(m_owner, "_text_changed_emit");
+            if (m_owner->is_inside_tree()) {
+                m_owner->call_deferred([owner = m_owner] { owner->_text_changed_emit(); });
+            }
             text_changed_dirty = true;
         }
         _line_edited_from(p_from_line);
@@ -1211,8 +1213,9 @@ struct PrivateData {
         setting_row = false;
 
         if (!cursor_changed_dirty) {
-            if (m_owner->is_inside_tree())
-                MessageQueue::get_singleton()->push_call(m_owner, "_cursor_changed_emit");
+            if (m_owner->is_inside_tree()) {
+                m_owner->call_deferred([owner = m_owner] { owner->_cursor_changed_emit(); });
+            }
             cursor_changed_dirty = true;
         }
     }
@@ -1231,8 +1234,9 @@ struct PrivateData {
             m_owner->adjust_viewport_to_cursor();
 
         if (!cursor_changed_dirty) {
-            if (m_owner->is_inside_tree())
-                MessageQueue::get_singleton()->push_call(m_owner, "_cursor_changed_emit");
+            if (m_owner->is_inside_tree()) {
+                m_owner->call_deferred([owner = m_owner] { owner->_cursor_changed_emit(); });
+            }
             cursor_changed_dirty = true;
         }
     }
@@ -2080,10 +2084,10 @@ void TextEdit::_notification(int p_what) {
 
             _update_caches();
             if (D()->cursor_changed_dirty) {
-                MessageQueue::get_singleton()->push_call(this, "_cursor_changed_emit");
+                MessageQueue::get_singleton()->push_call(get_instance_id(), [this] { _cursor_changed_emit();} );
             }
             if (D()->text_changed_dirty) {
-                MessageQueue::get_singleton()->push_call(this, "_text_changed_emit");
+                MessageQueue::get_singleton()->push_call(get_instance_id(), [this] { _text_changed_emit(); });
             }
             _update_wrap_at();
         } break;
@@ -2094,8 +2098,10 @@ void TextEdit::_notification(int p_what) {
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
             if (is_visible()) {
-                call_deferred([this]() {_update_scrollbars();});
-                call_deferred([this]() {_update_wrap_at();});
+                call_deferred([this]() {
+                    _update_scrollbars();
+                    _update_wrap_at();
+                });
             }
         } break;
         case NOTIFICATION_THEME_CHANGED: {
@@ -6035,8 +6041,9 @@ void TextEdit::cursor_set_column(int p_col, bool p_adjust_viewport) {
         p_col = 0;
 
     D()->cursor.column = p_col;
-    if (D()->cursor.column > get_line(D()->cursor.line).length())
-        D()->cursor.column = get_line(D()->cursor.line).length();
+    size_t line_length = get_line(D()->cursor.line).length();
+    if (D()->cursor.column > line_length)
+        D()->cursor.column = line_length;
 
     D()->cursor.last_fit_x = get_column_x_offset_for_line(D()->cursor.column, D()->cursor.line);
 
@@ -6044,8 +6051,9 @@ void TextEdit::cursor_set_column(int p_col, bool p_adjust_viewport) {
         adjust_viewport_to_cursor();
 
     if (!D()->cursor_changed_dirty) {
-        if (is_inside_tree())
-            MessageQueue::get_singleton()->push_call(this, "_cursor_changed_emit");
+        if (is_inside_tree()) {
+            call_deferred([this] () {_cursor_changed_emit();});
+        }
         D()->cursor_changed_dirty = true;
     }
 }

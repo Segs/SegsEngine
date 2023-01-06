@@ -30,7 +30,7 @@ void print_verbose(StringView p_string) {
 }
 String itos(int64_t v) {
     char buf[32];
-    snprintf(buf,31,"%ld",v);
+    snprintf(buf,31,"%lld",v);
     return buf;
 }
 

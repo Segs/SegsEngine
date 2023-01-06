@@ -170,7 +170,7 @@ class TileSetEditor : public HSplitContainer {
     void update_texture_list_icon();
 
     void add_texture(Ref<Texture> p_texture);
-    void remove_texture(Ref<Texture> p_texture);
+    void remove_texture(const Ref<Texture>& p_texture);
 
     Ref<Texture> get_current_texture();
 

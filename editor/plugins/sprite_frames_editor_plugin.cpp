@@ -256,12 +256,9 @@ void SpriteFramesEditor::_sheet_add_frames() {
     const Size2i offset = _get_offset();
     const Size2i separation = _get_separation();
 
-
     undo_redo->create_action(TTR("Add Frame"));
 
     int fc = frames->get_frame_count(edited_anim);
-
-    AtlasTexture *src_atlas = object_cast<AtlasTexture>(split_sheet_preview->get_texture().get());
 
     for (int E : frames_selected) {
         int idx = E;
