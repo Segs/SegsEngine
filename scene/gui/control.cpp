@@ -2250,10 +2250,11 @@ void Control::_modal_stack_remove() {
 
 void Control::_propagate_theme_changed(CanvasItem *p_at, Control *p_owner, bool p_assign) {
     Control *c = object_cast<Control>(p_at);
-    auto &cdata(get_control_data(c));
 
-    if (c && c != p_owner && cdata.theme) // has a theme, this can't be propagated
+    if (c && c != p_owner && get_control_data(c).theme) {
+        // has a theme, this can't be propagated
         return;
+    }
 
     for (int i = 0; i < p_at->get_child_count(); i++) {
         CanvasItem *child = object_cast<CanvasItem>(p_at->get_child(i));
@@ -2263,6 +2264,7 @@ void Control::_propagate_theme_changed(CanvasItem *p_at, Control *p_owner, bool 
     }
 
     if (c) {
+        auto &cdata(get_control_data(c));
         if (p_assign) {
             cdata.theme_owner = p_owner;
         }

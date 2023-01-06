@@ -52,6 +52,7 @@
 #include "core/resource/resource_manager.h"
 #include "core/script_language.h"
 #include "core/translation_helpers.h"
+#include "EASTL/sort.h"
 #include "scene/debugger/script_debugger_remote.h"
 #include "scene/resources/dynamic_font.h"
 #include "scene/resources/material.h"
@@ -575,24 +576,62 @@ void SceneTree::_flush_ugc() {
 
 void SceneTree::_update_group_order(SceneTreeGroup &g, bool p_use_priority) {
 
-    if (!g.changed)
+    if (!g.changed || g.nodes.empty()) {
         return;
-    if (g.nodes.empty())
-        return;
+    }
 
     Node **nodes = g.nodes.data();
     int node_count = g.nodes.size();
 
     if (p_use_priority) {
-        SortArray<Node *, Node::ComparatorWithPriority> node_sort;
-        node_sort.sort(nodes, node_count);
+        eastl::sort(nodes, nodes + node_count, Node::ComparatorWithPriority());
     } else {
-        SortArray<Node *, Node::Comparator> node_sort;
-        node_sort.sort(nodes, node_count);
+        eastl::sort(nodes, nodes + node_count, Node::Comparator());
     }
     g.changed = false;
 }
 
+static void call_group_members(Span<Node *> nodes,uint32_t p_call_flags,int call_lock,const HashSet<Node *> &call_skip, eastl::function<void(Node *)> to_call) {
+    //TODO: consider reducing number of deferred calls put on the queue, by deferring the whole loop
+    if (p_call_flags & SceneTree::GROUP_CALL_REALTIME) {
+        if (p_call_flags & SceneTree::GROUP_CALL_REVERSE) {
+
+            for (int i = nodes.size() - 1; i >= 0; i--) {
+                if (call_lock && call_skip.contains(nodes[i])) {
+                    continue;
+                }
+                to_call(nodes[i]);
+            }
+
+        } else {
+            for (Node *n : nodes) {
+                if (call_lock && call_skip.contains(n)) {
+                    continue;
+                }
+                to_call(n);
+            }
+        }
+    } else {
+        // deferred
+        if (p_call_flags & SceneTree::GROUP_CALL_REVERSE) {
+
+            for (int i = nodes.size() - 1; i >= 0; i--) {
+                if (call_lock && call_skip.contains(nodes[i])) {
+                    continue;
+                }
+                nodes[i]->call_deferred([fn=to_call,n=nodes[i]]() { fn(n);});
+            }
+
+        } else {
+            for (Node *n : nodes) {
+                if (call_lock && call_skip.contains(n)) {
+                    continue;
+                }
+                n->call_deferred([fn=to_call,n]() { fn(n);});
+            }
+        }
+    }
+}
 void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_group, const StringName &p_function, VARIANT_ARG_DECLARE) {
 
     auto E = group_map.find(p_group);
@@ -629,44 +668,17 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
 
     _update_group_order(g);
 
-    FixedVector<Node *,32,true> nodes_copy(g.nodes.begin(),g.nodes.end());
-    Node **nodes = nodes_copy.data();
-    int node_count = nodes_copy.size();
+    FixedVector<Node *,128,true> nodes_copy(g.nodes.begin(),g.nodes.end());
 
     call_lock++;
-
-    if (p_call_flags & GROUP_CALL_REVERSE) {
-        for (int i = node_count - 1; i >= 0; i--) {
-            if (call_lock && call_skip.contains(nodes[i])) {
-                continue;
-            }
-
-            if (p_call_flags & GROUP_CALL_REALTIME) {
-                nodes[i]->call_va(p_function, VARIANT_ARG_PASS);
-            } else {
-                MessageQueue::get_singleton()->push_call(nodes[i], p_function, VARIANT_ARG_PASS);
-            }
-        }
-
-    }  else {
-
-        for (int i = 0; i < node_count; i++) {
-            if (call_lock && call_skip.contains(nodes[i])) {
-                continue;
-            }
-
-            if (p_call_flags & GROUP_CALL_REALTIME) {
-                nodes[i]->call_va(p_function, VARIANT_ARG_PASS);
-            } else {
-                MessageQueue::get_singleton()->push_call(nodes[i], p_function, VARIANT_ARG_PASS);
-            }
-        }
-    }
-
+    call_group_members(nodes_copy,p_call_flags,call_lock,call_skip,[=](Node *n) {
+        n->call_va(p_function, VARIANT_ARG_PASS);
+    });
     call_lock--;
     if (call_lock == 0)
         call_skip.clear();
 }
+
 
 void SceneTree::notify_group_flags(uint32_t p_call_flags, const StringName &p_group, int p_notification) {
 
@@ -680,38 +692,9 @@ void SceneTree::notify_group_flags(uint32_t p_call_flags, const StringName &p_gr
     _update_group_order(g);
 
     Vector<Node *> nodes_copy = g.nodes;
-    Node **nodes = nodes_copy.data();
-    int node_count = nodes_copy.size();
 
     call_lock++;
-
-    if (p_call_flags & GROUP_CALL_REVERSE) {
-
-        for (int i = node_count - 1; i >= 0; i--) {
-
-            if (call_lock && call_skip.contains(nodes[i]))
-                continue;
-
-            if (p_call_flags & GROUP_CALL_REALTIME)
-                nodes[i]->notification(p_notification);
-            else
-                MessageQueue::get_singleton()->push_notification(nodes[i], p_notification);
-        }
-
-    } else {
-
-        for (int i = 0; i < node_count; i++) {
-
-            if (call_lock && call_skip.contains(nodes[i]))
-                continue;
-
-            if (p_call_flags & GROUP_CALL_REALTIME)
-                nodes[i]->notification(p_notification);
-            else
-                MessageQueue::get_singleton()->push_notification(nodes[i], p_notification);
-        }
-    }
-
+    call_group_members(nodes_copy,p_call_flags,call_lock,call_skip,[p_notification](Node *n) {n->notification_callback(p_notification);});
     call_lock--;
     if (call_lock == 0)
         call_skip.clear();
@@ -720,50 +703,24 @@ void SceneTree::notify_group_flags(uint32_t p_call_flags, const StringName &p_gr
 void SceneTree::set_group_flags(uint32_t p_call_flags, const StringName &p_group, const StringName &p_name, const Variant &p_value) {
 
     HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
-    if (E==group_map.end())
+    if (E==group_map.end()) {
         return;
+    }
     SceneTreeGroup &g = E->second;
     if (g.nodes.empty())
         return;
 
     _update_group_order(g);
 
-    Vector<Node *> nodes_copy = g.nodes;
-    Node **nodes = nodes_copy.data();
-    int node_count = nodes_copy.size();
+    FixedVector<Node *, 128, true> nodes_copy(g.nodes.begin(), g.nodes.end());
 
     call_lock++;
-
-    if (p_call_flags & GROUP_CALL_REVERSE) {
-
-        for (int i = node_count - 1; i >= 0; i--) {
-
-            if (call_lock && call_skip.contains(nodes[i]))
-                continue;
-
-            if (p_call_flags & GROUP_CALL_REALTIME)
-                nodes[i]->set(p_name, p_value);
-            else
-                MessageQueue::get_singleton()->push_set(nodes[i], p_name, p_value);
-        }
-
-    } else {
-
-        for (int i = 0; i < node_count; i++) {
-
-            if (call_lock && call_skip.contains(nodes[i]))
-                continue;
-
-            if (p_call_flags & GROUP_CALL_REALTIME)
-                nodes[i]->set(p_name, p_value);
-            else
-                MessageQueue::get_singleton()->push_set(nodes[i], p_name, p_value);
-        }
-    }
-
+    call_group_members(nodes_copy,p_call_flags,call_lock,call_skip,[p_name,p_value](Node *n) {n->set(p_name,p_value);});
     call_lock--;
-    if (call_lock == 0)
+
+    if (call_lock == 0) {
         call_skip.clear();
+    }
 }
 
 void SceneTree::call_group(const StringName &p_group, const StringName &p_function, VARIANT_ARG_DECLARE) {
@@ -1324,8 +1281,9 @@ void SceneTree::_call_input_pause(const StringName &p_group, const StringName &p
 
     for (int i = node_count - 1; i >= 0; i--) {
 
-        if (input_handled)
+        if (input_handled) {
             break;
+        }
 
         Node *n = nodes[i];
         if (call_lock && call_skip.contains(n))
@@ -1365,7 +1323,7 @@ void SceneTree::_notify_group_pause(const StringName &p_group, int p_notificatio
 
     //copy, in case something is removed from process while being called
     // performance hit should be small for small groups.
-    FixedVector<Node *,32,true> nodes_copy(g.nodes.begin(),g.nodes.end());
+    FixedVector<Node *,128,true> nodes_copy(g.nodes.begin(),g.nodes.end());
 
     call_lock++;
 
