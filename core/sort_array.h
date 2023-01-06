@@ -99,17 +99,18 @@ public:
         p_array[p_first + p_hole_idx] = p_value;
     }
 
-    inline void pop_heap(int p_first, int p_last, int p_result, T p_value, T *p_array) const {
+    void pop_heap(int p_first, int p_last, int p_result, T p_value, T *p_array) const {
 
         p_array[p_result] = p_array[p_first];
         adjust_heap(p_first, 0, p_last - p_first, p_value, p_array);
     }
-    inline void pop_heap(int p_first, int p_last, T *p_array) const {
+
+    void pop_heap(int p_first, int p_last, T *p_array) const {
 
         pop_heap(p_first, p_last - 1, p_last - 1, p_array[p_last - 1], p_array);
     }
 
-    inline void adjust_heap(int p_first, int p_hole_idx, int p_len, T p_value, T *p_array) const {
+    void adjust_heap(int p_first, int p_hole_idx, int p_len, T p_value, T *p_array) const {
 
         int top_index = p_hole_idx;
         int second_child = 2 * p_hole_idx + 2;
@@ -131,7 +132,7 @@ public:
         push_heap(p_first, p_hole_idx, top_index, p_value, p_array);
     }
 
-    inline void sort_heap(int p_first, int p_last, T *p_array) const {
+    void sort_heap(int p_first, int p_last, T *p_array) const {
 
         while (p_last - p_first > 1) {
 
@@ -139,7 +140,7 @@ public:
         }
     }
 
-    inline void make_heap(int p_first, int p_last, T *p_array) const {
+    void make_heap(int p_first, int p_last, T *p_array) const {
         if (p_last - p_first < 2)
             return;
         int len = p_last - p_first;
@@ -153,7 +154,7 @@ public:
         }
     }
 
-    inline void partial_sort(int p_first, int p_last, int p_middle, T *p_array) const {
+    void partial_sort(int p_first, int p_last, int p_middle, T *p_array) const {
 
         make_heap(p_first, p_middle, p_array);
         for (int i = p_middle; i < p_last; i++)
@@ -162,7 +163,7 @@ public:
         sort_heap(p_first, p_middle, p_array);
     }
 
-    inline void partial_select(int p_first, int p_last, int p_middle, T *p_array) const {
+    void partial_select(int p_first, int p_last, int p_middle, T *p_array) const {
 
         make_heap(p_first, p_middle, p_array);
         for (int i = p_middle; i < p_last; i++)
@@ -170,7 +171,7 @@ public:
                 pop_heap(p_first, p_middle, i, p_array[i], p_array);
     }
 
-    inline int partitioner(int p_first, int p_last, T p_pivot, T *p_array) const {
+    int partitioner(int p_first, int p_last, T p_pivot, T *p_array) const {
 
         const int unmodified_first = p_first;
         const int unmodified_last = p_last;
@@ -198,7 +199,7 @@ public:
         }
     }
 
-    inline void introsort(int p_first, int p_last, T *p_array, int p_max_depth) const {
+    void introsort(int p_first, int p_last, T *p_array, int p_max_depth) const {
 
         while (p_last - p_first > INTROSORT_THRESHOLD) {
 
@@ -223,7 +224,7 @@ public:
         }
     }
 
-    inline void introselect(int p_first, int p_nth, int p_last, T *p_array, int p_max_depth) const {
+    void introselect(int p_first, int p_nth, int p_last, T *p_array, int p_max_depth) const {
 
         while (p_last - p_first > 3) {
 
@@ -253,7 +254,7 @@ public:
         insertion_sort(p_first, p_last, p_array);
     }
 
-    inline void unguarded_linear_insert(int p_last, T p_value, T *p_array) const {
+    void unguarded_linear_insert(int p_last, T p_value, T *p_array) const {
 
         int next = p_last - 1;
         while (compare(p_value, p_array[next])) {
@@ -267,7 +268,7 @@ public:
         p_array[p_last] = p_value;
     }
 
-    inline void linear_insert(int p_first, int p_last, T *p_array) const {
+    void linear_insert(int p_first, int p_last, T *p_array) const {
 
         T val = p_array[p_last];
         if (compare(val, p_array[p_first])) {
@@ -280,7 +281,7 @@ public:
             unguarded_linear_insert(p_last, val, p_array);
     }
 
-    inline void insertion_sort(int p_first, int p_last, T *p_array) const {
+    void insertion_sort(int p_first, int p_last, T *p_array) const {
 
         if (p_first == p_last)
             return;
@@ -288,13 +289,13 @@ public:
             linear_insert(p_first, i, p_array);
     }
 
-    inline void unguarded_insertion_sort(int p_first, int p_last, T *p_array) const {
+    void unguarded_insertion_sort(int p_first, int p_last, T *p_array) const {
 
         for (int i = p_first; i != p_last; i++)
             unguarded_linear_insert(i, p_array[i], p_array);
     }
 
-    inline void final_insertion_sort(int p_first, int p_last, T *p_array) const {
+    void final_insertion_sort(int p_first, int p_last, T *p_array) const {
 
         if (p_last - p_first > INTROSORT_THRESHOLD) {
             insertion_sort(p_first, p_first + INTROSORT_THRESHOLD, p_array);
@@ -305,7 +306,7 @@ public:
         }
     }
 
-    inline void sort_range(int p_first, int p_last, T *p_array) const {
+    void sort_range(int p_first, int p_last, T *p_array) const {
 
         if (p_first != p_last) {
             introsort(p_first, p_last, p_array, bitlog(p_last - p_first) * 2);
@@ -313,12 +314,12 @@ public:
         }
     }
 
-    inline void sort(T *p_array, int p_len) const {
+    void sort(T *p_array, int p_len) const {
 
         sort_range(0, p_len, p_array);
     }
 
-    inline void nth_element(int p_first, int p_last, int p_nth, T *p_array) const {
+    void nth_element(int p_first, int p_last, int p_nth, T *p_array) const {
 
         if (p_first == p_last || p_nth == p_last)
             return;

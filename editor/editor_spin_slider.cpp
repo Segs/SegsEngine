@@ -227,15 +227,15 @@ void EditorSpinSlider::_value_input_gui_input(const Ref<InputEvent> &p_event) {
 #else
         if (k->get_control()) {
 #endif
-            step *= 100.0;
+            step *= 100.0f;
         } else if (k->get_shift()) {
-            step *= 10.0;
+            step *= 10.0f;
 #ifdef APPLE_STYLE_KEYS
         } else if (k->get_metakey()) {
 #else
         } else if (k->get_alt()) {
 #endif
-            step *= 0.1;
+            step *= 0.1f;
     }
 
         uint32_t code = k->get_keycode();

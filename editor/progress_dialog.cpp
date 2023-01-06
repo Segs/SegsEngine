@@ -114,7 +114,7 @@ void BackgroundProgress::_bind_methods() {
 
 void BackgroundProgress::add_task(const StringName &p_task, const StringName &p_label, int p_steps) {
 
-    MessageQueue::get_singleton()->push_call(this, "_add_task", p_task, p_label, p_steps);
+    MessageQueue::get_singleton()->push_call(get_instance_id(), "_add_task", p_task, p_label, p_steps);
 }
 void BackgroundProgress::task_step(const StringName &p_task, int p_step) {
 
@@ -125,8 +125,9 @@ void BackgroundProgress::task_step(const StringName &p_task, int p_step) {
         no_updates = updates.empty();
     }
 
-    if (no_updates)
+    if (no_updates) {
         MessageQueue::get_singleton()->push_call(get_instance_id(),[this](){_update();});
+    }
 
     {
         _THREAD_SAFE_METHOD_;
@@ -136,7 +137,7 @@ void BackgroundProgress::task_step(const StringName &p_task, int p_step) {
 
 void BackgroundProgress::end_task(const StringName &p_task) {
 
-    MessageQueue::get_singleton()->push_call(this, "_end_task", p_task);
+    MessageQueue::get_singleton()->push_call(get_instance_id(), "_end_task", p_task);
 }
 
 BackgroundProgress::BackgroundProgress()  = default;
