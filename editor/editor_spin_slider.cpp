@@ -54,9 +54,6 @@ const String &EditorSpinSlider::get_tooltip(const Point2 &p_pos) const {
         tooltip_contents = StringUtils::num(get_value()) + "\n\n" +
                 FormatVE(TTR("Hold %s to round to integers. Hold Shift for more precise changes.").asCString(),
                         find_keycode_name(key));
-    }
-    else if (grabber->is_visible()) {
-        tooltip_contents = FormatVE("%f\n\n%s", get_value(), TTR("Hold Ctrl to round to integers. Hold Shift for more precise changes.").asCString());
     } else {
         tooltip_contents = StringUtils::num(get_value());
     }

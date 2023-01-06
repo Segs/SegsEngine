@@ -1126,15 +1126,6 @@ bool generate_mono_glue(QStringList args) {
         qCritical("Failed to open destination file");
         return false;
     }
-    QStringList lines = {
-        "/* THIS FILE IS GENERATED DO NOT EDIT */",
-        "#ifndef CS_COMPRESSED_H",
-        "#define CS_COMPRESSED_H\n",
-        "#ifdef TOOLS_ENABLED\n",
-        "#include \"core/map.h\"",
-        "#include \"core/string.h\"",
-    };
-
     QDirIterator visitor(src,QDirIterator::Subdirectories);
     QCryptographicHash hash(QCryptographicHash::Sha256);
     QStringList files;

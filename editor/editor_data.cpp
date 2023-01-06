@@ -830,7 +830,7 @@ StringName EditorData::get_scene_title(int p_idx, bool p_always_strip_extension)
             // Don't compare the edited scene against itself.
             continue;
         }
-        String ed_scen(PathUtils::get_basename(PathUtils::get_file(edited_scene[i].root->get_filename())));
+        String ed_scen(edited_scene[i].root ? PathUtils::get_basename(PathUtils::get_file(edited_scene[i].root->get_filename())) : "");
         if (edited_scene[i].root && basename == ed_scen) {
             return StringName(filename);
         }

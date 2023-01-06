@@ -78,7 +78,7 @@ void _err_print_error(const char *p_function, const char *p_file, int p_line, St
     } else {
         // Fallback if errors happen before OS init or after it's destroyed.
         StringView err_details = (!p_message.empty()) ? p_message : p_error;
-        fprintf(stderr, "ERROR: %.*s\n   at: %s (%s:%i)\n", err_details.size(), err_details.data(), p_function, p_file, p_line);
+        fprintf(stderr, "ERROR: %.*s\n   at: %s (%s:%i)\n", (int)err_details.size(), err_details.data(), p_function, p_file, p_line);
     }
 
     _global_lock();

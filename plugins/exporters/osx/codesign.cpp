@@ -1205,7 +1205,7 @@ void CodeSignSuperBlob::write_to_file(FileAccess *p_file) const {
 Vector<uint8_t> CodeSign::file_hash_sha1(StringView p_path) {
     Vector<uint8_t> file_hash;
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, Vector<uint8_t>(), FormatVE("CodeSign: Can't open file: \"%.*s\".", p_path.size(), p_path.data()));
+    ERR_FAIL_COND_V_MSG(!f, Vector<uint8_t>(), FormatVE("CodeSign: Can't open file: \"%.*s\".", (int)p_path.size(), p_path.data()));
 
     CryptoCore::SHA1Context ctx;
     ctx.start();

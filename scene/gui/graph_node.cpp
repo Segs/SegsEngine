@@ -136,7 +136,6 @@ void GraphNode::_resort() {
     Ref<StyleBox> sb = get_theme_stylebox("frame");
 
     int sep = get_theme_constant("separation");
-    bool first = true;
 
     int children_count = 0;
     int stretch_min = 0;
@@ -226,7 +225,7 @@ void GraphNode::_resort() {
 
     int ofs = sb->get_margin(Margin::Top);
 
-    first = true;
+    bool first = true;
     int idx = 0;
     cache_y.clear();
     int w = new_size.width - sb->get_minimum_size().x;
