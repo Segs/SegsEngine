@@ -99,36 +99,6 @@ Error MessageQueue::push_call(GameEntity p_id, const StringName &p_method, VARIA
     return push_call(p_id, p_method, argptr, argc, false);
 }
 
-Error MessageQueue::push_notification(GameEntity p_id, int p_notification) {
-
-    _THREAD_SAFE_METHOD_;
-
-    ERR_FAIL_COND_V(p_notification < 0, ERR_INVALID_PARAMETER);
-
-    constexpr uint8_t room_needed = sizeof(Message);
-
-    if ((buffer_end + room_needed) >= buffer_size) {
-        print_line("Failed notification: " + itos(p_notification) + " target ID: " + itos(entt::to_integral(p_id)));
-        statistics();
-        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
-    }
-    TRACE_ALLOC_NS(&buffer[buffer_end],room_needed,STACK_DEPTH,"MessageQueueAlloc");
-
-    Message *msg = memnew_placement(&buffer[buffer_end], Message);
-
-    msg->type = TYPE_NOTIFICATION;
-    msg->callable = Callable(p_id, CoreStringNames::get_singleton()->notification); //name is meaningless but callable needs it
-    msg->notification = p_notification;
-
-    buffer_end += sizeof(Message);
-
-    return OK;
-}
-
-Error MessageQueue::push_notification(Object *p_object, int p_notification) {
-
-    return push_notification(p_object->get_instance_id(), p_notification);
-}
 Error MessageQueue::push_callable(const Callable& p_callable, const Variant** p_args, int p_argcount, bool p_show_error) {
     _THREAD_SAFE_METHOD_;
 
@@ -176,8 +146,6 @@ Error MessageQueue::push_callable(const Callable& p_callable, VARIANT_ARG_DECLAR
 }
 
 void MessageQueue::statistics() const {
-
-    HashMap<int, int> notify_count;
     HashMap<Callable, int> call_count;
     int func_count = 0;
     int null_count = 0;
@@ -191,12 +159,8 @@ void MessageQueue::statistics() const {
         if (target != nullptr) {
 
             switch (message->type & FLAG_MASK) {
-
                 case TYPE_CALL: {
                     call_count[message->callable]++;
-                } break;
-                case TYPE_NOTIFICATION: {
-                    notify_count[message->notification]++;
                 } break;
             }
 
@@ -208,8 +172,7 @@ void MessageQueue::statistics() const {
         }
 
         read_pos += sizeof(Message);
-        if ((message->type & FLAG_MASK) != TYPE_NOTIFICATION)
-            read_pos += sizeof(Variant) * message->args;
+        read_pos += sizeof(Variant) * message->args;
     }
 
     print_line("TOTAL BYTES: " + itos(buffer_end));
@@ -218,10 +181,6 @@ void MessageQueue::statistics() const {
 
     for (const eastl::pair<const Callable,int> &E : call_count) {
         print_line("CALL " + String(E.first) + ": " + ::to_string(E.second));
-    }
-
-    for (const eastl::pair<const int,int> &E : notify_count) {
-        print_line("NOTIFY " + itos(E.first) + ": " + itos(E.second));
     }
 }
 
@@ -274,10 +233,7 @@ void MessageQueue::flush()
         Message *message = (Message*)&buffer[read_pos];
 
         uint32_t advance = sizeof(Message);
-        if ((message->type & FLAG_MASK) != TYPE_NOTIFICATION)
-        {
-            advance += sizeof(Variant) * message->args;
-        }
+        advance += sizeof(Variant) * message->args;
 
         //pre-advance so this function is reentrant
         read_pos += advance;
@@ -299,25 +255,16 @@ void MessageQueue::flush()
                     _call_function(message->callable, args, message->args, message->type & FLAG_SHOW_ERROR);
                 }
                 break;
-            case TYPE_NOTIFICATION:
-                {
-                    // messages don't expect a return value
-                    target->notification(message->notification);
-                }
-                break;
             }
         }
 
         else {
             null_object_calls.increment();
         }
-        if ((message->type & FLAG_MASK) != TYPE_NOTIFICATION)
+        Variant *args = (Variant*)(message + 1);
+        for (int i = 0; i < message->args; i++)
         {
-            Variant *args = (Variant*)(message + 1);
-            for (int i = 0; i < message->args; i++)
-            {
-                args[i].~Variant();
-            }
+            args[i].~Variant();
         }
 
         message->~Message();
@@ -356,16 +303,13 @@ MessageQueue::~MessageQueue() {
         Message *message = (Message *)&buffer[read_pos];
         Variant *args = (Variant *)(message + 1);
         int argc = message->args;
-        if ((message->type & FLAG_MASK) != TYPE_NOTIFICATION) {
-            for (int i = 0; i < argc; i++)
-                args[i].~Variant();
-        }
+        for (int i = 0; i < argc; i++)
+            args[i].~Variant();
         message->~Message();
         TRACE_FREE_N(message,"MessageQueueAlloc");
 
         read_pos += sizeof(Message);
-        if ((message->type & FLAG_MASK) != TYPE_NOTIFICATION)
-            read_pos += sizeof(Variant) * message->args;
+        read_pos += sizeof(Variant) * message->args;
     }
 
     singleton = nullptr;

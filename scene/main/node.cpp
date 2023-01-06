@@ -1923,16 +1923,18 @@ void Node::_propagate_deferred_notification(int p_notification, bool p_reverse) 
 
     blocked++;
 
-    if (!p_reverse)
-        MessageQueue::get_singleton()->push_notification(this, p_notification);
+    if (!p_reverse) {
+        call_deferred([=]() { notification(p_notification); });
+    }
 
     for (int i = 0; i < priv_data->children.size(); i++) {
 
         priv_data->children[i]->_propagate_deferred_notification(p_notification, p_reverse);
     }
 
-    if (p_reverse)
-        MessageQueue::get_singleton()->push_notification(this, p_notification);
+    if (p_reverse) {
+        call_deferred([=]() { notification(p_notification); });
+    }
 
     blocked--;
 }
