@@ -443,7 +443,7 @@ void Node3D::update_gizmo() {
     if (data.gizmo_dirty)
         return;
     data.gizmo_dirty = true;
-    MessageQueue::get_singleton()->push_call(this, "_update_gizmo");
+    MessageQueue::get_singleton()->push_call(get_instance_id(), [this]() { _update_gizmo(); });
 #endif
 }
 

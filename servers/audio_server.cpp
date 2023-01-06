@@ -1164,8 +1164,8 @@ void AudioServer::finish() {
         AudioDriverManager::get_driver(i)->finish();
     }
 
-    for (int i = 0; i < buses.size(); i++) {
-        memdelete(buses[i]);
+    for (auto & bus : buses) {
+        memdelete(bus);
     }
 
     buses.clear();

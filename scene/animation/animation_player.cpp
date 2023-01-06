@@ -545,9 +545,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
             } break;
             case Animation::TYPE_METHOD: {
 
-                if (!nc->node)
-                    continue;
-                if (p_delta == 0) {
+                if (!nc->node || p_delta == 0.0f) {
                     continue;
                 }
                 if (!p_is_current)
@@ -574,7 +572,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                     if (can_call) {
                         if (method_call_mode == ANIMATION_METHOD_CALL_DEFERRED) {
                             MessageQueue::get_singleton()->push_call(
-                                    nc->node,
+                                    nc->node->get_instance_id(),
                                     method,
                                     s >= 1 ? params[0] : Variant(),
                                     s >= 2 ? params[1] : Variant(),

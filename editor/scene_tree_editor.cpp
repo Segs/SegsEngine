@@ -602,7 +602,7 @@ void SceneTreeEditor::_node_renamed(Node *p_node) {
     emit_signal("node_renamed");
 
     if (!tree_dirty) {
-        MessageQueue::get_singleton()->push_call(this, "_update_tree");
+        MessageQueue::get_singleton()->push_call(get_instance_id(), "_update_tree");
         tree_dirty = true;
     }
 }

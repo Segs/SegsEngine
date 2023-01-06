@@ -163,7 +163,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
 
                 if (!text_changed_dirty) {
                     if (is_inside_tree()) {
-                        MessageQueue::get_singleton()->push_call(this, "_text_changed");
+                        MessageQueue::get_singleton()->push_call(get_instance_id(), [this]{_text_changed();});
                     }
                     text_changed_dirty = true;
                 }
@@ -772,46 +772,48 @@ bool LineEdit::can_drop_data(const Point2 &p_point, const Variant &p_data) const
 void LineEdit::drop_data(const Point2 &p_point, const Variant &p_data) {
     Control::drop_data(p_point, p_data);
 
-    if (p_data.get_type() == VariantType::STRING && is_editable()) {
-        set_cursor_at_pixel_pos(p_point.x);
-        int caret_column_tmp = cursor_pos;
-        bool is_inside_sel = selection.enabled && cursor_pos >= selection.begin && cursor_pos <= selection.end;
-        if (Input::get_singleton()->is_key_pressed(KEY_CONTROL)) {
-            is_inside_sel = selection.enabled && cursor_pos > selection.begin && cursor_pos < selection.end;
-        }
-        if (selection.drag_attempt) {
-            selection.drag_attempt = false;
-            if (!is_inside_sel) {
-                if (!Input::get_singleton()->is_key_pressed(KEY_CONTROL)) {
-                    if (caret_column_tmp > selection.end) {
-                        caret_column_tmp = caret_column_tmp - (selection.end - selection.begin);
-                    }
-                    selection_delete();
-        }
-
-                set_cursor_position(caret_column_tmp);
-
-        append_at_cursor(p_data.as<String>());
-            }
-        } else if (selection.enabled && cursor_pos >= selection.begin && cursor_pos <= selection.end) {
-            caret_column_tmp = selection.begin;
-            selection_delete();
-            set_cursor_position(caret_column_tmp);
-            append_at_cursor(p_data.as<String>());
-            grab_focus();
-        } else {
-            append_at_cursor(p_data.as<String>());
-            grab_focus();
-        }
-        select(caret_column_tmp, cursor_pos);
-        if (!text_changed_dirty) {
-            if (is_inside_tree()) {
-                MessageQueue::get_singleton()->push_call(this, "_text_changed");
-            }
-            text_changed_dirty = true;
-        }
-        update();
+    if (p_data.get_type() != VariantType::STRING || !is_editable()) {
+        return;
     }
+
+    set_cursor_at_pixel_pos(p_point.x);
+    int caret_column_tmp = cursor_pos;
+    bool is_inside_sel = selection.enabled && cursor_pos >= selection.begin && cursor_pos <= selection.end;
+    if (Input::get_singleton()->is_key_pressed(KEY_CONTROL)) {
+        is_inside_sel = selection.enabled && cursor_pos > selection.begin && cursor_pos < selection.end;
+    }
+    if (selection.drag_attempt) {
+        selection.drag_attempt = false;
+        if (!is_inside_sel) {
+            if (!Input::get_singleton()->is_key_pressed(KEY_CONTROL)) {
+                if (caret_column_tmp > selection.end) {
+                    caret_column_tmp = caret_column_tmp - (selection.end - selection.begin);
+                }
+                selection_delete();
+            }
+
+            set_cursor_position(caret_column_tmp);
+
+            append_at_cursor(p_data.as<String>());
+        }
+    } else if (selection.enabled && cursor_pos >= selection.begin && cursor_pos <= selection.end) {
+        caret_column_tmp = selection.begin;
+        selection_delete();
+        set_cursor_position(caret_column_tmp);
+        append_at_cursor(p_data.as<String>());
+        grab_focus();
+    } else {
+        append_at_cursor(p_data.as<String>());
+        grab_focus();
+    }
+    select(caret_column_tmp, cursor_pos);
+    if (!text_changed_dirty) {
+        if (is_inside_tree()) {
+            MessageQueue::get_singleton()->push_call(get_instance_id(), [this] { _text_changed(); });
+        }
+        text_changed_dirty = true;
+    }
+    update();
 }
 
 Control::CursorShape LineEdit::get_cursor_shape(const Point2 &p_pos) const {

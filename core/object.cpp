@@ -1377,8 +1377,6 @@ void Object::_bind_methods() {
         MethodBinder::bind_vararg_method("call_deferred", &Object::_call_deferred_bind, eastl::move(mi), null_variant_pvec, false);
     }
 
-    SE_BIND_METHOD(Object,set_deferred);
-
     SE_BIND_METHOD(Object,callv);
 
     SE_BIND_METHOD(Object,has_method);
@@ -1431,15 +1429,11 @@ void Object::_bind_methods() {
 
 void Object::call_deferred(const StringName &p_method, VARIANT_ARG_DECLARE) {
 
-    MessageQueue::get_singleton()->push_call(this, p_method, VARIANT_ARG_PASS);
+    MessageQueue::get_singleton()->push_call(get_instance_id(), p_method, VARIANT_ARG_PASS);
 }
 void Object::call_deferred(eastl::function<void()> func) {
 
-    MessageQueue::get_singleton()->push_call(this->get_instance_id(), func);
-}
-
-void Object::set_deferred(const StringName &p_property, const Variant &p_value) {
-    MessageQueue::get_singleton()->push_set(this, p_property, p_value);
+    MessageQueue::get_singleton()->push_call(get_instance_id(), func);
 }
 
 void Object::set_block_signals(bool p_block) {
