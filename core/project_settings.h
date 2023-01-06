@@ -41,6 +41,22 @@
 
 struct PropertyInfo;
 
+struct SettingsVariantContainer {
+    Variant variant;
+    Variant initial;
+    int order = 0;
+    bool persist = false;
+    bool hide_from_editor = false;
+    bool overridden = false;
+    bool restart_if_changed = false;
+    bool ignore_value_in_docs = false;
+    SettingsVariantContainer() = default;
+
+    SettingsVariantContainer(Variant p_variant, int p_order, bool p_persist = false) :
+            variant(eastl::move(p_variant)), order(p_order), persist(p_persist) {}
+};
+
+
 // Querying ProjectSettings is usually done at startup.
 // Additionally, in order to keep track of changes to ProjectSettings,
 // instead of Querying all the strings every frame just in case of changes,
@@ -83,26 +99,8 @@ public:
     };
 
 protected:
-    struct VariantContainer {
-        Variant variant;
-        Variant initial;
-        int order=0;
-        bool persist=false;
-        bool hide_from_editor=false;
-        bool overridden=false;
-        bool restart_if_changed=false;
-        bool ignore_value_in_docs=false;
-        VariantContainer() {}
-
-        VariantContainer(const Variant &p_variant, int p_order, bool p_persist = false) :
-                variant(p_variant),
-                order(p_order),
-                persist(p_persist)
-        {
-        }
-    };
-
-    HashMap<StringName, VariantContainer> props;
+    friend class ProjectSettingsPrivate;
+    HashMap<StringName, SettingsVariantContainer> props;
     String resource_path;
     HashMap<StringName, PropertyInfo> custom_prop_info;
     Vector<String> input_presets;
@@ -125,16 +123,8 @@ protected:
 protected:
     static void _bind_methods();
 public:
-    Error _load_settings_text(StringView p_path);
-    Error _load_settings_binary(StringView p_path);
-    Error _load_settings_text_or_binary(StringView p_text_path, StringView p_bin_path);
-
-    Error _save_settings_text(StringView p_file, const HashMap<String, List<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
-    Error _save_settings_binary(StringView p_file, const HashMap<String, List<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
 
     Error _save_custom_bnd(StringView p_file);
-
-    void _convert_to_last_version(int p_from_version);
 
     bool _load_resource_pack(StringView p_pack, bool p_replace_files = true);
 
@@ -177,7 +167,9 @@ public:
     Error save();
     void set_custom_property_info(const StringName &p_prop, const PropertyInfo &p_info);
     const HashMap<StringName, PropertyInfo> &get_custom_property_info() const;
-    uint64_t get_last_saved_time() { return last_save_time; }
+    uint64_t get_last_saved_time() const { return last_save_time; }
+    // used by some internal settings logic ( after props version upgrade )
+    void set_last_saved_time(uint64_t save_time) { last_save_time = save_time; }
 
     Vector<String> get_optimizer_presets() const;
 

@@ -55,6 +55,285 @@ IMPL_GDCLASS(ProjectSettings)
 const String ProjectSettings::PROJECT_DATA_DIR_NAME_SUFFIX = "import";
 ProjectSettings *ProjectSettings::singleton = nullptr;
 
+namespace {
+
+static Error _save_settings_binary(StringView p_file, const HashMap<String, Vector<String>> &inp_props, const ProjectSettings::CustomMap &p_custom,
+        const String &p_custom_features) {
+    Error err;
+    FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.binary at " + String(p_file) + ".");
+
+    uint8_t hdr[4] = { 'E', 'C', 'F', 'G' };
+    file->store_buffer(hdr, 4);
+
+    int count = 0;
+
+    for (const eastl::pair<const String, Vector<String>> &E : inp_props) {
+        count += E.second.size();
+    }
+
+    if (!p_custom_features.empty()) {
+        file->store_32(count + 1);
+        // store how many properties are saved, add one for custom featuers, which must always go first
+        String key(CoreStringNames::get_singleton()->_custom_features);
+        file->store_pascal_string(key);
+
+        int len;
+        err = encode_variant(p_custom_features, nullptr, len, false);
+        if (err != OK) {
+            memdelete(file);
+            ERR_FAIL_V(err);
+        }
+
+        Vector<uint8_t> buff;
+        buff.resize(len);
+
+        err = encode_variant(p_custom_features, buff.data(), len, false);
+        if (err != OK) {
+            memdelete(file);
+            ERR_FAIL_V(err);
+        }
+        file->store_32(len);
+        file->store_buffer(buff.data(), buff.size());
+
+    } else {
+        file->store_32(count); // store how many properties are saved
+    }
+
+    for (const eastl::pair<const String, Vector<String>> &E : inp_props) {
+        for (String key : E.second) {
+            if (!E.first.empty())
+                key = E.first + "/" + key;
+            Variant value;
+            StringName keyname(key);
+            if (p_custom.contains(keyname))
+                value = p_custom.at(keyname);
+            else
+                value = ProjectSettings::get_singleton()->get(keyname);
+
+            file->store_32(key.length());
+            file->store_string(key);
+
+            int len;
+            err = encode_variant(value, nullptr, len, true);
+            if (err != OK)
+                memdelete(file);
+            ERR_FAIL_COND_V_MSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.");
+
+            Vector<uint8_t> buff;
+            buff.resize(len);
+
+            err = encode_variant(value, buff.data(), len, true);
+            if (err != OK)
+                memdelete(file);
+            ERR_FAIL_COND_V_MSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.");
+            file->store_32(len);
+            file->store_buffer(buff.data(), buff.size());
+        }
+    }
+
+    file->close();
+    memdelete(file);
+
+    return OK;
+}
+
+static Error _save_settings_text(
+        StringView p_file, const HashMap<String, Vector<String>> &props, const ProjectSettings::CustomMap &p_custom, const String &p_custom_features) {
+    Error err;
+    FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
+
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.godot - " + String(p_file) + ".");
+
+    file->store_line("; Engine configuration file.");
+    file->store_line("; It's best edited using the editor UI and not directly,");
+    file->store_line("; since the parameters that go here are not all obvious.");
+    file->store_line(";");
+    file->store_line("; Format:");
+    file->store_line(";   [section] ; section goes between []");
+    file->store_line(";   param=value ; assign values to parameters");
+    file->store_line("");
+
+    file->store_string("config_version=" + itos(ProjectSettings::CONFIG_VERSION) + "\n");
+    if (!p_custom_features.empty())
+        file->store_string("custom_features=\"" + p_custom_features + "\"\n");
+    file->store_string("\n");
+
+    for (auto E = props.begin(); E != props.end(); ++E) {
+        if (E != props.begin())
+            file->store_string("\n");
+
+        if (!E->first.empty())
+            file->store_string("[" + E->first + "]\n\n");
+        for (const String &F : E->second) {
+            String key = F;
+            if (!E->first.empty())
+                key = E->first + "/" + key;
+            Variant value;
+            StringName keyname(key);
+            if (p_custom.contains(keyname))
+                value = p_custom.at(keyname);
+            else
+                value = ProjectSettings::get_singleton()->get(keyname);
+
+            String vstr;
+            VariantWriter::write_to_string(value, vstr);
+            file->store_string(StringUtils::property_name_encode(F) + "=" + vstr + "\n");
+        }
+    }
+
+    file->close();
+    memdelete(file);
+
+    return OK;
+}
+static bool _convert_to_last_version(int p_from_version, HashMap<StringName, SettingsVariantContainer> &props) {
+    if (p_from_version >= ProjectSettings::CONFIG_VERSION) {
+        return false;
+    }
+    bool changed = false;
+    // Converts the actions from array to dictionary (array of events to dictionary with deadzone + events)
+    for (eastl::pair<const StringName, SettingsVariantContainer> &E : props) {
+        Variant value = E.second.variant;
+        if (StringUtils::begins_with(E.first, "input/") && value.get_type() == VariantType::ARRAY) {
+            Array array = value.as<Array>();
+            Dictionary action;
+            action["deadzone"] = Variant(0.5f);
+            action["events"] = array;
+            E.second.variant = action;
+            changed = true;
+        }
+    }
+    return changed;
+}
+static Error _load_settings_text(StringView p_path, HashMap<StringName, SettingsVariantContainer> & props) {
+    ProjectSettings *ps = ProjectSettings::get_singleton();
+    Error err;
+    FileAccessRef f = FileAccess::open(p_path, FileAccess::READ, &err);
+
+    if (!f) {
+        // FIXME: Above 'err' error code is ERR_FILE_CANT_OPEN if the file is missing
+        // This needs to be streamlined if we want decent error reporting
+        return ERR_FILE_NOT_FOUND;
+    }
+
+    VariantParserStream *stream = VariantParser::get_file_stream(f);
+
+    Variant value;
+    VariantParser::Tag next_tag;
+
+    int lines = 0;
+    String error_text;
+    String section;
+    int config_version = 0;
+
+    while (true) {
+        String assign = Variant().as<String>();
+        next_tag.fields.clear();
+        next_tag.name.clear();
+
+        err = VariantParser::parse_tag_assign_eof(stream, lines, error_text, next_tag, assign, value, nullptr, true);
+        if (err == ERR_FILE_EOF) {
+            VariantParser::release_stream(stream);
+            // If we're loading a project.godot from source code, we can operate some
+            // ProjectSettings conversions if need be.
+            _convert_to_last_version(config_version, props);
+            ps->set_last_saved_time(FileAccess::get_modified_time(PathUtils::plus_file(ps->get_resource_path(), "project.godot")));
+            return OK;
+        }
+        if (err != OK) {
+            ERR_PRINTF("Error parsing %s at line %d: %s File might be corrupted.", String(p_path).c_str(), lines, error_text.c_str());
+            VariantParser::release_stream(stream);
+            return err;
+        }
+
+        if (!assign.empty()) {
+            if (section.empty() && assign == "config_version") {
+                config_version = value.as<int>();
+                if (config_version > ProjectSettings::CONFIG_VERSION) {
+                    VariantParser::release_stream(stream);
+                    ERR_FAIL_V_MSG(
+                            ERR_FILE_CANT_OPEN, FormatVE("Can't open project at '%.*s', its `config_version` (%d) is from a more recent and "
+                                                         "incompatible version of the engine. Expected config version: %d.",
+                                                        uint32_t(p_path.length()), p_path.data(), config_version, ProjectSettings::CONFIG_VERSION));
+                }
+            } else {
+                if (section.empty()) {
+                    ps->set(StringName(assign), value);
+                } else {
+                    ps->set(StringName(section + "/" + assign), value);
+                }
+            }
+        } else if (!next_tag.name.empty()) {
+            section = next_tag.name;
+        }
+    }
+}
+
+static Error _load_settings_binary(StringView p_path) {
+    ProjectSettings *ps = ProjectSettings::get_singleton();
+    Error err;
+    FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
+    if (err != OK) {
+        return err;
+    }
+
+    uint8_t hdr[4];
+    f->get_buffer(hdr, 4);
+    if (hdr[0] != 'E' || hdr[1] != 'C' || hdr[2] != 'F' || hdr[3] != 'G') {
+        memdelete(f);
+        ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Corrupted header in binary project.binary (not ECFG).");
+    }
+
+    uint32_t count = f->get_32();
+
+    for (uint32_t i = 0; i < count; i++) {
+        uint32_t slen = f->get_32();
+        CharString cs;
+        cs.resize(slen + 1);
+        cs[slen] = 0;
+        f->get_buffer((uint8_t *)cs.data(), slen);
+        String key(cs.data());
+
+        uint32_t vlen = f->get_32();
+        Vector<uint8_t> d;
+        d.resize(vlen);
+        f->get_buffer(d.data(), vlen);
+        Variant value;
+        err = decode_variant(value, d.data(), d.size(), nullptr, true);
+        ERR_CONTINUE_MSG(err != OK, "Error decoding property: " + key + ".");
+        ps->set(StringName(key), value);
+    }
+
+    f->close();
+    memdelete(f);
+    return OK;
+}
+static Error _load_settings_text_or_binary(StringView p_text_path, StringView p_bin_path, HashMap<StringName, SettingsVariantContainer> &props) {
+    // Attempt first to load the binary project.godot file.
+    Error err = _load_settings_binary(p_bin_path);
+    if (err == OK) {
+        return OK;
+    }
+    if (err != ERR_FILE_NOT_FOUND) {
+        // If the file exists but can't be loaded, we want to know it.
+        ERR_PRINT("Couldn't load file '" + p_bin_path + "', error code " + itos(err) + ".");
+    }
+
+    // Fallback to text-based project.godot file if binary was not found.
+    err = _load_settings_text(p_text_path, props);
+    if (err == OK) {
+        return OK;
+    }
+    if (err != ERR_FILE_NOT_FOUND) {
+        ERR_PRINT("Couldn't load file '" + p_text_path + "', error code " + itos(err) + ".");
+    }
+
+    return err;
+}
+
+} // namespace
+
 ProjectSettings *ProjectSettings::get_singleton() {
     return singleton;
 }
@@ -231,7 +510,7 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
             props[p_name].variant = p_value;
         }
     } else {
-        props[p_name] = VariantContainer(p_value, last_order++);
+        props[p_name] = SettingsVariantContainer(p_value, last_order++);
     }
 
     return true;
@@ -267,8 +546,8 @@ void ProjectSettings::_get_property_list(Vector<PropertyInfo> *p_list) const {
     using namespace StringUtils;
     Set<_VCSort> vclist;
 
-    for (const eastl::pair<const StringName, VariantContainer> &E : props) {
-        const VariantContainer *v = &E.second;
+    for (const eastl::pair<const StringName, SettingsVariantContainer> &E : props) {
+        const SettingsVariantContainer *v = &E.second;
 
         if (v->hide_from_editor) {
             continue;
@@ -279,8 +558,8 @@ void ProjectSettings::_get_property_list(Vector<PropertyInfo> *p_list) const {
         vc.order = v->order;
         vc.type = v->variant.get_type();
         if (begins_with(vc.name, "input/") || begins_with(vc.name, "import/") || begins_with(vc.name, "export/") ||
-                begins_with(vc.name, "/remap") || StringUtils::begins_with(vc.name, "/locale") ||
-                StringUtils::begins_with(vc.name, "/autoload")) {
+                begins_with(vc.name, "/remap") || begins_with(vc.name, "/locale") ||
+                begins_with(vc.name, "/autoload")) {
             vc.flags = PROPERTY_USAGE_STORAGE;
         }
         else {
@@ -293,10 +572,10 @@ void ProjectSettings::_get_property_list(Vector<PropertyInfo> *p_list) const {
         vclist.insert(vc);
     }
 
-    for (auto iter=vclist.begin(),fin=vclist.end(); iter!=fin; ++iter) {
-        _VCSort E(eastl::move(*iter));
+    for (auto & iter : vclist) {
+        _VCSort E(eastl::move(iter));
         StringName prop_info_name = E.name;
-        size_t dot = StringUtils::find(prop_info_name, ".");
+        auto dot = find(prop_info_name, ".");
         if (dot != String::npos) {
             prop_info_name = StringName(StringView(prop_info_name).substr(0, dot));
         }
@@ -328,24 +607,6 @@ bool ProjectSettings::_load_resource_pack(StringView p_pack, bool p_replace_file
     using_datapack = true;
 
     return true;
-}
-
-void ProjectSettings::_convert_to_last_version(int p_from_version) {
-    if (p_from_version > 3) {
-        return;
-    }
-
-    // Converts the actions from array to dictionary (array of events to dictionary with deadzone + events)
-    for (eastl::pair<const StringName, ProjectSettings::VariantContainer> &E : props) {
-        Variant value = E.second.variant;
-        if (StringUtils::begins_with(E.first, "input/") && value.get_type() == VariantType::ARRAY) {
-            Array array = value.as<Array>();
-            Dictionary action;
-            action["deadzone"] = Variant(0.5f);
-            action["events"] = array;
-            E.second.variant = action;
-        }
-    }
 }
 
 /*
@@ -380,10 +641,10 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
     // If looking for files in a network client, use it directly
 
     if (FileAccessNetworkClient::get_singleton()) {
-        Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary");
+        Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary", props);
         if (err == OK && !p_ignore_override) {
             // Optional, we don't mind if it fails
-            _load_settings_text("res://override.cfg");
+            _load_settings_text("res://override.cfg", props);
         }
         return err;
     }
@@ -394,11 +655,11 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
         bool ok = _load_resource_pack(p_main_pack);
         ERR_FAIL_COND_V_MSG(!ok, ERR_CANT_OPEN, "Cannot open resource pack '" + String(p_main_pack) + "'.");
 
-        Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary");
+        Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary", props);
         if (err == OK && !p_ignore_override) {
             // Load override from location of the main pack
             // Optional, we don't mind if it fails
-            _load_settings_text(PathUtils::plus_file(PathUtils::get_base_dir(p_main_pack), "override.cfg"));
+            _load_settings_text(plus_file(get_base_dir(p_main_pack), "override.cfg"), props);
         }
         return err;
     }
@@ -414,9 +675,9 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
         // We need to test both possibilities as extensions for Linux binaries are optional
         // (so both 'mygame.bin' and 'mygame' should be able to find 'mygame.pck').
 
-        String exec_dir = PathUtils::get_base_dir(exec_path);
-        String exec_filename(PathUtils::get_file(exec_path));
-        String exec_basename(PathUtils::get_basename(exec_filename));
+        String exec_dir = get_base_dir(exec_path);
+        String exec_filename(get_file(exec_path));
+        String exec_basename(get_basename(exec_filename));
 
         // Attempt with PCK bundled into executable
         bool found = _load_resource_pack(exec_path);
@@ -444,11 +705,11 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
 
         // If we opened our package, try and load our project
         if (found) {
-            Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary");
+            Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary", props);
             if (err == OK && !p_ignore_override) {
                 // Load override from location of executable
                 // Optional, we don't mind if it fails
-                _load_settings_text(PathUtils::plus_file(PathUtils::get_base_dir(exec_path), "override.cfg"));
+                _load_settings_text(plus_file(get_base_dir(exec_path), "override.cfg"), props);
             }
             return err;
         }
@@ -458,10 +719,10 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
 
     if (!OS::get_singleton()->get_resource_dir().empty()) {
 
-        Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary");
+        Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary",props);
         if (err == OK && !p_ignore_override) {
             // Optional, we don't mind if it fails
-            _load_settings_text("res://override.cfg");
+            _load_settings_text("res://override.cfg", props);
         }
         return err;
     }
@@ -479,11 +740,10 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
     Error err;
 
     while (true) {
-        err = _load_settings_text_or_binary(PathUtils::plus_file(current_dir, "project.godot"),
-                PathUtils::plus_file(current_dir, "project.binary"));
+        err = _load_settings_text_or_binary(plus_file(current_dir, "project.godot"), plus_file(current_dir, "project.binary"), props);
         if (err == OK && !p_ignore_override) {
             // Optional, we don't mind if it fails
-            _load_settings_text(PathUtils::plus_file(current_dir, "override.cfg"));
+            _load_settings_text(plus_file(current_dir, "override.cfg"), props);
             candidate = current_dir;
             found = true;
             break;
@@ -501,7 +761,7 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
     }
 
     resource_path = candidate;
-    resource_path = PathUtils::from_native_path(resource_path); // windows path to unix path just in case
+    resource_path = from_native_path(resource_path); // windows path to unix path just in case
     memdelete(d);
 
     if (!found)
@@ -518,7 +778,7 @@ Error ProjectSettings::setup(StringView p_path, StringView p_main_pack, bool p_u
     if (err == OK) {
         String custom_settings = T_GLOBAL_DEF<String>("application/config/project_settings_override", "");
         if (!custom_settings.empty()) {
-            _load_settings_text(custom_settings);
+            _load_settings_text(custom_settings, props);
         }
     }
     // Updating the default value after the project settings have loaded.
@@ -536,134 +796,6 @@ bool ProjectSettings::has_setting(const StringName &p_var) const {
 
 void ProjectSettings::set_registering_order(bool p_enable) {
     registering_order = p_enable;
-}
-
-Error ProjectSettings::_load_settings_binary(StringView p_path) {
-    Error err;
-    FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
-    if (err != OK) {
-        return err;
-    }
-
-    uint8_t hdr[4];
-    f->get_buffer(hdr, 4);
-    if (hdr[0] != 'E' || hdr[1] != 'C' || hdr[2] != 'F' || hdr[3] != 'G') {
-        memdelete(f);
-        ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Corrupted header in binary project.binary (not ECFG).");
-    }
-
-    uint32_t count = f->get_32();
-
-    for (uint32_t i = 0; i < count; i++) {
-        uint32_t slen = f->get_32();
-        CharString cs;
-        cs.resize(slen + 1);
-        cs[slen] = 0;
-        f->get_buffer((uint8_t *)cs.data(), slen);
-        String key(cs.data());
-
-        uint32_t vlen = f->get_32();
-        Vector<uint8_t> d;
-        d.resize(vlen);
-        f->get_buffer(d.data(), vlen);
-        Variant value;
-        err = decode_variant(value, d.data(), d.size(), nullptr, true);
-        ERR_CONTINUE_MSG(err != OK, "Error decoding property: " + key + ".");
-        set(StringName(key), value);
-    }
-
-    f->close();
-    memdelete(f);
-    return OK;
-}
-
-Error ProjectSettings::_load_settings_text(StringView p_path) {
-    Error err;
-    FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
-
-    if (!f) {
-        // FIXME: Above 'err' error code is ERR_FILE_CANT_OPEN if the file is missing
-        // This needs to be streamlined if we want decent error reporting
-        return ERR_FILE_NOT_FOUND;
-    }
-
-    VariantParserStream *stream = VariantParser::get_file_stream(f);
-
-    String assign;
-    Variant value;
-    VariantParser::Tag next_tag;
-
-    int lines = 0;
-    String error_text;
-    String section;
-    int config_version = 0;
-
-    while (true) {
-        assign = Variant().as<String>();
-        next_tag.fields.clear();
-        next_tag.name.clear();
-
-        err = VariantParser::parse_tag_assign_eof(stream, lines, error_text, next_tag, assign, value, nullptr, true);
-        if (err == ERR_FILE_EOF) {
-            VariantParser::release_stream(stream);
-            memdelete(f);
-            // If we're loading a project.godot from source code, we can operate some
-            // ProjectSettings conversions if need be.
-            _convert_to_last_version(config_version);
-            last_save_time = FileAccess::get_modified_time(PathUtils::plus_file(get_resource_path(),"project.godot"));
-            return OK;
-        } else if (err != OK) {
-            ERR_PRINTF("Error parsing %s at line %d: %s File might be corrupted.", String(p_path).c_str(), lines,
-                    error_text.c_str());
-            VariantParser::release_stream(stream);
-            memdelete(f);
-            return err;
-        }
-
-        if (!assign.empty()) {
-            if (section.empty() && assign == "config_version") {
-                config_version = value.as<int>();
-                if (config_version > CONFIG_VERSION) {
-                    VariantParser::release_stream(stream);
-                    memdelete(f);
-                    ERR_FAIL_V_MSG(ERR_FILE_CANT_OPEN,
-                            FormatVE(
-                                    "Can't open project at '%.*s', its `config_version` (%d) is from a more recent and "
-                                    "incompatible version of the engine. Expected config version: %d.",
-                                    uint32_t(p_path.length()), p_path.data(), config_version, CONFIG_VERSION));
-                }
-            } else {
-                if (section.empty()) {
-                    set(StringName(assign), value);
-                } else {
-                    set(StringName(section + "/" + assign), value);
-                }
-            }
-        } else if (!next_tag.name.empty()) {
-            section = next_tag.name;
-        }
-    }
-}
-
-Error ProjectSettings::_load_settings_text_or_binary(StringView p_text_path, StringView p_bin_path) {
-    // Attempt first to load the binary project.godot file.
-    Error err = _load_settings_binary(p_bin_path);
-    if (err == OK) {
-        return OK;
-    } else if (err != ERR_FILE_NOT_FOUND) {
-        // If the file exists but can't be loaded, we want to know it.
-        ERR_PRINT("Couldn't load file '" + p_bin_path + "', error code " + itos(err) + ".");
-    }
-
-    // Fallback to text-based project.godot file if binary was not found.
-    err = _load_settings_text(p_text_path);
-    if (err == OK) {
-        return OK;
-    } else if (err != ERR_FILE_NOT_FOUND) {
-        ERR_PRINT("Couldn't load file '" + p_text_path + "', error code " + itos(err) + ".");
-    }
-
-    return err;
 }
 
 int ProjectSettings::get_order(const StringName &p_name) const {
@@ -698,137 +830,6 @@ Error ProjectSettings::save() {
     return error;
 }
 
-Error ProjectSettings::_save_settings_binary(StringView p_file, const HashMap<String, List<String>> &inp_props,
-        const CustomMap &p_custom, const String &p_custom_features) {
-    Error err;
-    FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.binary at " + String(p_file) + ".");
-
-    uint8_t hdr[4] = { 'E', 'C', 'F', 'G' };
-    file->store_buffer(hdr, 4);
-
-    int count = 0;
-
-    for (const eastl::pair<const String, List<String>> &E : inp_props) {
-        count += E.second.size();
-    }
-
-    if (!p_custom_features.empty()) {
-        file->store_32(count + 1);
-        // store how many properties are saved, add one for custom featuers, which must always go first
-        String key(CoreStringNames::get_singleton()->_custom_features);
-        file->store_pascal_string(key);
-
-        int len;
-        err = encode_variant(p_custom_features, nullptr, len, false);
-        if (err != OK) {
-            memdelete(file);
-            ERR_FAIL_V(err);
-        }
-
-        Vector<uint8_t> buff;
-        buff.resize(len);
-
-        err = encode_variant(p_custom_features, buff.data(), len, false);
-        if (err != OK) {
-            memdelete(file);
-            ERR_FAIL_V(err);
-        }
-        file->store_32(len);
-        file->store_buffer(buff.data(), buff.size());
-
-    } else {
-        file->store_32(count); // store how many properties are saved
-    }
-
-    for (const eastl::pair<const String, List<String>> &E : inp_props) {
-        for (String key : E.second) {
-            if (!E.first.empty())
-                key = E.first + "/" + key;
-            Variant value;
-            StringName keyname(key);
-            if (p_custom.contains(keyname))
-                value = p_custom.at(keyname);
-            else
-                value = get(keyname);
-
-            file->store_32(key.length());
-            file->store_string(key);
-
-            int len;
-            err = encode_variant(value, nullptr, len, true);
-            if (err != OK)
-                memdelete(file);
-            ERR_FAIL_COND_V_MSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.");
-
-            Vector<uint8_t> buff;
-            buff.resize(len);
-
-            err = encode_variant(value, buff.data(), len, true);
-            if (err != OK)
-                memdelete(file);
-            ERR_FAIL_COND_V_MSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.");
-            file->store_32(len);
-            file->store_buffer(buff.data(), buff.size());
-        }
-    }
-
-    file->close();
-    memdelete(file);
-
-    return OK;
-}
-
-Error ProjectSettings::_save_settings_text(StringView p_file, const HashMap<String, List<String>> &props,
-        const CustomMap &p_custom, const String &p_custom_features) {
-    Error err;
-    FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
-
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.godot - " + String(p_file) + ".");
-
-    file->store_line("; Engine configuration file.");
-    file->store_line("; It's best edited using the editor UI and not directly,");
-    file->store_line("; since the parameters that go here are not all obvious.");
-    file->store_line(";");
-    file->store_line("; Format:");
-    file->store_line(";   [section] ; section goes between []");
-    file->store_line(";   param=value ; assign values to parameters");
-    file->store_line("");
-
-    file->store_string("config_version=" + itos(CONFIG_VERSION) + "\n");
-    if (!p_custom_features.empty())
-        file->store_string("custom_features=\"" + p_custom_features + "\"\n");
-    file->store_string("\n");
-
-    for (HashMap<String, List<String>>::const_iterator E = props.begin(); E != props.end(); ++E) {
-        if (E != props.begin())
-            file->store_string("\n");
-
-        if (!E->first.empty())
-            file->store_string("[" + E->first + "]\n\n");
-        for (const String &F : E->second) {
-            String key = F;
-            if (!E->first.empty())
-                key = E->first + "/" + key;
-            Variant value;
-            StringName keyname(key);
-            if (p_custom.contains(keyname))
-                value = p_custom.at(keyname);
-            else
-                value = get(keyname);
-
-            String vstr;
-            VariantWriter::write_to_string(value, vstr);
-            file->store_string(StringUtils::property_name_encode(F) + "=" + vstr + "\n");
-        }
-    }
-
-    file->close();
-    memdelete(file);
-
-    return OK;
-}
-
 Error ProjectSettings::_save_custom_bnd(StringView p_file) { // add other params as dictionary and array?
 
     return save_custom(p_file);
@@ -841,8 +842,8 @@ Error ProjectSettings::save_custom(StringView p_path, const CustomMap &p_custom,
     Set<_VCSort> vclist;
 
     if (p_merge_with_current) {
-        for (eastl::pair<const StringName, VariantContainer> &G : props) {
-            const VariantContainer *v = &G.second;
+        for (eastl::pair<const StringName, SettingsVariantContainer> &G : props) {
+            const SettingsVariantContainer *v = &G.second;
 
             if (v->hide_from_editor)
                 continue;
@@ -864,7 +865,7 @@ Error ProjectSettings::save_custom(StringView p_path, const CustomMap &p_custom,
 
     for (const eastl::pair<const StringName, Variant> &E : p_custom) {
         // Lookup global prop to store in the same order
-        HashMap<StringName, VariantContainer>::iterator global_prop = props.find(E.first);
+        HashMap<StringName, SettingsVariantContainer>::iterator global_prop = props.find(E.first);
 
         _VCSort vc;
         vc.name = E.first;
@@ -874,7 +875,7 @@ Error ProjectSettings::save_custom(StringView p_path, const CustomMap &p_custom,
         vclist.insert(vc);
     }
 
-    HashMap<String, List<String>> props;
+    HashMap<String, Vector<String>> props;
 
     for (const _VCSort &E : vclist) {
         String category = E.name.asCString();
@@ -903,11 +904,12 @@ Error ProjectSettings::save_custom(StringView p_path, const CustomMap &p_custom,
 
     if (p_path.ends_with(".godot") || p_path.ends_with("override.cfg")) {
         return _save_settings_text(p_path, props, p_custom, custom_features);
-    } else if (p_path.ends_with(".binary")) {
-        return _save_settings_binary(p_path, props, p_custom, custom_features);
-    } else {
-        ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Unknown config file format: " + p_path + ".");
     }
+    if (p_path.ends_with(".binary")) {
+        return _save_settings_binary(p_path, props, p_custom, custom_features);
+    }
+
+    ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Unknown config file format: " + p_path + ".");
 }
 
 Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_restart_if_changed, bool p_ignore_value_in_docs) {
@@ -925,7 +927,7 @@ Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_re
 }
 Vector<String> ProjectSettings::get_optimizer_presets() const {
     Vector<PropertyInfo> pi;
-    ProjectSettings::get_singleton()->get_property_list(&pi);
+    get_singleton()->get_property_list(&pi);
     Vector<String> names;
 
     for (const PropertyInfo &E : pi) {
@@ -933,7 +935,7 @@ Vector<String> ProjectSettings::get_optimizer_presets() const {
             continue;
         names.emplace_back(StringUtils::get_slice(E.name, '/', 1));
     }
-    eastl::sort(names.begin(), names.end());
+    sort(names.begin(), names.end());
 
     return names;
 }
@@ -945,11 +947,11 @@ void ProjectSettings::_add_property_info_bind(const Dictionary &p_info) {
     PropertyInfo pinfo;
     pinfo.name = p_info["name"].as<StringName>();
     ERR_FAIL_COND(!props.contains(pinfo.name));
-    pinfo.type = VariantType(p_info["type"].as<int>());
+    pinfo.type = p_info["type"].as<VariantType>();
     ERR_FAIL_INDEX(int(pinfo.type), int(VariantType::VARIANT_MAX));
 
     if (p_info.has("hint"))
-        pinfo.hint = PropertyHint(p_info["hint"].as<int>());
+        pinfo.hint = p_info["hint"].as<PropertyHint>();
     if (p_info.has("hint_string"))
         pinfo.hint_string = p_info["hint_string"].as<String>();
 
@@ -1012,17 +1014,17 @@ void ProjectSettings::_bind_methods() {
     SE_BIND_METHOD(ProjectSettings,set_order);
     SE_BIND_METHOD(ProjectSettings,get_order);
     SE_BIND_METHOD(ProjectSettings,set_initial_value);
-    MethodBinder::bind_method(D_METHOD("add_property_info", { "hint" }), &ProjectSettings::_add_property_info_bind);
+    SE_BIND_METHOD_WRAPPER(ProjectSettings, add_property_info, _add_property_info_bind);
     SE_BIND_METHOD(ProjectSettings,clear);
     SE_BIND_METHOD(ProjectSettings,localize_path);
     SE_BIND_METHOD(ProjectSettings,globalize_path);
     SE_BIND_METHOD(ProjectSettings,save);
-    MethodBinder::bind_method(D_METHOD("load_resource_pack", { "pack", "replace_files" }),
-            &ProjectSettings::_load_resource_pack, { Variant(true) });
+    MethodBinder::bind_method(D_METHOD("load_resource_pack", { "pack", "replace_files" }), &ProjectSettings::_load_resource_pack, { Variant(true) });
     SE_BIND_METHOD(ProjectSettings,property_can_revert);
     SE_BIND_METHOD(ProjectSettings,property_get_revert);
 
-    MethodBinder::bind_method(D_METHOD("save_custom", { "file" }), &ProjectSettings::_save_custom_bnd);
+    SE_BIND_METHOD_WRAPPER(ProjectSettings, save_custom,_save_custom_bnd);
+
     ADD_SIGNAL(MethodInfo("project_settings_changed"));
 }
 static void add_key_event(Array &tgt, KeyList entry) {
@@ -1055,20 +1057,20 @@ ProjectSettings::ProjectSettings() {
     GLOBAL_DEF("application/config/custom_user_dir_name", "");
     GLOBAL_DEF("application/config/project_settings_override", "");
     GLOBAL_DEF("display/window/size/width", 1024);
-    get_singleton()->set_custom_property_info("display/window/size/width",
+    set_custom_property_info("display/window/size/width",
     PropertyInfo(VariantType::INT, "display/window/size/width", PropertyHint::Range, "0,7680,1,or_greater")); // 8K resolution
     GLOBAL_DEF("display/window/size/height", 600);
-    get_singleton()->set_custom_property_info("display/window/size/height",
+    set_custom_property_info("display/window/size/height",
         PropertyInfo(VariantType::INT, "display/window/size/height", PropertyHint::Range, "0,4320,1,or_greater")); // 8K resolution
     GLOBAL_DEF("display/window/size/resizable", true);
     GLOBAL_DEF("display/window/size/borderless", false);
     GLOBAL_DEF("display/window/size/fullscreen", false);
     GLOBAL_DEF("display/window/size/always_on_top", false);
     GLOBAL_DEF("display/window/size/test_width", 0);
-    get_singleton()->set_custom_property_info("display/window/size/test_width",
+    set_custom_property_info("display/window/size/test_width",
             PropertyInfo(VariantType::INT, "display/window/size/test_width", PropertyHint::Range, "0,7680,1,or_greater")); // 8K resolution
     GLOBAL_DEF("display/window/size/test_height", 0);
-    get_singleton()->set_custom_property_info("display/window/size/test_height",
+    set_custom_property_info("display/window/size/test_height",
             PropertyInfo(VariantType::INT, "display/window/size/test_height", PropertyHint::Range, "0,4320,1,or_greater")); // 8K resolution
     GLOBAL_DEF("audio/default_bus_layout", "res://default_bus_layout.tres");
     custom_prop_info[StaticCString("audio/default_bus_layout")] = PropertyInfo(VariantType::STRING, "audio/default_bus_layout", PropertyHint::File, "*.tres");
@@ -1084,7 +1086,7 @@ ProjectSettings::ProjectSettings() {
     extensions.push_back("shader");
     GLOBAL_DEF("editor/main_run_args", "");
     GLOBAL_DEF("editor/scene_naming", 0); // Sync enum values with EditorNode.
-    ProjectSettings::get_singleton()->set_custom_property_info(
+    set_custom_property_info(
             "editor/scene_naming", PropertyInfo(VariantType::INT, "editor/scene_naming", PropertyHint::Enum, "Auto,PascalCase,snake_case"));
 
     GLOBAL_DEF("editor/search_in_file_extensions", extensions);
@@ -1104,7 +1106,7 @@ ProjectSettings::ProjectSettings() {
     add_key_event(events, KEY_KP_ENTER);
     add_key_event(events, KEY_SPACE);
 
-    Ref<InputEventJoypadButton> joyb(make_ref_counted<InputEventJoypadButton>());
+    Ref joyb(make_ref_counted<InputEventJoypadButton>());
     joyb->set_button_index(JOY_BUTTON_0);
     events.emplace_back(joyb);
     action["events"] = events;
