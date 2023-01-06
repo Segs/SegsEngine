@@ -1543,64 +1543,6 @@ real_t Geometry::get_closest_points_between_segments(Vector2 p1, Vector2 q1, Vec
     return Math::sqrt((c1 - c2).dot(c1 - c2));
 }
 
-real_t get_closest_points_between_segments(Vector2 p1, Vector2 q1, Vector2 p2, Vector2 q2, Vector2 &c1, Vector2 &c2) {
-
-    const Vector2 d1 = q1 - p1; // Direction vector of segment S1.
-    const Vector2 d2 = q2 - p2; // Direction vector of segment S2.
-    const Vector2 r = p1 - p2;
-    real_t a = d1.dot(d1); // Squared length of segment S1, always nonnegative.
-    real_t e = d2.dot(d2); // Squared length of segment S2, always nonnegative.
-    real_t f = d2.dot(r);
-    real_t s, t;
-    // Check if either or both segments degenerate into points.
-    if (a <= CMP_EPSILON && e <= CMP_EPSILON) {
-        // Both segments degenerate into points.
-        c1 = p1;
-        c2 = p2;
-        return Math::sqrt((c1 - c2).dot(c1 - c2));
-    }
-    if (a <= CMP_EPSILON) {
-        // First segment degenerates into a point.
-        s = 0.0;
-        t = f / e; // s = 0 => t = (b*s + f) / e = f / e
-        t = CLAMP(t, 0.0f, 1.0f);
-    } else {
-        real_t c = d1.dot(r);
-        if (e <= CMP_EPSILON) {
-            // Second segment degenerates into a point.
-            t = 0.0;
-            s = CLAMP(-c / a, 0.0f, 1.0f); // t = 0 => s = (b*t - c) / a = -c / a
-        } else {
-            // The general nondegenerate case starts here.
-            real_t b = d1.dot(d2);
-            real_t denom = a * e - b * b; // Always nonnegative.
-            // If segments not parallel, compute closest point on L1 to L2 and
-            // clamp to segment S1. Else pick arbitrary s (here 0).
-            if (denom != 0.0f) {
-                s = CLAMP((b * f - c * e) / denom, 0.0f, 1.0f);
-            } else
-                s = 0.0;
-            // Compute point on L2 closest to S1(s) using
-            // t = Dot((P1 + D1*s) - P2,D2) / Dot(D2,D2) = (b*s + f) / e
-            t = (b * s + f) / e;
-
-            //If t in [0,1] done. Else clamp t, recompute s for the new value
-            // of t using s = Dot((P2 + D2*t) - P1,D1) / Dot(D1,D1)= (t*b - c) / a
-            // and clamp s to [0, 1].
-            if (t < 0.0f) {
-                t = 0.0;
-                s = CLAMP(-c / a, 0.0f, 1.0f);
-            } else if (t > 1.0f) {
-                t = 1.0;
-                s = CLAMP((b - c) / a, 0.0f, 1.0f);
-            }
-        }
-    }
-    c1 = p1 + d1 * s;
-    c2 = p2 + d2 * t;
-    return Math::sqrt((c1 - c2).dot(c1 - c2));
-}
-
 bool Geometry::ray_intersects_triangle(
         const Vector3 &p_from, const Vector3 &p_dir, const Vector3 &p_v0, const Vector3 &p_v1, const Vector3 &p_v2, Vector3 *r_res) {
     Vector3 e1 = p_v1 - p_v0;
